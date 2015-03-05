@@ -70,7 +70,7 @@ typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
 #endif
 
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
+enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define GNUTLS_NEW_CERT_CALLBACK_API
@@ -657,7 +657,6 @@ class GnuTLSIOHook : public SSLIOHook
 			{
 				user->SetError("Handshake Failed - " + std::string(gnutls_strerror(ret)));
 				CloseSession();
-				this->status = ISSL_CLOSING;
 				return -1;
 			}
 		}
@@ -891,8 +890,6 @@ info_done_dealloc:
 		}
 
 		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
-
-		if (this->status == ISSL_HANDSHAKEN)
 		{
 			GnuTLS::DataReader reader(sess);
 			int ret = reader.ret();
@@ -918,10 +915,6 @@ info_done_dealloc:
 				return -1;
 			}
 		}
-		else if (this->status == ISSL_CLOSING)
-			return -1;
-
-		return 0;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq) CXX11_OVERRIDE
@@ -941,9 +934,9 @@ info_done_dealloc:
 				return ret;
 		}
 
+		// Session is ready for transferring application data
 		int ret = 0;
 
-		if (this->status == ISSL_HANDSHAKEN)
 		{
 			ret = gnutls_record_send(this->sess, sendq.data(), sendq.length());
 
@@ -970,8 +963,6 @@ info_done_dealloc:
 				return -1;
 			}
 		}
-
-		return 0;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)

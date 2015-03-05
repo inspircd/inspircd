@@ -546,8 +546,6 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 
 		// If we resumed the handshake then this->status will be ISSL_OPEN
-
-		if (status == ISSL_OPEN)
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
@@ -573,7 +571,7 @@ class OpenSSLIOHook : public SSLIOHook
 				user->SetError("Connection closed");
 				return -1;
 			}
-			else if (ret < 0)
+			else // if (ret < 0)
 			{
 				int err = SSL_get_error(sess, ret);
 
@@ -594,8 +592,6 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
-
-		return 0;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
@@ -615,7 +611,7 @@ class OpenSSLIOHook : public SSLIOHook
 				return ret;
 		}
 
-		if (status == ISSL_OPEN)
+		// Session is ready for transferring application data
 		{
 			ERR_clear_error();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
@@ -642,7 +638,7 @@ class OpenSSLIOHook : public SSLIOHook
 				CloseSession();
 				return -1;
 			}
-			else if (ret < 0)
+			else // if (ret < 0)
 			{
 				int err = SSL_get_error(sess, ret);
 
@@ -663,7 +659,6 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
-		return 0;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
