@@ -196,9 +196,18 @@ namespace OpenSSL
 			return SSL_CTX_clear_options(ctx, clearoptions);
 		}
 
-		SSL* CreateSession()
+		SSL* CreateServerSession()
 		{
-			return SSL_new(ctx);
+			SSL* sess = SSL_new(ctx);
+			SSL_set_accept_state(sess); // Act as server
+			return sess;
+		}
+
+		SSL* CreateClientSession()
+		{
+			SSL* sess = SSL_new(ctx);
+			SSL_set_connect_state(sess); // Act as client
+			return sess;
 		}
 	};
 
@@ -324,8 +333,8 @@ namespace OpenSSL
 		}
 
 		const std::string& GetName() const { return name; }
-		SSL* CreateServerSession() { return ctx.CreateSession(); }
-		SSL* CreateClientSession() { return clictx.CreateSession(); }
+		SSL* CreateServerSession() { return ctx.CreateServerSession(); }
+		SSL* CreateClientSession() { return clictx.CreateClientSession(); }
 		const EVP_MD* GetDigest() { return digest; }
 		bool AllowRenegotiation() const { return allowrenego; }
 	};
@@ -357,14 +366,8 @@ class OpenSSLIOHook : public SSLIOHook
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
 	int Handshake(StreamSocket* user)
 	{
-		int ret;
-
 		ERR_clear_error();
-		if (outbound)
-			ret = SSL_connect(sess);
-		else
-			ret = SSL_accept(sess);
-
+		int ret = SSL_do_handshake(sess);
 		if (ret < 0)
 		{
 			int err = SSL_get_error(sess, ret);
