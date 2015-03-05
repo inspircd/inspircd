@@ -870,13 +870,13 @@ info_done_dealloc:
 	}
 
  public:
-	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool outbound, const reference<GnuTLS::Profile>& sslprofile)
+	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags, const reference<GnuTLS::Profile>& sslprofile)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
 		, status(ISSL_NONE)
 		, profile(sslprofile)
 	{
-		gnutls_init(&sess, outbound ? GNUTLS_SERVER : GNUTLS_CLIENT);
+		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
 		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
 		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
@@ -1027,12 +1027,12 @@ class GnuTLSIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, true, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_SERVER, profile);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, false, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT, profile);
 	}
 };
 
