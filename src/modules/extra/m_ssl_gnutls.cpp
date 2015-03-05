@@ -628,7 +628,8 @@ class GnuTLSIOHook : public SSLIOHook
 		status = ISSL_NONE;
 	}
 
-	bool Handshake(StreamSocket* user)
+	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
+	int Handshake(StreamSocket* user)
 	{
 		int ret = gnutls_handshake(this->sess);
 
@@ -649,15 +650,16 @@ class GnuTLSIOHook : public SSLIOHook
 					// gnutls_handshake() wants to write() again.
 					SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				}
+
+				return 0;
 			}
 			else
 			{
 				user->SetError("Handshake Failed - " + std::string(gnutls_strerror(ret)));
 				CloseSession();
 				this->status = ISSL_CLOSING;
+				return -1;
 			}
-
-			return false;
 		}
 		else
 		{
@@ -669,7 +671,7 @@ class GnuTLSIOHook : public SSLIOHook
 			// Finish writing, if any left
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
-			return true;
+			return 1;
 		}
 	}
 
@@ -883,13 +885,9 @@ info_done_dealloc:
 		if (this->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
-
-			if (!Handshake(user))
-			{
-				if (this->status != ISSL_CLOSING)
-					return 0;
-				return -1;
-			}
+			int ret = Handshake(user);
+			if (ret <= 0)
+				return ret;
 		}
 
 		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
@@ -938,10 +936,9 @@ info_done_dealloc:
 		if (this->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
-			Handshake(user);
-			if (this->status != ISSL_CLOSING)
-				return 0;
-			return -1;
+			int ret = Handshake(user);
+			if (ret <= 0)
+				return ret;
 		}
 
 		int ret = 0;

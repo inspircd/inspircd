@@ -354,7 +354,8 @@ class OpenSSLIOHook : public SSLIOHook
 	bool data_to_write;
 	reference<OpenSSL::Profile> profile;
 
-	bool Handshake(StreamSocket* user)
+	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
+	int Handshake(StreamSocket* user)
 	{
 		int ret;
 
@@ -372,20 +373,19 @@ class OpenSSLIOHook : public SSLIOHook
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				this->status = ISSL_HANDSHAKING;
-				return true;
+				return 0;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				this->status = ISSL_HANDSHAKING;
-				return true;
+				return 0;
 			}
 			else
 			{
 				CloseSession();
+				return -1;
 			}
-
-			return false;
 		}
 		else if (ret > 0)
 		{
@@ -396,13 +396,13 @@ class OpenSSLIOHook : public SSLIOHook
 
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
-			return true;
+			return 1;
 		}
 		else if (ret == 0)
 		{
 			CloseSession();
 		}
-		return false;
+		return -1;
 	}
 
 	void CloseSession()
@@ -540,13 +540,9 @@ class OpenSSLIOHook : public SSLIOHook
 		if (status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished and it wants to read, try to finish it.
-			if (!Handshake(user))
-			{
-				// Couldn't resume handshake.
-				if (status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
+			int ret = Handshake(user);
+			if (ret <= 0)
+				return ret;
 		}
 
 		// If we resumed the handshake then this->status will be ISSL_OPEN
@@ -614,13 +610,9 @@ class OpenSSLIOHook : public SSLIOHook
 
 		if (status == ISSL_HANDSHAKING)
 		{
-			if (!Handshake(user))
-			{
-				// Couldn't resume handshake.
-				if (status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
+			int ret = Handshake(user);
+			if (ret <= 0)
+				return ret;
 		}
 
 		if (status == ISSL_OPEN)
