@@ -588,6 +588,9 @@ namespace GnuTLS
 			priority.SetupSession(sess);
 			x509cred.SetupSession(sess);
 			gnutls_dh_set_prime_bits(sess, min_dh_bits);
+
+			// Request client certificate if we are a server, no-op if we're a client
+			gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST);
 		}
 
 		const std::string& GetName() const { return name; }
@@ -602,19 +605,6 @@ class GnuTLSIOHook : public SSLIOHook
 	gnutls_session_t sess;
 	issl_status status;
 	reference<GnuTLS::Profile> profile;
-
-	void InitSession(StreamSocket* user, bool me_server)
-	{
-		gnutls_init(&sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
-
-		profile->SetupSession(sess);
-		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
-		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
-		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
-
-		if (me_server)
-			gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
-	}
 
 	void CloseSession()
 	{
@@ -878,7 +868,12 @@ info_done_dealloc:
 		, status(ISSL_NONE)
 		, profile(sslprofile)
 	{
-		InitSession(sock, outbound);
+		gnutls_init(&sess, outbound ? GNUTLS_SERVER : GNUTLS_CLIENT);
+		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
+		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
+		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
+		profile->SetupSession(sess);
+
 		sock->AddIOHook(this);
 		Handshake(sock);
 	}
