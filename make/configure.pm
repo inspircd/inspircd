@@ -167,7 +167,7 @@ FLAGS
                                 will search for c++, g++, clang++ or icpc.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
-at irc.ChatSpike.net #InspIRCd.
+at irc.inspircd.org #InspIRCd for support.
 
 EOH
 	exit 0;
