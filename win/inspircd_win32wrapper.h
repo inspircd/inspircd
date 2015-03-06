@@ -199,8 +199,6 @@ CoreExport void closedir(DIR * handle);
 void * ::operator new(size_t iSize);
 void ::operator delete(void * ptr);
 
-#define DISABLE_WRITEV
-
 #include <exception>
 
 class CWin32Exception : public std::exception
@@ -218,3 +216,27 @@ private:
 
 // Same value as EXIT_STATUS_FORK (EXIT_STATUS_FORK is unused on Windows)
 #define EXIT_STATUS_SERVICE 4
+
+// POSIX iovec
+struct iovec
+{
+	void* iov_base; // Starting address
+	size_t iov_len; // Number of bytes to transfer
+};
+
+// Windows WSABUF with POSIX field names
+struct WindowsIOVec
+{
+	// POSIX iovec has iov_base then iov_len, WSABUF in Windows has the fields in reverse order
+	u_long iov_len; // Number of bytes to transfer
+	char FAR* iov_base; // Starting address
+};
+
+inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
+{
+	DWORD sent;
+	int ret = WSASend(fd, reinterpret_cast<LPWSABUF>(const_cast<WindowsIOVec*>(iov)), count, &sent, 0, NULL, NULL);
+	if (ret == 0)
+		return sent;
+	return -1;
+}

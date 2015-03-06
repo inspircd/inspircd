@@ -25,14 +25,6 @@
 #include "inspircd.h"
 #include "iohook.h"
 
-#ifndef DISABLE_WRITEV
-#include <sys/uio.h>
-#endif
-
-#ifndef IOV_MAX
-#define IOV_MAX 1024
-#endif
-
 BufferedSocket::BufferedSocket()
 {
 	Timeout = NULL;
@@ -225,9 +217,7 @@ void StreamSocket::DoWrite()
 		return;
 	}
 
-#ifndef DISABLE_WRITEV
 	if (GetIOHook())
-#endif
 	{
 		int rv = -1;
 		try
@@ -254,7 +244,7 @@ void StreamSocket::DoWrite()
 				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
-				if (GetIOHook())
+
 				{
 					rv = GetIOHook()->OnStreamSocketWrite(this, front);
 					if (rv > 0)
@@ -278,39 +268,6 @@ void StreamSocket::DoWrite()
 						return;
 					}
 				}
-#ifdef DISABLE_WRITEV
-				else
-				{
-					rv = SocketEngine::Send(this, front.data(), itemlen, 0);
-					if (rv == 0)
-					{
-						SetError("Connection closed");
-						return;
-					}
-					else if (rv < 0)
-					{
-						if (errno == EINTR || SocketEngine::IgnoreError())
-							SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						else
-							SetError(SocketEngine::LastError());
-						return;
-					}
-					else if (rv < itemlen)
-					{
-						SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						front.erase(0, rv);
-						sendq_len -= rv;
-						return;
-					}
-					else
-					{
-						sendq_len -= itemlen;
-						sendq.pop_front();
-						if (sendq.empty())
-							SocketEngine::ChangeEventMask(this, FD_WANT_EDGE_WRITE);
-					}
-				}
-#endif
 			}
 		}
 		catch (CoreException& modexcept)
@@ -319,7 +276,6 @@ void StreamSocket::DoWrite()
 				modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 		}
 	}
-#ifndef DISABLE_WRITEV
 	else
 	{
 		// don't even try if we are known to be blocking
@@ -341,14 +297,14 @@ void StreamSocket::DoWrite()
 			int rv_max = 0;
 			int rv;
 			{
-				iovec iovecs[MYIOV_MAX];
+				SocketEngine::IOVector iovecs[MYIOV_MAX];
 				for (int i = 0; i < bufcount; i++)
 				{
 					iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
 					iovecs[i].iov_len = sendq[i].length();
 					rv_max += sendq[i].length();
 				}
-				rv = writev(fd, iovecs, bufcount);
+				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
 			if (rv == (int)sendq_len)
@@ -412,7 +368,6 @@ void StreamSocket::DoWrite()
 			SocketEngine::ChangeEventMask(this, eventChange);
 		}
 	}
-#endif
 }
 
 void StreamSocket::WriteData(const std::string &data)
