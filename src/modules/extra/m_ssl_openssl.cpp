@@ -196,9 +196,18 @@ namespace OpenSSL
 			return SSL_CTX_clear_options(ctx, clearoptions);
 		}
 
-		SSL* CreateSession()
+		SSL* CreateServerSession()
 		{
-			return SSL_new(ctx);
+			SSL* sess = SSL_new(ctx);
+			SSL_set_accept_state(sess); // Act as server
+			return sess;
+		}
+
+		SSL* CreateClientSession()
+		{
+			SSL* sess = SSL_new(ctx);
+			SSL_set_connect_state(sess); // Act as client
+			return sess;
 		}
 	};
 
@@ -324,8 +333,8 @@ namespace OpenSSL
 		}
 
 		const std::string& GetName() const { return name; }
-		SSL* CreateServerSession() { return ctx.CreateSession(); }
-		SSL* CreateClientSession() { return clictx.CreateSession(); }
+		SSL* CreateServerSession() { return ctx.CreateServerSession(); }
+		SSL* CreateClientSession() { return clictx.CreateClientSession(); }
 		const EVP_MD* GetDigest() { return digest; }
 		bool AllowRenegotiation() const { return allowrenego; }
 	};
@@ -350,20 +359,14 @@ class OpenSSLIOHook : public SSLIOHook
  private:
 	SSL* sess;
 	issl_status status;
-	const bool outbound;
 	bool data_to_write;
 	reference<OpenSSL::Profile> profile;
 
-	bool Handshake(StreamSocket* user)
+	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
+	int Handshake(StreamSocket* user)
 	{
-		int ret;
-
 		ERR_clear_error();
-		if (outbound)
-			ret = SSL_connect(sess);
-		else
-			ret = SSL_accept(sess);
-
+		int ret = SSL_do_handshake(sess);
 		if (ret < 0)
 		{
 			int err = SSL_get_error(sess, ret);
@@ -372,20 +375,19 @@ class OpenSSLIOHook : public SSLIOHook
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				this->status = ISSL_HANDSHAKING;
-				return true;
+				return 0;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				this->status = ISSL_HANDSHAKING;
-				return true;
+				return 0;
 			}
 			else
 			{
 				CloseSession();
+				return -1;
 			}
-
-			return false;
 		}
 		else if (ret > 0)
 		{
@@ -396,13 +398,13 @@ class OpenSSLIOHook : public SSLIOHook
 
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
-			return true;
+			return 1;
 		}
 		else if (ret == 0)
 		{
 			CloseSession();
 		}
-		return false;
+		return -1;
 	}
 
 	void CloseSession()
@@ -502,15 +504,29 @@ class OpenSSLIOHook : public SSLIOHook
 	}
 #endif
 
+	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
+	int PrepareIO(StreamSocket* sock)
+	{
+		if (status == ISSL_OPEN)
+			return 1;
+		else if (status == ISSL_HANDSHAKING)
+		{
+			// The handshake isn't finished, try to finish it
+			return Handshake(sock);
+		}
+
+		CloseSession();
+		return -1;
+	}
+
 	// Calls our private SSLInfoCallback()
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
  public:
-	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool is_outbound, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
+	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
 		: SSLIOHook(hookprov)
 		, sess(session)
 		, status(ISSL_NONE)
-		, outbound(is_outbound)
 		, data_to_write(false)
 		, profile(sslprofile)
 	{
@@ -531,27 +547,12 @@ class OpenSSLIOHook : public SSLIOHook
 
 	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
-		if (!sess)
-		{
-			CloseSession();
-			return -1;
-		}
-
-		if (status == ISSL_HANDSHAKING)
-		{
-			// The handshake isn't finished and it wants to read, try to finish it.
-			if (!Handshake(user))
-			{
-				// Couldn't resume handshake.
-				if (status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		// If we resumed the handshake then this->status will be ISSL_OPEN
-
-		if (status == ISSL_OPEN)
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
@@ -577,7 +578,7 @@ class OpenSSLIOHook : public SSLIOHook
 				user->SetError("Connection closed");
 				return -1;
 			}
-			else if (ret < 0)
+			else // if (ret < 0)
 			{
 				int err = SSL_get_error(sess, ret);
 
@@ -598,32 +599,18 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
-
-		return 0;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
 	{
-		if (!sess)
-		{
-			CloseSession();
-			return -1;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		data_to_write = true;
 
-		if (status == ISSL_HANDSHAKING)
-		{
-			if (!Handshake(user))
-			{
-				// Couldn't resume handshake.
-				if (status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
-		}
-
-		if (status == ISSL_OPEN)
+		// Session is ready for transferring application data
 		{
 			ERR_clear_error();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
@@ -650,7 +637,7 @@ class OpenSSLIOHook : public SSLIOHook
 				CloseSession();
 				return -1;
 			}
-			else if (ret < 0)
+			else // if (ret < 0)
 			{
 				int err = SSL_get_error(sess, ret);
 
@@ -671,7 +658,6 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
-		return 0;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
@@ -723,12 +709,12 @@ class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, false, profile->CreateServerSession(), profile);
+		new OpenSSLIOHook(this, sock, profile->CreateServerSession(), profile);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, true, profile->CreateClientSession(), profile);
+		new OpenSSLIOHook(this, sock, profile->CreateClientSession(), profile);
 	}
 };
 

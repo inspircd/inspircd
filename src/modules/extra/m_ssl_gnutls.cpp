@@ -70,7 +70,7 @@ typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
 #endif
 
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
+enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define GNUTLS_NEW_CERT_CALLBACK_API
@@ -81,6 +81,14 @@ typedef gnutls_retr_st cert_cb_last_param_type;
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
 #define INSPIRCD_GNUTLS_HAS_RECV_PACKET
+#endif
+
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 99, 0)
+// The second parameter of gnutls_init() has changed in 2.99.0 from gnutls_connection_end_t to unsigned int
+// (it became a general flags parameter) and the enum has been deprecated and generates a warning on use.
+typedef unsigned int inspircd_gnutls_session_init_flags_t;
+#else
+typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 #endif
 
 class RandGen : public HandlerBase2<void, char*, size_t>
@@ -588,6 +596,9 @@ namespace GnuTLS
 			priority.SetupSession(sess);
 			x509cred.SetupSession(sess);
 			gnutls_dh_set_prime_bits(sess, min_dh_bits);
+
+			// Request client certificate if we are a server, no-op if we're a client
+			gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST);
 		}
 
 		const std::string& GetName() const { return name; }
@@ -603,19 +614,6 @@ class GnuTLSIOHook : public SSLIOHook
 	issl_status status;
 	reference<GnuTLS::Profile> profile;
 
-	void InitSession(StreamSocket* user, bool me_server)
-	{
-		gnutls_init(&sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
-
-		profile->SetupSession(sess);
-		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
-		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
-		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
-
-		if (me_server)
-			gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
-	}
-
 	void CloseSession()
 	{
 		if (this->sess)
@@ -628,7 +626,8 @@ class GnuTLSIOHook : public SSLIOHook
 		status = ISSL_NONE;
 	}
 
-	bool Handshake(StreamSocket* user)
+	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
+	int Handshake(StreamSocket* user)
 	{
 		int ret = gnutls_handshake(this->sess);
 
@@ -637,28 +636,27 @@ class GnuTLSIOHook : public SSLIOHook
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
 				// Handshake needs resuming later, read() or write() would have blocked.
+				this->status = ISSL_HANDSHAKING;
 
 				if (gnutls_record_get_direction(this->sess) == 0)
 				{
 					// gnutls_handshake() wants to read() again.
-					this->status = ISSL_HANDSHAKING_READ;
 					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
-					this->status = ISSL_HANDSHAKING_WRITE;
 					SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				}
+
+				return 0;
 			}
 			else
 			{
 				user->SetError("Handshake Failed - " + std::string(gnutls_strerror(ret)));
 				CloseSession();
-				this->status = ISSL_CLOSING;
+				return -1;
 			}
-
-			return false;
 		}
 		else
 		{
@@ -670,7 +668,7 @@ class GnuTLSIOHook : public SSLIOHook
 			// Finish writing, if any left
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
-			return true;
+			return 1;
 		}
 	}
 
@@ -778,6 +776,22 @@ info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
 	}
 
+	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
+	int PrepareIO(StreamSocket* sock)
+	{
+		if (status == ISSL_HANDSHAKEN)
+			return 1;
+		else if (status == ISSL_HANDSHAKING)
+		{
+			// The handshake isn't finished, try to finish it
+			return Handshake(sock);
+		}
+
+		CloseSession();
+		sock->SetError("No SSL session");
+		return -1;
+	}
+
 	static const char* UnknownIfNULL(const char* str)
 	{
 		return str ? str : "UNKNOWN";
@@ -856,13 +870,18 @@ info_done_dealloc:
 	}
 
  public:
-	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool outbound, const reference<GnuTLS::Profile>& sslprofile)
+	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags, const reference<GnuTLS::Profile>& sslprofile)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
 		, status(ISSL_NONE)
 		, profile(sslprofile)
 	{
-		InitSession(sock, outbound);
+		gnutls_init(&sess, flags);
+		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
+		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
+		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
+		profile->SetupSession(sess);
+
 		sock->AddIOHook(this);
 		Handshake(sock);
 	}
@@ -874,28 +893,12 @@ info_done_dealloc:
 
 	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
-		if (!this->sess)
-		{
-			CloseSession();
-			user->SetError("No SSL session");
-			return -1;
-		}
-
-		if (this->status == ISSL_HANDSHAKING_READ || this->status == ISSL_HANDSHAKING_WRITE)
-		{
-			// The handshake isn't finished, try to finish it.
-
-			if (!Handshake(user))
-			{
-				if (this->status != ISSL_CLOSING)
-					return 0;
-				return -1;
-			}
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
-
-		if (this->status == ISSL_HANDSHAKEN)
 		{
 			GnuTLS::DataReader reader(sess);
 			int ret = reader.ret();
@@ -921,33 +924,18 @@ info_done_dealloc:
 				return -1;
 			}
 		}
-		else if (this->status == ISSL_CLOSING)
-			return -1;
-
-		return 0;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq) CXX11_OVERRIDE
 	{
-		if (!this->sess)
-		{
-			CloseSession();
-			user->SetError("No SSL session");
-			return -1;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
-		if (this->status == ISSL_HANDSHAKING_WRITE || this->status == ISSL_HANDSHAKING_READ)
-		{
-			// The handshake isn't finished, try to finish it.
-			Handshake(user);
-			if (this->status != ISSL_CLOSING)
-				return 0;
-			return -1;
-		}
-
+		// Session is ready for transferring application data
 		int ret = 0;
 
-		if (this->status == ISSL_HANDSHAKEN)
 		{
 			ret = gnutls_record_send(this->sess, sendq.data(), sendq.length());
 
@@ -974,8 +962,6 @@ info_done_dealloc:
 				return -1;
 			}
 		}
-
-		return 0;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
@@ -1041,12 +1027,12 @@ class GnuTLSIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, true, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_SERVER, profile);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, false, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT, profile);
 	}
 };
 
