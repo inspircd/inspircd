@@ -73,6 +73,7 @@ typedef gnutls_dh_params_t gnutls_dh_params;
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
+#define INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 #define GNUTLS_NEW_CERT_CALLBACK_API
 typedef gnutls_retr2_st cert_cb_last_param_type;
 #else
@@ -833,6 +834,42 @@ info_done_dealloc:
 		return rv;
 	}
 
+#ifdef INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
+	static ssize_t VectorPush(gnutls_transport_ptr_t transportptr, const giovec_t* iov, int iovcnt)
+	{
+		StreamSocket* sock = reinterpret_cast<StreamSocket*>(transportptr);
+#ifdef _WIN32
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetIOHook());
+#endif
+
+		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
+		{
+#ifdef _WIN32
+			gnutls_transport_set_errno(session->sess, EAGAIN);
+#else
+			errno = EAGAIN;
+#endif
+			return -1;
+		}
+
+		// Cast the giovec_t to iovec not to IOVector so the correct function is called on Windows
+		int ret = SocketEngine::WriteV(sock, reinterpret_cast<const iovec*>(iov), iovcnt);
+#ifdef _WIN32
+		// See the function above for more info about the usage of gnutls_transport_set_errno() on Windows
+		if (ret < 0)
+			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
+#endif
+
+		int size = 0;
+		for (int i = 0; i < iovcnt; i++)
+			size += iov[i].iov_len;
+
+		if (ret < size)
+			SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
+		return ret;
+	}
+
+#else // INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 	static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t session_wrap, const void* buffer, size_t size)
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(session_wrap);
@@ -868,6 +905,7 @@ info_done_dealloc:
 			SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
 		return rv;
 	}
+#endif // INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 
  public:
 	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags, const reference<GnuTLS::Profile>& sslprofile)
@@ -878,7 +916,11 @@ info_done_dealloc:
 	{
 		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
+#ifdef INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
+		gnutls_transport_set_vec_push_function(sess, VectorPush);
+#else
 		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
+#endif
 		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
 		profile->SetupSession(sess);
 
