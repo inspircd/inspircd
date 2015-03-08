@@ -272,10 +272,10 @@ if (prompt_bool $interactive, $question, 0) {
 	foreach my $key (qw(BINARY_DIR CONFIG_DIR DATA_DIR LOG_DIR MANUAL_DIR MODULE_DIR)) {
 		$config{$key} =~ s/^\Q$original_base_dir\E/$config{BASE_DIR}/;
 	}
-	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?',     $config{BINARY_DIR};
+	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?', $config{BINARY_DIR};
 	$config{CONFIG_DIR} = prompt_dir $interactive, 'In what directory are configuration files to be stored?', $config{CONFIG_DIR};
-	$config{DATA_DIR}   = prompt_dir $interactive, 'In what directory are variable data files to be stored?',     $config{DATA_DIR};
-	$config{LOG_DIR}    = prompt_dir $interactive, 'In what directory are log files to be stored?',               $config{LOG_DIR};
+	$config{DATA_DIR}   = prompt_dir $interactive, 'In what directory are variable data files to be stored?', $config{DATA_DIR};
+	$config{LOG_DIR}    = prompt_dir $interactive, 'In what directory are log files to be stored?',           $config{LOG_DIR};
 	$config{MANUAL_DIR} = prompt_dir $interactive, 'In what directory are manual pages to be placed?',        $config{MANUAL_DIR};
 	$config{MODULE_DIR} = prompt_dir $interactive, 'In what directory are modules to be placed?',             $config{MODULE_DIR};
 }
