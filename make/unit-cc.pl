@@ -114,6 +114,7 @@ sub do_compile {
 	my $binary = $ENV{RUNCC};
 	if ($do_compile) {
 		$flags = $ENV{CORECXXFLAGS} . ' ' . get_property($file, 'CompileFlags');
+		$flags .= ' '.$ENV{CPPFLAGS};
 
 		if ($file =~ m#(?:^|/)((?:m|core)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
 			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
