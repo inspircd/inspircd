@@ -299,8 +299,6 @@ Acting extbans:
                matching users (requires blockcaps module).
  C:<banmask>   Blocks CTCPs from matching users (requires noctcp
                module).
- M:<account>   Blocks messages from users logged into a matching
-               account (requires services account module).
  N:<banmask>   Blocks nick changes from matching users (requires
                nonicks module).
  Q:<banmask>   Blocks kicks by matching users (requires nokicks
@@ -313,8 +311,8 @@ Acting extbans:
                (requires services account).
 
 A ban given to an Acting extban may either be a nick!user@host mask
-(unless stated otherwise, for example M: taking an account name),
-matched against users as for a normal ban, or a Matching extban.
+(unless stated otherwise), matched against users as for a normal ban,
+or a Matching extban.
 
 There is an additional special type of extended ban, a redirect ban:
 
