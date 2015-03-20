@@ -123,12 +123,12 @@ class ModuleExemptChanOps : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->OnCheckExemption = &eh;
+		ServerInstance->OnCheckExemption.Add(&eh);
 	}
 
 	~ModuleExemptChanOps()
 	{
-		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
+		ServerInstance->OnCheckExemption.Remove(&eh);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

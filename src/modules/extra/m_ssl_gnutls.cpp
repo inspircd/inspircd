@@ -1155,7 +1155,7 @@ class ModuleSSLGnuTLS : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ReadProfiles();
-		ServerInstance->GenRandom = &randhandler;
+		ServerInstance->GenRandom.Add(&randhandler);
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
@@ -1175,7 +1175,7 @@ class ModuleSSLGnuTLS : public Module
 
 	~ModuleSSLGnuTLS()
 	{
-		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
+		ServerInstance->GenRandom.Remove(&randhandler);
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
