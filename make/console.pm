@@ -20,9 +20,10 @@
 package make::console;
 
 BEGIN {
-	require 5.8.0;
+	require 5.10.0;
 }
 
+use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
@@ -55,7 +56,7 @@ sub __console_format($$) {
 
 sub print_format($;$) {
 	my $message = shift;
-	my $stream = shift || *STDOUT;
+	my $stream = shift // *STDOUT;
 	while ($message =~ /(<\|(\S+)\s(.+?)\|>)/) {
 		my $formatted = __console_format $2, $3;
 		$message =~ s/\Q$1\E/$formatted/;
@@ -106,7 +107,7 @@ sub prompt_string($$$) {
 	print_format "$question\n";
 	print_format "[<|GREEN $default|>] => ";
 	chomp(my $answer = <STDIN>);
-	print "\n";
+	say '';
 	return $answer ? $answer : $default;
 }
 

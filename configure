@@ -27,9 +27,10 @@
 
 
 BEGIN {
-	require 5.8.0;
+	require 5.10.0;
 }
 
+use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
@@ -137,7 +138,7 @@ if ($interactive) {
 	}
 }
 
-$config{CXX} = find_compiler($config{CXX} || $ENV{CXX});
+$config{CXX} = find_compiler($config{CXX} // $ENV{CXX});
 unless ($config{CXX}) {
 	print "A suitable C++ compiler could not be detected on your system!\n";
 	print "Set the CXX environment variable to the compiler binary path if this is incorrect.\n";
@@ -149,24 +150,24 @@ $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX},
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
 
 if ($config{HAS_EPOLL} = run_test 'epoll', test_header($config{CXX}, 'sys/epoll.h')) {
-	$config{SOCKETENGINE} ||= 'epoll';
+	$config{SOCKETENGINE} //= 'epoll';
 }
 
 if ($config{HAS_KQUEUE} = run_test 'kqueue', test_file($config{CXX}, 'kqueue.cpp')) {
-	$config{SOCKETENGINE} ||= 'kqueue';
+	$config{SOCKETENGINE} //= 'kqueue';
 }
 
 if ($config{HAS_PORTS} = run_test 'Solaris IOCP', test_header($config{CXX}, 'port.h')) {
-	$config{SOCKETENGINE} ||= 'ports';
+	$config{SOCKETENGINE} //= 'ports';
 }
 
 if ($config{HAS_POLL} = run_test 'poll', test_header($config{CXX}, 'poll.h')) {
-	$config{SOCKETENGINE} ||= 'poll';
+	$config{SOCKETENGINE} //= 'poll';
 }
 
 # Select is available on all platforms
 $config{HAS_SELECT} = 1;
-$config{SOCKETENGINE} ||= 'select';
+$config{SOCKETENGINE} //= 'select';
 
 if (defined $opt_socketengine) {
 	my $cfgkey = 'HAS_' . uc $opt_socketengine;
@@ -191,21 +192,21 @@ if (defined $opt_distribution_label) {
 }
 
 if (defined $opt_system) {
-	$config{BASE_DIR}   = $opt_prefix     || '/var/lib/inspircd';
-	$config{BINARY_DIR} = $opt_binary_dir || '/usr/sbin';
-	$config{CONFIG_DIR} = $opt_config_dir || '/etc/inspircd';
-	$config{DATA_DIR}   = $opt_data_dir   || '/var/inspircd';
-	$config{LOG_DIR}    = $opt_module_dir || '/var/log/inspircd';
-	$config{MANUAL_DIR} = $opt_manual_dir || '/usr/share/man/man1';
-	$config{MODULE_DIR} = $opt_module_dir || '/usr/lib/inspircd';
+	$config{BASE_DIR}   = $opt_prefix     // '/var/lib/inspircd';
+	$config{BINARY_DIR} = $opt_binary_dir // '/usr/sbin';
+	$config{CONFIG_DIR} = $opt_config_dir // '/etc/inspircd';
+	$config{DATA_DIR}   = $opt_data_dir   // '/var/inspircd';
+	$config{LOG_DIR}    = $opt_module_dir // '/var/log/inspircd';
+	$config{MANUAL_DIR} = $opt_manual_dir // '/usr/share/man/man1';
+	$config{MODULE_DIR} = $opt_module_dir // '/usr/lib/inspircd';
 } else {
-	$config{BASE_DIR}   = $opt_prefix     || $config{BASE_DIR}   || rel2abs 'run';
-	$config{BINARY_DIR} = $opt_binary_dir || $config{BINARY_DIR} || rel2abs $config{BASE_DIR} . '/bin';
-	$config{CONFIG_DIR} = $opt_config_dir || $config{CONFIG_DIR} || rel2abs $config{BASE_DIR} . '/conf';
-	$config{DATA_DIR}   = $opt_data_dir   || $config{DATA_DIR}   || rel2abs $config{BASE_DIR} . '/data';
-	$config{LOG_DIR}    = $opt_log_dir    || $config{LOG_DIR}    || rel2abs $config{BASE_DIR} . '/logs';
-	$config{MANUAL_DIR} = $opt_manual_dir || $config{MANUAL_DIR} || rel2abs $config{BASE_DIR} . '/manuals';
-	$config{MODULE_DIR} = $opt_module_dir || $config{MODULE_DIR} || rel2abs $config{BASE_DIR} . '/modules';
+	$config{BASE_DIR}   = $opt_prefix     // $config{BASE_DIR}   // rel2abs 'run';
+	$config{BINARY_DIR} = $opt_binary_dir // $config{BINARY_DIR} // rel2abs $config{BASE_DIR} . '/bin';
+	$config{CONFIG_DIR} = $opt_config_dir // $config{CONFIG_DIR} // rel2abs $config{BASE_DIR} . '/conf';
+	$config{DATA_DIR}   = $opt_data_dir   // $config{DATA_DIR}   // rel2abs $config{BASE_DIR} . '/data';
+	$config{LOG_DIR}    = $opt_log_dir    // $config{LOG_DIR}    // rel2abs $config{BASE_DIR} . '/logs';
+	$config{MANUAL_DIR} = $opt_manual_dir // $config{MANUAL_DIR} // rel2abs $config{BASE_DIR} . '/manuals';
+	$config{MODULE_DIR} = $opt_module_dir // $config{MODULE_DIR} // rel2abs $config{BASE_DIR} . '/modules';
 }
 
 # Parse --gid=123 or --gid=foo and extract the group id.
@@ -214,7 +215,7 @@ if (defined $opt_gid) {
 	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
 	print_error "there is no '$opt_gid' group on this system!" unless @group;
 } else {
-	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} || getgid());
+	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} // getgid());
 	print_error "you need to specify a group to run as using '--gid [id|name]'!" unless @group;
 }
 $config{GROUP} = $group[0];
@@ -226,7 +227,7 @@ if (defined $opt_uid) {
 	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
 	print_error "there is no '$opt_uid' user on this system!" unless @user;
 } else {
-	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} || getuid());
+	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} // getuid());
 	print_error "you need to specify a user to run as using '--uid [id|name]'!" unless @user;
 }
 $config{USER} = $user[0];
@@ -246,8 +247,8 @@ version instead.
 You can obtain the latest stable version from http://www.inspircd.org/ or by
 running `git checkout insp20` if you are installing from Git.
 EOW
-	if (!prompt_bool $interactive, 'I understand this warning and want to continue anyway.', $opt_development || 0) {
-		print STDERR "If you understand this warning and still want to continue pass the --development flag.\n" unless $interactive;
+	if (!prompt_bool $interactive, 'I understand this warning and want to continue anyway.', $opt_development // 0) {
+		say STDERR 'If you understand this warning and still want to continue pass the --development flag.' unless $interactive;
 		exit 1;
 	}
 }
@@ -322,7 +323,7 @@ EOM
 
 for my $file (<src/modules/m_*>) {
 	my $module = basename $file, '.cpp';
-	print "  * $module\n" if -l $file;
+	say "  * $module" if -l $file;
 }
 
 print_format <<"EOM";
