@@ -19,9 +19,14 @@
 #
 
 
+BEGIN {
+	push @INC, $ENV{SOURCEPATH};
+	require 5.10.0;
+}
+
 use strict;
-use warnings;
-BEGIN { push @INC, $ENV{SOURCEPATH}; }
+use warnings FATAL => qw(all);
+
 use make::configure;
 
 chdir $ENV{BUILDPATH};
