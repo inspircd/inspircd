@@ -125,6 +125,7 @@ CXXFLAGS += -Iinclude
   @BSD_ONLY MAKE += -s
   RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
   RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
+  VERBOSE =
 @ENDIF
 
 @IFDEF PURE_STATIC
