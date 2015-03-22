@@ -51,7 +51,7 @@ foreach my $compiler (@compilers) {
 	foreach my $socketengine (@socketengines) {
 		print "Attempting to build using the $compiler compiler and the $socketengine socket engine...\n";
 		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};
-		if (system './configure', '--disable-interactive', '--socketengine', $socketengine) {
+		if (system './configure', '--development', '--socketengine', $socketengine) {
 			print "Failed to configure using the $compiler compiler and the $socketengine socket engine!\n";
 			exit 1;
 		}

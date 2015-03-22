@@ -46,6 +46,7 @@ use make::console;
 my ($opt_binary_dir,
     $opt_config_dir,
     $opt_data_dir,
+    $opt_development,
     $opt_disable_interactive,
     $opt_distribution_label,
     $opt_gid,
@@ -71,6 +72,7 @@ GetOptions(
 	'help'	 => \&cmd_help,
 	'update' => \&cmd_update,
 
+	'development'          => \$opt_development,
 	'disable-interactive'  => \$opt_disable_interactive,
 	'distribution-label=s' => \$opt_distribution_label,
 	'binary-dir=s'         => \$opt_binary_dir,
@@ -107,6 +109,7 @@ our $interactive = !(
 	defined $opt_binary_dir ||
 	defined $opt_config_dir ||
 	defined $opt_data_dir ||
+	defined $opt_development ||
 	defined $opt_disable_interactive ||
 	defined $opt_distribution_label ||
 	defined $opt_gid ||
@@ -233,7 +236,7 @@ $config{UID}  = $user[2];
 system 'tput', 'clear' if $interactive;
 
 # Check that the user actually wants this version.
-if ($version{LABEL} ne 'release' && $interactive) {
+if ($version{LABEL} ne 'release') {
 	print_warning <<'EOW';
 You are building a development version. This contains code which has
 not been tested as heavily and may contain various faults which could seriously
@@ -242,9 +245,11 @@ version instead.
 
 You can obtain the latest stable version from http://www.inspircd.org/ or by
 running `git checkout insp20` if you are installing from Git.
-
 EOW
-exit 1 unless prompt_bool $interactive, 'I understand this warning and want to continue anyway.', !$interactive;
+	if (!prompt_bool $interactive, 'I understand this warning and want to continue anyway.', $opt_development || 0) {
+		print STDERR "If you understand this warning and still want to continue pass the --development flag.\n" unless $interactive;
+		exit 1;
+	}
 }
 
 # Configure directory settings.
@@ -267,10 +272,10 @@ if (prompt_bool $interactive, $question, 0) {
 	foreach my $key (qw(BINARY_DIR CONFIG_DIR DATA_DIR LOG_DIR MANUAL_DIR MODULE_DIR)) {
 		$config{$key} =~ s/^\Q$original_base_dir\E/$config{BASE_DIR}/;
 	}
-	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?',     $config{BINARY_DIR};
+	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?', $config{BINARY_DIR};
 	$config{CONFIG_DIR} = prompt_dir $interactive, 'In what directory are configuration files to be stored?', $config{CONFIG_DIR};
-	$config{DATA_DIR}   = prompt_dir $interactive, 'In what directory are variable data files to be stored?',     $config{DATA_DIR};
-	$config{LOG_DIR}    = prompt_dir $interactive, 'In what directory are log files to be stored?',               $config{LOG_DIR};
+	$config{DATA_DIR}   = prompt_dir $interactive, 'In what directory are variable data files to be stored?', $config{DATA_DIR};
+	$config{LOG_DIR}    = prompt_dir $interactive, 'In what directory are log files to be stored?',           $config{LOG_DIR};
 	$config{MANUAL_DIR} = prompt_dir $interactive, 'In what directory are manual pages to be placed?',        $config{MANUAL_DIR};
 	$config{MODULE_DIR} = prompt_dir $interactive, 'In what directory are modules to be placed?',             $config{MODULE_DIR};
 }
