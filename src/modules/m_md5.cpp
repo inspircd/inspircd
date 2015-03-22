@@ -163,7 +163,7 @@ class MD5Provider : public HashProvider
 
 	void MD5Transform(word32 buf[4], word32 const in[16])
 	{
-		register word32 a, b, c, d;
+		word32 a, b, c, d;
 
 		a = buf[0];
 		b = buf[1];

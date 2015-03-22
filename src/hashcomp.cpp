@@ -140,7 +140,7 @@ void nspace::strlower(char *n)
 	 * only with *x replaced with national_case_insensitive_map[*x].
 	 * This avoids a copy to use hash<const char*>
 	 */
-	register size_t t = 0;
+	size_t t = 0;
 	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
@@ -149,7 +149,7 @@ void nspace::strlower(char *n)
 
 size_t CoreExport irc::hash::operator()(const irc::string &s) const
 {
-	register size_t t = 0;
+	size_t t = 0;
 	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;

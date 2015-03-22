@@ -92,6 +92,7 @@ class CoreExport DNSResult
 	 * @param res The request result, a hostname or IP
 	 * @param timetolive The request time-to-live
 	 * @param orig The original request, a hostname or IP
+	 * @param qt The type of DNS query this result represents.
 	 */
 	DNSResult(int i, const std::string &res, unsigned long timetolive, const std::string &orig, QueryType qt = DNS_QUERY_NONE) : id(i), result(res), ttl(timetolive), original(orig), type(qt) { }
 };
@@ -118,6 +119,7 @@ class CoreExport CachedQuery
 
 	/** Build a cached query
 	 * @param res The result data, an IP or hostname
+	 * @param qt The type of DNS query this instance represents.
 	 * @param ttl The time-to-live value of the query result
 	 */
 	CachedQuery(const std::string &res, QueryType qt, unsigned int ttl);
