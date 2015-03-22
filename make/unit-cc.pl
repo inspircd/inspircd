@@ -27,7 +27,10 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
+use File::Spec::Functions qw(abs2rel);
+
 use make::configure;
+use make::console;
 
 chdir $ENV{BUILDPATH};
 
@@ -56,6 +59,15 @@ if ($type eq 'gen-ld') {
 }
 exit 1;
 
+sub message($$$) {
+	my ($type, $file, $command) = @_;
+	if ($verbose) {
+		print "$command\n";
+	} else {
+		print_format "\t<|GREEN $type:|>\t\t$file\n";
+	}
+}
+
 sub do_static_find {
 	my @flags;
 	for my $file (@ARGV) {
@@ -68,7 +80,7 @@ sub do_static_find {
 }
 
 sub do_static_link {
-	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS}";
+	my $execstr = "$ENV{CXX} -o $out $ENV{CORELDFLAGS}";
 	for (@ARGV) {
 		if (/\.cmd$/) {
 			open F, '<', $_;
@@ -81,19 +93,19 @@ sub do_static_link {
 		}
 	}
 	$execstr .= ' '.$ENV{LDLIBS};
-	print "$execstr\n" if $verbose;
+	message 'LINK', $out, $execstr;
 	exec $execstr;
 }
 
 sub do_core_link {
-	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS} @_ $ENV{LDLIBS}";
-	print "$execstr\n" if $verbose;
+	my $execstr = "$ENV{CXX} -o $out $ENV{CORELDFLAGS} @_ $ENV{LDLIBS}";
+	message 'LINK', $out, $execstr;
 	exec $execstr;
 }
 
 sub do_link_dir {
-	my $execstr = "$ENV{RUNLD} -o $out $ENV{PICLDFLAGS} @_";
-	print "$execstr\n" if $verbose;
+	my $execstr = "$ENV{CXX} -o $out $ENV{PICLDFLAGS} @_";
+	message 'LINK', $out, $execstr;
 	exec $execstr;
 }
 
@@ -102,15 +114,12 @@ sub do_compile {
 
 	my $flags = '';
 	my $libs = '';
-	my $binary = $ENV{RUNCC};
 	if ($do_compile) {
 		$flags = $ENV{CORECXXFLAGS} . ' ' . get_property($file, 'CompileFlags');
 
 		if ($file =~ m#(?:^|/)((?:m|core)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
 			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
 		}
-	} else {
-		$binary = $ENV{RUNLD};
 	}
 
 	if ($do_link) {
@@ -120,7 +129,7 @@ sub do_compile {
 		$flags .= ' -c';
 	}
 
-	my $execstr = "$binary -o $out $flags $file $libs";
-	print "$execstr\n" if $verbose;
+	my $execstr = "$ENV{CXX} -o $out $flags $file $libs";
+	message 'BUILD', abs2rel($file, "$ENV{SOURCEPATH}/src"), $execstr;
 	exec $execstr;
 }
