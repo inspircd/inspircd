@@ -18,11 +18,12 @@
 
 
 BEGIN {
-	require 5.8.0;
+	require 5.10.0;
 }
 
 package make::common;
 
+use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
@@ -33,9 +34,8 @@ our @EXPORT = qw(get_cpu_count
                  get_version
                  module_installed);
 
-my %version;
-
 sub get_version {
+	state %version;
 	return %version if %version;
 
 	# Attempt to retrieve version information from src/version.sh
@@ -47,22 +47,22 @@ sub get_version {
 	# Attempt to retrieve missing version information from Git
 	chomp(my $gr = `git describe --tags 2>/dev/null`);
 	if ($gr =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-\d+-g(\w+))?$/) {
-		$version{MAJOR} = $1 unless defined $version{MAJOR};
-		$version{MINOR} = $2 unless defined $version{MINOR};
-		$version{PATCH} = $3 unless defined $version{PATCH};
+		$version{MAJOR} //= $1;
+		$version{MINOR} //= $2;
+		$version{PATCH} //= $3;
 		$version{LABEL} = $4 if defined $4;
 	}
 
 	# The user is using a stable release which does not have
 	# a label attached.
-	$version{LABEL} = 'release' unless defined $version{LABEL};
+	$version{LABEL} //= 'release';
 
 	# If any of these fields are missing then the user has deleted the
 	# version file and is not running from Git. Fill in the fields with
 	# dummy data so we don't get into trouble with undef values later.
-	$version{MAJOR} = '0' unless defined $version{MAJOR};
-	$version{MINOR} = '0' unless defined $version{MINOR};
-	$version{PATCH} = '0' unless defined $version{PATCH};
+	$version{MAJOR} //= '0';
+	$version{MINOR} //= '0';
+	$version{PATCH} //= '0';
 
 	return %version;
 }

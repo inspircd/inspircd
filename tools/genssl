@@ -21,9 +21,10 @@
 
 
 BEGIN {
-	require 5.8.0;
+	require 5.10.0;
 }
 
+use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
@@ -36,15 +37,15 @@ use File::Temp();
 sub prompt($$) {
 	my ($question, $default) = @_;
 	return prompt_string(1, $question, $default) if eval 'use make::console; 1';
-	print "$question\n";
+	say $question;
 	print "[$default] => ";
 	chomp(my $answer = <STDIN>);
-	print "\n";
+	say '';
 	return $answer ? $answer : $default;
 }
 
 if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
-	print "Syntax: genssl <auto|gnutls|openssl>\n";
+	say 'Syntax: genssl <auto|gnutls|openssl>';
 	exit 1;
 }
 
@@ -65,14 +66,14 @@ if ($tool eq 'auto') {
 	} elsif ($has_openssl) {
 		$tool = 'openssl';
 	} else {
-		print STDERR "SSL generation failed: could not find $certtool or openssl in the PATH!\n";
+		say STDERR "SSL generation failed: could not find $certtool or openssl in the PATH!";
 		exit 1;
 	}
 } elsif ($tool eq 'gnutls' && !$has_gnutls) {
-	print STDERR "SSL generation failed: could not find '$certtool' in the PATH!\n";
+	say STDERR "SSL generation failed: could not find '$certtool' in the PATH!";
 	exit 1;
 } elsif ($tool eq 'openssl' && !$has_openssl) {
-	print STDERR "SSL generation failed: could not find 'openssl' in the PATH!\n";
+	say STDERR 'SSL generation failed: could not find \'openssl\' in the PATH!';
 	exit 1;
 }
 
@@ -138,13 +139,14 @@ __OPENSSL_END__
 }
 
 if ($status) {
-	print STDERR "SSL generation failed: $tool exited with a non-zero status!\n";
+	say STDERR "SSL generation failed: $tool exited with a non-zero status!";
 	exit 1;
 }
 
 if (defined $dercert && eval 'use Digest::SHA; 1') {
 	my $hash = Digest::SHA->new(256);
 	$hash->add($dercert);
-	print "\nAdd this TLSA record to your domain for DANE support:\n";
-	print "_6697._tcp." . $common_name . " TLSA 3 0 1 " . $hash->hexdigest . "\n";
+	say '';
+	say 'Add this TLSA record to your domain for DANE support:';
+	say "_6697._tcp." . $common_name . " TLSA 3 0 1 " . $hash->hexdigest;
 }

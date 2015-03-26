@@ -22,11 +22,12 @@
 
 
 BEGIN {
-	require 5.8.0;
+	require 5.10.0;
 }
 
 package make::configure;
 
+use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
@@ -175,18 +176,18 @@ EOH
 
 sub cmd_update {
 	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f CONFIGURE_CACHE_FILE;
-	print "Updating...\n";
+	say 'Updating...';
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
 	my %version = get_version();
 	parse_templates(\%config, \%compiler, \%version);
-	print "Update complete!\n";
+	say 'Update complete!';
 	exit 0;
 }
 
 sub run_test($$;$) {
 	my ($what, $result, $adjective) = @_;
-	$adjective ||= 'available';
+	$adjective //= 'available';
 	print_format "Checking whether <|GREEN $what|> is $adjective ... ";
 	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
 	return $result;
@@ -195,7 +196,7 @@ sub run_test($$;$) {
 sub test_file($$;$) {
 	my ($compiler, $file, $args) = @_;
 	my $status = 0;
-	$args ||= '';
+	$args //= '';
 	$status ||= system "$compiler -o __test_$file make/test/$file $args >/dev/null 2>&1";
 	$status ||= system "./__test_$file >/dev/null 2>&1";
 	unlink "./__test_$file";
@@ -204,7 +205,7 @@ sub test_file($$;$) {
 
 sub test_header($$;$) {
 	my ($compiler, $header, $args) = @_;
-	$args ||= '';
+	$args //= '';
 	open(COMPILER, "| $compiler -E - $args >/dev/null 2>&1") or return 0;
 	print COMPILER "#include <$header>";
 	close(COMPILER);
@@ -228,8 +229,8 @@ sub write_configure_cache(%) {
 	my %config = @_;
 	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
 	while (my ($key, $value) = each %config) {
-		$value = '' unless defined $value;
-		print CACHE "$key=\"$value\"\n";
+		$value //= '';
+		say CACHE "$key=\"$value\"";
 	}
 	close(CACHE);
 }
@@ -251,7 +252,7 @@ sub get_compiler_info($) {
 
 sub find_compiler {
 	my @compilers = qw(c++ g++ clang++ icpc);
-	foreach my $compiler (shift || @compilers) {
+	foreach my $compiler (shift // @compilers) {
 		return $compiler if __test_compiler $compiler;
 		return "xcrun $compiler" if $^O eq 'darwin' && __test_compiler "xcrun $compiler";
 	}
@@ -269,7 +270,7 @@ sub get_property($$;$)
 		}
 	}
 	close(MODULE);
-	return defined $default ? $default : '';
+	return $default // '';
 }
 
 sub parse_templates($$$) {
@@ -418,7 +419,7 @@ sub parse_templates($$$) {
 				print_format "Writing <|GREEN $target|> ...\n";
 				open(TARGET, '>', $target) or print_error "unable to write $_: $!";
 				foreach (@final_lines) {
-					print TARGET $_, "\n";
+					say TARGET $_;
 				}
 				close(TARGET);
 
