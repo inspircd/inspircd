@@ -29,16 +29,29 @@ class ModuleGecosBan : public Module
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
-		if ((mask.length() > 2) && (mask[0] == 'r') && (mask[1] == ':'))
+		if ((mask.length() > 2) && (mask[1] == ':'))
 		{
-			if (InspIRCd::Match(user->fullname, mask.substr(2)))
-				return MOD_RES_DENY;
+			if (mask[0] == 'r')
+			{
+				if (InspIRCd::Match(user->fullname, mask.substr(2)))
+					return MOD_RES_DENY;
+			}
+			else if (mask[0] == 'a')
+			{
+				std::string submask = mask.substr(2);
+				std::string::size_type divider = submask.find('+');
+				if (divider != std::string::npos &&
+					c->CheckBan(user, submask.substr(0, divider)) &&
+					InspIRCd::Match(user->fullname, submask.substr(divider + 1)))
+					return MOD_RES_DENY;
+			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
+		tokens["EXTBAN"].push_back('a');
 		tokens["EXTBAN"].push_back('r');
 	}
 };

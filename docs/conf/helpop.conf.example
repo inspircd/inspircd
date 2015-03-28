@@ -272,6 +272,9 @@ setting +I <extban>.
 
 Matching extbans:
 
+ a:<mask>      Matches user with both a matching banmask and realname,
+               where <mask> is in the format nick!user@host+realname
+               (requires gecosban module).
  j:<channel>   Matches anyone in the given channel. Does not support
                wildcards (requires channelban module).
  r:<realname>  Matches users with a matching realname (requires gecosban
