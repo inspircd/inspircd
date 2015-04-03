@@ -128,7 +128,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list for          #
+#  m_spanningtree module! Please see the modules list for             #
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT work!                                #
 
@@ -170,27 +170,29 @@
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   You can configure the passwords here which you wish to use for    #
-#   the /DIE and /RESTART commands. Only trusted ircops who will      #
+#   the /DIE and /RESTART commands. Only trusted opers who will       #
 #   need this ability should know the die and restart password.       #
 #                                                                     #
 
 <power
        # hash: what hash these passwords are hashed with.
-       # Requires the module for selected hash (m_md5.so, m_sha256.so
-       # or m_ripemd160.so) be loaded and the password hashing module
-       # (m_password_hash.so) loaded.
+       # Requires the module for selected hash (m_md5, m_sha256
+       # or m_ripemd160) be loaded and the password hashing module
+       # (m_password_hash) loaded.
        # Options here are: "md5", "sha256" and "ripemd160", or one of
        # these prefixed with "hmac-", e.g.: "hmac-sha256".
        # Optional, but recommended. Create hashed passwords with:
-       # /mkpasswd <hash> <password>
+       # /MKPASSWD <hash> <password>
        #hash="sha256"
 
        # diepass: Password for opers to use if they need to shutdown (die)
        # a server.
+       # NOTE: using a blank password does not disable /DIE.
        diepass=""
 
        # restartpass: Password for opers to use if they need to restart
        # a server.
+       # NOTE: using a blank password does not disable /RESTART.
        restartpass="">
 
 
@@ -232,15 +234,16 @@
          # you only want to adjust sendq and a password
          parent="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
+         # allow: What IP addresses/host to allow for this block. You can either
+         # specify a single address or multiple using either CIDR or a wildcard.
          allow="203.0.113.*"
 
          # hash: what hash this password is hashed with. requires the module
-         # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-         # loaded and the password hashing module (m_password_hash.so)
+         # for the selected hash (m_md5, m_sha256 or m_ripemd160) be
+         # loaded and the password hashing module (m_password_hash)
          # loaded. Options here are: "md5", "sha256" and "ripemd160".
          # Optional, but recommended. Create hashed passwords with:
-         # /mkpasswd <hash> <password>
+         # /MKPASSWD <hash> <password>
          #hash="sha256"
 
          # password: Password to use for this block/user(s)
@@ -253,7 +256,7 @@
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
+         # send /NICK, /USER or /PASS).
          timeout="10"
 
          # localmax: Maximum local connections per IP (or CIDR mask, see below).
@@ -275,7 +278,7 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
          # For the example to work, this also requires that the m_cloaking
@@ -322,7 +325,7 @@
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
+         # send /NICK, /USER or /PASS).
          timeout="10"
 
          # pingfreq: How often (in seconds) the server tries to ping connecting clients.
@@ -378,7 +381,7 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
          # For the example to work, this also requires that the m_cloaking
@@ -392,9 +395,10 @@
 # throttle limits across a CIDR range. (A CIDR range is a group of    #
 # IPs, for example, the CIDR range 192.168.1.0-192.168.1.255 may be   #
 # represented as 192.168.1.0/24). This means that abuse across an ISP #
-# is detected and curtailed much easier. Here is a good chart that    #
-# shows how many IPs the different CIDRs correspond to:               #
-# http://en.wikipedia.org/wiki/CIDR#Prefix_aggregation                #
+# is detected and curtailed much easier. Here are some good charts    #
+# that show how many IPs the different CIDRs correspond to:           #
+# http://en.wikipedia.org/wiki/IPv4_subnetting_reference              #
+# http://en.wikipedia.org/wiki/IPv6_subnetting_reference              #
 #                                                                     #
 
 <cidr
@@ -410,7 +414,7 @@
       # extremely low. (Values are 0-128).
       ipv6clone="128">
 
-# This file has all the information about oper classes, types and o:lines.
+# This file has all the information about oper classes, types and accounts.
 # You *MUST* edit it.
 <include file="conf/examples/opers.conf.example">
 
@@ -448,7 +452,7 @@
 
 <dns
      # server: DNS server to use to attempt to resolve IP's to hostnames.
-     # in most cases, you won't need to change this, as inspircd will
+     # in most cases, you won't need to change this, as InspIRCd will
      # automatically detect the nameserver depending on /etc/resolv.conf
      # (or, on Windows, your set nameservers in the registry.)
      # Note that this must be an IP address and not a hostname, because
@@ -481,7 +485,7 @@
 # matches the channels name applies the banlimit to that channel.     #
 # It is advisable to put an entry with the channel as '*' at the      #
 # bottom of the list. If none are specified or no maxbans tag is      #
-# matched, the banlist size defaults to 64 entries.                   #
+# matched, the ban list size defaults to 64 entries.                  #
 #                                                                     #
 
 <banlist chan="#largechan" limit="128">
@@ -498,10 +502,10 @@
 # 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
 # so for example disabling NICK will not cripple your network.        #
 #                                                                     #
-# You can also define if you want to disable any channelmodes         #
-# or usermodes from your users.                                       #
+# You can also define if you want to disable any channel modes        #
+# or user modes from your users.                                      #
 #                                                                     #
-# `fakenonexistant' will make the ircd pretend that nonexistant       #
+# `fakenonexistant' will make the ircd pretend that non-existent      #
 # commands simply don't exist to non-opers ("no such command").       #
 #                                                                     #
 #<disabled commands="TOPIC MODE" usermodes="" chanmodes="" fakenonexistant="yes">
@@ -561,7 +565,7 @@
          # triggers anti-takeover mechanisms of some obsolete bots.
          cyclehostsfromuser="no"
 
-         # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
+         # ircumsgprefix: Use Undernet style message prefixing for NOTICE and
          # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
          # it will just message the user normally.
          ircumsgprefix="no"
@@ -603,7 +607,7 @@
          # exemptchanops: exemptions for channel access restrictions based on prefix.
          exemptchanops="nonick:v flood:o"
 
-         # invitebypassmodes: This allows /invite to bypass other channel modes.
+         # invitebypassmodes: This allows /INVITE to bypass other channel modes.
          # (Such as +k, +j, +l, etc.)
          invitebypassmodes="yes"
 
@@ -637,7 +641,7 @@
              # to use the value specified above.
              limitsomaxconn="true"
 
-             # softlimit: This optional feature allows a defined softlimit for
+             # softlimit: This optional feature allows a defined soft limit for
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
 
@@ -666,16 +670,16 @@
           #             higher ranked users. This is the recommended setting.
           announceinvites="dynamic"
 
-          # hidemodes: If enabled, then the listmodes given will be hidden
+          # hidemodes: If enabled, then the list modes given will be hidden
           # from users below halfop. This is not recommended to be set on +b
           # as it may break some functionality in popular clients such as mIRC.
           hidemodes="eI"
 
-          # hideulines: If this value is set to yes, U-lined servers will
-          # be hidden from non-opers in /links and /map.
+          # hideulines: If this value is set to yes, ulined servers will
+          # be hidden from non-opers in /LINKS and /MAP.
           hideulines="no"
 
-          # flatlinks: If this value is set to yes, /map and /links will
+          # flatlinks: If this value is set to yes, /MAP and /LINKS will
           # be flattened when shown to non-opers.
           flatlinks="no"
 
@@ -692,7 +696,7 @@
           # from the server.
           hidebans="no"
 
-          # hidekills: If defined, replaces who set a /kill with a custom string.
+          # hidekills: If defined, replaces who set a /KILL with a custom string.
           hidekills=""
 
           # hidesplits: If enabled, non-opers will not be able to see which
@@ -701,10 +705,10 @@
           hidesplits="no"
 
           # maxtargets: Maximum number of targets per command.
-          # (Commands like /notice, /privmsg, /kick, etc)
+          # (Commands like /NOTICE, /PRIVSMG, /KICK, etc)
           maxtargets="20"
 
-          # customversion: Displays a custom string when a user /version's
+          # customversion: Displays a custom string when a user /VERSION's
           # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
 
@@ -737,7 +741,7 @@
           # affects the display in WHOIS.
           genericoper="no"
 
-          # userstats: /stats commands that users can run (opers can run all).
+          # userstats: /STATS commands that users can run (opers can run all).
           userstats="Pu">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
@@ -792,20 +796,19 @@
 # Logging is covered with the <log> tag, which you may use to change
 # the behaviour of the logging of the IRCd.
 #
-# In InspIRCd as of 1.2, logging is pluggable and very extensible.
 # Different files can log the same thing, different 'types' of log can
 # go to different places, and modules can even extend the log tag
 # to do what they want.
 #
 # An example log tag would be:
 #  <log method="file" type="OPER" level="default" target="logs/opers.log">
-# which would log all information on /oper (failed and successful) to
+# which would log all information on /OPER (failed and successful) to
 # a file called opers.log.
 #
 # There are many different types which may be used, and modules may
 # generate their own. A list of useful types:
 #  - USERS - information relating to user connection and disconnection
-#  - OPER - succesful and failed oper attempts
+#  - OPER - successful and failed oper attempts
 #  - KILL - kill related messages
 #  - snomask - server notices (*all* snomasks will be logged)
 #  - FILTER - messages related to filter matches (m_filter)
@@ -839,17 +842,17 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# This tag lets you define the behaviour of the /whowas command of    #
+# This tag lets you define the behaviour of the /WHOWAS command of    #
 # your server.                                                        #
 #                                                                     #
 
 <whowas
         # groupsize: Maximum entries per nick shown when performing
-        # a /whowas nick.
+        # a /WHOWAS nick.
         groupsize="10"
 
-        # maxgroups: Maximum number of nickgroups that can be added to
-        # the list so that /whowas does not use a lot of resources on
+        # maxgroups: Maximum number of nick groups that can be added to
+        # the list so that /WHOWAS does not use a lot of resources on
         # large networks.
         maxgroups="100000"
 
@@ -877,7 +880,7 @@
          # nick: Nick to disallow. Wildcards are supported.
          nick="ChanServ"
 
-         # reason: Reason to display on /nick.
+         # reason: Reason to display on /NICK.
          reason="Reserved For Services">
 
 <badnick nick="NickServ" reason="Reserved For Services">
@@ -901,7 +904,7 @@
            # Wildcards and CIDR (if you specify an IP) can be used.
            host="*@ircop.example.com"
 
-           # reason: Reason for exception. Only shown in /stats e
+           # reason: Reason for exception. Only shown in /STATS e
            reason="Oper's hostname">
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -964,10 +967,10 @@
 # are interested in that, please read the modules.conf.example. It is also
 # recommended that you make your own modules file based on modules.conf.example.
 
-# Settings similar to UnrealIRCd defaults.
+# Settings similar to the UnrealIRCd defaults.
 #<include file="conf/examples/modules/unrealircd.conf.example">
 
-# Settings similar to Charybdis IRCd defaults.
+# Settings similar to the Charybdis defaults.
 #<include file="conf/examples/modules/charybdis.conf.example">
 
 

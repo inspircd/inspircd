@@ -10,7 +10,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module!                                          #
+#  m_spanningtree module!                                             #
 #                                                                     #
 #                                                                     #
 
@@ -40,8 +40,8 @@
       # making an outbound connection to the server. Options are: "openssl"
       # and "gnutls" (they are compatible with each other).
       #
-      # You will need to load the m_ssl_openssl.so module for OpenSSL,
-      # m_ssl_gnutls.so for GnuTLS. The server port that you connect to
+      # You will need to load the m_ssl_openssl module for OpenSSL,
+      # m_ssl_gnutls for GnuTLS. The server port that you connect to
       # must be capable of accepting this type of connection.
       ssl="gnutls"
 
@@ -107,9 +107,9 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
-# This tag defines a ulined server. A U-Lined server has special      #
+# This tag defines a ulined server. A ulined server has special       #
 # permissions, and should be used with caution. Services servers are  #
-# usually u-lined in this manner.                                     #
+# usually ulined in this manner.                                      #
 #                                                                     #
 # The 'silent' value, if set to yes, indicates that this server should#
 # not generate quit and connect notices, which can cut down on noise  #
