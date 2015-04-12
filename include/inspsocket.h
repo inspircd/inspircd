@@ -119,6 +119,10 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	void CheckError(BufferedSocketError err);
 
+	/** Read data from the socket into the recvq, if successful call OnDataReady()
+	 */
+	void DoRead();
+
  protected:
 	std::string recvq;
  public:
@@ -126,10 +130,10 @@ class CoreExport StreamSocket : public EventHandler
 	IOHook* GetIOHook() const;
 	void AddIOHook(IOHook* hook);
 	void DelIOHook();
-	/** Dispatched from HandleEvent */
-	virtual void DoRead();
-	/** Dispatched from HandleEvent */
-	virtual void DoWrite();
+
+	/** Flush the send queue
+	 */
+	void DoWrite();
 
 	/** Called by the socket engine on a read event
 	 */
