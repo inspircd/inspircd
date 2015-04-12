@@ -37,23 +37,6 @@
 #define IOV_MAX 1024
 #endif
 
-/** Types of event an EventHandler may receive.
- * EVENT_READ is a readable file descriptor,
- * and EVENT_WRITE is a writeable file descriptor.
- * EVENT_ERROR can always occur, and indicates
- * a write error or read error on the socket,
- * e.g. EOF condition or broken pipe.
- */
-enum EventType
-{
-	/** Read event */
-	EVENT_READ	=	0,
-	/** Write event */
-	EVENT_WRITE	=	1,
-	/** Error event */
-	EVENT_ERROR	=	2
-};
-
 /**
  * Event mask for SocketEngine events
  */
@@ -207,16 +190,20 @@ class CoreExport EventHandler : public classbase
 	 */
 	virtual ~EventHandler() {}
 
-	/** Process an I/O event.
-	 * You MUST implement this function in your derived
-	 * class, and it will be called whenever read or write
-	 * events are received.
-	 * @param et either one of EVENT_READ for read events,
-	 * EVENT_WRITE for write events and EVENT_ERROR for
-	 * error events.
-	 * @param errornum The error code which goes with an EVENT_ERROR.
+	/** Called by the socket engine in case of a read event
 	 */
-	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
+	virtual void OnEventHandlerRead() = 0;
+
+	/** Called by the socket engine in case of a write event.
+	 * The default implementation does nothing.
+	 */
+	virtual void OnEventHandlerWrite();
+
+	/** Called by the socket engine in case of an error event.
+	 * The default implementation does nothing.
+	 * @param errornum Error code
+	 */
+	virtual void OnEventHandlerError(int errornum);
 
 	friend class SocketEngine;
 };

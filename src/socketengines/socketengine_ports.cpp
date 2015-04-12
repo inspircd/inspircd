@@ -160,14 +160,14 @@ int SocketEngine::DispatchEvents()
 		if (portev_events & POLLRDNORM)
 		{
 			stats.ReadEvents++;
-			eh->HandleEvent(EVENT_READ);
+			eh->OnEventHandlerRead();
 			if (eh != GetRef(fd))
 				continue;
 		}
 		if (portev_events & POLLWRNORM)
 		{
 			stats.WriteEvents++;
-			eh->HandleEvent(EVENT_WRITE);
+			eh->OnEventHandlerWrite();
 		}
 	}
 

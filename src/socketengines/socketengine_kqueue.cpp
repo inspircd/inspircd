@@ -194,7 +194,7 @@ int SocketEngine::DispatchEvents()
 		if (kev.flags & EV_EOF)
 		{
 			stats.ErrorEvents++;
-			eh->HandleEvent(EVENT_ERROR, kev.fflags);
+			eh->OnEventHandlerError(kev.fflags);
 			continue;
 		}
 		if (filter == EVFILT_WRITE)
@@ -206,13 +206,13 @@ int SocketEngine::DispatchEvents()
 			 */
 			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 			eh->SetEventMask(eh->GetEventMask() & ~bits_to_clr);
-			eh->HandleEvent(EVENT_WRITE);
+			eh->OnEventHandlerWrite();
 		}
 		else if (filter == EVFILT_READ)
 		{
 			stats.ReadEvents++;
 			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
-			eh->HandleEvent(EVENT_READ);
+			eh->OnEventHandlerRead();
 		}
 	}
 

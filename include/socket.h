@@ -150,16 +150,13 @@ class CoreExport ListenSocket : public EventHandler
 	/** Create a new listening socket
 	 */
 	ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to);
-	/** Handle an I/O event
-	 */
-	void HandleEvent(EventType et, int errornum = 0);
 	/** Close the socket
 	 */
 	~ListenSocket();
 
-	/** Handles sockets internals crap of a connection, convenience wrapper really
+	/** Handles new connections, called by the socket engine
 	 */
-	void AcceptInternal();
+	void OnEventHandlerRead() CXX11_OVERRIDE;
 
 	/** Inspects the bind block belonging to this socket to set the name of the IO hook
 	 * provider which this socket will use for incoming connections.

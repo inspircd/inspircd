@@ -53,6 +53,14 @@ void EventHandler::SetFd(int FD)
 	this->fd = FD;
 }
 
+void EventHandler::OnEventHandlerWrite()
+{
+}
+
+void EventHandler::OnEventHandlerError(int errornum)
+{
+}
+
 void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
 {
 	int old_m = eh->event_mask;
@@ -91,9 +99,9 @@ void SocketEngine::DispatchTrialWrites()
 		int mask = eh->event_mask;
 		eh->event_mask &= ~(FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
 		if ((mask & (FD_ADD_TRIAL_READ | FD_READ_WILL_BLOCK)) == FD_ADD_TRIAL_READ)
-			eh->HandleEvent(EVENT_READ, 0);
+			eh->OnEventHandlerRead();
 		if ((mask & (FD_ADD_TRIAL_WRITE | FD_WRITE_WILL_BLOCK)) == FD_ADD_TRIAL_WRITE)
-			eh->HandleEvent(EVENT_WRITE, 0);
+			eh->OnEventHandlerWrite();
 	}
 }
 
