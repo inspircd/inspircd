@@ -42,6 +42,16 @@ timedbans TimedBanList;
  */
 class CommandTban : public Command
 {
+	static bool IsBanSet(Channel* chan, const std::string& mask)
+	{
+		for (BanList::const_iterator i = chan->bans.begin(); i != chan->bans.end(); ++i)
+		{
+			if (!strcasecmp(i->data.c_str(), mask.c_str()))
+				return true;
+		}
+		return false;
+	}
+
  public:
 	CommandTban(Module* Creator) : Command(Creator,"TBAN", 3)
 	{
@@ -90,11 +100,9 @@ class CommandTban : public Command
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
-		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-			if (!strcasecmp(i->data.c_str(), mask.c_str()))
-				goto found;
-		return CMD_FAILURE;
-found:
+		if (!IsBanSet(channel, mask))
+			return CMD_FAILURE;
+
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;
