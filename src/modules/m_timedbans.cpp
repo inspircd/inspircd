@@ -116,6 +116,22 @@ found:
 	}
 };
 
+class ChannelMatcher
+{
+	Channel* const chan;
+
+ public:
+	ChannelMatcher(Channel* ch)
+		: chan(ch)
+	{
+	}
+
+	bool operator()(const TimedBan& tb) const
+	{
+		return (tb.chan == chan);
+	}
+};
+
 class ModuleTimedBans : public Module
 {
 	CommandTban cmd;
@@ -128,7 +144,7 @@ class ModuleTimedBans : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
+		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -183,6 +199,12 @@ class ModuleTimedBans : public Module
 				ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
 			}
 		}
+	}
+
+	void OnChannelDelete(Channel* chan)
+	{
+		// Remove all timed bans affecting the channel from internal bookkeeping
+		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
 	}
 
 	virtual Version GetVersion()
