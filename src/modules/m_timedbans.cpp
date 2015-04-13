@@ -96,6 +96,13 @@ class CommandTban : public Command
 			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
 			return CMD_FAILURE;
 		}
+
+		if (IsBanSet(channel, mask))
+		{
+			user->WriteServ("NOTICE %s :Ban already set", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		setban.push_back(mask);
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
