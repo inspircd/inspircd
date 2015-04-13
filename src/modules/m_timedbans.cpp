@@ -32,6 +32,7 @@ class TimedBan
 	std::string channel;
 	std::string mask;
 	time_t expire;
+	Channel* chan;
 };
 
 typedef std::vector<TimedBan> timedbans;
@@ -98,6 +99,7 @@ found:
 		T.channel = channelname;
 		T.mask = mask;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
+		T.chan = channel;
 		TimedBanList.push_back(T);
 
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
