@@ -113,6 +113,16 @@ class CoreExport StreamSocket : public EventHandler
 	size_t sendq_len;
 	/** Error - if nonempty, the socket is dead, and this is the reason. */
 	std::string error;
+
+	/** Check if the socket has an error set, if yes, call OnError
+	 * @param err Error to pass to OnError()
+	 */
+	void CheckError(BufferedSocketError err);
+
+	/** Read data from the socket into the recvq, if successful call OnDataReady()
+	 */
+	void DoRead();
+
  protected:
 	std::string recvq;
  public:
@@ -120,14 +130,23 @@ class CoreExport StreamSocket : public EventHandler
 	IOHook* GetIOHook() const;
 	void AddIOHook(IOHook* hook);
 	void DelIOHook();
-	/** Handle event from socket engine.
-	 * This will call OnDataReady if there is *new* data in recvq
+
+	/** Flush the send queue
 	 */
-	virtual void HandleEvent(EventType et, int errornum = 0);
-	/** Dispatched from HandleEvent */
-	virtual void DoRead();
-	/** Dispatched from HandleEvent */
-	virtual void DoWrite();
+	void DoWrite();
+
+	/** Called by the socket engine on a read event
+	 */
+	void OnEventHandlerRead() CXX11_OVERRIDE;
+
+	/** Called by the socket engine on a write event
+	 */
+	void OnEventHandlerWrite() CXX11_OVERRIDE;
+
+	/** Called by the socket engine on error
+	 * @param errcode Error
+	 */
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE;
 
 	/** Sets the error message for this socket. Once set, the socket is dead. */
 	void SetError(const std::string& err) { if (error.empty()) error = err; }
@@ -226,7 +245,7 @@ class CoreExport BufferedSocket : public StreamSocket
 
 	virtual ~BufferedSocket();
  protected:
-	virtual void DoWrite();
+	void OnEventHandlerWrite() CXX11_OVERRIDE;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };

@@ -141,7 +141,7 @@ int SocketEngine::DispatchEvents()
 			if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
 				errcode = errno;
 
-			ev->HandleEvent(EVENT_ERROR, errcode);
+			ev->OnEventHandlerError(errcode);
 			continue;
 		}
 
@@ -149,7 +149,7 @@ int SocketEngine::DispatchEvents()
 		{
 			stats.ReadEvents++;
 			ev->SetEventMask(ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
-			ev->HandleEvent(EVENT_READ);
+			ev->OnEventHandlerRead();
 			if (ev != GetRef(i))
 				continue;
 		}
@@ -160,7 +160,7 @@ int SocketEngine::DispatchEvents()
 			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
 			SocketEngine::OnSetEvent(ev, ev->GetEventMask(), newmask);
 			ev->SetEventMask(newmask);
-			ev->HandleEvent(EVENT_WRITE);
+			ev->OnEventHandlerWrite();
 		}
 	}
 

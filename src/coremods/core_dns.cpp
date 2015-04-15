@@ -555,14 +555,13 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 	}
 
-	void HandleEvent(EventType et, int)
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE
 	{
-		if (et == EVENT_ERROR)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "UDP socket got an error event");
-			return;
-		}
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "UDP socket got an error event");
+	}
 
+	void OnEventHandlerRead() CXX11_OVERRIDE
+	{
 		unsigned char buffer[524];
 		irc::sockets::sockaddrs from;
 		socklen_t x = sizeof(from);

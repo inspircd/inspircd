@@ -185,7 +185,7 @@ int SocketEngine::DispatchEvents()
 
 		if (revents & POLLHUP)
 		{
-			eh->HandleEvent(EVENT_ERROR, 0);
+			eh->OnEventHandlerError(0);
 			continue;
 		}
 
@@ -196,14 +196,14 @@ int SocketEngine::DispatchEvents()
 			int errcode;
 			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
-			eh->HandleEvent(EVENT_ERROR, errcode);
+			eh->OnEventHandlerError(errcode);
 			continue;
 		}
 
 		if (revents & POLLIN)
 		{
 			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
-			eh->HandleEvent(EVENT_READ);
+			eh->OnEventHandlerRead();
 			if (eh != GetRef(fd))
 				// whoops, deleted out from under us
 				continue;
@@ -217,7 +217,7 @@ int SocketEngine::DispatchEvents()
 
 			// The vector could've been resized, reference can be invalid by now; don't use it
 			events[index].events = mask_to_poll(mask);
-			eh->HandleEvent(EVENT_WRITE);
+			eh->eh->OnEventHandlerWrite();
 		}
 	}
 

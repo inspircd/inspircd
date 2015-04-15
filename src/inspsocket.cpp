@@ -417,7 +417,7 @@ bool SocketTimeout::Tick(time_t)
 void BufferedSocket::OnConnected() { }
 void BufferedSocket::OnTimeout() { return; }
 
-void BufferedSocket::DoWrite()
+void BufferedSocket::OnEventHandlerWrite()
 {
 	if (state == I_CONNECTING)
 	{
@@ -426,7 +426,7 @@ void BufferedSocket::DoWrite()
 		if (!GetIOHook())
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 	}
-	this->StreamSocket::DoWrite();
+	this->StreamSocket::OnEventHandlerWrite();
 }
 
 BufferedSocket::~BufferedSocket()
@@ -436,57 +436,67 @@ BufferedSocket::~BufferedSocket()
 	delete Timeout;
 }
 
-void StreamSocket::HandleEvent(EventType et, int errornum)
+void StreamSocket::OnEventHandlerError(int errornum)
 {
 	if (!error.empty())
 		return;
+
+	if (errornum == 0)
+		SetError("Connection closed");
+	else
+		SetError(SocketEngine::GetError(errornum));
+
 	BufferedSocketError errcode = I_ERR_OTHER;
-	try {
-		switch (et)
-		{
-			case EVENT_ERROR:
-			{
-				if (errornum == 0)
-					SetError("Connection closed");
-				else
-					SetError(SocketEngine::GetError(errornum));
-				switch (errornum)
-				{
-					case ETIMEDOUT:
-						errcode = I_ERR_TIMEOUT;
-						break;
-					case ECONNREFUSED:
-					case 0:
-						errcode = I_ERR_CONNECT;
-						break;
-					case EADDRINUSE:
-						errcode = I_ERR_BIND;
-						break;
-					case EPIPE:
-					case EIO:
-						errcode = I_ERR_WRITE;
-						break;
-				}
-				break;
-			}
-			case EVENT_READ:
-			{
-				DoRead();
-				break;
-			}
-			case EVENT_WRITE:
-			{
-				DoWrite();
-				break;
-			}
-		}
+	switch (errornum)
+	{
+		case ETIMEDOUT:
+			errcode = I_ERR_TIMEOUT;
+			break;
+		case ECONNREFUSED:
+		case 0:
+			errcode = I_ERR_CONNECT;
+			break;
+		case EADDRINUSE:
+			errcode = I_ERR_BIND;
+			break;
+		case EPIPE:
+		case EIO:
+			errcode = I_ERR_WRITE;
+			break;
+	}
+
+	// Log and call OnError()
+	CheckError(errcode);
+}
+
+void StreamSocket::OnEventHandlerRead()
+{
+	if (!error.empty())
+		return;
+
+	try
+	{
+		DoRead();
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'",
-			fd, ex.GetReason().c_str());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
 		SetError(ex.GetReason());
 	}
+	CheckError(I_ERR_OTHER);
+}
+
+void StreamSocket::OnEventHandlerWrite()
+{
+	if (!error.empty())
+		return;
+
+	DoWrite();
+	CheckError(I_ERR_OTHER);
+}
+
+void StreamSocket::CheckError(BufferedSocketError errcode)
+{
 	if (!error.empty())
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());

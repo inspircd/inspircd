@@ -100,8 +100,7 @@ ListenSocket::~ListenSocket()
 	}
 }
 
-/* Just seperated into another func for tidiness really.. */
-void ListenSocket::AcceptInternal()
+void ListenSocket::OnEventHandlerRead()
 {
 	irc::sockets::sockaddrs client;
 	irc::sockets::sockaddrs server;
@@ -109,7 +108,7 @@ void ListenSocket::AcceptInternal()
 	socklen_t length = sizeof(client);
 	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Accepting connection on socket %s fd %d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
 		ServerInstance->stats.Refused++;
@@ -176,22 +175,6 @@ void ListenSocket::AcceptInternal()
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		SocketEngine::Close(incomingSockfd);
-	}
-}
-
-void ListenSocket::HandleEvent(EventType e, int err)
-{
-	switch (e)
-	{
-		case EVENT_ERROR:
-			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
-			break;
-		case EVENT_WRITE:
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
-			break;
-		case EVENT_READ:
-			this->AcceptInternal();
-			break;
 	}
 }
 

@@ -140,9 +140,8 @@ class IdentRequestSocket : public EventHandler
 		}
 	}
 
-	void OnConnected()
+	void OnEventHandlerWrite() CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnConnected()");
 		SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
@@ -163,30 +162,6 @@ class IdentRequestSocket : public EventHandler
 			done = true;
 	}
 
-	void HandleEvent(EventType et, int errornum = 0)
-	{
-		switch (et)
-		{
-			case EVENT_READ:
-				/* fd readable event, received ident response */
-				ReadResponse();
-			break;
-			case EVENT_WRITE:
-				/* fd writeable event, successfully connected! */
-				OnConnected();
-			break;
-			case EVENT_ERROR:
-				/* fd error event, ohshi- */
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "EVENT_ERROR");
-				/* We *must* Close() here immediately or we get a
-				 * huge storm of EVENT_ERROR events!
-				 */
-				Close();
-				done = true;
-			break;
-		}
-	}
-
 	void Close()
 	{
 		/* Remove ident socket from engine, and close it, but dont detatch it
@@ -204,7 +179,7 @@ class IdentRequestSocket : public EventHandler
 		return done;
 	}
 
-	void ReadResponse()
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
@@ -262,6 +237,12 @@ class IdentRequestSocket : public EventHandler
 				break;
 			}
 		}
+	}
+
+	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	{
+		Close();
+		done = true;
 	}
 
 	CullResult cull() CXX11_OVERRIDE

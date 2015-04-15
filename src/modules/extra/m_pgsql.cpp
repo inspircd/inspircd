@@ -178,18 +178,19 @@ class SQLConn : public SQLProvider, public EventHandler
 		}
 	}
 
-	void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		switch (et)
-		{
-			case EVENT_READ:
-			case EVENT_WRITE:
-				DoEvent();
-			break;
+		DoEvent();
+	}
 
-			case EVENT_ERROR:
-				DelayReconnect();
-		}
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		DoEvent();
+	}
+
+	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	{
+		DelayReconnect();
 	}
 
 	std::string GetDSN()

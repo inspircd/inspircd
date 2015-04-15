@@ -72,18 +72,21 @@ class ThreadSignalSocket : public EventHandler
 		eventfd_write(fd, 1);
 	}
 
-	void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		if (et == EVENT_READ)
-		{
-			eventfd_t dummy;
-			eventfd_read(fd, &dummy);
-			parent->OnNotify();
-		}
-		else
-		{
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
+		eventfd_t dummy;
+		eventfd_read(fd, &dummy);
+		parent->OnNotify();
+	}
+
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE
+	{
+		ThreadSignalSocket::OnEventHandlerWrite();
 	}
 };
 
@@ -122,18 +125,21 @@ class ThreadSignalSocket : public EventHandler
 		write(send_fd, &dummy, 1);
 	}
 
-	void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		if (et == EVENT_READ)
-		{
-			char dummy[128];
-			read(fd, dummy, 128);
-			parent->OnNotify();
-		}
-		else
-		{
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
+		char dummy[128];
+		read(fd, dummy, 128);
+		parent->OnNotify();
+	}
+
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE
+	{
+		ThreadSignalSocket::OnEventHandlerWrite();
 	}
 };
 
