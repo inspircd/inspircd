@@ -114,15 +114,7 @@ void StreamSocket::Close()
 		DoWrite();
 		if (GetIOHook())
 		{
-			try
-			{
-				GetIOHook()->OnStreamSocketClose(this);
-			}
-			catch (CoreException& modexcept)
-			{
-				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
-					modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
-			}
+			GetIOHook()->OnStreamSocketClose(this);
 			delete iohook;
 			DelIOHook();
 		}
@@ -151,17 +143,7 @@ void StreamSocket::DoRead()
 {
 	if (GetIOHook())
 	{
-		int rv = -1;
-		try
-		{
-			rv = GetIOHook()->OnStreamSocketRead(this, recvq);
-		}
-		catch (CoreException& modexcept)
-		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
-				modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
-			return;
-		}
+		int rv = GetIOHook()->OnStreamSocketRead(this, recvq);
 		if (rv > 0)
 			OnDataReady();
 		if (rv < 0)
@@ -219,8 +201,6 @@ void StreamSocket::DoWrite()
 
 	if (GetIOHook())
 	{
-		int rv = -1;
-		try
 		{
 			while (error.empty() && !sendq.empty())
 			{
@@ -246,7 +226,7 @@ void StreamSocket::DoWrite()
 				int itemlen = front.length();
 
 				{
-					rv = GetIOHook()->OnStreamSocketWrite(this, front);
+					int rv = GetIOHook()->OnStreamSocketWrite(this, front);
 					if (rv > 0)
 					{
 						// consumed the entire string, and is ready for more
@@ -269,11 +249,6 @@ void StreamSocket::DoWrite()
 					}
 				}
 			}
-		}
-		catch (CoreException& modexcept)
-		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s",
-				modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 		}
 	}
 	else
