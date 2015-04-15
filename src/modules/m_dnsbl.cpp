@@ -324,7 +324,7 @@ class ModuleDNSBL : public Module
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((user->exempt) || (user->client_sa.sa.sa_family != AF_INET) || !DNS)
+		if ((user->exempt) || !DNS)
 			return;
 
 		if (user->MyClass)
@@ -335,13 +335,32 @@ class ModuleDNSBL : public Module
 		else
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
-		unsigned int a, b, c, d;
-		d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-		c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-		b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-		a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
+		std::string reversedip;
+		if (user->client_sa.sa.sa_family == AF_INET)
+		{
+			unsigned int a, b, c, d;
+			d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+			c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+			b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+			a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
-		const std::string reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
+			reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
+		}
+		else if (user->client_sa.sa.sa_family == AF_INET6)
+		{
+			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
+
+			std::string buf = BinToHex(ip, 16);
+			for (std::string::const_reverse_iterator it = buf.rbegin(); it != buf.rend(); ++it)
+			{
+				reversedip.push_back(*it);
+				reversedip.push_back('.');
+			}
+		}
+		else
+			return;
+
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
 		countExt.set(user, DNSBLConfEntries.size());
 
