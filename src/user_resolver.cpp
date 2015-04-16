@@ -92,7 +92,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		if (rev_match)
 		{
 			std::string hostname = bound_user->stored_host;
-			if (hostname.length() < 65 && hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyz-.")==std::string::npos)
+			if (hostname.length() < 65 && hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-.") == std::string::npos)
 			{
 				/* Check we didnt time out */
 				if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
@@ -109,7 +109,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 					bound_user->InvalidateCache();
 				}
 			}
-			else if (!hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyz-.")==std::string::npos) 
+			else if (!hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-.") == std::string::npos) 
 			{
 				bound_user->WriteServ("NOTICE Auth :*** Your hostname is not RFC conform, using your IP address (%s) instead.", bound_user->GetIPString());
 				bound_user->dns_done = true;
