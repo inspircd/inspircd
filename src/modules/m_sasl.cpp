@@ -99,6 +99,9 @@ class SaslAuthenticator
 			if (msg[0] != this->agent)
 				return this->state;
 
+			if (msg.size() < 4)
+				return this->state;
+
 			if (msg[2] == "C")
 				this->user->Write("AUTHENTICATE %s", msg[3].c_str());
 			else if (msg[2] == "D")
