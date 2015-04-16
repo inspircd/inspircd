@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2015 Christoph Kern <christoph.kern@shivering-isles.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *
@@ -93,19 +94,26 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			std::string hostname = bound_user->stored_host;
 			if (hostname.length() < 65)
 			{
-				/* Check we didnt time out */
-				if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
+				if (hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.") == std::string::npos)
 				{
-					/* Hostnames starting with : are not a good thing (tm) */
-					if (hostname[0] == ':')
-						hostname.insert(0, "0");
-
-					bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
-					bound_user->dns_done = true;
-					bound_user->dhost.assign(hostname, 0, 64);
-					bound_user->host.assign(hostname, 0, 64);
-					/* Invalidate cache */
-					bound_user->InvalidateCache();
+					/* Check we didnt time out */
+					if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
+					{
+						bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
+						bound_user->dns_done = true;
+						bound_user->dhost.assign(hostname, 0, 64);
+						bound_user->host.assign(hostname, 0, 64);
+						/* Invalidate cache */
+						bound_user->InvalidateCache();
+					}
+				}
+				else
+				{
+					if (!bound_user->dns_done)
+					{
+						bound_user->WriteServ("NOTICE Auth :*** Your hostname contains invalid characters, using your IP address (%s) instead.", bound_user->GetIPString());
+						bound_user->dns_done = true;
+					}
 				}
 			}
 			else
