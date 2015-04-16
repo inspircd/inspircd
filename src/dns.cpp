@@ -700,8 +700,16 @@ DNSResult DNS::GetResult()
 				/* Identical handling to PTR */
 
 			case DNS_QUERY_PTR:
+			{
 				/* Reverse lookups just come back as char* */
 				resultstr = std::string((const char*)data.first);
+				if (resultstr.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") != std::string::npos)
+				{
+					std::string ro = req->orig;
+					delete req;
+					return DNSResult(this_id | ERROR_MASK, "Invalid char(s) in reply", 0, ro);
+				}
+			}
 			break;
 
 			default:
