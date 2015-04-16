@@ -92,7 +92,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		if (rev_match)
 		{
 			std::string hostname = bound_user->stored_host;
-			if (hostname.length() < 65 or !hostname.find(" "))
+			if (hostname.length() < 65 and !hostname.find(" "))
 			{
 				/* Check we didnt time out */
 				if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
