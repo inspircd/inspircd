@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2015 Christoph Kern <christoph.kern@shivering-isles.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *
@@ -91,7 +92,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		if (rev_match)
 		{
 			std::string hostname = bound_user->stored_host;
-			if (hostname.length() < 65)
+			if (hostname.length() < 65 && hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-.") == std::string::npos)
 			{
 				/* Check we didnt time out */
 				if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
@@ -107,6 +108,11 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 					/* Invalidate cache */
 					bound_user->InvalidateCache();
 				}
+			}
+			else if (!hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-.") == std::string::npos) 
+			{
+				bound_user->WriteServ("NOTICE Auth :*** Your hostname is not RFC conform, using your IP address (%s) instead.", bound_user->GetIPString());
+				bound_user->dns_done = true;
 			}
 			else
 			{
