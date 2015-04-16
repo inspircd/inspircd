@@ -293,7 +293,7 @@ class ModuleSASL : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR);
+		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
 	}
 
 	void OnEvent(Event &ev)
