@@ -32,6 +32,7 @@ class TimedBan
 	std::string channel;
 	std::string mask;
 	time_t expire;
+	Channel* chan;
 };
 
 typedef std::vector<TimedBan> timedbans;
@@ -41,6 +42,16 @@ timedbans TimedBanList;
  */
 class CommandTban : public Command
 {
+	static bool IsBanSet(Channel* chan, const std::string& mask)
+	{
+		for (BanList::const_iterator i = chan->bans.begin(); i != chan->bans.end(); ++i)
+		{
+			if (!strcasecmp(i->data.c_str(), mask.c_str()))
+				return true;
+		}
+		return false;
+	}
+
  public:
 	CommandTban(Module* Creator) : Command(Creator,"TBAN", 3)
 	{
@@ -85,19 +96,25 @@ class CommandTban : public Command
 			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
 			return CMD_FAILURE;
 		}
+
+		if (IsBanSet(channel, mask))
+		{
+			user->WriteServ("NOTICE %s :Ban already set", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		setban.push_back(mask);
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
-		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-			if (!strcasecmp(i->data.c_str(), mask.c_str()))
-				goto found;
-		return CMD_FAILURE;
-found:
+		if (!IsBanSet(channel, mask))
+			return CMD_FAILURE;
+
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
+		T.chan = channel;
 		TimedBanList.push_back(T);
 
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
@@ -114,6 +131,22 @@ found:
 	}
 };
 
+class ChannelMatcher
+{
+	Channel* const chan;
+
+ public:
+	ChannelMatcher(Channel* ch)
+		: chan(ch)
+	{
+	}
+
+	bool operator()(const TimedBan& tb) const
+	{
+		return (tb.chan == chan);
+	}
+};
+
 class ModuleTimedBans : public Module
 {
 	CommandTban cmd;
@@ -126,7 +159,7 @@ class ModuleTimedBans : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
+		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -181,6 +214,12 @@ class ModuleTimedBans : public Module
 				ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
 			}
 		}
+	}
+
+	void OnChannelDelete(Channel* chan)
+	{
+		// Remove all timed bans affecting the channel from internal bookkeeping
+		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
 	}
 
 	virtual Version GetVersion()
