@@ -102,6 +102,8 @@ LOCKSERV       UNLOCKSERV">
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
               non-IRCops (requires hidechans module).
+ L            Stops a user from being force-redirected by channel
+              mode +L.
  R            Blocks private messages from unregistered users
               (requires services account module).
  S            Strips mIRC color/bold/underline codes out of private

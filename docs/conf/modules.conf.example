@@ -1436,17 +1436,10 @@
 #<randquote file="quotes.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Redirect module: Adds channel redirection mode +L.                  #
-# Optional: <redirect:antiredirect> to add usermode +L to stop forced #
-# redirection and instead print an error.                             #
-#                                                                     #
-# Note: You can not update this with a simple rehash, it requires     #
-# reloading the module for it to take effect.                         #
-# This also breaks linking to servers that do not have the option.    #
-# This defaults to false for the 2.0 version, it will be enabled in   #
-# all the future versions.                                            #
+# Redirect module: Adds channel redirection mode and a usermode to    #
+# stop the forced redirection and print an error instead.             #
+# 
 #<module name="m_redirect.so">
-#<redirect antiredirect="true">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for glob or wildcard (?/*) matching.
