@@ -571,6 +571,15 @@ class MyManager : public Manager, public Timer, public EventHandler
 		if (length < Packet::HEADER_LENGTH)
 			return;
 
+		if (myserver != from)
+		{
+			std::string server1 = from.str();
+			std::string server2 = myserver.str();
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
+				server1.c_str(), server2.c_str());
+			return;
+		}
+
 		Packet recv_packet;
 
 		try
@@ -580,15 +589,6 @@ class MyManager : public Manager, public Timer, public EventHandler
 		catch (Exception& ex)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
-			return;
-		}
-
-		if (myserver != from)
-		{
-			std::string server1 = from.str();
-			std::string server2 = myserver.str();
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
-				server1.c_str(), server2.c_str());
 			return;
 		}
 
