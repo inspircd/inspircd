@@ -58,6 +58,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	else
 	{
 		user->WriteNumeric(ERR_ALREADYREGISTERED, ":You may not reregister");
+		user->CommandFloodPenalty += 1000;
 		return CMD_FAILURE;
 	}
 

@@ -73,8 +73,10 @@ class CommandCheck : public Command
 	{
 		char timebuf[60];
 		struct tm *mytime = gmtime(&time);
-		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (%s)", mytime);
-		return std::string(timebuf);
+		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (", mytime);
+		std::string ret(timebuf);
+		ret.append(ConvToStr(time)).push_back(')');
+		return ret;
 	}
 
 	void dumpExt(User* user, const std::string& checkstr, Extensible* ext)

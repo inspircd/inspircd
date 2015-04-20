@@ -1283,7 +1283,8 @@ struct AllModuleList {
 				break; \
 		} \
 		return TRUE; \
-	}
+	} \
+	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION " " INSPIRCD_REVISION;
 
 #else
 

@@ -45,6 +45,7 @@ class CommandPass : public SplitCommand
 		// Check to make sure they haven't registered -- Fix by FCS
 		if (user->registered == REG_ALL)
 		{
+			user->CommandFloodPenalty += 1000;
 			user->WriteNumeric(ERR_ALREADYREGISTERED, ":You may not reregister");
 			return CMD_FAILURE;
 		}
@@ -64,7 +65,6 @@ class CommandPing : public Command
 	CommandPing(Module* parent)
 		: Command(parent, "PING", 1, 2)
 	{
-		Penalty = 0;
 		syntax = "<servername> [:<servername>]";
 	}
 
@@ -102,8 +102,15 @@ class CommandPong : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
 		// set the user as alive so they survive to next ping
-		if (IS_LOCAL(user))
-			IS_LOCAL(user)->lastping = 1;
+		LocalUser* localuser = IS_LOCAL(user);
+		if (localuser)
+		{
+			// Increase penalty unless we've sent a PING and this is the reply
+			if (localuser->lastping)
+				localuser->CommandFloodPenalty += 1000;
+			else
+				localuser->lastping = 1;
+		}
 		return CMD_SUCCESS;
 	}
 };

@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "listmode.h"
 
 /** Holds a timed ban
  */
@@ -30,6 +31,7 @@ class TimedBan
 	std::string channel;
 	std::string mask;
 	time_t expire;
+	Channel* chan;
 };
 
 typedef std::vector<TimedBan> timedbans;
@@ -39,8 +41,28 @@ timedbans TimedBanList;
  */
 class CommandTban : public Command
 {
+	ChanModeReference banmode;
+
+	bool IsBanSet(Channel* chan, const std::string& mask)
+	{
+		ListModeBase* banlm = static_cast<ListModeBase*>(*banmode);
+		const ListModeBase::ModeList* bans = banlm->GetList(chan);
+		if (bans)
+		{
+			for (ListModeBase::ModeList::const_iterator i = bans->begin(); i != bans->end(); ++i)
+			{
+				const ListModeBase::ListItem& ban = *i;
+				if (!strcasecmp(ban.mask.c_str(), mask.c_str()))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
  public:
 	CommandTban(Module* Creator) : Command(Creator,"TBAN", 3)
+		, banmode(Creator, "ban")
 	{
 		syntax = "<channel> <duration> <banmask>";
 	}
@@ -75,6 +97,12 @@ class CommandTban : public Command
 		if (!isextban && !InspIRCd::IsValidMask(mask))
 			mask.append("!*@*");
 
+		if (IsBanSet(channel, mask))
+		{
+			user->WriteNotice("Ban already set");
+			return CMD_FAILURE;
+		}
+
 		Modes::ChangeList setban;
 		setban.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
@@ -90,6 +118,7 @@ class CommandTban : public Command
 		T.channel = channelname;
 		T.mask = mask;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
+		T.chan = channel;
 		TimedBanList.push_back(T);
 
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
@@ -131,6 +160,22 @@ class BanWatcher : public ModeWatcher
 				break;
 			}
 		}
+	}
+};
+
+class ChannelMatcher
+{
+	Channel* const chan;
+
+ public:
+	ChannelMatcher(Channel* ch)
+		: chan(ch)
+	{
+	}
+
+	bool operator()(const TimedBan& tb) const
+	{
+		return (tb.chan == chan);
 	}
 };
 
@@ -177,6 +222,12 @@ class ModuleTimedBans : public Module
 				ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
 			}
 		}
+	}
+
+	void OnChannelDelete(Channel* chan)
+	{
+		// Remove all timed bans affecting the channel from internal bookkeeping
+		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

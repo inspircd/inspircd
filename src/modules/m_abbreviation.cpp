@@ -67,7 +67,7 @@ class ModuleAbbreviation : public Module
 		/* Ambiguous command, list the matches */
 		if (!matchlist.empty())
 		{
-			user->WriteNumeric(420, ":Ambiguous abbreviation, posssible matches: %s%s", foundcommand.c_str(), matchlist.c_str());
+			user->WriteNumeric(420, ":Ambiguous abbreviation, possible matches: %s%s", foundcommand.c_str(), matchlist.c_str());
 			return MOD_RES_DENY;
 		}
 

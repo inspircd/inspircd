@@ -96,6 +96,9 @@ class SaslAuthenticator
 			if (msg[0] != this->agent)
 				return this->state;
 
+			if (msg.size() < 4)
+				return this->state;
+
 			if (msg[2] == "C")
 				this->user->Write("AUTHENTICATE %s", msg[3].c_str());
 			else if (msg[2] == "D")
@@ -285,7 +288,7 @@ class ModuleSASL : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR);
+		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
 	}
 };
 

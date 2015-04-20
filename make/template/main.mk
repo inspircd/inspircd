@@ -122,6 +122,7 @@ FOOTER = finishmessage
   @TARGET BSD_MAKE MAKE += -s
   RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
   RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
+  VERBOSE =
 @ENDIF
 
 @IFDEF PURE_STATIC

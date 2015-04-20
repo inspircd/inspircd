@@ -130,6 +130,10 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	void RemoveCloneCounts(User *user);
 
+	/** Rebuild clone counts
+	 */
+	void RehashCloneCounts();
+
 	/** Return the number of local and global clones of this user
 	 * @param user The user to get the clone counts for
 	 * @return The clone counts of this user. The returned reference is volatile - you

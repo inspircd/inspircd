@@ -155,7 +155,7 @@ class CommandGreloadmodule : public Command
 			if (m)
 			{
 				GReloadModuleWorker* worker = NULL;
-				if (m != creator)
+				if ((m != creator) && (!creator->dying))
 					worker = new GReloadModuleWorker(user->nick, user->uuid, parameters[0]);
 				ServerInstance->Modules->Reload(m, worker);
 			}

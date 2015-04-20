@@ -93,7 +93,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	this->clientlist[New->nick] = New;
 
 	New->registered = REG_NONE;
-	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
+	New->signon = ServerInstance->Time();
 	New->lastping = 1;
 
 	this->AddClone(New);
@@ -254,6 +254,18 @@ void UserManager::RemoveCloneCounts(User *user)
 	}
 }
 
+void UserManager::RehashCloneCounts()
+{
+	clonemap.clear();
+
+	const user_hash& hash = ServerInstance->Users.GetUsers();
+	for (user_hash::const_iterator i = hash.begin(); i != hash.end(); ++i)
+	{
+		User* u = i->second;
+		AddClone(u);
+	}
+}
+
 const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 {
 	CloneMap::const_iterator it = clonemap.find(user->GetCIDRMask());
@@ -348,10 +360,15 @@ void UserManager::DoBackgroundUserStuff()
 					curr->FullConnect();
 					continue;
 				}
+
+				// If the user has been quit in OnCheckReady then we shouldn't
+				// quit them again for having a registration timeout.
+				if (curr->quitting)
+					continue;
 				break;
 		}
 
-		if (curr->registered != REG_ALL && (ServerInstance->Time() > (curr->age + curr->MyClass->GetRegTimeout())))
+		if (curr->registered != REG_ALL && curr->MyClass && (ServerInstance->Time() > (curr->signon + curr->MyClass->GetRegTimeout())))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST

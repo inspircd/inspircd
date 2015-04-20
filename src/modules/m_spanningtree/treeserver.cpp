@@ -40,7 +40,7 @@ TreeServer::TreeServer()
 	, Socket(NULL), sid(ServerInstance->Config->GetSID()), behind_bursting(0), isdead(false)
 	, pingtimer(this)
 	, ServerUser(ServerInstance->FakeClient)
-	, age(ServerInstance->Time()), UserCount(ServerInstance->Users.GetLocalUsers().size())
+	, age(ServerInstance->Time()), UserCount(ServerInstance->Users.LocalUserCount())
 	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
 	AddHashEntry();

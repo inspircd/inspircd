@@ -129,8 +129,8 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 		time_t ourTS = chan->age;
 		if (TS != ourTS)
 		{
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %lu",
-				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)(ourTS - TS));
+			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
+				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (long)(ourTS - TS));
 			/* If our TS is less than theirs, we dont accept their modes */
 			if (ourTS < TS)
 			{

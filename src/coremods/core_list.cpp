@@ -94,14 +94,15 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = (has_privs || chan->HasUser(user));
 
-		if ((!n) && (chan->IsModeSet(privatemode)))
+		// If we're not in the channel and +s is set on it, we want to ignore it
+		if ((n) || (!chan->IsModeSet(secretmode)))
 		{
-			/* Channel is +p and user is outside/not privileged */
-			user->WriteNumeric(RPL_LIST, "* %ld :", users);
-		}
-		else
-		{
-			if ((n) || (!chan->IsModeSet(secretmode)))
+			if ((!n) && (chan->IsModeSet(privatemode)))
+			{
+				// Channel is private (+p) and user is outside/not privileged
+				user->WriteNumeric(RPL_LIST, "* %ld :", users);
+			}
+			else
 			{
 				/* User is in the channel/privileged, channel is not +s */
 				user->WriteNumeric(RPL_LIST, "%s %ld :[+%s] %s", chan->name.c_str(), users, chan->ChanModes(n), chan->topic.c_str());

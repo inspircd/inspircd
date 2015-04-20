@@ -182,11 +182,21 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	/* find the command, check it exists */
 	Command* handler = GetHandler(command);
 
+	// Penalty to give if the command fails before the handler is executed
+	unsigned int failpenalty = 0;
+
 	/* Modify the user's penalty regardless of whether or not the command exists */
 	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		user->CommandFloodPenalty += handler ? handler->Penalty * 1000 : 2000;
+		unsigned int penalty = (handler ? handler->Penalty * 1000 : 2000);
+		user->CommandFloodPenalty += penalty;
+
+		// Increase their penalty later if we fail and the command has 0 penalty by default (i.e. in Command::Penalty) to
+		// throttle sending ERR_* from the command parser. If the command does have a non-zero penalty then this is not
+		// needed because we've increased their penalty above.
+		if (penalty == 0)
+			failpenalty = 1000;
 	}
 
 	if (!handler)
@@ -257,12 +267,14 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	{
 		if (!user->IsModeSet(handler->flags_needed))
 		{
+			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - You do not have the required operator privileges");
 			return;
 		}
 
 		if (!user->HasPermission(command))
 		{
+			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper type %s does not have access to command %s",
 				user->oper->name.c_str(), command.c_str());
 			return;
@@ -272,6 +284,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if ((user->registered == REG_ALL) && (!user->IsOper()) && (handler->IsDisabled()))
 	{
 		/* command is disabled! */
+		user->CommandFloodPenalty += failpenalty;
 		if (ServerInstance->Config->DisabledDontExist)
 		{
 			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command", command.c_str());
@@ -291,6 +304,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 	if (command_p.size() < handler->min_params)
 	{
+		user->CommandFloodPenalty += failpenalty;
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s :Not enough parameters.", command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
 			user->WriteNumeric(RPL_SYNTAX, ":SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str());
@@ -299,6 +313,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 	if ((user->registered != REG_ALL) && (!handler->WorksBeforeReg()))
 	{
+		user->CommandFloodPenalty += failpenalty;
 		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You have not registered",command.c_str());
 	}
 	else

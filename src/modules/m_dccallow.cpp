@@ -318,6 +318,9 @@ class ModuleDCCAllow : public Module
 					while (ss >> buf)
 						tokens.push_back(buf);
 
+					if (tokens.size() < 2)
+						return MOD_RES_PASSTHRU;
+
 					irc::string type = tokens[1].c_str();
 
 					ConfigTag* conftag = ServerInstance->Config->ConfValue("dccallow");
@@ -325,6 +328,9 @@ class ModuleDCCAllow : public Module
 
 					if (type == "SEND")
 					{
+						if (tokens.size() < 3)
+							return MOD_RES_PASSTHRU;
+
 						std::string defaultaction = conftag->getString("action");
 						std::string filename = tokens[2];
 

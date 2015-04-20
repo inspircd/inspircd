@@ -407,6 +407,20 @@ class ModuleHttpServer : public Module
 		return MOD_RES_ALLOW;
 	}
 
+	void OnUnloadModule(Module* mod)
+	{
+		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		{
+			HttpServerSocket* sock = *i;
+			++i;
+			if (sock->GetIOHook() && sock->GetIOHook()->prov->creator == mod)
+			{
+				sock->cull();
+				delete sock;
+			}
+		}
+	}
+
 	CullResult cull() CXX11_OVERRIDE
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)

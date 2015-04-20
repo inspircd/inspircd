@@ -58,7 +58,7 @@ static void GenerateStatsLl(User* user, string_list& results, char c)
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		LocalUser* u = *i;
-		results.push_back("211 "+user->nick+" "+u->nick+"["+u->ident+"@"+(c == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->age));
+		results.push_back("211 "+user->nick+" "+u->nick+"["+u->ident+"@"+(c == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 	}
 }
 
@@ -378,7 +378,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+	{
+		// Give extra penalty if a non-oper does /STATS <remoteserver>
+		LocalUser* localuser = IS_LOCAL(user);
+		if ((localuser) && (!user->IsOper()))
+			localuser->CommandFloodPenalty += 2000;
 		return CMD_SUCCESS;
+	}
 	string_list values;
 	char search = parameters[0][0];
 	DoStats(search, user, values);

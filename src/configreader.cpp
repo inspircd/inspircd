@@ -53,6 +53,7 @@ static ConfigTag* CreateEmptyTag()
 ServerConfig::ServerConfig()
 	: EmptyTag(CreateEmptyTag())
 	, Limits(EmptyTag)
+	, NoSnoticeStack(false)
 {
 	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = InvBypassModes = true;
@@ -575,7 +576,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
 			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
 
-	if (old)
+	if (old && valid)
 	{
 		// On first run, ports are bound later on
 		FailedPortList pl;
@@ -784,6 +785,7 @@ void ConfigReaderThread::Finish()
 		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 		 * thoroughly!!!
 		 */
+		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ChanModeReference ban(NULL, "ban");

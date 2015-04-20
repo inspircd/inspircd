@@ -72,6 +72,20 @@ class ModuleOperPrefixMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	void OnPostJoin(Membership* memb)
+	{
+		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
+			return;
+
+		if (memb->hasMode(opm.GetModeChar()))
+			return;
+
+		// The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.
+		Modes::ChangeList changelist;
+		changelist.push_add(&opm, memb->user->nick);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+	}
+
 	void SetOperPrefix(User* user, bool add)
 	{
 		Modes::ChangeList changelist;
