@@ -201,7 +201,7 @@ class Packet : public Query
 	static const int HEADER_LENGTH = 12;
 
 	/* ID for this packet */
-	unsigned short id;
+	RequestId id;
 	/* Flags on the packet */
 	unsigned short flags;
 
@@ -218,9 +218,6 @@ class Packet : public Query
 
 		this->id = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;
-
-		if (this->id >= MAX_REQUEST_ID)
-			throw Exception("Query ID too large?");
 
 		this->flags = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;

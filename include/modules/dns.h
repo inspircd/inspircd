@@ -68,6 +68,8 @@ namespace DNS
 		ERROR_INVALIDTYPE
 	};
 
+	typedef uint16_t RequestId;
+
 	const int PORT = 53;
 
 	/**
@@ -147,7 +149,7 @@ namespace DNS
 		/* Use result cache if available */
 		bool use_cache;
 		/* Request id */
-	 	unsigned short id;
+	 	RequestId id;
 	 	/* Creator of this request */
 		Module* const creator;
 
