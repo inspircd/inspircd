@@ -88,11 +88,10 @@ namespace DNS
 	{
 		std::string name;
 		QueryType type;
-		unsigned short qclass;
 
-		Question() : type(QUERY_NONE), qclass(0) { }
-		Question(const std::string& n, QueryType t, unsigned short c = 1) : name(n), type(t), qclass(c) { }
-		inline bool operator==(const Question& other) const { return name == other.name && type == other.type && qclass == other.qclass; }
+		Question() : type(QUERY_NONE) { }
+		Question(const std::string& n, QueryType t) : name(n), type(t) { }
+		bool operator==(const Question& other) const { return ((name == other.name) && (type == other.type)); }
 
 		struct hash
 		{
@@ -109,7 +108,7 @@ namespace DNS
 		std::string rdata;
 		time_t created;
 
-		ResourceRecord(const std::string& n, QueryType t, unsigned short c = 1) : Question(n, t, c), ttl(0), created(ServerInstance->Time()) { }
+		ResourceRecord(const std::string& n, QueryType t) : Question(n, t), ttl(0), created(ServerInstance->Time()) { }
 		ResourceRecord(const Question& question) : Question(question), ttl(0), created(ServerInstance->Time()) { }
 	};
 

@@ -126,7 +126,7 @@ class Packet : public Query
 		question.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
 		pos += 2;
 
-		question.qclass = input[pos] << 8 | input[pos + 1];
+		// Skip over query class code
 		pos += 2;
 
 		return question;
@@ -307,9 +307,9 @@ class Packet : public Query
 			memcpy(&output[pos], &s, 2);
 			pos += 2;
 
-			s = htons(q.qclass);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
+			// Query class, always IN
+			output[pos++] = 0;
+			output[pos++] = 1;
 		}
 
 		return pos;
