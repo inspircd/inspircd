@@ -114,13 +114,13 @@ namespace DNS
 
 	struct Query
 	{
-		std::vector<Question> questions;
+		Question question;
 		std::vector<ResourceRecord> answers;
 		Error error;
 		bool cached;
 
 		Query() : error(ERROR_NONE), cached(false) { }
-		Query(const Question& question) : error(ERROR_NONE), cached(false) { questions.push_back(question); }
+		Query(const Question& q) : question(q), error(ERROR_NONE), cached(false) { }
 	};
 
 	class ReplySocket;

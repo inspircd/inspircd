@@ -116,20 +116,20 @@ class Packet : public Query
 
 	Question UnpackQuestion(const unsigned char* input, unsigned short input_size, unsigned short& pos)
 	{
-		Question question;
+		Question q;
 
-		question.name = this->UnpackName(input, input_size, pos);
+		q.name = this->UnpackName(input, input_size, pos);
 
 		if (pos + 4 > input_size)
 			throw Exception("Unable to unpack question");
 
-		question.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
+		q.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
 		pos += 2;
 
 		// Skip over query class code
 		pos += 2;
 
-		return question;
+		return q;
 	}
 
 	ResourceRecord UnpackResourceRecord(const unsigned char* input, unsigned short input_size, unsigned short& pos)
@@ -239,8 +239,7 @@ class Packet : public Query
 		if (qdcount != 1)
 			throw Exception("Question count != 1 in incoming packet");
 
-		for (unsigned i = 0; i < qdcount; ++i)
-			this->questions.push_back(this->UnpackQuestion(input, len, packet_pos));
+		this->question = this->UnpackQuestion(input, len, packet_pos);
 
 		for (unsigned i = 0; i < ancount; ++i)
 			this->answers.push_back(this->UnpackResourceRecord(input, len, packet_pos));
@@ -257,8 +256,8 @@ class Packet : public Query
 		output[pos++] = this->id & 0xFF;
 		output[pos++] = this->flags >> 8;
 		output[pos++] = this->flags & 0xFF;
-		output[pos++] = this->questions.size() >> 8;
-		output[pos++] = this->questions.size() & 0xFF;
+		output[pos++] = 0; // Question count, high byte
+		output[pos++] = 1; // Question count, low byte
 		output[pos++] = 0; // Answer count, high byte
 		output[pos++] = 0; // Answer count, low byte
 		output[pos++] = 0;
@@ -266,9 +265,8 @@ class Packet : public Query
 		output[pos++] = 0;
 		output[pos++] = 0;
 
-		for (unsigned i = 0; i < this->questions.size(); ++i)
 		{
-			Question& q = this->questions[i];
+			Question& q = this->question;
 
 			if (q.type == QUERY_PTR)
 			{
@@ -363,7 +361,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		const ResourceRecord& rr = r.answers[0];
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
-		this->cache[r.questions[0]] = r;
+		this->cache[r.question] = r;
 	}
 
  public:
@@ -431,15 +429,15 @@ class MyManager : public Manager, public Timer, public EventHandler
 		Packet p;
 		p.flags = QUERYFLAGS_RD;
 		p.id = req->id;
-		p.questions.push_back(*req);
+		p.question = *req;
 
 		unsigned char buffer[524];
 		unsigned short len = p.Pack(buffer, sizeof(buffer));
 
-		/* Note that calling Pack() above can actually change the contents of p.questions[0].name, if the query is a PTR,
+		/* Note that calling Pack() above can actually change the contents of p.question.name, if the query is a PTR,
 		 * to contain the value that would be in the DNS cache, which is why this is here.
 		 */
-		if (req->use_cache && this->CheckCache(req, p.questions[0]))
+		if (req->use_cache && this->CheckCache(req, p.question))
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Using cached result");
 			delete req;
@@ -567,7 +565,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			recv_packet.error = error;
 			request->OnError(&recv_packet);
 		}
-		else if (recv_packet.questions.empty() || recv_packet.answers.empty())
+		else if (recv_packet.answers.empty())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "No resource records returned");
 			ServerInstance->stats.DnsBad++;
