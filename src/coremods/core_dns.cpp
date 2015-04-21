@@ -473,32 +473,34 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 		/* Create an id */
 		unsigned int tries = 0;
+		int id;
 		do
 		{
-			req->id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
+			id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
 
 			if (++tries == DNS::MAX_REQUEST_ID*5)
 			{
 				// If we couldn't find an empty slot this many times, do a sequential scan as a last
 				// resort. If an empty slot is found that way, go on, otherwise throw an exception
-				req->id = 0;
-				for (int i = 1; i < DNS::MAX_REQUEST_ID; i++)
+				id = -1;
+				for (unsigned int i = 0; i < DNS::MAX_REQUEST_ID; i++)
 				{
 					if (!this->requests[i])
 					{
-						req->id = i;
+						id = i;
 						break;
 					}
 				}
 
-				if (req->id == 0)
+				if (id == -1)
 					throw Exception("DNS: All ids are in use");
 
 				break;
 			}
 		}
-		while (!req->id || this->requests[req->id]);
+		while (this->requests[id]);
 
+		req->id = id;
 		this->requests[req->id] = req;
 
 		Packet p;
