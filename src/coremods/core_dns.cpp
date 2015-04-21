@@ -442,18 +442,18 @@ class MyManager : public Manager, public Timer, public EventHandler
 	}
 
  public:
-	DNS::Request* requests[MAX_REQUEST_ID];
+	DNS::Request* requests[MAX_REQUEST_ID+1];
 
 	MyManager(Module* c) : Manager(c), Timer(3600, true)
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
 		ServerInstance->Timers.AddTimer(this);
 	}
 
 	~MyManager()
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* request = requests[i];
 			if (!request)
@@ -476,14 +476,14 @@ class MyManager : public Manager, public Timer, public EventHandler
 		int id;
 		do
 		{
-			id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
+			id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID+1);
 
 			if (++tries == DNS::MAX_REQUEST_ID*5)
 			{
 				// If we couldn't find an empty slot this many times, do a sequential scan as a last
 				// resort. If an empty slot is found that way, go on, otherwise throw an exception
 				id = -1;
-				for (unsigned int i = 0; i < DNS::MAX_REQUEST_ID; i++)
+				for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; i++)
 				{
 					if (!this->requests[i])
 					{
@@ -807,7 +807,7 @@ class ModuleDNS : public Module
 
 	void OnUnloadModule(Module* mod)
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* req = this->manager.requests[i];
 			if (!req)
