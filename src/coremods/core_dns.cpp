@@ -236,6 +236,9 @@ class Packet : public Query
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
 
+		if (qdcount != 1)
+			throw Exception("Question count != 1 in incoming packet");
+
 		for (unsigned i = 0; i < qdcount; ++i)
 			this->questions.push_back(this->UnpackQuestion(input, len, packet_pos));
 
