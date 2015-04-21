@@ -256,8 +256,8 @@ class Packet : public Query
 		output[pos++] = this->flags & 0xFF;
 		output[pos++] = this->questions.size() >> 8;
 		output[pos++] = this->questions.size() & 0xFF;
-		output[pos++] = this->answers.size() >> 8;
-		output[pos++] = this->answers.size() & 0xFF;
+		output[pos++] = 0; // Answer count, high byte
+		output[pos++] = 0; // Answer count, low byte
 		output[pos++] = 0;
 		output[pos++] = 0;
 		output[pos++] = 0;
@@ -310,81 +310,6 @@ class Packet : public Query
 			s = htons(q.qclass);
 			memcpy(&output[pos], &s, 2);
 			pos += 2;
-		}
-
-		for (unsigned int i = 0; i < answers.size(); i++)
-		{
-			ResourceRecord& rr = answers[i];
-
-			this->PackName(output, output_size, pos, rr.name);
-
-			if (pos + 8 >= output_size)
-				throw Exception("Unable to pack packet");
-
-			short s = htons(rr.type);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
-
-			s = htons(rr.qclass);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
-
-			long l = htonl(rr.ttl);
-			memcpy(&output[pos], &l, 4);
-			pos += 4;
-
-			switch (rr.type)
-			{
-				case QUERY_A:
-				{
-					if (pos + 6 > output_size)
-						throw Exception("Unable to pack packet");
-
-					irc::sockets::sockaddrs a;
-					irc::sockets::aptosa(rr.rdata, 0, a);
-
-					s = htons(4);
-					memcpy(&output[pos], &s, 2);
-					pos += 2;
-
-					memcpy(&output[pos], &a.in4.sin_addr, 4);
-					pos += 4;
-					break;
-				}
-				case QUERY_AAAA:
-				{
-					if (pos + 18 > output_size)
-						throw Exception("Unable to pack packet");
-
-					irc::sockets::sockaddrs a;
-					irc::sockets::aptosa(rr.rdata, 0, a);
-
-					s = htons(16);
-					memcpy(&output[pos], &s, 2);
-					pos += 2;
-
-					memcpy(&output[pos], &a.in6.sin6_addr, 16);
-					pos += 16;
-					break;
-				}
-				case QUERY_CNAME:
-				case QUERY_PTR:
-				{
-					if (pos + 2 >= output_size)
-						throw Exception("Unable to pack packet");
-
-					unsigned short packet_pos_save = pos;
-					pos += 2;
-
-					this->PackName(output, output_size, pos, rr.rdata);
-
-					s = htons(pos - packet_pos_save - 2);
-					memcpy(&output[packet_pos_save], &s, 2);
-					break;
-				}
-				default:
-					break;
-			}
 		}
 
 		return pos;
