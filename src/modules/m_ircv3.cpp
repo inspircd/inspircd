@@ -51,9 +51,9 @@ class ModuleIRCv3 : public Module, public AccountEventListener
  public:
 	ModuleIRCv3()
 		: AccountEventListener(this)
-		, cap_accountnotify(this, "account-notify"),
-					cap_awaynotify(this, "away-notify"),
-					cap_extendedjoin(this, "extended-join")
+		, cap_accountnotify(this, "account-notify")
+		, cap_awaynotify(this, "away-notify")
+		, cap_extendedjoin(this, "extended-join")
 	{
 	}
 
