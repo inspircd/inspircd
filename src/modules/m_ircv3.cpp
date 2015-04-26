@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013-2015 Peter Powell <petpow@saberuk.com>
  *
@@ -47,6 +48,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 	GenericCap cap_awaynotify;
 	GenericCap cap_echomessage;
 	GenericCap cap_extendedjoin;
+	GenericCap cap_invitenotify;
 
 	CUList last_excepts;
 
@@ -57,6 +59,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		, cap_awaynotify(this, "away-notify")
 		, cap_echomessage(this, "echo-message")
 		, cap_extendedjoin(this, "extended-join")
+		, cap_invitenotify(this, "invite-notify")
 	{
 	}
 
@@ -67,6 +70,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		cap_awaynotify.SetActive(conf->getBool("awaynotify", true));
 		cap_echomessage.SetActive(conf->getBool("echomessage", true));
 		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
+		cap_invitenotify.SetActive(conf->getBool("invitenotify", true));
 	}
 
 	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
@@ -190,6 +194,20 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		}
 
 		last_excepts.clear();
+	}
+
+	void OnUserInvite(User* source, User* dest, Channel* channel, time_t)
+	{
+		const Channel::MemberMap& members = channel->GetUsers();
+		for (Channel::MemberMap::const_iterator iter = members.begin(); iter != members.end(); ++iter)
+		{
+			User* user = iter->first;
+
+			if (user == source || user == dest || !this->cap_invitenotify.ext.get(user))
+				continue;
+
+			user->WriteFrom(source, "INVITE " + dest->nick + " :" + channel->name);
+		}
 	}
 
 	void OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
