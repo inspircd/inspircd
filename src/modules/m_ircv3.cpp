@@ -2,6 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013-2015 Peter Powell <petpow@saberuk.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -44,6 +45,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 {
 	GenericCap cap_accountnotify;
 	GenericCap cap_awaynotify;
+	GenericCap cap_echomessage;
 	GenericCap cap_extendedjoin;
 
 	CUList last_excepts;
@@ -53,6 +55,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		: AccountEventListener(this)
 		, cap_accountnotify(this, "account-notify")
 		, cap_awaynotify(this, "away-notify")
+		, cap_echomessage(this, "echo-message")
 		, cap_extendedjoin(this, "extended-join")
 	{
 	}
@@ -62,6 +65,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
 		cap_awaynotify.SetActive(conf->getBool("awaynotify", true));
+		cap_echomessage.SetActive(conf->getBool("echomessage", true));
 		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
 	}
 
@@ -186,6 +190,38 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		}
 
 		last_excepts.clear();
+	}
+
+	void OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
+	{
+		if (!cap_echomessage.ext.get(user))
+			return;
+
+		std::string target;
+		if (target_type == TYPE_USER)
+		{
+			User* destuser = static_cast<User*>(dest);
+			if (destuser == user)
+				return;
+
+			target = destuser->nick;
+		}
+		else if (target_type == TYPE_CHANNEL)
+		{
+			Channel* channel = static_cast<Channel*>(dest);
+			if (status)
+				target.push_back(status);
+			target.append(channel->name);
+		}
+		else if (target_type == TYPE_SERVER)
+		{
+			const char* destserver = static_cast<const char*>(dest);
+			target.append(destserver);
+		}
+		else
+			return;
+
+		user->WriteFrom(user, "%s %s :%s", msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE", target.c_str(), text.c_str());
 	}
 
 	void Prioritize()
