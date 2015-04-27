@@ -121,20 +121,20 @@ class Packet : public Query
 
 	Question UnpackQuestion(const unsigned char* input, unsigned short input_size, unsigned short& pos)
 	{
-		Question question;
+		Question q;
 
-		question.name = this->UnpackName(input, input_size, pos);
+		q.name = this->UnpackName(input, input_size, pos);
 
 		if (pos + 4 > input_size)
 			throw Exception("Unable to unpack question");
 
-		question.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
+		q.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
 		pos += 2;
 
-		question.qclass = input[pos] << 8 | input[pos + 1];
+		// Skip over query class code
 		pos += 2;
 
-		return question;
+		return q;
 	}
 
 	ResourceRecord UnpackResourceRecord(const unsigned char* input, unsigned short input_size, unsigned short& pos)
@@ -209,7 +209,7 @@ class Packet : public Query
 	static const int HEADER_LENGTH = 12;
 
 	/* ID for this packet */
-	unsigned short id;
+	RequestId id;
 	/* Flags on the packet */
 	unsigned short flags;
 
@@ -226,9 +226,6 @@ class Packet : public Query
 
 		this->id = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;
-
-		if (this->id >= MAX_REQUEST_ID)
-			throw Exception("Query ID too large?");
 
 		this->flags = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;
@@ -247,8 +244,10 @@ class Packet : public Query
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
 
-		for (unsigned i = 0; i < qdcount; ++i)
-			this->questions.push_back(this->UnpackQuestion(input, len, packet_pos));
+		if (qdcount != 1)
+			throw Exception("Question count != 1 in incoming packet");
+
+		this->question = this->UnpackQuestion(input, len, packet_pos);
 
 		for (unsigned i = 0; i < ancount; ++i)
 			this->answers.push_back(this->UnpackResourceRecord(input, len, packet_pos));
@@ -265,18 +264,17 @@ class Packet : public Query
 		output[pos++] = this->id & 0xFF;
 		output[pos++] = this->flags >> 8;
 		output[pos++] = this->flags & 0xFF;
-		output[pos++] = this->questions.size() >> 8;
-		output[pos++] = this->questions.size() & 0xFF;
-		output[pos++] = this->answers.size() >> 8;
-		output[pos++] = this->answers.size() & 0xFF;
+		output[pos++] = 0; // Question count, high byte
+		output[pos++] = 1; // Question count, low byte
+		output[pos++] = 0; // Answer count, high byte
+		output[pos++] = 0; // Answer count, low byte
 		output[pos++] = 0;
 		output[pos++] = 0;
 		output[pos++] = 0;
 		output[pos++] = 0;
 
-		for (unsigned i = 0; i < this->questions.size(); ++i)
 		{
-			Question& q = this->questions[i];
+			Question& q = this->question;
 
 			if (q.type == QUERY_PTR)
 			{
@@ -318,84 +316,9 @@ class Packet : public Query
 			memcpy(&output[pos], &s, 2);
 			pos += 2;
 
-			s = htons(q.qclass);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
-		}
-
-		for (unsigned int i = 0; i < answers.size(); i++)
-		{
-			ResourceRecord& rr = answers[i];
-
-			this->PackName(output, output_size, pos, rr.name);
-
-			if (pos + 8 >= output_size)
-				throw Exception("Unable to pack packet");
-
-			short s = htons(rr.type);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
-
-			s = htons(rr.qclass);
-			memcpy(&output[pos], &s, 2);
-			pos += 2;
-
-			long l = htonl(rr.ttl);
-			memcpy(&output[pos], &l, 4);
-			pos += 4;
-
-			switch (rr.type)
-			{
-				case QUERY_A:
-				{
-					if (pos + 6 > output_size)
-						throw Exception("Unable to pack packet");
-
-					irc::sockets::sockaddrs a;
-					irc::sockets::aptosa(rr.rdata, 0, a);
-
-					s = htons(4);
-					memcpy(&output[pos], &s, 2);
-					pos += 2;
-
-					memcpy(&output[pos], &a.in4.sin_addr, 4);
-					pos += 4;
-					break;
-				}
-				case QUERY_AAAA:
-				{
-					if (pos + 18 > output_size)
-						throw Exception("Unable to pack packet");
-
-					irc::sockets::sockaddrs a;
-					irc::sockets::aptosa(rr.rdata, 0, a);
-
-					s = htons(16);
-					memcpy(&output[pos], &s, 2);
-					pos += 2;
-
-					memcpy(&output[pos], &a.in6.sin6_addr, 16);
-					pos += 16;
-					break;
-				}
-				case QUERY_CNAME:
-				case QUERY_PTR:
-				{
-					if (pos + 2 >= output_size)
-						throw Exception("Unable to pack packet");
-
-					unsigned short packet_pos_save = pos;
-					pos += 2;
-
-					this->PackName(output, output_size, pos, rr.rdata);
-
-					s = htons(pos - packet_pos_save - 2);
-					memcpy(&output[packet_pos_save], &s, 2);
-					break;
-				}
-				default:
-					break;
-			}
+			// Query class, always IN
+			output[pos++] = 0;
+			output[pos++] = 1;
 		}
 
 		return pos;
@@ -446,22 +369,22 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		const ResourceRecord& rr = r.answers[0];
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
-		this->cache[r.questions[0]] = r;
+		this->cache[r.question] = r;
 	}
 
  public:
-	DNS::Request* requests[MAX_REQUEST_ID];
+	DNS::Request* requests[MAX_REQUEST_ID+1];
 
 	MyManager(Module* c) : Manager(c), Timer(3600, true)
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
 		ServerInstance->Timers.AddTimer(this);
 	}
 
 	~MyManager()
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* request = requests[i];
 			if (!request)
@@ -481,51 +404,56 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 		/* Create an id */
 		unsigned int tries = 0;
+		int id;
 		do
 		{
-			req->id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
+			id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID+1);
 
 			if (++tries == DNS::MAX_REQUEST_ID*5)
 			{
 				// If we couldn't find an empty slot this many times, do a sequential scan as a last
 				// resort. If an empty slot is found that way, go on, otherwise throw an exception
-				req->id = 0;
-				for (int i = 1; i < DNS::MAX_REQUEST_ID; i++)
+				id = -1;
+				for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; i++)
 				{
 					if (!this->requests[i])
 					{
-						req->id = i;
+						id = i;
 						break;
 					}
 				}
 
-				if (req->id == 0)
+				if (id == -1)
 					throw Exception("DNS: All ids are in use");
 
 				break;
 			}
 		}
-		while (!req->id || this->requests[req->id]);
+		while (this->requests[id]);
 
+		req->id = id;
 		this->requests[req->id] = req;
 
 		Packet p;
 		p.flags = QUERYFLAGS_RD;
 		p.id = req->id;
-		p.questions.push_back(*req);
+		p.question = *req;
 
 		unsigned char buffer[524];
 		unsigned short len = p.Pack(buffer, sizeof(buffer));
 
-		/* Note that calling Pack() above can actually change the contents of p.questions[0].name, if the query is a PTR,
+		/* Note that calling Pack() above can actually change the contents of p.question.name, if the query is a PTR,
 		 * to contain the value that would be in the DNS cache, which is why this is here.
 		 */
-		if (req->use_cache && this->CheckCache(req, p.questions[0]))
+		if (req->use_cache && this->CheckCache(req, p.question))
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Using cached result");
 			delete req;
 			return;
 		}
+
+		// Update name in the original request so question checking works for PTR queries
+		req->name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
 			throw Exception("DNS: Unable to send query");
@@ -579,6 +507,15 @@ class MyManager : public Manager, public Timer, public EventHandler
 		if (length < Packet::HEADER_LENGTH)
 			return;
 
+		if (myserver != from)
+		{
+			std::string server1 = from.str();
+			std::string server2 = myserver.str();
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
+				server1.c_str(), server2.c_str());
+			return;
+		}
+
 		Packet recv_packet;
 
 		try
@@ -591,19 +528,17 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		if (myserver != from)
-		{
-			std::string server1 = from.str();
-			std::string server2 = myserver.str();
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
-				server1.c_str(), server2.c_str());
-			return;
-		}
-
 		DNS::Request* request = this->requests[recv_packet.id];
 		if (request == NULL)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received an answer for something we didn't request");
+			return;
+		}
+
+		if (static_cast<Question&>(*request) != recv_packet.question)
+		{
+			// This can happen under high latency, drop it silently, do not fail the request
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received an answer that isn't for a question we asked");
 			return;
 		}
 
@@ -648,7 +583,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			recv_packet.error = error;
 			request->OnError(&recv_packet);
 		}
-		else if (recv_packet.questions.empty() || recv_packet.answers.empty())
+		else if (recv_packet.answers.empty())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "No resource records returned");
 			ServerInstance->stats.DnsBad++;
@@ -813,7 +748,7 @@ class ModuleDNS : public Module
 
 	void OnUnloadModule(Module* mod)
 	{
-		for (int i = 0; i < MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* req = this->manager.requests[i];
 			if (!req)

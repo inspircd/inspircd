@@ -68,6 +68,8 @@ namespace DNS
 		ERROR_INVALIDTYPE
 	};
 
+	typedef uint16_t RequestId;
+
 	const int PORT = 53;
 
 	/**
@@ -86,11 +88,11 @@ namespace DNS
 	{
 		std::string name;
 		QueryType type;
-		unsigned short qclass;
 
-		Question() : type(QUERY_NONE), qclass(0) { }
-		Question(const std::string& n, QueryType t, unsigned short c = 1) : name(n), type(t), qclass(c) { }
-		inline bool operator==(const Question& other) const { return name == other.name && type == other.type && qclass == other.qclass; }
+		Question() : type(QUERY_NONE) { }
+		Question(const std::string& n, QueryType t) : name(n), type(t) { }
+		bool operator==(const Question& other) const { return ((name == other.name) && (type == other.type)); }
+		bool operator!=(const Question& other) const { return (!(*this == other)); }
 
 		struct hash
 		{
@@ -107,19 +109,19 @@ namespace DNS
 		std::string rdata;
 		time_t created;
 
-		ResourceRecord(const std::string& n, QueryType t, unsigned short c = 1) : Question(n, t, c), ttl(0), created(ServerInstance->Time()) { }
+		ResourceRecord(const std::string& n, QueryType t) : Question(n, t), ttl(0), created(ServerInstance->Time()) { }
 		ResourceRecord(const Question& question) : Question(question), ttl(0), created(ServerInstance->Time()) { }
 	};
 
 	struct Query
 	{
-		std::vector<Question> questions;
+		Question question;
 		std::vector<ResourceRecord> answers;
 		Error error;
 		bool cached;
 
 		Query() : error(ERROR_NONE), cached(false) { }
-		Query(const Question& question) : error(ERROR_NONE), cached(false) { questions.push_back(question); }
+		Query(const Question& q) : question(q), error(ERROR_NONE), cached(false) { }
 	};
 
 	class ReplySocket;
@@ -147,7 +149,7 @@ namespace DNS
 		/* Use result cache if available */
 		bool use_cache;
 		/* Request id */
-	 	unsigned short id;
+	 	RequestId id;
 	 	/* Creator of this request */
 		Module* const creator;
 
