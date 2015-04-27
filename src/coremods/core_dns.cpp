@@ -527,6 +527,13 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
+		if (static_cast<Question&>(*request) != recv_packet.question)
+		{
+			// This can happen under high latency, drop it silently, do not fail the request
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received an answer that isn't for a question we asked");
+			return;
+		}
+
 		if (recv_packet.flags & QUERYFLAGS_OPCODE)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received a nonstandard query");

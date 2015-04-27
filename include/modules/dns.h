@@ -92,6 +92,7 @@ namespace DNS
 		Question() : type(QUERY_NONE) { }
 		Question(const std::string& n, QueryType t) : name(n), type(t) { }
 		bool operator==(const Question& other) const { return ((name == other.name) && (type == other.type)); }
+		bool operator!=(const Question& other) const { return (!(*this == other)); }
 
 		struct hash
 		{
