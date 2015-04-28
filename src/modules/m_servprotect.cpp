@@ -121,7 +121,7 @@ class ModuleServProtectMode : public Module
 
 	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
-		return ((src != dst) && (numeric == 319) && dst->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric == 319) && dst->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 
