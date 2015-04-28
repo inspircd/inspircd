@@ -112,12 +112,9 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 
 void CommandWhois::SplitChanList(WhoisContextImpl& whois, const std::string& cl)
 {
-	std::string line;
-	std::ostringstream prefix;
+	std::string line(1, ':');
 	std::string::size_type start, pos;
 
-	prefix << ":";
-	line = prefix.str();
 	const std::string::size_type namelen = ServerInstance->Config->ServerName.length() + 6 + whois.GetTarget()->nick.length() + 1;
 
 	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
@@ -125,13 +122,13 @@ void CommandWhois::SplitChanList(WhoisContextImpl& whois, const std::string& cl)
 		if (line.length() + namelen + pos - start > 510)
 		{
 			whois.SendLine(319, line);
-			line = prefix.str();
+			line.erase(1);
 		}
 
 		line.append(cl, start, pos - start + 1);
 	}
 
-	if (line.length() != prefix.str().length())
+	if (line.length() > 1)
 	{
 		whois.SendLine(319, line);
 	}
