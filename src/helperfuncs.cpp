@@ -313,26 +313,6 @@ void InspIRCd::CheckRoot()
 #endif
 }
 
-void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
-{
-	std::string copy_text = dest->nick;
-	copy_text.push_back(' ');
-	copy_text.append(text);
-
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));
-
-	if (MOD_RESULT != MOD_RES_DENY)
-		user->WriteNumeric(numeric, copy_text);
-}
-
-void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, format, format)
-	this->SendWhoisLine(user, dest, numeric, textbuffer);
-}
-
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */

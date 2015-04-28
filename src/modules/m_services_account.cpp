@@ -156,19 +156,19 @@ class ModuleServicesAccount : public Module
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		std::string *account = accountname.get(dest);
+		std::string* account = accountname.get(whois.GetTarget());
 
 		if (account)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s :is logged in as", account->c_str());
+			whois.SendLine(330, "%s :is logged in as", account->c_str());
 		}
 
-		if (dest->IsModeSet(m5))
+		if (whois.GetTarget()->IsModeSet(m5))
 		{
 			/* user is registered */
-			ServerInstance->SendWhoisLine(source, dest, 307, ":is a registered nick");
+			whois.SendLine(307, ":is a registered nick");
 		}
 	}
 

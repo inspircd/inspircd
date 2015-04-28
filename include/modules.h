@@ -222,7 +222,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
 enum Implementation
 {
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
+	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserMessage, I_OnMode, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
@@ -234,7 +234,7 @@ enum Implementation
 	I_OnPostTopicChange, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
+	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
@@ -468,14 +468,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user issuing /INFO
 	 */
 	virtual void OnInfo(User* user);
-
-	/** Called whenever a /WHOIS is performed on a local user.
-	 * The source parameter contains the details of the user who issued the WHOIS command, and
-	 * the dest parameter contains the information of the user they are whoising.
-	 * @param source The user issuing the WHOIS command
-	 * @param dest The user who is being WHOISed
-	 */
-	virtual void OnWhois(User* source, User* dest);
 
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
@@ -961,19 +953,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
 	 */
 	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
-
-	/** Called whenever a line of WHOIS output is sent to a user.
-	 * You may change the numeric and the text of the output by changing
-	 * the values numeric and text, but you cannot change the user the
-	 * numeric is sent to. You may however change the user's User values.
-	 * @param user The user the numeric is being sent to
-	 * @param dest The user being WHOISed
-	 * @param numeric The numeric of the line being sent
-	 * @param text The text of the numeric, including any parameters
-	 * @return nonzero to drop the line completely so that the user does not
-	 * receive it, or zero to allow the line to be sent.
-	 */
-	virtual ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be

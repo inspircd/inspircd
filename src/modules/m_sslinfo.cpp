@@ -139,14 +139,16 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
  	}
 };
 
-class ModuleSSLInfo : public Module
+class ModuleSSLInfo : public Module, public Whois::EventListener
 {
 	CommandSSLInfo cmd;
 	UserCertificateAPIImpl APIImpl;
 
  public:
 	ModuleSSLInfo()
-		: cmd(this), APIImpl(this, cmd.CertExt)
+		: Whois::EventListener(this)
+		, cmd(this)
+		, APIImpl(this, cmd.CertExt)
 	{
 	}
 
@@ -155,15 +157,15 @@ class ModuleSSLInfo : public Module
 		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = cmd.CertExt.get(dest);
+		ssl_cert* cert = cmd.CertExt.get(whois.GetTarget());
 		if (cert)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 671, ":is using a secure connection");
+			whois.SendLine(671, ":is using a secure connection");
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-			if ((!operonlyfp || source == dest || source->IsOper()) && !cert->fingerprint.empty())
-				ServerInstance->SendWhoisLine(source, dest, 276, ":has client certificate fingerprint %s", cert->fingerprint.c_str());
+			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
+				whois.SendLine(276, ":has client certificate fingerprint %s", cert->fingerprint.c_str());
 		}
 	}
 

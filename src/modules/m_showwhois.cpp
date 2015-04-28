@@ -69,7 +69,7 @@ class WhoisNoticeCmd : public Command
 	}
 };
 
-class ModuleShowwhois : public Module
+class ModuleShowwhois : public Module, public Whois::EventListener
 {
 	bool ShowWhoisFromOpers;
 	SeeWhois sw;
@@ -78,7 +78,9 @@ class ModuleShowwhois : public Module
  public:
 
 	ModuleShowwhois()
-		: sw(this), cmd(this)
+		: Whois::EventListener(this)
+		, sw(this)
+		, cmd(this)
 	{
 	}
 
@@ -95,9 +97,11 @@ class ModuleShowwhois : public Module
 		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (!dest->IsModeSet(sw) || source == dest)
+		User* const source = whois.GetSource();
+		User* const dest = whois.GetTarget();
+		if (!dest->IsModeSet(sw) || whois.IsSelfWhois())
 			return;
 
 		if (!ShowWhoisFromOpers && source->IsOper())
