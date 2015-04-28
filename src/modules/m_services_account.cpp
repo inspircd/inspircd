@@ -162,13 +162,13 @@ class ModuleServicesAccount : public Module
 
 		if (account)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s :is logged in as", dest->nick.c_str(), account->c_str());
+			ServerInstance->SendWhoisLine(source, dest, 330, "%s :is logged in as", account->c_str());
 		}
 
 		if (dest->IsModeSet(m5))
 		{
 			/* user is registered */
-			ServerInstance->SendWhoisLine(source, dest, 307, "%s :is a registered nick", dest->nick.c_str());
+			ServerInstance->SendWhoisLine(source, dest, 307, ":is a registered nick");
 		}
 	}
 

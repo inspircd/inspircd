@@ -315,7 +315,9 @@ void InspIRCd::CheckRoot()
 
 void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
 {
-	std::string copy_text = text;
+	std::string copy_text = dest->nick;
+	copy_text.push_back(' ');
+	copy_text.append(text);
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));

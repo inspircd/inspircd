@@ -100,7 +100,7 @@ class ModuleSWhois : public Module
 			std::string* swhois = cmd.swhois.get(dest);
 			if (swhois)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 320, "%s :%s", dest->nick.c_str(), swhois->c_str());
+				ServerInstance->SendWhoisLine(user, dest, 320, ":%s", swhois->c_str());
 			}
 		}
 

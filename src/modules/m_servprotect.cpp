@@ -60,7 +60,7 @@ class ModuleServProtectMode : public Module
 	{
 		if (dest->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 310, dest->nick+" :is a Network Service on "+ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 310, ":is a Network Service on "+ServerInstance->Config->Network);
 		}
 	}
 

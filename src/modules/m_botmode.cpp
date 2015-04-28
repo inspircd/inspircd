@@ -47,7 +47,7 @@ class ModuleBotMode : public Module
 	{
 		if (dst->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 335, dst->nick+" :is a bot on "+ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(src, dst, 335, ":is a bot on "+ServerInstance->Config->Network);
 		}
 	}
 };

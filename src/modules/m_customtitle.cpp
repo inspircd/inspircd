@@ -89,7 +89,7 @@ class ModuleCustomTitle : public Module
 			const std::string* ctitle = cmd.ctitle.get(dest);
 			if (ctitle)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 320, "%s :%s", dest->nick.c_str(), ctitle->c_str());
+				ServerInstance->SendWhoisLine(user, dest, 320, ":%s", ctitle->c_str());
 			}
 		}
 		/* Don't block anything */

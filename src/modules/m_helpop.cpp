@@ -143,7 +143,7 @@ class ModuleHelpop : public Module
 		{
 			if (dst->IsModeSet(ho))
 			{
-				ServerInstance->SendWhoisLine(src, dst, 310, dst->nick+" :is available for help.");
+				ServerInstance->SendWhoisLine(src, dst, 310, ":is available for help.");
 			}
 		}
 
