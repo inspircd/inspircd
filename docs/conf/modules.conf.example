@@ -1486,6 +1486,9 @@
 # You probably *DO NOT* want to load this module on a public network.
 #
 #<module name="m_restrictmsg.so">
+#
+# Uncomment this to allow users to message ulines (e.g. services):
+#<restrictmsg uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # R-Line module: Ban users through regular expression patterns.
