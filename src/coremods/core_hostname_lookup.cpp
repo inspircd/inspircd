@@ -170,7 +170,6 @@ class UserResolver : public DNS::Request
 		{
 			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");
 			dl->set(bound_user, 0);
-			ServerInstance->stats.DnsBad++;
 		}
 	}
 };
@@ -215,7 +214,6 @@ class ModuleHostnameLookup : public Module
 			this->dnsLookup.set(user, 0);
 			delete res_reverse;
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
-			ServerInstance->stats.DnsBad++;
 		}
 	}
 
