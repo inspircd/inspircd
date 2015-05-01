@@ -409,7 +409,7 @@ class ModuleHttpServer : public Module
 
 	void OnUnloadModule(Module* mod)
 	{
-		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{
 			HttpServerSocket* sock = *i;
 			++i;
