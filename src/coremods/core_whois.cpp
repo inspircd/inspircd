@@ -115,12 +115,15 @@ void CommandWhois::SplitChanList(WhoisContextImpl& whois, const std::string& cl)
 	std::string line(1, ':');
 	std::string::size_type start, pos;
 
-	const std::string::size_type namelen = ServerInstance->Config->ServerName.length() + 6 + whois.GetTarget()->nick.length() + 1;
+	// ":server.name 319 source target " ... "\r\n"
+	const std::string::size_type maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.length() - whois.GetTarget()->nick.length() - whois.GetSource()->nick.length();
 
 	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 	{
-		if (line.length() + namelen + pos - start > 510)
+		if (line.length() + pos - start > maxlen)
 		{
+			// Erase last ' ' and send
+			line.erase(line.length()-1);
 			whois.SendLine(319, line);
 			line.erase(1);
 		}
@@ -130,6 +133,8 @@ void CommandWhois::SplitChanList(WhoisContextImpl& whois, const std::string& cl)
 
 	if (line.length() > 1)
 	{
+		// Erase last ' ' and send
+		line.erase(line.length()-1);
 		whois.SendLine(319, line);
 	}
 }
