@@ -604,23 +604,6 @@ class CoreExport InspIRCd
 	 */
 	InspIRCd(int argc, char** argv);
 
-	/** Send a line of WHOIS data to a user.
-	 * @param user user to send the line to
-	 * @param dest user being WHOISed
-	 * @param numeric Numeric to send
-	 * @param text Text of the numeric
-	 */
-	void SendWhoisLine(User* user, User* dest, int numeric, const std::string &text);
-
-	/** Send a line of WHOIS data to a user.
-	 * @param user user to send the line to
-	 * @param dest user being WHOISed
-	 * @param numeric Numeric to send
-	 * @param format Format string for the numeric
-	 * @param ... Parameters for the format string
-	 */
-	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
-
 	/** Called to check whether a channel restriction mode applies to a user
 	 * @param User that is attempting some action
 	 * @param Channel that the action is being performed on
@@ -685,3 +668,5 @@ inline void stdalgo::culldeleter::operator()(classbase* item)
 	if (item)
 		ServerInstance->GlobalCulls.AddItem(item);
 }
+
+#include "modules/whois.h"

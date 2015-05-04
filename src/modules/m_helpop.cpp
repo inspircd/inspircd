@@ -94,14 +94,16 @@ class CommandHelpop : public Command
 	}
 };
 
-class ModuleHelpop : public Module
+class ModuleHelpop : public Module, public Whois::EventListener
 {
 		CommandHelpop cmd;
 		Helpop ho;
 
 	public:
 		ModuleHelpop()
-			: cmd(this), ho(this)
+			: Whois::EventListener(this)
+			, cmd(this)
+			, ho(this)
 		{
 		}
 
@@ -139,11 +141,11 @@ class ModuleHelpop : public Module
 			helpop_map.swap(help);
 		}
 
-		void OnWhois(User* src, User* dst) CXX11_OVERRIDE
+		void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 		{
-			if (dst->IsModeSet(ho))
+			if (whois.GetTarget()->IsModeSet(ho))
 			{
-				ServerInstance->SendWhoisLine(src, dst, 310, dst->nick+" :is available for help.");
+				whois.SendLine(310, ":is available for help.");
 			}
 		}
 

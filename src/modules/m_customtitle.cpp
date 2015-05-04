@@ -70,26 +70,28 @@ class CommandTitle : public Command
 
 };
 
-class ModuleCustomTitle : public Module
+class ModuleCustomTitle : public Module, public Whois::LineEventListener
 {
 	CommandTitle cmd;
 
  public:
-	ModuleCustomTitle() : cmd(this)
+	ModuleCustomTitle()
+		: Whois::LineEventListener(this)
+		, cmd(this)
 	{
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric == 312)
 		{
 			/* Insert our numeric before 312 */
-			const std::string* ctitle = cmd.ctitle.get(dest);
+			const std::string* ctitle = cmd.ctitle.get(whois.GetTarget());
 			if (ctitle)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 320, "%s :%s", dest->nick.c_str(), ctitle->c_str());
+				whois.SendLine(320, ":%s", ctitle->c_str());
 			}
 		}
 		/* Don't block anything */

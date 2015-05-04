@@ -42,12 +42,13 @@ class ServProtectMode : public ModeHandler
 	}
 };
 
-class ModuleServProtectMode : public Module
+class ModuleServProtectMode : public Module, public Whois::EventListener
 {
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode()
-		: bm(this)
+		: Whois::EventListener(this)
+		, bm(this)
 	{
 	}
 
@@ -56,11 +57,11 @@ class ModuleServProtectMode : public Module
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
-	void OnWhois(User* user, User* dest) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (dest->IsModeSet(bm))
+		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 310, dest->nick+" :is a Network Service on "+ServerInstance->Config->Network);
+			whois.SendLine(310, ":is a Network Service on " + ServerInstance->Config->Network);
 		}
 	}
 
@@ -121,7 +122,7 @@ class ModuleServProtectMode : public Module
 
 	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
-		return ((src != dst) && (numeric == 319) && dst->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric == 319) && dst->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

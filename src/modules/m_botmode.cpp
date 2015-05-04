@@ -29,12 +29,13 @@ class BotMode : public SimpleUserModeHandler
 	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, "bot", 'B') { }
 };
 
-class ModuleBotMode : public Module
+class ModuleBotMode : public Module, public Whois::EventListener
 {
 	BotMode bm;
  public:
 	ModuleBotMode()
-		: bm(this)
+		: Whois::EventListener(this)
+		, bm(this)
 	{
 	}
 
@@ -43,11 +44,11 @@ class ModuleBotMode : public Module
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
-	void OnWhois(User* src, User* dst) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (dst->IsModeSet(bm))
+		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 335, dst->nick+" :is a bot on "+ServerInstance->Config->Network);
+			whois.SendLine(335, ":is a bot on " + ServerInstance->Config->Network);
 		}
 	}
 };
