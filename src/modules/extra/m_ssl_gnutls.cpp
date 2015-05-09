@@ -316,7 +316,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->GenRandom = &randhandler;
 
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect,
-			I_OnEvent, I_OnHookIO };
+			I_OnEvent, I_OnHookIO, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
@@ -973,6 +973,13 @@ info_done_dealloc:
 	{
 		if (starttls.enabled)
 			capHandler.HandleEvent(ev);
+	}
+
+	ModResult OnCheckReady(LocalUser* user)
+	{
+		if ((user->eh.GetIOHook() == this) && (sessions[user->eh.GetFd()].status != ISSL_HANDSHAKEN))
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
 	}
 };
 
