@@ -1029,6 +1029,7 @@ info_done_dealloc:
 	}
 
 	GnuTLS::Profile* GetProfile() { return profile; }
+	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
 int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
@@ -1203,6 +1204,18 @@ class ModuleSSLGnuTLS : public Module
 		IOHook* hook = user->eh.GetIOHook();
 		if (hook && hook->prov->creator == this)
 			static_cast<GnuTLSIOHook*>(hook)->TellCiphersAndFingerprint(user);
+	}
+
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	{
+		if ((user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
+		{
+			GnuTLSIOHook* iohook = static_cast<GnuTLSIOHook*>(user->eh.GetIOHook());
+			if (!iohook->IsHandshakeDone())
+				return MOD_RES_DENY;
+		}
+
+		return MOD_RES_PASSTHRU;
 	}
 };
 

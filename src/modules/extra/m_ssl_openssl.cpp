@@ -680,6 +680,8 @@ class OpenSSLIOHook : public SSLIOHook
 		out.append(SSL_get_version(sess)).push_back('-');
 		out.append(SSL_get_cipher(sess));
 	}
+
+	bool IsHandshakeDone() const { return (status == ISSL_OPEN); }
 };
 
 static void StaticSSLInfoCallback(const SSL* ssl, int where, int rc)
@@ -829,6 +831,18 @@ class ModuleSSLOpenSSL : public Module
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
 			}
 		}
+	}
+
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	{
+		if ((user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
+		{
+			OpenSSLIOHook* iohook = static_cast<OpenSSLIOHook*>(user->eh.GetIOHook());
+			if (!iohook->IsHandshakeDone())
+				return MOD_RES_DENY;
+		}
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

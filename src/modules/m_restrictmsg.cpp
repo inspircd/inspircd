@@ -33,8 +33,9 @@ class ModuleRestrictMsg : public Module
 			// message allowed if:
 			// (1) the sender is opered
 			// (2) the recipient is opered
+			// (3) the recipient is on a ulined server
 			// anything else, blocked.
-			if (u->IsOper() || user->IsOper())
+			if (u->IsOper() || user->IsOper() || u->server->IsULine())
 			{
 				return MOD_RES_PASSTHRU;
 			}
