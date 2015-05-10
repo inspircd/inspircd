@@ -717,7 +717,7 @@ class ModuleDNS : public Module
 			if (DNSServer == "nameserver")
 			{
 				resolv >> DNSServer;
-				if (DNSServer.find_first_not_of("0123456789.") == std::string::npos)
+				if (DNSServer.find_first_not_of("0123456789.") == std::string::npos || DNSServer.find_first_not_of("0123456789ABCDEFabcdef:") == std::string::npos)
 				{
 					ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",DNSServer.c_str());
 					return;
