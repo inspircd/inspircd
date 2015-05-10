@@ -142,7 +142,7 @@ our %config = ();						   			# Initiate Configuration Hash..
 our $cache_loaded = getcache();
 $config{ME} = resolve_directory($topdir);				# Present Working Directory
 
-$config{BASE_DIR} = $config{ME}."/run";
+$config{BASE_DIR} ||= $config{ME}."/run";
 
 if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
@@ -159,13 +159,13 @@ if (defined $opt_system) {
 	$config{DATA_DIR}	 = '/var/inspircd';
 	$config{LOG_DIR}	 = '/var/log/inspircd';
 } else {
-	$config{UID} = $opt_uid || $<;
-	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
-	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
-	$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data directory
-	$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log directory
+	$config{UID} = $opt_uid || $config{UID} || $<;
+	$config{CONFIG_DIR}	 ||= resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
+	$config{MODULE_DIR}	 ||= resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
+	$config{BINARY_DIR}	 ||= resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
+	$config{BUILD_DIR}	 ||= resolve_directory($config{ME}."/build");         # Build Directory
+	$config{DATA_DIR}	 ||= resolve_directory($config{BASE_DIR}."/data");	# Data directory
+	$config{LOG_DIR}	 ||= resolve_directory($config{BASE_DIR}."/logs");	# Log directory
 }
 
 if (defined $opt_config_dir) {
@@ -209,12 +209,12 @@ else
 
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
 chomp(our $openssl_ver = $config{HAS_OPENSSL});
-$config{USE_GNUTLS}	    = "n";
+$config{USE_GNUTLS}	    ||= "n";
 if (defined $opt_use_gnutls)
 {
 	$config{USE_GNUTLS} = "y";					# Use gnutls.
 }
-$config{USE_OPENSSL}	= "n";						# Use openssl.
+$config{USE_OPENSSL}	||= "n";						# Use openssl.
 if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
@@ -609,8 +609,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		$config{USE_FREEBSD_BASE_SSL} = "y" if ($^O eq "freebsd");
 	}
 
-	$config{USE_SSL} = "n";
-	$config{MODUPDATE} = 'n';
+	$config{USE_SSL} ||= "n";
+	$config{MODUPDATE} ||= 'n';
 
 	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
 	{
