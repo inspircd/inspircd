@@ -26,15 +26,22 @@
 
 class ModuleRestrictMsg : public Module
 {
+ private:
+	bool uline;
 
  public:
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
+	void OnRehash(User*)
+	{
+		uline = ServerInstance->Config->ConfValue("restrictmsg")->getBool("uline", false);
+	}
 
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -45,8 +52,9 @@ class ModuleRestrictMsg : public Module
 			// message allowed if:
 			// (1) the sender is opered
 			// (2) the recipient is opered
+			// (3) the recipient is on a ulined server
 			// anything else, blocked.
-			if (IS_OPER(u) || IS_OPER(user))
+			if (IS_OPER(u) || IS_OPER(user) || (uline && ServerInstance->ULine(u->server)))
 			{
 				return MOD_RES_PASSTHRU;
 			}
