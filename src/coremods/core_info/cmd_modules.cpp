@@ -65,12 +65,12 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 					flags[pos] = '-';
 
 #ifdef PURE_STATIC
-			user->SendText(":%s 702 %s :%p %s %s :%s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), (void*)m, m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str());
+			user->SendText(":%s 702 %s :%s %s :%s", ServerInstance->Config->ServerName.c_str(),
+				user->nick.c_str(), m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str());
 #else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();
-			user->SendText(":%s 702 %s :%p %s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), (void*)m, m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
+			user->SendText(":%s 702 %s :%s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
+				user->nick.c_str(), m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
 #endif
 		}
 		else
