@@ -117,16 +117,16 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	Parent->Children.push_back(this);
 }
 
-void TreeServer::BeginBurst(unsigned long startms)
+void TreeServer::BeginBurst(uint64_t startms)
 {
 	behind_bursting++;
 
-	unsigned long now = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+	uint64_t now = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	// If the start time is in the future (clocks are not synced) then use current time
 	if ((!startms) || (startms > now))
 		startms = now;
 	this->StartBurst = startms;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu behind_bursting %u", sid.c_str(), startms, behind_bursting);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %s behind_bursting %u", sid.c_str(), ConvToStr(startms).c_str(), behind_bursting);
 }
 
 void TreeServer::FinishBurstInternal()
@@ -147,7 +147,7 @@ void TreeServer::FinishBurstInternal()
 void TreeServer::FinishBurst()
 {
 	ServerInstance->XLines->ApplyLines();
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+	uint64_t ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));

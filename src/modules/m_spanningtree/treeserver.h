@@ -150,7 +150,7 @@ class TreeServer : public Server
 
 	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
 	 */
-	unsigned long StartBurst;
+	uint64_t StartBurst;
 
 	/** True if this server is hidden
 	 */
@@ -213,7 +213,7 @@ class TreeServer : public Server
 	/** Set the bursting state of the server
 	 * @param startms Time the server started bursting, if 0 or omitted, use current time
 	 */
-	void BeginBurst(unsigned long startms = 0);
+	void BeginBurst(uint64_t startms = 0);
 
 	/** Register a PONG from the server
 	 */

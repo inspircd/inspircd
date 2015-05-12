@@ -85,7 +85,7 @@ void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::st
 		}
 
 		if (key == "burst")
-			newserver->BeginBurst(ConvToInt(val));
+			newserver->BeginBurst(ConvToUInt64(val));
 	}
 }
 
