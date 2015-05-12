@@ -337,12 +337,6 @@ bool ModuleManager::CanUnload(Module* mod)
 		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
-	if (mod->GetVersion().Flags & VF_STATIC)
-	{
-		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
-		return false;
-	}
 
 	mod->dying = true;
 	return true;

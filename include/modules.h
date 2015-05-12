@@ -39,7 +39,6 @@
  */
 enum ModuleFlags {
 	VF_NONE = 0,		// module is not special at all
-	VF_STATIC = 1,		// module is static, cannot be /unloadmodule'd
 	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
 	VF_COMMON = 4,		// module needs to be common on all servers in a network to link
 	VF_OPTCOMMON = 8,	// module should be common on all servers for unsurprising behavior

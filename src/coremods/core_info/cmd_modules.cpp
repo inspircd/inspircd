@@ -58,9 +58,9 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 
 		if (IS_LOCAL(user) && user->HasPrivPermission("servers/auspex"))
 		{
-			std::string flags("SvcC");
+			std::string flags("vcC");
 			int pos = 0;
-			for (int mult = 1; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
+			for (int mult = 2; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
