@@ -464,6 +464,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
 			throw Exception("DNS: Unable to send query");
+
+		// Add timer for timeout
+		ServerInstance->Timers.AddTimer(req);
 	}
 
 	void RemoveRequest(DNS::Request* req)

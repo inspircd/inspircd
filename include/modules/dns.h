@@ -155,7 +155,6 @@ namespace DNS
 			, id(0)
 			, creator(mod)
 		{
-			ServerInstance->Timers.AddTimer(this);
 		}
 
 		virtual ~Request()
