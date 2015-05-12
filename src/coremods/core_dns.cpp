@@ -374,7 +374,18 @@ class MyManager : public Manager, public Timer, public EventHandler
 	 */
 	void AddCache(Query& r)
 	{
-		const ResourceRecord& rr = r.answers[0];
+		// Determine the lowest TTL value and use that as the TTL of the cache entry
+		unsigned int cachettl = UINT_MAX;
+		for (std::vector<ResourceRecord>::const_iterator i = r.answers.begin(); i != r.answers.end(); ++i)
+		{
+			const ResourceRecord& rr = *i;
+			if (rr.ttl < cachettl)
+				cachettl = rr.ttl;
+		}
+
+		ResourceRecord& rr = r.answers.front();
+		// Set TTL to what we've determined to be the lowest
+		rr.ttl = cachettl;
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
 		this->cache[r.question] = r;
 	}
