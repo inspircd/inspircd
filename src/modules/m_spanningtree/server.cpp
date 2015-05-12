@@ -162,7 +162,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 
 bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid)
 {
-	/* Check for fully initialized instances of the server by name */
+	// Check if the server name is not in use by a server that's already fully connected
 	TreeServer* CheckDupe = Utils->FindServer(sname);
 	if (CheckDupe)
 	{
@@ -172,7 +172,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 		return false;
 	}
 
-	/* Check for fully initialized instances of the server by id */
+	// Check if the id is not in use by a server that's already fully connected
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Looking for dupe SID %s", sid.c_str());
 	CheckDupe = Utils->FindServerID(sid);
 

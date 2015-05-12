@@ -62,7 +62,7 @@ CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameter
 
 		if (!u->ChangeNick(nick, NickTS))
 		{
-			/* buh. UID them */
+			// Changing to 'nick' failed (it may already be in use), change to the uuid
 			u->ChangeNick(u->uuid);
 		}
 	}

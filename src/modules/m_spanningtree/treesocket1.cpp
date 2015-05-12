@@ -31,10 +31,10 @@
 #include "treesocket.h"
 #include "commands.h"
 
-/** Because most of the I/O gubbins are encapsulated within
- * BufferedSocket, we just call the superclass constructor for
- * most of the action, and append a few of our own values
- * to it.
+/** Constructor for outgoing connections.
+ * Because most of the I/O gubbins are encapsulated within
+ * BufferedSocket, we just call DoConnect() for most of the action,
+ * and only do minor initialization tasks ourselves.
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
@@ -50,9 +50,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	SendCapabilities(1);
 }
 
-/** When a listening socket gives us a new file descriptor,
- * we must associate it with a socket without creating a new
- * connection. This constructor is used for this purpose.
+/** Constructor for incoming connections
  */
 TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd)
@@ -92,10 +90,10 @@ TreeSocket::~TreeSocket()
 }
 
 /** When an outbound connection finishes connecting, we receive
- * this event, and must send our SERVER string to the other
+ * this event, and must do CAPAB negotiation with the other
  * side. If the other side is happy, as outlined in the server
  * to server docs on the inspircd.org site, the other side
- * will then send back its own server string.
+ * will then send back its own SERVER string eventually.
  */
 void TreeSocket::OnConnected()
 {

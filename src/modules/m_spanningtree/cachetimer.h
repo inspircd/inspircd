@@ -19,9 +19,7 @@
 
 #pragma once
 
-/** Create a timer which recurs every second, we inherit from Timer.
- * Timer is only one-shot however, so at the end of each Tick() we simply
- * insert another of ourselves into the pending queue :)
+/** Timer that fires when we need to refresh the IP cache of servers
  */
 class CacheRefreshTimer : public Timer
 {

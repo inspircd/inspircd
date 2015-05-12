@@ -21,7 +21,7 @@
 #include "inspircd.h"
 #include "commands.h"
 
-/** FMODE command - server mode with timestamp checks */
+/** FMODE command - channel mode change with timestamp checks */
 CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 {
 	time_t TS = ServerCommand::ExtractTS(params[1]);
@@ -39,7 +39,7 @@ CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 	if (TS > ourTS)
 		return CMD_FAILURE;
 
-	/* TS is equal or less: Merge the mode changes into ours and pass on.
+	/* TS is equal or less: apply the mode change locally and forward the message
 	 */
 
 	// Turn modes into a Modes::ChangeList; may have more elements than max modes

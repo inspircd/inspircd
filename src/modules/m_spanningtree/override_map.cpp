@@ -168,7 +168,7 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 {
 	if (parameters.size() > 0)
 	{
-		/* Remote MAP, the server is within the 1st parameter */
+		// Remote MAP, the target server is the 1st parameter
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (!s)
 		{

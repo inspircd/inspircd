@@ -31,7 +31,6 @@
 
 SpanningTreeUtilities* Utils = NULL;
 
-/* Create server sockets off a listener. */
 ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
 	if (from->bind_tag->getString("type") != "servers")
@@ -52,12 +51,6 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 	return MOD_RES_DENY;
 }
 
-/** Yay for fast searches!
- * This is hundreds of times faster than recursion
- * or even scanning a linked list, especially when
- * there are more than a few servers to deal with.
- * (read as: lots).
- */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
 	if (InspIRCd::IsSID(ServerName))
@@ -101,10 +94,7 @@ TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 }
 
 /** Find the first server matching a given glob mask.
- * Theres no find-using-glob method of hash_map [awwww :-(]
- * so instead, we iterate over the list using an iterator
- * and match each one until we get a hit. Yes its slow,
- * deal with it.
+ * We iterate over the list and match each one until we get a hit.
  */
 TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 {
@@ -155,7 +145,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	delete TreeRoot;
 }
 
-/* returns a list of DIRECT servernames for a specific channel */
+// Returns a list of DIRECT servers for a specific channel
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list)
 {
 	unsigned int minrank = 0;

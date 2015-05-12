@@ -27,7 +27,7 @@
 
 CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::string>& params)
 {
-	/** Do we have enough parameters:
+	/**
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
 	 */
@@ -36,10 +36,10 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	std::string empty;
 	const std::string& modestr = params[8];
 
-	/* Is this a valid UID, and not misrouted? */
+	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
 	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetID()))
 		throw ProtocolException("Bogus UUID");
-	/* Check parameters for validity before introducing the client, discovered by dmb */
+	// Sanity check on mode string: must begin with '+'
 	if (modestr[0] != '+')
 		throw ProtocolException("Invalid mode string");
 
@@ -72,9 +72,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		}
 	}
 
-	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
-	 * sets it up in the UUID hash for us.
-	 *
+	/* For remote users, we pass the UUID they sent to the constructor.
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
 	RemoteUser* _new = new RemoteUser(params[0], remoteserver);

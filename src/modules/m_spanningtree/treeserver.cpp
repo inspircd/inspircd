@@ -48,7 +48,7 @@ TreeServer::TreeServer()
 
 /** When we create a new server, we call this constructor to initialize it.
  * This constructor initializes the server's Route and Parent, and sets up
- * its ping counters so that it will be pinged one minute from now.
+ * the ping timer for the server.
  */
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
@@ -248,8 +248,8 @@ void TreeServer::CheckULine()
 	}
 }
 
-/** This method is used to add the structure to the
- * hash_map for linear searches. It is only called
+/** This method is used to add the server to the
+ * maps for linear searches. It is only called
  * by the constructors.
  */
 void TreeServer::AddHashEntry()

@@ -25,7 +25,6 @@
 #include "inspircd.h"
 #include "cachetimer.h"
 
-/* Foward declarations */
 class TreeServer;
 class TreeSocket;
 class Link;
@@ -36,8 +35,7 @@ class CmdBuilder;
 
 extern SpanningTreeUtilities* Utils;
 
-/* This hash_map holds the hash equivalent of the server
- * tree, used for rapid linear lookups.
+/** Associative container type, mapping server names/ids to TreeServers
  */
 typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
 
@@ -143,7 +141,7 @@ class SpanningTreeUtilities : public classbase
 	 */
 	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list);
 
-	/** Find a server by name
+	/** Find a server by name or SID
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
 

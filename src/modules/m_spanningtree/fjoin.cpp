@@ -152,7 +152,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 		}
 	}
 
-	/* First up, apply their channel modes if they won the TS war */
+	// Apply their channel modes if we have to
 	Modes::ChangeList modechangelist;
 	if (apply_other_sides_modes)
 	{
@@ -168,7 +168,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	// after applying theirs. If they lost, the prefix modes from their message are not forwarded.
 	FwdFJoinBuilder fwdfjoin(chan, sourceserver);
 
-	/* Now, process every 'modes,uuid' pair */
+	// Process every member in the message
 	irc::tokenstream users(params.back());
 	std::string item;
 	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : NULL);
@@ -256,10 +256,7 @@ void CommandFJoin::RemoveStatus(Channel* c)
 	{
 		ModeHandler* mh = i->second;
 
-		/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
-		 * rather than applied immediately. Module unloads require this to be done immediately,
-		 * for this function we require tidyness instead. Fixes bug #493
-		 */
+		// Add the removal of this mode to the changelist. This handles all kinds of modes, including prefix modes.
 		mh->RemoveMode(c, changelist);
 	}
 

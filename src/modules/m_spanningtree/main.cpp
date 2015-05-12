@@ -218,7 +218,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	/* Do we already have an IP? If so, no need to resolve it. */
 	if (ipvalid)
 	{
-		/* Gave a hook, but it wasnt one we know */
+		// Create a TreeServer object that will start connecting immediately in the background
 		TreeSocket* newsocket = new TreeSocket(x, y, x->IPAddr);
 		if (newsocket->GetFd() > -1)
 		{
@@ -289,7 +289,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 
 ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
 {
-	// we've already checked if pcnt > 0, so this is safe
+	// We've already confirmed that !parameters.empty(), so this is safe
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
 	if (found)
 	{
@@ -527,7 +527,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		}
 	}
 
-	// Regardless, We need to modify the user Counts..
+	// Regardless, update the UserCount
 	TreeServer::Get(user)->UserCount--;
 }
 
@@ -651,13 +651,13 @@ restart:
 	}
 }
 
-// note: the protocol does not allow direct umode +o except
-// via NICK with 8 params. sending OPERTYPE infers +o modechange
-// locally.
 void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
+
+	// Note: The protocol does not allow direct umode +o;
+	// sending OPERTYPE infers +o modechange locally.
 	CommandOpertype::Builder(user).Broadcast();
 }
 
@@ -735,9 +735,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
-	/* This will also free the listeners */
 	delete Utils;
-
 	delete commands;
 }
 
@@ -750,7 +748,7 @@ Version ModuleSpanningTree::GetVersion()
  * so that any activity it sees is FINAL, e.g. we arent going to send out
  * a NICK message before m_cloaking has finished putting the +x on the user,
  * etc etc.
- * Therefore, we return PRIORITY_LAST to make sure we end up at the END of
+ * Therefore, we set our priority to PRIORITY_LAST to make sure we end up at the END of
  * the module call queue.
  */
 void ModuleSpanningTree::Prioritize()

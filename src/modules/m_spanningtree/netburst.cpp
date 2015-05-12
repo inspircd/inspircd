@@ -108,17 +108,19 @@ void TreeSocket::DoBurst(TreeServer* s)
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
 	this->WriteLine(CmdBuilder("BURST").push_int(ServerInstance->Time()));
-	/* Send server tree */
+	// Introduce all servers behind us
 	this->SendServers(Utils->TreeRoot, s);
 
 	BurstState bs(this);
-	/* Send users and their oper status */
+	// Introduce all users
 	this->SendUsers(bs);
 
+	// Sync all channels
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 		SyncChannel(i->second, bs);
 
+	// Send all xlines
 	this->SendXLines();
 	FOREACH_MOD(OnSyncNetwork, (bs.server));
 	this->WriteLine(CmdBuilder("ENDBURST"));
@@ -160,10 +162,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 }
 
 /** Send one or more FJOINs for a channel of users.
- * If the length of a single line is more than 480-NICKMAX
- * in length, it is split over multiple lines.
- * Send one or more FMODEs for a channel with the
- * channel bans, if there's any.
+ * If the length of a single line is too long, it is split over multiple lines.
  */
 void TreeSocket::SendFJoins(Channel* c)
 {
@@ -242,7 +241,7 @@ void TreeSocket::SendListModes(Channel* chan)
 		this->WriteLine(fmode.finalize());
 }
 
-/** Send channel topic, modes and metadata */
+/** Send channel users, topic, modes and global metadata */
 void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 {
 	SendFJoins(chan);
@@ -271,7 +270,7 @@ void TreeSocket::SyncChannel(Channel* chan)
 	SyncChannel(chan, bs);
 }
 
-/** send all users and their oper state/modes */
+/** Send all users and their state, including oper and away status and global metadata */
 void TreeSocket::SendUsers(BurstState& bs)
 {
 	ProtocolInterface::Server& piserver = bs.server;

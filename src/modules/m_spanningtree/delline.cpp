@@ -26,7 +26,7 @@ CmdResult CommandDelLine::Handle(User* user, std::vector<std::string>& params)
 {
 	const std::string& setter = user->nick;
 
-	/* NOTE: No check needed on 'user', this function safely handles NULL */
+	// XLineManager::DelLine() returns true if the xline existed, false if it didn't
 	if (ServerInstance->XLines->DelLine(params[1].c_str(), params[0], user))
 	{
 		ServerInstance->SNO->WriteToSnoMask('X',"%s removed %s%s on %s", setter.c_str(),
