@@ -27,6 +27,13 @@
 #pragma comment(lib, "Iphlpapi.lib")
 #endif
 
+namespace DNS
+{
+	/** Maximum value of a dns request id, 16 bits wide, 0xFFFF.
+	 */
+	const unsigned int MAX_REQUEST_ID = 0xFFFF;
+}
+
 using namespace DNS;
 
 /** A full packet sent or recieved to/from the nameserver

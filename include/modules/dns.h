@@ -72,12 +72,6 @@ namespace DNS
 
 	const int PORT = 53;
 
-	/**
-	 * The maximum value of a dns request id,
-	 * 16 bits wide, 0xFFFF.
-	 */
-	const int MAX_REQUEST_ID = 0xFFFF;
-
 	class Exception : public ModuleException
 	{
 	 public:
