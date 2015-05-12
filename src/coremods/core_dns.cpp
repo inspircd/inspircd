@@ -471,7 +471,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void RemoveRequest(DNS::Request* req)
 	{
-		this->requests[req->id] = NULL;
+		if (requests[req->id] == req)
+			requests[req->id] = NULL;
 	}
 
 	std::string GetErrorStr(Error e)
