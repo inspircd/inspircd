@@ -21,6 +21,11 @@
 
 #include "inspircd.h"
 
+namespace Topic
+{
+	void ShowTopic(LocalUser* user, Channel* chan);
+}
+
 /** Handle /INVITE.
  */
 class CommandInvite : public Command
