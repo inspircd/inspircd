@@ -34,6 +34,23 @@ class CoreModChannel : public Module
 	{
 	}
 
+	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
+	{
+		Channel* const chan = memb->chan;
+		LocalUser* const localuser = IS_LOCAL(memb->user);
+		if (localuser)
+		{
+			if (chan->topicset)
+				Topic::ShowTopic(localuser, chan);
+			chan->UserList(localuser);
+		}
+	}
+
+	void Prioritize() CXX11_OVERRIDE
+	{
+		ServerInstance->Modules.SetPriority(this, I_OnPostJoin, PRIORITY_FIRST);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands", VF_VENDOR|VF_CORE);

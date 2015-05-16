@@ -344,16 +344,6 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 		this->WriteAllExcept(user, !ServerInstance->Config->CycleHostsFromUser, 0, except_list, "MODE %s +%s", this->name.c_str(), ms.c_str());
 	}
 
-	if (IS_LOCAL(user))
-	{
-		if (this->topicset)
-		{
-			user->WriteNumeric(RPL_TOPIC, "%s :%s", this->name.c_str(), this->topic.c_str());
-			user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", this->name.c_str(), this->setby.c_str(), (unsigned long)this->topicset);
-		}
-		this->UserList(user);
-	}
-
 	FOREACH_MOD(OnPostJoin, (memb));
 	return memb;
 }
