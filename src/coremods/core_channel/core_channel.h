@@ -104,9 +104,9 @@ class CommandNames : public Command
 	/** Spool the NAMES list for a given channel to the given user
 	 * @param user User to spool the NAMES list to
 	 * @param chan Channel whose nicklist to send
-	 * @param isinside If true, the user is inside the channel, if not then false
+	 * @param show_invisible True to show invisible (+i) members to the user, false to omit them from the list
 	 */
-	void SendNames(User* user, Channel* chan, bool isinside);
+	void SendNames(User* user, Channel* chan, bool show_invisible);
 };
 
 /** Handle /KICK.

@@ -53,10 +53,11 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 		// - the user doing the /NAMES is inside the channel
 		// - the user doing the /NAMES has the channels/auspex privilege
 
-		bool has_user = c->HasUser(user);
-		if ((!c->IsModeSet(secretmode)) || (has_user) || (user->HasPrivPermission("channels/auspex")))
+		// If the user is inside the channel or has privs, instruct SendNames() to show invisible (+i) members
+		bool show_invisible = ((c->HasUser(user)) || (user->HasPrivPermission("channels/auspex")));
+		if ((show_invisible) || (!c->IsModeSet(secretmode)))
 		{
-			SendNames(user, c, has_user);
+			SendNames(user, c, show_invisible);
 			return CMD_SUCCESS;
 		}
 	}
@@ -65,10 +66,8 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	return CMD_FAILURE;
 }
 
-void CommandNames::SendNames(User* user, Channel* chan, bool isinside)
+void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
 {
-	bool has_privs = user->HasPrivPermission("channels/auspex");
-
 	std::string list;
 	if (chan->IsModeSet(secretmode))
 		list.push_back('@');
@@ -87,7 +86,7 @@ void CommandNames::SendNames(User* user, Channel* chan, bool isinside)
 	const Channel::MemberMap& members = chan->GetUsers();
 	for (Channel::MemberMap::const_iterator i = members.begin(); i != members.end(); ++i)
 	{
-		if ((!isinside) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
+		if ((!show_invisible) && (i->first->IsModeSet(invisiblemode)))
 		{
 			// Member is invisible and we are not supposed to show them
 			continue;
