@@ -305,12 +305,6 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 */
 	const char* ChanModes(bool showkey);
 
-	/** Spool the NAMES list for this channel to the given user
-	 * @param user The user to spool the NAMES list to
-	 * @param isinside If true, the user is inside the channel, if not then false
-	 */
-	void UserList(User* user, bool isinside = true);
-
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
 	 * @return The module or core-defined value of the users prefix.

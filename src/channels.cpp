@@ -32,9 +32,6 @@ namespace
 	ChanModeReference inviteonlymode(NULL, "inviteonly");
 	ChanModeReference keymode(NULL, "key");
 	ChanModeReference limitmode(NULL, "limit");
-	ChanModeReference secretmode(NULL, "secret");
-	ChanModeReference privatemode(NULL, "private");
-	UserModeReference invisiblemode(NULL, "invisible");
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
@@ -574,66 +571,6 @@ const char* Channel::ChanModes(bool showkey)
 
 	scratch += sparam;
 	return scratch.c_str();
-}
-
-/* compile a userlist of a channel into a string, each nick seperated by
- * spaces and op, voice etc status shown as @ and +, and send it to 'user'
- */
-void Channel::UserList(User* user, bool has_user)
-{
-	bool has_privs = user->HasPrivPermission("channels/auspex");
-	std::string list;
-	list.push_back(this->IsModeSet(secretmode) ? '@' : this->IsModeSet(privatemode) ? '*' : '=');
-	list.push_back(' ');
-	list.append(this->name).append(" :");
-	std::string::size_type pos = list.size();
-
-	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size() - user->nick.size();
-	std::string prefixlist;
-	std::string nick;
-	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); ++i)
-	{
-		if ((!has_user) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
-		{
-			/*
-			 * user is +i, and source not on the channel, does not show
-			 * nick in NAMES list
-			 */
-			continue;
-		}
-
-		Membership* memb = i->second;
-
-		prefixlist.clear();
-		char prefix = memb->GetPrefixChar();
-		if (prefix)
-			prefixlist.push_back(prefix);
-		nick = i->first->nick;
-
-		ModResult res;
-		FIRST_MOD_RESULT(OnNamesListItem, res, (user, memb, prefixlist, nick));
-
-		// See if a module wants us to exclude this user from NAMES
-		if (res == MOD_RES_DENY)
-			continue;
-
-		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
-		{
-			/* list overflowed into multiple numerics */
-			user->WriteNumeric(RPL_NAMREPLY, list);
-
-			// Erase all nicks, keep the constant part
-			list.erase(pos);
-		}
-
-		list.append(prefixlist).append(nick).push_back(' ');
-	}
-
-	// Only send the user list numeric if there is at least one user in it
-	if (list.size() != pos)
-		user->WriteNumeric(RPL_NAMREPLY, list);
-
-	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", this->name.c_str());
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,

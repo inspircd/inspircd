@@ -42,7 +42,9 @@ class CoreModChannel : public Module
 		{
 			if (chan->topicset)
 				Topic::ShowTopic(localuser, chan);
-			chan->UserList(localuser);
+
+			// Show all members of the channel, including invisible (+i) users
+			cmdnames.SendNames(localuser, chan, true);
 		}
 	}
 

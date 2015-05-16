@@ -86,6 +86,8 @@ class CommandTopic : public SplitCommand
 class CommandNames : public Command
 {
 	ChanModeReference secretmode;
+	ChanModeReference privatemode;
+	UserModeReference invisiblemode;
 
  public:
 	/** Constructor for names.
@@ -98,6 +100,13 @@ class CommandNames : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+
+	/** Spool the NAMES list for a given channel to the given user
+	 * @param user User to spool the NAMES list to
+	 * @param chan Channel whose nicklist to send
+	 * @param isinside If true, the user is inside the channel, if not then false
+	 */
+	void SendNames(User* user, Channel* chan, bool isinside);
 };
 
 /** Handle /KICK.
