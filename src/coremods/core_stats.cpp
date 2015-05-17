@@ -99,6 +99,11 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				std::string ip = ls->bind_addr;
 				if (ip.empty())
 					ip.assign("*");
+				else if (ip.find_first_of(':') != std::string::npos)
+				{
+					ip.insert(ip.begin(), '[');
+					ip.insert(ip.end(),  ']');
+				}
 				std::string type = ls->bind_tag->getString("type", "clients");
 				std::string hook = ls->bind_tag->getString("ssl", "plaintext");
 
