@@ -79,25 +79,6 @@ Channel* InspIRCd::FindChan(const std::string &chan)
 	return iter->second;
 }
 
-/* Send an error notice to all users, registered or not */
-void InspIRCd::SendError(const std::string &s)
-{
-	const UserManager::LocalList& list = Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		User* u = *i;
-		if (u->registered == REG_ALL)
-		{
-			u->WriteNotice(s);
-		}
-		else
-		{
-			/* Unregistered connections receive ERROR, not a NOTICE */
-			u->Write("ERROR :" + s);
-		}
-	}
-}
-
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	const char* dest = mask.c_str();

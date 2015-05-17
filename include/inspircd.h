@@ -502,11 +502,6 @@ class CoreExport InspIRCd
 	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
 	static const char* Format(va_list &vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
 
-	/** Send an error notice to all local users, opered and unopered
-	 * @param s The error string to send
-	 */
-	void SendError(const std::string &s);
-
 	/** Return true if a nickname is valid
 	 * @param n A nickname to verify
 	 * @return True if the nick is valid

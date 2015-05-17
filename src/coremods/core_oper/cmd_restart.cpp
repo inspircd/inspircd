@@ -35,7 +35,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 
-		ServerInstance->SendError("Server restarting.");
+		DieRestart::SendError("Server restarting.");
 
 #ifndef _WIN32
 		/* XXX: This hack sets FD_CLOEXEC on all possible file descriptors, so they're closed if the execv() below succeeds.

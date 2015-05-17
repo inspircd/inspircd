@@ -30,6 +30,11 @@ namespace DieRestart
 	 * @return True if the given password was correct, false if it was not
 	 */
 	bool CheckPass(User* user, const std::string& inputpass, const char* confkey);
+
+	/** Send an ERROR to unregistered users and a NOTICE to all registered local users
+	 * @param message Message to send
+	 */
+	void SendError(const std::string& message);
 }
 
 /** Handle /DIE.
