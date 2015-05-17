@@ -108,11 +108,6 @@ void InspIRCd::Cleanup()
 	}
 	ports.clear();
 
-	/* Close all client sockets, or the new process inherits them */
-	const UserManager::LocalList& list = Users.GetLocalUsers();
-	while (!list.empty())
-		Users->QuitUser(list.front(), "Server shutdown");
-
 	GlobalCulls.Apply();
 	Modules->UnloadAll();
 

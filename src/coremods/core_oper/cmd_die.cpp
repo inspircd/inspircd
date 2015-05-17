@@ -29,6 +29,14 @@ CommandDie::CommandDie(Module* parent)
 	syntax = "<password>";
 }
 
+static void QuitAll()
+{
+	const std::string quitmsg = "Server shutdown";
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	while (!list.empty())
+		ServerInstance->Users.QuitUser(list.front(), quitmsg);
+}
+
 /** Handle /DIE
  */
 CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *user)
@@ -41,6 +49,7 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 			ServerInstance->SendError(diebuf);
 		}
 
+		QuitAll();
 		ServerInstance->Exit(EXIT_STATUS_DIE);
 	}
 	else
