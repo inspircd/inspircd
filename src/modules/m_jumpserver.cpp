@@ -109,9 +109,11 @@ class CommandJumpserver : public Command
 			{
 				/* Redirect everyone but the oper sending the command */
 				const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-				for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+				for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); )
 				{
+					// Quitting the user removes it from the list
 					LocalUser* t = *i;
+					++i;
 					if (!t->IsOper())
 					{
 						t->WriteNumeric(RPL_REDIR, "%s %d :Please use this Server/Port instead", parameters[0].c_str(), GetPort(t));

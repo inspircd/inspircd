@@ -292,10 +292,12 @@ class ModuleNationalChars : public Module
 			return;
 
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); )
 		{
 			/* Fix by Brain: Dont quit UID users */
+			// Quitting the user removes it from the list
 			User* n = *iter;
+			++iter;
 			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick))
 				ServerInstance->Users->QuitUser(n, message);
 		}
