@@ -423,6 +423,27 @@
 	allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel types module: Allows configuring types of channels based on
+# their prefix. For a channel prefix to be configured here, it must also
+# be in general:channelprefixes.
+#<module name="m_chantypes.so">
+
+<chantypes
+	# prefix: The channel prefix. This should be configured in
+	# general:channelprefixes.
+	#prefix="&amp;"
+
+	# type: Optional 'type(s)' for channels with this prefix. Valid settings
+	# are:
+	#
+	#  oper     - Only opers may join
+	#  ssl      - Only users on a SSL connection may join. This is more secure than
+	#             mode +z because it is possible to split ride through +z.
+	#  nocreate - Only IRC operators may create new channels of this type
+	#type="oper,ssl"
+	>
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
 # in a channel matching a ban like +b j:#channel*mask from joining.
 #<module name="m_channelban.so">
