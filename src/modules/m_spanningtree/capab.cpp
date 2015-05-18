@@ -159,6 +159,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
 			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
+			" CHANPREFIX="+ServerInstance->Config->ChannelPrefixes+
 			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
 			// Services want to know about it, and since m_globops was not marked as VF_(OPT)COMMON
 			// in 2.0, we advertise it here to not break linking to previous versions.
@@ -273,6 +274,11 @@ bool TreeSocket::Capab(const parameterlist &params)
 				}
 			}
 		}
+
+		if (this->capab->CapKeys.find("CHANPREFIX") == this->capab->CapKeys.end()
+			|| ServerInstance->Config->ChannelPrefixes.find_first_not_of(this->capab->CapKeys.find("CHANPREFIX")->second)
+			|| this->capab->CapKeys.find("CHANPREFIX")->second.find_first_not_of(ServerInstance->Config->ChannelPrefixes))
+			reason = "One or more of the channel prefixes on the remote server are invalid on this server.";
 
 		if(this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end() && this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";

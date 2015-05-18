@@ -30,7 +30,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 		return CMD_SUCCESS;
 	}
 
-	if (params[0][0] == '#')
+	if (InspIRCd::IsChannelPrefix(params[0]))
 	{
 		// Channel METADATA has an additional parameter: the channel TS
 		// :22D METADATA #channel 12345 extname :extdata

@@ -74,7 +74,7 @@ class BanRedirect : public ModeWatcher
 			if (param.length() >= 2 && param[1] == ':')
 				return true;
 
-			if (param.find('#') == std::string::npos)
+			if (param.find_first_of(ServerInstance->Config->ChannelPrefixes) == std::string::npos)
 				return true;
 
 			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
@@ -88,6 +88,16 @@ class BanRedirect : public ModeWatcher
 
 			for(std::string::iterator curr = start_pos; curr != param.end(); curr++)
 			{
+				if (ServerInstance->Config->ChannelPrefixes.find(*curr) != std::string::npos)
+				{
+					if (current == CHAN)
+						break;
+					mask[current].assign(start_pos, curr);
+					current = CHAN;
+					start_pos = curr;
+					continue;
+				}
+
 				switch(*curr)
 				{
 					case '!':
@@ -103,13 +113,6 @@ class BanRedirect : public ModeWatcher
 						mask[current].assign(start_pos, curr);
 						current = HOST;
 						start_pos = curr+1;
-						break;
-					case '#':
-						if (current == CHAN)
-							break;
-						mask[current].assign(start_pos, curr);
-						current = CHAN;
-						start_pos = curr;
 						break;
 				}
 			}

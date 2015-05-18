@@ -429,6 +429,7 @@ void ServerConfig::Fill()
 	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
+	ChannelPrefixes = options->getString("channelprefixes", "#");
 
 	if (Network.find(' ') != std::string::npos)
 		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
@@ -494,6 +495,9 @@ void ServerConfig::Fill()
 		OperSpyWhois = SPYWHOIS_SINGLEMSG;
 	else
 		OperSpyWhois = SPYWHOIS_NONE;
+
+	if (ChannelPrefixes.find_first_of(" @+,:") != std::string::npos)
+		throw CoreException("Invalid channel prefix");
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it

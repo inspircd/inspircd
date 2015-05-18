@@ -204,7 +204,7 @@ bool IsChannelHandler::Call(const std::string& chname)
 	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.ChanMax)
 		return false;
 
-	if (chname[0] != '#')
+	if (!InspIRCd::IsChannelPrefix(chname))
 		return false;
 
 	for (std::string::const_iterator i = chname.begin()+1; i != chname.end(); ++i)
@@ -270,6 +270,12 @@ bool IsIdentHandler::Call(const std::string& n)
 	}
 
 	return true;
+}
+
+
+bool InspIRCd::IsChannelPrefix(const std::string &str)
+{
+	return !str.empty() && ServerInstance->Config->ChannelPrefixes.find(str[0]) != std::string::npos;
 }
 
 bool InspIRCd::IsSID(const std::string &str)

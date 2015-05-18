@@ -167,7 +167,7 @@ void ISupportManager::Build()
 	tokens["CASEMAPPING"] = "rfc1459";
 	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
-	tokens["CHANTYPES"] = "#";
+	tokens["CHANTYPES"] = ServerInstance->Config->ChannelPrefixes;
 	tokens["ELIST"] = "MU";
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
 	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.

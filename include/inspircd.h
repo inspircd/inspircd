@@ -466,6 +466,8 @@ class CoreExport InspIRCd
 	 */
 	caller1<bool, const std::string&> IsChannel;
 
+	static bool IsChannelPrefix(const std::string &);
+
 	/** Return true if str looks like a server ID
 	 * @param sid string to check against
 	 */

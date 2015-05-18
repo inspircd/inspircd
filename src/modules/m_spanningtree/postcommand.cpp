@@ -91,7 +91,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			pfx = dest[0];
 			dest.erase(dest.begin());
 		}
-		if (dest[0] == '#')
+		if (InspIRCd::IsChannelPrefix(dest))
 		{
 			Channel* c = ServerInstance->FindChan(dest);
 			if (!c)

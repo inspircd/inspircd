@@ -89,17 +89,12 @@ class ModuleBlockAmsg : public Module
 
 		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))
 		{
-			// parameters[0] is the target list, count how many channels are there
 			unsigned int targets = 0;
-			// Is the first target a channel?
-			if (*parameters[0].c_str() == '#')
-				targets = 1;
 
-			for (const char* c = parameters[0].c_str(); *c; c++)
-			{
-				if ((*c == ',') && (*(c+1) == '#'))
-					targets++;
-			}
+			irc::commasepstream sep(parameters[0]);
+			for (std::string token; sep.GetToken(token);)
+				if (ServerInstance->IsChannel(token))
+					++targets;
 
 			/* targets should now contain the number of channel targets the msg/notice was pointed at.
 			 * If the msg/notice was a PM there should be no channel targets and 'targets' should = 0.

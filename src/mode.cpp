@@ -583,7 +583,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	PrefixMode* pm = mh->IsPrefixMode();
 	if (pm)
 	{
-		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (pm->GetPrefix() == '#'))
+		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (ServerInstance->Config->ChannelPrefixes.find(pm->GetPrefix()) != std::string::npos))
 			throw ModuleException("Invalid prefix for mode " + mh->name);
 
 		if (FindPrefix(pm->GetPrefix()))

@@ -118,7 +118,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		status = *target;
 		target++;
 	}
-	if (*target == '#')
+	if (InspIRCd::IsChannelPrefix(target))
 	{
 		chan = ServerInstance->FindChan(target);
 

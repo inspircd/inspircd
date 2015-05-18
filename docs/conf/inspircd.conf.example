@@ -616,7 +616,10 @@
 
          # nosnoticestack: This prevents snotices from 'stacking' and giving you
          # the message saying '(last message repeated X times)'. Defaults to no.
-         nosnoticestack="no">
+         nosnoticestack="no"
+
+         # channelprefixes: Prefixes allowed for channels.
+         channelprefixes="#">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
