@@ -51,8 +51,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 
 		if (c->topic.length())
 		{
-			user->WriteNumeric(RPL_TOPIC, "%s :%s", c->name.c_str(), c->topic.c_str());
-			user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", c->name.c_str(), c->setby.c_str(), (unsigned long)c->topicset);
+			Topic::ShowTopic(user, c);
 		}
 		else
 		{
@@ -83,4 +82,10 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 
 	c->SetTopic(user, t);
 	return CMD_SUCCESS;
+}
+
+void Topic::ShowTopic(LocalUser* user, Channel* chan)
+{
+	user->WriteNumeric(RPL_TOPIC, "%s :%s", chan->name.c_str(), chan->topic.c_str());
+	user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", chan->name.c_str(), chan->setby.c_str(), (unsigned long)chan->topicset);
 }

@@ -24,6 +24,8 @@
 CommandNames::CommandNames(Module* parent)
 	: Command(parent, "NAMES", 0, 0)
 	, secretmode(parent, "secret")
+	, privatemode(parent, "private")
+	, invisiblemode(parent, "invisible")
 {
 	syntax = "{<channel>{,<channel>}}";
 }
@@ -51,14 +53,75 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 		// - the user doing the /NAMES is inside the channel
 		// - the user doing the /NAMES has the channels/auspex privilege
 
-		bool has_user = c->HasUser(user);
-		if ((!c->IsModeSet(secretmode)) || (has_user) || (user->HasPrivPermission("channels/auspex")))
+		// If the user is inside the channel or has privs, instruct SendNames() to show invisible (+i) members
+		bool show_invisible = ((c->HasUser(user)) || (user->HasPrivPermission("channels/auspex")));
+		if ((show_invisible) || (!c->IsModeSet(secretmode)))
 		{
-			c->UserList(user, has_user);
+			SendNames(user, c, show_invisible);
 			return CMD_SUCCESS;
 		}
 	}
 
 	user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
 	return CMD_FAILURE;
+}
+
+void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
+{
+	std::string list;
+	if (chan->IsModeSet(secretmode))
+		list.push_back('@');
+	else if (chan->IsModeSet(privatemode))
+		list.push_back('*');
+	else
+		list.push_back('=');
+
+	list.push_back(' ');
+	list.append(chan->name).append(" :");
+	std::string::size_type pos = list.size();
+
+	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size() - user->nick.size();
+	std::string prefixlist;
+	std::string nick;
+	const Channel::MemberMap& members = chan->GetUsers();
+	for (Channel::MemberMap::const_iterator i = members.begin(); i != members.end(); ++i)
+	{
+		if ((!show_invisible) && (i->first->IsModeSet(invisiblemode)))
+		{
+			// Member is invisible and we are not supposed to show them
+			continue;
+		}
+
+		Membership* const memb = i->second;
+
+		prefixlist.clear();
+		char prefix = memb->GetPrefixChar();
+		if (prefix)
+			prefixlist.push_back(prefix);
+		nick = i->first->nick;
+
+		ModResult res;
+		FIRST_MOD_RESULT(OnNamesListItem, res, (user, memb, prefixlist, nick));
+
+		// See if a module wants us to exclude this user from NAMES
+		if (res == MOD_RES_DENY)
+			continue;
+
+		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
+		{
+			// List overflowed into multiple numerics
+			user->WriteNumeric(RPL_NAMREPLY, list);
+
+			// Erase all nicks, keep the constant part
+			list.erase(pos);
+		}
+
+		list.append(prefixlist).append(nick).push_back(' ');
+	}
+
+	// Only send the user list numeric if there is at least one user in it
+	if (list.size() != pos)
+		user->WriteNumeric(RPL_NAMREPLY, list);
+
+	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", chan->name.c_str());
 }
