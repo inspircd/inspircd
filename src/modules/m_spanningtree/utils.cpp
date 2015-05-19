@@ -117,6 +117,7 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: Creator(C), TreeRoot(NULL)
+	, PingFreq(60) // XXX: TreeServer constructor reads this and TreeRoot is created before the config is read, so init it to something (value doesn't matter) to avoid a valgrind warning in TimerManager on unload
 {
 	ServerInstance->Timers.AddTimer(&RefreshTimer);
 }
