@@ -68,7 +68,7 @@
 
     # modes: User modes besides +o that are set on an oper of this type
     # when they oper up. Used for snomasks and other things.
-    # Requires that m_opermodes.so be loaded.
+    # Requires the opermodes module be loaded.
     modes="+s +cCqQ">
 
 <type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.example.org">
@@ -97,26 +97,26 @@
       host="attila@inspircd.org *@2001:db8::/32"
 
       # ** ADVANCED ** This option is disabled by default.
-      # fingerprint: When using the m_sslinfo module, you may specify
+      # fingerprint: When using the sslinfo module, you may specify
       # a key fingerprint here. This can be obtained by using the /sslinfo
       # command while the module is loaded, and is also noticed on connect.
       # This enhances security by verifying that the person opering up has
       # a matching SSL client certificate, which is very difficult to
       # forge (impossible unless preimage attacks on the hash exist).
-      # If m_sslinfo isn't loaded, this option will be ignored.
+      # If the sslinfo module isn't loaded, this option will be ignored.
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
       # autologin: If an SSL certificate fingerprint for this oper is specified,
       # you can have the oper block automatically log in. This moves all security
       # of the oper block to the protection of the client certificate, so be sure
-      # that the private key is well-protected! Requires m_sslinfo.
+      # that the private key is well-protected! Requires the sslinfo module.
       #autologin="on"
 
       # sslonly: If on, this oper can only oper up if they're using a SSL connection.
       # Setting this option adds a decent bit of security. Highly recommended
       # if the oper is on wifi, or specifically, unsecured wifi. Note that it
       # is redundant to specify this option if you specify a fingerprint.
-      # This setting only takes effect if m_sslinfo is loaded.
+      # This setting only takes effect if the sslinfo module is loaded.
       #sslonly="yes"
 
       # vhost: Overrides the vhost in the type block. Class and modes may also
@@ -142,17 +142,16 @@
       name="Adam"
 
       # hash: What hash this password is hashed with.
-      # Requires the module for selected hash (m_md5.so, m_sha256.so
-      # or m_ripemd160.so) be loaded and the password hashing module
-      # (m_password_hash.so) loaded.
+      # Requires the module for selected hash (md5, sha256 or ripemd160)
+      # be loaded and the password hashing module (password_hash) loaded.
       # Options here are: "md5", "sha256" and "ripemd160", or one of
       # these prefixed with "hmac-", e.g.: "hmac-sha256".
       # Create hashed passwords with: /mkpasswd <hash> <password>
       hash="hmac-sha256"
 
       # password: A hash of the password (see above option) hashed
-      # with /mkpasswd <hash> <password>. See m_password_hash in modules.conf
-      # for more information about password hashing.
+      # with /mkpasswd <hash> <password>. See the password_hash module
+      # in modules.conf for more information about password hashing.
       password="qQmv3LcF$Qh63wzmtUqWp9OXnLwe7yv1GcBwHpq59k2a0UrY8xe0"
 
       # host: What hostnames and IPs are allowed to use this operator account.

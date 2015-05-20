@@ -1,4 +1,4 @@
-# Sample configuration file for m_helpop.so
+# Sample configuration file for the helpop module.
 # You can either copy this into your conf folder and set up the module to use it,
 # or you can customize the responses for your network and/or add more.
 #

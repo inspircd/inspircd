@@ -132,7 +132,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list for          #
+#  spanningtree module! Please see the modules list for               #
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT work!                                #
 
@@ -176,7 +176,7 @@
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
 # Supported SSL types are: "openssl" and "gnutls".
-# You must load m_ssl_openssl for OpenSSL or m_ssl_gnutls for GnuTLS.
+# You must load the ssl_openssl module for OpenSSL or ssl_gnutls for GnuTLS.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
@@ -191,9 +191,9 @@
 
 <power
        # hash: what hash these passwords are hashed with.
-       # Requires the module for selected hash (m_md5.so, m_sha256.so
-       # or m_ripemd160.so) be loaded and the password hashing module
-       # (m_password_hash.so) loaded.
+       # Requires the module for selected hash (md5, sha256, or
+       # ripemd160) be loaded and the password hashing module
+       # (password_hash) loaded.
        # Options here are: "md5", "sha256" and "ripemd160", or one of
        # these prefixed with "hmac-", e.g.: "hmac-sha256".
        # Optional, but recommended. Create hashed passwords with:
@@ -251,9 +251,8 @@
          allow="203.0.113.*"
 
          # hash: what hash this password is hashed with. requires the module
-         # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-         # loaded and the password hashing module (m_password_hash.so)
-         # loaded. Options here are: "md5", "sha256" and "ripemd160".
+         # for selected hash (md5, sha256 or ripemd160) be loaded and the
+         # password hashing module (password_hash) loaded.
          # Optional, but recommended. Create hashed passwords with:
          # /mkpasswd <hash> <password>
          #hash="sha256"
@@ -285,7 +284,7 @@
          resolvehostnames="yes"
 
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
-         # This setting only has effect when m_dnsbl is loaded.
+         # This setting only has effect when the dnsbl module is loaded.
          #usednsbl="yes"
 
          # useident: Defines if users in this class MUST respond to a ident query or not.
@@ -295,15 +294,15 @@
          limit="5000"
 
          # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
+         # For the example to work, this also requires that the "cloaking"
          # module be loaded as well.
          modes="+x"
 
          # requireident, requiressl, requireaccount: require that users of this
          # block have a valid ident response, use SSL, or have authenticated.
-         # Requires m_ident, m_sslinfo, or m_services_account respectively.
+         # Requires ident, sslinfo, or the services_account module, respectively.
          requiressl="on"
          # NOTE: For requireaccount, you must complete the signon prior to full
          # connection. Currently, this is only possible by using SASL
@@ -402,9 +401,9 @@
          limit="5000"
 
          # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
+         # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x">
 
@@ -820,7 +819,7 @@
 #  - OPER - succesful and failed oper attempts
 #  - KILL - kill related messages
 #  - snomask - server notices (*all* snomasks will be logged)
-#  - FILTER - messages related to filter matches (m_filter)
+#  - FILTER - messages related to filter matches (filter module)
 #  - CONFIG - configuration related messages
 #  - COMMAND - die and restart messages, and messages related to unknown user types
 #  - SOCKET - socket engine informational/error messages

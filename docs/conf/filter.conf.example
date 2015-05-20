@@ -1,4 +1,4 @@
-# Configuration file for m_filter.so
+# Configuration file for the filter module
 
 # The tags for this module are formatted as follows:
 #
@@ -46,13 +46,13 @@
 # expression. For example, to indicate numbers, use \\d and not \d. This does not
 # apply when adding a regular expression over irc with the /FILTER command.
 
-# Example filters for m_filter:
+# Example filters:
 #
 # <keyword pattern="*qwerty*" reason="You qwertied!" action="block" flags="pn">
 # <keyword pattern="*killmenow*" reason="As you request." action="kill" flags="*">
 # <keyword pattern="*blah*" reason="Dont blah!" action="gline" duration="1d6h" flags="-">
 
-# An example regexp filter for m_filter_pcre:
+# An example regexp filter:
 #
 # <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h" flags="pnPq">
 

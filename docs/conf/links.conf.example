@@ -10,7 +10,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module!                                          #
+#  spanningtree module!                                               #
 #                                                                     #
 #                                                                     #
 
@@ -40,8 +40,8 @@
       # making an outbound connection to the server. Options are: "openssl"
       # and "gnutls" (they are compatible with each other).
       #
-      # You will need to load the m_ssl_openssl.so module for OpenSSL,
-      # m_ssl_gnutls.so for GnuTLS. The server port that you connect to
+      # You will need to load the ssl_openssl module for OpenSSL,
+      # or ssl_gnutls for GnuTLS. The server port that you connect to
       # must be capable of accepting this type of connection.
       ssl="gnutls"
 

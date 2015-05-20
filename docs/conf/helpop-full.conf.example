@@ -661,30 +661,30 @@ Disconnects the server matching the given server mask from this server.">
 Lists currently loaded modules, their memory offsets, version numbers,
 and flags. If you are not an operator, you will see reduced detail.">
 
-<helpop key="loadmodule" value="/LOADMODULE <filename.so>
+<helpop key="loadmodule" value="/LOADMODULE <modname>
 
 Loads the specified module into the local server.">
 
-<helpop key="unloadmodule" value="/UNLOADMODULE <filename.so>
+<helpop key="unloadmodule" value="/UNLOADMODULE <modname>
 
 Unloads a module from the local server. The module cannot have the
 static flag set (see the output of /MODULES).">
 
-<helpop key="reloadmodule" value="/RELOADMODULE <filename.so>
+<helpop key="reloadmodule" value="/RELOADMODULE <modname>
 
 Unloads and reloads a module on the local server. This module cannot
 have the static flag set (see the output of /MODULES).">
 
-<helpop key="gloadmodule" value="/GLOADMODULE <filename.so>
+<helpop key="gloadmodule" value="/GLOADMODULE <modname>
 
 Loads the specified module on all linked servers.">
 
-<helpop key="gunloadmodule" value="/GUNLOADMODULE <filename.so>
+<helpop key="gunloadmodule" value="/GUNLOADMODULE <modname>
 
 Unloads a module from all linked servers. The module cannot have the
 static flag set (see the output of /MODULES).">
 
-<helpop key="greloadmodule" value="/GRELOADMODULE <filename.so>
+<helpop key="greloadmodule" value="/GRELOADMODULE <modname>
 
 Unloads and reloads a module on all linked servers. This module cannot
 have the static flag set (see the output of /MODULES).">
