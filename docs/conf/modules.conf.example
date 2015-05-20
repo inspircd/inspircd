@@ -772,8 +772,9 @@
 #<module name="m_flashpolicyd.so">                                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Gecos ban: Implements extended ban 'r', which stops anyone matching
-# a mask like +b r:*realname?here* from joining a channel.
+# Gecos ban: Implements two extended bans:                            #
+# 'a', which matches a n!u@h+realname mask like +b a:*!*@host+*gecos* #
+# 'r', which matches a realname mask like +b r:*realname?here*        #
 #<module name="m_gecosban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
