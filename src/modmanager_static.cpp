@@ -80,8 +80,9 @@ class AllModule : public Module
 
 MODULE_INIT(AllModule)
 
-bool ModuleManager::Load(const std::string& name, bool defer)
+bool ModuleManager::Load(const std::string& inputname, bool defer)
 {
+	const std::string name = ExpandModName(inputname);
 	modmap::iterator it = modlist->find(name);
 	if (it == modlist->end())
 		return false;
