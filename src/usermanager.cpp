@@ -320,9 +320,11 @@ void UserManager::DoBackgroundUserStuff()
 	/*
 	 * loop over all local users..
 	 */
-	for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
+	for (LocalList::iterator i = local_users.begin(); i != local_users.end(); )
 	{
+		// It's possible that we quit the user below due to ping timeout etc. and QuitUser() removes it from the list
 		LocalUser* curr = *i;
+		++i;
 
 		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
 		{

@@ -499,7 +499,7 @@ void ModuleManager::LoadAll()
 	{
 		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
-		this->NewServices = &servicemap[name];
+		this->NewServices = &servicemap[ExpandModName(name)];
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 
 		if (!this->Load(name, true))
