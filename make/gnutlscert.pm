@@ -29,9 +29,16 @@ use Exporter 'import';
 use make::configure;
 our @EXPORT = qw(make_gnutls_cert);
 
+# On OS X the GnuTLS certtool is prefixed to avoid collision with the system certtool.
+my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
 
 sub make_gnutls_cert()
 {
+	if (system "$certtool --version >/dev/null 2>&1")
+	{
+		print "\e[1;31mError:\e[0m unable to find '$certtool' in the PATH!\n";
+		return 1;
+	}
 	open (FH, ">certtool.template");
 	my $timestr = time();
 	my $commonname = promptstring_s('What is the hostname of your server?', 'irc.example.com');
@@ -133,12 +140,6 @@ ocsp_signing_key
 time_stamping_key
 __END__
 close(FH);
-my $certtool = "certtool";
-if (`uname -s` eq "Darwin\n") {
-	# On OS X the certtool binary name is different to prevent
-	# collisions with the system certtool from NSS.
-	$certtool = "gnutls-certtool";
-}
 if ( (my $status = system("$certtool --generate-privkey --outfile key.pem")) ne 0) { return 1; }
 if ( (my $status = system("$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template certtool.template")) ne 0) { return 1; }
 unlink("certtool.template");

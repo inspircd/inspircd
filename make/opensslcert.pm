@@ -32,6 +32,11 @@ our @EXPORT = qw(make_openssl_cert);
 
 sub make_openssl_cert()
 {
+	if (system 'openssl version >/dev/null 2>&1')
+	{
+		print "\e[1;31mCertificate generation failed:\e[0m unable to find 'openssl' in the PATH!\n";
+		return;
+	}
 	open (FH, ">openssl.template");
 	my $commonname = promptstring_s('What is the hostname of your server?', 'irc.example.com');
 	my $email = promptstring_s('What email address can you be contacted at?', 'example@example.com');
