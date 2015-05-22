@@ -67,17 +67,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
 	 */
-	LocalUser* New = NULL;
-	try
-	{
-		New = new LocalUser(socket, client, server);
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
-		return;
-	}
+	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
 	// If this listener has an IO hook provider set then tell it about the connection
