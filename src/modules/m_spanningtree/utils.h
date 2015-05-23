@@ -135,7 +135,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Handle nick collision
 	 */
-	bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid);
+	bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
 
 	/** Compile a list of servers which contain members of channel c
 	 */

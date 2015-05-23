@@ -33,7 +33,7 @@
  * Sends SAVEs as appropriate and forces nick change of the user 'u' if our side loses or if both lose.
  * Does not change the nick of the user that is trying to claim the nick of 'u', i.e. the "remote" user.
  */
-bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid)
+bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd)
 {
 	// At this point we're sure that a collision happened, increment the counter regardless of who wins
 	ServerInstance->stats.Collisions++;
@@ -85,6 +85,10 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 			bChangeRemote = false;
 		}
 	}
+
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Nick collision on \"%s\" caused by %s: %s/%lu/%s@%s %d <-> %s/%lu/%s@%s %d", u->nick.c_str(), collidecmd,
+		u->uuid.c_str(), (unsigned long)localts, u->ident.c_str(), u->GetIPString().c_str(), bChangeLocal,
+		remoteuid.c_str(), (unsigned long)remotets, remoteident.c_str(), remoteip.c_str(), bChangeRemote);
 
 	/*
 	 * Send SAVE and accept the losing client with its UID (as we know the SAVE will

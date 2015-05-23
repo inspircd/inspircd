@@ -47,7 +47,7 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 	{
 		// 'x' is the already existing user using the same nick as params[0]
 		// 'user' is the user trying to change nick to the in use nick
-		bool they_change = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid);
+		bool they_change = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid, "NICK");
 		if (they_change)
 		{
 			// Remote client lost, or both lost, rewrite this nick change as a change to uuid before

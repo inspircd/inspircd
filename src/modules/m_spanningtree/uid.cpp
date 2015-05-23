@@ -59,9 +59,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	else if (collideswith)
 	{
 		// The user on this side is registered, handle the collision
-		bool they_change = Utils->DoCollision(collideswith, remoteserver, age_t, params[5], params[6], params[0]);
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Collision on %s %d", params[2].c_str(), they_change);
-
+		bool they_change = Utils->DoCollision(collideswith, remoteserver, age_t, params[5], params[6], params[0], "UID");
 		if (they_change)
 		{
 			// The client being introduced needs to change nick to uuid, change the nick in the message before
