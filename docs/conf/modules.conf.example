@@ -268,6 +268,38 @@
 #<module name="m_blockcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Block color quit and part messages from being displayed network-wide.
+<module name="m_nocolorquit.so">
+#
+#-#-#-#-#-#-#-#-#-#-  NOCOLORQUIT CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# blockcoloredquitmessages   - Remove quit messages that contain      #
+#                              color codes.                           #
+#                                                                     #
+# stripcoloredquitmessages   - Strip color codes from quit messages   #
+#                              being sent to the network.             #
+#                                                                     #
+# blockcoloredpartmessages   - Remove part messages that contain      #
+#                              color codes.                           #
+#                                                                     #
+# stripcoloredpartmessages   - Strip color codes from part messages   #
+#                              being sent to the channel/network.     #
+#                                                                     #
+# affectopers                - Does the stripping/blocking affect     #
+#                              network operators.                     #
+#                                                                     #
+# notifyusers                - Notify the user that their message is  #
+#                              being blocked. (Only affects channel   #
+#                              parts)                                 #
+<nocoloredquit
+		blockcoloredquitmessages="yes"
+		stripcoloredquitmessages="no"
+		blockcoloredpartmessages="no"
+		stripcoloredpartmessages="no"
+		affectopers="yes"
+		notifyusers="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Botmode module: Adds the user mode +B. If set on a user, it will
 # show that the user is a bot in /WHOIS.
 #<module name="m_botmode.so">
