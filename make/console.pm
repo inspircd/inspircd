@@ -64,15 +64,19 @@ sub print_format($;$) {
 	print { $stream } $message;
 }
 
-sub print_error($) {
-	my $message = shift;
-	print_format "<|RED Error:|> $message\n", *STDERR;
+sub print_error {
+	print_format "<|RED Error:|> ", *STDERR;
+	for my $line (@_) {
+		print_format "$line\n", *STDERR;
+	}
 	exit 1;
 }
 
-sub print_warning($) {
-	my $message = shift;
-	print_format "<|YELLOW Warning:|> $message\n", *STDERR;
+sub print_warning {
+	print_format "<|YELLOW Warning:|> ", *STDERR;
+	for my $line (@_) {
+		print_format "$line\n", *STDERR;
+	}
 }
 
 sub prompt_bool($$$) {
