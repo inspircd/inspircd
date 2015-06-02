@@ -42,12 +42,13 @@ class ServProtectMode : public ModeHandler
 	}
 };
 
-class ModuleServProtectMode : public Module, public Whois::EventListener
+class ModuleServProtectMode : public Module, public Whois::EventListener, public Whois::LineEventListener
 {
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode()
 		: Whois::EventListener(this)
+		, Whois::LineEventListener(this)
 		, bm(this)
 	{
 	}
@@ -120,9 +121,9 @@ class ModuleServProtectMode : public Module, public Whois::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
 	{
-		return ((numeric == 319) && dst->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

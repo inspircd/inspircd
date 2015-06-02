@@ -32,12 +32,13 @@ class HideOper : public SimpleUserModeHandler
 	}
 };
 
-class ModuleHideOper : public Module
+class ModuleHideOper : public Module, public Whois::LineEventListener
 {
 	HideOper hm;
  public:
 	ModuleHideOper()
-		: hm(this)
+		: Whois::LineEventListener(this)
+		, hm(this)
 	{
 	}
 
@@ -46,7 +47,7 @@ class ModuleHideOper : public Module
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
@@ -54,10 +55,10 @@ class ModuleHideOper : public Module
 		if (numeric != 313)
 			return MOD_RES_PASSTHRU;
 
-		if (!dest->IsModeSet(hm))
+		if (!whois.GetTarget()->IsModeSet(hm))
 			return MOD_RES_PASSTHRU;
 
-		if (!user->HasPrivPermission("users/auspex"))
+		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;

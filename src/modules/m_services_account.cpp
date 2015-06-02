@@ -133,7 +133,7 @@ class AccountExtItemImpl : public AccountExtItem
 	}
 };
 
-class ModuleServicesAccount : public Module
+class ModuleServicesAccount : public Module, public Whois::EventListener
 {
 	AChannel_R m1;
 	AChannel_M m2;
@@ -143,8 +143,10 @@ class ModuleServicesAccount : public Module
 	AccountExtItemImpl accountname;
 	bool checking_ban;
  public:
-	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
-		accountname(this)
+	ModuleServicesAccount()
+		: Whois::EventListener(this)
+		, m1(this), m2(this), m3(this), m4(this), m5(this)
+		, accountname(this)
 		, checking_ban(false)
 	{
 	}

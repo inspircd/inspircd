@@ -28,12 +28,14 @@ class HideChans : public SimpleUserModeHandler
 	HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
 };
 
-class ModuleHideChans : public Module
+class ModuleHideChans : public Module, public Whois::LineEventListener
 {
 	bool AffectsOpers;
 	HideChans hm;
  public:
-	ModuleHideChans() : hm(this)
+	ModuleHideChans()
+		: Whois::LineEventListener(this)
+		, hm(this)
 	{
 	}
 
@@ -47,10 +49,10 @@ class ModuleHideChans : public Module
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
 	{
 		/* always show to self */
-		if (user == dest)
+		if (whois.IsSelfWhois())
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch anything except 319 */
@@ -58,7 +60,7 @@ class ModuleHideChans : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */
-		if (!dest->IsModeSet(hm))
+		if (!whois.GetTarget()->IsModeSet(hm))
 			return MOD_RES_PASSTHRU;
 
 		/* if it affects opers, we don't care if they are opered */
@@ -66,7 +68,7 @@ class ModuleHideChans : public Module
 			return MOD_RES_DENY;
 
 		/* doesn't affect opers, sender is opered */
-		if (user->HasPrivPermission("users/auspex"))
+		if (whois.GetSource()->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU;
 
 		/* user must be opered, boned. */
