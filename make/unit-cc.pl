@@ -104,7 +104,11 @@ sub do_core_link {
 }
 
 sub do_link_dir {
-	my $execstr = "$ENV{CXX} -o $out $ENV{PICLDFLAGS} @_";
+	my ($dir, $link_flags) = (shift, '');
+	for my $file (<$dir/*.cpp>) {
+		$link_flags .= get_property($file, 'LinkerFlags') . ' ';
+	}
+	my $execstr = "$ENV{CXX} -o $out $ENV{PICLDFLAGS} $link_flags @_";
 	message 'LINK', $out, $execstr;
 	exec $execstr;
 }

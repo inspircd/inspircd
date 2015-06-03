@@ -250,7 +250,7 @@ sub dep_dir($$) {
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
 		print MAKE "$outdir.so: $ofiles\n";
-		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir\$(VERBOSE) \$\@ \$^ \$>\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir\$(VERBOSE) \$\@ ${\SOURCEPATH}/src/$dir \$^ \$>\n";
 		return 1;
 	} else {
 		return 0;
