@@ -318,7 +318,7 @@ class ModuleSilence : public Module
 		tokens["SILENCE"] = ConvToStr(maxsilence);
 	}
 
-	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
+	void BuildExemptList(MessageType message_type, Channel* chan, User* sender, CUList& exempt_list)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
 
@@ -344,7 +344,7 @@ class ModuleSilence : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = (Channel*)dest;
-			this->OnBuildExemptList(msgtype, chan, user, status, exempt_list, "");
+			BuildExemptList(msgtype, chan, user, exempt_list);
 		}
 		return MOD_RES_PASSTHRU;
 	}
