@@ -426,6 +426,12 @@ public:
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getInt("cooldown", 60);
 	}
+
+	void Prioritize() CXX11_OVERRIDE
+	{
+		// Want to be after modules like silence or services_account
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+	}
 };
 
 MODULE_INIT(ModuleCallerID)
