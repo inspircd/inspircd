@@ -45,8 +45,8 @@
 // pair of hostmask and flags
 typedef std::pair<std::string, int> silenceset;
 
-// deque list of pairs
-typedef std::deque<silenceset> silencelist;
+// list of pairs
+typedef std::vector<silenceset> silencelist;
 
 // intmasks for flags
 static int SILENCE_PRIVATE	= 0x0001; /* p  private messages      */
@@ -212,7 +212,7 @@ class CommandSilence : public Command
 				}
 				if (((pattern & SILENCE_EXCLUDE) > 0))
 				{
-					sl->push_front(silenceset(mask,pattern));
+					sl->insert(sl->begin(), silenceset(mask, pattern));
 				}
 				else
 				{
