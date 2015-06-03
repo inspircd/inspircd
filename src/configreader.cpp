@@ -671,6 +671,7 @@ void ServerConfig::ApplyModules(User* user)
 		std::string name;
 		if (tag->readString("name", name))
 		{
+			name = ModuleManager::ExpandModName(name);
 			// if this module is already loaded, the erase will succeed, so we need do nothing
 			// otherwise, we need to add the module (which will be done later)
 			if (removed_modules.erase(name) == 0)

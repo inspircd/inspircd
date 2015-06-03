@@ -1047,13 +1047,6 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 */
 	bool PrioritizeHooks();
 
-	/** Expands the name of a module by prepending "m_" and appending ".so".
-	 * No-op if the name already has the ".so" extension.
-	 * @param modname Module name to expand
-	 * @return Module name starting with "m_" and ending with ".so"
-	 */
-	static std::string ExpandModName(const std::string& modname);
-
  public:
 	typedef std::map<std::string, Module*> ModuleMap;
 
@@ -1074,6 +1067,13 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 * has to be registered manually.
 	 */
 	ServiceList* NewServices;
+
+	/** Expands the name of a module by prepending "m_" and appending ".so".
+	 * No-op if the name already has the ".so" extension.
+	 * @param modname Module name to expand
+	 * @return Module name starting with "m_" and ending with ".so"
+	 */
+	static std::string ExpandModName(const std::string& modname);
 
 	/** Simple, bog-standard, boring constructor.
 	 */
