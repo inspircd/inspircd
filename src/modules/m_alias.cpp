@@ -57,7 +57,7 @@ class Alias
 
 class ModuleAlias : public Module
 {
-	char fprefix;
+	std::string fprefix;
 
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
@@ -76,8 +76,8 @@ class ModuleAlias : public Module
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
-		std::string fpre = fantasy->getString("prefix", "!");
-		fprefix = fpre.empty() ? '!' : fpre[0];
+		std::string fpre = fantasy->getString("prefix");
+		fprefix = fpre.empty() ? "!" : fpre;
 
 		Aliases.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
@@ -193,26 +193,26 @@ class ModuleAlias : public Module
 		irc::spacesepstream ss(text);
 		ss.GetToken(scommand);
 
-		if (scommand.empty())
+		if (scommand.size() <= fprefix.size())
 		{
 			return; // wtfbbq
 		}
 
 		// we don't want to touch non-fantasy stuff
-		if (*scommand.c_str() != fprefix)
+		if (scommand.compare(0, fprefix.size(), fprefix) != 0)
 		{
 			return;
 		}
 
 		// nor do we give a shit about the prefix
-		scommand.erase(scommand.begin());
+		scommand.erase(0, fprefix.size());
 
 		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(scommand);
 		if (iters.first == iters.second)
 			return;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare(text, scommand.length() + 1);
+		std::string compare(text, scommand.length() + fprefix.size());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
@@ -220,8 +220,8 @@ class ModuleAlias : public Module
 		{
 			if (i->second.ChannelCommand)
 			{
-				// We use substr(1) here to remove the fantasy prefix
-				if (DoAlias(user, c, &(i->second), compare, text.substr(1)))
+				// We use substr here to remove the fantasy prefix
+				if (DoAlias(user, c, &(i->second), compare, text.substr(fprefix.size())))
 					return;
 			}
 		}
