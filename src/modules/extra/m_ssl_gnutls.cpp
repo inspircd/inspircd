@@ -968,7 +968,7 @@ info_done_dealloc:
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -976,19 +976,21 @@ info_done_dealloc:
 			return prepret;
 
 		// Session is ready for transferring application data
+		StreamSocket::SendQueue& sendq = user->GetSendQ();
 		int ret = 0;
 
 		{
-			ret = gnutls_record_send(this->sess, sendq.data(), sendq.length());
+			const StreamSocket::SendQueue::Element& buffer = sendq.front();
+			ret = gnutls_record_send(this->sess, buffer.data(), buffer.length());
 
-			if (ret == (int)sendq.length())
+			if (ret == (int)buffer.length())
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
 				return 1;
 			}
 			else if (ret > 0)
 			{
-				sendq.erase(0, ret);
+				sendq.erase_front(ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}

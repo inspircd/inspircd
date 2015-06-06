@@ -601,7 +601,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -611,8 +611,10 @@ class OpenSSLIOHook : public SSLIOHook
 		data_to_write = true;
 
 		// Session is ready for transferring application data
+		StreamSocket::SendQueue& sendq = user->GetSendQ();
 		{
 			ERR_clear_error();
+			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
 
 #ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
@@ -628,7 +630,7 @@ class OpenSSLIOHook : public SSLIOHook
 			}
 			else if (ret > 0)
 			{
-				buffer.erase(0, ret);
+				sendq.erase_front(ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}

@@ -212,11 +212,10 @@ class CoreExport StreamSocket : public EventHandler
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook;
 
-	/** Private send queue. Note that individual strings may be shared
+	/** Send queue of the socket
 	 */
-	std::deque<std::string> sendq;
-	/** Length, in bytes, of the sendq */
-	size_t sendq_len;
+	SendQueue sendq;
+
 	/** Error - if nonempty, the socket is dead, and this is the reason. */
 	std::string error;
 
@@ -232,7 +231,7 @@ class CoreExport StreamSocket : public EventHandler
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : iohook(NULL), sendq_len(0) {}
+	StreamSocket() : iohook(NULL) { }
 	IOHook* GetIOHook() const;
 	void AddIOHook(IOHook* hook);
 	void DelIOHook();
@@ -275,7 +274,9 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 	/** Useful for implementing sendq exceeded */
-	inline size_t getSendQSize() const { return sendq_len; }
+	size_t getSendQSize() const { return sendq.size(); }
+
+	SendQueue& GetSendQ() { return sendq; }
 
 	/**
 	 * Close the socket, remove from socket engine, etc
