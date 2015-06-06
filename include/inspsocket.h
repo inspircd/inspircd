@@ -103,6 +103,112 @@ class CoreExport SocketTimeout : public Timer
  */
 class CoreExport StreamSocket : public EventHandler
 {
+ public:
+	/** Socket send queue
+	 */
+	class SendQueue
+	{
+	 public:
+		/** One element of the queue, a continuous buffer
+		 */
+		typedef std::string Element;
+
+		/** Sequence container of buffers in the queue
+		 */
+		typedef std::deque<Element> Container;
+
+		/** Container iterator
+		 */
+		typedef Container::const_iterator const_iterator;
+
+		SendQueue() : nbytes(0) { }
+
+		/** Return whether the queue is empty
+		 * @return True if the queue is empty, false otherwise
+		 */
+		bool empty() const { return (nbytes == 0); }
+
+		/** Get the number of individual buffers in the queue
+		 * @return Number of individual buffers in the queue
+		 */
+		Container::size_type size() const { return data.size(); }
+
+		/** Get the number of queued bytes
+		 * @return Size in bytes of the data in the queue
+		 */
+		size_t bytes() const { return nbytes; }
+
+		/** Get the first buffer of the queue
+		 * @return A reference to the first buffer in the queue
+		 */
+		const Element& front() const { return data.front(); }
+
+		/** Get an iterator to the first buffer in the queue.
+		 * The returned iterator cannot be used to make modifications to the queue,
+		 * for that purpose the member functions push_*(), pop_front(), erase_front() and clear() can be used.
+		 * @return Iterator referring to the first buffer in the queue, or end() if there are no elements.
+		 */
+		const_iterator begin() const { return data.begin(); }
+
+		/** Get an iterator to the (theoretical) buffer one past the end of the queue.
+		 * @return Iterator referring to one element past the end of the container
+		 */
+		const_iterator end() const { return data.end(); }
+
+		/** Remove the first buffer in the queue
+		 */
+		void pop_front()
+		{
+			nbytes -= data.front().length();
+			data.pop_front();
+		}
+
+		/** Remove bytes from the beginning of the first buffer
+		 * @param n Number of bytes to remove
+		 */
+		void erase_front(Element::size_type n)
+		{
+			nbytes -= n;
+			data.front().erase(0, n);
+		}
+
+		/** Insert a new buffer at the beginning of the queue
+		 * @param newdata Data to add
+		 */
+		void push_front(const Element& newdata)
+		{
+			data.push_front(newdata);
+			nbytes += newdata.length();
+		}
+
+		/** Insert a new buffer at the end of the queue
+		 * @param newdata Data to add
+		 */
+		void push_back(const Element& newdata)
+		{
+			data.push_back(newdata);
+			nbytes += newdata.length();
+		}
+
+		/** Clear the queue
+		 */
+		void clear()
+		{
+			data.clear();
+			nbytes = 0;
+		}
+
+	 private:
+	 	/** Private send queue. Note that individual strings may be shared.
+		 */
+		Container data;
+
+		/** Length, in bytes, of the sendq
+		 */
+		size_t nbytes;
+	};
+
+ private:
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook;
 
