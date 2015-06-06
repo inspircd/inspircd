@@ -403,10 +403,18 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	return false;
 }
 
-std::string ConfigTag::getString(const std::string& key, const std::string& def)
+std::string ConfigTag::getString(const std::string& key, const std::string& def, size_t min, size_t max)
 {
-	std::string res = def;
-	readString(key, res);
+	std::string res;
+	if (!readString(key, res))
+		return def;
+
+	if (res.size() < min || res.size() > max)
+	{
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
+			tag.c_str(), key.c_str(), min, max, def.c_str());
+		return def;
+	}
 	return res;
 }
 
