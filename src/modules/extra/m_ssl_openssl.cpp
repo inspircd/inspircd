@@ -238,6 +238,10 @@ namespace OpenSSL
 		 */
 		const bool allowrenego;
 
+		/** Rough max size of records to send
+		 */
+		const unsigned int outrecsize;
+
 		static int error_callback(const char* str, size_t len, void* u)
 		{
 			Profile* profile = reinterpret_cast<Profile*>(u);
@@ -278,6 +282,7 @@ namespace OpenSSL
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation", true))
+			, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
 		{
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
@@ -337,6 +342,7 @@ namespace OpenSSL
 		SSL* CreateClientSession() { return clictx.CreateClientSession(); }
 		const EVP_MD* GetDigest() { return digest; }
 		bool AllowRenegotiation() const { return allowrenego; }
+		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
 }
 

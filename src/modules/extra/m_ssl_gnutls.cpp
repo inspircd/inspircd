@@ -531,14 +531,20 @@ namespace GnuTLS
 		 */
 		Priority priority;
 
+		/** Rough max size of records to send
+		 */
+		const unsigned int outrecsize;
+
 		Profile(const std::string& profilename, const std::string& certstr, const std::string& keystr,
 				std::auto_ptr<DHParams>& DH, unsigned int mindh, const std::string& hashstr,
-				const std::string& priostr, std::auto_ptr<X509CertList>& CA, std::auto_ptr<X509CRL>& CRL)
+				const std::string& priostr, std::auto_ptr<X509CertList>& CA, std::auto_ptr<X509CRL>& CRL,
+				unsigned int recsize)
 			: name(profilename)
 			, x509cred(certstr, keystr)
 			, min_dh_bits(mindh)
 			, hash(hashstr)
 			, priority(priostr)
+			, outrecsize(recsize)
 		{
 			x509cred.SetDH(DH);
 			x509cred.SetCA(CA, CRL);
@@ -587,7 +593,8 @@ namespace GnuTLS
 					crl.reset(new X509CRL(ReadFile(filename)));
 			}
 
-			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl);
+			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
+			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl, outrecsize);
 		}
 
 		/** Set up the given session with the settings in this profile
@@ -605,6 +612,7 @@ namespace GnuTLS
 		const std::string& GetName() const { return name; }
 		X509Credentials& GetX509Credentials() { return x509cred; }
 		gnutls_digest_algorithm_t GetHash() const { return hash.get(); }
+		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
 }
 
