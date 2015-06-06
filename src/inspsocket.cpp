@@ -202,33 +202,12 @@ void StreamSocket::DoWrite()
 	if (GetIOHook())
 	{
 		{
-			while (error.empty() && !sendq.empty())
 			{
-				if (sendq.size() > 1 && sendq.front().length() < 1024)
-				{
-					// Avoid multiple repeated SSL encryption invocations
-					// This adds a single copy of the queue, but avoids
-					// much more overhead in terms of system calls invoked
-					// by the IOHook.
-					//
-					// The length limit of 1024 is to prevent merging strings
-					// more than once when writes begin to block.
-					std::string tmp;
-					tmp.reserve(1280);
-					while (!sendq.empty() && tmp.length() < 1024)
-					{
-						tmp.append(sendq.front());
-						sendq.pop_front();
-					}
-					sendq.push_front(tmp);
-				}
-
 				{
 					int rv = GetIOHook()->OnStreamSocketWrite(this);
 					if (rv > 0)
 					{
 						// consumed the entire string, and is ready for more
-						sendq.pop_front();
 					}
 					else if (rv == 0)
 					{

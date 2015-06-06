@@ -618,8 +618,10 @@ class OpenSSLIOHook : public SSLIOHook
 
 		// Session is ready for transferring application data
 		StreamSocket::SendQueue& sendq = user->GetSendQ();
+		while (!sendq.empty())
 		{
 			ERR_clear_error();
+			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
 
@@ -630,9 +632,8 @@ class OpenSSLIOHook : public SSLIOHook
 
 			if (ret == (int)buffer.length())
 			{
-				data_to_write = false;
-				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				return 1;
+				// Wrote entire record, continue sending
+				sendq.pop_front();
 			}
 			else if (ret > 0)
 			{
@@ -666,6 +667,10 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
+
+		data_to_write = false;
+		SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		return 1;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)

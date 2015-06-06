@@ -987,14 +987,16 @@ info_done_dealloc:
 		StreamSocket::SendQueue& sendq = user->GetSendQ();
 		int ret = 0;
 
+		while (!sendq.empty())
 		{
+			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			ret = gnutls_record_send(this->sess, buffer.data(), buffer.length());
 
 			if (ret == (int)buffer.length())
 			{
-				SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
-				return 1;
+				// Wrote entire record, continue sending
+				sendq.pop_front();
 			}
 			else if (ret > 0)
 			{
@@ -1014,6 +1016,9 @@ info_done_dealloc:
 				return -1;
 			}
 		}
+
+		SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
+		return 1;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
