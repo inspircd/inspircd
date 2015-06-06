@@ -92,6 +92,10 @@ typedef unsigned int inspircd_gnutls_session_init_flags_t;
 typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 #endif
 
+#if INSPIRCD_GNUTLS_HAS_VERSION(3, 1, 9)
+#define INSPIRCD_GNUTLS_HAS_CORK
+#endif
+
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
@@ -593,7 +597,12 @@ namespace GnuTLS
 					crl.reset(new X509CRL(ReadFile(filename)));
 			}
 
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+			// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
+			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512);
+#else
 			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
+#endif
 			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl, outrecsize);
 		}
 
@@ -622,6 +631,9 @@ class GnuTLSIOHook : public SSLIOHook
 	gnutls_session_t sess;
 	issl_status status;
 	reference<GnuTLS::Profile> profile;
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+	size_t gbuffersize;
+#endif
 
 	void CloseSession()
 	{
@@ -801,6 +813,43 @@ info_done_dealloc:
 		return -1;
 	}
 
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+	int FlushBuffer(StreamSocket* sock)
+	{
+		// If GnuTLS has some data buffered, write it
+		if (gbuffersize)
+			return HandleWriteRet(sock, gnutls_record_uncork(this->sess, 0));
+		return 1;
+	}
+#endif
+
+	int HandleWriteRet(StreamSocket* sock, int ret)
+	{
+		if (ret > 0)
+		{
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+			gbuffersize -= ret;
+			if (gbuffersize)
+			{
+				SocketEngine::ChangeEventMask(sock, FD_WANT_SINGLE_WRITE);
+				return 0;
+			}
+#endif
+			return ret;
+		}
+		else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
+		{
+			SocketEngine::ChangeEventMask(sock, FD_WANT_SINGLE_WRITE);
+			return 0;
+		}
+		else // (ret < 0)
+		{
+			sock->SetError(gnutls_strerror(ret));
+			CloseSession();
+			return -1;
+		}
+	}
+
 	static const char* UnknownIfNULL(const char* str)
 	{
 		return str ? str : "UNKNOWN";
@@ -921,6 +970,9 @@ info_done_dealloc:
 		, sess(NULL)
 		, status(ISSL_NONE)
 		, profile(sslprofile)
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+		, gbuffersize(0)
+#endif
 	{
 		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
@@ -985,37 +1037,56 @@ info_done_dealloc:
 
 		// Session is ready for transferring application data
 		StreamSocket::SendQueue& sendq = user->GetSendQ();
+
+#ifdef INSPIRCD_GNUTLS_HAS_CORK
+		while (true)
+		{
+			// If there is something in the GnuTLS buffer try to send() it
+			int ret = FlushBuffer(user);
+			if (ret <= 0)
+				return ret; // Couldn't flush entire buffer, retry later (or close on error)
+
+			// GnuTLS buffer is empty, if the sendq is empty as well then break to set FD_WANT_NO_WRITE
+			if (sendq.empty())
+				break;
+
+			// GnuTLS buffer is empty but sendq is not, begin sending data from the sendq
+			gnutls_record_cork(this->sess);
+			while ((!sendq.empty()) && (gbuffersize < profile->GetOutgoingRecordSize()))
+			{
+				const StreamSocket::SendQueue::Element& elem = sendq.front();
+				gbuffersize += elem.length();
+				ret = gnutls_record_send(this->sess, elem.data(), elem.length());
+				if (ret < 0)
+				{
+					CloseSession();
+					return -1;
+				}
+				sendq.pop_front();
+			}
+		}
+#else
 		int ret = 0;
 
 		while (!sendq.empty())
 		{
 			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
-			ret = gnutls_record_send(this->sess, buffer.data(), buffer.length());
+			ret = HandleWriteRet(user, gnutls_record_send(this->sess, buffer.data(), buffer.length()));
 
-			if (ret == (int)buffer.length())
-			{
-				// Wrote entire record, continue sending
-				sendq.pop_front();
-			}
-			else if (ret > 0)
+			if (ret <= 0)
+				return ret;
+			else if (ret < (int)buffer.length())
 			{
 				sendq.erase_front(ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
-			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
-			{
-				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
-				return 0;
-			}
-			else // (ret < 0)
-			{
-				user->SetError(gnutls_strerror(ret));
-				CloseSession();
-				return -1;
-			}
+
+			// Wrote entire record, continue sending
+			sendq.pop_front();
 		}
+#endif
 
 		SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
 		return 1;
