@@ -201,28 +201,12 @@ void StreamSocket::DoWrite()
 
 	if (GetIOHook())
 	{
-		{
-			{
-				{
-					int rv = GetIOHook()->OnStreamSocketWrite(this);
-					if (rv > 0)
-					{
-						// consumed the entire string, and is ready for more
-					}
-					else if (rv == 0)
-					{
-						// socket has blocked. Stop trying to send data.
-						// IOHook has requested unblock notification from the socketengine
-						return;
-					}
-					else
-					{
-						SetError("Write Error"); // will not overwrite a better error message
-						return;
-					}
-				}
-			}
-		}
+		int rv = GetIOHook()->OnStreamSocketWrite(this);
+		if (rv < 0)
+			SetError("Write Error"); // will not overwrite a better error message
+
+		// rv == 0 means the socket has blocked. Stop trying to send data.
+		// IOHook has requested unblock notification from the socketengine.
 	}
 	else
 	{
