@@ -497,7 +497,7 @@
 # An optional prefix may be specified to mark cloaked hosts.          #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
-#<cloak mode="half"
+#<cloak mode="full"
 #       key="secret"
 #       prefix="net-">
 
