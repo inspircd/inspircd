@@ -138,6 +138,31 @@ class SSLIOHook : public IOHook
 	 */
 	reference<ssl_cert> certificate;
 
+	/** Reduce elements in a send queue by appending later elements to the first element until there are no more
+	 * elements to append or a desired length is reached
+	 * @param sendq SendQ to work on
+	 * @param targetsize Target size of the front element
+	 */
+	static void FlattenSendQueue(StreamSocket::SendQueue& sendq, size_t targetsize)
+	{
+		if ((sendq.size() <= 1) || (sendq.front().length() >= targetsize))
+			return;
+
+		// Avoid multiple repeated SSL encryption invocations
+		// This adds a single copy of the queue, but avoids
+		// much more overhead in terms of system calls invoked
+		// by an IOHook.
+		std::string tmp;
+		tmp.reserve(std::min(targetsize, sendq.bytes())+1);
+		do
+		{
+			tmp.append(sendq.front());
+			sendq.pop_front();
+		}
+		while (!sendq.empty() && tmp.length() < targetsize);
+		sendq.push_front(tmp);
+	}
+
  public:
 	SSLIOHook(IOHookProvider* hookprov)
 		: IOHook(hookprov)

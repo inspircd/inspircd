@@ -201,55 +201,12 @@ void StreamSocket::DoWrite()
 
 	if (GetIOHook())
 	{
-		{
-			while (error.empty() && !sendq.empty())
-			{
-				if (sendq.size() > 1 && sendq[0].length() < 1024)
-				{
-					// Avoid multiple repeated SSL encryption invocations
-					// This adds a single copy of the queue, but avoids
-					// much more overhead in terms of system calls invoked
-					// by the IOHook.
-					//
-					// The length limit of 1024 is to prevent merging strings
-					// more than once when writes begin to block.
-					std::string tmp;
-					tmp.reserve(1280);
-					while (!sendq.empty() && tmp.length() < 1024)
-					{
-						tmp.append(sendq.front());
-						sendq.pop_front();
-					}
-					sendq.push_front(tmp);
-				}
-				std::string& front = sendq.front();
-				int itemlen = front.length();
+		int rv = GetIOHook()->OnStreamSocketWrite(this);
+		if (rv < 0)
+			SetError("Write Error"); // will not overwrite a better error message
 
-				{
-					int rv = GetIOHook()->OnStreamSocketWrite(this, front);
-					if (rv > 0)
-					{
-						// consumed the entire string, and is ready for more
-						sendq_len -= itemlen;
-						sendq.pop_front();
-					}
-					else if (rv == 0)
-					{
-						// socket has blocked. Stop trying to send data.
-						// IOHook has requested unblock notification from the socketengine
-
-						// Since it is possible that a partial write took place, adjust sendq_len
-						sendq_len = sendq_len - itemlen + front.length();
-						return;
-					}
-					else
-					{
-						SetError("Write Error"); // will not overwrite a better error message
-						return;
-					}
-				}
-			}
-		}
+		// rv == 0 means the socket has blocked. Stop trying to send data.
+		// IOHook has requested unblock notification from the socketengine.
 	}
 	else
 	{
@@ -258,7 +215,7 @@ void StreamSocket::DoWrite()
 			return;
 		// start out optimistic - we won't need to write any more
 		int eventChange = FD_WANT_EDGE_WRITE;
-		while (error.empty() && sendq_len && eventChange == FD_WANT_EDGE_WRITE)
+		while (error.empty() && !sendq.empty() && eventChange == FD_WANT_EDGE_WRITE)
 		{
 			// Prepare a writev() call to write all buffers efficiently
 			int bufcount = sendq.size();
@@ -273,20 +230,21 @@ void StreamSocket::DoWrite()
 			int rv;
 			{
 				SocketEngine::IOVector iovecs[MYIOV_MAX];
-				for (int i = 0; i < bufcount; i++)
+				size_t j = 0;
+				for (SendQueue::const_iterator i = sendq.begin(), end = i+bufcount; i != end; ++i, j++)
 				{
-					iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
-					iovecs[i].iov_len = sendq[i].length();
-					rv_max += sendq[i].length();
+					const SendQueue::Element& elem = *i;
+					iovecs[j].iov_base = const_cast<char*>(elem.data());
+					iovecs[j].iov_len = elem.length();
+					rv_max += elem.length();
 				}
 				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
-			if (rv == (int)sendq_len)
+			if (rv == (int)sendq.bytes())
 			{
 				// it's our lucky day, everything got written out. Fast cleanup.
 				// This won't ever happen if the number of buffers got capped.
-				sendq_len = 0;
 				sendq.clear();
 			}
 			else if (rv > 0)
@@ -297,10 +255,9 @@ void StreamSocket::DoWrite()
 					// it's going to block now
 					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 				}
-				sendq_len -= rv;
 				while (rv > 0 && !sendq.empty())
 				{
-					std::string& front = sendq.front();
+					const SendQueue::Element& front = sendq.front();
 					if (front.length() <= (size_t)rv)
 					{
 						// this string got fully written out
@@ -310,7 +267,7 @@ void StreamSocket::DoWrite()
 					else
 					{
 						// stopped in the middle of this string
-						front.erase(0, rv);
+						sendq.erase_front(rv);
 						rv = 0;
 					}
 				}
@@ -356,7 +313,6 @@ void StreamSocket::WriteData(const std::string &data)
 
 	/* Append the data to the back of the queue ready for writing */
 	sendq.push_back(data);
-	sendq_len += data.length();
 
 	SocketEngine::ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
 }

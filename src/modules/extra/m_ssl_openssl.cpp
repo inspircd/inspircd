@@ -238,6 +238,10 @@ namespace OpenSSL
 		 */
 		const bool allowrenego;
 
+		/** Rough max size of records to send
+		 */
+		const unsigned int outrecsize;
+
 		static int error_callback(const char* str, size_t len, void* u)
 		{
 			Profile* profile = reinterpret_cast<Profile*>(u);
@@ -278,6 +282,7 @@ namespace OpenSSL
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation", true))
+			, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
 		{
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
@@ -337,6 +342,7 @@ namespace OpenSSL
 		SSL* CreateClientSession() { return clictx.CreateClientSession(); }
 		const EVP_MD* GetDigest() { return digest; }
 		bool AllowRenegotiation() const { return allowrenego; }
+		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
 }
 
@@ -601,7 +607,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -611,8 +617,12 @@ class OpenSSLIOHook : public SSLIOHook
 		data_to_write = true;
 
 		// Session is ready for transferring application data
+		StreamSocket::SendQueue& sendq = user->GetSendQ();
+		while (!sendq.empty())
 		{
 			ERR_clear_error();
+			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
+			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
 
 #ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
@@ -622,13 +632,12 @@ class OpenSSLIOHook : public SSLIOHook
 
 			if (ret == (int)buffer.length())
 			{
-				data_to_write = false;
-				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				return 1;
+				// Wrote entire record, continue sending
+				sendq.pop_front();
 			}
 			else if (ret > 0)
 			{
-				buffer.erase(0, ret);
+				sendq.erase_front(ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
@@ -658,6 +667,10 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 			}
 		}
+
+		data_to_write = false;
+		SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		return 1;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
