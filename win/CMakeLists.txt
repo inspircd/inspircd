@@ -74,6 +74,10 @@ install(FILES ${EXTRA_DLLS} DESTINATION .)
 file(GLOB_RECURSE EXAMPLE_CONFIGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/docs/conf/*.example")
 install(FILES ${EXAMPLE_CONFIGS} DESTINATION conf)
 
+# Install nationalchars files
+file(GLOB_RECURSE EXAMPLE_LOCALES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/locales/*")
+install(FILES ${EXAMPLE_LOCALES} DESTINATION locales)
+
 # Create an empty data and logs directory and install them
 file(MAKE_DIRECTORY ${DATA_PATH})
 install(DIRECTORY ${DATA_PATH} DESTINATION .)
