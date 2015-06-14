@@ -257,7 +257,8 @@ if ($config{OSNAME} =~ /darwin/i)
 elsif ($config{OSNAME} =~ /freebsd/i)
 {
 	chomp(my $fbsd_version = `uname -r`);
-	$config{CC} = $fbsd_version ge '10.0' ? 'clang++' : 'g++';
+	$fbsd_version =~ s/^(\d+\.\d+).*/$1/g;
+	$config{CC} = $fbsd_version >= 10.0 ? 'clang++' : 'g++';
 }
 else
 {
