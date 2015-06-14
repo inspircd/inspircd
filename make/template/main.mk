@@ -42,6 +42,7 @@ PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
+LOGPATH = "$(DESTDIR)@LOG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 INSTALL = install
@@ -220,8 +221,8 @@ install: target
 		exit 1; \
 	fi
 	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
