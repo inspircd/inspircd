@@ -1148,10 +1148,13 @@
 # 2) Allows using custom (national) casemapping over the network.
 #<module name="m_nationalchars.so">
 #
-# file - filename of existing file in "locales" directory
-# casemapping - custom value for 005 numeric (if you want it to be
-#               different from the filename). Set this to the name of
-#               the locale if you are specifying an absolute path.
+# file - Location of the file which contains casemapping rules. If this
+#        is a relative path then it is relative to "<PWD>/../locales"
+#        on UNIX and "<PWD>/locales" on Windows.
+# casemapping - The name of the casemapping sent to clients in the 005
+#               numeric. If this is not set then it defaults to the name
+#               of the casemapping file unless the file name contains a
+#               space in which case you will have to specify it manually.
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

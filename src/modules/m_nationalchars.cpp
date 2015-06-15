@@ -284,11 +284,19 @@ class ModuleNationalChars : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
-		casemapping = tag->getString("casemapping", charset);
+		casemapping = tag->getString("casemapping", ServerConfig::CleanFilename(charset.c_str()));
+		if (casemapping.find(' ') != std::string::npos)
+			throw ModuleException("<nationalchars:casemapping> must not contain any spaces!");
+#if defined _WIN32
+		if (!ServerInstance->Config->StartsWithWindowsDriveLetter(charset))
+			charset.insert(0, "./locales/");
+#else
 		if(charset[0] != '/')
 			charset.insert(0, "../locales/");
+#endif
 		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
-		loadtables(charset, tables, 8, 5);
+		if (!loadtables(charset, tables, 8, 5))
+			throw ModuleException("The locale file failed to load. Check your log file for more information.");
 		forcequit = tag->getBool("forcequit");
 		CheckForceQuit("National character set changed");
 		CheckRehash();
@@ -330,13 +338,13 @@ class ModuleNationalChars : public Module
 	}
 
 	/*so Bynets Unreal distribution stuff*/
-	void loadtables(std::string filename, unsigned char ** tables, unsigned char cnt, char faillimit)
+	bool loadtables(std::string filename, unsigned char ** tables, unsigned char cnt, char faillimit)
 	{
 		std::ifstream ifs(filename.c_str());
 		if (ifs.fail())
 		{
 			ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for missing file: %s", filename.c_str());
-			return;
+			return false;
 		}
 
 		for (unsigned char n=0; n< cnt; n++)
@@ -351,11 +359,12 @@ class ModuleNationalChars : public Module
 			if (loadtable(ifs, tables[n], 255) && (n < faillimit))
 			{
 				ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
-				return;
+				return false;
 			}
 		}
 
 		makereverse(m_additional, m_reverse_additional, sizeof(m_additional));
+		return true;
 	}
 
 	unsigned char symtoi(const char *t,unsigned char base)
