@@ -37,6 +37,7 @@
 
 #ifndef GNUTLS_VERSION_NUMBER
 #define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
+#define GNUTLS_VERSION LIBGNUTLS_VERSION
 #endif
 
 // Check if the GnuTLS library is at least version major.minor.patch
@@ -1241,6 +1242,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void init() CXX11_OVERRIDE
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
 		ReadProfiles();
 		ServerInstance->GenRandom = &randhandler;
 	}

@@ -800,6 +800,8 @@ class ModuleSSLOpenSSL : public Module
 
 	void init() CXX11_OVERRIDE
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", SSLeay_version(SSLEAY_VERSION));
+
 		// Register application specific data
 		char exdatastr[] = "inspircd";
 		exdataindex = SSL_get_ex_new_index(0, exdatastr, NULL, NULL, NULL);
