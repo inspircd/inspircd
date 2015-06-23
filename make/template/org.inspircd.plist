@@ -21,6 +21,10 @@
 	</array>
 	<key>ServiceIPC</key>
 	<false/>
+	<key>StandardOutPath</key>
+	<string>@LOG_DIR@/launchd-stdout.log</string>
+	<key>StandardErrorPath</key>
+	<string>@LOG_DIR@/launchd-stderr.log</string>
 	<key>UserName</key>
 	<string>ircdaemon</string>
 </dict>
