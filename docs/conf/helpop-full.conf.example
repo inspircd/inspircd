@@ -895,7 +895,7 @@ who have all of them set.">
                     module).
  D                  Delays join messages from users until they
                     message the channel (requires delayjoin module).
- E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similiar messages.
+ E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similar messages.
                     Kicks as default, blocks with ~ and bans with *
                     The last two parameters are optional.
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the

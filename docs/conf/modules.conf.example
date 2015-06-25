@@ -1523,7 +1523,7 @@
 #<remove supportnokicks="true" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# A module to block, kick or ban upon similiar messages being uttered several times.
+# A module to block, kick or ban upon similar messages being uttered several times.
 # Syntax [~*][lines]:[sec]{[:difference]}{[:matchlines]}
 # ~ is to block, * is to ban, default is kick.
 # lines - In mode 1 the amount of lines that has to match consecutively - In mode 2 the size of the backlog to keep for matching
@@ -1734,7 +1734,7 @@
 #           By default same as the command name.                      #
 # method  - How should the file be shown?                             #
 #           * numeric: Send contents using a numeric                  #
-#             (similiar to /MOTD; the default).                       #
+#             (similar to /MOTD; the default).                        #
 #           * notice:  Send contents as a series of notices.          #
 #           * msg:     Send contents as a series of private messages. #
 # colors  - If true, color codes (\c, \b, \u, etc.) will be processed #

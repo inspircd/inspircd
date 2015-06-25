@@ -370,7 +370,7 @@ class RepeatModule : public Module
 		{
 			if (settings->Action == ChannelSettings::ACT_BLOCK)
 			{
-				user->WriteNotice("*** This line is too similiar to one of your last lines.");
+				user->WriteNotice("*** This line is too similar to one of your last lines.");
 				return MOD_RES_DENY;
 			}
 
@@ -394,7 +394,7 @@ class RepeatModule : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the +E channel mode - for blocking of similiar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
+		return Version("Provides the +E channel mode - for blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
 	}
 };
 
