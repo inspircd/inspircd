@@ -258,8 +258,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# percent        - How many percent of text must be caps before text  #
-#                  will be blocked.                                   #
+# percent        - What percentage of the text must be caps before    #
+#                  text will be blocked.                              #
 #                                                                     #
 # minlen         - The minimum length a line must be for the block    #
 #                  percent to have any effect.                        #
