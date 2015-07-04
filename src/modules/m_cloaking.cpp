@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2015 Christoph Kern <sheogorath@shivering-isles.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2006-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Pippijn van Steenhoven <pip88nl@gmail.com>
@@ -203,8 +204,16 @@ class ModuleCloaking : public Module
 		return rv;
 	}
 
-	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full)
+	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full, LocalUser* user = NULL)
 	{
+		std::string cloakprefix = prefix;
+		std::string cloaksuffix = suffix;
+		if (user)
+		{
+			ConfigTag* tag = user->MyClass->config;
+			cloakprefix = tag->getString("cloakprefix", prefix);
+			cloaksuffix = tag->getString("cloaksuffix", suffix);
+		}
 		std::string bindata;
 		int hop1, hop2, hop3;
 		int len1, len2;
@@ -231,8 +240,8 @@ class ModuleCloaking : public Module
 			// pfx s1.s2. (xxx.xxx or s3) sfx
 			rv.reserve(prefix.length() + 15 + suffix.length());
 		}
-
-		rv.append(prefix);
+		
+		rv.append(cloakprefix);
 		rv.append(SegmentCloak(bindata, 10, len1));
 		rv.append(1, '.');
 		bindata.erase(hop1);
@@ -249,7 +258,7 @@ class ModuleCloaking : public Module
 			rv.append(1, '.');
 			bindata.erase(hop3);
 			rv.append(SegmentCloak(bindata, 13, 6));
-			rv.append(suffix);
+			rv.append(cloaksuffix);
 		}
 		else
 		{
@@ -341,7 +350,7 @@ class ModuleCloaking : public Module
 			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 	}
 
-	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
+	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host, LocalUser* user = NULL)
 	{
 		std::string chost;
 
@@ -352,12 +361,12 @@ class ModuleCloaking : public Module
 				if (ipstr != host)
 					chost = prefix + SegmentCloak(host, 1, 6) + LastTwoDomainParts(host);
 				if (chost.empty() || chost.length() > 50)
-					chost = SegmentIP(ip, false);
+					chost = SegmentIP(ip, false, user);
 				break;
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = SegmentIP(ip, true);
+				chost = SegmentIP(ip, true, user);
 		}
 		return chost;
 	}
@@ -368,7 +377,7 @@ class ModuleCloaking : public Module
 		if (cloak)
 			return;
 
-		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host));
+		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host, dest));
 	}
 };
 
