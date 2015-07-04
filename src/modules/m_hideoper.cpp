@@ -28,25 +28,43 @@
 class HideOper : public SimpleUserModeHandler
 {
  public:
+	size_t opercount;
+
 	HideOper(Module* Creator) : SimpleUserModeHandler(Creator, "hideoper", 'H')
+		, opercount(0)
 	{
 		oper = true;
+	}
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
+	{
+		if (SimpleUserModeHandler::OnModeChange(source, dest, channel, parameter, adding) == MODEACTION_DENY)
+			return MODEACTION_DENY;
+
+		if (adding)
+			opercount++;
+		else
+			opercount--;
+
+		return MODEACTION_ALLOW;
 	}
 };
 
 class ModuleHideOper : public Module
 {
 	HideOper hm;
+	bool active;
  public:
 	ModuleHideOper()
 		: hm(this)
+		, active(false)
 	{
 	}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine, I_OnStats };
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine, I_OnStats, I_OnNumeric, I_OnUserQuit };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -58,6 +76,28 @@ class ModuleHideOper : public Module
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
+	}
+
+	void OnUserQuit(User* user, const std::string&, const std::string&)
+	{
+		if (user->IsModeSet('H'))
+			hm.opercount--;
+	}
+
+	ModResult OnNumeric(User* user, unsigned int numeric, const std::string& text)
+	{
+		if (numeric != 252 || active || user->HasPrivPermission("users/auspex"))
+			return MOD_RES_PASSTHRU;
+
+		// If there are no visible operators then we shouldn't send the numeric.
+		size_t opercount = ServerInstance->Users->all_opers.size() - hm.opercount;
+		if (opercount)
+		{
+			active = true;
+			user->WriteNumeric(252, "%s %lu :operator(s) online", user->nick.c_str(),  opercount);
+			active = false;
+		}
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
