@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "users.h"
 #include "modules/hash.h"
 
 enum CloakMode
@@ -122,10 +123,10 @@ class CloakUser : public ModeHandler
 class CommandCloak : public Command
 {
  public:
-	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
+	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1, 2)
 	{
 		flags_needed = 'o';
-		syntax = "<host>";
+		syntax = "<host> [<connectclass>]";
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user);
@@ -204,13 +205,13 @@ class ModuleCloaking : public Module
 		return rv;
 	}
 
-	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full, LocalUser* user = NULL)
+	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full, ConnectClass* connectclass)
 	{
 		std::string cloakprefix = prefix;
 		std::string cloaksuffix = suffix;
-		if (user)
+		if (connectclass)
 		{
-			ConfigTag* tag = user->MyClass->config;
+			ConfigTag* tag = connectclass->config;
 			cloakprefix = tag->getString("cloakprefix", prefix);
 			cloaksuffix = tag->getString("cloaksuffix", suffix);
 		}
@@ -228,7 +229,7 @@ class ModuleCloaking : public Module
 			len2 = 4;
 			// pfx s1.s2.s3. (xxxx.xxxx or s4) sfx
 			//     6  4  4    9/6
-			rv.reserve(prefix.length() + 26 + suffix.length());
+			rv.reserve(cloakprefix.length() + 26 + cloaksuffix.length());
 		}
 		else
 		{
@@ -238,9 +239,9 @@ class ModuleCloaking : public Module
 			hop3 = 2;
 			len1 = len2 = 3;
 			// pfx s1.s2. (xxx.xxx or s3) sfx
-			rv.reserve(prefix.length() + 15 + suffix.length());
+			rv.reserve(cloakprefix.length() + 15 + cloaksuffix.length());
 		}
-		
+
 		rv.append(cloakprefix);
 		rv.append(SegmentCloak(bindata, 10, len1));
 		rv.append(1, '.');
@@ -350,7 +351,7 @@ class ModuleCloaking : public Module
 			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 	}
 
-	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host, LocalUser* user = NULL)
+	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host, ConnectClass* connectclass)
 	{
 		std::string chost;
 
@@ -361,12 +362,12 @@ class ModuleCloaking : public Module
 				if (ipstr != host)
 					chost = prefix + SegmentCloak(host, 1, 6) + LastTwoDomainParts(host);
 				if (chost.empty() || chost.length() > 50)
-					chost = SegmentIP(ip, false, user);
+					chost = SegmentIP(ip, false, connectclass);
 				break;
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = SegmentIP(ip, true, user);
+				chost = SegmentIP(ip, true, connectclass);
 		}
 		return chost;
 	}
@@ -377,7 +378,7 @@ class ModuleCloaking : public Module
 		if (cloak)
 			return;
 
-		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host, dest));
+		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host, dest->MyClass));
 	}
 };
 
@@ -386,11 +387,23 @@ CmdResult CommandCloak::Handle(const std::vector<std::string> &parameters, User 
 	ModuleCloaking* mod = (ModuleCloaking*)(Module*)creator;
 	irc::sockets::sockaddrs sa;
 	std::string cloak;
+	ConnectClass *connectclass = NULL;
+	
+	if (parameters.size() > 1)
+		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
+		{
+			ConnectClass* c = *i;
+			if (c->GetName() == parameters[1])
+			{
+				connectclass = c;
+				break;
+			}
+		}
 
 	if (irc::sockets::aptosa(parameters[0], 0, sa))
-		cloak = mod->GenCloak(sa, parameters[0], parameters[0]);
+		cloak = mod->GenCloak(sa, parameters[0], parameters[0], connectclass);
 	else
-		cloak = mod->GenCloak(sa, "", parameters[0]);
+		cloak = mod->GenCloak(sa, "", parameters[0], connectclass);
 
 	user->WriteNotice("*** Cloak for " + parameters[0] + " is " + cloak);
 
