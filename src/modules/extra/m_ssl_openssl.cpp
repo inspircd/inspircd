@@ -126,7 +126,12 @@ namespace OpenSSL
 #endif
 
 			ctx_options = SSL_CTX_set_options(ctx, opts);
-			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+			long mode = SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER;
+#ifdef SSL_MODE_RELEASE_BUFFERS
+			mode |= SSL_MODE_RELEASE_BUFFERS;
+#endif
+			SSL_CTX_set_mode(ctx, mode);
 			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 			SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 			SSL_CTX_set_info_callback(ctx, StaticSSLInfoCallback);
