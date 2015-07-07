@@ -544,8 +544,6 @@ class OpenSSLIOHook : public SSLIOHook
 		, data_to_write(false)
 		, profile(sslprofile)
 	{
-		if (sess == NULL)
-			return;
 		if (SSL_set_fd(sess, sock->GetFd()) == 0)
 			throw ModuleException("Can't set fd with SSL_set_fd: " + ConvToStr(sock->GetFd()));
 
