@@ -354,7 +354,40 @@ namespace OpenSSL
 		bool AllowRenegotiation() const { return allowrenego; }
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
+
+	namespace BIOMethod
+	{
+		static int create(BIO* bio)
+		{
+			bio->init = 1;
+			return 1;
+		}
+
+		static long ctrl(BIO* bio, int cmd, long num, void* ptr)
+		{
+			if (cmd == BIO_CTRL_FLUSH)
+				return 1;
+			return 0;
+		}
+
+		static int read(BIO* bio, char* buf, int len);
+		static int write(BIO* bio, const char* buf, int len);
+	}
 }
+
+static BIO_METHOD biomethods =
+{
+	(100 | BIO_TYPE_SOURCE_SINK),
+	"inspircd",
+	OpenSSL::BIOMethod::write,
+	OpenSSL::BIOMethod::read,
+	NULL, // puts
+	NULL, // gets
+	OpenSSL::BIOMethod::ctrl,
+	OpenSSL::BIOMethod::create,
+	NULL, // destroy, NULL causes older OpenSSL to leak memory in BIO_free() (bio_lib.c)
+	NULL // callback_ctrl
+};
 
 static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 {
@@ -503,7 +536,9 @@ class OpenSSLIOHook : public SSLIOHook
 			// The other side is trying to renegotiate, kill the connection and change status
 			// to ISSL_NONE so CheckRenego() closes the session
 			status = ISSL_NONE;
-			SocketEngine::Shutdown(SSL_get_fd(sess), 2);
+			BIO* bio = SSL_get_rbio(sess);
+			EventHandler* eh = static_cast<StreamSocket*>(bio->ptr);
+			SocketEngine::Shutdown(eh, 2);
 		}
 	}
 
@@ -544,8 +579,10 @@ class OpenSSLIOHook : public SSLIOHook
 		, data_to_write(false)
 		, profile(sslprofile)
 	{
-		if (SSL_set_fd(sess, sock->GetFd()) == 0)
-			throw ModuleException("Can't set fd with SSL_set_fd: " + ConvToStr(sock->GetFd()));
+		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
+		BIO* bio = BIO_new(&biomethods);
+		bio->ptr = sock;
+		SSL_set_bio(sess, bio, bio);
 
 		SSL_set_ex_data(sess, exdataindex, this);
 		sock->AddIOHook(this);
@@ -703,6 +740,52 @@ static void StaticSSLInfoCallback(const SSL* ssl, int where, int rc)
 {
 	OpenSSLIOHook* hook = static_cast<OpenSSLIOHook*>(SSL_get_ex_data(ssl, exdataindex));
 	hook->SSLInfoCallback(where, rc);
+}
+
+static int OpenSSL::BIOMethod::write(BIO* bio, const char* buffer, int size)
+{
+	BIO_clear_retry_flags(bio);
+
+	StreamSocket* sock = static_cast<StreamSocket*>(bio->ptr);
+	if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
+	{
+		// Writes blocked earlier, don't retry syscall
+		BIO_set_retry_write(bio);
+		return -1;
+	}
+
+	int ret = SocketEngine::Send(sock, buffer, size, 0);
+	if ((ret < size) && ((ret > 0) || (SocketEngine::IgnoreError())))
+	{
+		// Blocked, set retry flag for OpenSSL
+		SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
+		BIO_set_retry_write(bio);
+	}
+
+	return ret;
+}
+
+static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
+{
+	BIO_clear_retry_flags(bio);
+
+	StreamSocket* sock = static_cast<StreamSocket*>(bio->ptr);
+	if (sock->GetEventMask() & FD_READ_WILL_BLOCK)
+	{
+		// Reads blocked earlier, don't retry syscall
+		BIO_set_retry_read(bio);
+		return -1;
+	}
+
+	int ret = SocketEngine::Recv(sock, buffer, size, 0);
+	if ((ret < size) && ((ret > 0) || (SocketEngine::IgnoreError())))
+	{
+		// Blocked, set retry flag for OpenSSL
+		SocketEngine::ChangeEventMask(sock, FD_READ_WILL_BLOCK);
+		BIO_set_retry_read(bio);
+	}
+
+	return ret;
 }
 
 class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
