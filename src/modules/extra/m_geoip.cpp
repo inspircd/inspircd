@@ -84,9 +84,7 @@ class ModuleGeoIP : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		std::string* cc = ext.get(user);
-		if (!cc)
-			cc = SetExt(user);
+		std::string* cc = SetExt(user);
 
 		std::string geoip = myclass->config->getString("geoip");
 		if (geoip.empty())
