@@ -382,22 +382,8 @@ print "yes\n" if $config{HAS_STRLCPY} eq "true";
 print "no\n" if $config{HAS_STRLCPY} eq "false";
 
 printf "Checking if kqueue exists... ";
-$has_kqueue = 0;
-$fail = 0;
-open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <KQUEUE>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# int kqueue(void);
-		if ($line =~ /int(\0x9|\s)+kqueue/) {
-			$has_kqueue = 1;
-		}
-	}
-	close(KQUEUE);
-}
-print "yes\n" if $has_kqueue == 1;
-print "no\n" if $has_kqueue == 0;
+$has_kqueue = test_compile('kqueue');
+print $has_kqueue ? "yes\n" : "no\n";
 
 printf "Checking for epoll support... ";
 $has_epoll = test_compile('epoll');
