@@ -309,6 +309,12 @@
 #<module name="cap">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3.2 cap-notify extension. The cap-notify client capability
+# allows a client to be notified when the client capability offering
+# (i.e. capabilities listed in CAP LS) on a server changes.
+#<module name="capnotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CBAN module: Lets you disallow channels from being used at runtime.
 # This module is oper-only and provides /CBAN.
 # To use, CBAN must be in one of your oper class blocks.
@@ -964,6 +970,12 @@
 # enabled. Note that extended-join can be incompatible with delayjoin
 # and host cycling.
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3.2 invite-notify extension. The invite-notify client capability
+# allows a client to specify that it would like to be notified when
+# users are invited to channels.
+#<module name="capnotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
