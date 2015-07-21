@@ -363,23 +363,8 @@ print "yes\n" if $config{HAS_STDINT} eq "true";
 print "no\n" if $config{HAS_STDINT} eq "false";
 
 printf "Checking if strlcpy exists... ";
-# Perform the strlcpy() test..
-$config{HAS_STRLCPY} = "false";
-$fail = 0;
-open(STRLCPY, "</usr/include/string.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <STRLCPY>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# size_t strlcpy(...)
-		if ($line =~ /size_t(\0x9|\s)+strlcpy/)	{
-			$config{HAS_STRLCPY} = "true";
-		}
-	}
-	close(STRLCPY);
-}
-print "yes\n" if $config{HAS_STRLCPY} eq "true";
-print "no\n" if $config{HAS_STRLCPY} eq "false";
+$config{HAS_STRLCPY} = test_compile('strlcpy');
+print $config{HAS_STRLCPY} ? "yes\n" : "no\n";
 
 printf "Checking if kqueue exists... ";
 $has_kqueue = test_compile('kqueue');
