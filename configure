@@ -353,51 +353,16 @@ $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
 
 printf "Checking if stdint.h exists... ";
-$config{HAS_STDINT} = "true";
-our $fail = 0;
-open(STDINT, "</usr/include/stdint.h") or $config{HAS_STDINT} = "false";
-if ($config{HAS_STDINT} eq "true") {
-	close(STDINT);
-}
-print "yes\n" if $config{HAS_STDINT} eq "true";
-print "no\n" if $config{HAS_STDINT} eq "false";
+$config{HAS_STDINT} = test_compile('stdint');
+print $config{HAS_STDINT} ? "yes\n" : "no\n";
 
 printf "Checking if strlcpy exists... ";
-# Perform the strlcpy() test..
-$config{HAS_STRLCPY} = "false";
-$fail = 0;
-open(STRLCPY, "</usr/include/string.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <STRLCPY>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# size_t strlcpy(...)
-		if ($line =~ /size_t(\0x9|\s)+strlcpy/)	{
-			$config{HAS_STRLCPY} = "true";
-		}
-	}
-	close(STRLCPY);
-}
-print "yes\n" if $config{HAS_STRLCPY} eq "true";
-print "no\n" if $config{HAS_STRLCPY} eq "false";
+$config{HAS_STRLCPY} = test_compile('strlcpy');
+print $config{HAS_STRLCPY} ? "yes\n" : "no\n";
 
 printf "Checking if kqueue exists... ";
-$has_kqueue = 0;
-$fail = 0;
-open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <KQUEUE>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# int kqueue(void);
-		if ($line =~ /int(\0x9|\s)+kqueue/) {
-			$has_kqueue = 1;
-		}
-	}
-	close(KQUEUE);
-}
-print "yes\n" if $has_kqueue == 1;
-print "no\n" if $has_kqueue == 0;
+$has_kqueue = test_compile('kqueue');
+print $has_kqueue ? "yes\n" : "no\n";
 
 printf "Checking for epoll support... ";
 $has_epoll = test_compile('epoll');

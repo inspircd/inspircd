@@ -1,8 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2012 William Pitcock <nenolod@dereferenced.org>
- *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2015 Peter Powell <petpow@saberuk.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -18,14 +17,9 @@
  */
 
 
-#include <sys/eventfd.h>
+#include <stdint.h>
 
 int main() {
-	eventfd_t efd_data;
-	int fd;
-
-	fd = eventfd(0, EFD_NONBLOCK);
-	eventfd_read(fd, &efd_data);
-
-	return (fd < 0);
+	uint32_t ret = 0;
+	return ret;
 }
