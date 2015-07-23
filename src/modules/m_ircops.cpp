@@ -57,14 +57,14 @@ public:
 
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle (const std::vector<std::string>&, User *user)
 	{
 		std::string ircops_str;
-		ircops_str = "Total:";
 
 		if (user)
 		{
-			user->WriteServ("============ Online IRC Operators =============");
+			ircops_str += "============ Online IRC Operators ============= \n";
+			
 			int total = 0, total_away = 0;
 			for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
 			{
@@ -73,31 +73,28 @@ public:
 					if(!(*i)->awaymsg.empty())
 					{
 						total_away++;
-						user->WriteServ("\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Away\2)" );
+						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Away\2)";
 					}
 
 					else
 					{
-						user->WriteServ("\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Avaliable\2)");
+						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Avaliable\2)";
 
 					}
 					total++;
-					user->WriteServ("-");
+					 ircops_str += "\n - \n";
 
 				}
 			}
 			if(total >= 1)
 			{
-				user->WriteServ("%s \2%d\2 %s \2%d\2 %s", ircops_str.c_str(), total, "IRCop(s) - online and", total_away, "Away(s)");
+				 user->WriteServ("%s \2%d\2 %s \2%d\2 %s", ircops_str.c_str(), total, "IRCop(s) - online and", total_away, "Away(s) \n =============================================== \n End of /IRCOPS. ");
 			}
 
 			else
 			{
-				user->WriteServ("%s \2%d\2 %s", ircops_str.c_str(), total, "IRCop unavaliable");
+				 user->WriteServ("%s \2%d\2 %s ", ircops_str.c_str(), total, "IRCop unavaliable \n =============================================== \n End of /IRCOPS.");
 			}
-
-				user->WriteServ("===============================================");
-				user->WriteServ("End of /IRCOPS.");
 
 		}
 
