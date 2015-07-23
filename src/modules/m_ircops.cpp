@@ -73,12 +73,12 @@ public:
 					if(!(*i)->awaymsg.empty())
 					{
 						total_away++;
-						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Away\2)";
+						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->NameStr())+ " - (\2Away\2)";
 					}
 
 					else
 					{
-						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->name)+ " - (\2Avaliable\2)";
+						ircops_str += "\2"+std::string((*i)->nick.c_str())+"\2 - " +std::string((*i)->oper->NameStr())+ " - (\2Avaliable\2)";
 
 					}
 					total++;
