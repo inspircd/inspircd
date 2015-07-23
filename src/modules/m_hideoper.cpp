@@ -1,6 +1,6 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
- *
+ *   Copyright (C) 2015 Antonio Costa <bigua@brasirc.com.br>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2006 Craig Edwards <craigedwards@brainbox.cc>
@@ -21,6 +21,8 @@
 
 #include "inspircd.h"
 
+/* $ModDesc: Provides support for hiding oper status with user mode +H */
+
 /** Handles user mode +H
  */
 class HideOper : public SimpleUserModeHandler
@@ -32,22 +34,33 @@ class HideOper : public SimpleUserModeHandler
 	}
 };
 
-class ModuleHideOper : public Module, public Whois::LineEventListener
+class ModuleHideOper : public Module
 {
 	HideOper hm;
  public:
 	ModuleHideOper()
-		: Whois::LineEventListener(this)
-		, hm(this)
+		: hm(this)
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	void init()
+	{
+		ServerInstance->Modules->AddService(hm);
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+	}
+
+
+	virtual ~ModuleHideOper()
+	{
+	}
+
+	virtual Version GetVersion()
 	{
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
@@ -55,18 +68,18 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		if (numeric != 313)
 			return MOD_RES_PASSTHRU;
 
-		if (!whois.GetTarget()->IsModeSet(hm))
+		if (!dest->IsModeSet('H'))
 			return MOD_RES_PASSTHRU;
 
-		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
+		if (!user->HasPrivPermission("users/auspex"))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
 	{
-		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
+		if (user->IsModeSet('H') && !source->HasPrivPermission("users/auspex"))
 		{
 			// hide the "*" that marks the user as an oper from the /WHO line
 			std::string::size_type spcolon = line.find(" :");
@@ -82,28 +95,37 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		}
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list& results) CXX11_OVERRIDE
+	ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol != 'P')
 			return MOD_RES_PASSTHRU;
 
-		unsigned int count = 0;
-		const UserManager::OperList& opers = ServerInstance->Users->all_opers;
-		for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
+		unsigned int count = 0, count_away = 0;
+		for (std::list<User*>::const_iterator oper = ServerInstance->Users->all_opers.begin(); oper != ServerInstance->Users->all_opers.end(); ++oper)
 		{
-			User* oper = *i;
-			if (!oper->server->IsULine() && (user->IsOper() || !oper->IsModeSet(hm)))
+			if (!ServerInstance->ULine((*oper)->server) && (IS_OPER(user) || !(*oper)->IsModeSet('H')))
 			{
-				LocalUser* lu = IS_LOCAL(oper);
-				results.push_back("249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
-						(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
+				    if(!(*oper)->awaymsg.empty())
+				    {
+				        count_away++;
+					results.push_back(ServerInstance->Config->ServerName+" 249 " + user->nick + " :\2" + (*oper)->nick +"\2 -  " + std::string((*oper)->oper->NameStr()) +  " - Idle: " +
+							(IS_LOCAL(*oper) ? ConvToStr(ServerInstance->Time() - (*oper)->idle_lastmsg) + " secs" : "unavailable" ) + " - (\2Currently marked away\2) ");
+
+				    }
+
+				    else
+				    {
+					results.push_back(ServerInstance->Config->ServerName+" 249 " + user->nick + " :\2" + (*oper)->nick + "\2 - " + std::string((*oper)->oper->NameStr()) +  " - Idle: " +
+							(IS_LOCAL(*oper) ? ConvToStr(ServerInstance->Time() - (*oper)->idle_lastmsg) + " secs" : "unavailable" ) + " - (\2Avaliable for help\2) " );
+				    }
 				count++;
 			}
 		}
-		results.push_back("249 "+user->nick+" :"+ConvToStr(count)+" OPER(s)");
+		results.push_back(ServerInstance->Config->ServerName+" 249 "+user->nick+" :Total: \2"+ConvToStr(count)+"\2 - OPER(s) and \2" +ConvToStr(count_away) + "\2 - AWAY(s)");
 
 		return MOD_RES_DENY;
 	}
 };
+
 
 MODULE_INIT(ModuleHideOper)
