@@ -497,6 +497,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			case ERROR_NOT_AN_ANSWER:
 			case ERROR_NONSTANDARD_QUERY:
 			case ERROR_FORMAT_ERROR:
+			case ERROR_MALFORMED:
 				return "Malformed answer";
 			case ERROR_SERVER_FAILURE:
 			case ERROR_NOT_IMPLEMENTED:
@@ -539,17 +540,19 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 
 		Packet recv_packet;
+		bool valid = false;
 
 		try
 		{
 			recv_packet.Fill(buffer, length);
+			valid = true;
 		}
 		catch (Exception& ex)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
-			return;
 		}
 
+		// recv_packet.id must be filled in here
 		DNS::Request* request = this->requests[recv_packet.id];
 		if (request == NULL)
 		{
@@ -564,14 +567,20 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		if (recv_packet.flags & QUERYFLAGS_OPCODE)
+		if (!valid)
+		{
+			ServerInstance->stats.DnsBad++;
+			recv_packet.error = ERROR_MALFORMED;
+			request->OnError(&recv_packet);
+		}
+		else if (recv_packet.flags & QUERYFLAGS_OPCODE)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received a nonstandard query");
 			ServerInstance->stats.DnsBad++;
 			recv_packet.error = ERROR_NONSTANDARD_QUERY;
 			request->OnError(&recv_packet);
 		}
-		else if (recv_packet.flags & QUERYFLAGS_RCODE)
+		else if (!(recv_packet.flags & QUERYFLAGS_QR) || (recv_packet.flags & QUERYFLAGS_RCODE))
 		{
 			Error error = ERROR_UNKNOWN;
 

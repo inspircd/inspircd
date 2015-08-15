@@ -49,6 +49,11 @@
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 
+#if ((OPENSSL_VERSION_NUMBER >= 0x10000000L) && (!(defined(OPENSSL_NO_ECDH))))
+// OpenSSL 0.9.8 includes some ECC support, but it's unfinished. Enable only for 1.0.0 and later.
+#define INSPIRCD_OPENSSL_ENABLE_ECDH
+#endif
+
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 
 static bool SelfSigned = false;
@@ -121,7 +126,12 @@ namespace OpenSSL
 #endif
 
 			ctx_options = SSL_CTX_set_options(ctx, opts);
-			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+			long mode = SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER;
+#ifdef SSL_MODE_RELEASE_BUFFERS
+			mode |= SSL_MODE_RELEASE_BUFFERS;
+#endif
+			SSL_CTX_set_mode(ctx, mode);
 			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 			SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 			SSL_CTX_set_info_callback(ctx, StaticSSLInfoCallback);
@@ -281,7 +291,7 @@ namespace OpenSSL
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dh.pem")))
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
-			, allowrenego(tag->getBool("renegotiation", true))
+			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
 		{
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
@@ -483,7 +493,6 @@ class OpenSSLIOHook : public SSLIOHook
 		X509_free(cert);
 	}
 
-#ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
 	void SSLInfoCallback(int where, int rc)
 	{
 		if ((where & SSL_CB_HANDSHAKE_START) && (status == ISSL_OPEN))
@@ -508,7 +517,6 @@ class OpenSSLIOHook : public SSLIOHook
 		sock->SetError("Renegotiation is not allowed");
 		return false;
 	}
-#endif
 
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
@@ -565,10 +573,8 @@ class OpenSSLIOHook : public SSLIOHook
 			size_t bufsiz = ServerInstance->Config->NetBufferSize;
 			int ret = SSL_read(sess, buffer, bufsiz);
 
-#ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
 			if (!CheckRenego(user))
 				return -1;
-#endif
 
 			if (ret > 0)
 			{
@@ -625,10 +631,8 @@ class OpenSSLIOHook : public SSLIOHook
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
 
-#ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
 			if (!CheckRenego(user))
 				return -1;
-#endif
 
 			if (ret == (int)buffer.length())
 			{
@@ -699,10 +703,8 @@ class OpenSSLIOHook : public SSLIOHook
 
 static void StaticSSLInfoCallback(const SSL* ssl, int where, int rc)
 {
-#ifdef INSPIRCD_OPENSSL_ENABLE_RENEGO_DETECTION
 	OpenSSLIOHook* hook = static_cast<OpenSSLIOHook*>(SSL_get_ex_data(ssl, exdataindex));
 	hook->SSLInfoCallback(where, rc);
-#endif
 }
 
 class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
