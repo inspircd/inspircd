@@ -814,11 +814,11 @@ int InspIRCd::Run()
 			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */
 			if (TIME.tv_sec < OLDTIME - 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME.tv_sec);
+				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)(OLDTIME-TIME.tv_sec));
 			}
 			else if (TIME.tv_sec > OLDTIME + 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
+				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)(TIME.tv_sec - OLDTIME));
 			}
 
 			OLDTIME = TIME.tv_sec;
