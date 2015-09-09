@@ -370,7 +370,9 @@
 #
 # If hidemask is set to yes, the user will not be shown the mask when
 # his/her message is blocked.
-#<chanfilter hidemask="yes">
+# If notifyuser is set to no, the user will not be notified when
+# his/her message is blocked.
+#<chanfilter hidemask="yes" notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel history module: Displays the last 'X' lines of chat to a user
@@ -761,7 +763,9 @@
 # stdlib - stdlib regexps, provided via m_regex_stdlib, see comment   #
 #          at the <module> tag for info on availability.              #
 #                                                                     #
-#<filteropts engine="glob">                                           #
+# If notifyuser is set to no, the user will not be notified when      #
+# his/her message is blocked.                                         #
+#<filteropts engine="glob" notifyuser="yes">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
 #
@@ -1391,6 +1395,10 @@
 # Muteban: Implements extended ban 'm', which stops anyone matching
 # a mask like +b m:nick!user@host from speaking on channel.
 #<module name="m_muteban.so">
+#
+# If notifyuser is set to no, the user will not be notified when
+# his/her message is blocked.
+#<muteban notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random quote module: Provides a random quote on connect.

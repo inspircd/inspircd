@@ -166,6 +166,7 @@ class ImplFilter : public FilterResult
 class ModuleFilter : public Module
 {
 	bool initing;
+	bool notifyuser;
 	RegexFactory* factory;
 	void FreeFilters();
 
@@ -361,17 +362,23 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
-			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
-			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+			if (notifyuser)
+			{
+				if (target_type == TYPE_CHANNEL)
+					user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+				else
+					user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+			}
 		}
 		else if (f->action == FA_SILENT)
 		{
-			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
-			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked: "+f->reason);
+			if (notifyuser)
+			{
+				if (target_type == TYPE_CHANNEL)
+					user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+				else
+					user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked: "+f->reason);
+			}
 		}
 		else if (f->action == FA_KILL)
 		{
@@ -446,7 +453,10 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			/* Are they parting, if so, kill is applicable */
 			if ((parting) && (f->action == FA_KILL))
 			{
-				user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
+				if (notifyuser)
+				{
+					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
+				}
 				ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 			}
 			if (f->action == FA_GLINE)
@@ -477,7 +487,9 @@ void ModuleFilter::OnRehash(User* user)
 			exemptfromfilter.insert(chan);
 	}
 
-	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
+	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
+	std::string newrxengine = tag->getString("engine");
+	notifyuser = tag->getBool("notifyuser", true);
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 
