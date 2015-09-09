@@ -587,6 +587,11 @@ class CoreExport ServerConfig
 	 * connecting users
 	 */
 	bool WelcomeNotice;
+
+	/** If true, send an empty topic when a topic has been unset when a user
+	 * joins the channel.
+	 */
+	bool EmptyTopicOnJoin;
 };
 
 /** The background thread for config reading, so that reading from executable includes

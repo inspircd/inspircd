@@ -614,7 +614,12 @@
          # welcomenotice: When turned on, this sends a NOTICE to connecting users
          # with the text Welcome to <networkname>! after successful registration.
          # Defaults to yes.
-         welcomenotice="yes">
+         welcomenotice="yes"
+
+         # emptytopiconjoin: This sends an empty topic to users on joining the
+         # channel when the topic has been unset. This is RFC-incompliant behaviour
+         # but exists for compatibility with previous 2.0 releases.
+         emptytopiconjoin="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
