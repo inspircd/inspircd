@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2011 Jackmcbarn <jackmcbarn@jackmcbarn.no-ip.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2007-2015 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
