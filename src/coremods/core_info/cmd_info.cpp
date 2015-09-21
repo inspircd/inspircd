@@ -68,7 +68,7 @@ static const char* const lines[] = {
 	"   jackmcbarn",
 	" ",
 	"\2Thanks To\2:",
-	"   searchirc.com   irc-junkie.org  Brik           fraggeln",
+	"   Asmo            Brik            fraggeln",
 	" ",
 	" Best experienced with: \2An IRC client\2",
 	NULL
