@@ -238,9 +238,11 @@ sub write_configure_cache(%) {
 sub get_compiler_info($) {
 	my $binary = shift;
 	my $version = `$binary -v 2>&1`;
-	if ($version =~ /clang\sversion\s(\d+\.\d+)/i || $version =~ /^apple.+\(based\son\sllvm\s(\d+\.\d+)/i) {
+	if ($version =~ /Apple\sLLVM\sversion\s(\d+\.\d+)/i) {
 		# Apple version their LLVM releases slightly differently to the mainline LLVM.
 		# See https://trac.macports.org/wiki/XcodeVersionInfo for more information.
+		return (NAME => 'AppleClang', VERSION => $1);
+	} elsif ($version =~ /clang\sversion\s(\d+\.\d+)/i) {
 		return (NAME => 'Clang', VERSION => $1);
 	} elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
 		return (NAME => 'GCC', VERSION => $1);
