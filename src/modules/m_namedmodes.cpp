@@ -65,6 +65,8 @@ class CommandProp : public Command
 		while (i < parameters.size())
 		{
 			std::string prop = parameters[i++];
+			if (prop.empty())
+				continue;
 			bool plus = prop[0] != '-';
 			if (prop[0] == '+' || prop[0] == '-')
 				prop.erase(prop.begin());

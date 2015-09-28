@@ -174,7 +174,7 @@ class CommandCheck : public Command
 			/* /check on a channel */
 			user->SendText(checkstr + " timestamp " + timestring(targchan->age));
 
-			if (targchan->topic[0] != 0)
+			if (!targchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
 				user->SendText(checkstr + " topic " + targchan->topic);
