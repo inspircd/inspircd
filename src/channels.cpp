@@ -412,7 +412,8 @@ Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, 
 
 	if (IS_LOCAL(user))
 	{
-		if (!Ptr->topic.empty())
+		bool hasTopic = ServerInstance->Config->EmptyTopicOnJoin ? Ptr->topicset : !Ptr->topic.empty();
+		if (hasTopic)
 		{
 			user->WriteNumeric(RPL_TOPIC, "%s %s :%s", user->nick.c_str(), Ptr->name.c_str(), Ptr->topic.c_str());
 			user->WriteNumeric(RPL_TOPICTIME, "%s %s %s %lu", user->nick.c_str(), Ptr->name.c_str(), Ptr->setby.c_str(), (unsigned long)Ptr->topicset);

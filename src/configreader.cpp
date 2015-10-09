@@ -561,6 +561,7 @@ void ServerConfig::Fill()
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 	WelcomeNotice = options->getBool("welcomenotice", true);
+	EmptyTopicOnJoin = options->getBool("emptytopiconjoin", true);
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	if (ConfValue("performance")->getBool("limitsomaxconn", true))
