@@ -414,6 +414,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
 # in a channel matching a ban like +b j:#channel*mask from joining.
+# Note that by default wildcard characters * and ? are allowed in
+# channel names. To disallow them, load m_channames and add characters
+# 42 and 63 to denyrange (see above).
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

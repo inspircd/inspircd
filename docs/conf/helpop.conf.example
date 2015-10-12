@@ -51,6 +51,7 @@ OPER">
 
 OPERMOTD  CHECK     CLONES      USERIP   TLINE
 ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
+CLOAK
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS
@@ -102,6 +103,8 @@ LOCKSERV       UNLOCKSERV">
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
               non-IRCops (requires hidechans module).
+ L            Stops redirections done by m_redirect (mode must be
+              enabled in the config).
  R            Blocks private messages from unregistered users
               (requires services account module).
  S            Strips mIRC color/bold/underline codes out of private

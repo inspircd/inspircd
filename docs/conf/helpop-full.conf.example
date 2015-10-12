@@ -381,6 +381,7 @@ Sets your name to the specified name.">
 
 OPERMOTD  CHECK     CLONES      USERIP   TLINE
 ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
+CLOAK
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS
@@ -759,10 +760,9 @@ The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
 
-<helpop key="clearcache" value="/CLEARCACHE {servername}
+<helpop key="clearcache" value="/CLEARCACHE
 
-This command clears the DNS cache of the specified server. If no
-server is specified, the local server's DNS cache will be cleared.">
+This command clears the DNS cache of the local server.">
 
 <helpop key="close" value="/CLOSE
 
@@ -773,6 +773,12 @@ Closes all unregistered connections to the local server.">
 Sends a notice to all users who have the given mode(s) set.
 If multiple mode letters are given, the notice is only sent to users
 who have all of them set.">
+
+<helpop key="cloak" value="/CLOAK <host>
+
+Generate the cloak of a host or IP. This is useful for example when
+trying to get the cloak of a user from /WHOWAS and they were not
+using their cloak when they quit.">
 
 ######################
 # User/Channel Modes #
@@ -809,6 +815,8 @@ who have all of them set.">
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
               non-IRCops (requires hidechans module).
+ L            Stops redirections done by m_redirect (mode must be
+              enabled in the config).
  R            Blocks private messages from unregistered users
               (requires services account module).
  S            Strips mIRC color/bold/underline codes out of private
