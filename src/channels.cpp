@@ -241,7 +241,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (!ckey.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
-					if (!MOD_RESULT.check((ckey == key) || can_bypass))
+					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key) || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 						user->WriteNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", chan->name.c_str());
