@@ -39,13 +39,17 @@ CAP END
  */
 class CommandCAP : public Command
 {
+ private:
 	Events::ModuleEventProvider capevprov;
+	GenericCap capnotify;
 
  public:
 	LocalIntExt reghold;
-	CommandCAP (Module* mod) : Command(mod, "CAP", 1),
-		capevprov(mod, "event/cap"),
-		reghold("CAP_REGHOLD", ExtensionItem::EXT_USER, mod)
+	CommandCAP (Module* mod)
+		: Command(mod, "CAP", 1)
+		, capevprov(mod, "event/cap")
+		, capnotify(mod, "cap-notify")
+		, reghold("CAP_REGHOLD", ExtensionItem::EXT_USER, mod)
 	{
 		works_before_reg = true;
 	}

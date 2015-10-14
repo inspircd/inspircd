@@ -42,7 +42,26 @@ class CapEvent
 
 class GenericCap : public Events::ModuleEventListener
 {
+ private:
 	bool active;
+
+	void NotifyCapState(bool adding)
+	{
+		// If the cap-notify cap isn't available (i.e. m_cap is unloaded) then don't do anything.
+		LocalIntExt* extension = static_cast<LocalIntExt*>(ServerInstance->Extensions.GetItem("cap_cap-notify"));
+		if (!extension)
+			return;
+
+		const UserManager::LocalList& users = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator iter = users.begin(); iter != users.end(); ++iter)
+		{
+			LocalUser* user = *iter;
+			if (!extension->get(user))
+				continue;
+
+			user->WriteCommand("CAP", (adding ? "NEW " : "DEL ") + cap);
+		}
+	}
 
  public:
 	LocalIntExt ext;
@@ -53,6 +72,12 @@ class GenericCap : public Events::ModuleEventListener
 		, ext("cap_" + Cap, ExtensionItem::EXT_USER, parent)
 		, cap(Cap)
 	{
+		NotifyCapState(true);
+	}
+
+	~GenericCap()
+	{
+		NotifyCapState(false);
 	}
 
 	void OnCapEvent(CapEvent& ev)
@@ -94,6 +119,14 @@ class GenericCap : public Events::ModuleEventListener
 		}
 	}
 
-	void SetActive(bool newstate) { active = newstate; }
+	void SetActive(bool newstate)
+	{
+		if (active == newstate)
+			return;
+
+		active = newstate;
+		NotifyCapState(newstate);
+	}
+
 	bool IsActive() const { return active; }
 };
