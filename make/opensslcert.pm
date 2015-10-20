@@ -46,6 +46,7 @@ sub make_openssl_cert()
 	my $state = promptstring_s('What state are you located in?', 'Example State');
 	my $country = promptstring_s('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
 	my $time = promptstring_s('How many days do you want your certificate to be valid for?', '365');
+	my $use_1024 = promptstring_s('Do you want to generate less secure dhparams which are compatible with old versions of Java?', 'n');
 	print FH <<__END__;
 $country
 $state
@@ -56,8 +57,9 @@ $commonname
 $email
 __END__
 close(FH);
-system("cat openssl.template | openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem -days $time 2>/dev/null");
-system("openssl dhparam -out dhparams.pem 1024");
+my $dhbits = $use_1024 =~ /^(1|on|true|yes|y)$/ ? 1024 : 2048;
+system("cat openssl.template | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $time 2>/dev/null");
+system("openssl dhparam -out dhparams.pem $dhbits");
 unlink("openssl.template");
 }
 
