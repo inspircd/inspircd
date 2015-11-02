@@ -235,13 +235,10 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = chan->GetModeParameter(keymode);
-				bool invited = user->IsInvited(chan);
-				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
-
 				if (!ckey.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
-					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key) || can_bypass))
+					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key)))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 						user->WriteNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", chan->name.c_str());
@@ -252,7 +249,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (chan->IsModeSet(inviteonlymode))
 				{
 					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check(invited))
+					if (MOD_RESULT != MOD_RES_ALLOW)
 					{
 						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", chan->name.c_str());
 						return NULL;
@@ -263,26 +260,17 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (!limit.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
+					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()))))
 					{
 						user->WriteNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", chan->name.c_str());
 						return NULL;
 					}
 				}
 
-				if (chan->IsBanned(user) && !can_bypass)
+				if (chan->IsBanned(user))
 				{
 					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", chan->name.c_str());
 					return NULL;
-				}
-
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
-				{
-					user->RemoveInvite(chan);
 				}
 			}
 		}
