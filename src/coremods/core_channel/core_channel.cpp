@@ -19,9 +19,11 @@
 
 #include "inspircd.h"
 #include "core_channel.h"
+#include "invite.h"
 
 class CoreModChannel : public Module
 {
+	Invite::APIImpl invapi;
 	CommandInvite cmdinvite;
 	CommandJoin cmdjoin;
 	CommandKick cmdkick;
@@ -31,14 +33,15 @@ class CoreModChannel : public Module
 	ModResult IsInvited(User* user, Channel* chan)
 	{
 		LocalUser* localuser = IS_LOCAL(user);
-		if ((localuser) && (localuser->IsInvited(chan)))
+		if ((localuser) && (invapi.IsInvited(localuser, chan)))
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
 	}
 
  public:
 	CoreModChannel()
-		: cmdinvite(this), cmdjoin(this), cmdkick(this), cmdnames(this), cmdtopic(this)
+		: invapi(this)
+		, cmdinvite(this, invapi), cmdjoin(this), cmdkick(this), cmdnames(this), cmdtopic(this)
 	{
 	}
 
@@ -62,7 +65,7 @@ class CoreModChannel : public Module
 		if (localuser)
 		{
 			// Remove existing invite, if any
-			localuser->RemoveInvite(chan);
+			invapi.Remove(localuser, chan);
 
 			if (chan->topicset)
 				Topic::ShowTopic(localuser, chan);
@@ -94,6 +97,17 @@ class CoreModChannel : public Module
 	{
 		// Hook always runs
 		return IsInvited(user, chan);
+	}
+
+	void OnUserDisconnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		invapi.RemoveAll(user);
+	}
+
+	void OnChannelDelete(Channel* chan) CXX11_OVERRIDE
+	{
+		// Make sure the channel won't appear in invite lists from now on, don't wait for cull to unset the ext
+		invapi.RemoveAll(chan);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

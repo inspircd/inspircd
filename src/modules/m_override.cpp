@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "modules/invite.h"
 
 class ModuleOverride : public Module
 {
@@ -34,6 +35,7 @@ class ModuleOverride : public Module
 	ChanModeReference inviteonly;
 	ChanModeReference key;
 	ChanModeReference limit;
+	Invite::API invapi;
 
 	static bool IsOverride(unsigned int userlevel, const Modes::ChangeList::List& list)
 	{
@@ -67,6 +69,7 @@ class ModuleOverride : public Module
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
 		, limit(this, "limit")
+		, invapi(this)
 	{
 	}
 
@@ -177,7 +180,7 @@ class ModuleOverride : public Module
 			{
 				if (chan->IsModeSet(inviteonly) && (CanOverride(user,"INVITE")))
 				{
-					if (!user->IsInvited(chan))
+					if (!invapi->IsInvited(user, chan))
 						return HandleJoinOverride(user, chan, keygiven, "invite-only", "+i");
 					return MOD_RES_ALLOW;
 				}

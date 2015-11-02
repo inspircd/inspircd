@@ -26,14 +26,21 @@ namespace Topic
 	void ShowTopic(LocalUser* user, Channel* chan);
 }
 
+namespace Invite
+{
+	class APIImpl;
+}
+
 /** Handle /INVITE.
  */
 class CommandInvite : public Command
 {
+	Invite::APIImpl& invapi;
+
  public:
 	/** Constructor for invite.
 	 */
-	CommandInvite (Module* parent);
+	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);
 
 	/** Handle command.
 	 * @param parameters The parameters to the command

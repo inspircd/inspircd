@@ -34,7 +34,7 @@
  * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class CoreExport Channel : public Extensible, public InviteBase<Channel>
+class CoreExport Channel : public Extensible
 {
  public:
 	/** A map of Memberships on a channel keyed by User pointers
