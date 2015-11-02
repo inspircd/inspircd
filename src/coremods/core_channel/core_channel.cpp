@@ -44,8 +44,9 @@ class CoreModChannel : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
+		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
-		if (ServerInstance->Config->InvBypassModes)
+		if (optionstag->getBool("invitebypassmodes", true))
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
 		{
