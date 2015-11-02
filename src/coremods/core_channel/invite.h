@@ -40,6 +40,7 @@ namespace Invite
 }
 
 extern void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan);
+extern void UnserializeInvite(LocalUser* user, const std::string& value);
 
 template<typename T, ExtensionItem::ExtensibleType ExtType>
 class Invite::ExtItem : public ExtensionItem
@@ -84,11 +85,25 @@ class Invite::ExtItem : public ExtensionItem
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
-		return std::string();
+		if (format == FORMAT_NETWORK)
+			return std::string();
+
+		std::string ret;
+		Store<T>* store = static_cast<Store<T>*>(item);
+		for (typename insp::intrusive_list<Invite, T>::iterator i = store->invites.begin(); i != store->invites.end(); ++i)
+		{
+			Invite* inv = *i;
+			inv->Serialize(format, (ExtType == ExtensionItem::EXT_USER), ret);
+		}
+		if (!ret.empty())
+			ret.erase(ret.length()-1);
+		return ret;
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
+		if ((ExtType != ExtensionItem::EXT_CHANNEL) && (format != FORMAT_NETWORK))
+			UnserializeInvite(static_cast<LocalUser*>(container), value);
 	}
 };
 
@@ -108,4 +123,5 @@ class Invite::APIImpl : public APIBase
 	void RemoveAll(LocalUser* user) { userext.unset(user); }
 	void RemoveAll(Channel* chan) { chanext.unset(chan); }
 	void Destruct(Invite* inv, bool remove_chan = true, bool remove_user = true);
+	void Unserialize(LocalUser* user, const std::string& value);
 };

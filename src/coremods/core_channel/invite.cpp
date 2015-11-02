@@ -38,6 +38,11 @@ void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan)
 	apiimpl->Destruct(inv, remove_user, remove_chan);
 }
 
+void UnserializeInvite(LocalUser* user, const std::string& str)
+{
+	apiimpl->Unserialize(user, str);
+}
+
 Invite::APIBase::APIBase(Module* parent)
 	: DataProvider(parent, "core_channel_invite")
 {
@@ -150,6 +155,17 @@ const Invite::List* Invite::APIImpl::GetList(LocalUser* user)
 	return NULL;
 }
 
+void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value)
+{
+	irc::spacesepstream ss(value);
+	for (std::string channame, exptime; (ss.GetToken(channame) && ss.GetToken(exptime)); )
+	{
+		Channel* chan = ServerInstance->FindChan(channame);
+		if (chan)
+			Create(user, chan, ConvToInt(exptime));
+	}
+}
+
 Invite::Invite::Invite(LocalUser* u, Channel* c)
 	: user(u)
 	, chan(c)
@@ -161,6 +177,21 @@ Invite::Invite::~Invite()
 {
 	delete expiretimer;
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::~ %p", (void*) this);
+}
+
+void Invite::Invite::Serialize(SerializeFormat format, bool show_chans, std::string& out)
+{
+	if (show_chans)
+		out.append(this->chan->name);
+	else
+		out.append((format == FORMAT_USER) ? user->nick : user->uuid);
+	out.push_back(' ');
+
+	if (expiretimer)
+		out.append(ConvToStr(expiretimer->GetTrigger()));
+	else
+		out.push_back('0');
+	out.push_back(' ');
 }
 
 InviteExpireTimer::InviteExpireTimer(Invite::Invite* invite, time_t timeout)

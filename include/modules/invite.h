@@ -100,6 +100,13 @@ class Invite::Invite : public insp::intrusive_list_node<Invite, LocalUser>, publ
 	 */
 	bool IsTimed() const { return (expiretimer != NULL); }
 
+	/** Serialize this object
+	 * @param format Serialization format
+	 * @param show_chans True to include channel in the output, false to include the nick/uuid
+	 * @param out Output will be appended to this string
+	 */
+	void Serialize(SerializeFormat format, bool show_chans, std::string& out);
+
 	friend class APIImpl;
 
  private:
