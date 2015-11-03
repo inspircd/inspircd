@@ -49,7 +49,8 @@ namespace
 }
 
 UserManager::UserManager()
-	: unregistered_count(0)
+	: already_sent_id(0)
+	, unregistered_count(0)
 {
 }
 
@@ -281,7 +282,6 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 void UserManager::GarbageCollect()
 {
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
-	LocalUser::already_sent_id = 0;
 	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 		(**i).already_sent = 0;
 }
@@ -371,5 +371,15 @@ void UserManager::DoBackgroundUserStuff()
 
 already_sent_t UserManager::NextAlreadySentId()
 {
-	return ++LocalUser::already_sent_id;
+	if (++already_sent_id == 0)
+	{
+		// Wrapped around, reset the already_sent ids of all users
+		already_sent_id = 1;
+		for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
+		{
+			LocalUser* user = *i;
+			user->already_sent = 0;
+		}
+	}
+	return already_sent_id;
 }

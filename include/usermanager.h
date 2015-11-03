@@ -56,6 +56,11 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	LocalList local_users;
 
+	/** Last used already sent id, used when sending messages to neighbors to help determine whether the message has
+	 * been sent to a particular user or not. See User::ForEachNeighbor() for more info.
+	 */
+	already_sent_t already_sent_id;
+
  public:
 	/** Constructor, initializes variables
 	 */

@@ -720,7 +720,6 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	unsigned int CommandFloodPenalty;
 
-	static already_sent_t already_sent_id;
 	already_sent_t already_sent;
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.

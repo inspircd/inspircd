@@ -26,8 +26,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-already_sent_t LocalUser::already_sent_id = 0;
-
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
