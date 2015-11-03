@@ -90,7 +90,6 @@ void Channel::CheckDestroy()
 
 	FOREACH_MOD(OnChannelDelete, (this));
 	ServerInstance->chanlist.erase(iter);
-	ClearInvites();
 	ServerInstance->GlobalCulls.AddItem(this);
 }
 
@@ -235,13 +234,10 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = chan->GetModeParameter(keymode);
-				bool invited = user->IsInvited(chan);
-				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
-
 				if (!ckey.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
-					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key) || can_bypass))
+					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key)))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 						user->WriteNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", chan->name.c_str());
@@ -252,7 +248,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (chan->IsModeSet(inviteonlymode))
 				{
 					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check(invited))
+					if (MOD_RESULT != MOD_RES_ALLOW)
 					{
 						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", chan->name.c_str());
 						return NULL;
@@ -263,26 +259,17 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (!limit.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
+					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()))))
 					{
 						user->WriteNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", chan->name.c_str());
 						return NULL;
 					}
 				}
 
-				if (chan->IsBanned(user) && !can_bypass)
+				if (chan->IsBanned(user))
 				{
 					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", chan->name.c_str());
 					return NULL;
-				}
-
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
-				{
-					user->RemoveInvite(chan);
 				}
 			}
 		}
@@ -649,69 +636,4 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 	if (adding)
 		modes.push_back(prefix);
 	return adding;
-}
-
-void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
-{
-	if ((timeout != 0) && (ServerInstance->Time() >= timeout))
-		// Expired, don't bother
-		return;
-
-	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create chan=%s user=%s", c->name.c_str(), u->uuid.c_str());
-
-	Invitation* inv = Invitation::Find(c, u, false);
-	if (inv)
-	{
-		 if ((inv->expiry == 0) || (inv->expiry > timeout))
-			return;
-		inv->expiry = timeout;
-		ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create changed expiry in existing invitation %p", (void*) inv);
-	}
-	else
-	{
-		inv = new Invitation(c, u, timeout);
-		c->invites.push_front(inv);
-		u->invites.push_front(inv);
-		ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create created new invitation %p", (void*) inv);
-	}
-}
-
-Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
-{
-	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
-
-	Invitation* result = NULL;
-	for (InviteList::iterator i = u->invites.begin(); i != u->invites.end(); )
-	{
-		Invitation* inv = *i;
-		++i;
-
-		if ((check_expired) && (inv->expiry != 0) && (inv->expiry <= ServerInstance->Time()))
-		{
-			/* Expired invite, remove it. */
-			std::string expiration = InspIRCd::TimeString(inv->expiry);
-			ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
-			delete inv;
-		}
-		else
-		{
-			/* Is it what we're searching for? */
-			if (inv->chan == c)
-			{
-				result = inv;
-				break;
-			}
-		}
-	}
-
-	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find result=%p", (void*) result);
-	return result;
-}
-
-Invitation::~Invitation()
-{
-	// Remove this entry from both lists
-	chan->invites.erase(this);
-	user->invites.erase(this);
-	ServerInstance->Logs->Log("INVITEBASE", LOG_DEBUG, "Invitation::~ %p", (void*) this);
 }

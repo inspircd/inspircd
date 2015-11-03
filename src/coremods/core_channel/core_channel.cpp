@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2014-2015 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,19 +19,43 @@
 
 #include "inspircd.h"
 #include "core_channel.h"
+#include "invite.h"
 
 class CoreModChannel : public Module
 {
+	Invite::APIImpl invapi;
 	CommandInvite cmdinvite;
 	CommandJoin cmdjoin;
 	CommandKick cmdkick;
 	CommandNames cmdnames;
 	CommandTopic cmdtopic;
 
+	ModResult IsInvited(User* user, Channel* chan)
+	{
+		LocalUser* localuser = IS_LOCAL(user);
+		if ((localuser) && (invapi.IsInvited(localuser, chan)))
+			return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
+	}
+
  public:
 	CoreModChannel()
-		: cmdinvite(this), cmdjoin(this), cmdkick(this), cmdnames(this), cmdtopic(this)
+		: invapi(this)
+		, cmdinvite(this, invapi), cmdjoin(this), cmdkick(this), cmdnames(this), cmdtopic(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
+		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
+		if (optionstag->getBool("invitebypassmodes", true))
+			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
+		else
+		{
+			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
+				ServerInstance->Modules.Detach(events[i], this);
+		}
 	}
 
 	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
@@ -40,12 +64,50 @@ class CoreModChannel : public Module
 		LocalUser* const localuser = IS_LOCAL(memb->user);
 		if (localuser)
 		{
+			// Remove existing invite, if any
+			invapi.Remove(localuser, chan);
+
 			if (chan->topicset)
 				Topic::ShowTopic(localuser, chan);
 
 			// Show all members of the channel, including invisible (+i) users
 			cmdnames.SendNames(localuser, chan, true);
 		}
+	}
+
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven) CXX11_OVERRIDE
+	{
+		// Hook only runs when being invited bypasses +bkl
+		return IsInvited(user, chan);
+	}
+
+	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
+	{
+		// Hook only runs when being invited bypasses +bkl
+		return IsInvited(user, chan);
+	}
+
+	ModResult OnCheckLimit(User* user, Channel* chan) CXX11_OVERRIDE
+	{
+		// Hook only runs when being invited bypasses +bkl
+		return IsInvited(user, chan);
+	}
+
+	ModResult OnCheckInvite(User* user, Channel* chan) CXX11_OVERRIDE
+	{
+		// Hook always runs
+		return IsInvited(user, chan);
+	}
+
+	void OnUserDisconnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		invapi.RemoveAll(user);
+	}
+
+	void OnChannelDelete(Channel* chan) CXX11_OVERRIDE
+	{
+		// Make sure the channel won't appear in invite lists from now on, don't wait for cull to unset the ext
+		invapi.RemoveAll(chan);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

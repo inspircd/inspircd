@@ -22,9 +22,11 @@
 
 #include "inspircd.h"
 #include "core_channel.h"
+#include "invite.h"
 
-CommandInvite::CommandInvite(Module* parent)
+CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 	: Command(parent, "INVITE", 0, 0)
+	, invapi(invapiimpl)
 {
 	Penalty = 4;
 	syntax = "[<nick> <channel>]";
@@ -109,7 +111,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if (IS_LOCAL(u))
 		{
-			Invitation::Create(c, IS_LOCAL(u), timeout);
+			invapi.Create(IS_LOCAL(u), c, timeout);
 			u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
 		}
 
@@ -150,10 +152,11 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	{
 		// pinched from ircu - invite with not enough parameters shows channels
 		// youve been invited to but haven't joined yet.
-		InviteList& il = IS_LOCAL(user)->GetInviteList();
-		for (InviteList::const_iterator i = il.begin(); i != il.end(); ++i)
+		const Invite::List* list = invapi.GetList(IS_LOCAL(user));
+		if (list)
 		{
-			user->WriteNumeric(RPL_INVITELIST, ":%s", (*i)->chan->name.c_str());
+			for (Invite::List::const_iterator i = list->begin(); i != list->end(); ++i)
+				user->WriteNumeric(RPL_INVITELIST, ":%s", (*i)->chan->name.c_str());
 		}
 		user->WriteNumeric(RPL_ENDOFINVITELIST, ":End of INVITE list");
 	}

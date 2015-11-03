@@ -56,7 +56,7 @@ ServerConfig::ServerConfig()
 	, NoSnoticeStack(false)
 {
 	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
-	WildcardIPv6 = InvBypassModes = true;
+	WildcardIPv6 = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -427,7 +427,6 @@ void ServerConfig::Fill()
 	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
 	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
 	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
-	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
 	if (Network.find(' ') != std::string::npos)

@@ -21,13 +21,17 @@
 
 
 #include "inspircd.h"
+#include "modules/invite.h"
 
 /** Handle /UNINVITE
  */
 class CommandUninvite : public Command
 {
+	Invite::API invapi;
  public:
-	CommandUninvite(Module* Creator) : Command(Creator,"UNINVITE", 2)
+	CommandUninvite(Module* Creator)
+		: Command(Creator, "UNINVITE", 2)
+		, invapi(Creator)
 	{
 		syntax = "<nick> <channel>";
 		TRANSLATE2(TR_NICK, TR_TEXT);
@@ -73,7 +77,7 @@ class CommandUninvite : public Command
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
 		{
-			if (!lu->RemoveInvite(c))
+			if (!invapi->Remove(lu, c))
 			{
 				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server->GetName().c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
 				return CMD_FAILURE;

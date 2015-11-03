@@ -283,10 +283,7 @@ void UserManager::GarbageCollect()
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
 	LocalUser::already_sent_id = 0;
 	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
-	{
 		(**i).already_sent = 0;
-		(**i).RemoveExpiredInvites();
-	}
 }
 
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server

@@ -495,10 +495,6 @@ class CoreExport ServerConfig
 	 */
 	static std::string Escape(const std::string& str, bool xml = true);
 
-	/** If this value is true, invites will bypass more than just +i
-	 */
-	bool InvBypassModes;
-
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */
 	bool NoSnoticeStack;

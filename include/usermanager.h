@@ -85,7 +85,6 @@ class CoreExport UserManager : public fakederef<UserManager>
 
 	/**
 	 * Reset the already_sent IDs so we don't wrap it around and drop a message
-	 * Also removes all expired invites
      */
 	void GarbageCollect();
 

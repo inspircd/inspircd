@@ -139,28 +139,6 @@ const std::string& User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-InviteList& LocalUser::GetInviteList()
-{
-	RemoveExpiredInvites();
-	return invites;
-}
-
-bool LocalUser::RemoveInvite(Channel* chan)
-{
-	Invitation* inv = Invitation::Find(chan, this);
-	if (inv)
-	{
-		delete inv;
-		return true;
-	}
-	return false;
-}
-
-void LocalUser::RemoveExpiredInvites()
-{
-	Invitation::Find(NULL, this);
-}
-
 bool User::HasModePermission(unsigned char, ModeType)
 {
 	return true;
@@ -328,7 +306,6 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	ClearInvites();
 	eh.cull();
 	return User::cull();
 }

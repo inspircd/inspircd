@@ -272,9 +272,6 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	chan->name = newname;
 	chan->age = TS;
 
-	// Remove all pending invites
-	chan->ClearInvites();
-
 	// Clear all modes
 	CommandFJoin::RemoveStatus(chan);
 

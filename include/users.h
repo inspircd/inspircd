@@ -641,7 +641,7 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User, public InviteBase<LocalUser>, public insp::intrusive_list_node<LocalUser>
+class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
@@ -747,27 +747,6 @@ class CoreExport LocalUser : public User, public InviteBase<LocalUser>, public i
 	void SendText(const std::string& line);
 	void Write(const std::string& text);
 	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Returns the list of channels this user has been invited to but has not yet joined.
-	 * @return A list of channels the user is invited to
-	 */
-	InviteList& GetInviteList();
-
-	/** Returns true if a user is invited to a channel.
-	 * @param chan A channel to look up
-	 * @return True if the user is invited to the given channel
-	 */
-	bool IsInvited(Channel* chan) { return (Invitation::Find(chan, this) != NULL); }
-
-	/** Removes a channel from a users invite list.
-	 * This member function is called on successfully joining an invite only channel
-	 * to which the user has previously been invited, to clear the invitation.
-	 * @param chan The channel to remove the invite to
-	 * @return True if the user was invited to the channel and the invite was erased, false if the user wasn't invited
-	 */
-	bool RemoveInvite(Channel* chan);
-
-	void RemoveExpiredInvites();
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
