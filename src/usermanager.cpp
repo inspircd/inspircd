@@ -368,3 +368,8 @@ void UserManager::DoBackgroundUserStuff()
 		}
 	}
 }
+
+already_sent_t UserManager::NextAlreadySentId()
+{
+	return ++LocalUser::already_sent_id;
+}

@@ -186,4 +186,9 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 * @param ... The format arguments
 	 */
 	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
+
+	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
+	 * @return Next already_sent id
+	 */
+	already_sent_t NextAlreadySentId();
 };
