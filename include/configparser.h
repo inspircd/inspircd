@@ -61,19 +61,39 @@ struct ParseStack
 /** RAII wrapper on FILE* to close files on exceptions */
 struct FileWrapper
 {
-	FILE* const f;
+	std::string name;
+	FILE* f;
 	bool close_with_pclose;
-	FileWrapper(FILE* file, bool use_pclose = false) : f(file), close_with_pclose(use_pclose) {}
+	FileWrapper(const std::string &n, FILE* file, bool use_pclose = false) : name(n), f(file), close_with_pclose(use_pclose) {}
 	operator bool() { return (f != NULL); }
 	operator FILE*() { return f; }
 	~FileWrapper()
 	{
+		try
+		{
+			close();
+		}
+		catch (...) { }
+	}
+
+	void close()
+	{
 		if (f)
 		{
 			if (close_with_pclose)
-				pclose(f);
+			{
+				int ret = pclose(f);
+				if (ret)
+				{
+					f = NULL;
+					throw CoreException("Error running " + name + " result: " + ConvToStr(ret));
+				}
+			}
 			else
+			{
 				fclose(f);
+			}
+			f = NULL;
 		}
 	}
 };

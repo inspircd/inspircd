@@ -344,7 +344,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
 	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
-	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
+	FileWrapper file(name, exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
 	if (!file)
 		throw CoreException("Could not read \"" + path + "\" for \"" + key + "\" file");
 
@@ -362,6 +362,8 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 			cache.push_back(std::string(linebuf, len));
 		}
 	}
+
+	file.close();
 }
 
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
@@ -372,7 +374,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
+	FileWrapper file(path, (isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
 	if (!file)
 		throw CoreException("Could not read \"" + path + "\" for include");
 
@@ -380,6 +382,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 	Parser p(*this, flags, file, path, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
+	file.close();
 	return ok;
 }
 
