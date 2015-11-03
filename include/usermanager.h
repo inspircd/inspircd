@@ -88,11 +88,6 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	unsigned int unregistered_count;
 
-	/**
-	 * Reset the already_sent IDs so we don't wrap it around and drop a message
-     */
-	void GarbageCollect();
-
 	/** Perform background user events such as PING checks
 	 */
 	void DoBackgroundUserStuff();

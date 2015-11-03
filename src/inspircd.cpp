@@ -664,10 +664,7 @@ void InspIRCd::Run()
 			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
-			{
-				Users->GarbageCollect();
 				FOREACH_MOD(OnGarbageCollect, ());
-			}
 
 			Timers.TickTimers(TIME.tv_sec);
 			Users->DoBackgroundUserStuff();
