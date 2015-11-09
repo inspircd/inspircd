@@ -367,12 +367,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 
 	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
-	std::cout << con_green << "(C) InspIRCd Development Team." << con_reset << std::endl << std::endl;
-	std::cout << "Developers:" << std::endl;
-	std::cout << con_green << "\tBrain, FrostyCoolSlug, w00t, Om, Special, peavey" << std::endl;
-	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << std::endl;
-	std::cout << "\tAttila" << con_reset << std::endl << std::endl;
-	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
+	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
 
 #ifndef _WIN32
 	if (!do_root)
