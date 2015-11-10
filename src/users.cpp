@@ -26,8 +26,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-already_sent_t LocalUser::already_sent_id = 0;
-
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
@@ -873,7 +871,7 @@ void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 	FOREACH_MOD(OnBuildNeighborList, (this, include_chans, exceptions));
 
 	// Get next id, guaranteed to differ from the already_sent field of all users
-	const already_sent_t newid = ++LocalUser::already_sent_id;
+	const already_sent_t newid = ServerInstance->Users.NextAlreadySentId();
 
 	// Handle exceptions first
 	for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)

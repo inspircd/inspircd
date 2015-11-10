@@ -29,8 +29,8 @@ class ModuleHostCycle : public Module
 		// GetFullHost() returns the original data at the time this function is called
 		const std::string quitline = ":" + user->GetFullHost() + " QUIT :" + quitmsg;
 
-		already_sent_t silent_id = ++LocalUser::already_sent_id;
-		already_sent_t seen_id = ++LocalUser::already_sent_id;
+		already_sent_t silent_id = ServerInstance->Users.NextAlreadySentId();
+		already_sent_t seen_id = ServerInstance->Users.NextAlreadySentId();
 
 		IncludeChanList include_chans(user->chans.begin(), user->chans.end());
 		std::map<User*,bool> exceptions;

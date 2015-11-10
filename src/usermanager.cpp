@@ -49,7 +49,8 @@ namespace
 }
 
 UserManager::UserManager()
-	: unregistered_count(0)
+	: already_sent_id(0)
+	, unregistered_count(0)
 {
 }
 
@@ -278,14 +279,6 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	}
 }
 
-void UserManager::GarbageCollect()
-{
-	// Reset the already_sent IDs so we don't wrap it around and drop a message
-	LocalUser::already_sent_id = 0;
-	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
-		(**i).already_sent = 0;
-}
-
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
  * registration timeout maximum seconds)
@@ -367,4 +360,19 @@ void UserManager::DoBackgroundUserStuff()
 			continue;
 		}
 	}
+}
+
+already_sent_t UserManager::NextAlreadySentId()
+{
+	if (++already_sent_id == 0)
+	{
+		// Wrapped around, reset the already_sent ids of all users
+		already_sent_id = 1;
+		for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
+		{
+			LocalUser* user = *i;
+			user->already_sent = 0;
+		}
+	}
+	return already_sent_id;
 }

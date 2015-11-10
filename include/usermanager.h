@@ -56,6 +56,11 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	LocalList local_users;
 
+	/** Last used already sent id, used when sending messages to neighbors to help determine whether the message has
+	 * been sent to a particular user or not. See User::ForEachNeighbor() for more info.
+	 */
+	already_sent_t already_sent_id;
+
  public:
 	/** Constructor, initializes variables
 	 */
@@ -82,11 +87,6 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 * (Unregistered means before USER/NICK/dns)
 	 */
 	unsigned int unregistered_count;
-
-	/**
-	 * Reset the already_sent IDs so we don't wrap it around and drop a message
-     */
-	void GarbageCollect();
 
 	/** Perform background user events such as PING checks
 	 */
@@ -186,4 +186,9 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 * @param ... The format arguments
 	 */
 	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
+
+	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
+	 * @return Next already_sent id
+	 */
+	already_sent_t NextAlreadySentId();
 };
