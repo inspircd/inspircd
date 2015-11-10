@@ -209,14 +209,6 @@ namespace GnuTLS
 			return dh;
 		}
 
-		/** Generate */
-		static std::auto_ptr<DHParams> Generate(unsigned int bits)
-		{
-			std::auto_ptr<DHParams> dh(new DHParams);
-			ThrowOnError(gnutls_dh_params_generate2(dh->dh_params, bits), "Unable to generate DH params");
-			return dh;
-		}
-
 		~DHParams()
 		{
 			gnutls_dh_params_deinit(dh_params);
@@ -570,15 +562,7 @@ namespace GnuTLS
 			std::string certstr = ReadFile(tag->getString("certfile", "cert.pem"));
 			std::string keystr = ReadFile(tag->getString("keyfile", "key.pem"));
 
-			std::auto_ptr<DHParams> dh;
-			int gendh = tag->getInt("gendh");
-			if (gendh)
-			{
-				gendh = (gendh < 1024 ? 1024 : gendh);
-				dh = DHParams::Generate(gendh);
-			}
-			else
-				dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
+			std::auto_ptr<DHParams> dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
 
 			// Use default priority string if this tag does not specify one
 			std::string priostr = tag->getString("priority", "NORMAL");
