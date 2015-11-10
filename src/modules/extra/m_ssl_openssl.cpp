@@ -269,10 +269,10 @@ namespace OpenSSL
 			long setoptions = tag->getInt(ctxname + "setoptions");
 			long clearoptions = tag->getInt(ctxname + "clearoptions");
 #ifdef SSL_OP_NO_COMPRESSION
-			if (!tag->getBool("compression", true))
+			if (!tag->getBool("compression", false)) // Disable compression by default
 				setoptions |= SSL_OP_NO_COMPRESSION;
 #endif
-			if (!tag->getBool("sslv3", true))
+			if (!tag->getBool("sslv3", false)) // Disable SSLv3 by default
 				setoptions |= SSL_OP_NO_SSLv3;
 			if (!tag->getBool("tlsv1", true))
 				setoptions |= SSL_OP_NO_TLSv1;
