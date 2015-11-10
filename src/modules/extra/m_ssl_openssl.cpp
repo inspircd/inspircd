@@ -363,6 +363,14 @@ namespace OpenSSL
 			return 1;
 		}
 
+		static int destroy(BIO* bio)
+		{
+			// XXX: Dummy function to avoid a memory leak in OpenSSL.
+			// The memory leak happens in BIO_free() (bio_lib.c) when the destroy func of the BIO is NULL.
+			// This is fixed in OpenSSL but some distros still ship the unpatched version hence we provide this workaround.
+			return 1;
+		}
+
 		static long ctrl(BIO* bio, int cmd, long num, void* ptr)
 		{
 			if (cmd == BIO_CTRL_FLUSH)
@@ -385,7 +393,7 @@ static BIO_METHOD biomethods =
 	NULL, // gets
 	OpenSSL::BIOMethod::ctrl,
 	OpenSSL::BIOMethod::create,
-	NULL, // destroy, NULL causes older OpenSSL to leak memory in BIO_free() (bio_lib.c)
+	OpenSSL::BIOMethod::destroy, // destroy, does nothing, see function body for more info
 	NULL // callback_ctrl
 };
 
