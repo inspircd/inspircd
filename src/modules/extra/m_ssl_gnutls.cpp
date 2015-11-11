@@ -348,7 +348,7 @@ namespace GnuTLS
 
 		static const char* GetDefault()
 		{
-			return "NORMAL";
+			return "NORMAL:%SERVER_PRECEDENCE:-VERS-SSL3.0";
 		}
 
 		static std::string RemoveUnknownTokens(const std::string& prio)
