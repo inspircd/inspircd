@@ -1986,6 +1986,12 @@
 #<watch maxentries="32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# XInfo module: Implements support for the IRCv3 XINFO extension. This
+# is similar to STATS but with names and a standard format. See <URL>
+# for more information.
+#<module name="m_xinfo.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
 # in a file which is re-loaded on restart. This is useful
 # for two reasons: it keeps bans so users may not evade them, and on
