@@ -345,6 +345,11 @@ namespace GnuTLS
 		{
 			gnutls_priority_set(sess, priority);
 		}
+
+		static const char* GetDefault()
+		{
+			return "NORMAL";
+		}
 	};
 #else
 	/** Dummy class, used when gnutls_priority_set() is not available
@@ -354,7 +359,7 @@ namespace GnuTLS
 	 public:
 		Priority(const std::string& priorities)
 		{
-			if (priorities != "NORMAL")
+			if (priorities != GetDefault())
 				throw Exception("You've set a non-default priority string, but GnuTLS lacks support for it");
 		}
 
@@ -362,6 +367,11 @@ namespace GnuTLS
 		{
 			// Always set the default priorities
 			gnutls_set_default_priority(sess);
+		}
+
+		static const char* GetDefault()
+		{
+			return "NORMAL";
 		}
 	};
 #endif
@@ -565,7 +575,7 @@ namespace GnuTLS
 			std::auto_ptr<DHParams> dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
 
 			// Use default priority string if this tag does not specify one
-			std::string priostr = tag->getString("priority", "NORMAL");
+			std::string priostr = tag->getString("priority", GnuTLS::Priority::GetDefault());
 			unsigned int mindh = tag->getInt("mindhbits", 1024);
 			std::string hashstr = tag->getString("hash", "md5");
 
