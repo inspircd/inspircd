@@ -345,6 +345,40 @@ namespace GnuTLS
 		{
 			gnutls_priority_set(sess, priority);
 		}
+
+		static const char* GetDefault()
+		{
+			return "NORMAL:%SERVER_PRECEDENCE:-VERS-SSL3.0";
+		}
+
+		static std::string RemoveUnknownTokens(const std::string& prio)
+		{
+			std::string ret;
+			irc::sepstream ss(prio, ':');
+			for (std::string token; ss.GetToken(token); )
+			{
+				// Save current position so we can revert later if needed
+				const std::string::size_type prevpos = ret.length();
+				// Append next token
+				if (!ret.empty())
+					ret.push_back(':');
+				ret.append(token);
+
+				gnutls_priority_t test;
+				if (gnutls_priority_init(&test, ret.c_str(), NULL) < 0)
+				{
+					// The new token broke the priority string, revert to the previously working one
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Priority string token not recognized: \"%s\"", token.c_str());
+					ret.erase(prevpos);
+				}
+				else
+				{
+					// Worked
+					gnutls_priority_deinit(test);
+				}
+			}
+			return ret;
+		}
 	};
 #else
 	/** Dummy class, used when gnutls_priority_set() is not available
@@ -354,7 +388,7 @@ namespace GnuTLS
 	 public:
 		Priority(const std::string& priorities)
 		{
-			if (priorities != "NORMAL")
+			if (priorities != GetDefault())
 				throw Exception("You've set a non-default priority string, but GnuTLS lacks support for it");
 		}
 
@@ -362,6 +396,17 @@ namespace GnuTLS
 		{
 			// Always set the default priorities
 			gnutls_set_default_priority(sess);
+		}
+
+		static const char* GetDefault()
+		{
+			return "NORMAL";
+		}
+
+		static std::string RemoveUnknownTokens(const std::string& prio)
+		{
+			// We don't do anything here because only NORMAL is accepted
+			return prio;
 		}
 	};
 #endif
@@ -556,6 +601,31 @@ namespace GnuTLS
 			return ret;
 		}
 
+		static std::string GetPrioStr(const std::string& profilename, ConfigTag* tag)
+		{
+			// Use default priority string if this tag does not specify one
+			std::string priostr = GnuTLS::Priority::GetDefault();
+			bool found = tag->readString("priority", priostr);
+			// If the prio string isn't set in the config don't be strict about the default one because it doesn't work on all versions of GnuTLS
+			if (!tag->getBool("strictpriority", found))
+			{
+				std::string stripped = GnuTLS::Priority::RemoveUnknownTokens(priostr);
+				if (stripped.empty())
+				{
+					// Stripping failed, act as if a prio string wasn't set
+					stripped = GnuTLS::Priority::RemoveUnknownTokens(GnuTLS::Priority::GetDefault());
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens and stripping it didn't yield a working one either, falling back to \"%s\"", profilename.c_str(), stripped.c_str());
+				}
+				else if ((found) && (stripped != priostr))
+				{
+					// Prio string was set in the config and we ended up with something that works but different
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
+				}
+				priostr.swap(stripped);
+			}
+			return priostr;
+		}
+
 	 public:
 		static reference<Profile> Create(const std::string& profilename, ConfigTag* tag)
 		{
@@ -564,8 +634,7 @@ namespace GnuTLS
 
 			std::auto_ptr<DHParams> dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
 
-			// Use default priority string if this tag does not specify one
-			std::string priostr = tag->getString("priority", "NORMAL");
+			std::string priostr = GetPrioStr(profilename, tag);
 			unsigned int mindh = tag->getInt("mindhbits", 1024);
 			std::string hashstr = tag->getString("hash", "md5");
 
