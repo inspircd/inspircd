@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2011 Jackmcbarn <jackmcbarn@jackmcbarn.no-ip.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2007-2015 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -35,9 +35,10 @@ static const char* const lines[] = {
 	"                 November 2002 - Present",
 	" ",
 	"\2Core Developers\2:",
-	"    Craig Edwards,          Brain,      <brain@inspircd.org>",
-	"    Craig McLure,           Craig,      <craig@inspircd.org>",
-	"    Robin Burchell,         w00t,       <w00t@inspircd.org>",
+	"    Attila Molnar,          Attila,     <attilamolnar@hush.com>",
+	"    Peter Powell,           SaberUK,    <petpow@saberuk.com>",
+	" ",
+	"\2Former Developers\2:",
 	"    Oliver Lupton,          Om,         <om@inspircd.org>",
 	"    John Brooks,            Special,    <special@inspircd.org>",
 	"    Dennis Friis,           peavey,     <peavey@inspircd.org>",
@@ -45,14 +46,14 @@ static const char* const lines[] = {
 	"    Uli Schlachter,         psychon,    <psychon@inspircd.org>",
 	"    Matt Smith,             dz,         <dz@inspircd.org>",
 	"    Daniel De Graaf,        danieldg,   <danieldg@inspircd.org>",
-	"                            jackmcbarn, <jackmcbarn@inspircd.org>",
-	"    Attila Molnar,          Attila,     <attilamolnar@hush.com>",
 	" ",
-	"\2Regular Contributors\2:",
-	"    Adam           SaberUK",
+	"\2Founding Developers\2:",
+	"    Craig Edwards,          Brain,      <brain@inspircd.org>",
+	"    Craig McLure,           Craig,      <craig@inspircd.org>",
+	"    Robin Burchell,         w00t,       <w00t@inspircd.org>",
 	" ",
-	"\2Other Contributors\2:",
-	"    ChrisTX        Shawn           Shutter",
+	"\2Active Contributors\2:",
+	"    Adam           Shutter",
 	" ",
 	"\2Former Contributors\2:",
 	"   dmb             Zaba            skenmy         GreenReaper",
@@ -64,9 +65,10 @@ static const char* const lines[] = {
 	"   Stskeeps        ThaPrince       BuildSmart     Thunderhacker",
 	"   Skip            LeaChim         Majic          MacGyver",
 	"   Namegduf        Ankit           Phoenix        Taros",
+	"   jackmcbarn      ChrisTX         Shawn",
 	" ",
 	"\2Thanks To\2:",
-	"   searchirc.com   irc-junkie.org  Brik           fraggeln",
+	"   Asmo            Brik            fraggeln",
 	" ",
 	" Best experienced with: \2An IRC client\2",
 	NULL
