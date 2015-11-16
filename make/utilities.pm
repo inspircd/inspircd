@@ -90,23 +90,9 @@ sub make_rpath($;$)
 	return $output;
 }
 
-sub extend_pkg_path()
-{
-	if (!exists $ENV{PKG_CONFIG_PATH})
-	{
-		$ENV{PKG_CONFIG_PATH} = "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
-	}
-	else
-	{
-		$ENV{PKG_CONFIG_PATH} .= ":/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
-	}
-}
-
 sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
-
-	extend_pkg_path();
 
 	print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
@@ -180,8 +166,6 @@ sub pkgconfig_check_version($$;$)
 {
 	my ($packagename, $version, $module) = @_;
 
-	extend_pkg_path();
-
 	print "Checking version of package \e[1;32m$packagename\e[0m is >= \e[1;32m$version\e[0m... ";
 
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
@@ -212,8 +196,6 @@ sub pkgconfig_check_version($$;$)
 sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
-
-	extend_pkg_path();
 
 	print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
