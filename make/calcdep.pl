@@ -85,6 +85,12 @@ END
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";
+		# Having a module in the src directory is a bad idea because it will be linked to the core binary
+		if ($file =~ /^(m|core)_.*\.cpp/) {
+			my $correctsubdir = ($file =~ /^m_/ ? "modules" : "coremods");
+			print "Error: module $file is in the src directory, put it in src/$correctsubdir instead!\n";
+			exit 1;
+		}
 		push @core_deps, $out;
 	}
 
