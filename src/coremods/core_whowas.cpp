@@ -76,11 +76,7 @@ const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 	whowas_users::const_iterator it = whowas.find(nickname);
 	if (it == whowas.end())
 		return NULL;
-
-	const Nick* nick = it->second;
-	if (nick->entries.empty())
-		return NULL;
-	return nick;
+	return it->second;
 }
 
 WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
@@ -153,7 +149,7 @@ void WhoWas::Manager::Prune()
 	}
 
 	/* Then cut the whowas sets to new size (groupsize) */
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
+	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); )
 	{
 		WhoWas::Nick::List& list = i->second->entries;
 		while (list.size() > this->GroupSize)
@@ -161,6 +157,11 @@ void WhoWas::Manager::Prune()
 			delete list.front();
 			list.pop_front();
 		}
+
+		if (list.empty())
+			PurgeNick(i++);
+		else
+			++i;
 	}
 }
 
@@ -168,7 +169,7 @@ void WhoWas::Manager::Prune()
 void WhoWas::Manager::Maintain()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
+	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); )
 	{
 		WhoWas::Nick::List& list = i->second->entries;
 		while (!list.empty() && list.front()->signon < min)
@@ -176,6 +177,11 @@ void WhoWas::Manager::Maintain()
 			delete list.front();
 			list.pop_front();
 		}
+
+		if (list.empty())
+			PurgeNick(i++);
+		else
+			++i;
 	}
 }
 
