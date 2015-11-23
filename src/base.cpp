@@ -95,6 +95,10 @@ ServiceProvider::~ServiceProvider()
 {
 }
 
+void ServiceProvider::RegisterService()
+{
+}
+
 ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
 	: ServiceProvider(mod, Key, SERVICE_METADATA)
 	, type(exttype)

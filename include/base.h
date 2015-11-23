@@ -251,6 +251,10 @@ class CoreExport ServiceProvider : public classbase
 	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
 	virtual ~ServiceProvider();
 
+	/** Register this service in the appropriate registrar
+	 */
+	virtual void RegisterService();
+
 	/** If called, this ServiceProvider won't be registered automatically
 	 */
 	void DisableAutoRegister();

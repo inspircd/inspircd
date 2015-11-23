@@ -588,7 +588,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 			return;
 		}
 		default:
-			throw ModuleException("Cannot add unknown service type");
+			item.RegisterService();
 	}
 }
 
