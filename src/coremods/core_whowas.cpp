@@ -119,10 +119,7 @@ void WhoWas::Manager::Add(User* user)
 		if (whowas.size() > this->MaxGroups)
 		{
 			// Too many nicks, remove the nick which was inserted the longest time ago from both the map and the fifo
-			nick = whowas_fifo.front();
-			whowas_fifo.pop_front();
-			whowas.erase(nick->nick);
-			delete nick;
+			PurgeNick(whowas_fifo.front());
 		}
 	}
 	else
@@ -150,18 +147,7 @@ void WhoWas::Manager::Prune()
 	{
 		WhoWas::Nick* nick = whowas_fifo.front();
 		if ((whowas_fifo.size() > this->MaxGroups) || (nick->addtime < min))
-		{
-			/* hopefully redundant integrity check, but added while debugging r6216 */
-			if (!whowas.erase(nick->nick))
-			{
-				/* this should never happen, if it does maps are corrupt */
-				ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
-				return;
-			}
-
-			whowas_fifo.pop_front();
-			delete nick;
-		}
+			PurgeNick(nick);
 		else
 			break;
 	}
@@ -216,6 +202,25 @@ void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMa
 	MaxGroups = NewMaxGroups;
 	MaxKeep = NewMaxKeep;
 	Prune();
+}
+
+void WhoWas::Manager::PurgeNick(whowas_users::iterator it)
+{
+	WhoWas::Nick* nick = it->second;
+	whowas_fifo.erase(nick);
+	whowas.erase(it);
+	delete nick;
+}
+
+void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
+{
+	whowas_users::iterator it = whowas.find(nick->nick);
+	if (it == whowas.end())
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in whowas database, please report");
+		return;
+	}
+	PurgeNick(it);
 }
 
 WhoWas::Entry::Entry(User* user)

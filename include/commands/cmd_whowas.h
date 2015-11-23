@@ -172,6 +172,16 @@ namespace WhoWas
 		/** Shrink all data structures to honor the current settings
 		 */
 		void Prune();
+
+		/** Remove a nick (and all entries belonging to it) from the database
+		 * @param it Iterator to the nick to purge
+		 */
+		void PurgeNick(whowas_users::iterator it);
+
+		/** Remove a nick (and all entries belonging to it) from the database
+		 * @param nick Nick to purge
+		 */
+		void PurgeNick(WhoWas::Nick* nick);
 	};
 }
 
