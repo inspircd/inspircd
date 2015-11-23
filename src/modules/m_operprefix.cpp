@@ -58,6 +58,39 @@ class OperPrefixMode : public ModeHandler
 		}
 
 		bool NeedsOper() { return true; }
+
+		void RemoveMode(Channel* chan, irc::modestacker* stack)
+		{
+			irc::modestacker modestack(false);
+			const UserMembList* users = chan->GetUsers();
+			for (UserMembCIter i = users->begin(); i != users->end(); ++i)
+			{
+				if (i->second->hasMode(mode))
+				{
+					if (stack)
+						stack->Push(this->GetModeChar(), i->first->nick);
+					else
+						modestack.Push(this->GetModeChar(), i->first->nick);
+				}
+			}
+
+			if (stack)
+				return;
+
+			std::deque<std::string> stackresult;
+			std::vector<std::string> mode_junk;
+			mode_junk.push_back(chan->name);
+			while (modestack.GetStackedLine(stackresult))
+			{
+				mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
+				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
+				mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
+			}
+		}
+
+		void RemoveMode(User* user, irc::modestacker* stack)
+		{
+		}
 };
 
 class ModuleOperPrefixMode;
