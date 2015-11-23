@@ -1215,6 +1215,17 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 * @return A ModuleMap containing all loaded modules
 	 */
 	const ModuleMap& GetModules() const { return Modules; }
+
+	/** Make a service referenceable by dynamic_references
+	 * @param name Name that will be used by dynamic_references to find the object
+	 * @param service Service to make referenceable by dynamic_references
+	 */
+	void AddReferent(const std::string& name, ServiceProvider* service);
+
+	/** Make a service no longer referenceable by dynamic_references
+	 * @param service Service to make no longer referenceable by dynamic_references
+	 */
+	void DelReferent(ServiceProvider* service);
 };
 
 /** Do not mess with these functions unless you know the C preprocessor
