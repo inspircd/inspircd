@@ -235,7 +235,9 @@ enum ServiceType {
 	/** is a data processing provider (MD5, SQL) */
 	SERVICE_DATA,
 	/** is an I/O hook provider (SSL) */
-	SERVICE_IOHOOK
+	SERVICE_IOHOOK,
+	/** Service managed by a module */
+	SERVICE_CUSTOM
 };
 
 /** A structure defining something that a module can provide */
