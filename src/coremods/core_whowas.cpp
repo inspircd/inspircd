@@ -47,23 +47,18 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		if (!list.empty())
+		for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
-			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
-			{
-				WhoWas::Entry* u = *i;
+			WhoWas::Entry* u = *i;
 
-				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
-					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
+			user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(), u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
 
-				if (user->HasPrivPermission("users/auspex"))
-					user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s",
-						parameters[0].c_str(), u->host.c_str());
+			if (user->HasPrivPermission("users/auspex"))
+				user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s", parameters[0].c_str(), u->host.c_str());
 
-				std::string signon = InspIRCd::TimeString(u->signon);
-				bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
-				user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
-			}
+			std::string signon = InspIRCd::TimeString(u->signon);
+			bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
+			user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
 		}
 	}
 
