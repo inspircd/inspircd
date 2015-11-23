@@ -144,6 +144,12 @@ void* ExtensionItem::unset_raw(Extensible* container)
 	return rv;
 }
 
+void ExtensionItem::RegisterService()
+{
+	if (!ServerInstance->Extensions.Register(this))
+		throw ModuleException("Extension already exists: " + name);
+}
+
 bool ExtensionManager::Register(ExtensionItem* item)
 {
 	return types.insert(std::make_pair(item->name, item)).second;

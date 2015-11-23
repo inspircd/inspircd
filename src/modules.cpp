@@ -556,10 +556,6 @@ void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
-		case SERVICE_METADATA:
-			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
-				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
-			return;
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
