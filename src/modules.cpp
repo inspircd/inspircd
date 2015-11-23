@@ -556,10 +556,6 @@ void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
-		case SERVICE_COMMAND:
-			if (!ServerInstance->Parser.AddCommand(static_cast<Command*>(&item)))
-				throw ModuleException("Command "+std::string(item.name)+" already exists.");
-			return;
 		case SERVICE_MODE:
 		{
 			ModeHandler* mh = static_cast<ModeHandler*>(&item);

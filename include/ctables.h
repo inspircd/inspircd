@@ -218,6 +218,10 @@ class CoreExport Command : public CommandBase
 	 */
 	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
 
+	/** Register this object in the CommandParser
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
 	/** Destructor
 	 * Removes this command from the command parser
 	 */
