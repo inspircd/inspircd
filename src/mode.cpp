@@ -90,6 +90,12 @@ bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ou
 	return (theirs < ours);
 }
 
+void ModeHandler::RegisterService()
+{
+	ServerInstance->Modes.AddMode(this);
+	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + name, this);
+}
+
 ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* We're either trying to add a mode we already have or

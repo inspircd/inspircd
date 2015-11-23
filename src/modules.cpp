@@ -556,13 +556,6 @@ void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
-		case SERVICE_MODE:
-		{
-			ModeHandler* mh = static_cast<ModeHandler*>(&item);
-			ServerInstance->Modes->AddMode(mh);
-			AddReferent((mh->GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + item.name, &item);
-			return;
-		}
 		case SERVICE_METADATA:
 			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
 				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
