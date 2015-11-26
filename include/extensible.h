@@ -128,6 +128,11 @@ class CoreExport ExtensionManager
 	void BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list);
 	ExtensionItem* GetItem(const std::string& name);
 
+	/** Get all registered extensions keyed by their names
+	 * @return Const map of ExtensionItem pointers keyed by their names
+	 */
+	const ExtMap& GetExts() const { return types; }
+
  private:
 	ExtMap types;
 };
