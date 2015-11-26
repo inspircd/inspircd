@@ -21,6 +21,8 @@
 #ifndef M_CAP_H
 #define M_CAP_H
 
+class GenericCap;
+
 class CapEvent : public Event
 {
  public:
@@ -35,6 +37,7 @@ class CapEvent : public Event
 	CapEventType type;
 	std::vector<std::string> wanted;
 	std::vector<std::string> ack;
+	std::vector<std::pair<GenericCap*, int> > changed; // HACK: clean this up before 2.2
 	User* user;
 	CapEvent(Module* sender, User* u, CapEventType capevtype) : Event(sender, "cap_request"), type(capevtype), user(u) {}
 };
@@ -67,7 +70,7 @@ class GenericCap
 					// we can handle this, so ACK it, and remove it from the wanted list
 					data->ack.push_back(*it);
 					data->wanted.erase(it);
-					ext.set(data->user, enablecap ? 1 : 0);
+					data->changed.push_back(std::make_pair(this, ext.set(data->user, enablecap ? 1 : 0)));
 					break;
 				}
 			}
