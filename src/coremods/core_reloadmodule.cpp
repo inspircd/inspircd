@@ -21,13 +21,25 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/reload.h"
+
+static Events::ModuleEventProvider* reloadevprov;
 
 class CommandReloadmodule : public Command
 {
+	Events::ModuleEventProvider evprov;
  public:
 	/** Constructor for reloadmodule.
 	 */
-	CommandReloadmodule ( Module* parent) : Command( parent, "RELOADMODULE",1) { flags_needed = 'o'; syntax = "<modulename>"; }
+	CommandReloadmodule(Module* parent)
+		: Command(parent, "RELOADMODULE", 1)
+		, evprov(parent, "event/reloadmodule")
+	{
+		reloadevprov = &evprov;
+		flags_needed = 'o';
+		syntax = "<modulename>";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
@@ -153,6 +165,10 @@ class DataKeeper
 	 */
 	std::vector<ChanData> chandatalist;
 
+	/** Data attached by modules
+	 */
+	ReloadModule::CustomData moddata;
+
 	void SaveExtensions(Extensible* extensible, std::vector<InstanceData>& extdatalist);
 	void SaveMemberData(Channel* chan, std::vector<ChanData::MemberData>& memberdatalist);
 	static void SaveListModes(Channel* chan, ListModeBase* lm, size_t index, ModesExts& currdata);
@@ -172,6 +188,7 @@ class DataKeeper
 
 	void DoRestoreUsers();
 	void DoRestoreChans();
+	void DoRestoreModules();
 
 	/** Restore previously saved modes and extensions on an Extensible.
 	 * The extensions are set directly on the extensible, the modes are added into the provided mode change list.
@@ -399,7 +416,9 @@ void DataKeeper::Save(Module* currmod)
 	CreateModeList(MODETYPE_CHANNEL);
 	DoSaveChans();
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size());
+	FOREACH_MOD_CUSTOM(*reloadevprov, ReloadModule::EventListener, OnReloadModuleSave, (mod, this->moddata));
+
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans %lu modules", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size(), (unsigned long)moddata.list.size());
 }
 
 void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* type)
@@ -444,6 +463,7 @@ void DataKeeper::Restore(Module* newmod)
 	// Restore
 	DoRestoreUsers();
 	DoRestoreChans();
+	DoRestoreModules();
 
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restore finished");
 }
@@ -517,6 +537,16 @@ void DataKeeper::DoRestoreChans()
 		RestoreMemberData(chan, chandata.memberdatalist, modechange);
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, modechange, ModeParser::MODE_LOCALONLY);
 		modechange.clear();
+	}
+}
+
+void DataKeeper::DoRestoreModules()
+{
+	for (ReloadModule::CustomData::List::iterator i = moddata.list.begin(); i != moddata.list.end(); ++i)
+	{
+		ReloadModule::CustomData::Data& data = *i;
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", (void*)data.handler);
+		data.handler->OnReloadModuleRestore(mod, data.data);
 	}
 }
 
