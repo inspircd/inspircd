@@ -118,6 +118,11 @@ class AccountExtItemImpl : public AccountExtItem
 		User* user = static_cast<User*>(container);
 
 		StringExtItem::unserialize(format, container, value);
+
+		// If we are being reloaded then don't send the numeric or run the event
+		if (format == FORMAT_INTERNAL)
+			return;
+
 		if (!value.empty())
 		{
 			// Logged in
