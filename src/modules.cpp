@@ -451,26 +451,6 @@ namespace
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
-
-	struct ReloadAction : public HandlerBase0<void>
-	{
-		Module* const mod;
-		HandlerBase1<void, bool>* const callback;
-		ReloadAction(Module* m, HandlerBase1<void, bool>* c)
-			: mod(m), callback(c) {}
-		void Call()
-		{
-			DLLManager* dll = mod->ModuleDLLManager;
-			std::string name = mod->ModuleSourceFile;
-			ServerInstance->Modules->DoSafeUnload(mod);
-			ServerInstance->GlobalCulls.Apply();
-			delete dll;
-			bool rv = ServerInstance->Modules->Load(name);
-			if (callback)
-				callback->Call(rv);
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
-	};
 }
 
 bool ModuleManager::Unload(Module* mod)
@@ -479,14 +459,6 @@ bool ModuleManager::Unload(Module* mod)
 		return false;
 	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
 	return true;
-}
-
-void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
-{
-	if (CanUnload(mod))
-		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
-	else if (callback)
-		callback->Call(false);
 }
 
 void ModuleManager::LoadAll()

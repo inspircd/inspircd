@@ -116,25 +116,6 @@ class CommandGunloadmodule : public Command
 	}
 };
 
-class GReloadModuleWorker : public HandlerBase1<void, bool>
-{
- public:
-	const std::string nick;
-	const std::string name;
-	const std::string uid;
-	GReloadModuleWorker(const std::string& usernick, const std::string& uuid, const std::string& modn)
-		: nick(usernick), name(modn), uid(uuid) {}
-	void Call(bool result)
-	{
-		ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
-		User* user = ServerInstance->FindNick(uid);
-		if (user)
-			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.",
-				name.c_str(), result ? "" : "un");
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
-};
-
 /** Handle /GRELOADMODULE
  */
 class CommandGreloadmodule : public Command
@@ -154,10 +135,8 @@ class CommandGreloadmodule : public Command
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
 			if (m)
 			{
-				GReloadModuleWorker* worker = NULL;
-				if ((m != creator) && (!creator->dying))
-					worker = new GReloadModuleWorker(user->nick, user->uuid, parameters[0]);
-				ServerInstance->Modules->Reload(m, worker);
+				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
+				ServerInstance->Parser.CallHandler("RELOADMODULE", parameters, user);
 			}
 			else
 			{

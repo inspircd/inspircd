@@ -1035,9 +1035,6 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 		PRIO_STATE_LAST
 	} prioritizationState;
 
-	/** Internal unload module hook */
-	bool CanUnload(Module*);
-
 	/** Loads all core modules (cmd_*)
 	 */
 	void LoadCoreModules(std::map<std::string, ServiceList>& servicemap);
@@ -1165,17 +1162,18 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 */
 	bool Unload(Module* module);
 
-	/** Run an asynchronous reload of the given module. When the reload is
-	 * complete, the callback will be run with true if the reload succeeded
-	 * and false if it did not.
-	 */
-	void Reload(Module* module, HandlerBase1<void, bool>* callback);
-
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */
 	void LoadAll();
 	void UnloadAll();
 	void DoSafeUnload(Module*);
+
+	/** Check if a module can be unloaded and if yes, prepare it for unload
+	 * @param mod Module to be unloaded
+	 * @return True if the module is unloadable, false otherwise.
+	 * If true the module must be unloaded in the current main loop iteration.
+	 */
+	bool CanUnload(Module* mod);
 
 	/** Find a module by name, and return a Module* to it.
 	 * This is preferred over iterating the module lists yourself.

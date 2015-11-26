@@ -34,21 +34,34 @@ class CommandReloadmodule : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-class ReloadModuleWorker : public HandlerBase1<void, bool>
+class ReloadAction : public HandlerBase0<void>
 {
+	Module* const mod;
+	const std::string uuid;
+	const std::string passedname;
+
  public:
-	const std::string name;
-	const std::string uid;
-	ReloadModuleWorker(const std::string& uuid, const std::string& modn)
-		: name(modn), uid(uuid) {}
-	void Call(bool result)
+	ReloadAction(Module* m, const std::string& uid, const std::string& passedmodname)
+		: mod(m)
+		, uuid(uid)
+		, passedname(passedmodname)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded",
-			name.c_str(), result ? "" : "un");
-		User* user = ServerInstance->FindNick(uid);
+	}
+
+	void Call()
+	{
+		DLLManager* dll = mod->ModuleDLLManager;
+		std::string name = mod->ModuleSourceFile;
+		ServerInstance->Modules->DoSafeUnload(mod);
+		ServerInstance->GlobalCulls.Apply();
+		delete dll;
+		bool result = ServerInstance->Modules->Load(name);
+
+		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
+		User* user = ServerInstance->FindUUID(uuid);
 		if (user)
-			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.",
-				name.c_str(), result ? "" : "un");
+			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.", passedname.c_str(), result ? "" : "un");
+
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
@@ -63,9 +76,12 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 		return CMD_FAILURE;
 	}
 
-	if (m)
+	if (creator->dying)
+		return CMD_FAILURE;
+
+	if ((m) && (ServerInstance->Modules.CanUnload(m)))
 	{
-		ServerInstance->Modules->Reload(m, (creator->dying ? NULL : new ReloadModuleWorker(user->uuid, parameters[0])));
+		ServerInstance->AtomicActions.AddAction(new ReloadAction(m, user->uuid, parameters[0]));
 		return CMD_SUCCESS;
 	}
 	else
