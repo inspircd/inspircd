@@ -243,6 +243,12 @@ std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* 
 	return "";
 }
 
+void LocalStringExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, value);
+}
+
 LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
 	: LocalExtItem(Key, exttype, mod)
 {
@@ -257,6 +263,12 @@ std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* con
 	if (format == FORMAT_NETWORK)
 		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
+}
+
+void LocalIntExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, ConvToInt(value));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container) const

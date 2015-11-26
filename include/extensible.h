@@ -201,6 +201,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalStringExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
@@ -209,6 +210,7 @@ class CoreExport LocalIntExt : public LocalExtItem
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalIntExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
