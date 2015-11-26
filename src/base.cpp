@@ -238,7 +238,7 @@ LocalStringExt::~LocalStringExt()
 
 std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (item && format == FORMAT_USER)
+	if ((item) && (format != FORMAT_NETWORK))
 		return *static_cast<std::string*>(item);
 	return "";
 }
@@ -254,7 +254,7 @@ LocalIntExt::~LocalIntExt()
 
 std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (format != FORMAT_USER)
+	if (format == FORMAT_NETWORK)
 		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
