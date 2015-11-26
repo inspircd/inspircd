@@ -147,10 +147,10 @@ bool ExtensionManager::Register(ExtensionItem* item)
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.begin();
+	ExtMap::iterator i = types.begin();
 	while (i != types.end())
 	{
-		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
+		ExtMap::iterator me = i++;
 		ExtensionItem* item = me->second;
 		if (item->creator == module)
 		{
@@ -162,7 +162,7 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<Ext
 
 ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.find(name);
+	ExtMap::iterator i = types.find(name);
 	if (i == types.end())
 		return NULL;
 	return i->second;

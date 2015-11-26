@@ -121,11 +121,15 @@ class CoreExport Extensible : public classbase
 
 class CoreExport ExtensionManager
 {
-	std::map<std::string, reference<ExtensionItem> > types;
  public:
+	typedef std::map<std::string, reference<ExtensionItem> > ExtMap;
+
 	bool Register(ExtensionItem* item);
 	void BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list);
 	ExtensionItem* GetItem(const std::string& name);
+
+ private:
+	ExtMap types;
 };
 
 /** Base class for items that are NOT synchronized between servers */
