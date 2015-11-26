@@ -236,6 +236,10 @@ class DataKeeper
 	 * @param newmod Newly loaded instance of the module which had its data saved
 	 */
 	void Restore(Module* newmod);
+
+	/** Handle reload failure
+	 */
+	void Fail();
 };
 
 void DataKeeper::DoSaveUsers()
@@ -468,6 +472,14 @@ void DataKeeper::Restore(Module* newmod)
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restore finished");
 }
 
+void DataKeeper::Fail()
+{
+	this->mod = NULL;
+
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restore failed, notifying modules");
+	DoRestoreModules();
+}
+
 void DataKeeper::RestoreObj(const OwnedModesExts& data, Extensible* extensible, ModeType modetype, Modes::ChangeList& modechange)
 {
 	RestoreExtensions(data.extlist, extensible);
@@ -583,6 +595,8 @@ class ReloadAction : public HandlerBase0<void>
 			Module* newmod = ServerInstance->Modules->Find(name);
 			datakeeper.Restore(newmod);
 		}
+		else
+			datakeeper.Fail();
 
 		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
 		User* user = ServerInstance->FindUUID(uuid);

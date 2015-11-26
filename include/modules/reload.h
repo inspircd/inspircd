@@ -71,7 +71,7 @@ namespace ReloadModule
 		virtual void OnReloadModuleSave(Module* mod, CustomData& cd) = 0;
 
 		/** Restore data after a reload. Only called if data was added in OnReloadModuleSave().
-		 * @param mod Reloaded module
+		 * @param mod Reloaded module, if NULL the reload failed and the module no longer exists
 		 * @param data Pointer that was passed to CustomData::add() in OnReloadModuleSave() at the time when the module's state
 		 * was saved
 		 */
