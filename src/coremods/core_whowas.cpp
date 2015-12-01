@@ -47,23 +47,18 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		if (!list.empty())
+		for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
-			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
-			{
-				WhoWas::Entry* u = *i;
+			WhoWas::Entry* u = *i;
 
-				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
-					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
+			user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(), u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
 
-				if (user->HasPrivPermission("users/auspex"))
-					user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s",
-						parameters[0].c_str(), u->host.c_str());
+			if (user->HasPrivPermission("users/auspex"))
+				user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s", parameters[0].c_str(), u->host.c_str());
 
-				std::string signon = InspIRCd::TimeString(u->signon);
-				bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
-				user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
-			}
+			std::string signon = InspIRCd::TimeString(u->signon);
+			bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
+			user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
 		}
 	}
 
@@ -81,11 +76,7 @@ const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 	whowas_users::const_iterator it = whowas.find(nickname);
 	if (it == whowas.end())
 		return NULL;
-
-	const Nick* nick = it->second;
-	if (nick->entries.empty())
-		return NULL;
-	return nick;
+	return it->second;
 }
 
 WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
@@ -124,10 +115,7 @@ void WhoWas::Manager::Add(User* user)
 		if (whowas.size() > this->MaxGroups)
 		{
 			// Too many nicks, remove the nick which was inserted the longest time ago from both the map and the fifo
-			nick = whowas_fifo.front();
-			whowas_fifo.pop_front();
-			whowas.erase(nick->nick);
-			delete nick;
+			PurgeNick(whowas_fifo.front());
 		}
 	}
 	else
@@ -155,24 +143,13 @@ void WhoWas::Manager::Prune()
 	{
 		WhoWas::Nick* nick = whowas_fifo.front();
 		if ((whowas_fifo.size() > this->MaxGroups) || (nick->addtime < min))
-		{
-			/* hopefully redundant integrity check, but added while debugging r6216 */
-			if (!whowas.erase(nick->nick))
-			{
-				/* this should never happen, if it does maps are corrupt */
-				ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
-				return;
-			}
-
-			whowas_fifo.pop_front();
-			delete nick;
-		}
+			PurgeNick(nick);
 		else
 			break;
 	}
 
 	/* Then cut the whowas sets to new size (groupsize) */
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
+	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); )
 	{
 		WhoWas::Nick::List& list = i->second->entries;
 		while (list.size() > this->GroupSize)
@@ -180,6 +157,11 @@ void WhoWas::Manager::Prune()
 			delete list.front();
 			list.pop_front();
 		}
+
+		if (list.empty())
+			PurgeNick(i++);
+		else
+			++i;
 	}
 }
 
@@ -187,7 +169,7 @@ void WhoWas::Manager::Prune()
 void WhoWas::Manager::Maintain()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
+	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); )
 	{
 		WhoWas::Nick::List& list = i->second->entries;
 		while (!list.empty() && list.front()->signon < min)
@@ -195,6 +177,11 @@ void WhoWas::Manager::Maintain()
 			delete list.front();
 			list.pop_front();
 		}
+
+		if (list.empty())
+			PurgeNick(i++);
+		else
+			++i;
 	}
 }
 
@@ -221,6 +208,25 @@ void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMa
 	MaxGroups = NewMaxGroups;
 	MaxKeep = NewMaxKeep;
 	Prune();
+}
+
+void WhoWas::Manager::PurgeNick(whowas_users::iterator it)
+{
+	WhoWas::Nick* nick = it->second;
+	whowas_fifo.erase(nick);
+	whowas.erase(it);
+	delete nick;
+}
+
+void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
+{
+	whowas_users::iterator it = whowas.find(nick->nick);
+	if (it == whowas.end())
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in whowas database, please report");
+		return;
+	}
+	PurgeNick(it);
 }
 
 WhoWas::Entry::Entry(User* user)
