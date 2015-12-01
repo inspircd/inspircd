@@ -147,10 +147,10 @@ bool ExtensionManager::Register(ExtensionItem* item)
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.begin();
+	ExtMap::iterator i = types.begin();
 	while (i != types.end())
 	{
-		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
+		ExtMap::iterator me = i++;
 		ExtensionItem* item = me->second;
 		if (item->creator == module)
 		{
@@ -162,7 +162,7 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<Ext
 
 ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.find(name);
+	ExtMap::iterator i = types.find(name);
 	if (i == types.end())
 		return NULL;
 	return i->second;
@@ -238,9 +238,15 @@ LocalStringExt::~LocalStringExt()
 
 std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (item && format == FORMAT_USER)
+	if ((item) && (format != FORMAT_NETWORK))
 		return *static_cast<std::string*>(item);
 	return "";
+}
+
+void LocalStringExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, value);
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
@@ -254,9 +260,15 @@ LocalIntExt::~LocalIntExt()
 
 std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (format != FORMAT_USER)
+	if (format == FORMAT_NETWORK)
 		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
+}
+
+void LocalIntExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, ConvToInt(value));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container) const
