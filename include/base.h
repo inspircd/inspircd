@@ -235,7 +235,9 @@ enum ServiceType {
 	/** is a data processing provider (MD5, SQL) */
 	SERVICE_DATA,
 	/** is an I/O hook provider (SSL) */
-	SERVICE_IOHOOK
+	SERVICE_IOHOOK,
+	/** Service managed by a module */
+	SERVICE_CUSTOM
 };
 
 /** A structure defining something that a module can provide */
@@ -250,6 +252,10 @@ class CoreExport ServiceProvider : public classbase
 	const ServiceType service;
 	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
 	virtual ~ServiceProvider();
+
+	/** Register this service in the appropriate registrar
+	 */
+	virtual void RegisterService();
 
 	/** If called, this ServiceProvider won't be registered automatically
 	 */

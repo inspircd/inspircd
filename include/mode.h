@@ -168,6 +168,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	virtual CullResult cull();
 	virtual ~ModeHandler();
+
+	/** Register this object in the ModeParser
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
 	/**
 	 * Returns true if the mode is a list mode
 	 */

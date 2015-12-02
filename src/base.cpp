@@ -95,6 +95,10 @@ ServiceProvider::~ServiceProvider()
 {
 }
 
+void ServiceProvider::RegisterService()
+{
+}
+
 ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
 	: ServiceProvider(mod, Key, SERVICE_METADATA)
 	, type(exttype)
@@ -138,6 +142,12 @@ void* ExtensionItem::unset_raw(Extensible* container)
 	void* rv = i->second;
 	container->extensions.erase(i);
 	return rv;
+}
+
+void ExtensionItem::RegisterService()
+{
+	if (!ServerInstance->Extensions.Register(this))
+		throw ModuleException("Extension already exists: " + name);
 }
 
 bool ExtensionManager::Register(ExtensionItem* item)

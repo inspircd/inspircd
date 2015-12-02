@@ -69,6 +69,10 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	/** Free the item */
 	virtual void free(void* item) = 0;
 
+	/** Register this object in the ExtensionManager
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
  protected:
 	/** Get the item from the internal map */
 	void* get_raw(const Extensible* container) const;

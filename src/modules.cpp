@@ -528,22 +528,6 @@ void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
-		case SERVICE_COMMAND:
-			if (!ServerInstance->Parser.AddCommand(static_cast<Command*>(&item)))
-				throw ModuleException("Command "+std::string(item.name)+" already exists.");
-			return;
-		case SERVICE_MODE:
-		{
-			ModeHandler* mh = static_cast<ModeHandler*>(&item);
-			ServerInstance->Modes->AddMode(mh);
-			DataProviders.insert(std::make_pair((mh->GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + item.name, &item));
-			dynamic_reference_base::reset_all();
-			return;
-		}
-		case SERVICE_METADATA:
-			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
-				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
-			return;
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
@@ -561,7 +545,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 			return;
 		}
 		default:
-			throw ModuleException("Cannot add unknown service type");
+			item.RegisterService();
 	}
 }
 
@@ -576,13 +560,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
-			{
-				std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
-				if (curr->second == &item)
-					DataProviders.erase(curr);
-			}
-			dynamic_reference_base::reset_all();
+			DelReferent(&item);
 			return;
 		}
 		default:
@@ -673,4 +651,23 @@ Module* ModuleManager::Find(const std::string &name)
 		return NULL;
 	else
 		return modfind->second;
+}
+
+void ModuleManager::AddReferent(const std::string& name, ServiceProvider* service)
+{
+	DataProviders.insert(std::make_pair(name, service));
+	dynamic_reference_base::reset_all();
+}
+
+void ModuleManager::DelReferent(ServiceProvider* service)
+{
+	for (std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	{
+		ServiceProvider* curr = i->second;
+		if (curr == service)
+			DataProviders.erase(i++);
+		else
+			++i;
+	}
+	dynamic_reference_base::reset_all();
 }

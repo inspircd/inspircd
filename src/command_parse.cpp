@@ -379,6 +379,12 @@ Command::~Command()
 	ServerInstance->Parser.RemoveCommand(this);
 }
 
+void Command::RegisterService()
+{
+	if (!ServerInstance->Parser.AddCommand(this))
+		throw ModuleException("Command already exists: " + name);
+}
+
 void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 {
 	if (buffer.empty())
