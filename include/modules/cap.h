@@ -199,5 +199,15 @@ namespace Cap
 		{
 			return true;
 		}
+
+		/** Called when a user requests a list of all capabilities and this capability is about to be included in the list.
+		 * The default behavior always includes the cap in the list.
+		 * @param user User querying a list capabilities
+		 * @return True to add this cap to the list sent to the user, false to not list it
+		 */
+		virtual bool OnList(LocalUser* user)
+		{
+			return true;
+		}
 	};
 }

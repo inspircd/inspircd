@@ -149,6 +149,9 @@ class Cap::ManagerImpl : public Cap::Manager
 			if (!(show_caps & cap->GetMask()))
 				continue;
 
+			if ((show_all) && (!cap->OnList(user)))
+				continue;
+
 			if (minus_prefix)
 				out.push_back('-');
 			out.append(cap->GetName()).push_back(' ');
