@@ -65,6 +65,8 @@ namespace Cap
 	 *
 	 * The cap module must be loaded for the capability to work. The IsRegistered() method can be used to query whether the cap is actually online or not.
 	 * The capability can be deactivated and reactivated with the SetActive() method. Deactivated caps behave as if they don't exist.
+	 *
+	 * It is possible to implement special behavior by inheriting from this class and overriding some of its methods.
 	 */
 	class Capability : public ServiceProvider, private dynamic_reference_base::CaptureHook
 	{
@@ -187,5 +189,15 @@ namespace Cap
 		 * @return True if the cap is registered in the manager, false otherwise
 		 */
 		bool IsRegistered() const { return (extitem != NULL); }
+
+		/** Called when a user requests to turn this capability on or off.
+		 * @param user User requesting to change the state of the cap
+		 * @param add True if requesting to turn the cap on, false if requesting to turn it off
+		 * @return True to allow the request, false to reject it
+		 */
+		virtual bool OnRequest(LocalUser* user, bool add)
+		{
+			return true;
+		}
 	};
 }

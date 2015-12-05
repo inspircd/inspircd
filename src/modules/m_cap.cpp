@@ -32,6 +32,14 @@ class Cap::ManagerImpl : public Cap::Manager
 	ExtItem capext;
 	CapMap caps;
 
+	static bool CanRequest(LocalUser* user, Ext usercaps, Capability* cap, bool adding)
+	{
+		if ((usercaps & cap->GetMask()) == adding)
+			return true;
+
+		return cap->OnRequest(user, adding);
+	}
+
 	Capability::Bit AllocateBit() const
 	{
 		Capability::Bit used = 0;
@@ -118,7 +126,7 @@ class Cap::ManagerImpl : public Cap::Manager
 				capname.erase(capname.begin());
 
 			Capability* cap = ManagerImpl::Find(capname);
-			if (!cap)
+			if ((!cap) || (!CanRequest(user, usercaps, cap, !remove)))
 				return false;
 
 			if (remove)
