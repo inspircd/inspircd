@@ -22,7 +22,7 @@
 
 class WriteNeighborsWithCap : public User::ForEachNeighborHandler
 {
-	const LocalIntExt& cap;
+	const Cap::Capability& cap;
 	const std::string& msg;
 
 	void Execute(LocalUser* user) CXX11_OVERRIDE
@@ -32,8 +32,8 @@ class WriteNeighborsWithCap : public User::ForEachNeighborHandler
 	}
 
  public:
-	WriteNeighborsWithCap(User* user, const std::string& message, const GenericCap& capability)
-		: cap(capability.ext)
+	WriteNeighborsWithCap(User* user, const std::string& message, const Cap::Capability& capability)
+		: cap(capability)
 		, msg(message)
 	{
 		user->ForEachNeighbor(*this, false);
@@ -42,9 +42,9 @@ class WriteNeighborsWithCap : public User::ForEachNeighborHandler
 
 class ModuleIRCv3 : public Module, public AccountEventListener
 {
-	GenericCap cap_accountnotify;
-	GenericCap cap_awaynotify;
-	GenericCap cap_extendedjoin;
+	Cap::Capability cap_accountnotify;
+	Cap::Capability cap_awaynotify;
+	Cap::Capability cap_extendedjoin;
 
 	CUList last_excepts;
 
@@ -105,7 +105,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		{
 			// Send the extended join line if the current member is local, has the extended-join cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_extendedjoin.ext.get(member)) && (excepts.find(member) == excepts.end()))
+			if ((member) && (cap_extendedjoin.get(member)) && (excepts.find(member) == excepts.end()))
 			{
 				// Construct the lines we're going to send if we haven't constructed them already
 				if (line.empty())
@@ -179,7 +179,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		{
 			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()))
+			if ((member) && (cap_awaynotify.get(member)) && (last_excepts.find(member) == last_excepts.end()))
 			{
 				member->Write(line);
 			}

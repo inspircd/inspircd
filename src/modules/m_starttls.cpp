@@ -80,7 +80,7 @@ class CommandStartTLS : public SplitCommand
 class ModuleStartTLS : public Module
 {
 	CommandStartTLS starttls;
-	GenericCap tls;
+	Cap::Capability tls;
 	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:

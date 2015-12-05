@@ -1,0 +1,191 @@
+/*
+ * InspIRCd -- Internet Relay Chat Daemon
+ *
+ *   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
+ *
+ * This file is part of InspIRCd.  InspIRCd is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, version 2.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#pragma once
+
+#include "event.h"
+
+namespace Cap
+{
+	static const unsigned int MAX_CAPS = sizeof(intptr_t) * 8;
+	typedef intptr_t Ext;
+	typedef LocalIntExt ExtItem;
+	class Capability;
+
+	class Manager : public DataProvider
+	{
+	 public:
+		Manager(Module* mod)
+			: DataProvider(mod, "capmanager")
+		{
+		}
+
+		/** Register a client capability.
+		 * Modules should call Capability::SetActive(true) instead of this method.
+		 * @param cap Capability to register
+		 */
+		virtual void AddCap(Capability* cap) = 0;
+
+		/** Unregister a client capability.
+		 * Modules should call Capability::SetActive(false) instead of this method.
+		 * @param cap Capability to unregister
+		 */
+		virtual void DelCap(Capability* cap) = 0;
+
+		/** Find a capability by name
+		 * @param name Capability to find
+		 * @return Capability object pointer if found, NULL otherwise
+		 */
+		virtual Capability* Find(const std::string& name) const = 0;
+	};
+
+	/** Represents a client capability.
+	 *
+	 * Capabilities offer extensions to the client to server protocol. They must be negotiated with clients before they have any effect on the protocol.
+	 * Each cap must have a unique name that is used during capability negotiation.
+	 *
+	 * After construction the cap is ready to be used by clients without any further setup, like other InspIRCd services.
+	 * The get() method accepts a user as parameter and can be used to check whether that user has negotiated usage of the cap. This is only known for local users.
+	 *
+	 * The cap module must be loaded for the capability to work. The IsRegistered() method can be used to query whether the cap is actually online or not.
+	 * The capability can be deactivated and reactivated with the SetActive() method. Deactivated caps behave as if they don't exist.
+	 */
+	class Capability : public ServiceProvider, private dynamic_reference_base::CaptureHook
+	{
+		typedef size_t Bit;
+
+		/** Bit allocated to this cap, undefined if the cap is unregistered
+		 */
+		Bit bit;
+
+		/** Extension containing all caps set by a user. NULL if the cap is unregistered.
+		 */
+		ExtItem* extitem;
+
+		/** True if the cap is active. Only active caps are registered in the manager.
+		 */
+		bool active;
+
+		/** Reference to the cap manager object
+		 */
+		dynamic_reference<Manager> manager;
+
+		void OnCapture() CXX11_OVERRIDE
+		{
+			if (active)
+				SetActive(true);
+		}
+
+		void Unregister()
+		{
+			bit = 0;
+			extitem = NULL;
+		}
+
+		Ext AddToMask(Ext mask) const { return (mask | GetMask()); }
+		Ext DelFromMask(Ext mask) const { return (mask & (~GetMask())); }
+		Bit GetMask() const { return bit; }
+
+		friend class ManagerImpl;
+
+	 public:
+		/** Constructor, initializes the capability.
+		 * Caps are active by default.
+		 * @param mod Module providing the cap
+		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
+		 */
+		Capability(Module* mod, const std::string& Name)
+			: ServiceProvider(mod, Name, SERVICE_CUSTOM)
+			, active(true)
+			, manager(mod, "capmanager")
+		{
+			Unregister();
+		}
+
+		~Capability()
+		{
+			SetActive(false);
+		}
+
+		void RegisterService() CXX11_OVERRIDE
+		{
+			manager.SetCaptureHook(this);
+			SetActive(true);
+		}
+
+		/** Check whether a user has the capability turned on.
+		 * This method is safe to call if the cap is unregistered and will return false.
+		 * @param user User to check
+		 * @return True if the user is using this capability, false otherwise
+		 */
+		bool get(User* user) const
+		{
+			if (!IsRegistered())
+				return false;
+			Ext caps = extitem->get(user);
+			return (caps & GetMask());
+		}
+
+		/** Turn the capability on/off for a user. If the cap is not registered this method has no effect.
+		 * @param user User to turn the cap on/off for
+		 * @param val True to turn the cap on, false to turn it off
+		 */
+		void set(User* user, bool val)
+		{
+			if (!IsRegistered())
+				return;
+			Ext curr = extitem->get(user);
+			extitem->set(user, (val ? AddToMask(curr) : DelFromMask(curr)));
+		}
+
+		/** Activate or deactivate the capability.
+		 * If activating, the cap is marked as active and if the manager is available the cap is registered in the manager.
+		 * If deactivating, the cap is marked as inactive and if it is registered, it will be unregistered.
+		 * Users who had the cap turned on will have it turned off automatically.
+		 * @param activate True to activate the cap, false to deactivate it
+		 */
+		void SetActive(bool activate)
+		{
+			active = activate;
+			if (manager)
+			{
+				if (activate)
+					manager->AddCap(this);
+				else
+					manager->DelCap(this);
+			}
+		}
+
+		/** Get the name of the capability that's used in the protocol
+		 * @return Name of the capability as used in the protocol
+		 */
+		const std::string& GetName() const { return name; }
+
+		/** Check whether the capability is active. The cap must be active and registered to be used by users.
+		 * @return True if the cap is active, false if it has been deactivated
+		 */
+		bool IsActive() const { return active; }
+
+		/** Check whether the capability is registered
+		 * The cap must be active and the manager must be available for a cap to be registered.
+		 * @return True if the cap is registered in the manager, false otherwise
+		 */
+		bool IsRegistered() const { return (extitem != NULL); }
+	};
+}

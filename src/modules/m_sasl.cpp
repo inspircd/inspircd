@@ -179,8 +179,8 @@ class CommandAuthenticate : public Command
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
-	GenericCap& cap;
-	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
+	Cap::Capability& cap;
+	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
 		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
 	{
 		works_before_reg = true;
@@ -191,7 +191,7 @@ class CommandAuthenticate : public Command
 		/* Only allow AUTHENTICATE on unregistered clients */
 		if (user->registered != REG_ALL)
 		{
-			if (!cap.ext.get(user))
+			if (!cap.get(user))
 				return CMD_FAILURE;
 
 			SaslAuthenticator *sasl = authExt.get(user);
@@ -247,7 +247,7 @@ class CommandSASL : public Command
 class ModuleSASL : public Module
 {
 	SimpleExtItem<SaslAuthenticator> authExt;
-	GenericCap cap;
+	Cap::Capability cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
 	Events::ModuleEventProvider sasleventprov;

@@ -24,9 +24,9 @@
 
 class ModuleUHNames : public Module
 {
- public:
-	GenericCap cap;
+	Cap::Capability cap;
 
+ public:
 	ModuleUHNames() : cap(this, "userhost-in-names")
 	{
 	}
@@ -52,7 +52,7 @@ class ModuleUHNames : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"UHNAMES")))
 			{
-				cap.ext.set(user, 1);
+				cap.set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
@@ -61,7 +61,7 @@ class ModuleUHNames : public Module
 
 	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (cap.ext.get(issuer))
+		if (cap.get(issuer))
 			nick = memb->user->GetFullHost();
 
 		return MOD_RES_PASSTHRU;
