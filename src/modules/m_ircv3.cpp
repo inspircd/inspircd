@@ -20,20 +20,20 @@
 #include "modules/account.h"
 #include "modules/cap.h"
 
-class WriteNeighboursWithExt : public User::ForEachNeighborHandler
+class WriteNeighborsWithCap : public User::ForEachNeighborHandler
 {
-	const LocalIntExt& ext;
+	const LocalIntExt& cap;
 	const std::string& msg;
 
 	void Execute(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (ext.get(user))
+		if (cap.get(user))
 			user->Write(msg);
 	}
 
  public:
-	WriteNeighboursWithExt(User* user, const std::string& message, const LocalIntExt& extension)
-		: ext(extension)
+	WriteNeighborsWithCap(User* user, const std::string& message, const GenericCap& capability)
+		: cap(capability.ext)
 		, msg(message)
 	{
 		user->ForEachNeighbor(*this, false);
@@ -76,7 +76,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		else
 			line += newaccount;
 
-		WriteNeighboursWithExt(user, line, cap_accountnotify.ext);
+		WriteNeighborsWithCap(user, line, cap_accountnotify);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
@@ -162,7 +162,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 			if (!awaymsg.empty())
 				line += " :" + awaymsg;
 
-			WriteNeighboursWithExt(user, line, cap_awaynotify.ext);
+			WriteNeighborsWithCap(user, line, cap_awaynotify);
 		}
 		return MOD_RES_PASSTHRU;
 	}
