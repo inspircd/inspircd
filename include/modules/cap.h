@@ -23,10 +23,23 @@
 
 namespace Cap
 {
-	static const unsigned int MAX_CAPS = sizeof(intptr_t) * 8;
+	static const unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;
+	static const intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
+
 	typedef intptr_t Ext;
 	typedef LocalIntExt ExtItem;
 	class Capability;
+
+	enum Protocol
+	{
+		/** Supports capability negotiation protocol v3.1, or none
+		 */
+		CAP_LEGACY,
+
+		/** Supports capability negotiation v3.2
+		 */
+		CAP_302
+	};
 
 	class Manager : public DataProvider
 	{
@@ -189,6 +202,16 @@ namespace Cap
 		 * @return True if the cap is registered in the manager, false otherwise
 		 */
 		bool IsRegistered() const { return (extitem != NULL); }
+
+		/** Get the CAP negotiation protocol version of a user.
+		 * The cap must be registered for this to return anything other than CAP_LEGACY.
+		 * @param user User whose negotiation protocol version to query
+		 * @return One of the Capability::Protocol enum indicating the highest supported capability negotiation protocol version
+		 */
+		Protocol GetProtocol(LocalUser* user) const
+		{
+			return ((IsRegistered() && (extitem->get(user) & CAP_302_BIT)) ? CAP_302 : CAP_LEGACY);
+		}
 
 		/** Called when a user requests to turn this capability on or off.
 		 * @param user User requesting to change the state of the cap

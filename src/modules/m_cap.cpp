@@ -115,6 +115,16 @@ class Cap::ManagerImpl : public Cap::Manager
 		return NULL;
 	}
 
+	Protocol GetProtocol(LocalUser* user) const
+	{
+		return ((capext.get(user) & CAP_302_BIT) ? CAP_302 : CAP_LEGACY);
+	}
+
+	void Set302Protocol(LocalUser* user)
+	{
+		capext.set(user, capext.get(user) | CAP_302_BIT);
+	}
+
 	bool HandleReq(LocalUser* user, const std::string& reqlist)
 	{
 		Ext usercaps = capext.get(user);
@@ -211,6 +221,8 @@ class CommandCap : public SplitCommand
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
 			const bool is_ls = (subcommand.length() == 2);
+			if ((is_ls) && (parameters.size() > 1) && (parameters[1] == "302"))
+				manager.Set302Protocol(user);
 
 			std::string result = subcommand + " :";
 			manager.HandleList(result, user, is_ls);
