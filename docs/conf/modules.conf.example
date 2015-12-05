@@ -966,6 +966,11 @@
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 cap-notify module: Provides the cap-notify IRCv3.2 extension.
+# Required for IRCv3.2 conformance.
+#<module name="ircv3_capnotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
 # Closes the channel for 60 seconds if X users join in Y seconds.
 #<module name="joinflood">
