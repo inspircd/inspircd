@@ -19,26 +19,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/cap.h"
-
-class WriteNeighborsWithCap : public User::ForEachNeighborHandler
-{
-	const Cap::Capability& cap;
-	const std::string& msg;
-
-	void Execute(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (cap.get(user))
-			user->Write(msg);
-	}
-
- public:
-	WriteNeighborsWithCap(User* user, const std::string& message, const Cap::Capability& capability)
-		: cap(capability)
-		, msg(message)
-	{
-		user->ForEachNeighbor(*this, false);
-	}
-};
+#include "modules/ircv3.h"
 
 class ModuleIRCv3 : public Module, public AccountEventListener
 {
@@ -76,7 +57,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		else
 			line += newaccount;
 
-		WriteNeighborsWithCap(user, line, cap_accountnotify);
+		IRCv3::WriteNeighborsWithCap(user, line, cap_accountnotify);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
@@ -162,7 +143,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 			if (!awaymsg.empty())
 				line += " :" + awaymsg;
 
-			WriteNeighborsWithCap(user, line, cap_awaynotify);
+			IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
 		}
 		return MOD_RES_PASSTHRU;
 	}
