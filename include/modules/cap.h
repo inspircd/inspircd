@@ -42,6 +42,21 @@ namespace Cap
 		CAP_302
 	};
 
+	class EventListener : public Events::ModuleEventListener
+	{
+	 public:
+		EventListener(Module* mod)
+			: ModuleEventListener(mod, "event/cap")
+		{
+		}
+
+		/** Called whenever a new client capability becomes available or unavailable
+		 * @param cap Capability being added or removed
+		 * @param add If true, the capability is being added, otherwise its being removed
+		 */
+		virtual void OnCapAddDel(Capability* cap, bool add) = 0;
+	};
+
 	class Manager : public DataProvider
 	{
 	 public:

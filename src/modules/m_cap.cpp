@@ -31,6 +31,7 @@ class Cap::ManagerImpl : public Cap::Manager
 
 	ExtItem capext;
 	CapMap caps;
+	Events::ModuleEventProvider& evprov;
 
 	static bool CanRequest(LocalUser* user, Ext usercaps, Capability* cap, bool adding)
 	{
@@ -59,9 +60,10 @@ class Cap::ManagerImpl : public Cap::Manager
 	}
 
  public:
-	ManagerImpl(Module* mod)
+	ManagerImpl(Module* mod, Events::ModuleEventProvider& evprovref)
 		: Cap::Manager(mod)
 		, capext("caps", ExtensionItem::EXT_USER, mod)
+		, evprov(evprovref)
 	{
 	}
 
@@ -85,6 +87,8 @@ class Cap::ManagerImpl : public Cap::Manager
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
 		caps.insert(std::make_pair(cap->GetName(), cap));
+
+		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, true));
 	}
 
 	void DelCap(Cap::Capability* cap) CXX11_OVERRIDE
@@ -94,6 +98,9 @@ class Cap::ManagerImpl : public Cap::Manager
 			return;
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unregistering cap %s", cap->GetName().c_str());
+
+		// Fire the event first so modules can still see who is using the cap which is being unregistered
+		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, false));
 
 		// Turn off the cap for all users
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
@@ -188,6 +195,7 @@ class Cap::ManagerImpl : public Cap::Manager
 
 class CommandCap : public SplitCommand
 {
+	Events::ModuleEventProvider evprov;
 	Cap::ManagerImpl manager;
 
 	static void DisplayResult(LocalUser* user, std::string& result)
@@ -202,7 +210,8 @@ class CommandCap : public SplitCommand
 
 	CommandCap(Module* mod)
 		: SplitCommand(mod, "CAP", 1)
-		, manager(mod)
+		, evprov(mod, "event/cap")
+		, manager(mod, evprov)
 		, holdext("cap_hold", ExtensionItem::EXT_USER, mod)
 	{
 		works_before_reg = true;
