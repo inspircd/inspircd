@@ -28,7 +28,14 @@ namespace Cap
 	static const unsigned int MAX_VALUE_LENGTH = 100;
 
 	typedef intptr_t Ext;
-	typedef LocalIntExt ExtItem;
+	class ExtItem : public LocalIntExt
+	{
+	 public:
+		ExtItem(Module* mod);
+		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+		void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
+	};
+
 	class Capability;
 
 	enum Protocol
