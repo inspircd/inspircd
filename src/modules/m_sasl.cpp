@@ -24,6 +24,25 @@
 #include "modules/sasl.h"
 #include "modules/ssl.h"
 
+class SASLCap : public Cap::Capability
+{
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		// Requesting this cap is allowed anytime
+		if (adding)
+			return true;
+
+		// But removing it can only be done when unregistered
+		return (user->registered != REG_ALL);
+	}
+
+ public:
+	SASLCap(Module* mod)
+		: Cap::Capability(mod, "sasl")
+	{
+	}
+};
+
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
@@ -247,7 +266,7 @@ class CommandSASL : public Command
 class ModuleSASL : public Module
 {
 	SimpleExtItem<SaslAuthenticator> authExt;
-	Cap::Capability cap;
+	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
 	Events::ModuleEventProvider sasleventprov;
@@ -255,7 +274,7 @@ class ModuleSASL : public Module
  public:
 	ModuleSASL()
 		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
-		, cap(this, "sasl")
+		, cap(this)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, sasleventprov(this, "event/sasl")
