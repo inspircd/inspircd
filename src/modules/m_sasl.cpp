@@ -26,6 +26,8 @@
 
 class SASLCap : public Cap::Capability
 {
+	std::string mechlist;
+
 	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
 	{
 		// Requesting this cap is allowed anytime
@@ -36,10 +38,24 @@ class SASLCap : public Cap::Capability
 		return (user->registered != REG_ALL);
 	}
 
+	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
+	{
+		return &mechlist;
+	}
+
  public:
 	SASLCap(Module* mod)
 		: Cap::Capability(mod, "sasl")
 	{
+	}
+
+	void SetMechlist(const std::string& newmechlist)
+	{
+		if (mechlist == newmechlist)
+			return;
+
+		mechlist = newmechlist;
+		NotifyValueChange();
 	}
 };
 
@@ -303,6 +319,12 @@ class ModuleSASL : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE
+	{
+		if ((target == NULL) && (extname == "saslmechlist"))
+			cap.SetMechlist(extdata);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
