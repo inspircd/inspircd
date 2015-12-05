@@ -170,6 +170,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
 		caps.insert(std::make_pair(cap->GetName(), cap));
+		ServerInstance->Modules.AddReferent("cap/" + cap->GetName(), cap);
 
 		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, true));
 	}
@@ -193,6 +194,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			cap->set(user, false);
 		}
 
+		ServerInstance->Modules.DelReferent(cap);		
 		cap->Unregister();
 		caps.erase(cap->GetName());
 	}

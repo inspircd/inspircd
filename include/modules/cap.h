@@ -285,4 +285,32 @@ namespace Cap
 			return NULL;
 		}
 	};
+
+	/** Reference to a cap. The cap may be provided by another module.
+	 */
+	class Reference
+	{
+		dynamic_reference_nocheck<Capability> ref;
+
+	 public:
+		/** Constructor, initializes the capability reference
+		 * @param mod Module creating this object
+		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
+		 */
+		Reference(Module* mod, const std::string& Name)
+			: ref(mod, "cap/" + Name)
+		{
+		}
+
+		/** Check whether a user has the referenced capability turned on.
+		 * @param user User to check
+		 * @return True if the user is using the referenced capability, false otherwise
+		 */
+		bool get(LocalUser* user)
+		{
+			if (ref)
+				return ref->get(user);
+			return false;
+		}
+	};
 }
