@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/reload.h"
 #include "modules/cap.h"
 
 namespace Cap
@@ -27,8 +28,25 @@ namespace Cap
 
 static Cap::ManagerImpl* managerimpl;
 
-class Cap::ManagerImpl : public Cap::Manager
+class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 {
+	/** Stores the cap state of a module being reloaded
+	 */
+	struct CapModData
+	{
+		struct Data
+		{
+			std::string name;
+			std::vector<std::string> users;
+
+			Data(Capability* cap)
+				: name(cap->GetName())
+			{
+			}
+		};
+		std::vector<Data> caps;
+	};
+
 	typedef insp::flat_map<std::string, Capability*, irc::insensitive_swo> CapMap;
 
 	ExtItem capext;
@@ -61,9 +79,71 @@ class Cap::ManagerImpl : public Cap::Manager
 		throw ModuleException("Too many caps");
 	}
 
+	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) CXX11_OVERRIDE
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnReloadModuleSave()");
+		if (mod == creator)
+			return;
+
+		CapModData* capmoddata = new CapModData;
+		cd.add(this, capmoddata);
+
+		for (CapMap::iterator i = caps.begin(); i != caps.end(); ++i)
+		{
+			Capability* cap = i->second;
+			// Only save users of caps that belong to the module being reloaded
+			if (cap->creator != mod)
+				continue;
+
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
+			capmoddata->caps.push_back(CapModData::Data(cap));
+			CapModData::Data& capdata = capmoddata->caps.back();
+
+			// Populate list with uuids of users who are using the cap
+			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+			for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
+			{
+				LocalUser* user = *j;
+				if (cap->get(user))
+					capdata.users.push_back(user->uuid);
+			}
+		}
+	}
+
+	void OnReloadModuleRestore(Module* mod, void* data) CXX11_OVERRIDE
+	{
+		CapModData* capmoddata = static_cast<CapModData*>(data);
+		for (std::vector<CapModData::Data>::const_iterator i = capmoddata->caps.begin(); i != capmoddata->caps.end(); ++i)
+		{
+			const CapModData::Data& capdata = *i;
+			Capability* cap = ManagerImpl::Find(capdata.name);
+			if (!cap)
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cap %s is no longer available after reload", capdata.name.c_str());
+				continue;
+			}
+
+			// Set back the cap for all users who were using it before the reload
+			for (std::vector<std::string>::const_iterator j = capdata.users.begin(); j != capdata.users.end(); ++j)
+			{
+				const std::string& uuid = *j;
+				User* user = ServerInstance->FindUUID(uuid);
+				if (!user)
+				{
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());
+					continue;
+				}
+
+				cap->set(user, true);
+			}
+		}
+		delete capmoddata;
+	}
+
  public:
 	ManagerImpl(Module* mod, Events::ModuleEventProvider& evprovref)
 		: Cap::Manager(mod)
+		, ReloadModule::EventListener(mod)
 		, capext(mod)
 		, evprov(evprovref)
 	{
