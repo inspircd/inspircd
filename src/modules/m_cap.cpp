@@ -228,7 +228,7 @@ class CommandCap : public SplitCommand
 			manager.HandleList(result, user, is_ls);
 			DisplayResult(user, result);
 		}
-		else if (subcommand == "CLEAR")
+		else if ((subcommand == "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
 		{
 			std::string result = "ACK :";
 			manager.HandleClear(user, result);
