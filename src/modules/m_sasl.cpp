@@ -218,7 +218,7 @@ class CommandSASL : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
-		User* target = ServerInstance->FindNick(parameters[1]);
+		User* target = ServerInstance->FindUUID(parameters[1]);
 		if ((!target) || (IS_SERVER(target)))
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
