@@ -149,7 +149,7 @@ class Cap::ManagerImpl : public Cap::Manager
 		return true;
 	}
 
-	void HandleList(std::string& out, LocalUser* user, bool show_all, bool minus_prefix = false) const
+	void HandleList(std::string& out, LocalUser* user, bool show_all, bool show_values, bool minus_prefix = false) const
 	{
 		Ext show_caps = (show_all ? ~0 : capext.get(user));
 
@@ -164,13 +164,24 @@ class Cap::ManagerImpl : public Cap::Manager
 
 			if (minus_prefix)
 				out.push_back('-');
-			out.append(cap->GetName()).push_back(' ');
+			out.append(cap->GetName());
+
+			if (show_values)
+			{
+				const std::string* capvalue = cap->GetValue(user);
+				if ((capvalue) && (!capvalue->empty()) && (capvalue->find(' ') == std::string::npos))
+				{
+					out.push_back('=');
+					out.append(*capvalue, 0, MAX_VALUE_LENGTH);
+				}
+			}
+			out.push_back(' ');
 		}
 	}
 
 	void HandleClear(LocalUser* user, std::string& result)
 	{
-		HandleList(result, user, false, true);
+		HandleList(result, user, false, false, true);
 		capext.unset(user);
 	}
 };
@@ -225,7 +236,8 @@ class CommandCap : public SplitCommand
 				manager.Set302Protocol(user);
 
 			std::string result = subcommand + " :";
-			manager.HandleList(result, user, is_ls);
+			// Show values only if supports v3.2 and doing LS
+			manager.HandleList(result, user, is_ls, ((is_ls) && (manager.GetProtocol(user) != Cap::CAP_LEGACY)));
 			DisplayResult(user, result);
 		}
 		else if ((subcommand == "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))

@@ -25,6 +25,7 @@ namespace Cap
 {
 	static const unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;
 	static const intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
+	static const unsigned int MAX_VALUE_LENGTH = 100;
 
 	typedef intptr_t Ext;
 	typedef LocalIntExt ExtItem;
@@ -231,6 +232,15 @@ namespace Cap
 		virtual bool OnList(LocalUser* user)
 		{
 			return true;
+		}
+
+		/** Query the value of this capability for a user
+		 * @param user User who will get the value of the capability
+		 * @return Value to show to the user. If NULL, the capability has no value (default).
+		 */
+		virtual const std::string* GetValue(LocalUser* user) const
+		{
+			return NULL;
 		}
 	};
 }
