@@ -122,6 +122,12 @@ class Cap::ManagerImpl : public Cap::Manager
 		return NULL;
 	}
 
+	void NotifyValueChange(Capability* cap) CXX11_OVERRIDE
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
+		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapValueChange, (cap));
+	}
+
 	Protocol GetProtocol(LocalUser* user) const
 	{
 		return ((capext.get(user) & CAP_302_BIT) ? CAP_302 : CAP_LEGACY);

@@ -55,6 +55,11 @@ namespace Cap
 		 * @param add If true, the capability is being added, otherwise its being removed
 		 */
 		virtual void OnCapAddDel(Capability* cap, bool add) = 0;
+
+		/** Called whenever the value of a cap changes.
+		 * @param cap Capability whose value changed
+		 */
+		virtual void OnCapValueChange(Capability* cap) { }
 	};
 
 	class Manager : public DataProvider
@@ -82,6 +87,11 @@ namespace Cap
 		 * @return Capability object pointer if found, NULL otherwise
 		 */
 		virtual Capability* Find(const std::string& name) const = 0;
+
+		/** Notify manager when a value of a cap changed
+		 * @param cap Cap whose value changed
+		 */
+		virtual void NotifyValueChange(Capability* cap) = 0;
 	};
 
 	/** Represents a client capability.
@@ -134,6 +144,16 @@ namespace Cap
 		Bit GetMask() const { return bit; }
 
 		friend class ManagerImpl;
+
+	 protected:
+		/** Notify the manager that the value of the capability changed.
+		 * Must be called if the value of the cap changes for any reason.
+		 */
+		void NotifyValueChange()
+		{
+			if (IsRegistered())
+				manager->NotifyValueChange(this);
+		}
 
 	 public:
 		/** Constructor, initializes the capability.
