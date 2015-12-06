@@ -141,9 +141,10 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			}
 		}
 
+		FOREACH_MOD(OnUserInvite, (user, u, c, timeout));
+
 		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
 			c->WriteAllExceptSender(user, true, prefix, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
-		FOREACH_MOD(OnUserInvite, (user,u,c,timeout));
 	}
 	else if (IS_LOCAL(user))
 	{
