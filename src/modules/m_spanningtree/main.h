@@ -44,7 +44,6 @@ const long MinCompatProtocol = 1202;
 
 /** Forward declarations
  */
-class SpanningTreeCommands;
 class SpanningTreeUtilities;
 class CacheRefreshTimer;
 class TreeServer;
@@ -63,7 +62,7 @@ class ModuleSpanningTree : public Module
 
 	/** Server to server only commands, not registered in the core
 	 */
-	SpanningTreeCommands* commands;
+	SpanningTreeCommands commands;
 
 	/** Next membership id assigned when a local user joins a channel
 	 */

@@ -37,7 +37,7 @@
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
-	, commands(NULL)
+	, commands(this)
 	, currmembid(0)
 	, eventprov(this, "event/spanningtree")
 	, DNS(this, "DNS")
@@ -89,7 +89,6 @@ void ModuleSpanningTree::init()
 
 	Utils = new SpanningTreeUtilities(this);
 	Utils->TreeRoot = new TreeServer;
-	commands = new SpanningTreeCommands(this);
 
 	ServerInstance->PI = &protocolinterface;
 
@@ -736,7 +735,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;
-	delete commands;
 }
 
 Version ModuleSpanningTree::GetVersion()
