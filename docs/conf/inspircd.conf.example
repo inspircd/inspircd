@@ -567,11 +567,6 @@
          # triggers anti-takeover mechanisms of some obsolete bots.
          cyclehostsfromuser="no"
 
-         # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
-         # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
-         # it will just message the user normally.
-         ircumsgprefix="no"
-
          # announcets: If set to yes, when the timestamp on a channel changes, all users
          # in the channel will be sent a NOTICE about it.
          announcets="yes"

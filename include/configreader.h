@@ -431,11 +431,6 @@ class CoreExport ServerConfig
 	 */
 	bool CycleHostsFromUser;
 
-	/** If set to true, prefixed channel NOTICEs and PRIVMSGs will have the prefix
-	 *  added to the outgoing text for undernet style msg prefixing.
-	 */
-	bool UndernetMsgPrefix;
-
 	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
 	 * for who set the topic last. If false, only the nick is shown.
 	 */
