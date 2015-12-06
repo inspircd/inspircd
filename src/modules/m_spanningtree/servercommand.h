@@ -38,6 +38,10 @@ class ServerCommand : public CommandBase
  public:
 	ServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
 
+	/** Register this object in the ServerCommandManager
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
 	virtual CmdResult Handle(User* user, std::vector<std::string>& parameters) = 0;
 	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 
