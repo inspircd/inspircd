@@ -55,7 +55,7 @@ ServerConfig::ServerConfig()
 	, Limits(EmptyTag)
 	, NoSnoticeStack(false)
 {
-	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
+	RawLog = HideBans = HideSplits = false;
 	WildcardIPv6 = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
@@ -413,7 +413,6 @@ void ServerConfig::Fill()
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
-	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");

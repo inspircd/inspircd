@@ -169,14 +169,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 
 			if (status)
 			{
-				if (ServerInstance->Config->UndernetMsgPrefix)
-				{
-					chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%c %s", MessageTypeString[mt], status, chan->name.c_str(), status, text);
-				}
-				else
-				{
-					chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), text);
-				}
+				chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), text);
 			}
 			else
 			{

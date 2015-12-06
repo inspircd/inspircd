@@ -122,31 +122,36 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				user->WriteNumeric(RPL_AWAY, "%s :%s", u->nick.c_str(), u->awaymsg.c_str());
 		}
 
-		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
+		char prefix = 0;
+		unsigned int minrank = 0;
+		switch (ServerInstance->Config->AnnounceInvites)
 		{
-			char prefix;
-			switch (ServerInstance->Config->AnnounceInvites)
+			case ServerConfig::INVITE_ANNOUNCE_OPS:
 			{
-				case ServerConfig::INVITE_ANNOUNCE_OPS:
-				{
-					prefix = '@';
-					break;
-				}
-				case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
-				{
-					PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-					prefix = (mh && mh->name == "halfop" ? mh->GetPrefix() : '@');
-					break;
-				}
-				default:
-				{
-					prefix = 0;
-					break;
-				}
+				prefix = '@';
+				minrank = OP_VALUE;
+				break;
 			}
-			c->WriteAllExceptSender(user, true, prefix, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
+			case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
+			{
+				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+				if ((mh) && (mh->name == "halfop"))
+				{
+					prefix = mh->GetPrefix();
+					minrank = mh->GetPrefixRank();
+				}
+				break;
+			}
+			default:
+			{
+			}
 		}
-		FOREACH_MOD(OnUserInvite, (user,u,c,timeout));
+
+		CUList excepts;
+		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
+
+		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
+			c->WriteAllExcept(user, true, prefix, excepts, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 	}
 	else if (IS_LOCAL(user))
 	{
