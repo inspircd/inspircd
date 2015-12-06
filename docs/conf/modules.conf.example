@@ -982,6 +982,13 @@
 #<module name="ircv3_chghost">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 echo-message module: Provides the echo-message IRCv3.2
+# extension which allows capable clients to get an acknowledgement when
+# their messages are delivered and learn what modifications, if any,
+# were applied to them.
+#<module name="ircv3_echomessage">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
 # Closes the channel for 60 seconds if X users join in Y seconds.
 #<module name="joinflood">
