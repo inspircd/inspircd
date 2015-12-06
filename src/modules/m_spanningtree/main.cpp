@@ -358,7 +358,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
+void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts)
 {
 	if (IS_LOCAL(source))
 	{
