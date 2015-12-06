@@ -25,7 +25,7 @@
 
 class ModuleNamesX : public Module
 {
-	GenericCap cap;
+	Cap::Capability cap;
  public:
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
@@ -52,7 +52,7 @@ class ModuleNamesX : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"NAMESX")))
 			{
-				cap.ext.set(user, 1);
+				cap.set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
@@ -61,7 +61,7 @@ class ModuleNamesX : public Module
 
 	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (cap.ext.get(issuer))
+		if (cap.get(issuer))
 			prefixes = memb->GetAllPrefixChars();
 
 		return MOD_RES_PASSTHRU;
@@ -69,7 +69,7 @@ class ModuleNamesX : public Module
 
 	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
 	{
-		if ((!memb) || (!cap.ext.get(source)))
+		if ((!memb) || (!cap.get(source)))
 			return;
 
 		// Channel names can contain ":", and ":" as a 'start-of-token' delimiter is

@@ -19,12 +19,15 @@
 
 
 #include "inspircd.h"
+#include "modules/cap.h"
 
 class ModuleHostCycle : public Module
 {
+	Cap::Reference chghostcap;
+
 	/** Send fake quit/join/mode messages for host or ident cycle.
 	 */
-	static void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const char* quitmsg)
+	void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const char* quitmsg)
 	{
 		// GetFullHost() returns the original data at the time this function is called
 		const std::string quitline = ":" + user->GetFullHost() + " QUIT :" + quitmsg;
@@ -40,7 +43,7 @@ class ModuleHostCycle : public Module
 		for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if (u && !u->quitting)
+			if ((u) && (!u->quitting) && (!chghostcap.get(u)))
 			{
 				if (i->second)
 				{
@@ -80,6 +83,8 @@ class ModuleHostCycle : public Module
 					continue;
 				if (u->already_sent == silent_id)
 					continue;
+				if (chghostcap.get(u))
+					continue;
 
 				if (u->already_sent != seen_id)
 				{
@@ -95,6 +100,11 @@ class ModuleHostCycle : public Module
 	}
 
  public:
+	ModuleHostCycle()
+		: chghostcap(this, "chghost")
+	{
+	}
+
 	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
 	{
 		DoHostCycle(user, newident, user->dhost, "Changing ident");

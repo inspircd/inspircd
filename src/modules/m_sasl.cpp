@@ -24,6 +24,41 @@
 #include "modules/sasl.h"
 #include "modules/ssl.h"
 
+class SASLCap : public Cap::Capability
+{
+	std::string mechlist;
+
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		// Requesting this cap is allowed anytime
+		if (adding)
+			return true;
+
+		// But removing it can only be done when unregistered
+		return (user->registered != REG_ALL);
+	}
+
+	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
+	{
+		return &mechlist;
+	}
+
+ public:
+	SASLCap(Module* mod)
+		: Cap::Capability(mod, "sasl")
+	{
+	}
+
+	void SetMechlist(const std::string& newmechlist)
+	{
+		if (mechlist == newmechlist)
+			return;
+
+		mechlist = newmechlist;
+		NotifyValueChange();
+	}
+};
+
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
@@ -179,8 +214,8 @@ class CommandAuthenticate : public Command
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
-	GenericCap& cap;
-	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
+	Cap::Capability& cap;
+	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
 		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
 	{
 		works_before_reg = true;
@@ -191,7 +226,7 @@ class CommandAuthenticate : public Command
 		/* Only allow AUTHENTICATE on unregistered clients */
 		if (user->registered != REG_ALL)
 		{
-			if (!cap.ext.get(user))
+			if (!cap.get(user))
 				return CMD_FAILURE;
 
 			SaslAuthenticator *sasl = authExt.get(user);
@@ -247,7 +282,7 @@ class CommandSASL : public Command
 class ModuleSASL : public Module
 {
 	SimpleExtItem<SaslAuthenticator> authExt;
-	GenericCap cap;
+	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
 	Events::ModuleEventProvider sasleventprov;
@@ -255,7 +290,7 @@ class ModuleSASL : public Module
  public:
 	ModuleSASL()
 		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
-		, cap(this, "sasl")
+		, cap(this)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, sasleventprov(this, "event/sasl")
@@ -284,6 +319,12 @@ class ModuleSASL : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE
+	{
+		if ((target == NULL) && (extname == "saslmechlist"))
+			cap.SetMechlist(extdata);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

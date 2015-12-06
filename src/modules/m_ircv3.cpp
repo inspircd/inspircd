@@ -19,32 +19,13 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/cap.h"
-
-class WriteNeighboursWithExt : public User::ForEachNeighborHandler
-{
-	const LocalIntExt& ext;
-	const std::string& msg;
-
-	void Execute(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (ext.get(user))
-			user->Write(msg);
-	}
-
- public:
-	WriteNeighboursWithExt(User* user, const std::string& message, const LocalIntExt& extension)
-		: ext(extension)
-		, msg(message)
-	{
-		user->ForEachNeighbor(*this, false);
-	}
-};
+#include "modules/ircv3.h"
 
 class ModuleIRCv3 : public Module, public AccountEventListener
 {
-	GenericCap cap_accountnotify;
-	GenericCap cap_awaynotify;
-	GenericCap cap_extendedjoin;
+	Cap::Capability cap_accountnotify;
+	Cap::Capability cap_awaynotify;
+	Cap::Capability cap_extendedjoin;
 
 	CUList last_excepts;
 
@@ -76,7 +57,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		else
 			line += newaccount;
 
-		WriteNeighboursWithExt(user, line, cap_accountnotify.ext);
+		IRCv3::WriteNeighborsWithCap(user, line, cap_accountnotify);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
@@ -105,7 +86,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		{
 			// Send the extended join line if the current member is local, has the extended-join cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_extendedjoin.ext.get(member)) && (excepts.find(member) == excepts.end()))
+			if ((member) && (cap_extendedjoin.get(member)) && (excepts.find(member) == excepts.end()))
 			{
 				// Construct the lines we're going to send if we haven't constructed them already
 				if (line.empty())
@@ -162,7 +143,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 			if (!awaymsg.empty())
 				line += " :" + awaymsg;
 
-			WriteNeighboursWithExt(user, line, cap_awaynotify.ext);
+			IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -179,7 +160,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		{
 			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()))
+			if ((member) && (cap_awaynotify.get(member)) && (last_excepts.find(member) == last_excepts.end()))
 			{
 				member->Write(line);
 			}
