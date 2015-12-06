@@ -989,6 +989,12 @@
 #<module name="ircv3_echomessage">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 invite-notify module: Provides the invite-notify IRCv3.2
+# extension which notifies supporting clients when a user invites
+# another user into a channel. This respects <options:announceinvites>.
+#<module name="ircv3_invitenotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
 # Closes the channel for 60 seconds if X users join in Y seconds.
 #<module name="joinflood">
