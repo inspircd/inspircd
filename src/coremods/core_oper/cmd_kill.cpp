@@ -44,7 +44,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	}
 
 	User *u = ServerInstance->FindNick(parameters[0]);
-	if ((u) && (!IS_SERVER(u)))
+	if (u)
 	{
 		/*
 		 * Here, we need to decide how to munge kill messages. Whether to hide killer, what to show opers, etc.

@@ -104,7 +104,7 @@ class CommandDccallow : public Command
 			std::string nick(parameters[0], 1);
 			User *target = ServerInstance->FindNickOnly(nick);
 
-			if ((target) && (!IS_SERVER(target)) && (!target->quitting) && (target->registered == REG_ALL))
+			if ((target) && (!target->quitting) && (target->registered == REG_ALL))
 			{
 
 				if (action == '-')

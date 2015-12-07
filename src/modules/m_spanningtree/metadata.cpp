@@ -56,7 +56,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 	else
 	{
 		User* u = ServerInstance->FindUUID(params[0]);
-		if ((u) && (!IS_SERVER(u)))
+		if (u)
 		{
 			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
 			std::string value = params.size() < 3 ? "" : params[2];

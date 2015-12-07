@@ -29,7 +29,7 @@
 CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 {
 	User* u = ServerInstance->FindUUID(params[0]);
-	if ((!u) || (IS_SERVER(u)))
+	if (!u)
 		return CMD_FAILURE;
 
 	time_t ts = atol(params[1].c_str());

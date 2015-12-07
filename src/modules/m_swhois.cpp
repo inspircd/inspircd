@@ -43,7 +43,7 @@ class CommandSwhois : public Command
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if ((!dest) || (IS_SERVER(dest))) // allow setting swhois using SWHOIS before reg
+		if (!dest) // allow setting swhois using SWHOIS before reg
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
 			return CMD_FAILURE;

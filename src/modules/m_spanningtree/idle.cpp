@@ -35,7 +35,7 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>
 	 */
 
 	User* target = ServerInstance->FindUUID(params[0]);
-	if ((!target) || (IS_SERVER(target) || (target->registered != REG_ALL)))
+	if ((!target) || (target->registered != REG_ALL))
 		return CMD_FAILURE;
 
 	LocalUser* localtarget = IS_LOCAL(target);

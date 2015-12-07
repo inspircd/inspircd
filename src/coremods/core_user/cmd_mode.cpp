@@ -43,7 +43,7 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 			targetuser = ServerInstance->FindNick(target);
 	}
 
-	if ((!targetchannel) && ((!targetuser) || (IS_SERVER(targetuser))))
+	if ((!targetchannel) && (!targetuser))
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", target.c_str());
 		return CMD_FAILURE;

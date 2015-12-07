@@ -98,7 +98,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		while (s.GetToken(tok))
 		{
 			User *u = ServerInstance->FindNick(tok);
-			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
+			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
 			{
 				if (dat->accepting.insert(u).second)
 				{
@@ -170,7 +170,7 @@ class CommandAccept : public Command
 		else
 			target = ServerInstance->FindNickOnly(tok);
 
-		if ((!target) || (target->registered != REG_ALL) || (target->quitting) || (IS_SERVER(target)))
+		if ((!target) || (target->registered != REG_ALL) || (target->quitting))
 			target = NULL;
 
 		return std::make_pair(target, !remove);
