@@ -37,14 +37,7 @@ User* InspIRCd::FindNick(const std::string &nick)
 {
 	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
-
-	user_hash::iterator iter = this->Users->clientlist.find(nick);
-
-	if (iter == this->Users->clientlist.end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
+	return FindNickOnly(nick);
 }
 
 User* InspIRCd::FindNickOnly(const std::string &nick)
