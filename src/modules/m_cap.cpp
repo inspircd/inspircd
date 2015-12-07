@@ -66,7 +66,12 @@ class CommandCAP : public Command
 
 			while (cap_stream.GetToken(cap_))
 			{
-				Data.wanted.push_back(cap_);
+				// Whilst the handling of extraneous spaces is not currently defined in the CAP specification
+				// every single other implementation ignores extraneous spaces. Lets copy them for
+				// compatibility purposes.
+				trim(cap_);
+				if (!cap_.empty())
+					Data.wanted.push_back(cap_);
 			}
 
 			reghold.set(user, 1);
