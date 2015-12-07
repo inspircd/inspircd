@@ -74,8 +74,12 @@ User::User(const std::string& uid, Server* srv, int type)
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
-	if (!ServerInstance->Users->uuidlist.insert(std::make_pair(uuid, this)).second)
-		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
+	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
+	if (type != USERTYPE_SERVER)
+	{
+		if (!ServerInstance->Users.uuidlist.insert(std::make_pair(uuid, this)).second)
+			throw CoreException("Duplicate UUID in User constructor: " + uuid);
+	}
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
@@ -312,8 +316,7 @@ CullResult FakeUser::cull()
 {
 	// Fake users don't quit, they just get culled.
 	quitting = true;
-	// Fake users are not inserted into UserManager::clientlist, they're only in the uuidlist
-	// and they are removed from there by the linking mod when the server splits
+	// Fake users are not inserted into UserManager::clientlist or uuidlist, so we don't need to modify those here
 	return User::cull();
 }
 
