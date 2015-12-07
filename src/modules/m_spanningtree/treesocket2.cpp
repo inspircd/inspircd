@@ -220,10 +220,20 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 	if (prefix.empty())
 		return MyRoot->ServerUser;
 
-	// If the prefix string is a uuid or a sid FindUUID() returns the appropriate User object
-	User* who = ServerInstance->FindUUID(prefix);
-	if (who)
-		return who;
+	if (prefix.size() == 3)
+	{
+		// Prefix looks like a sid
+		TreeServer* server = Utils->FindServerID(prefix);
+		if (server)
+			return server->ServerUser;
+	}
+	else
+	{
+		// If the prefix string is a uuid FindUUID() returns the appropriate User object
+		User* user = ServerInstance->FindUUID(prefix);
+		if (user)
+			return user;
+	}
 
 	// Some implementations wrongly send a server name as prefix occasionally, handle that too for now
 	TreeServer* const server = Utils->FindServer(prefix);
@@ -243,9 +253,9 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 		 * command came from a server to avoid desync.
 		 */
 
-		who = ServerInstance->FindUUID(prefix.substr(0, 3));
-		if (who)
-			return who;
+		TreeServer* const usersserver = Utils->FindServerID(prefix.substr(0, 3));
+		if (usersserver)
+			return usersserver->ServerUser;
 		return this->MyRoot->ServerUser;
 	}
 
