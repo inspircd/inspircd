@@ -66,23 +66,28 @@ class CommandCAP : public Command
 
 			while (cap_stream.GetToken(cap_))
 			{
-				Data.wanted.push_back(cap_);
+				// Whilst the handling of extraneous spaces is not currently defined in the CAP specification
+				// every single other implementation ignores extraneous spaces. Lets copy them for
+				// compatibility purposes.
+				trim(cap_);
+				if (!cap_.empty())
+					Data.wanted.push_back(cap_);
 			}
 
 			reghold.set(user, 1);
 			Data.Send();
 
-			if (Data.ack.size() > 0)
+			if (Data.wanted.empty())
 			{
-				std::string AckResult = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
-				user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), AckResult.c_str());
+				user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), parameters[1].c_str());
+				return CMD_SUCCESS;
 			}
 
-			if (Data.wanted.size() > 0)
-			{
-				std::string NakResult = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
-				user->WriteServ("CAP %s NAK :%s", user->nick.c_str(), NakResult.c_str());
-			}
+			// HACK: reset all of the caps which were enabled on this user because a cap request is atomic.
+			for (std::vector<std::pair<GenericCap*, int> >::iterator iter = Data.changed.begin(); iter != Data.changed.end(); ++iter)
+				iter->first->ext.set(user, iter->second);
+
+			user->WriteServ("CAP %s NAK :%s", user->nick.c_str(), parameters[1].c_str());
 		}
 		else if (subcommand == "END")
 		{
