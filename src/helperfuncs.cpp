@@ -127,7 +127,8 @@ void InspIRCd::StripColor(std::string &sentence)
 		else
 			seq = 0;
 
-		if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
+		// Strip all control codes too except \001 for CTCP
+		if (seq || ((*i < 32) && (*i != 1)))
 			i = sentence.erase(i);
 		else
 			++i;

@@ -1863,8 +1863,8 @@
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip color module: Adds channel mode +S that strips mIRC color
-# codes from all messages sent to the channel.
+# Strip color module: Adds channel mode +S that strips color codes and
+# all control codes except CTCP from all messages sent to the channel.
 #<module name="stripcolor">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
