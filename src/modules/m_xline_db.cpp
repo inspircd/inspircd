@@ -64,11 +64,6 @@ class ModuleXLineDB : public Module
 		dirty = true;
 	}
 
-	void OnExpireLine(XLine *line) CXX11_OVERRIDE
-	{
-		dirty = true;
-	}
-
 	void OnBackgroundTimer(time_t now) CXX11_OVERRIDE
 	{
 		if (dirty)
