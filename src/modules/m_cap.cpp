@@ -341,7 +341,7 @@ class CommandCap : public SplitCommand
 
 	static void DisplayResult(LocalUser* user, std::string& result)
 	{
-		if (result.size() > 5)
+		if (*result.rbegin() == ' ')
 			result.erase(result.end()-1);
 		user->WriteCommand("CAP", result);
 	}
