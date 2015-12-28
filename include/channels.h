@@ -205,8 +205,9 @@ class CoreExport Channel : public Extensible
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
 	 * @param reason The part reason
+	 * @return True if the user was on the channel and left, false if they weren't and nothing happened
 	 */
-	void PartUser(User *user, std::string &reason);
+	bool PartUser(User* user, std::string& reason);
 
 	/** Join a local user to a channel, with or without permission checks. May be a channel that doesn't exist yet.
 	 * @param user The user to join to the channel.

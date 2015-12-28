@@ -405,12 +405,12 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  * Remove a channel from a users record, remove the reference to the Membership object
  * from the channel and destroy it.
  */
-void Channel::PartUser(User *user, std::string &reason)
+bool Channel::PartUser(User* user, std::string& reason)
 {
 	MemberMap::iterator membiter = userlist.find(user);
 
 	if (membiter == userlist.end())
-		return;
+		return false;
 
 	Membership* memb = membiter->second;
 	CUList except_list;
@@ -422,6 +422,8 @@ void Channel::PartUser(User *user, std::string &reason)
 	user->chans.erase(memb);
 	// Remove the Membership from this channel's userlist and destroy it
 	this->DelUser(membiter);
+
+	return true;
 }
 
 void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
