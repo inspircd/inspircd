@@ -44,13 +44,15 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 
-	if (c)
-	{
-		c->PartUser(user, reason);
-	}
-	else
+	if (!c)
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+		return CMD_FAILURE;
+	}
+
+	if (!c->PartUser(user, reason))
+	{
+		user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel", c->name.c_str());
 		return CMD_FAILURE;
 	}
 
