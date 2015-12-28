@@ -33,7 +33,7 @@ use Exporter 'import';
 use Fcntl;
 use File::Path;
 use Getopt::Long;
-use POSIX;
+use File::Temp ();
 
 our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
@@ -345,7 +345,7 @@ sub translate_functions($$)
 			my $tmpfile;
 			do
 			{
-				$tmpfile = tmpnam();
+				$tmpfile = File::Temp::tmpnam();
 			} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW, 0700);
 			print "(Created and executed \e[1;32m$tmpfile\e[0m)\n";
 			print TF $1;
