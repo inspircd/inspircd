@@ -21,6 +21,10 @@
 
 #include <fstream>
 
+#if defined _WIN32
+# define PATH_MAX MAX_PATH
+#endif
+
 FileReader::FileReader(const std::string& filename)
 {
 	Load(filename);
@@ -70,6 +74,19 @@ std::string FileSystem::ExpandPath(const std::string& base, const std::string& f
 	// The fragment is an absolute path, don't modify it.
 	if (fragment[0] == '/' || FileSystem::StartsWithWindowsDriveLetter(fragment))
 		return fragment;
+
+	// The fragment is a path relative to the starting directory.
+	if (fragment.size() >= 2 && fragment[0] == '.' && fragment[1] == '/')
+	{
+		char path[PATH_MAX + 1];
+		if (getcwd(path, sizeof(path)))
+		{
+			return std::string(path) + '/' + fragment.substr(2);
+		}
+
+		// I'm not sure what else we could do here other than log and fall through to the default expansion.
+		ServerInstance->Logs->Log("FILESYSTEM", LOG_DEFAULT, "Unable to expand %s: %s", fragment.c_str(), strerror(errno));
+	}
 
 	return base + '/' + fragment;
 }
