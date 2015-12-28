@@ -626,11 +626,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ConfigTag *tag = (*it)->config;
 		// Make sure our connection class allows motd colors
 		if(!tag->getBool("allowmotdcolors"))
-		      continue;
+			continue;
 
 		ConfigFileCache::iterator file = this->Files.find(tag->getString("motd", "motd"));
 		if (file != this->Files.end())
-		      InspIRCd::ProcessColors(file->second);
+			InspIRCd::ProcessColors(file->second);
 	}
 
 	/* No old configuration -> initial boot, nothing more to do here */
@@ -697,7 +697,7 @@ void ServerConfig::ApplyModules(User* user)
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :Failed to unload module %s: %s", modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 

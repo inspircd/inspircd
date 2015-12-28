@@ -110,7 +110,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		{
 			mx[1][0] = i + 1;
 			for (unsigned int j = 0; j < l2; j++)
-	            mx[1][j + 1] = std::min(std::min(mx[1][j] + 1, mx[0][j + 1] + 1), mx[0][j] + ((s1[i] == s2[j]) ? 0 : 1));
+				mx[1][j + 1] = std::min(std::min(mx[1][j] + 1, mx[0][j + 1] + 1), mx[0][j] + ((s1[i] == s2[j]) ? 0 : 1));
 
 			mx[0].swap(mx[1]);
 		}

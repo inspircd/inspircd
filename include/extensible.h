@@ -38,8 +38,8 @@ enum SerializeFormat
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
-    /** Extensible subclasses
-     */
+	/** Extensible subclasses
+	 */
 	enum ExtensibleType
 	{
 		EXT_USER,

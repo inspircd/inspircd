@@ -72,25 +72,25 @@ CoreExport extern unsigned const char rfc_case_sensitive_map[256];
 
 template<typename T> const T& SearchAndReplace(T& text, const T& pattern, const T& replace)
 {
-        T replacement;
-        if ((!pattern.empty()) && (!text.empty()))
-        {
-                for (std::string::size_type n = 0; n != text.length(); ++n)
-                {
-                        if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
-                        {
-                                /* Found the pattern in the text, replace it, and advance */
-                                replacement.append(replace);
-                                n = n + pattern.length() - 1;
-                        }
-                        else
-                        {
-                                replacement += text[n];
-                        }
-                }
-        }
-        text = replacement;
-        return text;
+	T replacement;
+	if ((!pattern.empty()) && (!text.empty()))
+	{
+		for (std::string::size_type n = 0; n != text.length(); ++n)
+		{
+			if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
+			{
+				// Found the pattern in the text, replace it, and advance
+				replacement.append(replace);
+				n = n + pattern.length() - 1;
+			}
+			else
+			{
+				replacement += text[n];
+			}
+		}
+	}
+	text = replacement;
+	return text;
 }
 
 /** The irc namespace contains a number of helper classes.

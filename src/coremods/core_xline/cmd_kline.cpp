@@ -34,7 +34,7 @@ CommandKline::CommandKline(Module* parent)
  */
 CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User *user)
 {
-    std::string target = parameters[0];
+	std::string target = parameters[0];
 
 	if (parameters.size() >= 3)
 	{
@@ -49,11 +49,11 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		else
 			ih = ServerInstance->XLines->IdentSplit(target);
 
-        if (ih.first.empty())
-        {
-            user->WriteNotice("*** Target not found");
-            return CMD_FAILURE;
-        }
+		if (ih.first.empty())
+		{
+			user->WriteNotice("*** Target not found");
+			return CMD_FAILURE;
+		}
 
 		InsaneBan::IPHostMatcher matcher;
 		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "K", "hostmasks"))

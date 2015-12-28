@@ -194,7 +194,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			cap->set(user, false);
 		}
 
-		ServerInstance->Modules.DelReferent(cap);		
+		ServerInstance->Modules.DelReferent(cap);
 		cap->Unregister();
 		caps.erase(cap->GetName());
 	}

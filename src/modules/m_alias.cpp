@@ -62,7 +62,7 @@ class ModuleAlias : public Module
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
-     */
+	 */
 	typedef insp::flat_multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
 
 	AliasMap Aliases;
