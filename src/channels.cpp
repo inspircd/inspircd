@@ -409,19 +409,19 @@ void Channel::PartUser(User *user, std::string &reason)
 {
 	MemberMap::iterator membiter = userlist.find(user);
 
-	if (membiter != userlist.end())
-	{
-		Membership* memb = membiter->second;
-		CUList except_list;
-		FOREACH_MOD(OnUserPart, (memb, reason, except_list));
+	if (membiter == userlist.end())
+		return;
 
-		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
+	Membership* memb = membiter->second;
+	CUList except_list;
+	FOREACH_MOD(OnUserPart, (memb, reason, except_list));
 
-		// Remove this channel from the user's chanlist
-		user->chans.erase(memb);
-		// Remove the Membership from this channel's userlist and destroy it
-		this->DelUser(membiter);
-	}
+	WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
+
+	// Remove this channel from the user's chanlist
+	user->chans.erase(memb);
+	// Remove the Membership from this channel's userlist and destroy it
+	this->DelUser(membiter);
 }
 
 void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
