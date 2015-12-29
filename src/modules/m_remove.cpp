@@ -82,7 +82,7 @@ class RemoveBase : public Command
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
+			user->WriteNotice(InspIRCd::Format("*** The user %s is not on channel %s", target->nick.c_str(), channel->name.c_str()));
 			return CMD_FAILURE;
 		}
 
@@ -137,7 +137,7 @@ class RemoveBase : public Command
 			}
 			else
 			{
-				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
+				user->WriteNotice(InspIRCd::Format("*** You do not have access to /remove %s from %s", target->nick.c_str(), channel->name.c_str()));
 				return CMD_FAILURE;
 			}
 		}

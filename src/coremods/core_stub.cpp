@@ -46,7 +46,7 @@ class CommandConnect : public Command
 		/*
 		 * This is handled by the server linking module, if necessary. Do not remove this stub.
 		 */
-		user->WriteServ( "NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick.c_str());
+		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");
 		return CMD_SUCCESS;
 	}
 };
@@ -129,7 +129,7 @@ class CommandSquit : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
-		user->WriteServ("NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick.c_str());
+		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");
 		return CMD_FAILURE;
 	}
 };
