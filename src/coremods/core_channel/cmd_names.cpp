@@ -22,7 +22,7 @@
 #include "core_channel.h"
 
 CommandNames::CommandNames(Module* parent)
-	: Command(parent, "NAMES", 0, 0)
+	: SplitCommand(parent, "NAMES", 0, 0)
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")
@@ -32,7 +32,7 @@ CommandNames::CommandNames(Module* parent)
 
 /** Handle /NAMES
  */
-CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	Channel* c;
 
@@ -66,7 +66,7 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	return CMD_FAILURE;
 }
 
-void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
+void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)
 {
 	std::string list;
 	if (chan->IsModeSet(secretmode))
