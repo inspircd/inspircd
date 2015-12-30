@@ -68,25 +68,18 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 	std::string reply = "303 " + user->nick + " :";
 	const std::string::size_type pos = reply.size();
 
-	for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i)
+	for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end()-1; ++i)
 	{
 		const std::string& targetstr = *i;
 
 		User* const u = ServerInstance->FindNickOnly(targetstr);
-		if (!AddNick(user, u, reply, pos))
-		{
-			if ((i == parameters.end() - 1) && (targetstr.find(' ') != std::string::npos))
-			{
-				/* Its a space seperated list of nicks (RFC1459 says to support this)
-				 */
-				irc::spacesepstream list(targetstr);
-				std::string item;
-
-				while (list.GetToken(item))
-					AddNick(user, ServerInstance->FindNickOnly(item), reply, pos);
-			}
-		}
+		AddNick(user, u, reply, pos);
 	}
+
+	// Last parameter can be a space separated list
+	irc::spacesepstream ss(parameters.back());
+	for (std::string token; ss.GetToken(token); )
+		AddNick(user, ServerInstance->FindNickOnly(token), reply, pos);
 
 	user->WriteServ(reply);
 	return CMD_SUCCESS;
