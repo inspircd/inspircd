@@ -24,14 +24,6 @@
  */
 class CommandIson : public SplitCommand
 {
-	/** Helper function to append a nick to an ISON reply
-	 * @param user User doing the /ISON
-	 * @param toadd User to append to the ISON reply
-	 * @param reply Reply string to append the nick to
-	 * @param pos If the reply gets too long it is sent to the user and truncated from this position
-	 */
-	static bool AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos);
-
  public:
 	/** Constructor for ison.
 	 */
@@ -48,42 +40,40 @@ class CommandIson : public SplitCommand
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
 };
 
-bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos)
+class IsonReplyBuilder : public Numeric::Builder<' ', true>
 {
-	if ((toadd) && (toadd->registered == REG_ALL))
+ public:
+	IsonReplyBuilder(LocalUser* user)
+		: Builder<' ', true>(user, 303)
 	{
-		reply.append(toadd->nick).push_back(' ');
-		if (reply.length() > 450)
-		{
-			user->WriteServ(reply);
-			reply.erase(pos);
-		}
-		return true;
 	}
-	return false;
-}
+
+	void AddNick(const std::string& nickname)
+	{
+		User* const user = ServerInstance->FindNickOnly(nickname);
+		if ((user) && (user->registered == REG_ALL))
+			Add(user->nick);
+	}
+};
 
 /** Handle /ISON
  */
 CmdResult CommandIson::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
-	std::string reply = "303 " + user->nick + " :";
-	const std::string::size_type pos = reply.size();
+	IsonReplyBuilder reply(user);
 
 	for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end()-1; ++i)
 	{
 		const std::string& targetstr = *i;
-
-		User* const u = ServerInstance->FindNickOnly(targetstr);
-		AddNick(user, u, reply, pos);
+		reply.AddNick(targetstr);
 	}
 
 	// Last parameter can be a space separated list
 	irc::spacesepstream ss(parameters.back());
 	for (std::string token; ss.GetToken(token); )
-		AddNick(user, ServerInstance->FindNickOnly(token), reply, pos);
+		reply.AddNick(token);
 
-	user->WriteServ(reply);
+	reply.Flush();
 	return CMD_SUCCESS;
 }
 
