@@ -22,7 +22,7 @@
 
 /** Handle /ISON.
  */
-class CommandIson : public Command
+class CommandIson : public SplitCommand
 {
 	/** Helper function to append a nick to an ISON reply
 	 * @param user User doing the /ISON
@@ -35,7 +35,9 @@ class CommandIson : public Command
  public:
 	/** Constructor for ison.
 	 */
-	CommandIson ( Module* parent) : Command(parent,"ISON", 1) {
+	CommandIson(Module* parent)
+		: SplitCommand(parent, "ISON", 1)
+	{
 		syntax = "<nick> {nick}";
 	}
 	/** Handle command.
@@ -43,7 +45,7 @@ class CommandIson : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
 };
 
 bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos)
@@ -63,7 +65,7 @@ bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std
 
 /** Handle /ISON
  */
-CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandIson::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	std::string reply = "303 " + user->nick + " :";
 	const std::string::size_type pos = reply.size();
