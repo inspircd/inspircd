@@ -569,10 +569,12 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (valid)
 		ServerInstance->WritePID(this->PID);
 
+#ifndef INSPIRCD_TEST
 	ConfigTagList binds = ConfTags("bind");
 	if (binds.first == binds.second)
 		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
 			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
+#endif
 
 	if (old && valid)
 	{

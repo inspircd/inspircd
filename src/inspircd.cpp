@@ -53,7 +53,6 @@
 #include <iostream>
 #include "xline.h"
 #include "exitcodes.h"
-#include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
 
@@ -83,13 +82,6 @@ const char* ExitCodes[] =
 		"Couldn't load module on startup",		// 9
 		"Received SIGTERM"						// 10
 };
-
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-/** True if we have been told to run the testsuite from the commandline,
- * rather than entering the mainloop.
- */
-static int do_testsuite = 0;
-#endif
 
 template<typename T> static void DeleteZero(T*&n)
 {
@@ -152,7 +144,8 @@ static void VoidSignalHandler(int signalreceived)
 bool InspIRCd::DaemonSeed()
 {
 #ifdef _WIN32
-	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
+	if (!Config->cmdline.quiet)
+		std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
 	return true;
 #else
 	// Do not use QuickExit here: It will exit with status SIGTERM which would break e.g. daemon scripts
@@ -175,7 +168,8 @@ bool InspIRCd::DaemonSeed()
 		exit(0);
 	}
 	setsid ();
-	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
+	if (!Config->cmdline.quiet)
+		std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	signal(SIGTERM, InspIRCd::SetSignal);
 
@@ -238,7 +232,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	FailedPortList pl;
 	// Flag variables passed to getopt_long() later
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0;
+	    do_nolog = 0, do_root = 0, do_quiet = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Config = 0;
@@ -286,14 +280,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-		{ "testsuite",	no_argument,		&do_testsuite,	1	},
-#endif
+		{ "quiet",      no_argument,            &do_quiet,      1       },
 		{ 0, 0, 0, 0 }
 	};
 
 	int c;
 	int index;
+	optind = 1;
 	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
 	{
 		switch (c)
@@ -317,11 +310,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-	if (do_testsuite)
-		do_nofork = do_debug = true;
-#endif
-
 	if (do_version)
 	{
 		std::cout << std::endl << INSPIRCD_VERSION << " " << INSPIRCD_REVISION << std::endl;
@@ -338,6 +326,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
 	Config->cmdline.writelog = !do_nolog;
+	Config->cmdline.quiet = do_quiet;
 
 	if (do_debug)
 	{
@@ -366,8 +355,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
-	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
+	if (!Config->cmdline.quiet)
+	{
+		std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
+		std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
+	}
 
 #ifndef _WIN32
 	if (!do_root)
@@ -423,7 +415,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	int bounditems = BindPorts(pl);
 
-	std::cout << std::endl;
+	if (!Config->cmdline.quiet)
+		std::cout << std::endl;
 
 	this->Modules->LoadAll();
 
@@ -431,7 +424,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->ISupport.Build();
 	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
-	if (!pl.empty())
+	if (!pl.empty() && !Config->cmdline.quiet)
 	{
 		std::cout << std::endl << "WARNING: Not all your client ports could be bound -- " << std::endl << "starting anyway with " << bounditems
 			<< " of " << bounditems + (int)pl.size() << " client ports bound." << std::endl << std::endl;
@@ -445,7 +438,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
 	}
 
-	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
+	if (!Config->cmdline.quiet)
+		std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
 	if (!Config->cmdline.nofork)
@@ -588,16 +582,6 @@ void InspIRCd::UpdateTime()
 
 void InspIRCd::Run()
 {
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-	/* See if we're supposed to be running the test suite rather than entering the mainloop */
-	if (do_testsuite)
-	{
-		TestSuite* ts = new TestSuite;
-		delete ts;
-		return;
-	}
-#endif
-
 	UpdateTime();
 	time_t OLDTIME = TIME.tv_sec;
 

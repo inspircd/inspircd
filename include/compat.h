@@ -110,7 +110,11 @@
 # include "inspircd_win32wrapper.h"
 # include "threadengines/threadengine_win32.h"
 #else
-# define ENTRYPOINT int main(int argc, char** argv)
+# ifdef INSPIRCD_TEST
+#  define ENTRYPOINT int inspircd_main(int argc, char** argv)
+# else
+#  define ENTRYPOINT int main(int argc, char** argv)
+# endif
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))
 # include <unistd.h>

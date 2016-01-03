@@ -968,13 +968,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
 
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-	/** Add test suite hooks here. These are used for testing functionality of a module
-	 * via the --testsuite debugging parameter.
-	 */
-	virtual void OnRunTestSuite();
-#endif
-
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
 	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
 	 * @param issuer The user who is going to receive the NAMES list being built

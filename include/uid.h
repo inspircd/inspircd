@@ -22,7 +22,9 @@ class TestSuite;
 
 class CoreExport UIDGenerator
 {
-	friend class TestSuite;
+#ifdef INSPIRCD_TEST
+ public:
+#endif
 
 	/** Holds the current UID. Used to generate the next one.
 	 */

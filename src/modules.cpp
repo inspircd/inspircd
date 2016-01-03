@@ -140,10 +140,6 @@ ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockadd
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Membership*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-void		Module::OnRunTestSuite() { }
-#endif
-
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator), name(Name), service(Type)
 {
@@ -472,7 +468,8 @@ void ModuleManager::LoadAll()
 		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		this->NewServices = &servicemap[ExpandModName(name)];
-		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
+		if (!ServerInstance->Config->cmdline.quiet)
+			std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 
 		if (!this->Load(name, true))
 		{

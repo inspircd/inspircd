@@ -150,6 +150,8 @@ struct CommandLineConf
 	 */
 	bool writelog;
 
+	bool quiet;
+
 	/** Saved argc from startup
 	 */
 	int argc;

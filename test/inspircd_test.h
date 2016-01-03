@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2016 Adam <Adam@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -15,22 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
-#ifdef INSPIRCD_ENABLE_TESTSUITE
+#include "inspircd.h"
+#include <gtest/gtest.h>
 
-class TestSuite
+namespace insptest
 {
- public:
-	TestSuite();
-	~TestSuite();
+	class Test : public testing::Test
+	{
+	 protected:
+		InspIRCd *inspircd;
 
-	bool DoThreadTests();
-	bool DoWildTests();
-	bool DoCommaSepStreamTests();
-	bool DoSpaceSepStreamTests();
-	bool DoGenerateUIDTests();
-};
+		void SetUp() override
+		{
+			const char *argv[] = { "inspircd", "--nofork", "--quiet", NULL };
+			inspircd = new InspIRCd(3, (char**) argv);
+		}
 
-#endif
+		void TearDown() override
+		{
+			inspircd->Cleanup();
+			delete inspircd;
+		}
+	};
+
+	class User : public LocalUser
+	{
+		static irc::sockets::sockaddrs zero;
+
+	 public:
+		User() : LocalUser(-1, &zero, &zero) { }
+	};
+}
+
