@@ -22,7 +22,7 @@
 #include "core_channel.h"
 
 CommandNames::CommandNames(Module* parent)
-	: Command(parent, "NAMES", 0, 0)
+	: SplitCommand(parent, "NAMES", 0, 0)
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")
@@ -32,7 +32,7 @@ CommandNames::CommandNames(Module* parent)
 
 /** Handle /NAMES
  */
-CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	Channel* c;
 
@@ -66,9 +66,10 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	return CMD_FAILURE;
 }
 
-void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
+void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)
 {
-	std::string list;
+	Numeric::Builder<' '> reply(user, RPL_NAMREPLY, false);
+	std::string& list = reply.GetNumeric();
 	if (chan->IsModeSet(secretmode))
 		list.push_back('@');
 	else if (chan->IsModeSet(privatemode))
@@ -78,9 +79,8 @@ void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
 
 	list.push_back(' ');
 	list.append(chan->name).append(" :");
-	std::string::size_type pos = list.size();
+	reply.SaveBeginPos();
 
-	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size() - user->nick.size();
 	std::string prefixlist;
 	std::string nick;
 	const Channel::MemberMap& members = chan->GetUsers();
@@ -107,21 +107,9 @@ void CommandNames::SendNames(User* user, Channel* chan, bool show_invisible)
 		if (res == MOD_RES_DENY)
 			continue;
 
-		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
-		{
-			// List overflowed into multiple numerics
-			user->WriteNumeric(RPL_NAMREPLY, list);
-
-			// Erase all nicks, keep the constant part
-			list.erase(pos);
-		}
-
-		list.append(prefixlist).append(nick).push_back(' ');
+		reply.Add(prefixlist, nick);
 	}
 
-	// Only send the user list numeric if there is at least one user in it
-	if (list.size() != pos)
-		user->WriteNumeric(RPL_NAMREPLY, list);
-
+	reply.Flush();
 	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", chan->name.c_str());
 }

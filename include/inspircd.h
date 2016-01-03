@@ -664,4 +664,5 @@ inline void stdalgo::culldeleter::operator()(classbase* item)
 		ServerInstance->GlobalCulls.AddItem(item);
 }
 
+#include "numericbuilder.h"
 #include "modules/whois.h"
