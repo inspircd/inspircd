@@ -480,6 +480,11 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		// A server is introducing another one, drop unnecessary BURST
 		return false;
 	}
+	else if (cmd == "SVSWATCH")
+	{
+		// SVSWATCH was removed because nothing was using it, but better be sure
+		return false;
+	}
 
 	return true; // Passthru
 }
