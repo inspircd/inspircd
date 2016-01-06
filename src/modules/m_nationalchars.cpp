@@ -245,11 +245,6 @@ class ModuleNationalChars : public Module
 		RehashHashmap(ServerInstance->Users.clientlist);
 		RehashHashmap(ServerInstance->Users.uuidlist);
 		RehashHashmap(ServerInstance->chanlist);
-
-		// The OnGarbageCollect() method in m_watch rebuilds the hashmap used by it
-		Module* mod = ServerInstance->Modules->Find("m_watch.so");
-		if (mod)
-			mod->OnGarbageCollect();
 	}
 
  public:
