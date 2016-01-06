@@ -1150,6 +1150,14 @@
 #<module name="modenotice">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Monitor module: Adds support for MONITOR which is used by clients to
+# maintain notify lists.
+#<module name="monitor">
+#
+# Set the maximum number of entries on a user's monitor list below.
+#<monitor maxentries="30">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MsSQL module: Allows other SQL modules to access MS SQL Server
 # through a unified API.
 # This module is in extras. Re-run configure with:
