@@ -26,6 +26,17 @@
 #include "link.h"
 #include "main.h"
 
+struct CompatMod
+{
+	const char* name;
+	ModuleFlags listflag;
+};
+
+static CompatMod compatmods[] =
+{
+	{ "m_watch.so", VF_OPTCOMMON }
+};
+
 std::string TreeSocket::MyModules(int filter)
 {
 	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules->GetModules();
@@ -33,13 +44,27 @@ std::string TreeSocket::MyModules(int filter)
 	std::string capabilities;
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
+		Module* const mod = i->second;
 		// 2.2 advertises its settings for the benefit of services
 		// 2.0 would bork on this
 		if (proto_version < 1205 && i->second->ModuleSourceFile == "m_kicknorejoin.so")
 			continue;
 
+		bool do_compat_include = false;
+		if (proto_version < 1205)
+		{
+			for (size_t j = 0; j < sizeof(compatmods)/sizeof(compatmods[0]); j++)
+			{
+				if ((compatmods[j].listflag & filter) && (mod->ModuleSourceFile == compatmods[j].name))
+				{
+					do_compat_include = true;
+					break;
+				}
+			}
+		}
+
 		Version v = i->second->GetVersion();
-		if (!(v.Flags & filter))
+		if ((!do_compat_include) && (!(v.Flags & filter)))
 			continue;
 
 		if (i != modlist.begin())
