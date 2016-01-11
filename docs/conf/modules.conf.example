@@ -1954,12 +1954,6 @@
 #<module name="swhois">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Test module: Enable this to create a command useful in testing
-# flood control. To avoid accidental use on live networks, the server
-# name must contain ".test" to load the module
-#<module name="testnet">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Timed bans module: Adds timed channel bans with the /TBAN command.
 #<module name="timedbans">
 
