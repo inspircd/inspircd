@@ -50,4 +50,8 @@ TEST_F(stripcolor, test1)
 
 	module->OnUserPreMessage(src, dst, TYPE_USER, text, 0, exempt_list, MSG_PRIVMSG);
 	ASSERT_EQ(text, "hello");
+
+	text = "\377moo";
+	module->OnUserPreMessage(src, dst, TYPE_USER, text, 0, exempt_list, MSG_PRIVMSG);
+	ASSERT_EQ(text, "\377moo");
 }
