@@ -200,7 +200,6 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
-	DNS::QueryType start_type = DNS::QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
 		in6_addr n;
@@ -236,6 +235,15 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 	else
 	{
+		// Guess start_type from bindip aftype
+		DNS::QueryType start_type = DNS::QUERY_AAAA;
+		irc::sockets::sockaddrs bind;
+		if ((!x->Bind.empty()) && (irc::sockets::aptosa(x->Bind, 0, bind)))
+		{
+			if (bind.sa.sa_family == AF_INET)
+				start_type = DNS::QUERY_A;
+		}
+
 		ServernameResolver* snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
