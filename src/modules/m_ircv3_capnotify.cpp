@@ -54,7 +54,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 
 	void Send(const std::string& capname, Cap::Capability* cap, bool add)
 	{
-		std::string msg = (add ? "ADD :" : "DEL :");
+		std::string msg = (add ? "NEW :" : "DEL :");
 		msg.append(capname);
 		std::string msgwithval = msg;
 		msgwithval.push_back('=');
