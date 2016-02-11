@@ -28,7 +28,7 @@
 #include "m_cap.h"
 
 #ifdef _WIN32
-# pragma comment(lib, "libgnutls-28.lib")
+# pragma comment(lib, "libgnutls-30.lib")
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
