@@ -58,6 +58,7 @@ SimpleExtItem<dccallowlist>* ext;
 class CommandDccallow : public Command
 {
  public:
+	unsigned int maxentries;
 	CommandDccallow(Module* parent) : Command(parent, "DCCALLOW", 0)
 	{
 		syntax = "[(+|-)<nick> [<time>]]|[LIST|HELP]";
@@ -138,6 +139,12 @@ class CommandDccallow : public Command
 						ext->set(user, dl);
 						// add this user to the userlist
 						ul.push_back(user);
+					}
+
+					if (dl->size() >= maxentries)
+					{
+						user->WriteNumeric(996, "%s %s :Too many nicks on DCCALLOW list", user->nick.c_str(), user->nick.c_str());
+						return CMD_FAILURE;
 					}
 
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
@@ -264,7 +271,7 @@ class ModuleDCCAllow : public Module
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Modules->AddService(*ext);
 		ServerInstance->Modules->AddService(cmd);
-		ReadFileConf();
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -272,6 +279,8 @@ class ModuleDCCAllow : public Module
 	virtual void OnRehash(User* user)
 	{
 		ReadFileConf();
+		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
+		cmd.maxentries = tag->getInt("maxentries", 20);
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

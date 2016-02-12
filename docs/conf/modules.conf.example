@@ -671,6 +671,7 @@
 #  length            - Default duration of entries in DCCALLOW list.
 #  action            - Default action to take if no action is
 #                      specified, can be 'block' or 'allow'.
+#  maxentries        - Max number of nicks to allow on a DCCALLOW list.
 #
 # File configuration:
 #  pattern           - The glob pattern to match against.
@@ -678,7 +679,7 @@
 #                      that matches this pattern, can be 'block' or
 #                      'allow'.
 #
-#<dccallow blockchat="yes" length="5m" action="block">
+#<dccallow blockchat="yes" length="5m" action="block" maxentries="20">
 #<banfile pattern="*.exe" action="block">
 #<banfile pattern="*.txt" action="allow">
 
