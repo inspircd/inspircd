@@ -222,7 +222,7 @@ class ModuleIRCv3 : public Module
 		{
 			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()))
+			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()) && (it->second != memb))
 			{
 				member->Write(line);
 			}
