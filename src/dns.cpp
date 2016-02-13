@@ -121,7 +121,7 @@ class CacheTimer : public Timer
 	DNS* dns;
  public:
 	CacheTimer(DNS* thisdns)
-		: Timer(3600, ServerInstance->Time(), true), dns(thisdns) { }
+		: Timer(5*60, ServerInstance->Time(), true), dns(thisdns) { }
 
 	virtual void Tick(time_t)
 	{
