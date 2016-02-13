@@ -68,7 +68,12 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
+		void* old = get_raw(container);
+		if (old)
+			this->free(old);
 		callerid_data* dat = new callerid_data;
+		set_raw(container, dat);
+
 		irc::commasepstream s(value);
 		std::string tok;
 		if (s.GetToken(tok))
@@ -89,10 +94,6 @@ struct CallerIDExtInfo : public ExtensionItem
 				}
 			}
 		}
-
-		void* old = set_raw(container, dat);
-		if (old)
-			this->free(old);
 	}
 
 	callerid_data* get(User* user, bool create)
