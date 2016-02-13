@@ -33,7 +33,12 @@ static void DisplayList(User* user, Channel* channel)
 			continue;
 		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
-			items << " " << channel->GetModeParameter(letter);
+		{
+			if ((letter == 'k') && (!channel->HasUser(user)) && (!user->HasPrivPermission("channels/auspex")))
+				items << " <key>";
+			else
+				items << " " << channel->GetModeParameter(letter);
+		}
 	}
 	char pfx[MAXBUF];
 	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
