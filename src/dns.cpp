@@ -162,6 +162,8 @@ class RequestTimeout : public Timer
 
 CachedQuery::CachedQuery(const std::string &res, QueryType qt, unsigned int ttl) : data(res), type(qt)
 {
+	if (ttl > 5*60)
+		ttl = 5*60;
 	expires = ServerInstance->Time() + ttl;
 }
 
