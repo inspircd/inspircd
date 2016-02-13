@@ -1060,7 +1060,11 @@ void DNS::HandleEvent(EventType, int)
 					ServerInstance->stats->statsDnsGood++;
 
 				if (!this->GetCache(res.original.c_str()))
+				{
+					if (cache->size() >= MAX_CACHE_SIZE)
+						cache->clear();
 					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.type, res.ttl)));
+				}
 
 				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
 				delete Classes[res.id];

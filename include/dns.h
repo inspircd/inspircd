@@ -302,6 +302,10 @@ class CoreExport DNS : public EventHandler
 	 */
 	static const int MAX_REQUEST_ID = 0xFFFF;
 
+	/** Maximum number of entries in cache
+	 */
+	static const unsigned int MAX_CACHE_SIZE = 1000;
+
 	/**
 	 * Currently cached items
 	 */
