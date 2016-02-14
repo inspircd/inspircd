@@ -161,6 +161,19 @@ class CoreModUser : public Module
 		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
 	}
 
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	{
+		if (user->registered == REG_NONE || myclass->config->getString("password").empty())
+			return MOD_RES_PASSTHRU;
+
+		if (ServerInstance->PassCompare(user, myclass->config->getString("password"), user->password, myclass->config->getString("hash")))
+			return MOD_RES_PASSTHRU;
+
+		ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "User %s did not match the %s class (incorrect password)",
+			user->GetFullRealHost().c_str(), myclass->name.c_str());
+		return MOD_RES_DENY;
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the AWAY, MODE, NICK, PART, PASS, PING, PONG, QUIT and USER commands", VF_VENDOR|VF_CORE);
