@@ -87,42 +87,9 @@
 
 typedef int ssize_t;
 
-/* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
-CoreExport int insp_inet_pton(int af, const char * src, void * dst);
-
-/* Convert struct to formatted (xxx.xxx.xxx.xxx) string */
-CoreExport const char * insp_inet_ntop(int af, const void * src, char * dst, socklen_t cnt);
-
-/* inet_pton/ntop require at least NT 6.0 */
-#define inet_pton insp_inet_pton
-#define inet_ntop insp_inet_ntop
-
-/* Safe printf functions aren't defined in VC++ releases older than v14 */
-#if _MSC_VER <= 1800
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
-#endif
-
-#ifndef va_copy
-#define va_copy(dest, src) (dest = src)
-#endif
-
-/* Unix-style sleep (argument is in seconds) */
-__inline void sleep(int seconds) { Sleep(seconds * 1000); }
-
 /* _popen, _pclose */
 #define popen _popen
 #define pclose _pclose
-
-/* _access */
-#define access _access
-
-/* IPV4 only convert string to address struct */
-__inline int inet_aton(const char *cp, struct in_addr *addr)
-{
-	addr->s_addr = inet_addr(cp);
-	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
-};
 
 /* getopt() wrapper */
 #define no_argument            0
@@ -151,14 +118,6 @@ struct DIR
 	WIN32_FIND_DATAA find_data;
 	bool first;
 };
-
-#if _MSC_VER <= 1800
-struct timespec
-{
-	time_t tv_sec;
-	long tv_nsec;
-};
-#endif
 
 CoreExport DIR * opendir(const char * path);
 CoreExport dirent * readdir(DIR * handle);
@@ -193,12 +152,6 @@ CoreExport void closedir(DIR * handle);
 
 // warning C4706: assignment within conditional expression
 #pragma warning(disable:4706)
-
-// warning C4355: 'this' : used in base member initializer list
-// This warning is disabled by default since VC2012
-#if _MSC_VER < 1700
-#pragma warning(disable:4355)
-#endif
 
 /* Shared memory allocation functions */
 void * ::operator new(size_t iSize);

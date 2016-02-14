@@ -88,7 +88,7 @@ class DNSBLResolver : public DNS::Request
 		bool match = false;
 		in_addr resultip;
 
-		inet_aton(ans_record->rdata.c_str(), &resultip);
+		inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip);
 
 		switch (ConfEntry->type)
 		{

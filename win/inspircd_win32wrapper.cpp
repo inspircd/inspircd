@@ -30,66 +30,6 @@
 #include <errno.h>
 #include <assert.h>
 
-CoreExport const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
-{
-
-	if (af == AF_INET)
-	{
-		struct sockaddr_in in;
-		memset(&in, 0, sizeof(in));
-		in.sin_family = AF_INET;
-		memcpy(&in.sin_addr, src, sizeof(struct in_addr));
-		if (getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST) == 0)
-			return dst;
-	}
-	else if (af == AF_INET6)
-	{
-		struct sockaddr_in6 in;
-		memset(&in, 0, sizeof(in));
-		in.sin6_family = AF_INET6;
-		memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
-		if (getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST) == 0)
-			return dst;
-	}
-	return NULL;
-}
-
-CoreExport int insp_inet_pton(int af, const char *src, void *dst)
-{
-	int address_length;
-	sockaddr_storage sa;
-	sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&sa);
-	sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&sa);
-
-	switch (af)
-	{
-		case AF_INET:
-			address_length = sizeof(sockaddr_in);
-			break;
-		case AF_INET6:
-			address_length = sizeof(sockaddr_in6);
-			break;
-		default:
-			return -1;
-	}
-
-	if (!WSAStringToAddress(static_cast<LPSTR>(const_cast<char *>(src)), af, NULL, reinterpret_cast<LPSOCKADDR>(&sa), &address_length))
-	{
-		switch (af)
-		{
-			case AF_INET:
-				memcpy(dst, &sin->sin_addr, sizeof(in_addr));
-				break;
-			case AF_INET6:
-				memcpy(dst, &sin6->sin6_addr, sizeof(in6_addr));
-				break;
-		}
-		return 1;
-	}
-
-	return 0;
-}
-
 CoreExport DIR * opendir(const char * path)
 {
 	std::string search_path = std::string(path) + "\\*.*";

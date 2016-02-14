@@ -146,13 +146,13 @@ std::string irc::sockets::sockaddrs::addr() const
 	char addrv[INET6_ADDRSTRLEN+1];
 	if (sa.sa_family == AF_INET)
 	{
-		if (!inet_ntop(AF_INET, &in4.sin_addr, addrv, sizeof(addrv)))
+		if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, addrv, sizeof(addrv)))
 			return "";
 		return addrv;
 	}
 	else if (sa.sa_family == AF_INET6)
 	{
-		if (!inet_ntop(AF_INET6, &in6.sin6_addr, addrv, sizeof(addrv)))
+		if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, addrv, sizeof(addrv)))
 			return "";
 		return addrv;
 	}
@@ -171,14 +171,14 @@ std::string irc::sockets::sockaddrs::str() const
 	if (sa.sa_family == AF_INET)
 	{
 		char ipaddr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &in4.sin_addr, ipaddr, sizeof(ipaddr));
+		inet_ntop(AF_INET, (void*)&in4.sin_addr, ipaddr, sizeof(ipaddr));
 		return InspIRCd::Format("%s:%u", ipaddr, ntohs(in4.sin_port));
 	}
 
 	if (sa.sa_family == AF_INET6)
 	{
 		char ipaddr[INET6_ADDRSTRLEN];
-		inet_ntop(AF_INET6, &in6.sin6_addr, ipaddr, sizeof(ipaddr));
+		inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ipaddr, sizeof(ipaddr));
 		return InspIRCd::Format("[%s]:%u", ipaddr, ntohs(in6.sin6_port));
 	}
 
