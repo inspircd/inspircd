@@ -340,29 +340,43 @@ class ModuleDCCAllow : public Module
 								return MOD_RES_PASSTHRU;
 					}
 
-					// tokenize
-					std::stringstream ss(text);
-					std::string buf;
-					std::vector<std::string> tokens;
-
-					while (ss >> buf)
-						tokens.push_back(buf);
-
-					if (tokens.size() < 2)
+					std::string buf = text.substr(5);
+					size_t s = buf.find(' ');
+					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;
 
-					irc::string type = tokens[1].c_str();
+					irc::string type = assign(buf.substr(0, s));
 
 					ConfigTag* conftag = ServerInstance->Config->ConfValue("dccallow");
 					bool blockchat = conftag->getBool("blockchat");
 
 					if (type == "SEND")
 					{
-						if (tokens.size() < 3)
+						size_t first;
+
+						buf = buf.substr(s + 1);
+
+						if (!buf.empty() && buf[0] == '"')
+						{
+							s = buf.find('"', 1);
+
+							if (s == std::string::npos || s <= 1)
+								return MOD_RES_PASSTHRU;
+
+							--s;
+							first = 1;
+						}
+						else
+						{
+							s = buf.find(' ');
+							first = 0;
+						}
+
+						if (s == std::string::npos)
 							return MOD_RES_PASSTHRU;
 
 						std::string defaultaction = conftag->getString("action");
-						std::string filename = tokens[2];
+						std::string filename = buf.substr(first, s);
 
 						bool found = false;
 						for (unsigned int i = 0; i < bfl.size(); i++)
