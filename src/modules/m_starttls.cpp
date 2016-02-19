@@ -102,11 +102,6 @@ class ModuleStartTLS : public Module
 			ssl.SetProvider("ssl/" + newprovider);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["STARTTLS"];
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the STARTTLS command", VF_VENDOR);
