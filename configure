@@ -297,8 +297,8 @@ if (prompt_bool $interactive, $question, 0) {
 } else {
 	# TODO: finish modulemanager rewrite and replace this code with:
 	# system './modulemanager', 'enable', '--auto';
-	enable_extras 'm_ssl_gnutls.cpp' unless system 'gnutls-cli --version >/dev/null 2>&1';
-	enable_extras 'm_ssl_openssl.cpp' unless system 'openssl --version >/dev/null 2>&1';
+	enable_extras 'm_ssl_gnutls.cpp' unless system 'pkg-config --exists gnutls >/dev/null 2>&1';
+	enable_extras 'm_ssl_openssl.cpp' unless system 'pkg-config --exists openssl >/dev/null 2>&1';
 }
 
 # Generate SSL certificates.
