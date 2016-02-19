@@ -28,7 +28,7 @@
 // Fix warnings about the use of commas at end of enumerator lists on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
-#elif defined __GNUC__
+#elif defined __GNUC__ && __GNUC__ < 6
 # pragma GCC diagnostic ignored "-pedantic"
 #endif
 
@@ -58,8 +58,8 @@
 # pragma comment(lib, "libgnutls-28.lib")
 #endif
 
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
-/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
+/* $CompileFlags: -std=c++03 pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
+/* $LinkerFlags: -std=c++03 rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 
 // These don't exist in older GnuTLS versions
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 1, 7)
