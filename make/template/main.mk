@@ -257,6 +257,9 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
+restart: install
+	$(BASE)/inspircd restart
+
 GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
 	./configure --update
 @TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
@@ -311,6 +314,7 @@ help:
 	@echo ' install   Build and install InspIRCd to the directory chosen in ./configure'
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
+	@echo ' restart   Restarts the InspIRCd in the directory chosen in ./configure'
 	@echo ''
 	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
 	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
@@ -322,4 +326,4 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install restart clean deinstall configureclean help
