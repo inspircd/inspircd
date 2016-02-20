@@ -105,7 +105,7 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 {
  public:
 	WhoisChanListNumericBuilder(WhoisContextImpl& whois)
-		: GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), 319, true, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
+		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), 319, true, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
 	{
 	}
 };
