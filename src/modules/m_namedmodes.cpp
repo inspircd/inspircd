@@ -30,7 +30,12 @@ static void DisplayList(User* user, Channel* channel)
 			continue;
 		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
-			items << " " << channel->GetModeParameter(mh);
+		{
+			if ((mh->name == "key") && (!channel->HasUser(user)) && (!user->HasPrivPermission("channels/auspex")))
+				items << " <key>";
+			else
+				items << " " << channel->GetModeParameter(mh);
+		}
 	}
 	const std::string line = ":" + ServerInstance->Config->ServerName + " 961 " + user->nick + " " + channel->name;
 	user->SendText(line, items);
@@ -64,6 +69,8 @@ class CommandProp : public Command
 		while (i < parameters.size())
 		{
 			std::string prop = parameters[i++];
+			if (prop.empty())
+				continue;
 			bool plus = prop[0] != '-';
 			if (prop[0] == '+' || prop[0] == '-')
 				prop.erase(prop.begin());

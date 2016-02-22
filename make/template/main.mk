@@ -45,6 +45,7 @@ BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 MANPATH = "$(DESTDIR)@MANUAL_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
+LOGPATH = "$(DESTDIR)@LOG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 INSTALL = install
@@ -217,8 +218,8 @@ install: target
 		exit 1; \
 	fi
 	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
@@ -321,5 +322,7 @@ help:
 	@echo ' distclean Cleans all generated files (build, configure, run, etc)'
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
+
+.NOTPARALLEL:
 
 .PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean help

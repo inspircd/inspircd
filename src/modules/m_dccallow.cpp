@@ -58,6 +58,7 @@ class CommandDccallow : public Command
 	DCCAllowExt& ext;
 
  public:
+	unsigned int maxentries;
 	CommandDccallow(Module* parent, DCCAllowExt& Ext)
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
@@ -140,6 +141,12 @@ class CommandDccallow : public Command
 						ext.set(user, dl);
 						// add this user to the userlist
 						ul.push_back(user);
+					}
+
+					if (dl->size() >= maxentries)
+					{
+						user->WriteNumeric(996, "%s :Too many nicks on DCCALLOW list", user->nick.c_str());
+						return CMD_FAILURE;
 					}
 
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
@@ -453,6 +460,9 @@ class ModuleDCCAllow : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
+		cmd.maxentries = tag->getInt("maxentries", 20);
+
 		bfl.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)

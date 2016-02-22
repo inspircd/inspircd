@@ -58,6 +58,7 @@
 
 /* Disable the deprecation warnings.. it spams :P */
 #define _CRT_SECURE_NO_DEPRECATE
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
@@ -96,9 +97,11 @@ CoreExport const char * insp_inet_ntop(int af, const void * src, char * dst, soc
 #define inet_pton insp_inet_pton
 #define inet_ntop insp_inet_ntop
 
-/* Safe printf functions aren't defined in VC++ */
+/* Safe printf functions aren't defined in VC++ releases older than v14 */
+#if _MSC_VER <= 1800
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
+#endif
 
 #ifndef va_copy
 #define va_copy(dest, src) (dest = src)
@@ -149,11 +152,13 @@ struct DIR
 	bool first;
 };
 
+#if _MSC_VER <= 1800
 struct timespec
 {
 	time_t tv_sec;
 	long tv_nsec;
 };
+#endif
 
 CoreExport DIR * opendir(const char * path);
 CoreExport dirent * readdir(DIR * handle);

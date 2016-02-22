@@ -425,6 +425,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
 # in a channel matching a ban like +b j:#channel*mask from joining.
+# Note that by default wildcard characters * and ? are allowed in
+# channel names. To disallow them, load m_channames and add characters
+# 42 and 63 to denyrange (see above).
 #<module name="channelban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -654,6 +657,7 @@
 #  length            - Default duration of entries in DCCALLOW list.
 #  action            - Default action to take if no action is
 #                      specified, can be 'block' or 'allow'.
+#  maxentries        - Max number of nicks to allow on a DCCALLOW list.
 #
 # File configuration:
 #  pattern           - The glob pattern to match against.
@@ -661,7 +665,7 @@
 #                      that matches this pattern, can be 'block' or
 #                      'allow'.
 #
-#<dccallow blockchat="yes" length="5m" action="block">
+#<dccallow blockchat="yes" length="5m" action="block" maxentries="20">
 #<banfile pattern="*.exe" action="block">
 #<banfile pattern="*.txt" action="allow">
 
@@ -1206,10 +1210,13 @@
 # 2) Allows using custom (national) casemapping over the network.
 #<module name="nationalchars">
 #
-# file - filename of existing file in "locales" directory
-# casemapping - custom value for 005 numeric (if you want it to be
-#               different from the filename). Set this to the name of
-#               the locale if you are specifying an absolute path.
+# file - Location of the file which contains casemapping rules. If this
+#        is a relative path then it is relative to "<PWD>/../locales"
+#        on UNIX and "<PWD>/locales" on Windows.
+# casemapping - The name of the casemapping sent to clients in the 005
+#               numeric. If this is not set then it defaults to the name
+#               of the casemapping file unless the file name contains a
+#               space in which case you will have to specify it manually.
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

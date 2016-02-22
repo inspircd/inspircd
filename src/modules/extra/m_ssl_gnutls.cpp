@@ -59,7 +59,7 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "libgnutls-28.lib")
+# pragma comment(lib, "libgnutls-30.lib")
 #endif
 
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */

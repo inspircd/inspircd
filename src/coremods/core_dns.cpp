@@ -339,6 +339,10 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	irc::sockets::sockaddrs myserver;
 
+	/** Maximum number of entries in cache
+	 */
+	static const unsigned int MAX_CACHE_SIZE = 1000;
+
 	static bool IsExpired(const Query& record, time_t now = ServerInstance->Time())
 	{
 		const ResourceRecord& req = record.answers[0];
@@ -374,6 +378,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 	 */
 	void AddCache(Query& r)
 	{
+		if (cache.size() >= MAX_CACHE_SIZE)
+			cache.clear();
+
 		// Determine the lowest TTL value and use that as the TTL of the cache entry
 		unsigned int cachettl = UINT_MAX;
 		for (std::vector<ResourceRecord>::const_iterator i = r.answers.begin(); i != r.answers.end(); ++i)
@@ -383,6 +390,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 				cachettl = rr.ttl;
 		}
 
+		cachettl = std::min(cachettl, (unsigned int)5*60);
 		ResourceRecord& rr = r.answers.front();
 		// Set TTL to what we've determined to be the lowest
 		rr.ttl = cachettl;
@@ -393,7 +401,7 @@ class MyManager : public Manager, public Timer, public EventHandler
  public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 
-	MyManager(Module* c) : Manager(c), Timer(3600, true)
+	MyManager(Module* c) : Manager(c), Timer(5*60, true)
 	{
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
