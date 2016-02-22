@@ -217,7 +217,15 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 					data << "</server>";
 				}
 
-				data << "</serverlist></inspircdstats>";
+				data << "</serverlist><commandlist>";
+
+				const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+				for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
+				{
+					data << "<command><name>" << i->second->name << "</name><usecount>" << i->second->use_count << "</usecount></command>";
+				}
+
+				data << "</commandlist></inspircdstats>";
 
 				/* Send the document back to m_httpd */
 				HTTPDocumentResponse response(this, *http, &data, 200);
