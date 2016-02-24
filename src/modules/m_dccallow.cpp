@@ -25,6 +25,29 @@
 
 #include "inspircd.h"
 
+static const char* const helptext[] =
+{
+	"DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]",
+	"You may allow DCCs from specific users by specifying a",
+	"DCC allow for the user you want to receive DCCs from.",
+	"For example, to allow the user Brain to send you inspircd.exe",
+	"you would type:",
+	"/DCCALLOW +Brain",
+	"Brain would then be able to send you files. They would have to",
+	"resend the file again if the server gave them an error message",
+	"before you added them to your DCCALLOW list.",
+	"DCCALLOW entries will be temporary by default, if you want to add",
+	"them to your DCCALLOW list until you leave IRC, type:",
+	"/DCCALLOW +Brain 0",
+	"To remove the user from your DCCALLOW list, type:",
+	"/DCCALLOW -Brain",
+	"To see the users in your DCCALLOW list, type:",
+	"/DCCALLOW LIST",
+	"NOTE: If the user leaves IRC or changes their nickname",
+	"  they will be removed from your DCCALLOW list.",
+	"  your DCCALLOW list will be deleted when you leave IRC."
+};
+
 class BannedFileList
 {
  public:
@@ -212,25 +235,8 @@ class CommandDccallow : public Command
 
 	void DisplayHelp(User* user)
 	{
-		user->WriteNumeric(998, ":DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]");
-		user->WriteNumeric(998, ":You may allow DCCs from specific users by specifying a");
-		user->WriteNumeric(998, ":DCC allow for the user you want to receive DCCs from.");
-		user->WriteNumeric(998, ":For example, to allow the user Brain to send you inspircd.exe");
-		user->WriteNumeric(998, ":you would type:");
-		user->WriteNumeric(998, ":/DCCALLOW +Brain");
-		user->WriteNumeric(998, ":Brain would then be able to send you files. They would have to");
-		user->WriteNumeric(998, ":resend the file again if the server gave them an error message");
-		user->WriteNumeric(998, ":before you added them to your DCCALLOW list.");
-		user->WriteNumeric(998, ":DCCALLOW entries will be temporary by default, if you want to add");
-		user->WriteNumeric(998, ":them to your DCCALLOW list until you leave IRC, type:");
-		user->WriteNumeric(998, ":/DCCALLOW +Brain 0");
-		user->WriteNumeric(998, ":To remove the user from your DCCALLOW list, type:");
-		user->WriteNumeric(998, ":/DCCALLOW -Brain");
-		user->WriteNumeric(998, ":To see the users in your DCCALLOW list, type:");
-		user->WriteNumeric(998, ":/DCCALLOW LIST");
-		user->WriteNumeric(998, ":NOTE: If the user leaves IRC or changes their nickname");
-		user->WriteNumeric(998, ":  they will be removed from your DCCALLOW list.");
-		user->WriteNumeric(998, ":  your DCCALLOW list will be deleted when you leave IRC.");
+		for (size_t i = 0; i < sizeof(helptext)/sizeof(helptext[0]); i++)
+			user->WriteNumeric(998, ":%s", helptext[i]);
 		user->WriteNumeric(999, ":End of DCCALLOW HELP");
 
 		LocalUser* localuser = IS_LOCAL(user);
