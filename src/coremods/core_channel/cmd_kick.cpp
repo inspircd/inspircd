@@ -111,7 +111,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 			if (them < req)
 			{
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
-					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
+					c->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}

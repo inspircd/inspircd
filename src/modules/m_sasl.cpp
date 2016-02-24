@@ -142,7 +142,7 @@ class SaslAuthenticator
 				this->result = this->GetSaslResult(msg[3]);
 			}
 			else if (msg[2] == "M")
-				this->user->WriteNumeric(908, "%s %s :are available SASL mechanisms", this->user->nick.c_str(), msg[3].c_str());
+				this->user->WriteNumeric(908, "%s :are available SASL mechanisms", msg[3].c_str());
 			else
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
