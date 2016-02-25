@@ -33,7 +33,7 @@ class CommandUserip : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		std::string retbuf = "340 " + user->nick + " :";
+		std::string retbuf;
 		int nicks = 0;
 		bool checked_privs = false;
 		bool has_privs = false;
@@ -70,7 +70,7 @@ class CommandUserip : public Command
 		}
 
 		if (nicks != 0)
-			user->WriteServ(retbuf);
+			user->WriteNumeric(340, retbuf);
 
 		return CMD_SUCCESS;
 	}
