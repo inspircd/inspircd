@@ -34,7 +34,7 @@ class CommandClones : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 
-		std::string clonesstr = "304 " + user->nick + " :CLONES";
+		std::string clonesstr = "CLONES ";
 
 		unsigned long limit = atoi(parameters[0].c_str());
 
@@ -45,7 +45,7 @@ class CommandClones : public Command
 		 *  :server.name 304 target :CLONES END
 		 */
 
-		user->WriteServ(clonesstr + " START");
+		user->WriteNumeric(304, clonesstr + "START");
 
 		/* hostname or other */
 		const UserManager::CloneMap& clonemap = ServerInstance->Users->GetCloneMap();
@@ -53,10 +53,10 @@ class CommandClones : public Command
 		{
 			const UserManager::CloneCounts& counts = i->second;
 			if (counts.global >= limit)
-				user->WriteServ(clonesstr + " " + ConvToStr(counts.global) + " " + i->first.str());
+				user->WriteNumeric(304, clonesstr + ConvToStr(counts.global) + " " + i->first.str());
 		}
 
-		user->WriteServ(clonesstr + " END");
+		user->WriteNumeric(304, clonesstr + "END");
 
 		return CMD_SUCCESS;
 	}
