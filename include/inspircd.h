@@ -65,6 +65,7 @@ struct fakederef
 };
 
 #include "config.h"
+#include "convto.h"
 #include "dynref.h"
 #include "consolecolors.h"
 #include "caller.h"
@@ -94,88 +95,6 @@ struct fakederef
 #include "protocol.h"
 #include "bancache.h"
 #include "isupportmanager.h"
-
-/** Template function to convert any input type to std::string
- */
-template<typename T> inline std::string ConvNumeric(const T &in)
-{
-	if (in == 0)
-		return "0";
-	T quotient = in;
-	std::string out;
-	while (quotient)
-	{
-		out += "0123456789"[ std::abs( (long)quotient % 10 ) ];
-		quotient /= 10;
-	}
-	if (in < 0)
-		out += '-';
-	std::reverse(out.begin(), out.end());
-	return out;
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const int in)
-{
-	return ConvNumeric(in);
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const long in)
-{
-	return ConvNumeric(in);
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const char* in)
-{
-	return in;
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const bool in)
-{
-	return (in ? "1" : "0");
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(char in)
-{
-	return std::string(1, in);
-}
-
-/** Template function to convert any input type to std::string
- */
-template <class T> inline std::string ConvToStr(const T &in)
-{
-	std::stringstream tmp;
-	if (!(tmp << in)) return std::string();
-	return tmp.str();
-}
-
-/** Template function to convert any input type to any other type
- * (usually an integer or numeric type)
- */
-template<typename T> inline long ConvToInt(const T &in)
-{
-	std::stringstream tmp;
-	if (!(tmp << in)) return 0;
-	return atol(tmp.str().c_str());
-}
-
-inline uint64_t ConvToUInt64(const std::string& in)
-{
-	uint64_t ret;
-	std::istringstream tmp(in);
-	if (!(tmp >> ret))
-		return 0;
-	return ret;
-}
 
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
