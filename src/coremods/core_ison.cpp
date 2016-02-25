@@ -44,7 +44,7 @@ class IsonReplyBuilder : public Numeric::Builder<' ', true>
 {
  public:
 	IsonReplyBuilder(LocalUser* user)
-		: Numeric::Builder<' ', true>(user, 303)
+		: Numeric::Builder<' ', true>(user, RPL_ISON)
 	{
 	}
 

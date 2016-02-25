@@ -77,7 +77,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 		}
 	}
 
-	user->WriteNumeric(302, retbuf);
+	user->WriteNumeric(RPL_USERHOST, retbuf);
 
 	return CMD_SUCCESS;
 }

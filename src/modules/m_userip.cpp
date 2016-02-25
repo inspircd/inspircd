@@ -70,7 +70,7 @@ class CommandUserip : public Command
 		}
 
 		if (nicks != 0)
-			user->WriteNumeric(340, retbuf);
+			user->WriteNumeric(RPL_USERIP, retbuf);
 
 		return CMD_SUCCESS;
 	}
