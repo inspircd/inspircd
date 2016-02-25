@@ -340,7 +340,7 @@ void User::Oper(OperInfo* info)
 		LocalUser* l = IS_LOCAL(this);
 		std::string vhost = oper->getConfig("vhost");
 		if (!vhost.empty())
-			l->ChangeDisplayedHost(vhost.c_str());
+			l->ChangeDisplayedHost(vhost);
 		std::string opClass = oper->getConfig("class");
 		if (!opClass.empty())
 			l->SetClass(opClass);
