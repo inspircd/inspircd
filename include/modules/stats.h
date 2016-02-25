@@ -167,6 +167,7 @@ class Stats::Context
 		n.push(p5);
 		n.push(p6);
 		n.push(p7);
+		n.push(p8);
 		AddRow(n);
 	}
 };
