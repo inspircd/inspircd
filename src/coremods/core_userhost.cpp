@@ -47,7 +47,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 {
 	const bool has_privs = user->HasPrivPermission("users/auspex");
 
-	std::string retbuf = "302 " + user->nick + " :";
+	std::string retbuf;
 
 	unsigned int max = parameters.size();
 	if (max > 5)
@@ -77,7 +77,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 		}
 	}
 
-	user->WriteServ(retbuf);
+	user->WriteNumeric(302, retbuf);
 
 	return CMD_SUCCESS;
 }
