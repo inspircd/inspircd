@@ -41,13 +41,12 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 			continue;
 
 		Module* src = i->second->creator;
-		list.push_back(InspIRCd::Format(":%s %03d %s :%s %s %d %d", ServerInstance->Config->ServerName.c_str(),
-			RPL_COMMANDS, user->nick.c_str(), i->second->name.c_str(), src->ModuleSourceFile.c_str(),
+		list.push_back(InspIRCd::Format("%s %s %d %d", i->second->name.c_str(), src->ModuleSourceFile.c_str(),
 			i->second->min_params, i->second->Penalty));
 	}
 	std::sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)
-		user->Write(list[i]);
+		user->WriteNumeric(RPL_COMMANDS, list[i]);
 	user->WriteNumeric(RPL_COMMANDSEND, "End of COMMANDS list");
 	return CMD_SUCCESS;
 }
