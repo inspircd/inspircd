@@ -74,6 +74,11 @@ inline std::string ConvToStr(char in)
 	return std::string(1, in);
 }
 
+inline const std::string& ConvToStr(const std::string& in)
+{
+	return in;
+}
+
 /** Template function to convert any input type to std::string
  */
 template <class T> inline std::string ConvToStr(const T& in)
