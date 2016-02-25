@@ -399,8 +399,8 @@ public:
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
-				dest->SendText(":%s %03d %s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
-						ServerInstance->Config->ServerName.c_str(), RPL_UMODEGMSG, dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->dhost.c_str()), InspIRCd::Format("is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
+						user->nick.c_str()));
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;

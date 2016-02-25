@@ -77,13 +77,22 @@ class CommandUninvite : public Command
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
 		{
+			// XXX: The source of the numeric we send must be the server of the user doing the /UNINVITE,
+			// so they don't see where the target user is connected to
 			if (!invapi->Remove(lu, c))
 			{
-				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server->GetName().c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+				Numeric::Numeric n(505);
+				n.SetServer(user->server);
+				n.push(u->nick).push(c->name).push(InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
+				user->WriteRemoteNumeric(n);
 				return CMD_FAILURE;
 			}
 
-			user->SendText(":%s 494 %s %s %s :Uninvited", user->server->GetName().c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
+			Numeric::Numeric n(494);
+			n.SetServer(user->server);
+			n.push(c->name).push(u->nick).push("Uninvited");
+			user->WriteRemoteNumeric(n);
+
 			lu->WriteNumeric(493, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";

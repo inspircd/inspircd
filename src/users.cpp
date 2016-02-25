@@ -954,6 +954,12 @@ void User::SendText(const std::string& linePrefix, std::stringstream& textStream
 	SendText(linePrefix + line);
 }
 
+void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
+{
+	const std::string& servername = (numeric.GetServer() ? numeric.GetServer()->GetName() : ServerInstance->Config->ServerName);
+	SendText(BuildNumeric(servername, this, numeric.GetNumeric(), numeric.GetParams()));
+}
+
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices)
  *

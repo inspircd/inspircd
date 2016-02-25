@@ -519,6 +519,57 @@ class CoreExport User : public Extensible
 	 */
 	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
 
+	void WriteRemoteNumeric(const Numeric::Numeric& numeric);
+
+	template <typename T1>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		n.push(p5);
+		WriteRemoteNumeric(n);
+	}
 
 	void WriteNumeric(const Numeric::Numeric& numeric);
 

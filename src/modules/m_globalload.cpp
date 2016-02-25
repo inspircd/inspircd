@@ -93,8 +93,7 @@ class CommandGunloadmodule : public Command
 				if (ServerInstance->Modules->Unload(m))
 				{
 					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-					user->SendText(":%s 973 %s %s :Module successfully unloaded.",
-						ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+					user->WriteRemoteNumeric(973, parameters[0], "Module successfully unloaded.");
 				}
 				else
 				{
@@ -102,7 +101,7 @@ class CommandGunloadmodule : public Command
 				}
 			}
 			else
-				user->SendText(":%s %03d %s %s :No such module", ServerInstance->Config->ServerName.c_str(), ERR_CANTUNLOADMODULE, user->nick.c_str(), parameters[0].c_str());
+				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "No such module");
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());

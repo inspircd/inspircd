@@ -199,17 +199,14 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 
 	std::vector<std::string> map = GetMap(user, Utils->TreeRoot, max, 0);
 	for (std::vector<std::string>::const_iterator i = map.begin(); i != map.end(); ++i)
-		user->SendText(":%s %03d %s :%s", ServerInstance->Config->ServerName.c_str(),
-			RPL_MAP, user->nick.c_str(), i->c_str());
+		user->WriteRemoteNumeric(RPL_MAP, *i);
 
 	size_t totusers = ServerInstance->Users->GetUsers().size();
 	float avg_users = (float) totusers / Utils->serverlist.size();
 
-	user->SendText(":%s %03d %s :%u server%s and %u user%s, average %.2f users per server",
-		ServerInstance->Config->ServerName.c_str(), RPL_MAPUSERS, user->nick.c_str(),
-		(unsigned int)Utils->serverlist.size(), (Utils->serverlist.size() > 1 ? "s" : ""), (unsigned int)totusers, (totusers > 1 ? "s" : ""), avg_users);
-	user->SendText(":%s %03d %s :End of /MAP", ServerInstance->Config->ServerName.c_str(),
-		RPL_ENDMAP, user->nick.c_str());
+	user->WriteRemoteNumeric(RPL_MAPUSERS, InspIRCd::Format("%u server%s and %u user%s, average %.2f users per server",
+		(unsigned int)Utils->serverlist.size(), (Utils->serverlist.size() > 1 ? "s" : ""), (unsigned int)totusers, (totusers > 1 ? "s" : ""), avg_users));
+	user->WriteRemoteNumeric(RPL_ENDMAP, "End of /MAP");
 
 	return CMD_SUCCESS;
 }
