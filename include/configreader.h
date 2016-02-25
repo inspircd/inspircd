@@ -438,6 +438,10 @@ class CoreExport ServerConfig
 	 */
 	std::string HideKillsServer;
 
+	/** Set to hide kills from clients of ulined servers in snotices.
+	 */
+	bool HideULineKills;
+
 	/** The full pathname and filename of the PID
 	 * file as defined in the configuration.
 	 */
