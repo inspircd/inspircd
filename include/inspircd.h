@@ -73,6 +73,7 @@ struct fakederef
 #include "extensible.h"
 #include "fileutils.h"
 #include "numerics.h"
+#include "numeric.h"
 #include "uid.h"
 #include "server.h"
 #include "users.h"

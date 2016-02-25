@@ -35,7 +35,7 @@
  * Please note that the list may not be exhaustive, it'll be done when I have
  * nothing better to do with my time. -- w00t (jul 13, 2008)
  */
-enum Numerics
+enum
 {
 	/*
 	 * Reply range of numerics.

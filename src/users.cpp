@@ -786,6 +786,22 @@ void User::WriteCommand(const char* command, const std::string& text)
 	this->WriteServ(command + (this->registered & REG_NICK ? " " + this->nick : " *") + " " + text);
 }
 
+namespace
+{
+	std::string BuildNumeric(const std::string& source, User* targetuser, unsigned int num, const std::vector<std::string>& params)
+	{
+		const char* const target = (targetuser->registered & REG_NICK ? targetuser->nick.c_str() : "*");
+		std::string raw = InspIRCd::Format(":%s %03u %s", source.c_str(), num, target);
+		if (!params.empty())
+		{
+			for (std::vector<std::string>::const_iterator i = params.begin(); i != params.end()-1; ++i)
+				raw.append(1, ' ').append(*i);
+			raw.append(" :").append(params.back());
+		}
+		return raw;
+	}
+}
+
 void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 {
 	std::string textbuffer;

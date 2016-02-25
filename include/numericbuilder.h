@@ -113,7 +113,7 @@ class Numeric::Builder : public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
 {
  public:
 	Builder(LocalUser* user, unsigned int num, bool addparam = true, size_t additionalsize = 0)
-		: Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
+		: ::Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
 	{
 	}
 };
