@@ -111,3 +111,8 @@ typedef XLineContainer::iterator ContainerIter;
 /** An interator in an XLineLookup
  */
 typedef XLineLookup::iterator LookupIter;
+
+namespace Stats
+{
+	class Context;
+}

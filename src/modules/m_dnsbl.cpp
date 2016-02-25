@@ -406,9 +406,9 @@ class ModuleDNSBL : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'd')
+		if (stats.GetSymbol() != 'd')
 			return MOD_RES_PASSTHRU;
 
 		unsigned long total_hits = 0, total_misses = 0;
@@ -418,12 +418,12 @@ class ModuleDNSBL : public Module
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;
 
-			results.push_back("304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
+			stats.AddRow(304, "DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
 					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
 		}
 
-		results.push_back("304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
-		results.push_back("304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
+		stats.AddRow(304, "DNSBLSTATS Total hits: " + ConvToStr(total_hits));
+		stats.AddRow(304, "DNSBLSTATS Total misses: " + ConvToStr(total_misses));
 
 		return MOD_RES_PASSTHRU;
 	}

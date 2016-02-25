@@ -447,7 +447,7 @@ void XLineManager::ApplyLines()
 	pending_lines.clear();
 }
 
-void XLineManager::InvokeStats(const std::string &type, int numeric, User* user, string_list &results)
+void XLineManager::InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats)
 {
 	ContainerIter n = lookup_lines.find(type);
 
@@ -468,7 +468,7 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 				ExpireLine(n, i);
 			}
 			else
-				results.push_back(ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
+				stats.AddRow(numeric, i->second->Displayable()+" "+
 					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+i->second->source+" :"+i->second->reason);
 			i = safei;
 		}

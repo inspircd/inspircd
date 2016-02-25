@@ -122,9 +122,9 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		}
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list& results) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'P')
+		if (stats.GetSymbol() != 'P')
 			return MOD_RES_PASSTHRU;
 
 		unsigned int count = 0;
@@ -132,15 +132,15 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 		{
 			User* oper = *i;
-			if (!oper->server->IsULine() && (user->IsOper() || !oper->IsModeSet(hm)))
+			if (!oper->server->IsULine() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
 			{
 				LocalUser* lu = IS_LOCAL(oper);
-				results.push_back("249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
+				stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
 						(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
 				count++;
 			}
 		}
-		results.push_back("249 "+user->nick+" :"+ConvToStr(count)+" OPER(s)");
+		stats.AddRow(249, ConvToStr(count)+" OPER(s)");
 
 		return MOD_RES_DENY;
 	}

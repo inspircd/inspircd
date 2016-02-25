@@ -165,12 +165,12 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'C')
+		if (stats.GetSymbol() != 'C')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("CBAN", 210, user, out);
+		ServerInstance->XLines->InvokeStats("CBAN", 210, stats);
 		return MOD_RES_DENY;
 	}
 

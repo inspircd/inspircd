@@ -270,10 +270,10 @@ class ModuleWhoWas : public Module
 		cmd.manager.Add(user);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol == 'z')
-			results.push_back("249 "+user->nick+" :Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
+		if (stats.GetSymbol() == 'z')
+			stats.AddRow(249, "Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
 
 		return MOD_RES_PASSTHRU;
 	}

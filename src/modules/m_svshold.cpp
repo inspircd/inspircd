@@ -183,12 +183,12 @@ class ModuleSVSHold : public Module
 		silent = tag->getBool("silent", true);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if(symbol != 'S')
+		if (stats.GetSymbol() != 'S')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, user, out);
+		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, stats);
 		return MOD_RES_DENY;
 	}
 
