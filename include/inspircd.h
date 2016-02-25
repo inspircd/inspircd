@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <stdint.h>
 
 #include <algorithm>
 #include <bitset>

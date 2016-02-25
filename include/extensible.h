@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <stdint.h>
-
 enum SerializeFormat
 {
 	/** Shown to a human (does not need to be unserializable) */
