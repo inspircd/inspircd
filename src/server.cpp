@@ -194,35 +194,34 @@ void ISupportManager::Build()
 	}
 
 	// Transform the map into a list of lines, ready to be sent to clients
-	std::string line;
+	Numeric::Numeric numeric(RPL_ISUPPORT);
 	unsigned int token_count = 0;
 	cachedlines.clear();
 
 	for (std::map<std::string, std::string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 	{
-		line.append(it->first);
+		numeric.push(it->first);
+		std::string& token = numeric.GetParams().back();
 
 		// If this token has a value then append a '=' char after the name and then the value itself
 		if (!it->second.empty())
-			line.append(1, '=').append(it->second);
+			token.append(1, '=').append(it->second);
 
-		// Always append a space, even if it's the last token because all lines will be suffixed
-		line.push_back(' ');
 		token_count++;
 
 		if (token_count % 13 == 12 || it == --tokens.end())
 		{
 			// Reached maximum number of tokens for this line or the current token
 			// is the last one; finalize the line and store it for later use
-			line.append(":are supported by this server");
-			cachedlines.push_back(line);
-			line.clear();
+			numeric.push("are supported by this server");
+			cachedlines.push_back(numeric);
+			numeric.GetParams().clear();
 		}
 	}
 }
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (std::vector<std::string>::const_iterator i = cachedlines.begin(); i != cachedlines.end(); ++i)
-		user->WriteNumeric(RPL_ISUPPORT, *i);
+	for (std::vector<Numeric::Numeric>::const_iterator i = cachedlines.begin(); i != cachedlines.end(); ++i)
+		user->WriteNumeric(*i);
 }

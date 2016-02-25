@@ -50,8 +50,7 @@ class ModuleMLock : public Module
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{
-			source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
-					     channel->name.c_str(), mode, mlock_str->c_str());
+			source->WriteNumeric(742, channel->name, mode, *mlock_str, "MODE cannot be set due to channel having an active MLOCK restriction policy");
 			return MOD_RES_DENY;
 		}
 

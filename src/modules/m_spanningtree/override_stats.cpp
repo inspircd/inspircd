@@ -24,27 +24,34 @@
 #include "utils.h"
 #include "link.h"
 
-ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results)
+ModResult ModuleSpanningTree::OnStats(Stats::Context& stats)
 {
-	if ((statschar == 'c') || (statschar == 'n'))
+	if ((stats.GetSymbol() == 'c') || (stats.GetSymbol() == 'n'))
 	{
 		for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
 		{
 			Link* L = *i;
-			results.push_back("213 "+user->nick+" "+statschar+" *@"+(L->HiddenFromStats ? "<hidden>" : L->IPAddr)+" * "+(*i)->Name.c_str()+" "+ConvToStr(L->Port)+" "+(L->Hook.empty() ? "plaintext" : L->Hook));
-			if (statschar == 'c')
-				results.push_back("244 "+user->nick+" H * * "+L->Name.c_str());
+			std::string ipaddr = "*@";
+			if (L->HiddenFromStats)
+				ipaddr.append("<hidden>");
+			else
+				ipaddr.append(L->IPAddr);
+
+			const std::string hook = (L->Hook.empty() ? "plaintext" : L->Hook);
+			stats.AddRow(213, stats.GetSymbol(), ipaddr, '*', L->Name.c_str(), L->Port, hook);
+			if (stats.GetSymbol() == 'c')
+				stats.AddRow(244, 'H', '*', '*', L->Name.c_str());
 		}
 		return MOD_RES_DENY;
 	}
-	else if (statschar == 'U')
+	else if (stats.GetSymbol() == 'U')
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("uline");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			std::string name = i->second->getString("server");
 			if (!name.empty())
-				results.push_back("248 "+user->nick+" U "+name);
+				stats.AddRow(248, 'U', name);
 		}
 		return MOD_RES_DENY;
 	}

@@ -65,21 +65,18 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 					flags[pos] = '-';
 
 #ifdef PURE_STATIC
-			user->SendText(":%s 702 %s :%s %s :%s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str());
+			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s :%s", m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str()));
 #else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();
-			user->SendText(":%s 702 %s :%s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
+			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s :%s - %s", m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str()));
 #endif
 		}
 		else
 		{
-			user->SendText(":%s 702 %s :%s %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), m->ModuleSourceFile.c_str(), V.description.c_str());
+			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s", m->ModuleSourceFile.c_str(), V.description.c_str()));
 		}
 	}
-	user->SendText(":%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+	user->WriteRemoteNumeric(703, "End of MODULES list");
 
 	return CMD_SUCCESS;
 }

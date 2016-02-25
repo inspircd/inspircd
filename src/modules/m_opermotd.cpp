@@ -50,21 +50,20 @@ class CommandOpermotd : public Command
 
 	void ShowOperMOTD(User* user)
 	{
-		const std::string& servername = ServerInstance->Config->ServerName;
 		if (opermotd.empty())
 		{
-			user->SendText(":%s 455 %s :OPERMOTD file is missing", servername.c_str(), user->nick.c_str());
+			user->WriteRemoteNumeric(455, "OPERMOTD file is missing");
 			return;
 		}
 
-		user->SendText(":%s 375 %s :- IRC Operators Message of the Day", servername.c_str(), user->nick.c_str());
+		user->WriteRemoteNumeric(375, "- IRC Operators Message of the Day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), i->c_str());
+			user->WriteRemoteNumeric(372, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->SendText(":%s 376 %s :- End of OPERMOTD", servername.c_str(), user->nick.c_str());
+		user->WriteRemoteNumeric(376, "- End of OPERMOTD");
 	}
 };
 

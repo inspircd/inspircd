@@ -183,12 +183,12 @@ class ModuleSVSHold : public Module
 		silent = tag->getBool("silent", true);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if(symbol != 'S')
+		if (stats.GetSymbol() != 'S')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, user, out);
+		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, stats);
 		return MOD_RES_DENY;
 	}
 
@@ -198,7 +198,7 @@ class ModuleSVSHold : public Module
 
 		if (rl)
 		{
-			user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Services reserved nickname: %s", newnick.c_str(), rl->reason.c_str());
+			user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Services reserved nickname: %s", rl->reason.c_str()));
 			return MOD_RES_DENY;
 		}
 

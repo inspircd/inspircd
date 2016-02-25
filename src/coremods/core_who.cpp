@@ -385,7 +385,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	/* Send the results out */
 	for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 		user->WriteServ(*n);
-	user->WriteNumeric(RPL_ENDOFWHO, "%s :End of /WHO list.", *parameters[0].c_str() ? parameters[0].c_str() : "*");
+	user->WriteNumeric(RPL_ENDOFWHO, (*parameters[0].c_str() ? parameters[0] : "*"), "End of /WHO list.");
 
 	// Penalize the user a bit for large queries
 	// (add one unit of penalty per 200 results)

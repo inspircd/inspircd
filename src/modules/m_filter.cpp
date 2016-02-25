@@ -187,7 +187,7 @@ class ModuleFilter : public Module
 	FilterResult DecodeFilter(const std::string &data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
-	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE;
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
@@ -343,14 +343,14 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Message to channel blocked and opers notified (%s)", target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		else if (f->action == FA_SILENT)
 		{
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Message to channel blocked (%s)", target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
 		}
@@ -693,21 +693,21 @@ void ModuleFilter::ReadFilters()
 	}
 }
 
-ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
+ModResult ModuleFilter::OnStats(Stats::Context& stats)
 {
-	if (symbol == 's')
+	if (stats.GetSymbol() == 's')
 	{
 		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			results.push_back("223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			stats.AddRow(223, RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
 		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
 		{
-			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
+			stats.AddRow(223, "EXEMPT "+(*i));
 		}
 		for (ExemptTargetSet::const_iterator i = exemptednicks.begin(); i != exemptednicks.end(); ++i)
 		{
-			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
+			stats.AddRow(223, "EXEMPT "+(*i));
 		}
 	}
 	return MOD_RES_PASSTHRU;

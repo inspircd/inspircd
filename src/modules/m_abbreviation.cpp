@@ -49,7 +49,7 @@ class ModuleAbbreviation : public Module
 			{
 				if (matchlist.length() > 450)
 				{
-					user->WriteNumeric(420, ":Ambiguous abbreviation and too many possible matches.");
+					user->WriteNumeric(420, "Ambiguous abbreviation and too many possible matches.");
 					return MOD_RES_DENY;
 				}
 
@@ -67,7 +67,7 @@ class ModuleAbbreviation : public Module
 		/* Ambiguous command, list the matches */
 		if (!matchlist.empty())
 		{
-			user->WriteNumeric(420, ":Ambiguous abbreviation, possible matches: %s%s", foundcommand.c_str(), matchlist.c_str());
+			user->WriteNumeric(420, InspIRCd::Format("Ambiguous abbreviation, possible matches: %s%s", foundcommand.c_str(), matchlist.c_str()));
 			return MOD_RES_DENY;
 		}
 

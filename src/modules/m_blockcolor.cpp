@@ -67,7 +67,7 @@ class ModuleBlockColor : public Module
 						case 21:
 						case 22:
 						case 31:
-							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Can't send colors to channel (+c set)", c->name.c_str());
+							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c set)");
 							return MOD_RES_DENY;
 						break;
 					}

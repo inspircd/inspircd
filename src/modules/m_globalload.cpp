@@ -44,11 +44,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
 			{
-				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -79,7 +79,7 @@ class CommandGunloadmodule : public Command
 		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 		{
-			user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
+			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 			return CMD_FAILURE;
 		}
 
@@ -93,16 +93,15 @@ class CommandGunloadmodule : public Command
 				if (ServerInstance->Modules->Unload(m))
 				{
 					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-					user->SendText(":%s 973 %s %s :Module successfully unloaded.",
-						ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+					user->WriteRemoteNumeric(973, parameters[0], "Module successfully unloaded.");
 				}
 				else
 				{
-					user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 				}
 			}
 			else
-				user->SendText(":%s %03d %s %s :No such module", ServerInstance->Config->ServerName.c_str(), ERR_CANTUNLOADMODULE, user->nick.c_str(), parameters[0].c_str());
+				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "No such module");
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
@@ -140,7 +139,7 @@ class CommandGreloadmodule : public Command
 			}
 			else
 			{
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
 				return CMD_FAILURE;
 			}
 		}

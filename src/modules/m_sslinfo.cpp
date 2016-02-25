@@ -95,7 +95,7 @@ class CommandSSLInfo : public Command
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nickname", parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
@@ -162,10 +162,10 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		ssl_cert* cert = cmd.CertExt.get(whois.GetTarget());
 		if (cert)
 		{
-			whois.SendLine(671, ":is using a secure connection");
+			whois.SendLine(671, "is using a secure connection");
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(276, ":has client certificate fingerprint %s", cert->fingerprint.c_str());
+				whois.SendLine(276, InspIRCd::Format("has client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
 
@@ -181,7 +181,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(491, ":This oper login requires an SSL connection.");
+					user->WriteNumeric(491, "This oper login requires an SSL connection.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -189,7 +189,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, ":This oper login requires a matching SSL certificate fingerprint.");
+					user->WriteNumeric(491, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}

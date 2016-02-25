@@ -80,7 +80,7 @@ class CoreModXLine : public Module
 		}
 
 		// Send a numeric because if we deny then the core doesn't reply anything
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), xline->reason.c_str());
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Invalid nickname: %s", xline->reason.c_str()));
 		return MOD_RES_DENY;
 	}
 

@@ -46,7 +46,7 @@ class ListWatcher : public ModeWatcher
 		if (user->HasPrivPermission("channels/auspex"))
 			return true;
 
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to view the %s list", chan->name.c_str(), GetModeName().c_str());
+		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You do not have access to view the %s list", GetModeName().c_str()));
 		return false;
 	}
 };

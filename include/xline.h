@@ -520,8 +520,7 @@ class CoreExport XLineManager
 	 * will be expired and removed before the list is displayed.
 	 * @param type The type of stats to show
 	 * @param numeric The numeric to give to each result line
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
+	 * @param stats Stats context
 	 */
-	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
+	void InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats);
 };

@@ -285,7 +285,7 @@ class CommandMonitor : public SplitCommand
 			if (result == IRCv3::Monitor::Manager::WR_TOOMANY)
 			{
 				// List is full, send error which includes the remaining nicks that were not processed
-				user->WriteNumeric(ERR_MONLISTFULL, "%u %s%s%s :Monitor list is full", maxmonitor, nick.c_str(), (ss.StreamEnd() ? "" : ","), ss.GetRemaining().c_str());
+				user->WriteNumeric(ERR_MONLISTFULL, maxmonitor, InspIRCd::Format("%s%s%s", nick.c_str(), (ss.StreamEnd() ? "" : ","), ss.GetRemaining().c_str()), "Monitor list is full");
 				break;
 			}
 			else if (result != IRCv3::Monitor::Manager::WR_OK)
@@ -346,7 +346,7 @@ class CommandMonitor : public SplitCommand
 				out.Add(entry->GetNick());
 			}
 			out.Flush();
-			user->WriteNumeric(RPL_ENDOFMONLIST, ":End of MONITOR list");
+			user->WriteNumeric(RPL_ENDOFMONLIST, "End of MONITOR list");
 		}
 		else if (subcmd == 'S')
 		{

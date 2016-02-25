@@ -40,9 +40,9 @@ class Numeric::WriteNumericSink
 	{
 	}
 
-	void operator()(unsigned int numeric, const std::string& params) const
+	void operator()(Numeric& numeric) const
 	{
-		user->WriteNumeric(numeric, params);
+		user->WriteNumeric(numeric);
 	}
 };
 
@@ -50,14 +50,12 @@ template <char Sep, bool SendEmpty, typename Sink>
 class Numeric::GenericBuilder
 {
 	Sink sink;
-	std::string data;
-	const unsigned int numeric;
+	Numeric numeric;
 	const std::string::size_type max;
-	std::string::size_type beginpos;
 
 	bool HasRoom(const std::string::size_type additional) const
 	{
-		return (data.size() + additional <= max);
+		return (numeric.GetParams().back().size() + additional <= max);
 	}
 
  public:
@@ -67,28 +65,28 @@ class Numeric::GenericBuilder
 		, max(ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - additionalsize - 9)
 	{
 		if (addparam)
-			data.push_back(':');
-		SaveBeginPos();
+			numeric.push(std::string());
 	}
 
-	std::string& GetNumeric() { return data; }
+	Numeric& GetNumeric() { return numeric; }
 
 	void Add(const std::string& entry)
 	{
 		if (!HasRoom(entry.size()))
 			Flush();
-		data.append(entry).push_back(Sep);
+		numeric.GetParams().back().append(entry).push_back(Sep);
 	}
 
 	void Add(const std::string& entry1, const std::string& entry2)
 	{
 		if (!HasRoom(entry1.size() + entry2.size()))
 			Flush();
-		data.append(entry1).append(entry2).push_back(Sep);
+		numeric.GetParams().back().append(entry1).append(entry2).push_back(Sep);
 	}
 
 	void Flush()
 	{
+		std::string& data = numeric.GetParams().back();
 		if (IsEmpty())
 		{
 			if (!SendEmpty)
@@ -99,13 +97,11 @@ class Numeric::GenericBuilder
 			data.erase(data.size()-1);
 		}
 
-		sink(numeric, data);
-		if (data.size() > beginpos)
-			data.erase(beginpos);
+		sink(numeric);
+		data.clear();
 	}
 
-	bool IsEmpty() const { return (data.size() == beginpos); }
-	void SaveBeginPos() { beginpos = data.size(); }
+	bool IsEmpty() const { return (numeric.GetParams().back().empty()); }
 };
 
 template <char Sep, bool SendEmpty>
@@ -113,7 +109,7 @@ class Numeric::Builder : public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
 {
  public:
 	Builder(LocalUser* user, unsigned int num, bool addparam = true, size_t additionalsize = 0)
-		: Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
+		: ::Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
 	{
 	}
 };

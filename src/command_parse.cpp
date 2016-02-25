@@ -217,7 +217,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		if (!handler)
 		{
 			if (user->registered == REG_ALL)
-				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command",command.c_str());
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 			ServerInstance->stats.Unknown++;
 			return;
 		}
@@ -268,15 +268,15 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		if (!user->IsModeSet(handler->flags_needed))
 		{
 			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - You do not have the required operator privileges");
+			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
 			return;
 		}
 
 		if (!user->HasPermission(command))
 		{
 			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper type %s does not have access to command %s",
-				user->oper->name.c_str(), command.c_str());
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
+				user->oper->name.c_str(), command.c_str()));
 			return;
 		}
 	}
@@ -287,11 +287,11 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		user->CommandFloodPenalty += failpenalty;
 		if (ServerInstance->Config->DisabledDontExist)
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command", command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 		}
 		else
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "This command has been disabled.");
 		}
 
 		ServerInstance->SNO->WriteToSnoMask('a', "%s denied for %s (%s@%s)",
@@ -305,16 +305,16 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if (command_p.size() < handler->min_params)
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s :Not enough parameters.", command.c_str());
+		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, ":SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str());
+			user->WriteNumeric(RPL_SYNTAX, InspIRCd::Format("SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str()));
 		return;
 	}
 
 	if ((user->registered != REG_ALL) && (!handler->WorksBeforeReg()))
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You have not registered",command.c_str());
+		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
 	}
 	else
 	{

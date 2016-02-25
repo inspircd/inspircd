@@ -45,7 +45,7 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 
 	if ((!targetchannel) && (!targetuser))
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", target.c_str());
+		user->WriteNumeric(Numerics::NoSuchNick(target));
 		return CMD_FAILURE;
 	}
 	if (parameters.size() == 1)
@@ -70,7 +70,7 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 			if ((targetuser) && (user != targetuser))
 			{
 				// Local users may only change the modes of other users if a module explicitly allows it
-				user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't change mode for other users");
+				user->WriteNumeric(ERR_USERSDONTMATCH, "Can't change mode for other users");
 				return CMD_FAILURE;
 			}
 
@@ -135,8 +135,8 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 	if (targetchannel)
 	{
 		// Display channel's current mode string
-		user->WriteNumeric(RPL_CHANNELMODEIS, "%s +%s", targetchannel->name.c_str(), targetchannel->ChanModes(targetchannel->HasUser(user)));
-		user->WriteNumeric(RPL_CHANNELCREATED, "%s %lu", targetchannel->name.c_str(), (unsigned long)targetchannel->age);
+		user->WriteNumeric(RPL_CHANNELMODEIS, targetchannel->name, (std::string("+") + targetchannel->ChanModes(targetchannel->HasUser(user))));
+		user->WriteNumeric(RPL_CHANNELCREATED, targetchannel->name, (unsigned long)targetchannel->age);
 	}
 	else
 	{
@@ -157,7 +157,7 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 		}
 		else
 		{
-			user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't view modes for other users");
+			user->WriteNumeric(ERR_USERSDONTMATCH, "Can't view modes for other users");
 		}
 	}
 }

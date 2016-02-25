@@ -44,7 +44,7 @@ class CommandLockserv : public Command
 		}
 
 		locked = true;
-		user->WriteNumeric(988, "%s :Closed for new connections", user->server->GetName().c_str());
+		user->WriteNumeric(988, user->server->GetName(), "Closed for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
@@ -69,7 +69,7 @@ class CommandUnlockserv : public Command
 		}
 
 		locked = false;
-		user->WriteNumeric(989, "%s :Open for new connections", user->server->GetName().c_str());
+		user->WriteNumeric(989, user->server->GetName(), "Open for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}

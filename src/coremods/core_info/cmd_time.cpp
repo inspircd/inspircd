@@ -32,8 +32,7 @@ CmdResult CommandTime::Handle (const std::vector<std::string>& parameters, User 
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
 
-	user->SendText(":%s %03d %s %s :%s", ServerInstance->Config->ServerName.c_str(), RPL_TIME, user->nick.c_str(),
-		ServerInstance->Config->ServerName.c_str(), InspIRCd::TimeString(ServerInstance->Time()).c_str());
+	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, InspIRCd::TimeString(ServerInstance->Time()));
 
 	return CMD_SUCCESS;
 }

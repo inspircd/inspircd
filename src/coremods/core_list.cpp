@@ -53,7 +53,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 {
 	int minusers = 0, maxusers = 0;
 
-	user->WriteNumeric(RPL_LISTSTART, "Channel :Users Name");
+	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 
 	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 	if (parameters.size() == 1)
@@ -100,16 +100,16 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 			if ((!n) && (chan->IsModeSet(privatemode)))
 			{
 				// Channel is private (+p) and user is outside/not privileged
-				user->WriteNumeric(RPL_LIST, "* %ld :", users);
+				user->WriteNumeric(RPL_LIST, '*', users, "");
 			}
 			else
 			{
 				/* User is in the channel/privileged, channel is not +s */
-				user->WriteNumeric(RPL_LIST, "%s %ld :[+%s] %s", chan->name.c_str(), users, chan->ChanModes(n), chan->topic.c_str());
+				user->WriteNumeric(RPL_LIST, chan->name, users, InspIRCd::Format("[+%s] %s", chan->ChanModes(n), chan->topic.c_str()));
 			}
 		}
 	}
-	user->WriteNumeric(RPL_LISTEND, ":End of channel list.");
+	user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 
 	return CMD_SUCCESS;
 }

@@ -873,14 +873,10 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
-	 * @param symbol the symbol provided to /STATS
-	 * @param user the user issuing the /STATS command
-	 * @param results A string_list to append results into. You should put all your results
-	 * into this string_list, rather than displaying them directly, so that your handler will
-	 * work when remote STATS queries are received.
+	 * @param stats Context of the /STATS request, contains requesting user, list of answer rows etc.
 	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
-	virtual ModResult OnStats(char symbol, User* user, string_list &results);
+	virtual ModResult OnStats(Stats::Context& stats);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
@@ -987,7 +983,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
-	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
+	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
 	/** Called whenever a result from /WHO is about to be returned
 	 * @param source The user running the /WHO query

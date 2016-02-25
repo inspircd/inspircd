@@ -47,7 +47,7 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 
 	if (newnick.empty())
 	{
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "* :Erroneous Nickname");
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, '*', "Erroneous Nickname");
 		return CMD_FAILURE;
 	}
 
@@ -57,7 +57,7 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 	}
 	else if (!ServerInstance->IsNick(newnick))
 	{
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Erroneous Nickname", newnick.c_str());
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
 		return CMD_FAILURE;
 	}
 
@@ -77,7 +77,7 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 			Channel* chan = (*i)->chan;
 			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
 				return CMD_FAILURE;
 			}
 		}

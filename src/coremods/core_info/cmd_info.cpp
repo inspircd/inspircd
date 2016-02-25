@@ -83,9 +83,9 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>& parameters, User 
 
 	int i=0;
 	while (lines[i])
-		user->SendText(":%s %03d %s :%s", ServerInstance->Config->ServerName.c_str(), RPL_INFO, user->nick.c_str(), lines[i++]);
+		user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
 	FOREACH_MOD(OnInfo, (user));
-	user->SendText(":%s %03d %s :End of /INFO list", ServerInstance->Config->ServerName.c_str(), RPL_ENDOFINFO, user->nick.c_str());
+	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
 	return CMD_SUCCESS;
 }
 

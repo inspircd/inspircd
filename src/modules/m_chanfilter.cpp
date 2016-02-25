@@ -37,7 +37,7 @@ class ChanFilter : public ListModeBase
 	{
 		if (word.length() > 35)
 		{
-			user->WriteNumeric(935, "%s %s :word is too long for censor list", chan->name.c_str(), word.c_str());
+			user->WriteNumeric(935, chan->name, word, "%word is too long for censor list");
 			return false;
 		}
 
@@ -46,17 +46,17 @@ class ChanFilter : public ListModeBase
 
 	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(939, "%s %s :Channel spamfilter list is full", chan->name.c_str(), word.c_str());
+		user->WriteNumeric(939, chan->name, word, "Channel spamfilter list is full");
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(937, "%s :The word %s is already on the spamfilter list", chan->name.c_str(), word.c_str());
+		user->WriteNumeric(937, chan->name, InspIRCd::Format("The word %s is already on the spamfilter list", word.c_str()));
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(938, "%s :No such spamfilter word is set", chan->name.c_str());
+		user->WriteNumeric(938, chan->name, "No such spamfilter word is set");
 	}
 };
 
@@ -98,9 +98,9 @@ class ModuleChanFilter : public Module
 				if (InspIRCd::Match(text, i->mask))
 				{
 					if (hidemask)
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (your message contained a censored word)", chan->name.c_str());
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");
 					else
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Cannot send to channel (your message contained a censored word)", chan->name.c_str(), i->mask.c_str());
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, i->mask, "Cannot send to channel (your message contained a censored word)");
 					return MOD_RES_DENY;
 				}
 			}

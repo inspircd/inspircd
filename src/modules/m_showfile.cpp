@@ -48,12 +48,12 @@ class CommandShowFile : public Command
 		if (method == SF_NUMERIC)
 		{
 			if (!introtext.empty())
-				user->SendText(":%s %03d %s :%s %s", sn.c_str(), intronumeric, user->nick.c_str(), sn.c_str(), introtext.c_str());
+				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->SendText(":%s %03d %s :- %s", sn.c_str(), textnumeric, user->nick.c_str(), i->c_str());
+				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format("- %s", i->c_str()));
 
-			user->SendText(":%s %03d %s :%s", sn.c_str(), endnumeric, user->nick.c_str(), endtext.c_str());
+			user->WriteRemoteNumeric(endnumeric, endtext.c_str());
 		}
 		else
 		{

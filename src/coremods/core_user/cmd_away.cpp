@@ -43,7 +43,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 		user->awaytime = ServerInstance->Time();
 		user->awaymsg.assign(parameters[0], 0, ServerInstance->Config->Limits.MaxAway);
 
-		user->WriteNumeric(RPL_NOWAWAY, ":You have been marked as being away");
+		user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
 	}
 	else
 	{
@@ -53,7 +53,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 			return CMD_FAILURE;
 
 		user->awaymsg.clear();
-		user->WriteNumeric(RPL_UNAWAY, ":You are no longer marked as being away");
+		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
 	}
 
 	return CMD_SUCCESS;

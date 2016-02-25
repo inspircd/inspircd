@@ -42,7 +42,7 @@ class CommandSamode : public Command
 			User* target = ServerInstance->FindNickOnly(parameters[0]);
 			if ((!target) || (target->registered != REG_ALL))
 			{
-				user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 				return CMD_FAILURE;
 			}
 

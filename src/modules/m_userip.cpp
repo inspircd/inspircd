@@ -52,7 +52,7 @@ class CommandUserip : public Command
 						checked_privs = true;
 						has_privs = user->HasPrivPermission("users/auspex");
 						if (!has_privs)
-							user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - You do not have the required operator privileges");
+							user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
 					}
 
 					if (!has_privs)

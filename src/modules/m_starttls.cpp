@@ -44,23 +44,23 @@ class CommandStartTLS : public SplitCommand
 	{
 		if (!ssl)
 		{
-			user->WriteNumeric(ERR_STARTTLS, ":STARTTLS is not enabled");
+			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not enabled");
 			return CMD_FAILURE;
 		}
 
 		if (user->registered == REG_ALL)
 		{
-			user->WriteNumeric(ERR_STARTTLS, ":STARTTLS is not permitted after client registration is complete");
+			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted after client registration is complete");
 			return CMD_FAILURE;
 		}
 
 		if (user->eh.GetIOHook())
 		{
-			user->WriteNumeric(ERR_STARTTLS, ":STARTTLS failure");
+			user->WriteNumeric(ERR_STARTTLS, "STARTTLS failure");
 			return CMD_FAILURE;
 		}
 
-		user->WriteNumeric(RPL_STARTTLS, ":STARTTLS successful, go ahead with TLS handshake");
+		user->WriteNumeric(RPL_STARTTLS, "STARTTLS successful, go ahead with TLS handshake");
 		/* We need to flush the write buffer prior to adding the IOHook,
 		 * otherwise we'll be sending this line inside the SSL session - which
 		 * won't start its handshake until the client gets this line. Currently,

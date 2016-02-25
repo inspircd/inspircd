@@ -55,7 +55,7 @@ class CommandNicklock : public Command
 				return CMD_FAILURE;
 			}
 
-			user->WriteNumeric(947, "%s :Nickname now locked.", parameters[1].c_str());
+			user->WriteNumeric(947, parameters[1], "Nickname now locked.");
 		}
 
 		/* If we made it this far, extend the user */
@@ -114,13 +114,11 @@ class CommandNickunlock : public Command
 			if (locked.set(target, 0))
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
-				user->SendText(":%s 945 %s %s :Nickname now unlocked.",
-					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
+				user->WriteRemoteNumeric(945, target->nick, "Nickname now unlocked.");
 			}
 			else
 			{
-				user->SendText(":%s 946 %s %s :This user's nickname is not locked.",
-					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
+				user->WriteRemoteNumeric(946, target->nick, "This user's nickname is not locked.");
 				return CMD_FAILURE;
 			}
 		}
@@ -159,7 +157,7 @@ class ModuleNickLock : public Module
 	{
 		if (locked.get(user))
 		{
-			user->WriteNumeric(ERR_CANTCHANGENICK, ":You cannot change your nickname (your nick is locked)");
+			user->WriteNumeric(ERR_CANTCHANGENICK, "You cannot change your nickname (your nick is locked)");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

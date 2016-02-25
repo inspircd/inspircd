@@ -55,6 +55,6 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 		}
 	}
 
-	user->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name", parameters[0].c_str());
+	user->WriteNumeric(ERR_NOSUCHCHANNEL, parameters[0], "Invalid channel name");
 	return CMD_FAILURE;
 }

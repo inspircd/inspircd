@@ -62,7 +62,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(310, ":is a Network Service on " + ServerInstance->Config->Network);
+			whois.SendLine(310, "is a Network Service on " + ServerInstance->Config->Network);
 		}
 	}
 
@@ -86,7 +86,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 				if (u->IsModeSet(bm) && memb && memb->hasMode(mh->GetModeChar()))
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You are not permitted to remove privileges from %s services", chan->name.c_str(), ServerInstance->Config->Network.c_str());
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));
 					return MOD_RES_DENY;
 				}
 			}
@@ -102,7 +102,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 
 		if (dst->IsModeSet(bm))
 		{
-			src->WriteNumeric(485, ":You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str());
+			src->WriteNumeric(485, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
@@ -113,17 +113,16 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 	{
 		if (memb->user->IsModeSet(bm))
 		{
-			src->WriteNumeric(ERR_RESTRICTED, "%s :You are not permitted to kick services",
-				memb->chan->name.c_str());
+			src->WriteNumeric(ERR_RESTRICTED, memb->chan->name, "You are not permitted to kick services");
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		return ((numeric == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric.GetNumeric() == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

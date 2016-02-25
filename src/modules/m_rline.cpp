@@ -284,12 +284,12 @@ class ModuleRLine : public Module
 		initing = false;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'R')
+		if (stats.GetSymbol() != 'R')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("R", 223, user, results);
+		ServerInstance->XLines->InvokeStats("R", 223, stats);
 		return MOD_RES_DENY;
 	}
 

@@ -37,7 +37,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	if (!c)
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 		return CMD_FAILURE;
 	}
 
@@ -45,7 +45,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	{
 		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c->name.c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(c->name));
 			return CMD_FAILURE;
 		}
 
@@ -55,7 +55,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 		}
 		else
 		{
-			user->WriteNumeric(RPL_NOTOPICSET, "%s :No topic is set.", c->name.c_str());
+			user->WriteNumeric(RPL_NOTOPICSET, c->name, "No topic is set.");
 		}
 		return CMD_SUCCESS;
 	}
@@ -70,12 +70,12 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	{
 		if (!c->HasUser(user))
 		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel!", c->name.c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
 			return CMD_FAILURE;
 		}
 		if (c->IsModeSet(topiclockmode) && !ServerInstance->OnCheckExemption(user, c, "topiclock").check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to change the topic on this channel", c->name.c_str());
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
 			return CMD_FAILURE;
 		}
 	}
@@ -86,6 +86,6 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 
 void Topic::ShowTopic(LocalUser* user, Channel* chan)
 {
-	user->WriteNumeric(RPL_TOPIC, "%s :%s", chan->name.c_str(), chan->topic.c_str());
-	user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", chan->name.c_str(), chan->setby.c_str(), (unsigned long)chan->topicset);
+	user->WriteNumeric(RPL_TOPIC, chan->name, chan->topic);
+	user->WriteNumeric(RPL_TOPICTIME, chan->name, chan->setby, (unsigned long)chan->topicset);
 }

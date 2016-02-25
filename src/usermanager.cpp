@@ -127,7 +127,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 			/* user banned */
 			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->XLineMessage.empty())
-				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ":" + ServerInstance->Config->XLineMessage);
+				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 			this->QuitUser(New, b->Reason);
 			return;
 		}

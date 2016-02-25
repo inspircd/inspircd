@@ -180,7 +180,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 		}
 		if (user->chans.size() >= maxchans)
 		{
-			user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
+			user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
 			return NULL;
 		}
 	}
@@ -240,7 +240,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key)))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", chan->name.c_str());
+						user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (Incorrect channel key)");
 						return NULL;
 					}
 				}
@@ -250,7 +250,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
 					if (MOD_RESULT != MOD_RES_ALLOW)
 					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", chan->name.c_str());
+						user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (Invite only)");
 						return NULL;
 					}
 				}
@@ -261,14 +261,14 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
 					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()))))
 					{
-						user->WriteNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", chan->name.c_str());
+						user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (Channel is full)");
 						return NULL;
 					}
 				}
 
 				if (chan->IsBanned(user))
 				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", chan->name.c_str());
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You're banned)");
 					return NULL;
 				}
 			}

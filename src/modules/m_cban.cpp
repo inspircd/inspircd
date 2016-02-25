@@ -165,12 +165,12 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'C')
+		if (stats.GetSymbol() != 'C')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("CBAN", 210, user, out);
+		ServerInstance->XLines->InvokeStats("CBAN", 210, stats);
 		return MOD_RES_DENY;
 	}
 
@@ -181,7 +181,7 @@ class ModuleCBan : public Module
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteNumeric(384, "%s :Cannot join channel, CBANed (%s)", cname.c_str(), rl->reason.c_str());
+			user->WriteNumeric(384, cname, InspIRCd::Format("Cannot join channel, CBANed (%s)", rl->reason.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
 				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;

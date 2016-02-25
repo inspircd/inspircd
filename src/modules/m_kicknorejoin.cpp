@@ -132,7 +132,7 @@ public:
 			const KickRejoinData* data = kr.ext.get(chan);
 			if ((data) && (!data->canjoin(user)))
 			{
-				user->WriteNumeric(ERR_DELAYREJOIN, "%s :You must wait %u seconds after being kicked to rejoin (+J)", chan->name.c_str(), data->delay);
+				user->WriteNumeric(ERR_DELAYREJOIN, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J)", data->delay));
 				return MOD_RES_DENY;
 			}
 		}

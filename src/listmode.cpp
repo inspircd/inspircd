@@ -35,15 +35,15 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), it->setter.c_str(), (unsigned long) it->time);
+			user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, (unsigned long) it->time);
 		}
 	}
-	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
+	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
+	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
 }
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
@@ -212,7 +212,7 @@ bool ListModeBase::ValidateParam(User*, Channel*, std::string&)
 
 void ListModeBase::TellListTooLong(User* source, Channel* channel, std::string& parameter)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, "%s %s :Channel ban list is full", channel->name.c_str(), parameter.c_str());
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, "Channel ban list is full");
 }
 
 void ListModeBase::TellAlreadyOnList(User*, Channel*, std::string&)

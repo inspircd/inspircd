@@ -97,9 +97,9 @@ class ModuleGeoIP : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'G')
+		if (stats.GetSymbol() != 'G')
 			return MOD_RES_PASSTHRU;
 
 		unsigned int unknown = 0;
@@ -115,14 +115,13 @@ class ModuleGeoIP : public Module
 				unknown++;
 		}
 
-		std::string p = "801 " + user->nick + " :GeoIPSTATS ";
 		for (std::map<std::string, unsigned int>::const_iterator i = results.begin(); i != results.end(); ++i)
 		{
-			out.push_back(p + i->first + " " + ConvToStr(i->second));
+			stats.AddRow(801, "GeoIPSTATS " + i->first + " " + ConvToStr(i->second));
 		}
 
 		if (unknown)
-			out.push_back(p + "Unknown " + ConvToStr(unknown));
+			stats.AddRow(801, "GeoIPSTATS Unknown " + ConvToStr(unknown));
 
 		return MOD_RES_DENY;
 	}

@@ -142,7 +142,7 @@ class SaslAuthenticator
 				this->result = this->GetSaslResult(msg[3]);
 			}
 			else if (msg[2] == "M")
-				this->user->WriteNumeric(908, "%s :are available SASL mechanisms", msg[3].c_str());
+				this->user->WriteNumeric(908, msg[3], "are available SASL mechanisms");
 			else
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
@@ -194,13 +194,13 @@ class SaslAuthenticator
 		switch (this->result)
 		{
 		 case SASL_OK:
-			this->user->WriteNumeric(903, ":SASL authentication successful");
+			this->user->WriteNumeric(903, "SASL authentication successful");
 			break;
 	 	 case SASL_ABORT:
-			this->user->WriteNumeric(906, ":SASL authentication aborted");
+			this->user->WriteNumeric(906, "SASL authentication aborted");
 			break;
 		 case SASL_FAIL:
-			this->user->WriteNumeric(904, ":SASL authentication failed");
+			this->user->WriteNumeric(904, "SASL authentication failed");
 			break;
 		 default:
 			break;

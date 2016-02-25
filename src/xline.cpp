@@ -447,7 +447,7 @@ void XLineManager::ApplyLines()
 	pending_lines.clear();
 }
 
-void XLineManager::InvokeStats(const std::string &type, int numeric, User* user, string_list &results)
+void XLineManager::InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats)
 {
 	ContainerIter n = lookup_lines.find(type);
 
@@ -468,7 +468,7 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 				ExpireLine(n, i);
 			}
 			else
-				results.push_back(ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
+				stats.AddRow(numeric, i->second->Displayable()+" "+
 					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+i->second->source+" :"+i->second->reason);
 			i = safei;
 		}
@@ -531,7 +531,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	const std::string banReason = line + "-Lined: " + reason;
 
 	if (!ServerInstance->Config->XLineMessage.empty())
-		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ":" + ServerInstance->Config->XLineMessage);
+		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
 		ServerInstance->Users->QuitUser(u, line + "-Lined", &banReason);

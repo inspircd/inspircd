@@ -35,14 +35,14 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	/* if whowas disabled in config */
 	if (!manager.IsEnabled())
 	{
-		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", name.c_str());
+		user->WriteNumeric(ERR_UNKNOWNCOMMAND, name, "This command has been disabled.");
 		return CMD_FAILURE;
 	}
 
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
 	if (!nick)
 	{
-		user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
+		user->WriteNumeric(ERR_WASNOSUCHNICK, parameters[0], "There was no such nickname");
 	}
 	else
 	{
@@ -51,18 +51,18 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		{
 			WhoWas::Entry* u = *i;
 
-			user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(), u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
+			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->gecos);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s", parameters[0].c_str(), u->host.c_str());
+				user->WriteNumeric(RPL_WHOWASIP, parameters[0], InspIRCd::Format("was connecting from *@%s", u->host.c_str()));
 
 			std::string signon = InspIRCd::TimeString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
-			user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
+			user->WriteNumeric(RPL_WHOISSERVER, parameters[0], (hide_server ? ServerInstance->Config->HideWhoisServer : u->server), signon);
 		}
 	}
 
-	user->WriteNumeric(RPL_ENDOFWHOWAS, "%s :End of WHOWAS", parameters[0].c_str());
+	user->WriteNumeric(RPL_ENDOFWHOWAS, parameters[0], "End of WHOWAS");
 	return CMD_SUCCESS;
 }
 
@@ -270,10 +270,10 @@ class ModuleWhoWas : public Module
 		cmd.manager.Add(user);
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol == 'z')
-			results.push_back("249 "+user->nick+" :Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
+		if (stats.GetSymbol() == 'z')
+			stats.AddRow(249, "Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
 
 		return MOD_RES_PASSTHRU;
 	}
