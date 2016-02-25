@@ -48,7 +48,7 @@ class ModuleBotMode : public Module, public Whois::EventListener
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(335, ":is a bot on " + ServerInstance->Config->Network);
+			whois.SendLine(335, "is a bot on " + ServerInstance->Config->Network);
 		}
 	}
 };

@@ -49,14 +49,14 @@ class ModuleHideChans : public Module, public Whois::LineEventListener
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		/* always show to self */
 		if (whois.IsSelfWhois())
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch anything except 319 */
-		if (numeric != 319)
+		if (numeric.GetNumeric() != 319)
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */

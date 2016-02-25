@@ -87,12 +87,12 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
 		 */
-		if (numeric != 313)
+		if (numeric.GetNumeric() != 313)
 			return MOD_RES_PASSTHRU;
 
 		if (!whois.GetTarget()->IsModeSet(hm))

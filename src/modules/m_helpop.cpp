@@ -145,7 +145,7 @@ class ModuleHelpop : public Module, public Whois::EventListener
 		{
 			if (whois.GetTarget()->IsModeSet(ho))
 			{
-				whois.SendLine(310, ":is available for help.");
+				whois.SendLine(310, "is available for help.");
 			}
 		}
 

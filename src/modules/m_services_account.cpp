@@ -168,13 +168,13 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 
 		if (account)
 		{
-			whois.SendLine(330, "%s :is logged in as", account->c_str());
+			whois.SendLine(330, *account, "is logged in as");
 		}
 
 		if (whois.GetTarget()->IsModeSet(m5))
 		{
 			/* user is registered */
-			whois.SendLine(307, ":is a registered nick");
+			whois.SendLine(307, "is a registered nick");
 		}
 	}
 

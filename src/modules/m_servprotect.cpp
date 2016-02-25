@@ -62,7 +62,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(310, ":is a Network Service on " + ServerInstance->Config->Network);
+			whois.SendLine(310, "is a Network Service on " + ServerInstance->Config->Network);
 		}
 	}
 
@@ -120,9 +120,9 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		return ((numeric == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric.GetNumeric() == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

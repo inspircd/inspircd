@@ -33,20 +33,16 @@ class WhoisContextImpl : public Whois::Context
 	}
 
 	using Whois::Context::SendLine;
-	void SendLine(unsigned int numeric, const std::string& text) CXX11_OVERRIDE;
+	void SendLine(Numeric::Numeric& numeric) CXX11_OVERRIDE;
 };
 
-void WhoisContextImpl::SendLine(unsigned int numeric, const std::string& text)
+void WhoisContextImpl::SendLine(Numeric::Numeric& numeric)
 {
-	std::string copy_text = target->nick;
-	copy_text.push_back(' ');
-	copy_text.append(text);
-
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT_CUSTOM(lineevprov, Whois::LineEventListener, OnWhoisLine, MOD_RESULT, (*this, numeric, copy_text));
+	FIRST_MOD_RESULT_CUSTOM(lineevprov, Whois::LineEventListener, OnWhoisLine, MOD_RESULT, (*this, numeric));
 
 	if (MOD_RESULT != MOD_RES_DENY)
-		source->WriteNumeric(numeric, copy_text);
+		source->WriteNumeric(numeric);
 }
 
 /** Handle /WHOIS.
@@ -150,7 +146,7 @@ class WhoisChanList
 	{
 		num.Flush();
 		if (!spynum.IsEmpty())
-			whois.SendLine(336, ":is on private/secret channels:");
+			whois.SendLine(336, "is on private/secret channels:");
 		spynum.Flush();
 	}
 };
@@ -180,45 +176,45 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, unsigned long signon, un
 {
 	WhoisContextImpl whois(user, dest, lineevprov);
 
-	whois.SendLine(311, "%s %s * :%s", dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
+	whois.SendLine(311, dest->ident, dest->dhost, '*', dest->fullname);
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
-		whois.SendLine(378, ":is connecting from %s@%s %s", dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str());
+		whois.SendLine(378, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str()));
 	}
 
 	SendChanList(whois);
 
 	if (!whois.IsSelfWhois() && !ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 	{
-		whois.SendLine(312, "%s :%s", ServerInstance->Config->HideWhoisServer.c_str(), ServerInstance->Config->Network.c_str());
+		whois.SendLine(312, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 	}
 	else
 	{
-		whois.SendLine(312, "%s :%s", dest->server->GetName().c_str(), dest->server->GetDesc().c_str());
+		whois.SendLine(312, dest->server->GetName(), dest->server->GetDesc());
 	}
 
 	if (dest->IsAway())
 	{
-		whois.SendLine(301, ":%s", dest->awaymsg.c_str());
+		whois.SendLine(301, dest->awaymsg);
 	}
 
 	if (dest->IsOper())
 	{
 		if (ServerInstance->Config->GenericOper)
-			whois.SendLine(313, ":is an IRC operator");
+			whois.SendLine(313, "is an IRC operator");
 		else
-			whois.SendLine(313, ":is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->name.c_str(), ServerInstance->Config->Network.c_str());
+			whois.SendLine(313, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"), dest->oper->name.c_str(), ServerInstance->Config->Network.c_str()));
 	}
 
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
 		if (dest->IsModeSet(snomaskmode))
 		{
-			whois.SendLine(379, ":is using modes +%s %s", dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str());
+			whois.SendLine(379, InspIRCd::Format("is using modes +%s %s", dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str()));
 		}
 		else
 		{
-			whois.SendLine(379, ":is using modes +%s", dest->FormatModes());
+			whois.SendLine(379, InspIRCd::Format("is using modes +%s", dest->FormatModes()));
 		}
 	}
 
@@ -230,10 +226,10 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, unsigned long signon, un
 	 */
 	if ((idle) || (signon))
 	{
-		whois.SendLine(317, "%lu %lu :seconds idle, signon time", idle, signon);
+		whois.SendLine(317, idle, signon, "seconds idle, signon time");
 	}
 
-	whois.SendLine(318, ":End of /WHOIS list.");
+	whois.SendLine(318, "End of /WHOIS list.");
 }
 
 CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target)

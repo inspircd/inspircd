@@ -93,16 +93,16 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(Whois::Context& whois, unsigned int& numeric, std::string& text) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
-		if (numeric == 312)
+		if (numeric.GetNumeric() == 312)
 		{
 			/* Insert our numeric before 312 */
 			std::string* swhois = cmd.swhois.get(whois.GetTarget());
 			if (swhois)
 			{
-				whois.SendLine(320, ":%s", swhois->c_str());
+				whois.SendLine(320, *swhois);
 			}
 		}
 

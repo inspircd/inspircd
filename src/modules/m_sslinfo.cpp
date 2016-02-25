@@ -162,10 +162,10 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		ssl_cert* cert = cmd.CertExt.get(whois.GetTarget());
 		if (cert)
 		{
-			whois.SendLine(671, ":is using a secure connection");
+			whois.SendLine(671, "is using a secure connection");
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(276, ":has client certificate fingerprint %s", cert->fingerprint.c_str());
+				whois.SendLine(276, InspIRCd::Format("has client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
 
