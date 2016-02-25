@@ -36,12 +36,17 @@ class Numeric::Numeric
 	 */
 	std::vector<std::string> params;
 
+	/** Source server of the numeric, if NULL (the default) then it is the local server
+	 */
+	Server* sourceserver;
+
  public:
 	/** Constructor
 	 * @param num Numeric number (RPL_*, ERR_*)
 	 */
 	Numeric(unsigned int num)
 		: numeric(num)
+		, sourceserver(NULL)
 	{
 	}
 
@@ -54,6 +59,16 @@ class Numeric::Numeric
 		params.push_back(ConvToStr(x));
 		return *this;
 	}
+
+	/** Set the source server of the numeric. The source server defaults to the local server.
+	 * @param server Server to set as source
+	 */
+	void SetServer(Server* server) { sourceserver = server; }
+
+	/** Get the source server of the numeric
+	 * @return Source server or NULL if the source is the local server
+	 */
+	Server* GetServer() const { return sourceserver; }
 
 	/** Get the number of the numeric as an unsigned integer
 	 * @return Numeric number as an unsigned integer
