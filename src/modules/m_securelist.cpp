@@ -66,8 +66,8 @@ class ModuleSecureList : public Module
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */
-			user->WriteNumeric(RPL_LISTSTART, "Channel :Users Name");
-			user->WriteNumeric(RPL_LISTEND, ":End of channel list.");
+			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+			user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

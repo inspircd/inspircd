@@ -39,7 +39,7 @@ class ModuleRestrictMsg : public Module
 			{
 				return MOD_RES_PASSTHRU;
 			}
-			user->WriteNumeric(ERR_CANTSENDTOUSER, "%s :You are not permitted to send private messages to this user", u->nick.c_str());
+			user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "You are not permitted to send private messages to this user");
 			return MOD_RES_DENY;
 		}
 

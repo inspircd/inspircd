@@ -113,13 +113,13 @@ class ModuleDenyChannels : public Module
 						Channel *newchan = ServerInstance->FindChan(redirect);
 						if ((!newchan) || (!newchan->IsModeSet(redirectmode)))
 						{
-							user->WriteNumeric(926, "%s :Channel %s is forbidden, redirecting to %s: %s", cname.c_str(),cname.c_str(),redirect.c_str(), reason.c_str());
+							user->WriteNumeric(926, cname, InspIRCd::Format("Channel %s is forbidden, redirecting to %s: %s", cname.c_str(), redirect.c_str(), reason.c_str()));
 							Channel::JoinUser(user, redirect);
 							return MOD_RES_DENY;
 						}
 					}
 
-					user->WriteNumeric(926, "%s :Channel %s is forbidden: %s", cname.c_str(),cname.c_str(),reason.c_str());
+					user->WriteNumeric(926, cname, InspIRCd::Format("Channel %s is forbidden: %s", cname.c_str(), reason.c_str()));
 					return MOD_RES_DENY;
 				}
 			}

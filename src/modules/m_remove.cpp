@@ -76,7 +76,7 @@ class RemoveBase : public Command
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if ((!target) || (target->registered != REG_ALL) || (!channel))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", !channel ? channame.c_str() : username.c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(channel ? username.c_str() : channame.c_str()));
 			return CMD_FAILURE;
 		}
 
@@ -88,7 +88,7 @@ class RemoveBase : public Command
 
 		if (target->server->IsULine())
 		{
-			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
+			user->WriteNumeric(482, channame, "Only a u-line may remove a u-line from a channel.");
 			return CMD_FAILURE;
 		}
 
@@ -144,7 +144,7 @@ class RemoveBase : public Command
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, "%s :Can't remove user %s from channel (nokicks mode is set)", channel->name.c_str(), target->nick.c_str());
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (nokicks mode is set)", target->nick.c_str()));
 			return CMD_FAILURE;
 		}
 

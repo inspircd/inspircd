@@ -38,7 +38,7 @@ CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, 
 
 	if (!parameters.size())
 	{
-		user->WriteNumeric(RPL_ENDOFNAMES, "* :End of /NAMES list.");
+		user->WriteNumeric(RPL_ENDOFNAMES, '*', "End of /NAMES list.");
 		return CMD_SUCCESS;
 	}
 
@@ -62,24 +62,23 @@ CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, 
 		}
 	}
 
-	user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+	user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 	return CMD_FAILURE;
 }
 
 void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)
 {
-	Numeric::Builder<' '> reply(user, RPL_NAMREPLY, false);
-	std::string& list = reply.GetNumeric();
+	Numeric::Builder<' '> reply(user, RPL_NAMREPLY, false, chan->name.size() + 4);
+	Numeric::Numeric& numeric = reply.GetNumeric();
 	if (chan->IsModeSet(secretmode))
-		list.push_back('@');
+		numeric.push(std::string(1, '@'));
 	else if (chan->IsModeSet(privatemode))
-		list.push_back('*');
+		numeric.push(std::string(1, '*'));
 	else
-		list.push_back('=');
+		numeric.push(std::string(1, '='));
 
-	list.push_back(' ');
-	list.append(chan->name).append(" :");
-	reply.SaveBeginPos();
+	numeric.push(chan->name);
+	numeric.push(std::string());
 
 	std::string prefixlist;
 	std::string nick;
@@ -111,5 +110,5 @@ void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible
 	}
 
 	reply.Flush();
-	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", chan->name.c_str());
+	user->WriteNumeric(RPL_ENDOFNAMES, chan->name, "End of /NAMES list.");
 }

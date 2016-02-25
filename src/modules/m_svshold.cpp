@@ -198,7 +198,7 @@ class ModuleSVSHold : public Module
 
 		if (rl)
 		{
-			user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Services reserved nickname: %s", newnick.c_str(), rl->reason.c_str());
+			user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Services reserved nickname: %s", rl->reason.c_str()));
 			return MOD_RES_DENY;
 		}
 

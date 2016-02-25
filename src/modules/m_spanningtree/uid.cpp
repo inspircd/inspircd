@@ -50,7 +50,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		// User that the incoming user is colliding with is not fully registered, we force nick change the
 		// unregistered user to their uuid and tell them what happened
 		collideswith->WriteFrom(collideswith, "NICK %s", collideswith->uuid.c_str());
-		collideswith->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", collideswith->nick.c_str());
+		collideswith->WriteNumeric(ERR_NICKNAMEINUSE, collideswith->nick, "Nickname overruled.");
 
 		// Clear the bit before calling User::ChangeNick() to make it NOT run the OnUserPostNick() hook
 		collideswith->registered &= ~REG_NICK;

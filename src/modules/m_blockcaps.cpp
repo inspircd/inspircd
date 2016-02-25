@@ -74,7 +74,7 @@ public:
 
 				if (((caps * 100) / text.length()) >= percent)
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Your message cannot contain %d%% or more capital letters if it's longer than %d characters", c->name.c_str(), percent, minlen);
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %d characters", percent, minlen));
 					return MOD_RES_DENY;
 				}
 			}

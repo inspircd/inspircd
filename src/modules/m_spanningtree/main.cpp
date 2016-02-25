@@ -127,16 +127,15 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
-	user->WriteNumeric(RPL_LINKS, "%s %s :%d %s",	Current->GetName().c_str(),
-			(Utils->FlatLinks && (!user->IsOper())) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
-			(Utils->FlatLinks && (!user->IsOper())) ? 0 : hops,
-			Current->GetDesc().c_str());
+	user->WriteNumeric(RPL_LINKS, Current->GetName(),
+			(((Utils->FlatLinks) && (!user->IsOper())) ? ServerInstance->Config->ServerName : Parent),
+			InspIRCd::Format("%d %s", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc().c_str()));
 }
 
 void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
-	user->WriteNumeric(RPL_ENDOFLINKS, "* :End of /LINKS list.");
+	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
 std::string ModuleSpanningTree::TimeToStr(time_t secs)
@@ -304,11 +303,11 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 		// or the server is a 2.0 server and does not send a full version.
 		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
 		const std::string& Version = (showfull ? found->GetFullVersion() : found->GetVersion());
-		user->WriteNumeric(RPL_VERSION, ":%s", Version.c_str());
+		user->WriteNumeric(RPL_VERSION, Version);
 	}
 	else
 	{
-		user->WriteNumeric(ERR_NOSUCHSERVER, "%s :No such server", parameters[0].c_str());
+		user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
 	}
 	return MOD_RES_DENY;
 }

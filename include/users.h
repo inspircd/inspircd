@@ -519,9 +519,58 @@ class CoreExport User : public Extensible
 	 */
 	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
 
-	void WriteNumeric(unsigned int numeric, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	void WriteNumeric(unsigned int numeric, const std::string &text);
+	void WriteNumeric(const Numeric::Numeric& numeric);
+
+	template <typename T1>
+	void WriteNumeric(unsigned int numeric, T1 p1)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		n.push(p5);
+		WriteNumeric(n);
+	}
 
 	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
 	 * @param user The user to prepend the :nick!user\@host of

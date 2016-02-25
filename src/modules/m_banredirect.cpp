@@ -82,7 +82,7 @@ class BanRedirect : public ModeWatcher
 			ListModeBase::ModeList* list = banlm->GetList(channel);
 			if ((list) && (adding) && (maxbans <= list->size()))
 			{
-				source->WriteNumeric(ERR_BANLISTFULL, "%s :Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), channel->name.c_str(), maxbans);
+				source->WriteNumeric(ERR_BANLISTFULL, channel->name, InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), maxbans));
 				return false;
 			}
 
@@ -150,25 +150,25 @@ class BanRedirect : public ModeWatcher
 				{
 					if (!ServerInstance->IsChannel(mask[CHAN]))
 					{
-						source->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name in redirection (%s)", channel->name.c_str(), mask[CHAN].c_str());
+						source->WriteNumeric(ERR_NOSUCHCHANNEL, channel->name, InspIRCd::Format("Invalid channel name in redirection (%s)", mask[CHAN].c_str()));
 						return false;
 					}
 
 					Channel *c = ServerInstance->FindChan(mask[CHAN]);
 					if (!c)
 					{
-						source->WriteNumeric(690, ":Target channel %s must exist to be set as a redirect.", mask[CHAN].c_str());
+						source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", mask[CHAN].c_str()));
 						return false;
 					}
 					else if (adding && c->GetPrefixValue(source) < OP_VALUE)
 					{
-						source->WriteNumeric(690, ":You must be opped on %s to set it as a redirect.", mask[CHAN].c_str());
+						source->WriteNumeric(690, InspIRCd::Format("You must be opped on %s to set it as a redirect.", mask[CHAN].c_str()));
 						return false;
 					}
 
 					if (assign(channel->name) == mask[CHAN])
 					{
-						source->WriteNumeric(690, "%s :You cannot set a ban redirection to the channel the ban is on", channel->name.c_str());
+						source->WriteNumeric(690, channel->name, "You cannot set a ban redirection to the channel the ban is on");
 						return false;
 					}
 				}
@@ -311,13 +311,13 @@ class ModuleBanRedirect : public Module
 
 						if(destchan && destchan->IsModeSet(redirectmode) && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
-							user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You are banned)", chan->name.c_str());
+							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You are banned)");
 							return MOD_RES_DENY;
 						}
 						else
 						{
-							user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You are banned)", chan->name.c_str());
-							user->WriteNumeric(470, "%s %s :You are banned from this channel, so you are automatically transferred to the redirected channel.", chan->name.c_str(), redir->targetchan.c_str());
+							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You are banned)");
+							user->WriteNumeric(470, chan->name, redir->targetchan, "You are banned from this channel, so you are automatically transferred to the redirected channel.");
 							nofollow = true;
 							Channel::JoinUser(user, redir->targetchan);
 							nofollow = false;

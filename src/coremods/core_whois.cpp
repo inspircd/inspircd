@@ -95,9 +95,9 @@ class WhoisNumericSink
 	{
 	}
 
-	void operator()(unsigned int numeric, const std::string& text) const
+	void operator()(Numeric::Numeric& numeric) const
 	{
-		whois.SendLine(numeric, text);
+		whois.SendLine(numeric);
 	}
 };
 
@@ -296,8 +296,8 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
-		user->WriteNumeric(RPL_ENDOFWHOIS, "%s :End of /WHOIS list.", !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(Numerics::NoSuchNick(!parameters[userindex].empty() ? parameters[userindex] : "*"));
+		user->WriteNumeric(RPL_ENDOFWHOIS, (!parameters[userindex].empty() ? parameters[userindex] : "*"), "End of /WHOIS list.");
 		return CMD_FAILURE;
 	}
 

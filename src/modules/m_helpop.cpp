@@ -57,15 +57,15 @@ class CommandHelpop : public Command
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteNumeric(290, ":HELPOP topic index");
+			user->WriteNumeric(290, "HELPOP topic index");
 			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-				user->WriteNumeric(292, ":  %s", iter->first.c_str());
-			user->WriteNumeric(292, ":*** End of HELPOP topic index");
+				user->WriteNumeric(292, InspIRCd::Format("  %s", iter->first.c_str()));
+			user->WriteNumeric(292, "*** End of HELPOP topic index");
 		}
 		else
 		{
-			user->WriteNumeric(290, ":*** HELPOP for %s", parameter.c_str());
-			user->WriteNumeric(292, ": -");
+			user->WriteNumeric(290, InspIRCd::Format("*** HELPOP for %s", parameter.c_str()));
+			user->WriteNumeric(292, " -");
 
 			HelpopMap::const_iterator iter = helpop_map.find(parameter);
 
@@ -82,13 +82,13 @@ class CommandHelpop : public Command
 			{
 				// Writing a blank line will not work with some clients
 				if (token.empty())
-					user->WriteNumeric(292, ": ");
+					user->WriteNumeric(292, ' ');
 				else
-					user->WriteNumeric(292, ":%s", token.c_str());
+					user->WriteNumeric(292, token);
 			}
 
-			user->WriteNumeric(292, ": -");
-			user->WriteNumeric(292, ":*** End of HELPOP");
+			user->WriteNumeric(292, " -");
+			user->WriteNumeric(292, "*** End of HELPOP");
 		}
 		return CMD_SUCCESS;
 	}

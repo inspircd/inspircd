@@ -348,7 +348,7 @@ void User::Oper(OperInfo* info)
 
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), host.c_str(), oper->name.c_str(), opername.c_str());
-	this->WriteNumeric(RPL_YOUAREOPER, ":You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str());
+	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
 	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->name.c_str());
 	ServerInstance->Users->all_opers.push_back(this);
@@ -524,12 +524,12 @@ void LocalUser::FullConnect()
 	if (quitting)
 		return;
 
-	this->WriteNumeric(RPL_WELCOME, ":Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH);
-	this->WriteNumeric(RPL_SERVERCREATED, ":This server was created %s %s", __TIME__, __DATE__);
+	this->WriteNumeric(RPL_WELCOME, InspIRCd::Format("Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str()));
+	this->WriteNumeric(RPL_YOURHOSTIS, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
+	this->WriteNumeric(RPL_SERVERCREATED, InspIRCd::Format("This server was created %s %s", __TIME__, __DATE__));
 
 	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH, modelist.c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, ServerInstance->Config->ServerName, INSPIRCD_BRANCH, modelist);
 
 	ServerInstance->ISupport.SendTo(this);
 
@@ -615,7 +615,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				InUse->WriteFrom(InUse, "NICK %s", InUse->uuid.c_str());
-				InUse->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", InUse->nick.c_str());
+				InUse->WriteNumeric(ERR_NICKNAMEINUSE, InUse->nick, "Nickname overruled.");
 
 				InUse->registered &= ~REG_NICK;
 				InUse->ChangeNick(InUse->uuid);
@@ -623,7 +623,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 			else
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
-				this->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname is already in use.", newnick.c_str());
+				this->WriteNumeric(ERR_NICKNAMEINUSE, newnick, "Nickname is already in use.");
 				return false;
 			}
 		}
@@ -802,25 +802,16 @@ namespace
 	}
 }
 
-void User::WriteNumeric(unsigned int numeric, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteNumeric(numeric, textbuffer);
-}
-
-void User::WriteNumeric(unsigned int numeric, const std::string &text)
+void User::WriteNumeric(const Numeric::Numeric& numeric)
 {
 	ModResult MOD_RESULT;
 
-	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric, text));
+	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric));
 
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
-	const std::string message = InspIRCd::Format(":%s %03u %s %s", ServerInstance->Config->ServerName.c_str(),
-		numeric, this->registered & REG_NICK ? this->nick.c_str() : "*", text.c_str());
-	this->Write(message);
+	this->Write(BuildNumeric(ServerInstance->Config->ServerName, this, numeric.GetNumeric(), numeric.GetParams()));
 }
 
 void User::WriteFrom(User *user, const std::string &text)
@@ -1026,7 +1017,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
-		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s :is now your displayed host", this->dhost.c_str());
+		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->dhost, "is now your displayed host");
 
 	return true;
 }

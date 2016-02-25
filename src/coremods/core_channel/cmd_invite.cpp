@@ -58,7 +58,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c ? parameters[0].c_str() : parameters[1].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(c ? parameters[0] : parameters[1]));
 			return CMD_FAILURE;
 		}
 
@@ -77,13 +77,13 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel!", c->name.c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
 			return CMD_FAILURE;
 		}
 
 		if (c->HasUser(u))
 		{
-			user->WriteNumeric(ERR_USERONCHANNEL, "%s %s :is already on channel", u->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_USERONCHANNEL, u->nick, c->name, "is already on channel");
 			return CMD_FAILURE;
 		}
 
@@ -102,8 +102,8 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				{
 					// Check whether halfop mode is available and phrase error message accordingly
 					ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
-						c->name.c_str(), (mh && mh->name == "halfop" ? "half-" : ""));
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
+						(mh && mh->name == "halfop" ? "half-" : "")));
 					return CMD_FAILURE;
 				}
 			}
@@ -117,9 +117,9 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if (IS_LOCAL(user))
 		{
-			user->WriteNumeric(RPL_INVITING, "%s %s", u->nick.c_str(),c->name.c_str());
+			user->WriteNumeric(RPL_INVITING, u->nick, c->name);
 			if (u->IsAway())
-				user->WriteNumeric(RPL_AWAY, "%s :%s", u->nick.c_str(), u->awaymsg.c_str());
+				user->WriteNumeric(RPL_AWAY, u->nick, u->awaymsg);
 		}
 
 		char prefix = 0;
@@ -161,9 +161,9 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		if (list)
 		{
 			for (Invite::List::const_iterator i = list->begin(); i != list->end(); ++i)
-				user->WriteNumeric(RPL_INVITELIST, ":%s", (*i)->chan->name.c_str());
+				user->WriteNumeric(RPL_INVITELIST, (*i)->chan->name);
 		}
-		user->WriteNumeric(RPL_ENDOFINVITELIST, ":End of INVITE list");
+		user->WriteNumeric(RPL_ENDOFINVITELIST, "End of INVITE list");
 	}
 	return CMD_SUCCESS;
 }

@@ -688,14 +688,14 @@ void ServerConfig::ApplyModules(User* user)
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
-				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module %s successfully unloaded.", modname.c_str(), modname.c_str());
+				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, InspIRCd::Format("Module %s successfully unloaded.", modname.c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :Failed to unload module %s: %s", modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
@@ -707,14 +707,14 @@ void ServerConfig::ApplyModules(User* user)
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %s successfully loaded.", adding->c_str(), adding->c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, *adding, InspIRCd::Format("Module %s successfully loaded.", adding->c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :Failed to load module %s: %s", adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, *adding, InspIRCd::Format("Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}

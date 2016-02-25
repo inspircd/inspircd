@@ -54,7 +54,7 @@ class SSLMode : public ModeHandler
 						ssl_cert* cert = API->GetCertificate(i->first);
 						if (!cert && !i->first->server->IsULine())
 						{
-							source->WriteNumeric(ERR_ALLMUSTSSL, "%s :all members of the channel must be connected via SSL", channel->name.c_str());
+							source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "all members of the channel must be connected via SSL");
 							return MODEACTION_DENY;
 						}
 					}
@@ -107,7 +107,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteNumeric(489, "%s :Cannot join channel; SSL users only (+z)", cname.c_str());
+				user->WriteNumeric(489, cname, "Cannot join channel; SSL users only (+z)");
 				return MOD_RES_DENY;
 			}
 		}

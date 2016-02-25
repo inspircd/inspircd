@@ -32,7 +32,7 @@ class ExemptChanOps : public ListModeBase
 		std::string::size_type p = word.find(':');
 		if (p == std::string::npos)
 		{
-			user->WriteNumeric(955, "%s %s :Invalid exemptchanops entry, format is <restriction>:<prefix>", chan->name.c_str(), word.c_str());
+			user->WriteNumeric(955, chan->name, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>");
 			return false;
 		}
 
@@ -45,7 +45,7 @@ class ExemptChanOps : public ListModeBase
 
 		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
 		{
-			user->WriteNumeric(955, "%s %s :Unknown restriction", chan->name.c_str(), restriction.c_str());
+			user->WriteNumeric(955, chan->name, restriction, "Unknown restriction");
 			return false;
 		}
 
@@ -54,17 +54,17 @@ class ExemptChanOps : public ListModeBase
 
 	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(959, "%s %s :Channel exemptchanops list is full", chan->name.c_str(), word.c_str());
+		user->WriteNumeric(959, chan->name, word, "Channel exemptchanops list is full");
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(957, "%s :The word %s is already on the exemptchanops list", chan->name.c_str(), word.c_str());
+		user->WriteNumeric(957, chan->name, InspIRCd::Format("The word %s is already on the exemptchanops list", word.c_str()));
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(958, "%s :No such exemptchanops word is set", chan->name.c_str());
+		user->WriteNumeric(958, chan->name, "No such exemptchanops word is set");
 	}
 };
 

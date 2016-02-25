@@ -51,11 +51,11 @@ class CommandUninvite : public Command
 		{
 			if (!c)
 			{
-				user->WriteNumeric(401, "%s :No such nick/channel", parameters[1].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
 			}
 			else
 			{
-				user->WriteNumeric(401, "%s :No such nick/channel", parameters[0].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			}
 
 			return CMD_FAILURE;
@@ -65,7 +65,7 @@ class CommandUninvite : public Command
 		{
 			if (c->GetPrefixValue(user) < HALFOP_VALUE)
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator", c->name.c_str(), c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator", c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-"));
 				return CMD_FAILURE;
 			}
 		}
@@ -84,7 +84,7 @@ class CommandUninvite : public Command
 			}
 
 			user->SendText(":%s 494 %s %s %s :Uninvited", user->server->GetName().c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
-			lu->WriteNumeric(493, ":You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str());
+			lu->WriteNumeric(493, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
 			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);

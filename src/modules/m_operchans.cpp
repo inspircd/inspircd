@@ -44,8 +44,7 @@ class ModuleOperChans : public Module
 	{
 		if (chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s :Only IRC operators may join %s (+O is set)",
-				chan->name.c_str(), chan->name.c_str());
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, InspIRCd::Format("Only IRC operators may join %s (+O is set)", chan->name.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

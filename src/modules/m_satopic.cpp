@@ -46,7 +46,7 @@ class CommandSATopic : public Command
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 	}

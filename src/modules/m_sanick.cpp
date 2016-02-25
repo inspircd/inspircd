@@ -42,7 +42,7 @@ class CommandSanick : public Command
 		{
 			if (target && target->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, ":Cannot use an SA command on a u-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;
 			}
 

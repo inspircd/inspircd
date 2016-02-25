@@ -225,7 +225,7 @@ public:
 		ACCEPTAction action = GetTargetAndAction(tok, user);
 		if (!action.first)
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", tok.c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(tok));
 			return CMD_FAILURE;
 		}
 
@@ -271,7 +271,7 @@ public:
 			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
 				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
 		}
-		user->WriteNumeric(RPL_ENDOFACCEPT, ":End of ACCEPT list");
+		user->WriteNumeric(RPL_ENDOFACCEPT, "End of ACCEPT list");
 	}
 
 	bool AddAccept(User* user, User* whotoadd)
@@ -280,12 +280,12 @@ public:
 		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			user->WriteNumeric(ERR_ACCEPTFULL, ":Accept list is full (limit is %d)", maxaccepts);
+			user->WriteNumeric(ERR_ACCEPTFULL, InspIRCd::Format("Accept list is full (limit is %d)", maxaccepts));
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
 		{
-			user->WriteNumeric(ERR_ACCEPTEXIST, "%s :is already on your accept list", whotoadd->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTEXIST, whotoadd->nick, "is already on your accept list");
 			return false;
 		}
 
@@ -303,12 +303,12 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (!dat)
 		{
-			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, whotoremove->nick, "is not on your accept list");
 			return false;
 		}
 		if (!dat->accepting.erase(whotoremove))
 		{
-			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, whotoremove->nick, "is not on your accept list");
 			return false;
 		}
 
@@ -395,10 +395,10 @@ public:
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			user->WriteNumeric(ERR_TARGUMODEG, "%s :is in +g mode (server-side ignore).", dest->nick.c_str());
+			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, "is in +g mode (server-side ignore).");
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
-				user->WriteNumeric(RPL_TARGNOTIFY, "%s :has been informed that you messaged them.", dest->nick.c_str());
+				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
 				dest->SendText(":%s %03d %s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
 						ServerInstance->Config->ServerName.c_str(), RPL_UMODEGMSG, dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
 				dat->lastnotify = now;

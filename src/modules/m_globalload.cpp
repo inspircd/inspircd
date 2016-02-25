@@ -44,11 +44,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
 			{
-				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -79,7 +79,7 @@ class CommandGunloadmodule : public Command
 		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 		{
-			user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
+			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 			return CMD_FAILURE;
 		}
 
@@ -98,7 +98,7 @@ class CommandGunloadmodule : public Command
 				}
 				else
 				{
-					user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 				}
 			}
 			else
@@ -140,7 +140,7 @@ class CommandGreloadmodule : public Command
 			}
 			else
 			{
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
 				return CMD_FAILURE;
 			}
 		}

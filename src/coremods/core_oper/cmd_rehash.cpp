@@ -68,7 +68,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		ServerInstance->SNO->WriteGlobalSno('a', m);
 
 		if (IS_LOCAL(user))
-			user->WriteNumeric(RPL_REHASHING, "%s :Rehashing", FileSystem::GetFileName(ServerInstance->ConfigFileName).c_str());
+			user->WriteNumeric(RPL_REHASHING, FileSystem::GetFileName(ServerInstance->ConfigFileName), "Rehashing");
 		else
 			ServerInstance->PI->SendUserNotice(user, "*** Rehashing server " + FileSystem::GetFileName(ServerInstance->ConfigFileName));
 

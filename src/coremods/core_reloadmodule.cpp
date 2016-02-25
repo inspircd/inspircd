@@ -601,7 +601,7 @@ class ReloadAction : public HandlerBase0<void>
 		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
 		User* user = ServerInstance->FindUUID(uuid);
 		if (user)
-			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.", passedname.c_str(), result ? "" : "un");
+			user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));
 
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
@@ -612,8 +612,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m == creator)
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, "%s :You cannot reload core_reloadmodule.so (unload and load it)",
-			parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule.so (unload and load it)");
 		return CMD_FAILURE;
 	}
 
@@ -627,7 +626,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	}
 	else
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
 		return CMD_FAILURE;
 	}
 }

@@ -40,7 +40,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
 			 *  -- Craig, and then w00t.
 			 */
-			user->WriteNumeric(ERR_NEEDMOREPARAMS, "USER :Your username is not valid");
+			user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Your username is not valid");
 			return CMD_FAILURE;
 		}
 		else
@@ -57,7 +57,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	}
 	else
 	{
-		user->WriteNumeric(ERR_ALREADYREGISTERED, ":You may not reregister");
+		user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not reregister");
 		user->CommandFloodPenalty += 1000;
 		return CMD_FAILURE;
 	}

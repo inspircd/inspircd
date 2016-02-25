@@ -52,8 +52,7 @@ class AutoOpList : public ListModeBase
 
 		if (adding && !mh)
 		{
-			source->WriteNumeric(415, "%s :Cannot find prefix mode '%s' for autoop",
-				mid.c_str(), mid.c_str());
+			source->WriteNumeric(415, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
 			return MOD_RES_DENY;
 		}
 		else if (!mh)
@@ -64,8 +63,7 @@ class AutoOpList : public ListModeBase
 			return MOD_RES_DENY;
 		if (mh->GetLevelRequired() > mylevel)
 		{
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be able to set mode '%s' to include it in an autoop",
-				channel->name.c_str(), mid.c_str());
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to set mode '%s' to include it in an autoop", mid.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

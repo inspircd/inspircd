@@ -175,7 +175,7 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 
 	if (!target)
 	{
-		source->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameter.c_str());
+		source->WriteNumeric(Numerics::NoSuchNick(parameter));
 		return MODEACTION_DENY;
 	}
 
@@ -263,11 +263,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 					}
 				}
 				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have channel %s access or above to %sset channel mode %c",
-						chan->name.c_str(), neededmh->name.c_str(), adding ? "" : "un", modechar);
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to %sset channel mode %c",
+						neededmh->name.c_str(), adding ? "" : "un", modechar));
 				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You cannot %sset channel mode %c",
-						chan->name.c_str(), adding ? "" : "un", modechar);
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot %sset channel mode %c", (adding ? "" : "un"), modechar));
 				return MODEACTION_DENY;
 			}
 		}
@@ -294,8 +293,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
 		if (disabled[modechar - 'A'])
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - %s mode %c has been locked by the administrator",
-				type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c has been locked by the administrator",
+				type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 			return MODEACTION_DENY;
 		}
 	}
@@ -305,13 +304,13 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper type %s does not have access to set %s mode %c",
-					user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to set %s mode %c",
+					user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Only operators may set %s mode %c",
-					type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may set %s mode %c",
+					type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		return MODEACTION_DENY;
 	}
@@ -359,7 +358,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 		if (!mh)
 		{
 			/* No mode handler? Unknown mode character then. */
-			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, "%c :is unknown mode char to me", modechar);
+			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, modechar, "is unknown mode char to me");
 			continue;
 		}
 

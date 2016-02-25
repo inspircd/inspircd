@@ -253,14 +253,14 @@ class ModuleAlias : public Module
 			User* u = ServerInstance->FindNick(a->RequiredNick);
 			if (!u)
 			{
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is currently unavailable. Please try again later.");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is currently unavailable. Please try again later.");
 				return 1;
 			}
 
 			if ((a->ULineOnly) && (!u->server->IsULine()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is an imposter! Please inform an IRC operator as soon as possible.");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is an imposter! Please inform an IRC operator as soon as possible.");
 				return 1;
 			}
 		}

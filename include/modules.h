@@ -987,7 +987,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
-	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
+	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
 	/** Called whenever a result from /WHO is about to be returned
 	 * @param source The user running the /WHO query

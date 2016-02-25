@@ -55,7 +55,7 @@ class CommandNicklock : public Command
 				return CMD_FAILURE;
 			}
 
-			user->WriteNumeric(947, "%s :Nickname now locked.", parameters[1].c_str());
+			user->WriteNumeric(947, parameters[1], "Nickname now locked.");
 		}
 
 		/* If we made it this far, extend the user */
@@ -159,7 +159,7 @@ class ModuleNickLock : public Module
 	{
 		if (locked.get(user))
 		{
-			user->WriteNumeric(ERR_CANTCHANGENICK, ":You cannot change your nickname (your nick is locked)");
+			user->WriteNumeric(ERR_CANTCHANGENICK, "You cannot change your nickname (your nick is locked)");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

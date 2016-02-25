@@ -172,7 +172,7 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (!s)
 		{
-			user->WriteNumeric(ERR_NOSUCHSERVER, "%s :No such server", parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
 			return CMD_FAILURE;
 		}
 

@@ -47,7 +47,7 @@ class ModuleRestrictChans : public Module
 			// user is not an oper and its not in the allow list
 			if ((!user->IsOper()) && (allowchans.find(cname) == allowchans.end()))
 			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Only IRC operators may create new channels", cname.c_str());
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "Only IRC operators may create new channels");
 				return MOD_RES_DENY;
 			}
 		}

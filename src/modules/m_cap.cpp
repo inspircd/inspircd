@@ -398,7 +398,7 @@ class CommandCap : public SplitCommand
 		}
 		else
 		{
-			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "%s :Invalid CAP subcommand", subcommand.c_str());
+			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, subcommand, "Invalid CAP subcommand");
 			return CMD_FAILURE;
 		}
 

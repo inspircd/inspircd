@@ -117,13 +117,13 @@ class DNSBLResolver : public DNS::Request
 				{
 					if (!ConfEntry->ident.empty())
 					{
-						them->WriteNumeric(304, ":Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
+						them->WriteNumeric(304, "Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
 						them->ChangeIdent(ConfEntry->ident);
 					}
 
 					if (!ConfEntry->host.empty())
 					{
-						them->WriteNumeric(304, ":Your host has been set to " + ConfEntry->host + " because you matched " + reason);
+						them->WriteNumeric(304, "Your host has been set to " + ConfEntry->host + " because you matched " + reason);
 						them->ChangeDisplayedHost(ConfEntry->host);
 					}
 

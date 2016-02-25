@@ -343,14 +343,14 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Message to channel blocked and opers notified (%s)", target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		else if (f->action == FA_SILENT)
 		{
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Message to channel blocked (%s)", target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
 		}

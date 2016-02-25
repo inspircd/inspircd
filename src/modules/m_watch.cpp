@@ -53,12 +53,12 @@ class CommandWatch : public SplitCommand
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
 			if (target->IsAway())
-				user->WriteNumeric(RPL_NOWISAWAY, "%s %s %s %lu :is away", target->nick.c_str(), target->ident.c_str(), target->dhost.c_str(), (unsigned long)target->awaytime);
+				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->dhost, (unsigned long)target->awaytime, "is away");
 			else
-				user->WriteNumeric(RPL_NOWON, "%s %s %s %lu :is online", target->nick.c_str(), target->ident.c_str(), target->dhost.c_str(), (unsigned long)target->age);
+				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->dhost, (unsigned long)target->age, "is online");
 		}
 		else if (show_offline)
-			user->WriteNumeric(RPL_NOWOFF, "%s * * 0 :is offline", nick.c_str());
+			user->WriteNumeric(RPL_NOWOFF, nick, "*", "*", "0", "is offline");
 	}
 
 	void HandlePlus(LocalUser* user, const std::string& nick)
@@ -67,12 +67,12 @@ class CommandWatch : public SplitCommand
 		if (result == IRCv3::Monitor::Manager::WR_TOOMANY)
 		{
 			// List is full, send error numeric
-			user->WriteNumeric(ERR_TOOMANYWATCH, "%s :Too many WATCH entries", nick.c_str());
+			user->WriteNumeric(ERR_TOOMANYWATCH, nick, "Too many WATCH entries");
 			return;
 		}
 		else if (result == IRCv3::Monitor::Manager::WR_INVALIDNICK)
 		{
-			user->WriteNumeric(942, "%s :Invalid nickname", nick.c_str());
+			user->WriteNumeric(942, nick, "Invalid nickname");
 			return;
 		}
 		else if (result != IRCv3::Monitor::Manager::WR_OK)
@@ -88,9 +88,9 @@ class CommandWatch : public SplitCommand
 
 		User* target = IRCv3::Monitor::Manager::FindNick(nick);
 		if (target)
-			user->WriteNumeric(RPL_WATCHOFF, "%s %s %s %lu :stopped watching", target->nick.c_str(), target->ident.c_str(), target->dhost.c_str(), (unsigned long)target->age);
+			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->dhost, (unsigned long)target->age, "stopped watching");
 		else
-			user->WriteNumeric(RPL_WATCHOFF, "%s * * 0 :stopped watching", nick.c_str());
+			user->WriteNumeric(RPL_WATCHOFF, nick, "*", "*", "0", "stopped watching");
 	}
 
 	void HandleList(LocalUser* user, bool show_offline)
@@ -102,7 +102,7 @@ class CommandWatch : public SplitCommand
 			const IRCv3::Monitor::Entry* entry = *i;
 			SendOnlineOffline(user, entry->GetNick(), show_offline);
 		}
-		user->WriteNumeric(RPL_ENDOFWATCHLIST, ":End of WATCH list");
+		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH list");
 	}
 
 	void HandleStats(LocalUser* user)
@@ -111,7 +111,7 @@ class CommandWatch : public SplitCommand
 
 		// Do not show how many clients are watching this nick, it's pointless
 		const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
-		user->WriteNumeric(RPL_WATCHSTAT, ":You have %lu and are on 0 WATCH entries", (unsigned long)list.size());
+		user->WriteNumeric(RPL_WATCHSTAT, InspIRCd::Format("You have %lu and are on 0 WATCH entries", (unsigned long)list.size()));
 
 		Numeric::Builder<' '> out(user, RPL_WATCHLIST);
 		for (IRCv3::Monitor::WatchedList::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -120,7 +120,7 @@ class CommandWatch : public SplitCommand
 			out.Add(entry->GetNick());
 		}
 		out.Flush();
-		user->WriteNumeric(RPL_ENDOFWATCHLIST, ":End of WATCH S");
+		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH S");
 	}
 
  public:
@@ -189,11 +189,12 @@ class ModuleWatch : public Module
 		if (!list)
 			return;
 
-		std::string text = InspIRCd::Format("%s %s %s %lu :%s", nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) shownts, numerictext);
+		Numeric::Numeric num(numeric);
+		num.push(nick).push(user->ident).push(user->dhost).push(ConvToStr(shownts)).push(numerictext);
 		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
 		{
 			LocalUser* curr = *i;
-			curr->WriteNumeric(numeric, text);
+			curr->WriteNumeric(num);
 		}
 	}
 

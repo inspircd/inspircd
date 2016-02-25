@@ -43,12 +43,12 @@ CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters,
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 		return CMD_SUCCESS;
 	}
 	else
 	{
-		user->WriteNumeric(ERR_CANTLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 		return CMD_FAILURE;
 	}
 }
@@ -80,26 +80,25 @@ CmdResult CommandUnloadmodule::Handle(const std::vector<std::string>& parameters
 	if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 		InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 		return CMD_FAILURE;
 	}
 
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m == creator)
 	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload module loading commands!", parameters[0].c_str());
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
 		return CMD_FAILURE;
 	}
 
 	if (m && ServerInstance->Modules->Unload(m))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module successfully unloaded.", parameters[0].c_str());
+		user->WriteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 	}
 	else
 	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :%s", parameters[0].c_str(),
-			m ? ServerInstance->Modules->LastError().c_str() : "No such module");
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], (m ? ServerInstance->Modules->LastError() : "No such module"));
 		return CMD_FAILURE;
 	}
 

@@ -30,7 +30,7 @@ CommandVersion::CommandVersion(Module* parent)
 CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
 {
 	std::string version = ServerInstance->GetVersionString((user->IsOper()));
-	user->WriteNumeric(RPL_VERSION, ":%s", version.c_str());
+	user->WriteNumeric(RPL_VERSION, version);
 	LocalUser *lu = IS_LOCAL(user);
 	if (lu != NULL)
 	{

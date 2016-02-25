@@ -95,7 +95,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
 			return MODEACTION_DENY;
 		}
 
@@ -104,7 +104,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 		if ((njoins<1) || (nsecs<1))
 		{
-			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
 			return MODEACTION_DENY;
 		}
 
@@ -136,7 +136,7 @@ class ModuleJoinFlood : public Module
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(609, "%s :This channel is temporarily unavailable (+j). Please try again later.",chan->name.c_str());
+				user->WriteNumeric(609, chan->name, "This channel is temporarily unavailable (+j). Please try again later.");
 				return MOD_RES_DENY;
 			}
 		}

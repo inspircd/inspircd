@@ -44,7 +44,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 
 	if ((!u) || (!c) || (u->registered != REG_ALL))
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c ? parameters[1].c_str() : parameters[0].c_str());
+		user->WriteNumeric(Numerics::NoSuchNick(c ? parameters[1] : parameters[0]));
 		return CMD_FAILURE;
 	}
 
@@ -54,13 +54,13 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		srcmemb = c->GetUser(user);
 		if (!srcmemb)
 		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel!", parameters[0].c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, parameters[0], "You're not on that channel!");
 			return CMD_FAILURE;
 		}
 
 		if (u->server->IsULine())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You may not kick a u-lined client", c->name.c_str());
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You may not kick a u-lined client");
 			return CMD_FAILURE;
 		}
 	}
@@ -68,7 +68,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	const Channel::MemberMap::iterator victimiter = c->userlist.find(u);
 	if (victimiter == c->userlist.end())
 	{
-		user->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", u->nick.c_str(), c->name.c_str());
+		user->WriteNumeric(ERR_USERNOTINCHANNEL, u->nick, c->name, "They are not on that channel");
 		return CMD_FAILURE;
 	}
 	Membership* const memb = victimiter->second;
@@ -110,8 +110,8 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 
 			if (them < req)
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
-					c->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
+					req > HALFOP_VALUE ? "" : "half-"));
 				return CMD_FAILURE;
 			}
 		}
