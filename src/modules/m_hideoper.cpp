@@ -108,6 +108,10 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 	{
 		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{
+			// Hide the line completely if doing a "/who * o" query
+			if ((params.size() > 1) && (params[1].find('o') != std::string::npos))
+				return MOD_RES_DENY;
+
 			// hide the "*" that marks the user as an oper from the /WHO line
 			std::string::size_type spcolon = line.find(" :");
 			if (spcolon == std::string::npos)
@@ -116,9 +120,6 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 			std::string::size_type pos = line.find('*', sp);
 			if (pos != std::string::npos)
 				line.erase(pos, 1);
-			// hide the line completely if doing a "/who * o" query
-			if (params.size() > 1 && params[1].find('o') != std::string::npos)
-				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
