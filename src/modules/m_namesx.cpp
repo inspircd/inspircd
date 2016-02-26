@@ -67,32 +67,22 @@ class ModuleNamesX : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
+	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if ((!memb) || (!cap.get(source)))
-			return;
-
-		// Channel names can contain ":", and ":" as a 'start-of-token' delimiter is
-		// only ever valid after whitespace, so... find the actual delimiter first!
-		// Thanks to FxChiP for pointing this out.
-		std::string::size_type pos = line.find(" :");
-		if (pos == std::string::npos || pos == 0)
-			return;
-		pos--;
-		// Don't do anything if the user has no prefixes
-		if ((line[pos] == 'H') || (line[pos] == 'G') || (line[pos] == '*'))
-			return;
-
-		// 352 21DAAAAAB #chan ident localhost insp21.test 21DAAAAAB H@ :0 a
-		//                                                            pos
+			return MOD_RES_PASSTHRU;
 
 		// Don't do anything if the user has only one prefix
 		std::string prefixes = memb->GetAllPrefixChars();
 		if (prefixes.length() <= 1)
-			return;
+			return MOD_RES_PASSTHRU;
 
-		line.erase(pos, 1);
-		line.insert(pos, prefixes);
+		// #chan ident localhost insp22.test nick H@ :0 Attila
+		if (numeric.GetParams().size() < 6)
+			return MOD_RES_PASSTHRU;
+
+		numeric.GetParams()[5].append(prefixes, 1, std::string::npos);
+		return MOD_RES_PASSTHRU;
 	}
 };
 

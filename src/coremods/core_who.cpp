@@ -63,7 +63,7 @@ class CommandWho : public Command
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
 	}
 
-	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string& initial, Membership* memb, User* u, std::vector<std::string>& whoresults);
+	void SendWhoLine(User* user, const std::vector<std::string>& parms, Membership* memb, User* u, std::vector<Numeric::Numeric>& whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
@@ -186,48 +186,52 @@ bool CommandWho::CanView(Channel* chan, User* user)
 	return false;
 }
 
-void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string& initial, Membership* memb, User* u, std::vector<std::string>& whoresults)
+void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, Membership* memb, User* u, std::vector<Numeric::Numeric>& whoresults)
 {
 	if (!memb)
 		memb = get_first_visible_channel(u);
 
-	std::string wholine = initial + (memb ? memb->chan->name : "*") + " " + u->ident + " " +
-		(opt_showrealhost ? u->host : u->dhost) + " ";
+	Numeric::Numeric wholine(RPL_WHOREPLY);
+	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
+	wholine.push(opt_showrealhost ? u->host : u->dhost);
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
-		wholine.append(ServerInstance->Config->HideWhoisServer);
+		wholine.push(ServerInstance->Config->HideWhoisServer);
 	else
-		wholine.append(u->server->GetName());
+		wholine.push(u->server->GetName());
 
-	wholine.append(" " + u->nick + " ");
+	wholine.push(u->nick);
 
+	std::string param;
 	/* away? */
 	if (u->IsAway())
 	{
-		wholine.append("G");
+		param.push_back('G');
 	}
 	else
 	{
-		wholine.append("H");
+		param.push_back('H');
 	}
 
 	/* oper? */
 	if (u->IsOper())
 	{
-		wholine.push_back('*');
+		param.push_back('*');
 	}
 
 	if (memb)
 	{
 		char prefix = memb->GetPrefixChar();
 		if (prefix)
-			wholine.push_back(prefix);
+			param.push_back(prefix);
 	}
 
-	wholine.append(" :0 " + u->fullname);
+	wholine.push(param);
+	wholine.push("0 ");
+	wholine.GetParams().back().append(u->fullname);
 
-	FOREACH_MOD(OnSendWhoLine, (user, parms, u, memb, wholine));
-
-	if (!wholine.empty())
+	ModResult res;
+	FIRST_MOD_RESULT(OnSendWhoLine, res, (user, parms, u, memb, wholine));
+	if (res != MOD_RES_DENY)
 		whoresults.push_back(wholine);
 }
 
@@ -253,8 +257,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	opt_far = false;
 	opt_time = false;
 
-	std::vector<std::string> whoresults;
-	std::string initial = "352 " + user->nick + " ";
+	std::vector<Numeric::Numeric> whoresults;
 
 	/* Change '0' into '*' so the wildcard matcher can grok it */
 	std::string matchtext = ((parameters[0] == "0") ? "*" : parameters[0]);
@@ -337,7 +340,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 						continue;
 				}
 
-				SendWhoLine(user, parameters, initial, i->second, i->first, whoresults);
+				SendWhoLine(user, parameters, i->second, i->first, whoresults);
 			}
 		}
 	}
@@ -360,7 +363,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 							continue;
 					}
 
-					SendWhoLine(user, parameters, initial, NULL, oper, whoresults);
+					SendWhoLine(user, parameters, NULL, oper, whoresults);
 				}
 			}
 		}
@@ -377,14 +380,14 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 							continue;
 					}
 
-					SendWhoLine(user, parameters, initial, NULL, i->second, whoresults);
+					SendWhoLine(user, parameters, NULL, i->second, whoresults);
 				}
 			}
 		}
 	}
 	/* Send the results out */
-	for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
-		user->WriteServ(*n);
+	for (std::vector<Numeric::Numeric>::const_iterator n = whoresults.begin(); n != whoresults.end(); ++n)
+		user->WriteNumeric(*n);
 	user->WriteNumeric(RPL_ENDOFWHO, (*parameters[0].c_str() ? parameters[0] : "*"), "End of /WHO list.");
 
 	// Penalize the user a bit for large queries

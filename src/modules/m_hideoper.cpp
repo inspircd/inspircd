@@ -104,22 +104,25 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
+	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{
+			// Hide the line completely if doing a "/who * o" query
+			if ((params.size() > 1) && (params[1].find('o') != std::string::npos))
+				return MOD_RES_DENY;
+
 			// hide the "*" that marks the user as an oper from the /WHO line
-			std::string::size_type spcolon = line.find(" :");
-			if (spcolon == std::string::npos)
-				return; // Another module hid the user completely
-			std::string::size_type sp = line.rfind(' ', spcolon-1);
-			std::string::size_type pos = line.find('*', sp);
+			// #chan ident localhost insp22.test nick H@ :0 Attila
+			if (numeric.GetParams().size() < 6)
+				return MOD_RES_PASSTHRU;
+
+			std::string& param = numeric.GetParams()[5];
+			const std::string::size_type pos = param.find('*');
 			if (pos != std::string::npos)
-				line.erase(pos, 1);
-			// hide the line completely if doing a "/who * o" query
-			if (params.size() > 1 && params[1].find('o') != std::string::npos)
-				line.clear();
+				param.erase(pos, 1);
 		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
