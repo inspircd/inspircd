@@ -191,7 +191,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	if (!memb)
 		memb = get_first_visible_channel(u);
 
-	Numeric::Numeric wholine(352);
+	Numeric::Numeric wholine(RPL_WHOREPLY);
 	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
 	wholine.push(opt_showrealhost ? u->host : u->dhost);
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
