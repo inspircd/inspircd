@@ -57,7 +57,7 @@ sub run() {
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
 	chdir "${\SOURCEPATH}/src";
 
-	if ($ENV{PURE_STATIC}) {
+	if ($ENV{INSPIRCD_STATIC}) {
 		run_static();
 	} else {
 		run_dynamic();

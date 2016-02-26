@@ -122,8 +122,8 @@ FOOTER = finishmessage
   VERBOSE =
 @ENDIF
 
-@IFDEF PURE_STATIC
-  CORECXXFLAGS += -DPURE_STATIC
+@IFDEF INSPIRCD_STATIC
+  CORECXXFLAGS += -DINSPIRCD_STATIC
 @ENDIF
 
 # Add the users CXXFLAGS to the base ones to allow them to override
@@ -131,7 +131,7 @@ FOOTER = finishmessage
 CORECXXFLAGS += $(CXXFLAGS)
 
 @DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC
+@DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
 
 # Default target
 TARGET = all
@@ -177,7 +177,7 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
-@IFDEF PURE_STATIC
+@IFDEF INSPIRCD_STATIC
 	@echo 'Cannot build single modules in pure-static build'
 	@exit 1
 @ENDIF
@@ -226,7 +226,7 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
-@IFNDEF PURE_STATIC
+@IFNDEF INSPIRCD_STATIC
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null

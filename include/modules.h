@@ -1235,7 +1235,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 #define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
 #define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
 
-#ifdef PURE_STATIC
+#ifdef INSPIRCD_STATIC
 
 struct AllCommandList {
 	typedef Command* (*fn)(Module*);

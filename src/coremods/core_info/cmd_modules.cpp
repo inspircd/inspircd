@@ -64,7 +64,7 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-#ifdef PURE_STATIC
+#ifdef INSPIRCD_STATIC
 			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s :%s", m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str()));
 #else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();

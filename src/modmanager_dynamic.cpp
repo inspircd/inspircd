@@ -25,7 +25,7 @@
 #include <dirent.h>
 #endif
 
-#ifndef PURE_STATIC
+#ifndef INSPIRCD_STATIC
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
