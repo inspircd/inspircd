@@ -388,19 +388,20 @@ bool ParseStack::ParseExec(const std::string& name, int flags, const std::string
 	return ok;
 }
 
-bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)
-{
 #ifdef __clang__
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wunknown-pragmas"
 # pragma clang diagnostic ignored "-Wundefined-bool-conversion"
+#elif defined __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wpragmas"
+# pragma GCC diagnostic ignored "-Wnonnull-compare"
 #endif
+bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)
+{
 	// TODO: this is undefined behaviour but changing the API is too risky for 2.0.
 	if (!this)
 		return false;
-#ifdef __clang__
-# pragma clang diagnostic pop
-#endif
 	for(std::vector<KeyVal>::iterator j = items.begin(); j != items.end(); ++j)
 	{
 		if(j->first != key)
@@ -418,6 +419,11 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	}
 	return false;
 }
+#ifdef __clang__
+# pragma clang diagnostic pop
+#elif defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 std::string ConfigTag::getString(const std::string& key, const std::string& def)
 {
