@@ -149,7 +149,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
+	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if (!memb)
 			return MOD_RES_PASSTHRU;
