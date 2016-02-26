@@ -990,9 +990,10 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param params The parameters to the /WHO query
 	 * @param user The user that this line of the query is about
 	 * @param memb The member shown in this line, NULL if no channel is in this line
-	 * @param line The raw line to send; modifiable, if empty no line will be returned.
+	 * @param line The raw line to send; modifiable.
+	 * @param Return MOD_RES_PASSTHRU to allow the line to be displayed, MOD_RES_DENY to hide it
 	 */
-	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line);
+	virtual ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line);
 
 	/** Called whenever a local user's IP is set for the first time, or when a local user's IP changes due to
 	 * a module like m_cgiirc changing it.
