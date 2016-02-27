@@ -31,15 +31,19 @@ class ServProtectMode : public ModeHandler
 	ServProtectMode(Module* Creator) : ModeHandler(Creator, "servprotect", 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		/* Because this returns MODEACTION_DENY all the time, there is only ONE
-		 * way to add this mode and that is at client introduction in the UID command,
-		 * as this calls OnModeChange for each mode but disregards the return values.
-		 * The mode cannot be manually added or removed, not even by a server or by a remote
-		 * user or uline, which prevents its (ab)use as a kiddie 'god mode' on such networks.
-		 * I'm sure if someone really wants to do that they can make a copy of this module
-		 * that does the job. It won't be me though!
-		 */
+	{	
+		if (!IS_LOCAL(source) && ServerInstance->ULine(user->server))
+		{
+			if ((adding != dest->IsModeSet('k')))
+			{
+				dest->SetMode('k',adding);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			source->WriteNumeric(500, "%s :Only a u-lined server may modify the +k user mode", source->nick.c_str());
+		}
 		return MODEACTION_DENY;
 	}
 };
