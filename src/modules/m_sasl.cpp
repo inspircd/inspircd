@@ -223,8 +223,6 @@ class CommandAuthenticate : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		/* Only allow AUTHENTICATE on unregistered clients */
-		if (user->registered != REG_ALL)
 		{
 			if (!cap.get(user))
 				return CMD_FAILURE;
