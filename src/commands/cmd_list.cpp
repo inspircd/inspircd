@@ -49,7 +49,6 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 	user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 
-	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 	if (parameters.size() == 1)
 	{
 		if (parameters[0][0] == '<')
