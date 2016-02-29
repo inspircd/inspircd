@@ -73,7 +73,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 		TreeServer* sdest = FindServer(routing.serverdest);
 		if (!sdest)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Trying to route ENCAP to nonexistant server %s",
+			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Trying to route ENCAP to nonexistent server %s",
 				routing.serverdest.c_str());
 			return;
 		}

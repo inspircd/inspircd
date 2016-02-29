@@ -201,7 +201,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
+				ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistent user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
 				continue;
 			}
 		}
