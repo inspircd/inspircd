@@ -531,6 +531,7 @@ void ServerConfig::Fill()
 	HideBans = security->getBool("hidebans");
 	HideWhoisServer = security->getString("hidewhois");
 	HideKillsServer = security->getString("hidekills");
+	HideULineKills = security->getBool("hideulinekills");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
 	NoUserDns = ConfValue("performance")->getBool("nouserdns");
