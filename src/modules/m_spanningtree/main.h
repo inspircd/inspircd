@@ -131,10 +131,6 @@ class ModuleSpanningTree : public Module
 	 */
 	ModResult HandleConnect(const std::vector<std::string>& parameters, User* user);
 
-	/** Attempt to send a message to a user
-	 */
-	void RemoteMessage(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Display a time as a human readable string
 	 */
 	static std::string TimeToStr(time_t secs);

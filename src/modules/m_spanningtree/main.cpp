@@ -312,19 +312,6 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-/* This method will attempt to get a message to a remote user.
- */
-void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
-{
-	std::string text;
-	VAFORMAT(text, format, format);
-
-	if (IS_LOCAL(user))
-		user->WriteNotice(text);
-	else
-		ServerInstance->PI->SendUserNotice(user, text);
-}
-
 ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
 {
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
