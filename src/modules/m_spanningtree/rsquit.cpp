@@ -39,13 +39,13 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
 	{
-		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RSQUIT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str());
+		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str()));
 		return CMD_FAILURE;
 	}
 
 	if (server_target->IsRoot())
 	{
-		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str());
+		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str()));
 		return CMD_FAILURE;
 	}
 

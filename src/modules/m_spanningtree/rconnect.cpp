@@ -36,7 +36,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 	/* First see if the server which is being asked to connect to another server in fact exists */
 	if (!Utils->FindServerMask(parameters[0]))
 	{
-		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RCONNECT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str());
+		user->WriteRemoteNotice(InspIRCd::Format("*** RCONNECT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str()));
 		return CMD_FAILURE;
 	}
 
