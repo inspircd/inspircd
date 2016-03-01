@@ -830,6 +830,16 @@ void User::WriteFrom(User *user, const char* text, ...)
 	this->WriteFrom(user, textbuffer);
 }
 
+void User::WriteRemoteNotice(const std::string& text)
+{
+	ServerInstance->PI->SendUserNotice(this, text);
+}
+
+void LocalUser::WriteRemoteNotice(const std::string& text)
+{
+	WriteNotice(text);
+}
+
 namespace
 {
 	class WriteCommonRawHandler : public User::ForEachNeighborHandler

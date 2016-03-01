@@ -519,6 +519,11 @@ class CoreExport User : public Extensible
 	 */
 	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
 
+	/** Send a NOTICE message from the local server to the user.
+	 * @param text Text to send
+	 */
+	virtual void WriteRemoteNotice(const std::string& text);
+
 	void WriteRemoteNumeric(const Numeric::Numeric& numeric);
 
 	template <typename T1>
@@ -846,6 +851,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	void SendText(const std::string& line);
 	void Write(const std::string& text);
 	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
+
+	/** Send a NOTICE message from the local server to the user.
+	 * The message will be sent even if the user is connected to a remote server.
+	 * @param text Text to send
+	 */
+	void WriteRemoteNotice(const std::string& text) CXX11_OVERRIDE;
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
