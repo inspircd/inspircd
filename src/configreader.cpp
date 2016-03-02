@@ -612,7 +612,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			std::cout << line << std::endl;
 		// If a user is rehashing, tell them directly
 		if (user)
-			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
+			user->WriteRemoteNotice(InspIRCd::Format("*** %s", line.c_str()));
 		// Also tell opers
 		ServerInstance->SNO->WriteGlobalSno('a', line);
 	}
@@ -652,8 +652,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	ApplyModules(user);
 
 	if (user)
-		user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
-			ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+		user->WriteRemoteNotice("*** Successfully rehashed server.");
 	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 

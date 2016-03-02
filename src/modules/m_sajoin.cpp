@@ -66,7 +66,7 @@ class CommandSajoin : public Command
 			Channel* chan = ServerInstance->FindChan(channel);
 			if ((chan) && (chan->HasUser(dest)))
 			{
-				user->SendText(":" + user->server->GetName() + " NOTICE " + user->nick + " :*** " + dest->nick + " is already on " + channel);
+				user->WriteRemoteNotice("*** " + dest->nick + " is already on " + channel);
 				return CMD_FAILURE;
 			}
 

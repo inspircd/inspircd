@@ -312,19 +312,6 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-/* This method will attempt to get a message to a remote user.
- */
-void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
-{
-	std::string text;
-	VAFORMAT(text, format, format);
-
-	if (IS_LOCAL(user))
-		user->WriteNotice(text);
-	else
-		ServerInstance->PI->SendUserNotice(user, text);
-}
-
 ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
 {
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
@@ -334,25 +321,25 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 		{
 			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name), rfc_case_insensitive_map))
 			{
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 is ME, not connecting.",x->Name.c_str());
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 is ME, not connecting.", x->Name.c_str()));
 				return MOD_RES_DENY;
 			}
 
 			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 			if (!CheckDupe)
 			{
-				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Connecting to server: \002%s\002 (%s:%d)", x->Name.c_str(), (x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()), x->Port));
 				ConnectServer(x);
 				return MOD_RES_DENY;
 			}
 			else
 			{
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), CheckDupe->GetParent()->GetName().c_str());
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), CheckDupe->GetParent()->GetName().c_str()));
 				return MOD_RES_DENY;
 			}
 		}
 	}
-	RemoteMessage(user, "*** CONNECT: No server matching \002%s\002 could be found in the config file.",parameters[0].c_str());
+	user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: No server matching \002%s\002 could be found in the config file.", parameters[0].c_str()));
 	return MOD_RES_DENY;
 }
 

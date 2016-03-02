@@ -33,9 +33,9 @@ class CommandAlltime : public Command
 	{
 		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
-		std::string msg = ":" + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
+		std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
-		user->SendText(msg);
+		user->WriteRemoteNotice(msg);
 
 		/* we want this routed out! */
 		return CMD_SUCCESS;
