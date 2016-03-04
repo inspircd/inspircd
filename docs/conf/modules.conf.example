@@ -467,6 +467,13 @@
 # This module is oper-only.
 # To use, CHGNAME must be in one of your oper class blocks.
 #<module name="chgname">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Connection class ban module: Adds support for extban 'n' which 
+# matches against the class name of the user's connection.
+# This module assumes that connection classes are named in a uniform
+# way on all servers of the network.
+#<module name="classban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clear chan module: Allows opers to masskick, masskill or mass-G/ZLine
