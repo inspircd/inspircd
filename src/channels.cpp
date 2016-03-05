@@ -562,6 +562,13 @@ const char* Channel::ChanModes(bool showkey)
 	return scratch.c_str();
 }
 
+void Channel::WriteNotice(const std::string& text)
+{
+	std::string rawmsg = "NOTICE ";
+	rawmsg.append(this->name).append(" :").append(text);
+	WriteChannelWithServ(ServerInstance->Config->ServerName, rawmsg);
+}
+
 /* returns the status character for a given user on a channel, e.g. @ for op,
  * % for halfop etc. If the user has several modes set, the highest mode
  * the user has must be returned.
