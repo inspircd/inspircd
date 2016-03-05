@@ -159,7 +159,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				memb->chan->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", memb->chan->name.c_str(), f->joins, f->secs);
+				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", f->joins, f->secs));
 			}
 		}
 	}

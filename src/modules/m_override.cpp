@@ -58,7 +58,7 @@ class ModuleOverride : public Module
 		}
 
 		if (NoisyOverride)
-			chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass %s", chan->name.c_str(), user->nick.c_str(), bypasswhat);
+			chan->WriteNotice(InspIRCd::Format("%s used oper override to bypass %s", user->nick.c_str(), bypasswhat));
 		ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
 		return MOD_RES_ALLOW;
 	}

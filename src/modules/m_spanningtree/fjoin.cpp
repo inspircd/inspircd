@@ -266,7 +266,7 @@ void CommandFJoin::RemoveStatus(Channel* c)
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 {
 	if (Utils->AnnounceTSChange)
-		chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), newname.c_str(), (unsigned long) chan->age, (unsigned long) TS);
+		chan->WriteNotice(InspIRCd::Format("TS for %s changed from %lu to %lu", newname.c_str(), (unsigned long) chan->age, (unsigned long) TS));
 
 	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version
 	chan->name = newname;
