@@ -96,7 +96,7 @@ class CommandUninvite : public Command
 			lu->WriteNumeric(493, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);
+			c->WriteNotice(msg);
 			ServerInstance->PI->SendChannelNotice(c, 0, msg);
 		}
 

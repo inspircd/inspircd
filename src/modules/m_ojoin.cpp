@@ -58,9 +58,9 @@ class CommandOjoin : public SplitCommand
 
 			if (notice)
 			{
-				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s joined on official network business.",
-					parameters[0].c_str(), user->nick.c_str());
-				ServerInstance->PI->SendChannelNotice(channel, 0, user->nick + " joined on official network business.");
+				const std::string msg = user->nick + " joined on official network business.";
+				channel->WriteNotice(msg);
+				ServerInstance->PI->SendChannelNotice(channel, 0, msg);
 			}
 		}
 		else

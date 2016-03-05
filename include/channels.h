@@ -332,6 +332,11 @@ class CoreExport Channel : public Extensible
 	/** Get the status of an "action" type extban
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
+
+	/** Write a NOTICE to all local users on the channel
+	 * @param text Text to send
+	 */
+	void WriteNotice(const std::string& text);
 };
 
 inline bool Channel::HasUser(User* user)

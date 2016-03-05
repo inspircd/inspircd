@@ -130,7 +130,7 @@ class RemoveBase : public Command
 				/* Build up the part reason string. */
 				reason = "Removed by " + user->nick + ": " + reasonparam;
 
-				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s removed %s from the channel", channel->name.c_str(), user->nick.c_str(), target->nick.c_str());
+				channel->WriteNotice(InspIRCd::Format("%s removed %s from the channel", user->nick.c_str(), target->nick.c_str()));
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
 
 				channel->PartUser(target, reason);
