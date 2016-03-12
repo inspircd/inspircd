@@ -124,8 +124,8 @@ CXXFLAGS += -Iinclude
 @ELSE
   @GNU_ONLY MAKEFLAGS += --silent
   @BSD_ONLY MAKE += -s
-  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
-  RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
+  RUNCC = perl "$(SOURCEPATH)/make/run-cc.pl" $(CC)
+  RUNLD = perl "$(SOURCEPATH)/make/run-cc.pl" $(CC)
   VERBOSE =
 @ENDIF
 
@@ -160,7 +160,7 @@ all: $(FOOTER)
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
-	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
+	cd "$(BUILDPATH)"; $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
@@ -220,22 +220,22 @@ install: target
 		echo ""; \
 		exit 1; \
 	fi
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(DATPATH)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
-	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) "$(BASE)"
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) "$(DATPATH)"
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) "$(LOGPATH)"
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) "$(BINPATH)"
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) "$(CONPATH)/examples/aliases"
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) "$(CONPATH)/examples/modules"
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) "$(MODPATH)"
+	[ "$(BUILDPATH)/bin/" -ef "$(BINPATH)" ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" "$(BINPATH)"
 @IFNDEF PURE_STATIC
-	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
+	[ "$(BUILDPATH)/modules/" -ef "$(MODPATH)" ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so "$(MODPATH)"
 @ENDIF
-	-$(INSTALL) -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example $(CONPATH)/examples/modules
+	-$(INSTALL) -m $(INSTMODE_BIN) @STARTSCRIPT@ "$(BASE)" 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs "$(BASE)/.gdbargs" 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example "$(CONPATH)/examples"
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example "$(CONPATH)/examples/aliases"
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example "$(CONPATH)/examples/modules"
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -258,18 +258,18 @@ GNUmakefile BSDmakefile: make/template/main.mk configure $(RCS_FILES)
 
 clean:
 	@echo Cleaning...
-	-rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
-	-rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
-	@-rmdir $(BUILDPATH)/bin 2>/dev/null
-	@-rmdir $(BUILDPATH) 2>/dev/null
+	-rm -f "$(BUILDPATH)/bin/inspircd" "$(BUILDPATH)/include" "$(BUILDPATH)/real.mk"
+	-rm -rf "$(BUILDPATH)/obj" "$(BUILDPATH)/modules"
+	@-rmdir "$(BUILDPATH)/bin" 2>/dev/null
+	@-rmdir "$(BUILDPATH)" 2>/dev/null
 	@echo Completed.
 
 deinstall:
-	-rm -f $(BINPATH)/inspircd
-	-rm -rf $(CONPATH)/examples
-	-rm -f $(MODPATH)/*.so
-	-rm -f $(BASE)/.gdbargs
-	-rm -f $(BASE)/org.inspircd.plist
+	-rm -f "$(BINPATH)/inspircd"
+	-rm -rf "$(CONPATH)/examples"
+	-rm -f "$(MODPATH)/*.so"
+	-rm -f "$(BASE)/.gdbargs"
+	-rm -f "$(BASE)/org.inspircd.plist"
 
 squeakyclean: distclean
 
@@ -283,8 +283,8 @@ configureclean:
 	-rm -f org.inspircd.plist
 
 distclean: clean configureclean
-	-rm -rf $(SOURCEPATH)/run
-	find $(SOURCEPATH)/src/modules -type l | xargs rm -f
+	-rm -rf "$(SOURCEPATH)/run"
+	find "$(SOURCEPATH)/src/modules" -type l | xargs rm -f
 
 help:
 	@echo 'InspIRCd Makefile'

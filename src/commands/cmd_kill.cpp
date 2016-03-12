@@ -111,7 +111,8 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+			if (!ServerInstance->Config->HideULineKills || !ServerInstance->ULine(user->server))
+				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason, killreason));
 		}
 		else
@@ -121,10 +122,13 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			 * XXX - this isn't entirely correct, servers A - B - C, oper on A, client on C. Oper kills client, A and B will get remote kill
 			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
 			 */
-			if (IS_LOCAL(user))
-				ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-			else
-				ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+			if (!ServerInstance->Config->HideULineKills || !ServerInstance->ULine(user->server))
+			{
+				if (IS_LOCAL(user))
+					ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+				else
+					ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+			}
 			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
