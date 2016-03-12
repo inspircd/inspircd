@@ -32,7 +32,7 @@ class ServProtectMode : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{	
-		if (!IS_LOCAL(source) && ServerInstance->ULine(user->server))
+		if (!IS_LOCAL(source) && ServerInstance->ULine(source->server))
 		{
 			if ((adding != dest->IsModeSet('k')))
 			{
