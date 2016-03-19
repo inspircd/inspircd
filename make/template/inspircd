@@ -135,7 +135,7 @@ sub cmd_rehash()
 
 sub cmd_cron()
 {
-	if (getstatus() == 0) { goto &cmd_start(); }
+	if (getstatus() == 0) { goto &cmd_start(@_); }
 	exit();
 }
 
@@ -149,7 +149,7 @@ sub cmd_restart(@)
 {
 	cmd_stop();
 	unlink($pidfile) if (-e $pidfile);
-	goto &cmd_start;
+	goto &cmd_start(@_);
 }
 
 sub hid_cheese_sandwich()
