@@ -53,6 +53,18 @@ class CheckContext
 
 	User* GetUser() const { return user; }
 
+	void DumpListMode(const ListModeBase::ModeList* list)
+	{
+		if (!list)
+			return;
+
+		CheckContext::List modelist(*this, "modelist");
+		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
+			modelist.Add(i->mask);
+
+		modelist.Flush();
+	}
+
 	class List : public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
 	{
 	 public:
@@ -79,18 +91,6 @@ class CommandCheck : public Command
 		if (ret.empty())
 			ret = "+";
 		return ret;
-	}
-
-	static void dumpListMode(CheckContext& context, const ListModeBase::ModeList* list)
-	{
-		if (!list)
-			return;
-
-		CheckContext::List modelist(context, "modelist");
-		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
-			modelist.Add(i->mask);
-
-		modelist.Flush();
 	}
 
  public:
@@ -266,7 +266,7 @@ class CommandCheck : public Command
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				dumpListMode(context, (*i)->GetList(targchan));
+				context.DumpListMode((*i)->GetList(targchan));
 
 			dumpExt(context, targchan);
 		}
