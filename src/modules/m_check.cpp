@@ -65,6 +65,22 @@ class CheckContext
 		modelist.Flush();
 	}
 
+	void DumpExt(Extensible* ext)
+	{
+		CheckContext::List extlist(*this, "metadata");
+		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); ++i)
+		{
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_USER, ext, i->second);
+			if (!value.empty())
+				Write("meta:" + item->name, value);
+			else if (!item->name.empty())
+				extlist.Add(item->name);
+		}
+
+		extlist.Flush();
+	}
+
 	class List : public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
 	{
 	 public:
@@ -109,22 +125,6 @@ class CommandCheck : public Command
 		std::string ret(timebuf);
 		ret.append(ConvToStr(time)).push_back(')');
 		return ret;
-	}
-
-	void dumpExt(CheckContext& context, Extensible* ext)
-	{
-		CheckContext::List extlist(context, "metadata");
-		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
-		{
-			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_USER, ext, i->second);
-			if (!value.empty())
-				context.Write("meta:" + item->name, value);
-			else if (!item->name.empty())
-				extlist.Add(item->name);
-		}
-
-		extlist.Flush();
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -230,7 +230,7 @@ class CommandCheck : public Command
 
 			chanlist.Flush();
 
-			dumpExt(context, targuser);
+			context.DumpExt(targuser);
 		}
 		else if (targchan)
 		{
@@ -268,7 +268,7 @@ class CommandCheck : public Command
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
 				context.DumpListMode((*i)->GetList(targchan));
 
-			dumpExt(context, targchan);
+			context.DumpExt(targchan);
 		}
 		else
 		{
