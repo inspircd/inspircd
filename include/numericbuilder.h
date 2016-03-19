@@ -62,7 +62,7 @@ class Numeric::GenericBuilder
 	GenericBuilder(Sink s, unsigned int num, bool addparam = true, size_t additionalsize = 0)
 		: sink(s)
 		, numeric(num)
-		, max(ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - additionalsize - 9)
+		, max(ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - additionalsize - 10)
 	{
 		if (addparam)
 			numeric.push(std::string());

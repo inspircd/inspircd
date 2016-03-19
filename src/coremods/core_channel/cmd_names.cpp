@@ -68,7 +68,7 @@ CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, 
 
 void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)
 {
-	Numeric::Builder<' '> reply(user, RPL_NAMREPLY, false, chan->name.size() + 4);
+	Numeric::Builder<' '> reply(user, RPL_NAMREPLY, false, chan->name.size() + 3);
 	Numeric::Numeric& numeric = reply.GetNumeric();
 	if (chan->IsModeSet(secretmode))
 		numeric.push(std::string(1, '@'));

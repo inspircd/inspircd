@@ -101,8 +101,9 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 {
  public:
 	WhoisChanListNumericBuilder(WhoisContextImpl& whois)
-		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), 319, true, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
+		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), 319, false, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
 	{
+		GetNumeric().push(whois.GetTarget()->nick).push(std::string());
 	}
 };
 
