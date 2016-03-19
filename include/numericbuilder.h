@@ -22,6 +22,7 @@
 namespace Numeric
 {
 	class WriteNumericSink;
+	class WriteRemoteNumericSink;
 
 	template <char Sep, bool SendEmpty, typename Sink>
 	class GenericBuilder;
@@ -43,6 +44,22 @@ class Numeric::WriteNumericSink
 	void operator()(Numeric& numeric) const
 	{
 		user->WriteNumeric(numeric);
+	}
+};
+
+class Numeric::WriteRemoteNumericSink
+{
+	User* const user;
+
+ public:
+	WriteRemoteNumericSink(User* u)
+		: user(u)
+	{
+	}
+
+	void operator()(Numeric& numeric) const
+	{
+		user->WriteRemoteNumeric(numeric);
 	}
 };
 

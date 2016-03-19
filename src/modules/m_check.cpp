@@ -23,6 +23,47 @@
 #include "inspircd.h"
 #include "listmode.h"
 
+enum
+{
+	RPL_CHECK = 802
+};
+
+class CheckContext
+{
+	User* const user;
+	const std::string& target;
+
+ public:
+	CheckContext(User* u, const std::string& targetstr)
+		: user(u)
+		, target(targetstr)
+	{
+		Write("START", target);
+	}
+
+	~CheckContext()
+	{
+		Write("END", target);
+	}
+
+	void Write(const std::string& type, const std::string& text)
+	{
+		user->WriteRemoteNumeric(RPL_CHECK, type, text);
+	}
+
+	User* GetUser() const { return user; }
+
+	class List : public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
+	{
+	 public:
+		List(CheckContext& context, const char* checktype)
+			: Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>(Numeric::WriteRemoteNumericSink(context.GetUser()), RPL_CHECK, false, (IS_LOCAL(context.GetUser()) ? context.GetUser()->nick.length() : ServerInstance->Config->Limits.NickMax) + strlen(checktype) + 1)
+		{
+			GetNumeric().push(checktype).push(std::string());
+		}
+	};
+};
+
 /** Handle /CHECK
  */
 class CommandCheck : public Command
@@ -40,25 +81,16 @@ class CommandCheck : public Command
 		return ret;
 	}
 
-	static void dumpListMode(User* user, const std::string& checkstr, const ListModeBase::ModeList* list)
+	static void dumpListMode(CheckContext& context, const ListModeBase::ModeList* list)
 	{
 		if (!list)
 			return;
 
-		std::string buf = checkstr + " modelist";
-		const std::string::size_type headlen = buf.length();
-		const size_t maxline = ServerInstance->Config->Limits.MaxLine;
+		CheckContext::List modelist(context, "modelist");
 		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
-		{
-			if (buf.size() + i->mask.size() + 1 > maxline)
-			{
-				user->SendText(buf);
-				buf.erase(headlen);
-			}
-			buf.append(" ").append(i->mask);
-		}
-		if (buf.length() > headlen)
-			user->SendText(buf);
+			modelist.Add(i->mask);
+
+		modelist.Flush();
 	}
 
  public:
@@ -79,20 +111,20 @@ class CommandCheck : public Command
 		return ret;
 	}
 
-	void dumpExt(User* user, const std::string& checkstr, Extensible* ext)
+	void dumpExt(CheckContext& context, Extensible* ext)
 	{
-		std::stringstream dumpkeys;
+		CheckContext::List extlist(context, "metadata");
 		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
 			if (!value.empty())
-				user->SendText(checkstr + " meta:" + item->name + " " + value);
+				context.Write("meta:" + item->name, value);
 			else if (!item->name.empty())
-				dumpkeys << " " << item->name;
+				extlist.Add(item->name);
 		}
-		if (!dumpkeys.str().empty())
-			user->SendText(checkstr + " metadata", dumpkeys);
+
+		extlist.Flush();
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -102,51 +134,49 @@ class CommandCheck : public Command
 
 		User *targuser;
 		Channel *targchan;
-		std::string checkstr;
 		std::string chliststr;
-
-		checkstr = ":" + ServerInstance->Config->ServerName + " 304 " + user->nick + " :CHECK";
 
 		targuser = ServerInstance->FindNick(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
-		 *  :server.name 304 target :CHECK START <target>
-		 *  :server.name 304 target :CHECK <field> <value>
-		 *  :server.name 304 target :CHECK END
+		 *  :server.name 802 target START <target>
+		 *  :server.name 802 target <field> :<value>
+		 *  :server.name 802 target END <target>
 		 */
 
-		user->SendText(checkstr + " START " + parameters[0]);
+		// Constructor sends START, destructor sends END
+		CheckContext context(user, parameters[0]);
 
 		if (targuser)
 		{
 			LocalUser* loctarg = IS_LOCAL(targuser);
 			/* /check on a user */
-			user->SendText(checkstr + " nuh " + targuser->GetFullHost());
-			user->SendText(checkstr + " realnuh " + targuser->GetFullRealHost());
-			user->SendText(checkstr + " realname " + targuser->fullname);
-			user->SendText(checkstr + " modes +" + targuser->FormatModes());
-			user->SendText(checkstr + " snomasks " + GetSnomasks(targuser));
-			user->SendText(checkstr + " server " + targuser->server->GetName());
-			user->SendText(checkstr + " uid " + targuser->uuid);
-			user->SendText(checkstr + " signon " + timestring(targuser->signon));
-			user->SendText(checkstr + " nickts " + timestring(targuser->age));
+			context.Write("nuh", targuser->GetFullHost());
+			context.Write("realnuh", targuser->GetFullRealHost());
+			context.Write("realname", targuser->fullname);
+			context.Write("modes", std::string("+") + targuser->FormatModes());
+			context.Write("snomasks", GetSnomasks(targuser));
+			context.Write("server", targuser->server->GetName());
+			context.Write("uid", targuser->uuid);
+			context.Write("signon", timestring(targuser->signon));
+			context.Write("nickts", timestring(targuser->age));
 			if (loctarg)
-				user->SendText(checkstr + " lastmsg " + timestring(loctarg->idle_lastmsg));
+				context.Write("lastmsg", timestring(loctarg->idle_lastmsg));
 
 			if (targuser->IsAway())
 			{
 				/* user is away */
-				user->SendText(checkstr + " awaytime " + timestring(targuser->awaytime));
-				user->SendText(checkstr + " awaymsg " + targuser->awaymsg);
+				context.Write("awaytime", timestring(targuser->awaytime));
+				context.Write("awaymsg", targuser->awaymsg);
 			}
 
 			if (targuser->IsOper())
 			{
 				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
-				user->SendText(checkstr + " opertype " + oper->name);
+				context.Write("opertype", oper->name);
 				if (loctarg)
 				{
 					std::string umodes;
@@ -160,38 +190,32 @@ class CommandCheck : public Command
 						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_CHANNEL))
 							cmodes.push_back(c);
 					}
-					user->SendText(checkstr + " modeperms user=" + umodes + " channel=" + cmodes);
-					std::string opcmds;
+					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
+
+					CheckContext::List opcmdlist(context, "commandperms");
 					for (OperInfo::PrivSet::const_iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); ++i)
-					{
-						opcmds.push_back(' ');
-						opcmds.append(*i);
-					}
-					std::stringstream opcmddump(opcmds);
-					user->SendText(checkstr + " commandperms", opcmddump);
-					std::string privs;
+						opcmdlist.Add(*i);
+					opcmdlist.Flush();
+					CheckContext::List privlist(context, "permissions");
 					for (OperInfo::PrivSet::const_iterator i = oper->AllowedPrivs.begin(); i != oper->AllowedPrivs.end(); ++i)
-					{
-						privs.push_back(' ');
-						privs.append(*i);
-					}
-					std::stringstream privdump(privs);
-					user->SendText(checkstr + " permissions", privdump);
+						privlist.Add(*i);
+					privlist.Flush();
 				}
 			}
 
 			if (loctarg)
 			{
-				user->SendText(checkstr + " clientaddr " + loctarg->client_sa.str());
-				user->SendText(checkstr + " serveraddr " + loctarg->server_sa.str());
+				context.Write("clientaddr", loctarg->client_sa.str());
+				context.Write("serveraddr", loctarg->server_sa.str());
 
 				std::string classname = loctarg->GetClass()->name;
 				if (!classname.empty())
-					user->SendText(checkstr + " connectclass " + classname);
+					context.Write("connectclass", classname);
 			}
 			else
-				user->SendText(checkstr + " onip " + targuser->GetIPString());
+				context.Write("onip", targuser->GetIPString());
 
+			CheckContext::List chanlist(context, "onchans");
 			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
 				Membership* memb = *i;
@@ -199,30 +223,30 @@ class CommandCheck : public Command
 				char prefix = memb->GetPrefixChar();
 				if (prefix)
 					chliststr.push_back(prefix);
-				chliststr.append(c->name).push_back(' ');
+				chliststr.append(c->name);
+				chanlist.Add(chliststr);
+				chliststr.clear();
 			}
 
-			std::stringstream dump(chliststr);
+			chanlist.Flush();
 
-			user->SendText(checkstr + " onchans", dump);
-
-			dumpExt(user, checkstr, targuser);
+			dumpExt(context, targuser);
 		}
 		else if (targchan)
 		{
 			/* /check on a channel */
-			user->SendText(checkstr + " timestamp " + timestring(targchan->age));
+			context.Write("timestamp", timestring(targchan->age));
 
 			if (!targchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
-				user->SendText(checkstr + " topic " + targchan->topic);
-				user->SendText(checkstr + " topic_setby " + targchan->setby);
-				user->SendText(checkstr + " topic_setat " + timestring(targchan->topicset));
+				context.Write("topic", targchan->topic);
+				context.Write("topic_setby", targchan->setby);
+				context.Write("topic_setat", timestring(targchan->topicset));
 			}
 
-			user->SendText(checkstr + " modes " + targchan->ChanModes(true));
-			user->SendText(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			context.Write("modes", targchan->ChanModes(true));
+			context.Write("membercount", ConvToStr(targchan->GetUserCounter()));
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
@@ -235,17 +259,16 @@ class CommandCheck : public Command
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 			 	 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
-				user->SendText("%s member %-3u %s%s (%s@%s) %s ",
-					checkstr.c_str(), clonecount.global,
+				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
 					i->second->GetAllPrefixChars(), i->first->nick.c_str(),
-					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
+					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str()));
 			}
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				dumpListMode(user, checkstr, (*i)->GetList(targchan));
+				dumpListMode(context, (*i)->GetList(targchan));
 
-			dumpExt(user, checkstr, targchan);
+			dumpExt(context, targchan);
 		}
 		else
 		{
@@ -259,21 +282,20 @@ class CommandCheck : public Command
 				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					user->SendText(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
+					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
 				}
 				/* IP address */
 				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					user->SendText(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
+					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
 				}
 			}
 
-			user->SendText(checkstr + " matches " + ConvToStr(x));
+			context.Write("matches", ConvToStr(x));
 		}
 
-		user->SendText(checkstr + " END " + parameters[0]);
-
+		// END is sent by the CheckContext destructor
 		return CMD_SUCCESS;
 	}
 
