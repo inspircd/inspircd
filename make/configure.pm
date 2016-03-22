@@ -419,7 +419,7 @@ sub parse_templates($$$) {
 
 				# Write the template file.
 				print_format "Writing <|GREEN $target|> ...\n";
-				open(TARGET, '>', $target) or print_error "unable to write $_: $!";
+				open(TARGET, '>', $target) or print_error "unable to write $target: $!";
 				foreach (@final_lines) {
 					say TARGET $_;
 				}
