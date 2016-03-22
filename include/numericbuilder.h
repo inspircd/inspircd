@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -28,6 +28,12 @@ namespace Numeric
 
 	template <char Sep = ',', bool SendEmpty = false>
 	class Builder;
+
+	template <unsigned int NumStaticParams, bool SendEmpty, typename Sink>
+	class GenericParamBuilder;
+
+	template <unsigned int NumStaticParams, bool SendEmpty = false>
+	class ParamBuilder;
 }
 
 class Numeric::WriteNumericSink
@@ -110,6 +116,66 @@ class Numeric::Builder : public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
  public:
 	Builder(LocalUser* user, unsigned int num, bool addparam = true, size_t additionalsize = 0)
 		: ::Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
+	{
+	}
+};
+
+template <unsigned int NumStaticParams, bool SendEmpty, typename Sink>
+class Numeric::GenericParamBuilder
+{
+	Sink sink;
+	Numeric numeric;
+	std::string::size_type currlen;
+	std::string::size_type max;
+
+	bool HasRoom(const std::string::size_type additional) const
+	{
+		return (currlen + additional <= max);
+	}
+
+ public:
+	GenericParamBuilder(Sink s, unsigned int num, size_t additionalsize)
+		: sink(s)
+		, numeric(num)
+		, currlen(0)
+		, max(ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - additionalsize - 10)
+	{
+	}
+
+	void AddStatic(const std::string& entry)
+	{
+		max -= (entry.length() + 1);
+		numeric.GetParams().push_back(entry);
+	}
+
+	void Add(const std::string& entry)
+	{
+		if (!HasRoom(entry.size()))
+			Flush();
+
+		currlen += entry.size() + 1;
+		numeric.GetParams().push_back(entry);
+	}
+
+	void Flush()
+	{
+		if ((!SendEmpty) && (IsEmpty()))
+			return;
+
+		sink(numeric);
+		currlen = 0;
+		numeric.GetParams().erase(numeric.GetParams().begin() + NumStaticParams, numeric.GetParams().end());
+	}
+
+	bool IsEmpty() const { return (numeric.GetParams().size() <= NumStaticParams); }
+};
+
+template <unsigned int NumStaticParams, bool SendEmpty>
+class Numeric::ParamBuilder : public GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>
+{
+ public:
+	ParamBuilder(LocalUser* user, unsigned int num)
+		: ::Numeric::GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, user->nick.size())
 	{
 	}
 };
