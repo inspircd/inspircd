@@ -663,12 +663,6 @@ class CoreExport User : public Extensible
 	 */
 	void ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
 
-	/** Dump text to a user target, splitting it appropriately to fit
-	 * @param linePrefix text to prefix each complete line with
-	 * @param textStream the text to send to the user
-	 */
-	void SendText(const std::string& linePrefix, std::stringstream& textStream);
-
 	/** Write to the user, routing the line if the user is remote.
 	 */
 	virtual void SendText(const std::string& line) = 0;

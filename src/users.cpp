@@ -947,23 +947,6 @@ void User::SendText(const char *text, ...)
 	SendText(line);
 }
 
-void User::SendText(const std::string& linePrefix, std::stringstream& textStream)
-{
-	std::string line;
-	std::string word;
-	while (textStream >> word)
-	{
-		size_t lineLength = linePrefix.length() + line.length() + word.length() + 3; // "\s\n\r"
-		if (lineLength > ServerInstance->Config->Limits.MaxLine)
-		{
-			SendText(linePrefix + line);
-			line.clear();
-		}
-		line += " " + word;
-	}
-	SendText(linePrefix + line);
-}
-
 void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
 {
 	const std::string& servername = (numeric.GetServer() ? numeric.GetServer()->GetName() : ServerInstance->Config->ServerName);
