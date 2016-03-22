@@ -41,7 +41,7 @@ use make::console;
 use make::utilities;
 
 use constant CONFIGURE_DIRECTORY     => '.configure';
-use constant CONFIGURE_CACHE_FILE    => '.configure.cache';
+use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
 use constant CONFIGURE_CACHE_VERSION => '1';
 
 our @EXPORT = qw(CONFIGURE_CACHE_FILE
@@ -228,6 +228,11 @@ sub read_configure_cache {
 }
 
 sub write_configure_cache(%) {
+	unless (-e CONFIGURE_DIRECTORY) {
+		print_format "Creating <|GREEN ${\CONFIGURE_DIRECTORY}|> ...\n";
+		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
+	}
+
 	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
 	my %config = @_;
 	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
