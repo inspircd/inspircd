@@ -220,7 +220,7 @@ sub read_configure_cache {
 	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
 	while (my $line = <CACHE>) {
 		next if $line =~ /^\s*($|\#)/;
-		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
+		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.+))?$/);
 		$config{$key} = $value;
 	}
 	close(CACHE);
@@ -238,7 +238,7 @@ sub write_configure_cache(%) {
 	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
 	while (my ($key, $value) = each %config) {
 		$value //= '';
-		say CACHE "$key=\"$value\"";
+		say CACHE "$key $value";
 	}
 	close(CACHE);
 }
