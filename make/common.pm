@@ -28,11 +28,21 @@ use strict;
 use warnings FATAL => qw(all);
 
 use Exporter              qw(import);
+use File::Path            qw(mkpath);
 use File::Spec::Functions qw(rel2abs);
 
-our @EXPORT = qw(get_cpu_count
+our @EXPORT = qw(create_directory
+                 get_cpu_count
                  get_version
                  module_installed);
+
+sub create_directory($$) {
+	my ($location, $permissions) = @_;
+	return eval {
+		mkpath($location, 0, $permissions);
+		return 1;
+	} // 0;
+}
 
 sub get_version {
 	state %version;

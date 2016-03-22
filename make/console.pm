@@ -88,12 +88,8 @@ sub prompt_dir($$$;$) {
 		$answer = rel2abs(prompt_string($interactive, $question, $default));
 		$create = prompt_bool($interactive && !-d $answer, "$answer does not exist. Create it?", 'y');
 		if ($create && $create_now) {
-			my $mkpath = eval {
-				mkpath($answer, 0, 0750);
-				return 1;
-			};
-			unless (defined $mkpath) {
-				print_warning "unable to create $answer!\n";
+			unless (create_directory $answer, 0750) {
+				print_warning "unable to create $answer: $!\n";
 				$create = 0;
 			}
 		}
