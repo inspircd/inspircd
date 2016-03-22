@@ -21,24 +21,25 @@
 
 static void DisplayList(LocalUser* user, Channel* channel)
 {
-	std::stringstream items;
+	Numeric::ParamBuilder<1> numeric(user, 961);
+	numeric.AddStatic(channel->name);
+
 	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
 		ModeHandler* mh = i->second;
 		if (!channel->IsModeSet(mh))
 			continue;
-		items << " +" << mh->name;
+		numeric.Add("+" + mh->name);
 		if (mh->GetNumParams(true))
 		{
 			if ((mh->name == "key") && (!channel->HasUser(user)) && (!user->HasPrivPermission("channels/auspex")))
-				items << " <key>";
+				numeric.Add("<key>");
 			else
-				items << " " << channel->GetModeParameter(mh);
+				numeric.Add(channel->GetModeParameter(mh));
 		}
 	}
-	const std::string line = ":" + ServerInstance->Config->ServerName + " 961 " + user->nick + " " + channel->name;
-	user->SendText(line, items);
+	numeric.Flush();
 	user->WriteNumeric(960, channel->name, "End of mode list");
 }
 
