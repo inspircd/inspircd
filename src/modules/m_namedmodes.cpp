@@ -19,7 +19,7 @@
 
 #include "inspircd.h"
 
-static void DisplayList(User* user, Channel* channel)
+static void DisplayList(LocalUser* user, Channel* channel)
 {
 	std::stringstream items;
 	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
@@ -42,15 +42,16 @@ static void DisplayList(User* user, Channel* channel)
 	user->WriteNumeric(960, channel->name, "End of mode list");
 }
 
-class CommandProp : public Command
+class CommandProp : public SplitCommand
 {
  public:
-	CommandProp(Module* parent) : Command(parent, "PROP", 1)
+	CommandProp(Module* parent)
+		: SplitCommand(parent, "PROP", 1)
 	{
 		syntax = "<user|channel> {[+-]<mode> [<value>]}*";
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* src)
 	{
 		Channel* const chan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
@@ -103,7 +104,8 @@ class DummyZ : public ModeHandler
 	// Handle /MODE #chan Z
 	void DisplayList(User* user, Channel* chan)
 	{
-		::DisplayList(user, chan);
+		if (IS_LOCAL(user))
+			::DisplayList(static_cast<LocalUser*>(user), chan);
 	}
 };
 
