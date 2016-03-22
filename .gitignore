@@ -5,17 +5,12 @@
 .*
 !.git*
 
+/.configure
 /BSDmakefile
 /GNUmakefile
 /build
 /docs/doxygen
-/inspircd
-/inspircd.1
-/inspircd-genssl.1
-/inspircd.service
-/org.inspircd.plist
 /run
-/bin
 
 /include/config.h
 

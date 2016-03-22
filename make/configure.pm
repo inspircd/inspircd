@@ -31,14 +31,16 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd            qw(getcwd);
-use Exporter       qw(import);
-use File::Basename qw(basename);
+use Cwd                   qw(getcwd);
+use Exporter              qw(import);
+use File::Basename        qw(basename dirname);
+use File::Spec::Functions qw(catfile);
 
 use make::common;
 use make::console;
 use make::utilities;
 
+use constant CONFIGURE_DIRECTORY     => '.configure';
 use constant CONFIGURE_CACHE_FILE    => '.configure.cache';
 use constant CONFIGURE_CACHE_VERSION => '1';
 
@@ -87,6 +89,7 @@ sub __get_template_settings($$$) {
 	}
 
 	# Miscellaneous information
+	$settings{CONFIGURE_DIRECTORY} = CONFIGURE_DIRECTORY;
 	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
 	$settings{SYSTEM_NAME} = lc $^O;
 	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
@@ -337,7 +340,7 @@ sub parse_templates($$$) {
 
 			# Add a default target if the template has not defined one.
 			unless (scalar keys %targets) {
-				$targets{DEFAULT} = basename $_;
+				$targets{DEFAULT} = catfile(CONFIGURE_DIRECTORY, basename $_);
 			}
 
 			# Second pass: parse makefile junk and write files.
@@ -416,6 +419,13 @@ sub parse_templates($$$) {
 
 					push @final_lines, $line;
 				}
+
+				# Create the directory if it doesn't already exist.
+				my $directory = dirname $target;
+				unless (-e $directory) {
+					print_format "Creating <|GREEN $directory|> ...\n";
+					create_directory $directory, 0750 or print_error "unable to create $directory: $!";
+				};
 
 				# Write the template file.
 				print_format "Writing <|GREEN $target|> ...\n";

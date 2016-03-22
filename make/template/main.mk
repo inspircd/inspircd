@@ -229,16 +229,16 @@ install: target
 @IFNDEF PURE_STATIC
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
-	-$(INSTALL) -m $(INSTMODE_BIN) inspircd $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
 @IFEQ $(SYSTEM) darwin
-	-$(INSTALL) -m $(INSTMODE_BIN) org.inspircd.plist $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(BASE) 2>/dev/null
 @ENDIF
 @IFEQ $(SYSTEM) linux
-	-$(INSTALL) -m $(INSTMODE_LIB) inspircd.service $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(BASE) 2>/dev/null
 @ENDIF
-	-$(INSTALL) -m $(INSTMODE_LIB) inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) inspircd-genssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
 	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
