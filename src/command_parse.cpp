@@ -390,8 +390,7 @@ void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 	if (buffer.empty())
 		return;
 
-	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I :%s %s",
-		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
+	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), buffer.c_str());
 	ProcessCommand(user,buffer);
 }
 
