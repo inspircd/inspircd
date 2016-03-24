@@ -31,15 +31,17 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd            qw(getcwd);
-use Exporter       qw(import);
-use File::Basename qw(basename);
+use Cwd                   qw(getcwd);
+use Exporter              qw(import);
+use File::Basename        qw(basename dirname);
+use File::Spec::Functions qw(catfile);
 
 use make::common;
 use make::console;
 use make::utilities;
 
-use constant CONFIGURE_CACHE_FILE    => '.configure.cache';
+use constant CONFIGURE_DIRECTORY     => '.configure';
+use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
 use constant CONFIGURE_CACHE_VERSION => '1';
 
 our @EXPORT = qw(CONFIGURE_CACHE_FILE
@@ -87,6 +89,7 @@ sub __get_template_settings($$$) {
 	}
 
 	# Miscellaneous information
+	$settings{CONFIGURE_DIRECTORY} = CONFIGURE_DIRECTORY;
 	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
 	$settings{SYSTEM_NAME} = lc $^O;
 	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
@@ -217,7 +220,7 @@ sub read_configure_cache {
 	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
 	while (my $line = <CACHE>) {
 		next if $line =~ /^\s*($|\#)/;
-		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
+		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.+))?$/);
 		$config{$key} = $value;
 	}
 	close(CACHE);
@@ -225,12 +228,17 @@ sub read_configure_cache {
 }
 
 sub write_configure_cache(%) {
+	unless (-e CONFIGURE_DIRECTORY) {
+		print_format "Creating <|GREEN ${\CONFIGURE_DIRECTORY}|> ...\n";
+		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
+	}
+
 	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
 	my %config = @_;
 	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
 	while (my ($key, $value) = each %config) {
 		$value //= '';
-		say CACHE "$key=\"$value\"";
+		say CACHE "$key $value";
 	}
 	close(CACHE);
 }
@@ -337,7 +345,7 @@ sub parse_templates($$$) {
 
 			# Add a default target if the template has not defined one.
 			unless (scalar keys %targets) {
-				$targets{DEFAULT} = basename $_;
+				$targets{DEFAULT} = catfile(CONFIGURE_DIRECTORY, basename $_);
 			}
 
 			# Second pass: parse makefile junk and write files.
@@ -417,9 +425,16 @@ sub parse_templates($$$) {
 					push @final_lines, $line;
 				}
 
+				# Create the directory if it doesn't already exist.
+				my $directory = dirname $target;
+				unless (-e $directory) {
+					print_format "Creating <|GREEN $directory|> ...\n";
+					create_directory $directory, 0750 or print_error "unable to create $directory: $!";
+				};
+
 				# Write the template file.
 				print_format "Writing <|GREEN $target|> ...\n";
-				open(TARGET, '>', $target) or print_error "unable to write $_: $!";
+				open(TARGET, '>', $target) or print_error "unable to write $target: $!";
 				foreach (@final_lines) {
 					say TARGET $_;
 				}
