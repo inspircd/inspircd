@@ -267,7 +267,8 @@ clean:
 deinstall:
 	-rm -f $(BINPATH)/inspircd
 	-rm -rf $(CONPATH)/examples
-	-rm -f $(MODPATH)/*.so
+	-rm -f $(MODPATH)/cmd_*.so
+	-rm -f $(MODPATH)/m_*.so
 	-rm -f $(BASE)/.gdbargs
 	-rm -f $(BASE)/org.inspircd.plist
 
