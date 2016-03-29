@@ -658,7 +658,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		return true;
 	}
 
-	void Rehash(const std::string& dnsserver)
+	void Rehash(const std::string& dnsserver, std::string sourceaddr, unsigned int sourceport)
 	{
 		if (this->GetFd() > -1)
 		{
@@ -682,8 +682,15 @@ class MyManager : public Manager, public Timer, public EventHandler
 			SocketEngine::NonBlocking(s);
 
 			irc::sockets::sockaddrs bindto;
-			memset(&bindto, 0, sizeof(bindto));
-			bindto.sa.sa_family = myserver.sa.sa_family;
+			if (sourceaddr.empty())
+			{
+				// set a sourceaddr for irc::sockets::aptosa() based on the servers af type
+				if (myserver.sa.sa_family == AF_INET)
+					sourceaddr = "0.0.0.0";
+				else if (myserver.sa.sa_family == AF_INET6)
+					sourceaddr = "::";
+			}
+			irc::sockets::aptosa(sourceaddr, sourceport, bindto);
 
 			if (SocketEngine::Bind(this->GetFd(), bindto) < 0)
 			{
@@ -698,6 +705,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
+
+			if (bindto.sa.sa_family != myserver.sa.sa_family)
+				ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Nameserver address family differs from source address family - hostnames might not resolve");
 		}
 		else
 		{
@@ -710,6 +720,8 @@ class ModuleDNS : public Module
 {
 	MyManager manager;
 	std::string DNSServer;
+	std::string SourceIP;
+	unsigned int SourcePort;
 
 	void FindDNSServer()
 	{
@@ -770,19 +782,27 @@ class ModuleDNS : public Module
 	}
 
  public:
- 	ModuleDNS() : manager(this)
+	ModuleDNS() : manager(this)
+		, SourcePort(0)
 	{
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string oldserver = DNSServer;
-		DNSServer = ServerInstance->Config->ConfValue("dns")->getString("server");
+		const std::string oldip = SourceIP;
+		const unsigned int oldport = SourcePort;
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("dns");
+		DNSServer = tag->getString("server");
+		SourceIP = tag->getString("sourceip");
+		SourcePort = tag->getInt("sourceport", 0, 0, 65535);
+
 		if (DNSServer.empty())
 			FindDNSServer();
 
-		if (oldserver != DNSServer)
-			this->manager.Rehash(DNSServer);
+		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort)
+			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
 	}
 
 	void OnUnloadModule(Module* mod)
