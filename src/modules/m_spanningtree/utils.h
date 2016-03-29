@@ -118,7 +118,6 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const CmdBuilder& params, const std::string& target);
 	void DoOneToOne(const CmdBuilder& params, Server* target);
 
 	/** Send a message from this server to all but one other, local or remote
@@ -149,9 +148,10 @@ class SpanningTreeUtilities : public classbase
 	 */
 	TreeServer* FindServerID(const std::string &id);
 
-	/** Find a route to a server by name
+	/** Find a server based on a target string.
+	 * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
 	 */
-	TreeServer* BestRouteTo(const std::string &ServerName);
+	TreeServer* FindRouteTarget(const std::string& target);
 
 	/** Find a server by glob mask
 	 */

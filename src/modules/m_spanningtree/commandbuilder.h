@@ -142,11 +142,6 @@ class CmdBuilder
 		Utils->DoOneToAllButSender(*this, omit);
 	}
 
-	bool Unicast(const std::string& target) const
-	{
-		return Utils->DoOneToOne(*this, target);
-	}
-
 	void Unicast(User* target) const
 	{
 		Utils->DoOneToOne(*this, target->server);

@@ -93,10 +93,7 @@ class CommandSVSSilence : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
-		if (target)
-			return ROUTE_OPT_UCAST(target->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 

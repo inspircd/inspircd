@@ -105,8 +105,7 @@ class CommandUninvite : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* u = ServerInstance->FindNick(parameters[0]);
-		return u ? ROUTE_OPT_UCAST(u->server) : ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
