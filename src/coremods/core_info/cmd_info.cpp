@@ -24,7 +24,7 @@
 #include "core_info.h"
 
 CommandInfo::CommandInfo(Module* parent)
-	: Command(parent, "INFO")
+	: ServerTargetCommand(parent, "INFO")
 {
 	Penalty = 4;
 	syntax = "[<servername>]";
@@ -87,11 +87,4 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>& parameters, User 
 	FOREACH_MOD(OnInfo, (user));
 	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
 	return CMD_SUCCESS;
-}
-
-RouteDescriptor CommandInfo::GetRouting(User* user, const std::vector<std::string>& parameters)
-{
-	if (parameters.size() > 0)
-		return ROUTE_UNICAST(parameters[0]);
-	return ROUTE_LOCALONLY;
 }

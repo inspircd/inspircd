@@ -22,7 +22,7 @@
 #include "core_info.h"
 
 CommandAdmin::CommandAdmin(Module* parent)
-	: Command(parent, "ADMIN", 0, 0)
+	: ServerTargetCommand(parent, "ADMIN")
 {
 	Penalty = 2;
 	syntax = "[<servername>]";
@@ -40,11 +40,4 @@ CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User
 	user->WriteRemoteNumeric(RPL_ADMINLOC2, InspIRCd::Format("Nickname - %s", AdminNick.c_str()));
 	user->WriteRemoteNumeric(RPL_ADMINEMAIL, InspIRCd::Format("E-Mail   - %s", AdminEmail.c_str()));
 	return CMD_SUCCESS;
-}
-
-RouteDescriptor CommandAdmin::GetRouting(User* user, const std::vector<std::string>& parameters)
-{
-	if (parameters.size() > 0)
-		return ROUTE_UNICAST(parameters[0]);
-	return ROUTE_LOCALONLY;
 }

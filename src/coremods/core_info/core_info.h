@@ -36,7 +36,7 @@ class ServerTargetCommand : public Command
 
 /** Handle /ADMIN.
  */
-class CommandAdmin : public Command
+class CommandAdmin : public ServerTargetCommand
 {
  public:
 	/** Holds the admin's name, for output in
@@ -64,7 +64,6 @@ class CommandAdmin : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 /** Handle /COMMANDS.
@@ -86,7 +85,7 @@ class CommandCommands : public Command
 
 /** Handle /INFO.
  */
-class CommandInfo : public Command
+class CommandInfo : public ServerTargetCommand
 {
  public:
 	/** Constructor for info.
@@ -99,12 +98,11 @@ class CommandInfo : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 /** Handle /MODULES.
  */
-class CommandModules : public Command
+class CommandModules : public ServerTargetCommand
 {
  public:
 	/** Constructor for modules.
@@ -117,12 +115,11 @@ class CommandModules : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 /** Handle /MOTD.
  */
-class CommandMotd : public Command
+class CommandMotd : public ServerTargetCommand
 {
  public:
 	/** Constructor for motd.
@@ -135,12 +132,11 @@ class CommandMotd : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 /** Handle /TIME.
  */
-class CommandTime : public Command
+class CommandTime : public ServerTargetCommand
 {
  public:
 	/** Constructor for time.
@@ -153,7 +149,6 @@ class CommandTime : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 /** Handle /VERSION.

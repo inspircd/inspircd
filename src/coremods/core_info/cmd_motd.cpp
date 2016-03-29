@@ -22,7 +22,7 @@
 #include "core_info.h"
 
 CommandMotd::CommandMotd(Module* parent)
-	: Command(parent, "MOTD", 0, 1)
+	: ServerTargetCommand(parent, "MOTD")
 {
 	syntax = "[<servername>]";
 }
@@ -60,11 +60,4 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 	user->WriteRemoteNumeric(RPL_ENDOFMOTD, "End of message of the day.");
 
 	return CMD_SUCCESS;
-}
-
-RouteDescriptor CommandMotd::GetRouting(User* user, const std::vector<std::string>& parameters)
-{
-	if (parameters.size() > 0)
-		return ROUTE_UNICAST(parameters[0]);
-	return ROUTE_LOCALONLY;
 }

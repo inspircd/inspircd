@@ -22,7 +22,7 @@
 #include "core_info.h"
 
 CommandTime::CommandTime(Module* parent)
-	: Command(parent, "TIME", 0, 0)
+	: ServerTargetCommand(parent, "TIME")
 {
 	syntax = "[<servername>]";
 }
@@ -35,11 +35,4 @@ CmdResult CommandTime::Handle (const std::vector<std::string>& parameters, User 
 	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, InspIRCd::TimeString(ServerInstance->Time()));
 
 	return CMD_SUCCESS;
-}
-
-RouteDescriptor CommandTime::GetRouting(User* user, const std::vector<std::string>& parameters)
-{
-	if (parameters.size() > 0)
-		return ROUTE_UNICAST(parameters[0]);
-	return ROUTE_LOCALONLY;
 }

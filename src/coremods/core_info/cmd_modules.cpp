@@ -23,7 +23,7 @@
 #include "core_info.h"
 
 CommandModules::CommandModules(Module* parent)
-	: Command(parent, "MODULES", 0, 0)
+	: ServerTargetCommand(parent, "MODULES")
 {
 	Penalty = 4;
 	syntax = "[<servername>]";
@@ -79,11 +79,4 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 	user->WriteRemoteNumeric(703, "End of MODULES list");
 
 	return CMD_SUCCESS;
-}
-
-RouteDescriptor CommandModules::GetRouting(User* user, const std::vector<std::string>& parameters)
-{
-	if (parameters.size() >= 1)
-		return ROUTE_UNICAST(parameters[0]);
-	return ROUTE_LOCALONLY;
 }
