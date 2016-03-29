@@ -26,3 +26,8 @@ SpanningTree::RemoteUser::RemoteUser(const std::string& uid, Server* srv)
 	: ::RemoteUser(uid, srv)
 {
 }
+
+void SpanningTree::RemoteUser::WriteRemoteNumeric(const Numeric::Numeric& numeric)
+{
+	CommandNum::Builder(this, numeric).Unicast(this);
+}
