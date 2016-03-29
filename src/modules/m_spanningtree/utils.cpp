@@ -191,16 +191,6 @@ void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeSe
 	}
 }
 
-bool SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const std::string& target)
-{
-	TreeServer* Route = this->BestRouteTo(target);
-	if (!Route)
-		return false;
-
-	DoOneToOne(params, Route);
-	return true;
-}
-
 void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, Server* server)
 {
 	TreeServer* ts = static_cast<TreeServer*>(server);

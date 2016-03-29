@@ -118,7 +118,6 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const CmdBuilder& params, const std::string& target);
 	void DoOneToOne(const CmdBuilder& params, Server* target);
 
 	/** Send a message from this server to all but one other, local or remote
