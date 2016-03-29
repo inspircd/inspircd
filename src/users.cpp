@@ -811,7 +811,8 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
-	this->Write(BuildNumeric(ServerInstance->Config->ServerName, this, numeric.GetNumeric(), numeric.GetParams()));
+	const std::string& servername = (numeric.GetServer() ? numeric.GetServer()->GetName() : ServerInstance->Config->ServerName);
+	this->Write(BuildNumeric(servername, this, numeric.GetNumeric(), numeric.GetParams()));
 }
 
 void User::WriteFrom(User *user, const std::string &text)
