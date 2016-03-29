@@ -67,32 +67,6 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	}
 }
 
-/** Returns the locally connected server we must route a
- * message through to reach server 'ServerName'. This
- * only applies to one-to-one and not one-to-many routing.
- * See the comments for the constructor of TreeServer
- * for more details.
- */
-TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
-{
-	TreeServer* Found = FindServer(ServerName);
-	if (Found)
-	{
-		return Found->GetRoute();
-	}
-	else
-	{
-		// Cheat a bit. This allows for (better) working versions of routing commands with nick based prefixes, without hassle
-		User *u = ServerInstance->FindNick(ServerName);
-		if (u)
-		{
-			return TreeServer::Get(u)->GetRoute();
-		}
-
-		return NULL;
-	}
-}
-
 /** Find the first server matching a given glob mask.
  * We iterate over the list and match each one until we get a hit.
  */

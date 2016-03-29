@@ -148,10 +148,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	TreeServer* FindServerID(const std::string &id);
 
-	/** Find a route to a server by name
-	 */
-	TreeServer* BestRouteTo(const std::string &ServerName);
-
 	/** Find a server by glob mask
 	 */
 	TreeServer* FindServerMask(const std::string &ServerName);
