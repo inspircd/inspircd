@@ -72,8 +72,5 @@ CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameter
 
 RouteDescriptor CommandSVSNick::GetRouting(User* user, const std::vector<std::string>& parameters)
 {
-	User* u = ServerInstance->FindNick(parameters[0]);
-	if (u)
-		return ROUTE_OPT_UCAST(u->server);
-	return ROUTE_LOCALONLY;
+	return ROUTE_OPT_UCAST(parameters[0]);
 }
