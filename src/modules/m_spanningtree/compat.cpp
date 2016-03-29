@@ -290,6 +290,25 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						line = CmdBuilder(line.substr(spcolon-3, 3), "BURST").push_int(ServerInstance->Time()).str();
 					}
 				}
+				else if (command == "NUM")
+				{
+					// :<sid> NUM <numeric source sid> <target uuid> <3 digit number> <params>
+					// Translate to
+					// :<sid> PUSH <target uuid> :<numeric source name> <3 digit number> <target nick> <params>
+
+					TreeServer* const numericsource = Utils->FindServerID(line.substr(9, 3));
+					if (!numericsource)
+						return;
+
+					// The nick of the target is necessary for building the PUSH message
+					User* const target = ServerInstance->FindUUID(line.substr(13, UIDGenerator::UUID_LENGTH));
+					if (!target)
+						return;
+
+					std::string push = InspIRCd::Format(":%.*s PUSH %s ::%s %.*s %s", 3, line.c_str()+1, target->uuid.c_str(), numericsource->GetName().c_str(), 3, line.c_str()+23, target->nick.c_str());
+					push.append(line, 26, std::string::npos);
+					push.swap(line);
+				}
 			}
 			WriteLineNoCompat(line);
 			return;
@@ -484,6 +503,77 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	{
 		// SVSWATCH was removed because nothing was using it, but better be sure
 		return false;
+	}
+	else if (cmd == "PUSH")
+	{
+		if ((params.size() != 2) || (!this->MyRoot))
+			return false; // Huh?
+
+		irc::tokenstream ts(params.back());
+
+		std::string srcstr;
+		ts.GetToken(srcstr);
+		srcstr.erase(0, 1);
+
+		std::string token;
+		ts.GetToken(token);
+
+		// See if it's a numeric being sent to the target via PUSH
+		unsigned int numeric_number = 0;
+		if (token.length() == 3)
+			numeric_number = ConvToInt(token);
+
+		if ((numeric_number > 0) && (numeric_number < 1000))
+		{
+			// It's a numeric, translate to NUM
+
+			// srcstr must be a valid server name
+			TreeServer* const numericsource = Utils->FindServer(srcstr);
+			if (!numericsource)
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH numeric %s to user %s from 1202 protocol server %s: source \"%s\" doesn't exist", token.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), srcstr.c_str());
+				return false;
+			}
+
+			cmd = "NUM";
+
+			// Second parameter becomes the target uuid
+			params[0].swap(params[1]);
+			// Replace first param (now the PUSH payload, not needed) with the source sid
+			params[0] = numericsource->GetID();
+
+			params.push_back(InspIRCd::Format("%03u", numeric_number));
+
+			// Ignore the nickname in the numeric in PUSH
+			ts.GetToken(token);
+
+			// Rest of the tokens are the numeric parameters, add them to NUM
+			while (ts.GetToken(token))
+				params.push_back(token);
+		}
+		else if ((token == "PRIVMSG") || (token == "NOTICE"))
+		{
+			// Command is a PRIVMSG/NOTICE
+			cmd.swap(token);
+
+			// Check if the PRIVMSG/NOTICE target is a nickname
+			ts.GetToken(token);
+			if (token.c_str()[0] == '#')
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH %s to user %s from 1202 protocol server %s, target \"%s\"", cmd.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), token.c_str());
+				return false;
+			}
+
+			// Replace second parameter with the message
+			ts.GetToken(params[1]);
+		}
+		else
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Unable to translate PUSH to user %s from 1202 protocol server %s", params[0].c_str(), this->MyRoot->GetName().c_str());
+			return false;
+		}
+
+		return true;
 	}
 
 	return true; // Passthru
