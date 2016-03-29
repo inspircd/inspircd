@@ -148,6 +148,11 @@ class SpanningTreeUtilities : public classbase
 	 */
 	TreeServer* FindServerID(const std::string &id);
 
+	/** Find a server based on a target string.
+	 * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
+	 */
+	TreeServer* FindRouteTarget(const std::string& target);
+
 	/** Find a server by glob mask
 	 */
 	TreeServer* FindServerMask(const std::string &ServerName);
