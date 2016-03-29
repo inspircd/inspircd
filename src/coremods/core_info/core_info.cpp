@@ -20,6 +20,13 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+RouteDescriptor ServerTargetCommand::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	if (!parameters.empty())
+		return ROUTE_UNICAST(parameters[0]);
+	return ROUTE_LOCALONLY;
+}
+
 class CoreModInfo : public Module
 {
 	CommandAdmin cmdadmin;

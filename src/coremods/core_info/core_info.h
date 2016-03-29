@@ -21,6 +21,19 @@
 
 #include "inspircd.h"
 
+/** These commands require no parameters, but if there is a parameter it is a server name where the command will be routed to.
+ */
+class ServerTargetCommand : public Command
+{
+ public:
+	ServerTargetCommand(Module* mod, const std::string& Name)
+		: Command(mod, Name)
+	{
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
+
 /** Handle /ADMIN.
  */
 class CommandAdmin : public Command
