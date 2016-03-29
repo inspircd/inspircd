@@ -21,6 +21,7 @@
 
 #include "utils.h"
 #include "commands.h"
+#include "remoteuser.h"
 
 CmdResult CommandNum::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
@@ -44,4 +45,18 @@ CmdResult CommandNum::HandleServer(TreeServer* server, std::vector<std::string>&
 RouteDescriptor CommandNum::GetRouting(User* user, const std::vector<std::string>& params)
 {
 	return ROUTE_UNICAST(params[1]);
+}
+
+CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Numeric& numeric)
+	: CmdBuilder("NUM")
+{
+	TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>(numeric.GetServer())) : Utils->TreeRoot);
+	push(server->GetID()).push(target->uuid).push(InspIRCd::Format("%03u", numeric.GetNumeric()));
+	const std::vector<std::string>& params = numeric.GetParams();
+	if (!params.empty())
+	{
+		for (std::vector<std::string>::const_iterator i = params.begin(); i != params.end()-1; ++i)
+			push(*i);
+		push_last(params.back());
+	}
 }
