@@ -44,7 +44,7 @@ class CommandStats : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		if (parameters.size() > 1)
+		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_UNICAST(parameters[1]);
 		return ROUTE_LOCALONLY;
 	}

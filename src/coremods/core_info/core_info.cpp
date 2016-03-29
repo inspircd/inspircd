@@ -22,7 +22,8 @@
 
 RouteDescriptor ServerTargetCommand::GetRouting(User* user, const std::vector<std::string>& parameters)
 {
-	if (!parameters.empty())
+	// Parameter must be a server name, not a nickname or uuid
+	if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))
 		return ROUTE_UNICAST(parameters[0]);
 	return ROUTE_LOCALONLY;
 }

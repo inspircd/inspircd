@@ -301,7 +301,7 @@ class CommandCheck : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		if (parameters.size() > 1)
+		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[1]);
 		return ROUTE_LOCALONLY;
 	}
