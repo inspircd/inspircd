@@ -51,7 +51,9 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		sdest = static_cast<TreeServer*>(routing.server);
 		if (!sdest)
 		{
-			sdest = FindServer(routing.serverdest);
+			// Assume the command handler already validated routing.serverdest and have only returned success if the target is something that the
+			// user executing the command is allowed to look up e.g. target is not an uuid if user is local.
+			sdest = FindRouteTarget(routing.serverdest);
 			if (!sdest)
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistant server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.serverdest.c_str());
