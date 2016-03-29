@@ -369,6 +369,14 @@ class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
 	};
 };
 
+class CommandNum : public ServerOnlyServerCommand<CommandNum>
+{
+ public:
+	CommandNum(Module* Creator) : ServerOnlyServerCommand<CommandNum>(Creator, "NUM", 3) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
+
 class SpanningTreeCommands
 {
  public:
@@ -401,5 +409,6 @@ class SpanningTreeCommands
 	CommandSNONotice snonotice;
 	CommandEndBurst endburst;
 	CommandSInfo sinfo;
+	CommandNum num;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };

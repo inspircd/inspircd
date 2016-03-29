@@ -52,7 +52,7 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	away(module), addline(module), delline(module), encap(module), idle(module),
 	nick(module), ping(module), pong(module), push(module), save(module),
 	server(module), squit(module), snonotice(module),
-	endburst(module), sinfo(module)
+	endburst(module), sinfo(module), num(module)
 {
 }
 
