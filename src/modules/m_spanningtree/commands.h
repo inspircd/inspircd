@@ -298,14 +298,6 @@ class CommandPong : public ServerOnlyServerCommand<CommandPong>
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CommandPush : public ServerCommand
-{
- public:
-	CommandPush(Module* Creator) : ServerCommand(Creator, "PUSH", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
-};
-
 class CommandSave : public ServerCommand
 {
  public:
@@ -409,7 +401,6 @@ class SpanningTreeCommands
 	CommandNick nick;
 	CommandPing ping;
 	CommandPong pong;
-	CommandPush push;
 	CommandSave save;
 	CommandServer server;
 	CommandSQuit squit;

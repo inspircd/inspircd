@@ -50,7 +50,7 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
 	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
 	away(module), addline(module), delline(module), encap(module), idle(module),
-	nick(module), ping(module), pong(module), push(module), save(module),
+	nick(module), ping(module), pong(module), save(module),
 	server(module), squit(module), snonotice(module),
 	endburst(module), sinfo(module), num(module)
 {
