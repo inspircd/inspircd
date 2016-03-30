@@ -112,11 +112,6 @@ void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::strin
 	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
-{
-	CmdBuilder("PUSH").push(target->uuid).push_last(rawline).Unicast(target);
-}
-
 void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype)
 {
 	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
