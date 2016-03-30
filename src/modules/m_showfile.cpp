@@ -44,7 +44,6 @@ class CommandShowFile : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
-		const std::string& sn = ServerInstance->Config->ServerName;
 		if (method == SF_NUMERIC)
 		{
 			if (!introtext.empty())
@@ -58,9 +57,11 @@ class CommandShowFile : public Command
 		else
 		{
 			const char* msgcmd = (method == SF_MSG ? "PRIVMSG" : "NOTICE");
-			std::string header = InspIRCd::Format(":%s %s %s :", sn.c_str(), msgcmd, user->nick.c_str());
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->SendText(header + *i);
+			{
+				const std::string& line = *i;
+				user->WriteCommand(msgcmd, ":" + line);
+			}
 		}
 		return CMD_SUCCESS;
 	}
