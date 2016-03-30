@@ -24,6 +24,7 @@
 
 #include "utils.h"
 #include "treeserver.h"
+#include "remoteuser.h"
 
 CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::string>& params)
 {
@@ -73,7 +74,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	/* For remote users, we pass the UUID they sent to the constructor.
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
-	RemoteUser* _new = new RemoteUser(params[0], remoteserver);
+	RemoteUser* _new = new SpanningTree::RemoteUser(params[0], remoteserver);
 	ServerInstance->Users->clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->host = params[3];

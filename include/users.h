@@ -524,7 +524,7 @@ class CoreExport User : public Extensible
 	 */
 	virtual void WriteRemoteNotice(const std::string& text);
 
-	void WriteRemoteNumeric(const Numeric::Numeric& numeric);
+	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
 
 	template <typename T1>
 	void WriteRemoteNumeric(unsigned int numeric, T1 p1)
