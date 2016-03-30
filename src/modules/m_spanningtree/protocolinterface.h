@@ -36,7 +36,6 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	void SendMetaData(User* user, const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;
-	void SendTopic(Channel* channel, std::string &topic);
 	void SendSNONotice(char snomask, const std::string& text) CXX11_OVERRIDE;
 	void SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype);
 	void SendMessage(User* target, const std::string& text, MessageType msgtype);
