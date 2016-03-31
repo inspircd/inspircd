@@ -33,7 +33,7 @@ use warnings FATAL => qw(all);
 use make::common;
 use make::configure;
 
-$ENV{D} = $ENV{INSPIRCD_VERBOSE} = 1;
+$ENV{INSPIRCD_DEBUG} = $ENV{INSPIRCD_VERBOSE} = 1;
 
 system 'git', 'clean', '-dfx';
 

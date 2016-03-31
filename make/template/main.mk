@@ -84,12 +84,12 @@ INSTMODE_LIB = 0640
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
 @ENDIF
 
-@IFNDEF D
-  D=0
+@IFNDEF INSPIRCD_DEBUG
+  INSPIRCD_DEBUG=0
 @ENDIF
 
 DBGOK=0
-@IFEQ $(D) 0
+@IFEQ $(INSPIRCD_DEBUG) 0
   CORECXXFLAGS += -fno-rtti -O2
 @IFEQ $(COMPILER) GCC
     CORECXXFLAGS += -g1
@@ -97,12 +97,12 @@ DBGOK=0
   HEADER = std-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 1
+@IFEQ $(INSPIRCD_DEBUG) 1
   CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
   HEADER = debug-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 2
+@IFEQ $(INSPIRCD_DEBUG) 2
   CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
   DBGOK=1
@@ -160,7 +160,7 @@ target: $(HEADER)
 	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
-	@${MAKE} D=1 all
+	@${MAKE} INSPIRCD_DEBUG=1 all
 
 debug-header:
 	@echo "*************************************"
@@ -302,8 +302,8 @@ help:
 	@echo ''
 	@echo 'Flags:'
 	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
-	@echo ' D=1       Enable debug build, for module development or crash tracing'
-	@echo ' D=2       Enable debug build with optimizations, for detailed backtraces'
+	@echo ' INSPIRCD_DEBUG=1    Enable debug build, for module development or crash tracing'
+	@echo ' INSPIRCD_DEBUG=2    Enable debug build with optimizations, for detailed backtraces'
 	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
 	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''
