@@ -136,11 +136,11 @@ CORECXXFLAGS += $(CXXFLAGS)
 # Default target
 TARGET = all
 
-@IFDEF M
+@IFDEF INSPIRCD_MODULE
     HEADER = mod-header
     FOOTER = mod-footer
-    @TARGET BSD_MAKE TARGET = modules/${M:S/.so$//}.so
-    @TARGET GNU_MAKE TARGET = modules/$(M:.so=).so
+    @TARGET BSD_MAKE TARGET = modules/${INSPIRCD_MODULE:S/.so$//}.so
+    @TARGET GNU_MAKE TARGET = modules/$(INSPIRCD_MODULE:.so=).so
 @ENDIF
 
 @IFDEF INSPIRCD_TARGET
@@ -313,7 +313,7 @@ help:
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
-	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
+	@echo ' INSPIRCD_MODULE=m_foo   Builds a single module (core_foo also works here)'
 	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "modules"'
 	@echo '                         Other targets are specified by their path in the build directory'
 	@echo '                         Multiple targets may be separated by a space'
