@@ -114,7 +114,7 @@ FOOTER = finishmessage
 @TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
 @TARGET BSD_MAKE SOURCEPATH != /bin/pwd
 
-@IFDEF V
+@IFDEF INSPIRCD_VERBOSE
   VERBOSE = -v
 @ELSE
   @TARGET GNU_MAKE MAKEFLAGS += --silent
@@ -301,11 +301,11 @@ help:
 	@echo 'Use: ${MAKE} [flags] [targets]'
 	@echo ''
 	@echo 'Flags:'
-	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
+	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' D=1       Enable debug build, for module development or crash tracing'
 	@echo ' D=2       Enable debug build with optimizations, for detailed backtraces'
-	@echo ' DESTDIR=  Specify a destination root directory (for tarball creation)'
-	@echo ' -j <N>    Run a parallel build using N jobs'
+	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
+	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''
 	@echo 'Targets:'
 	@echo ' all       Complete build of InspIRCd, without installing (default)'
