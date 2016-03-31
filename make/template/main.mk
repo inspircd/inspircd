@@ -143,10 +143,10 @@ TARGET = all
     @TARGET GNU_MAKE TARGET = modules/$(M:.so=).so
 @ENDIF
 
-@IFDEF T
+@IFDEF INSPIRCD_TARGET
     HEADER =
     FOOTER = target
-    TARGET = $(T)
+    TARGET = $(INSPIRCD_TARGET)
 @ENDIF
 
 @IFEQ $(DBGOK) 0
@@ -314,9 +314,9 @@ help:
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
 	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
-	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
-	@echo '           Other targets are specified by their path in the build directory'
-	@echo '           Multiple targets may be separated by a space'
+	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "modules"'
+	@echo '                         Other targets are specified by their path in the build directory'
+	@echo '                         Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
 	@echo ' distclean Cleans all generated files (build, configure, run, etc)'
