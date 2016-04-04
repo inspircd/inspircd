@@ -220,7 +220,7 @@ sub read_configure_cache {
 	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
 	while (my $line = <CACHE>) {
 		next if $line =~ /^\s*($|\#)/;
-		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.+))?$/);
+		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.*))?$/);
 		$config{$key} = $value;
 	}
 	close(CACHE);
