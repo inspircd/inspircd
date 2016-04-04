@@ -23,7 +23,7 @@
 #include "exitcodes.h"
 #include <iostream>
 
-#ifdef PURE_STATIC
+#ifdef INSPIRCD_STATIC
 
 typedef std::map<std::string, AllModuleList*> modmap;
 static std::vector<AllCommandList::fn>* cmdlist = NULL;

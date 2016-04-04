@@ -33,7 +33,7 @@ use warnings FATAL => qw(all);
 use make::common;
 use make::configure;
 
-$ENV{D} = $ENV{V} = 1;
+$ENV{INSPIRCD_DEBUG} = $ENV{INSPIRCD_VERBOSE} = 1;
 
 system 'git', 'clean', '-dfx';
 
@@ -56,12 +56,12 @@ foreach my $compiler (@compilers) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		$ENV{PURE_STATIC} = 1;
+		$ENV{INSPIRCD_STATIC} = 1;
 		if (system 'make', '-j'.get_cpu_count, 'install') {
 			say "Failed to compile with static modules using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		delete $ENV{PURE_STATIC};
+		delete $ENV{INSPIRCD_STATIC};
 		if (system 'make', '-j'.get_cpu_count, 'install') {
 			say "Failed to compile with dynamic modules using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;

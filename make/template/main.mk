@@ -84,12 +84,12 @@ INSTMODE_LIB = 0640
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
 @ENDIF
 
-@IFNDEF D
-  D=0
+@IFNDEF INSPIRCD_DEBUG
+  INSPIRCD_DEBUG=0
 @ENDIF
 
 DBGOK=0
-@IFEQ $(D) 0
+@IFEQ $(INSPIRCD_DEBUG) 0
   CORECXXFLAGS += -fno-rtti -O2
 @IFEQ $(COMPILER) GCC
     CORECXXFLAGS += -g1
@@ -97,12 +97,12 @@ DBGOK=0
   HEADER = std-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 1
+@IFEQ $(INSPIRCD_DEBUG) 1
   CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
   HEADER = debug-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 2
+@IFEQ $(INSPIRCD_DEBUG) 2
   CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
   DBGOK=1
@@ -114,7 +114,7 @@ FOOTER = finishmessage
 @TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
 @TARGET BSD_MAKE SOURCEPATH != /bin/pwd
 
-@IFDEF V
+@IFDEF INSPIRCD_VERBOSE
   VERBOSE = -v
 @ELSE
   @TARGET GNU_MAKE MAKEFLAGS += --silent
@@ -122,8 +122,8 @@ FOOTER = finishmessage
   VERBOSE =
 @ENDIF
 
-@IFDEF PURE_STATIC
-  CORECXXFLAGS += -DPURE_STATIC
+@IFDEF INSPIRCD_STATIC
+  CORECXXFLAGS += -DINSPIRCD_STATIC
 @ENDIF
 
 # Add the users CXXFLAGS to the base ones to allow them to override
@@ -131,22 +131,22 @@ FOOTER = finishmessage
 CORECXXFLAGS += $(CXXFLAGS)
 
 @DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC
+@DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
 
 # Default target
 TARGET = all
 
-@IFDEF M
+@IFDEF INSPIRCD_MODULE
     HEADER = mod-header
     FOOTER = mod-footer
-    @TARGET BSD_MAKE TARGET = modules/${M:S/.so$//}.so
-    @TARGET GNU_MAKE TARGET = modules/$(M:.so=).so
+    @TARGET BSD_MAKE TARGET = modules/${INSPIRCD_MODULE:S/.so$//}.so
+    @TARGET GNU_MAKE TARGET = modules/$(INSPIRCD_MODULE:.so=).so
 @ENDIF
 
-@IFDEF T
+@IFDEF INSPIRCD_TARGET
     HEADER =
     FOOTER = target
-    TARGET = $(T)
+    TARGET = $(INSPIRCD_TARGET)
 @ENDIF
 
 @IFEQ $(DBGOK) 0
@@ -160,7 +160,7 @@ target: $(HEADER)
 	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
-	@${MAKE} D=1 all
+	@${MAKE} INSPIRCD_DEBUG=1 all
 
 debug-header:
 	@echo "*************************************"
@@ -177,7 +177,7 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
-@IFDEF PURE_STATIC
+@IFDEF INSPIRCD_STATIC
 	@echo 'Cannot build single modules in pure-static build'
 	@exit 1
 @ENDIF
@@ -226,7 +226,7 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
-@IFNDEF PURE_STATIC
+@IFNDEF INSPIRCD_STATIC
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
@@ -301,11 +301,11 @@ help:
 	@echo 'Use: ${MAKE} [flags] [targets]'
 	@echo ''
 	@echo 'Flags:'
-	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
-	@echo ' D=1       Enable debug build, for module development or crash tracing'
-	@echo ' D=2       Enable debug build with optimizations, for detailed backtraces'
-	@echo ' DESTDIR=  Specify a destination root directory (for tarball creation)'
-	@echo ' -j <N>    Run a parallel build using N jobs'
+	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
+	@echo ' INSPIRCD_DEBUG=1    Enable debug build, for module development or crash tracing'
+	@echo ' INSPIRCD_DEBUG=2    Enable debug build with optimizations, for detailed backtraces'
+	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
+	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''
 	@echo 'Targets:'
 	@echo ' all       Complete build of InspIRCd, without installing (default)'
@@ -313,10 +313,10 @@ help:
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
-	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
-	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
-	@echo '           Other targets are specified by their path in the build directory'
-	@echo '           Multiple targets may be separated by a space'
+	@echo ' INSPIRCD_MODULE=m_foo   Builds a single module (core_foo also works here)'
+	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "modules"'
+	@echo '                         Other targets are specified by their path in the build directory'
+	@echo '                         Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
 	@echo ' distclean Cleans all generated files (build, configure, run, etc)'
