@@ -36,7 +36,6 @@ chdir $ENV{BUILDPATH};
 
 my $type = shift;
 my $out = shift;
-my $verbose = ($type =~ s/-v$//);
 
 our %config = read_configure_cache();
 
@@ -61,7 +60,7 @@ exit 1;
 
 sub message($$$) {
 	my ($type, $file, $command) = @_;
-	if ($verbose) {
+	if ($ENV{INSPIRCD_VERBOSE}) {
 		print "$command\n";
 	} else {
 		print_format "\t<|GREEN $type:|>\t\t$file\n";

@@ -120,7 +120,7 @@ END
 	print MAKE <<END;
 
 bin/inspircd: $core_mk
-	@\$(SOURCEPATH)/make/unit-cc.pl core-ld\$(VERBOSE) \$\@ \$^ \$>
+	@\$(SOURCEPATH)/make/unit-cc.pl core-ld \$\@ \$^ \$>
 
 inspircd: bin/inspircd
 
@@ -164,10 +164,10 @@ END
 	print MAKE <<END;
 
 obj/ld-extra.cmd: $core_src
-	\@\$(SOURCEPATH)/make/unit-cc.pl gen-ld\$(VERBOSE) \$\@ \$^ \$>
+	\@\$(SOURCEPATH)/make/unit-cc.pl gen-ld \$\@ \$^ \$>
 
 bin/inspircd: obj/ld-extra.cmd $core_mk
-	\@\$(SOURCEPATH)/make/unit-cc.pl static-ld\$(VERBOSE) \$\@ \$^ \$>
+	\@\$(SOURCEPATH)/make/unit-cc.pl static-ld \$\@ \$^ \$>
 
 inspircd: bin/inspircd
 
@@ -231,7 +231,7 @@ sub dep_cpp($$$) {
 	gendep $file;
 
 	print MAKE "$out: $file $f2dep{$file}\n";
-	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl $type\$(VERBOSE) \$\@ \$(SOURCEPATH)/src/$file \$>\n";
+	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl $type \$\@ \$(SOURCEPATH)/src/$file \$>\n";
 }
 
 sub dep_so($) {
@@ -256,7 +256,7 @@ sub dep_dir($$) {
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
 		print MAKE "$outdir.so: $ofiles\n";
-		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir\$(VERBOSE) \$\@ ${\SOURCEPATH}/src/$dir \$^ \$>\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir \$\@ ${\SOURCEPATH}/src/$dir \$^ \$>\n";
 		return 1;
 	} else {
 		return 0;
