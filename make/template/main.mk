@@ -281,15 +281,11 @@ deinstall:
 	-rm -f $(BASE)/org.inspircd.plist
 
 configureclean:
+	rm -f .gdbargs
 	rm -f BSDmakefile
 	rm -f GNUmakefile
 	rm -f include/config.h
-	rm -f inspircd
-	rm -f inspircd.1
-	rm -f inspircd-genssl.1
-	-rm -f inspircd.service
-	-rm -f org.inspircd.plist
-	-rm -f @CONFIGURE_CACHE_FILE@
+	rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
 	-rm -rf $(SOURCEPATH)/run
