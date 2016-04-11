@@ -38,8 +38,14 @@ class CommandSATopic : public Command
 
 		if(target)
 		{
-			const std::string& newTopic = parameters[1];
-			target->SetTopic(user, newTopic);
+			const std::string newTopic(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
+			if (target->topic == newTopic)
+			{
+				user->WriteNotice(InspIRCd::Format("The topic on %s is already what you are trying to change it to.", target->name.c_str()));
+				return CMD_SUCCESS;
+			}
+
+			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CMD_SUCCESS;

@@ -138,8 +138,11 @@ class CoreExport Channel : public Extensible
 	/** Sets the channel topic.
 	 * @param user The user setting the topic.
 	 * @param topic The topic to set it to.
+	 * @param topicts Timestamp of the new topic.
+	 * @param setter Setter string, may be used when the original setter is no longer online.
+	 * If omitted or NULL, the setter string is obtained from the user.
 	 */
-	void SetTopic(User* user, const std::string& topic);
+	void SetTopic(User* user, const std::string& topic, time_t topicts, const std::string* setter = NULL);
 
 	/** Obtain the channel "user counter"
 	 * This returns the number of users on this channel

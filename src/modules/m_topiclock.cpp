@@ -49,32 +49,13 @@ class CommandSVSTOPIC : public Command
 				return CMD_INVALID;
 			}
 
-			std::string newtopic;
-			newtopic.assign(parameters[3], 0, ServerInstance->Config->Limits.MaxTopic);
-			bool topics_differ = (chan->topic != newtopic);
-			if ((topics_differ) || (chan->topicset != topicts) || (chan->setby != parameters[2]))
-			{
-				// Update when any parameter differs
-				chan->topicset = topicts;
-				chan->setby.assign(parameters[2], 0, 127);
-				chan->topic = newtopic;
-				// Send TOPIC to clients only if the actual topic has changed, be silent otherwise
-				if (topics_differ)
-					chan->WriteChannel(user, "TOPIC %s :%s", chan->name.c_str(), chan->topic.c_str());
-			}
+			chan->SetTopic(user, parameters[3], topicts, &parameters[2]);
 		}
 		else
 		{
 			// 1 parameter version, nuke the topic
-			bool topic_empty = chan->topic.empty();
-			if (!topic_empty || !chan->setby.empty())
-			{
-				chan->topicset = 0;
-				chan->setby.clear();
-				chan->topic.clear();
-				if (!topic_empty)
-					chan->WriteChannel(user, "TOPIC %s :", chan->name.c_str());
-			}
+			chan->SetTopic(user, std::string(), 0);
+			chan->setby.clear();
 		}
 
 		return CMD_SUCCESS;

@@ -80,7 +80,13 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 		}
 	}
 
-	c->SetTopic(user, t);
+	// Make sure the topic is not longer than the limit in the config
+	if (t.length() > ServerInstance->Config->Limits.MaxTopic)
+		t.erase(ServerInstance->Config->Limits.MaxTopic);
+
+	// Only change if the new topic is different than the current one
+	if (c->topic != t)
+		c->SetTopic(user, t, ServerInstance->Time());
 	return CMD_SUCCESS;
 }
 

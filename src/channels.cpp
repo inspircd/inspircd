@@ -46,12 +46,20 @@ void Channel::SetMode(ModeHandler* mh, bool on)
 	modes[mh->GetId()] = on;
 }
 
-void Channel::SetTopic(User* u, const std::string& ntopic)
+void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const std::string* setter)
 {
-	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
-	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
-	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
-	this->topicset = ServerInstance->Time();
+	// Send a TOPIC message to the channel only if the new topic text differs
+	if (this->topic != ntopic)
+	{
+		this->topic = ntopic;
+		this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+	}
+
+	// Always update setter and set time
+	if (!setter)
+		setter = ServerInstance->Config->FullHostInTopic ? &u->GetFullHost() : &u->nick;
+	this->setby.assign(*setter, 0, 128);
+	this->topicset = topicts;
 
 	FOREACH_MOD(OnPostTopicChange, (u, this, this->topic));
 }

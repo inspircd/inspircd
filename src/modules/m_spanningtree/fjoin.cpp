@@ -278,14 +278,9 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	// Unset all extensions
 	chan->FreeAllExtItems();
 
-	// Clear the topic, if it isn't empty then send a topic change message to local users
-	if (!chan->topic.empty())
-	{
-		chan->topic.clear();
-		chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :", chan->name.c_str());
-	}
+	// Clear the topic
+	chan->SetTopic(ServerInstance->FakeClient, std::string(), 0);
 	chan->setby.clear();
-	chan->topicset = 0;
 }
 
 CommandFJoin::Builder::Builder(Channel* chan, TreeServer* source)

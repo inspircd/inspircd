@@ -63,19 +63,7 @@ CmdResult CommandFTopic::Handle(User* user, std::vector<std::string>& params)
 			return CMD_FAILURE;
 	}
 
-	if (c->topic != newtopic)
-	{
-		// Update topic only when it differs from current topic
-		c->topic.assign(newtopic, 0, ServerInstance->Config->Limits.MaxTopic);
-		c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-	}
-
-	// Update setter and settime
-	c->setby.assign(setter, 0, 128);
-	c->topicset = ts;
-
-	FOREACH_MOD(OnPostTopicChange, (user, c, c->topic));
-
+	c->SetTopic(user, newtopic, ts, &setter);
 	return CMD_SUCCESS;
 }
 

@@ -207,16 +207,16 @@ public:
 				c = new Channel(channel, TS);
 
 				unsigned int topicset = tag->getInt("topicts");
-				c->topic = tag->getString("topic");
+				std::string topic = tag->getString("topic");
 
-				if ((topicset != 0) || (!c->topic.empty()))
+				if ((topicset != 0) || (!topic.empty()))
 				{
 					if (topicset == 0)
 						topicset = ServerInstance->Time();
-					c->topicset = topicset;
-					c->setby = tag->getString("topicsetby");
-					if (c->setby.empty())
-						c->setby = ServerInstance->Config->ServerName;
+					std::string topicsetby = tag->getString("topicsetby");
+					if (topicsetby.empty())
+						topicsetby = ServerInstance->Config->ServerName;
+					c->SetTopic(ServerInstance->FakeClient, topic, topicset, &topicsetby);
 				}
 
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
