@@ -188,7 +188,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	fwdfjoin.finalize();
-	fwdfjoin.Forward(sourceserver);
+	fwdfjoin.Forward(sourceserver->GetRoute());
 
 	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
