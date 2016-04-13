@@ -316,6 +316,11 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 				this->Error(params);
 				return;
 			}
+			else if (command == "BURST")
+			{
+				// This is sent even when there is no need for it, drop it here for now
+				return;
+			}
 
 			throw ProtocolException("Unknown command");
 		}
