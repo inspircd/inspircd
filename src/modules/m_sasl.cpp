@@ -89,6 +89,7 @@ class ServerTracker : public SpanningTreeEventListener
 class SASLCap : public Cap::Capability
 {
 	std::string mechlist;
+	const ServerTracker& servertracker;
 
 	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
 	{
@@ -100,14 +101,20 @@ class SASLCap : public Cap::Capability
 		return (user->registered != REG_ALL);
 	}
 
+	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	{
+		return servertracker.IsOnline();
+	}
+
 	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
 	{
 		return &mechlist;
 	}
 
  public:
-	SASLCap(Module* mod)
+	SASLCap(Module* mod, const ServerTracker& tracker)
 		: Cap::Capability(mod, "sasl")
+		, servertracker(tracker)
 	{
 	}
 
@@ -351,7 +358,7 @@ class ModuleSASL : public Module
 	ModuleSASL()
 		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
 		, servertracker(this)
-		, cap(this)
+		, cap(this, servertracker)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, sasleventprov(this, "event/sasl")
