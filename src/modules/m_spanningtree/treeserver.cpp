@@ -159,7 +159,8 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 {
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
+	if (!Utils->Creator->dying)
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
 	stdalgo::erase(Children, server);
 
 	if (IsRoot())
