@@ -25,6 +25,7 @@
 #include "socket.h"
 #include "xline.h"
 #include "iohook.h"
+#include "modules/spanningtree.h"
 
 #include "resolvers.h"
 #include "main.h"
@@ -612,6 +613,21 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	if (!Utils)
 		return;
 	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
+
+	if (mod == this)
+	{
+		// We are being unloaded, inform modules about all servers splitting which cannot be done later when the servers are actually disconnected
+		const server_hash& servers = Utils->serverlist;
+		for (server_hash::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		{
+			TreeServer* server = i->second;
+			if (!server->IsRoot())
+				FOREACH_MOD_CUSTOM(GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
+		}
+		return;
+	}
+
+	// Some other module is being unloaded. If it provides an IOHook we use, we must close that server connection now.
 
 restart:
 	// Close all connections which use an IO hook provided by this module
