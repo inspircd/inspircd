@@ -115,6 +115,8 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 
 	this->AddHashEntry();
 	Parent->Children.push_back(this);
+
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerLink, (this));
 }
 
 void TreeServer::BeginBurst(uint64_t startms)
@@ -151,7 +153,6 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerLink, (this));
 
 	StartBurst = 0;
 	FinishBurstInternal();
