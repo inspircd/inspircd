@@ -159,8 +159,6 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 {
-	if (!Utils->Creator->dying)
-		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
 	stdalgo::erase(Children, server);
 
 	if (IsRoot())
@@ -205,6 +203,9 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 	isdead = true;
 	num_lost_servers++;
 	RemoveHash();
+
+	if (!Utils->Creator->dying)
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (this));
 }
 
 unsigned int TreeServer::QuitUsers(const std::string& reason)
