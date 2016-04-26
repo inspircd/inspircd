@@ -23,10 +23,73 @@
 #include "modules/account.h"
 #include "modules/sasl.h"
 #include "modules/ssl.h"
+#include "modules/spanningtree.h"
+
+static std::string sasl_target;
+
+class ServerTracker : public SpanningTreeEventListener
+{
+	bool online;
+
+	void Update(const Server* server, bool linked)
+	{
+		if (sasl_target == "*")
+			return;
+
+		if (InspIRCd::Match(server->GetName(), sasl_target))
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_VERBOSE, "SASL target server \"%s\" %s", sasl_target.c_str(), (linked ? "came online" : "went offline"));
+			online = linked;
+		}
+	}
+
+	void OnServerLink(const Server* server) CXX11_OVERRIDE
+	{
+		Update(server, true);
+	}
+
+	void OnServerSplit(const Server* server) CXX11_OVERRIDE
+	{
+		Update(server, false);
+	}
+
+ public:
+	ServerTracker(Module* mod)
+		: SpanningTreeEventListener(mod)
+	{
+		Reset();
+	}
+
+	void Reset()
+	{
+		if (sasl_target == "*")
+		{
+			online = true;
+			return;
+		}
+
+		online = false;
+
+		ProtocolInterface::ServerList servers;
+		ServerInstance->PI->GetServerList(servers);
+		for (ProtocolInterface::ServerList::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		{
+			const ProtocolInterface::ServerInfo& server = *i;
+			if (InspIRCd::Match(server.servername, sasl_target))
+			{
+				online = true;
+				break;
+			}
+		}
+	}
+
+	bool IsOnline() const { return online; }
+};
 
 class SASLCap : public Cap::Capability
 {
 	std::string mechlist;
+	const ServerTracker& servertracker;
 
 	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
 	{
@@ -38,14 +101,20 @@ class SASLCap : public Cap::Capability
 		return (user->registered != REG_ALL);
 	}
 
+	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	{
+		return servertracker.IsOnline();
+	}
+
 	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
 	{
 		return &mechlist;
 	}
 
  public:
-	SASLCap(Module* mod)
+	SASLCap(Module* mod, const ServerTracker& tracker)
 		: Cap::Capability(mod, "sasl")
+		, servertracker(tracker)
 	{
 	}
 
@@ -62,7 +131,6 @@ class SASLCap : public Cap::Capability
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
-static std::string sasl_target = "*";
 static Events::ModuleEventProvider* saslevprov;
 
 static void SendSASL(const parameterlist& params)
@@ -280,6 +348,7 @@ class CommandSASL : public Command
 class ModuleSASL : public Module
 {
 	SimpleExtItem<SaslAuthenticator> authExt;
+	ServerTracker servertracker;
 	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
@@ -288,7 +357,8 @@ class ModuleSASL : public Module
  public:
 	ModuleSASL()
 		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
-		, cap(this)
+		, servertracker(this)
+		, cap(this, servertracker)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, sasleventprov(this, "event/sasl")
@@ -305,6 +375,7 @@ class ModuleSASL : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
+		servertracker.Reset();
 	}
 
 	ModResult OnUserRegister(LocalUser *user) CXX11_OVERRIDE
