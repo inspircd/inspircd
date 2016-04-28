@@ -164,6 +164,14 @@ class SSLIOHook : public IOHook
 	}
 
  public:
+	static SSLIOHook* IsSSL(StreamSocket* sock)
+	{
+		IOHook* const iohook = sock->GetIOHook();
+		if ((iohook) && ((iohook->prov->type == IOHookProvider::IOH_SSL)))
+			return static_cast<SSLIOHook*>(iohook);
+		return NULL;
+	}
+
 	SSLIOHook(IOHookProvider* hookprov)
 		: IOHook(hookprov)
 	{
@@ -205,11 +213,10 @@ class SSLClientCert
 	 */
 	static ssl_cert* GetCertificate(StreamSocket* sock)
 	{
-		IOHook* iohook = sock->GetIOHook();
-		if ((!iohook) || (iohook->prov->type != IOHookProvider::IOH_SSL))
+		SSLIOHook* ssliohook = SSLIOHook::IsSSL(sock);
+		if (!ssliohook)
 			return NULL;
 
-		SSLIOHook* ssliohook = static_cast<SSLIOHook*>(iohook);
 		return ssliohook->GetCertificate();
 	}
 
