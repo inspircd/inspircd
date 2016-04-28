@@ -1150,20 +1150,6 @@ info_done_dealloc:
 		return 1;
 	}
 
-	void TellCiphersAndFingerprint(LocalUser* user)
-	{
-		if (sess)
-		{
-			std::string text = "*** You are connected using SSL cipher '";
-			GetCiphersuite(text);
-			text += '\'';
-			if (!certificate->fingerprint.empty())
-				text += " and your SSL certificate fingerprint is " + certificate->fingerprint;
-
-			user->WriteNotice(text);
-		}
-	}
-
 	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
 		if (!IsHandshakeDone())
@@ -1344,13 +1330,6 @@ class ModuleSSLGnuTLS : public Module
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
-	}
-
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		IOHook* hook = user->eh.GetIOHook();
-		if (hook && hook->prov->creator == this)
-			static_cast<GnuTLSIOHook*>(hook)->TellCiphersAndFingerprint(user);
 	}
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
