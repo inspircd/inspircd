@@ -735,8 +735,10 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	void GetCiphersuite(std::string& out) const
+	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
+		if (!IsHandshakeDone())
+			return;
 		out.append(SSL_get_version(sess)).push_back('-');
 		out.append(SSL_get_cipher(sess));
 	}

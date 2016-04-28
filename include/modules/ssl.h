@@ -198,6 +198,12 @@ class SSLIOHook : public IOHook
 			return cert->GetFingerprint();
 		return "";
 	}
+
+	/**
+	 * Get the ciphersuite negotiated with the peer
+	 * @param out String where the ciphersuite string will be appended to
+	 */
+	virtual void GetCiphersuite(std::string& out) const = 0;
 };
 
 /** Helper functions for obtaining SSL client certificates and key fingerprints

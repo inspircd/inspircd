@@ -1164,8 +1164,10 @@ info_done_dealloc:
 		}
 	}
 
-	void GetCiphersuite(std::string& out) const
+	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
+		if (!IsHandshakeDone())
+			return;
 		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).push_back('-');
