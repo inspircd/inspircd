@@ -164,6 +164,14 @@ class SSLIOHook : public IOHook
 	}
 
  public:
+	static SSLIOHook* IsSSL(StreamSocket* sock)
+	{
+		IOHook* const iohook = sock->GetIOHook();
+		if ((iohook) && ((iohook->prov->type == IOHookProvider::IOH_SSL)))
+			return static_cast<SSLIOHook*>(iohook);
+		return NULL;
+	}
+
 	SSLIOHook(IOHookProvider* hookprov)
 		: IOHook(hookprov)
 	{
@@ -190,6 +198,12 @@ class SSLIOHook : public IOHook
 			return cert->GetFingerprint();
 		return "";
 	}
+
+	/**
+	 * Get the ciphersuite negotiated with the peer
+	 * @param out String where the ciphersuite string will be appended to
+	 */
+	virtual void GetCiphersuite(std::string& out) const = 0;
 };
 
 /** Helper functions for obtaining SSL client certificates and key fingerprints
@@ -205,11 +219,10 @@ class SSLClientCert
 	 */
 	static ssl_cert* GetCertificate(StreamSocket* sock)
 	{
-		IOHook* iohook = sock->GetIOHook();
-		if ((!iohook) || (iohook->prov->type != IOHookProvider::IOH_SSL))
+		SSLIOHook* ssliohook = SSLIOHook::IsSSL(sock);
+		if (!ssliohook)
 			return NULL;
 
-		SSLIOHook* ssliohook = static_cast<SSLIOHook*>(iohook);
 		return ssliohook->GetCertificate();
 	}
 

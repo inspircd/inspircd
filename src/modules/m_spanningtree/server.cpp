@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ssl.h"
 
 #include "main.h"
 #include "utils.h"
@@ -127,6 +128,15 @@ Link* TreeSocket::AuthRemote(const parameterlist& params)
 			return NULL;
 
 		ServerInstance->SNO->WriteToSnoMask('l',"Verified server connection " + linkID + " ("+description+")");
+
+		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(this);
+		if (ssliohook)
+		{
+			std::string ciphersuite;
+			ssliohook->GetCiphersuite(ciphersuite);
+			ServerInstance->SNO->WriteToSnoMask('l', "Negotiated ciphersuite %s on link %s", ciphersuite.c_str(), x->Name.c_str());
+		}
+
 		return x;
 	}
 

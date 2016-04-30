@@ -209,8 +209,26 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE
 	{
-		ssl_cert *cert = cmd.CertExt.get(user);
-		if (!cert || cert->fingerprint.empty())
+		LocalUser* const localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
+		if (!ssliohook)
+			return;
+
+		ssl_cert* const cert = ssliohook->GetCertificate();
+
+		{
+			std::string text = "*** You are connected using SSL cipher '";
+			ssliohook->GetCiphersuite(text);
+			text.push_back('\'');
+			if ((cert) && (!cert->GetFingerprint().empty()))
+				text.append(" and your SSL certificate fingerprint is ").append(cert->GetFingerprint());
+			user->WriteNotice(text);
+		}
+
+		if (!cert)
 			return;
 		// find an auto-oper block for this user
 		for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)

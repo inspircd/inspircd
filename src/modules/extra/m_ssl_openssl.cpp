@@ -720,23 +720,10 @@ class OpenSSLIOHook : public SSLIOHook
 		return 1;
 	}
 
-	void TellCiphersAndFingerprint(LocalUser* user)
+	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
-		if (sess)
-		{
-			std::string text = "*** You are connected using SSL cipher '";
-			GetCiphersuite(text);
-			text += '\'';
-			const std::string& fingerprint = certificate->fingerprint;
-			if (!fingerprint.empty())
-				text += " and your SSL certificate fingerprint is " + fingerprint;
-
-			user->WriteNotice(text);
-		}
-	}
-
-	void GetCiphersuite(std::string& out) const
-	{
+		if (!IsHandshakeDone())
+			return;
 		out.append(SSL_get_version(sess)).push_back('-');
 		out.append(SSL_get_cipher(sess));
 	}
@@ -915,13 +902,6 @@ class ModuleSSLOpenSSL : public Module
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
-	}
-
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		IOHook* hook = user->eh.GetIOHook();
-		if (hook && hook->prov->creator == this)
-			static_cast<OpenSSLIOHook*>(hook)->TellCiphersAndFingerprint(user);
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
