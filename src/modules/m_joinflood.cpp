@@ -101,7 +101,8 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 
 		/* Set up the flood parameters for this channel */
 		unsigned int njoins = ConvToInt(parameter.substr(0, colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		const std::string duration = parameter.substr(colon + 1);
+		unsigned int nsecs = ServerInstance->Config->LegacyMode ? ConvToInt(duration) : InspIRCd::Duration(duration);
 		if ((njoins<1) || (nsecs<1))
 		{
 			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
