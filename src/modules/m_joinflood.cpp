@@ -23,6 +23,9 @@
 
 #include "inspircd.h"
 
+// The number of seconds the channel will be closed for.
+static unsigned int duration;
+
 /** Holds settings and state associated with channel mode +j
  */
 class joinfloodsettings
@@ -71,7 +74,7 @@ class joinfloodsettings
 
 	void lock()
 	{
-		unlocktime = ServerInstance->Time() + 60;
+		unlocktime = ServerInstance->Time() + duration;
 	}
 
 	bool operator==(const joinfloodsettings& other) const
@@ -129,6 +132,12 @@ class ModuleJoinFlood : public Module
 	{
 	}
 
+	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
+		duration = tag->getDuration("duration", 60, 10, 600);
+	}
+
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (chan)
@@ -159,7 +168,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", f->joins, f->secs));
+				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs));
 			}
 		}
 	}

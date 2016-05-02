@@ -20,6 +20,9 @@
 
 #include "inspircd.h"
 
+// The number of seconds nickname changing will be blocked for.
+static unsigned int duration;
+
 /** Holds settings and state associated with channel mode +F
  */
 class nickfloodsettings
@@ -72,7 +75,7 @@ class nickfloodsettings
 
 	void lock()
 	{
-		unlocktime = ServerInstance->Time() + 60;
+		unlocktime = ServerInstance->Time() + duration;
 	}
 };
 
@@ -126,6 +129,12 @@ class ModuleNickFlood : public Module
 	{
 	}
 
+	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("nickflood");
+		duration = tag->getDuration("duration", 60, 10, 600);
+	}
+
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
 		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
@@ -142,7 +151,7 @@ class ModuleNickFlood : public Module
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", channel->name.c_str(), f->nicks, f->secs));
+					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for %u seconds because there have been more than %u nick changes in %u seconds", channel->name.c_str(), duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 
@@ -150,7 +159,7 @@ class ModuleNickFlood : public Module
 				{
 					f->clear();
 					f->lock();
-					channel->WriteNotice(InspIRCd::Format("No nick changes are allowed for 60 seconds because there have been more than %u nick changes in %u seconds.", f->nicks, f->secs));
+					channel->WriteNotice(InspIRCd::Format("No nick changes are allowed for %u seconds because there have been more than %u nick changes in %u seconds.", duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 			}
