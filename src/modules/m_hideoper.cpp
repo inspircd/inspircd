@@ -94,7 +94,7 @@ class ModuleHideOper : public Module
 		if (opercount)
 		{
 			active = true;
-			user->WriteNumeric(252, "%s %lu :operator(s) online", user->nick.c_str(),  opercount);
+			user->WriteNumeric(252, "%s %lu :operator(s) online", user->nick.c_str(),  static_cast<unsigned long>(opercount));
 			active = false;
 		}
 		return MOD_RES_DENY;
