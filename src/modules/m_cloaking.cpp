@@ -253,19 +253,17 @@ class ModuleCloaking : public Module
 		}
 		else
 		{
-			char buf[50];
 			if (ip.sa.sa_family == AF_INET6)
 			{
-				snprintf(buf, 50, ".%02x%02x.%02x%02x%s",
+				rv.append(InspIRCd::Format(".%02x%02x.%02x%02x%s",
 					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
-					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], suffix.c_str());
+					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], suffix.c_str()));
 			}
 			else
 			{
 				const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
-				snprintf(buf, 50, ".%d.%d%s", ip4[1], ip4[0], suffix.c_str());
+				rv.append(InspIRCd::Format(".%d.%d%s", ip4[1], ip4[0], suffix.c_str()));
 			}
-			rv.append(buf);
 		}
 		return rv;
 	}

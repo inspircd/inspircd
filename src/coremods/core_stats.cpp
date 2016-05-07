@@ -232,17 +232,11 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
-			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
-
 			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
-			snprintf(kbitpersec_total_s, 30, "%03.5f", kbitpersec_total);
-			snprintf(kbitpersec_out_s, 30, "%03.5f", kbitpersec_out);
-			snprintf(kbitpersec_in_s, 30, "%03.5f", kbitpersec_in);
-
-			stats.AddRow(249, "Bandwidth total:  "+ConvToStr(kbitpersec_total_s)+" kilobits/sec");
-			stats.AddRow(249, "Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
-			stats.AddRow(249, "Bandwidth in:     "+ConvToStr(kbitpersec_in_s)+" kilobits/sec");
+			stats.AddRow(249, InspIRCd::Format("Bandwidth total:  %03.5f kilobits/sec", kbitpersec_total));
+			stats.AddRow(249, InspIRCd::Format("Bandwidth out:    %03.5f kilobits/sec", kbitpersec_out));
+			stats.AddRow(249, InspIRCd::Format("Bandwidth in:     %03.5f kilobits/sec", kbitpersec_in));
 
 #ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
@@ -259,21 +253,18 @@ void CommandStats::DoStats(Stats::Context& stats)
 				stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
 				stats.AddRow(249, "Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
 
-				char percent[30];
-
 				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
 					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
 				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 
-				snprintf(percent, 30, "%03.5f%%", per);
-				stats.AddRow(249, std::string("CPU Use (now):    ")+percent);
+				stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
 				per = (n_eaten / n_elapsed) * 100;
-				snprintf(percent, 30, "%03.5f%%", per);
-				stats.AddRow(249, std::string("CPU Use (total):  ")+percent);
+
+				stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
 			}
 #else
 			PROCESS_MEMORY_COUNTERS MemCounters;
@@ -298,16 +289,13 @@ void CommandStats::DoStats(Stats::Context& stats)
 				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats.LastSampled.QuadPart) / ServerInstance->stats.QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
-				char percent[30];
-
-				snprintf(percent, 30, "%03.5f%%", per);
-				stats.AddRow(249, std::string("CPU Use (now):    ")+percent);
+				stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
-				snprintf(percent, 30, "%03.5f%%", per);
-				stats.AddRow(249, std::string("CPU Use (total):  ")+percent);
+
+				stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
 			}
 #endif
 		}
