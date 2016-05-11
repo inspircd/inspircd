@@ -27,23 +27,24 @@
 
 class CommandLockserv : public Command
 {
-	bool& locked;
+	std::string& locked;
 
  public:
-	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
+	CommandLockserv(Module* Creator, std::string& lock) : Command(Creator, "LOCKSERV", 0, 1), locked(lock)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (locked)
+		if (!locked.empty())
 		{
 			user->WriteNotice("The server is already locked.");
 			return CMD_FAILURE;
 		}
 
-		locked = true;
+		locked = parameters.empty() ? "Server is temporarily closed. Please try again later." : parameters[0];
 		user->WriteNumeric(988, user->server->GetName(), "Closed for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
@@ -52,23 +53,23 @@ class CommandLockserv : public Command
 
 class CommandUnlockserv : public Command
 {
-	bool& locked;
+	std::string& locked;
 
  public:
-	CommandUnlockserv(Module* Creator, bool &lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
+	CommandUnlockserv(Module* Creator, std::string& lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
 		flags_needed = 'o';
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (!locked)
+		if (locked.empty())
 		{
 			user->WriteNotice("The server isn't locked.");
 			return CMD_FAILURE;
 		}
 
-		locked = false;
+		locked.clear();
 		user->WriteNumeric(989, user->server->GetName(), "Open for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
@@ -77,7 +78,7 @@ class CommandUnlockserv : public Command
 
 class ModuleLockserv : public Module
 {
-	bool locked;
+	std::string locked;
 	CommandLockserv lockcommand;
 	CommandUnlockserv unlockcommand;
 
@@ -86,23 +87,18 @@ class ModuleLockserv : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		locked = false;
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
 		if (!status.srcuser)
-			locked = false;
+			locked.clear();
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (locked)
+		if (!locked.empty())
 		{
-			ServerInstance->Users->QuitUser(user, "Server is temporarily closed. Please try again later.");
+			ServerInstance->Users->QuitUser(user, locked);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -110,7 +106,7 @@ class ModuleLockserv : public Module
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
-		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return !locked.empty() ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
