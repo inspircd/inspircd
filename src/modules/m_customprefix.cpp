@@ -17,6 +17,7 @@
  */
 
 
+#include "mode.h"
 #include "inspircd.h"
 
 /* $ModDesc: Allows custom prefix modes to be created. */
@@ -112,6 +113,8 @@ class ModuleCustomPrefix : public Module
 			modes.push_back(mh);
 			if (mh->rank <= 0)
 				throw ModuleException("Rank must be specified for prefix at " + tag->getTagLocation());
+			if (mh->rank == VOICE_VALUE || mh->rank == OP_VALUE) //fix customprefix modes removing RFC-defined chanmodes from 005 PREFIX
+				throw ModuleException("Rank must not be equal to VOICE_VALUE (10000) or OP_VALUE (30000) at " + tag->getTagLocation());
 			if (!isalpha(mh->GetModeChar()))
 				throw ModuleException("Mode must be a letter for prefix at " + tag->getTagLocation());
 			try
