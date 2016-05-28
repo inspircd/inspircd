@@ -17,8 +17,8 @@
  */
 
 
-#include "mode.h"
 #include "inspircd.h"
+#include "mode.h"
 
 /* $ModDesc: Allows custom prefix modes to be created. */
 
