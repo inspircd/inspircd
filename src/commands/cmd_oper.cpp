@@ -69,7 +69,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-	if (i != ServerInstance->Config->oper_blocks.end())
+	if ((i != ServerInstance->Config->oper_blocks.end()) && (i->second->oper_block))
 	{
 		OperInfo* ifo = i->second;
 		ConfigTag* tag = ifo->oper_block;

@@ -180,6 +180,9 @@ class ModuleSSLInfo : public Module
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
 				OperInfo* ifo = i->second;
+				if (!ifo->oper_block)
+					return MOD_RES_PASSTHRU;
+
 				ssl_cert* cert = cmd.CertExt.get(user);
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
@@ -220,6 +223,9 @@ class ModuleSSLInfo : public Module
 		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
 		{
 			OperInfo* ifo = i->second;
+			if (!ifo->oper_block)
+				continue;
+
 			std::string fp = ifo->oper_block->getString("fingerprint");
 			if (fp == cert->fingerprint && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);
