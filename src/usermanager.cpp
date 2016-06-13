@@ -143,6 +143,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	{
 		ServerInstance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
+		return;
 	}
 
 	/* NOTE: even if dns lookups are *off*, we still need to display this.
