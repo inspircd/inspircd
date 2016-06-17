@@ -729,7 +729,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	// write once here, to try it out and make sure its ok
 	if (valid)
-		ServerInstance->WritePID(this->PID);
+		ServerInstance->WritePID(this->PID, !old);
 
 	if (old && valid)
 	{
