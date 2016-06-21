@@ -703,6 +703,9 @@ class ModuleSSLGnuTLS : public Module
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
+				// Schedule a read if there is still data in the GnuTLS buffer
+				if (gnutls_record_check_pending(session->sess) > 0)
+					ServerInstance->SE->ChangeEventMask(user, FD_ADD_TRIAL_READ);
 				return 1;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)

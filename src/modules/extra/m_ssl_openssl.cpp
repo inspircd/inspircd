@@ -591,8 +591,15 @@ class ModuleSSLOpenSSL : public Module
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
+
+				int mask = 0;
+				// Schedule a read if there is still data in the OpenSSL buffer
+				if (SSL_pending(session->sess) > 0)
+					mask |= FD_ADD_TRIAL_READ;
 				if (session->data_to_write)
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
+					mask |= FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE;
+				if (mask != 0)
+					ServerInstance->SE->ChangeEventMask(user, mask);
 				return 1;
 			}
 			else if (ret == 0)
