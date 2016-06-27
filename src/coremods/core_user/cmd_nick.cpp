@@ -47,7 +47,7 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 
 	if (newnick.empty())
 	{
-		user->WriteNumeric(ERR_NONICKNAMEGIVEN, '*', "No nickname given");
+		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
 		return CMD_FAILURE;
 	}
 
