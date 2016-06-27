@@ -89,6 +89,11 @@ INSTMODE_LIB = 0644
   D=0
 @ENDIF
 
+GCC6=@GCC6@
+@IFEQ $(GCC6) true
+  CXXFLAGS += -fno-delete-null-pointer-checks
+@ENDIF
+
 DBGOK=0
 @IFEQ $(D) 0
   CXXFLAGS += -O2

@@ -965,6 +965,9 @@ EOF
 	my @dotfiles = qw(main.mk inspircd);
 	push @dotfiles, 'org.inspircd.plist' if $config{OSNAME} eq 'darwin';
 
+	# HACK: we need to know if we are on GCC6 to disable the omission of `this` null pointer checks.
+	$config{GCC6} = `$config{CC} --version 2>/dev/null` =~ /gcc/i && $config{GCCVER} ge "6" ? "true" : "false";
+
 	foreach my $file (@dotfiles) {
 		open(FILEHANDLE, "make/template/$file") or die "Can't open make/template/$file: $!";
 		$_ = join '', <FILEHANDLE>;
@@ -974,7 +977,7 @@ EOF
 
 		for my $var (qw(
 			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
-			STARTSCRIPT DESTINATION SOCKETENGINE LOG_DIR
+			STARTSCRIPT DESTINATION SOCKETENGINE LOG_DIR GCC6
 		)) {
 			s/\@$var\@/$config{$var}/g;
 		}
