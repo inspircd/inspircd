@@ -114,12 +114,9 @@ FOOTER = finishmessage
 @TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
 @TARGET BSD_MAKE SOURCEPATH != /bin/pwd
 
-@IFDEF INSPIRCD_VERBOSE
-  VERBOSE = -v
-@ELSE
+@IFNDEF INSPIRCD_VERBOSE
   @TARGET GNU_MAKE MAKEFLAGS += --silent
   @TARGET BSD_MAKE MAKE += -s
-  VERBOSE =
 @ENDIF
 
 @IFDEF INSPIRCD_STATIC
@@ -130,7 +127,7 @@ FOOTER = finishmessage
 # things like -Wfatal-errors if they wish to.
 CORECXXFLAGS += $(CXXFLAGS)
 
-@DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
+@DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS INSPIRCD_VERBOSE SOCKETENGINE CORELDFLAGS
 @DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
 
 # Default target
@@ -281,15 +278,11 @@ deinstall:
 	-rm -f $(BASE)/org.inspircd.plist
 
 configureclean:
+	rm -f .gdbargs
 	rm -f BSDmakefile
 	rm -f GNUmakefile
 	rm -f include/config.h
-	rm -f inspircd
-	rm -f inspircd.1
-	rm -f inspircd-genssl.1
-	-rm -f inspircd.service
-	-rm -f org.inspircd.plist
-	-rm -f @CONFIGURE_CACHE_FILE@
+	rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
 	-rm -rf $(SOURCEPATH)/run
