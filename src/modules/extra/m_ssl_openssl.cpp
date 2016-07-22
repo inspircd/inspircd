@@ -405,12 +405,19 @@ class ModuleSSLOpenSSL : public Module
 #endif
 
 			ERR_clear_error();
-			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
+			if (ret)
 			{
-				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
-				ERR_print_errors_cb(error_callback, this);
+				if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
+				{
+					ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
+					ERR_print_errors_cb(error_callback, this);
+				}
+				DH_free(ret);
 			}
-			DH_free(ret);
+			else
+			{
+				ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s.", dhfile.c_str());
+			}
 		}
 
 #ifndef _WIN32
