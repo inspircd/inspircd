@@ -83,6 +83,23 @@ class ModuleStripColor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) CXX11_OVERRIDE
+	{
+		User* user = memb->user;
+		Channel* channel = memb->chan;
+
+		if (!IS_LOCAL(user))
+			return;
+
+		bool active = channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc))
+			&& ServerInstance->OnCheckExemption(user, channel, "stripcolor") != MOD_RES_ALLOW;
+
+		if (active)
+		{
+			InspIRCd::StripColor(partmessage);
+		}
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel +S mode (strip ansi color)", VF_VENDOR);
