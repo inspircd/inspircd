@@ -121,6 +121,9 @@ class ServerLimits
 	 * @param tag Configuration tag to read the limits from
 	 */
 	ServerLimits(ConfigTag* tag);
+
+	/** Maximum length of a n!u@h mask */
+	size_t GetMaxMask() const { return NickMax + 1 + IdentMax + 1 + MaxHost; }
 };
 
 struct CommandLineConf
