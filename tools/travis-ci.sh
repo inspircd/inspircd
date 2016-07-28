@@ -8,6 +8,7 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]
 then
 	brew update
 	brew install geoip gnutls mysql-connector-c openssl pcre postgresql sqlite3 tre
+	brew link sqlite3 --force
 else
 	>&2 echo "'$TRAVIS_OS_NAME' is an unknown Travis CI environment!"
 	exit 1
