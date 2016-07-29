@@ -140,25 +140,28 @@ void TreeSocket::SendFJoins(Channel* c)
 		buffer.append(list).append("\r\n");
 	}
 
-	int linesize = 1;
+	unsigned int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 	{
-		int size = b->data.length() + 2;
-		int currsize = linesize + size;
-		if (currsize <= 350)
+		unsigned int size = b->data.length() + 2; // "b" and " "
+		unsigned int nextsize = linesize + size;
+
+		if ((modes.length() >= ServerInstance->Config->Limits.MaxModes) || (nextsize > FMODE_MAX_LENGTH))
 		{
-			modes.append("b");
-			params.append(" ").append(b->data);
-			linesize += size;
-		}
-		if ((modes.length() >= ServerInstance->Config->Limits.MaxModes) || (currsize > 350))
-		{
-			/* Wrap at MAXMODES */
+			/* Wrap */
 			buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
+
 			modes.clear();
 			params.clear();
 			linesize = 1;
 		}
+
+		modes.push_back('b');
+
+		params.push_back(' ');
+		params.append(b->data);
+
+		linesize += size;
 	}
 
 	/* Only send these if there are any */
