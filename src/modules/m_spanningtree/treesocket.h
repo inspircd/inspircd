@@ -100,6 +100,8 @@ class TreeSocket : public BufferedSocket
 	int proto_version;			/* Remote protocol version */
 	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
 
+	static const unsigned int FMODE_MAX_LENGTH = 350;
+
 	/** Checks if the given servername and sid are both free
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
