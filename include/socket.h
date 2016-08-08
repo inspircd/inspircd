@@ -141,10 +141,21 @@ class CoreExport ListenSocket : public EventHandler
 	/** Human-readable bind description */
 	std::string bind_desc;
 
-	/** The IOHook provider which handles connections on this socket,
-	 * NULL if there is none.
+	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
+	{
+	 public:
+		IOHookProvRef()
+			: dynamic_reference_nocheck<IOHookProvider>(NULL, std::string())
+		{
+		}
+	};
+
+	typedef TR1NS::array<IOHookProvRef, 2> IOHookProvList;
+
+	/** IOHook providers for handling connections on this socket,
+	 * may be empty.
 	 */
-	dynamic_reference_nocheck<IOHookProvider> iohookprov;
+	IOHookProvList iohookprovs;
 
 	/** Create a new listening socket
 	 */
