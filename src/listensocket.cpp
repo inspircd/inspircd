@@ -178,7 +178,7 @@ void ListenSocket::OnEventHandlerRead()
 	}
 }
 
-bool ListenSocket::ResetIOHookProvider()
+void ListenSocket::ResetIOHookProvider()
 {
 	std::string provname = bind_tag->getString("ssl");
 	if (!provname.empty())
@@ -186,7 +186,4 @@ bool ListenSocket::ResetIOHookProvider()
 
 	// Set the new provider name, dynref handles the rest
 	iohookprov.SetProvider(provname);
-
-	// Return true if no provider was set, or one was set and it was also found
-	return (provname.empty() || iohookprov);
 }

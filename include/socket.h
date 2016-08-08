@@ -159,7 +159,6 @@ class CoreExport ListenSocket : public EventHandler
 
 	/** Inspects the bind block belonging to this socket to set the name of the IO hook
 	 * provider which this socket will use for incoming connections.
-	 * @return True if the IO hook provider was found or none was given, false otherwise.
 	 */
-	bool ResetIOHookProvider();
+	void ResetIOHookProvider();
 };
