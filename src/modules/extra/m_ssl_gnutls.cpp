@@ -583,16 +583,21 @@ namespace GnuTLS
 		 */
 		const unsigned int outrecsize;
 
+		/** True to request a client certificate as a server
+		 */
+		const bool requestclientcert;
+
 		Profile(const std::string& profilename, const std::string& certstr, const std::string& keystr,
 				std::auto_ptr<DHParams>& DH, unsigned int mindh, const std::string& hashstr,
 				const std::string& priostr, std::auto_ptr<X509CertList>& CA, std::auto_ptr<X509CRL>& CRL,
-				unsigned int recsize)
+				unsigned int recsize, bool Requestclientcert)
 			: name(profilename)
 			, x509cred(certstr, keystr)
 			, min_dh_bits(mindh)
 			, hash(hashstr)
 			, priority(priostr)
 			, outrecsize(recsize)
+			, requestclientcert(Requestclientcert)
 		{
 			x509cred.SetDH(DH);
 			x509cred.SetCA(CA, CRL);
@@ -663,7 +668,10 @@ namespace GnuTLS
 #else
 			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
 #endif
-			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl, outrecsize);
+
+			const bool requestclientcert = tag->getBool("requestclientcert", true);
+
+			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl, outrecsize, requestclientcert);
 		}
 
 		/** Set up the given session with the settings in this profile
@@ -674,8 +682,9 @@ namespace GnuTLS
 			x509cred.SetupSession(sess);
 			gnutls_dh_set_prime_bits(sess, min_dh_bits);
 
-			// Request client certificate if we are a server, no-op if we're a client
-			gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST);
+			// Request client certificate if enabled and we are a server, no-op if we're a client
+			if (requestclientcert)
+				gnutls_certificate_server_set_request(sess, GNUTLS_CERT_REQUEST);
 		}
 
 		const std::string& GetName() const { return name; }

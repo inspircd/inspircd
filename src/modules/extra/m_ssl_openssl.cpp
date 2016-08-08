@@ -132,7 +132,7 @@ namespace OpenSSL
 			mode |= SSL_MODE_RELEASE_BUFFERS;
 #endif
 			SSL_CTX_set_mode(ctx, mode);
-			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+			SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 			SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 			SSL_CTX_set_info_callback(ctx, StaticSSLInfoCallback);
 		}
@@ -204,6 +204,11 @@ namespace OpenSSL
 			// Set the default options and what is in the conf
 			SSL_CTX_set_options(ctx, ctx_options | setoptions);
 			return SSL_CTX_clear_options(ctx, clearoptions);
+		}
+
+		void SetVerifyCert()
+		{
+			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		}
 
 		SSL* CreateServerSession()
@@ -345,6 +350,10 @@ namespace OpenSSL
 				ERR_print_errors_cb(error_callback, this);
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
 			}
+
+			clictx.SetVerifyCert();
+			if (tag->getBool("requestclientcert", true))
+				ctx.SetVerifyCert();
 		}
 
 		const std::string& GetName() const { return name; }

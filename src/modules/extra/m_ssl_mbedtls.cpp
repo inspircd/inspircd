@@ -257,7 +257,6 @@ namespace mbedTLS
 			mbedtls_debug_set_threshold(INT_MAX);
 			mbedtls_ssl_conf_dbg(&conf, DebugLogFunc, NULL);
 #endif
-			mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
 
 			// TODO: check ret of mbedtls_ssl_config_defaults
 			mbedtls_ssl_config_defaults(&conf, endpoint, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
@@ -306,6 +305,11 @@ namespace mbedTLS
 		void SetCA(X509CertList& certs, X509CRL& crl)
 		{
 			mbedtls_ssl_conf_ca_chain(&conf, certs.get(), crl.get());
+		}
+
+		void SetOptionalVerifyCert()
+		{
+			mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
 		}
 
 		const mbedtls_ssl_config* GetConf() const { return &conf; }
@@ -376,7 +380,8 @@ namespace mbedTLS
 				const std::string& castr, const std::string& crlstr,
 				unsigned int recsize,
 				CTRDRBG& ctrdrbg,
-				int minver, int maxver
+				int minver, int maxver,
+				bool requestclientcert
 				)
 			: name(profilename)
 			, x509cred(certstr, keystr)
@@ -414,7 +419,13 @@ namespace mbedTLS
 				serverctx.SetDHParams(dhparams);
 			}
 
-			serverctx.SetCA(cacerts, crl);
+			clientctx.SetOptionalVerifyCert();
+			// The default for servers is to not request a client certificate from the peer
+			if (requestclientcert)
+			{
+				serverctx.SetOptionalVerifyCert();
+				serverctx.SetCA(cacerts, crl);
+			}
 		}
 
 		static std::string ReadFile(const std::string& filename)
@@ -451,7 +462,8 @@ namespace mbedTLS
 			int minver = tag->getInt("minver");
 			int maxver = tag->getInt("maxver");
 			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
-			return new Profile(profilename, certstr, keystr, dhstr, mindh, hashstr, ciphersuitestr, curvestr, castr, crlstr, outrecsize, ctr_drbg, minver, maxver);
+			const bool requestclientcert = tag->getBool("requestclientcert", true);
+			return new Profile(profilename, certstr, keystr, dhstr, mindh, hashstr, ciphersuitestr, curvestr, castr, crlstr, outrecsize, ctr_drbg, minver, maxver, requestclientcert);
 		}
 
 		/** Set up the given session with the settings in this profile
