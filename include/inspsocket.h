@@ -234,6 +234,12 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	void FlushSendQ(SendQueue& sq);
 
+	/** Read incoming data into a receive queue.
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from the socket and put into the recvq
+	 */
+	int ReadToRecvQ(std::string& rq);
+
  protected:
 	std::string recvq;
  public:

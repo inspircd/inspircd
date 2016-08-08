@@ -151,39 +151,49 @@ void StreamSocket::DoRead()
 	}
 	else
 	{
+		ReadToRecvQ(recvq);
+	}
+}
+
+int StreamSocket::ReadToRecvQ(std::string& rq)
+{
 		char* ReadBuffer = ServerInstance->GetReadBuffer();
 		int n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 		if (n == ServerInstance->Config->NetBufferSize)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
-			recvq.append(ReadBuffer, n);
+			rq.append(ReadBuffer, n);
 			OnDataReady();
 		}
 		else if (n > 0)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ);
-			recvq.append(ReadBuffer, n);
+			rq.append(ReadBuffer, n);
 			OnDataReady();
 		}
 		else if (n == 0)
 		{
 			error = "Connection closed";
 			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			return -1;
 		}
 		else if (SocketEngine::IgnoreError())
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
+			return 0;
 		}
 		else if (errno == EINTR)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
+			return 0;
 		}
 		else
 		{
 			error = SocketEngine::LastError();
 			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			return -1;
 		}
-	}
+	return n;
 }
 
 /* Don't try to prepare huge blobs of data to send to a blocked socket */
