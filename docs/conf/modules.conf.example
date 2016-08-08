@@ -1772,6 +1772,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SHA1 module: Allows other modules to generate SHA1 hashes.
+# Required by the WebSocket module.
 #<module name="sha1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2037,6 +2038,13 @@
 #
 # Set the maximum number of entries on a user's watch list below.
 #<watch maxentries="32">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# WebSocket module: Adds HTML5 WebSocket support.
+# Specify hook="websocket" in a <bind> tag to make that port accept
+# WebSocket connections. Compatible with SSL/TLS.
+# Requires SHA-1 hash support available in the sha1 module.
+#<module name="websocket">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)

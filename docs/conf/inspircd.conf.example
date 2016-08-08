@@ -172,6 +172,11 @@
 
 <bind address="" port="6660-6669" type="clients">
 
+# Listener accepting HTML5 WebSocket connections.
+# Requires the websocket module and SHA-1 hashing support (provided by the sha1
+# module).
+#<bind address="" port="7002" type="clients" hook="websocket">
+
 # When linking servers, the OpenSSL and GnuTLS implementations are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
