@@ -240,6 +240,16 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	int ReadToRecvQ(std::string& rq);
 
+	/** Read data from a hook chain recursively, starting at 'hook'.
+	 * If 'hook' is NULL, the recvq is filled with data from SocketEngine::Recv(), otherwise it is filled with data from the
+	 * next hook in the chain.
+	 * @param hook Next IOHook in the chain, can be NULL
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
+	 the socket and put into the recvq
+	 */
+	int HookChainRead(IOHook* hook, std::string& rq);
+
  protected:
 	std::string recvq;
  public:
@@ -286,7 +296,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 	/** Useful for implementing sendq exceeded */
-	size_t getSendQSize() const { return sendq.size(); }
+	size_t getSendQSize() const;
 
 	SendQueue& GetSendQ() { return sendq; }
 
@@ -376,5 +386,4 @@ class CoreExport BufferedSocket : public StreamSocket
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
-inline void StreamSocket::AddIOHook(IOHook* hook) { iohook = hook; }
 inline void StreamSocket::DelIOHook() { iohook = NULL; }

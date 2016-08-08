@@ -23,6 +23,8 @@ class StreamSocket;
 
 class IOHookProvider : public ServiceProvider
 {
+ 	const bool middlehook;
+
  public:
 	enum Type
 	{
@@ -32,8 +34,14 @@ class IOHookProvider : public ServiceProvider
 
 	const Type type;
 
-	IOHookProvider(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN)
-		: ServiceProvider(mod, Name, SERVICE_IOHOOK), type(hooktype) { }
+	IOHookProvider(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
+		: ServiceProvider(mod, Name, SERVICE_IOHOOK), middlehook(middle), type(hooktype) { }
+
+	/** Check if the IOHook provided can appear in the non-last position of a hook chain.
+	 * That is the case if and only if the IOHook instances created are subclasses of IOHookMiddle.
+	 * @return True if the IOHooks provided are subclasses of IOHookMiddle
+	 */
+	bool IsMiddle() const { return middlehook; }
 
 	/** Called immediately after a connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
@@ -86,4 +94,68 @@ class IOHook : public classbase
 	 *  socket is still connected), -1 if there was an error or close
 	 */
 	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
+};
+
+class IOHookMiddle : public IOHook
+{
+	/** Data already processed by the IOHook waiting to go down the chain
+	 */
+	StreamSocket::SendQueue sendq;
+
+	/** Data waiting to go up the chain
+	 */
+	std::string precvq;
+
+	/** Next IOHook in the chain
+	 */
+	IOHook* nexthook;
+
+ protected:
+	/** Get all queued up data which has not yet been passed up the hook chain
+	 * @return RecvQ containing the data
+	 */
+	std::string& GetRecvQ() { return precvq; }
+
+	/** Get all queued up data which is ready to go down the hook chain
+	 * @return SendQueue containing all data waiting to go down the hook chain
+	 */
+	StreamSocket::SendQueue& GetSendQ() { return sendq; }
+
+ public:
+	/** Constructor
+	 * @param provider IOHookProvider that creates this object
+	 */
+	IOHookMiddle(IOHookProvider* provider)
+		: IOHook(provider)
+		, nexthook(NULL)
+	{
+	}
+
+	/** Get all queued up data which is ready to go down the hook chain
+	 * @return SendQueue containing all data waiting to go down the hook chain
+	 */
+	const StreamSocket::SendQueue& GetSendQ() const { return sendq; }
+
+	/** Get the next IOHook in the chain
+	 * @return Next hook in the chain or NULL if this is the last hook
+	 */
+	IOHook* GetNextHook() const { return nexthook; }
+
+	/** Set the next hook in the chain
+	 * @param hook Hook to set as the next hook in the chain
+	 */
+	void SetNextHook(IOHook* hook) { nexthook = hook; }
+
+	/** Check if a hook is capable of being the non-last hook in a hook chain and if so, cast it to an IOHookMiddle object.
+	 * @param hook IOHook to check
+	 * @return IOHookMiddle referring to the same hook or NULL
+	 */
+	static IOHookMiddle* ToMiddleHook(IOHook* hook)
+	{
+		if (hook->prov->IsMiddle())
+			return static_cast<IOHookMiddle*>(hook);
+		return NULL;
+	}
+
+	friend class StreamSocket;
 };
