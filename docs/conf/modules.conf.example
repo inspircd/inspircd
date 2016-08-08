@@ -1771,6 +1771,10 @@
 #<module name="serverban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SHA1 module: Allows other modules to generate SHA1 hashes.
+#<module name="sha1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Showfile: Provides support for showing a text file to users when    #
 # they enter a command.                                               #
 # This module adds one command for each <showfile> tag that shows the #
