@@ -1086,7 +1086,7 @@ info_done_dealloc:
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -1094,7 +1094,6 @@ info_done_dealloc:
 			return prepret;
 
 		// Session is ready for transferring application data
-		StreamSocket::SendQueue& sendq = user->GetSendQ();
 
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 		while (true)

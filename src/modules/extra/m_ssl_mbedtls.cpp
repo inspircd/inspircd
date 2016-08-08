@@ -698,7 +698,7 @@ class mbedTLSIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& sendq) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(sock);
@@ -706,7 +706,6 @@ class mbedTLSIOHook : public SSLIOHook
 			return prepret;
 
 		// Session is ready for transferring application data
-		StreamSocket::SendQueue& sendq = sock->GetSendQ();
 		while (!sendq.empty())
 		{
 			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());

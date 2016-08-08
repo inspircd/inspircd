@@ -656,7 +656,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -666,7 +666,6 @@ class OpenSSLIOHook : public SSLIOHook
 		data_to_write = true;
 
 		// Session is ready for transferring application data
-		StreamSocket::SendQueue& sendq = user->GetSendQ();
 		while (!sendq.empty())
 		{
 			ERR_clear_error();

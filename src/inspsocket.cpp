@@ -201,7 +201,7 @@ void StreamSocket::DoWrite()
 
 	if (GetIOHook())
 	{
-		int rv = GetIOHook()->OnStreamSocketWrite(this);
+		int rv = GetIOHook()->OnStreamSocketWrite(this, sendq);
 		if (rv < 0)
 			SetError("Write Error"); // will not overwrite a better error message
 
