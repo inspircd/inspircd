@@ -198,6 +198,13 @@ class CoreExport StreamSocket : public EventHandler
 			nbytes = 0;
 		}
 
+		void moveall(SendQueue& other)
+		{
+			nbytes += other.bytes();
+			data.insert(data.end(), other.data.begin(), other.data.end());
+			other.clear();
+		}
+
 	 private:
 	 	/** Private send queue. Note that individual strings may be shared.
 		 */
