@@ -27,10 +27,12 @@
  */
 #if defined _LIBCPP_VERSION || defined _WIN32
 # define TR1NS std
+# include <array>
 # include <unordered_map>
 # include <type_traits>
 #else
 # define TR1NS std::tr1
+# include <tr1/array>
 # include <tr1/unordered_map>
 # include <tr1/type_traits>
 #endif
