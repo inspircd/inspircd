@@ -210,15 +210,21 @@ void StreamSocket::DoWrite()
 	}
 	else
 	{
+		FlushSendQ(sendq);
+	}
+}
+
+void StreamSocket::FlushSendQ(SendQueue& sq)
+{
 		// don't even try if we are known to be blocking
 		if (GetEventMask() & FD_WRITE_WILL_BLOCK)
 			return;
 		// start out optimistic - we won't need to write any more
 		int eventChange = FD_WANT_EDGE_WRITE;
-		while (error.empty() && !sendq.empty() && eventChange == FD_WANT_EDGE_WRITE)
+		while (error.empty() && !sq.empty() && eventChange == FD_WANT_EDGE_WRITE)
 		{
 			// Prepare a writev() call to write all buffers efficiently
-			int bufcount = sendq.size();
+			int bufcount = sq.size();
 
 			// cap the number of buffers at MYIOV_MAX
 			if (bufcount > MYIOV_MAX)
@@ -231,7 +237,7 @@ void StreamSocket::DoWrite()
 			{
 				SocketEngine::IOVector iovecs[MYIOV_MAX];
 				size_t j = 0;
-				for (SendQueue::const_iterator i = sendq.begin(), end = i+bufcount; i != end; ++i, j++)
+				for (SendQueue::const_iterator i = sq.begin(), end = i+bufcount; i != end; ++i, j++)
 				{
 					const SendQueue::Element& elem = *i;
 					iovecs[j].iov_base = const_cast<char*>(elem.data());
@@ -241,11 +247,11 @@ void StreamSocket::DoWrite()
 				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
-			if (rv == (int)sendq.bytes())
+			if (rv == (int)sq.bytes())
 			{
 				// it's our lucky day, everything got written out. Fast cleanup.
 				// This won't ever happen if the number of buffers got capped.
-				sendq.clear();
+				sq.clear();
 			}
 			else if (rv > 0)
 			{
@@ -255,19 +261,19 @@ void StreamSocket::DoWrite()
 					// it's going to block now
 					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 				}
-				while (rv > 0 && !sendq.empty())
+				while (rv > 0 && !sq.empty())
 				{
-					const SendQueue::Element& front = sendq.front();
+					const SendQueue::Element& front = sq.front();
 					if (front.length() <= (size_t)rv)
 					{
 						// this string got fully written out
 						rv -= front.length();
-						sendq.pop_front();
+						sq.pop_front();
 					}
 					else
 					{
 						// stopped in the middle of this string
-						sendq.erase_front(rv);
+						sq.erase_front(rv);
 						rv = 0;
 					}
 				}
@@ -299,7 +305,6 @@ void StreamSocket::DoWrite()
 		{
 			SocketEngine::ChangeEventMask(this, eventChange);
 		}
-	}
 }
 
 void StreamSocket::WriteData(const std::string &data)

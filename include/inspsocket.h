@@ -228,6 +228,12 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	void DoRead();
 
+	/** Send as much data contained in a SendQueue object as possible.
+	 * All data which successfully sent will be removed from the SendQueue.
+	 * @param sq SendQueue to flush
+	 */
+	void FlushSendQ(SendQueue& sq);
+
  protected:
 	std::string recvq;
  public:
