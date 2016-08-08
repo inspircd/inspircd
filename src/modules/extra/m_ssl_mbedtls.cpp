@@ -894,7 +894,7 @@ class ModuleSSLmbedTLS : public Module
 			return;
 
 		LocalUser* user = IS_LOCAL(static_cast<User*>(item));
-		if ((user) && (user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
+		if ((user) && (user->eh.GetModHook(this)))
 		{
 			// User is using SSL, they're a local user, and they're using our IOHook.
 			// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -904,13 +904,9 @@ class ModuleSSLmbedTLS : public Module
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
-		{
-			mbedTLSIOHook* iohook = static_cast<mbedTLSIOHook*>(user->eh.GetIOHook());
-			if (!iohook->IsHandshakeDone())
-				return MOD_RES_DENY;
-		}
-
+		const mbedTLSIOHook* const iohook = static_cast<mbedTLSIOHook*>(user->eh.GetModHook(this));
+		if ((iohook) && (!iohook->IsHandshakeDone()))
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 

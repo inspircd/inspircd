@@ -284,6 +284,12 @@ class CoreExport StreamSocket : public EventHandler
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
 	virtual CullResult cull();
+
+	/** Get the IOHook of a module attached to this socket
+	 * @param mod Module whose IOHook to return
+	 * @return IOHook belonging to the module or NULL if the module haven't attached an IOHook to this socket
+	 */
+	IOHook* GetModHook(Module* mod) const;
 };
 /**
  * BufferedSocket is an extendable socket class which modules

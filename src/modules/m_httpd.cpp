@@ -413,7 +413,7 @@ class ModuleHttpServer : public Module
 		{
 			HttpServerSocket* sock = *i;
 			++i;
-			if (sock->GetIOHook() && sock->GetIOHook()->prov->creator == mod)
+			if (sock->GetModHook(mod))
 			{
 				sock->cull();
 				delete sock;

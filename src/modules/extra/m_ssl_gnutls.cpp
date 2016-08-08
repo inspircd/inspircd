@@ -101,6 +101,8 @@ typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 #define INSPIRCD_GNUTLS_HAS_CORK
 #endif
 
+static Module* thismod;
+
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
@@ -917,7 +919,7 @@ info_done_dealloc:
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(session_wrap);
 #ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetIOHook());
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
 #endif
 
 		if (sock->GetEventMask() & FD_READ_WILL_BLOCK)
@@ -954,7 +956,7 @@ info_done_dealloc:
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(transportptr);
 #ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetIOHook());
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
 #endif
 
 		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
@@ -989,7 +991,7 @@ info_done_dealloc:
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(session_wrap);
 #ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetIOHook());
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
 #endif
 
 		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
@@ -1172,7 +1174,7 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	st->key_type = GNUTLS_PRIVKEY_X509;
 #endif
 	StreamSocket* sock = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(sess));
-	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetIOHook())->GetProfile()->GetX509Credentials();
+	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile()->GetX509Credentials();
 
 	st->ncerts = cred.certs.size();
 	st->cert.x509 = cred.certs.raw();
@@ -1282,6 +1284,7 @@ class ModuleSSLGnuTLS : public Module
 #ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #endif
+		thismod = this;
 	}
 
 	void init() CXX11_OVERRIDE
@@ -1317,7 +1320,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 
-			if (user && user->eh.GetIOHook() && user->eh.GetIOHook()->prov->creator == this)
+			if ((user) && (user->eh.GetModHook(this)))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -1333,13 +1336,9 @@ class ModuleSSLGnuTLS : public Module
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
-		{
-			GnuTLSIOHook* iohook = static_cast<GnuTLSIOHook*>(user->eh.GetIOHook());
-			if (!iohook->IsHandshakeDone())
-				return MOD_RES_DENY;
-		}
-
+		const GnuTLSIOHook* const iohook = static_cast<GnuTLSIOHook*>(user->eh.GetModHook(this));
+		if ((iohook) && (!iohook->IsHandshakeDone()))
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 };

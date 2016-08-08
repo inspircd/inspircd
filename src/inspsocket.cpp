@@ -434,3 +434,13 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 		OnError(errcode);
 	}
 }
+
+IOHook* StreamSocket::GetModHook(Module* mod) const
+{
+	if (iohook)
+	{
+		if (iohook->prov->creator == mod)
+			return iohook;
+	}
+	return NULL;
+}
