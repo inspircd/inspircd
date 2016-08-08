@@ -141,18 +141,24 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 
 void StreamSocket::DoRead()
 {
+	const std::string::size_type prevrecvqsize = recvq.size();
+
 	if (GetIOHook())
 	{
 		int rv = GetIOHook()->OnStreamSocketRead(this, recvq);
-		if (rv > 0)
-			OnDataReady();
 		if (rv < 0)
+		{
 			SetError("Read Error"); // will not overwrite a better error message
+			return;
+		}
 	}
 	else
 	{
 		ReadToRecvQ(recvq);
 	}
+
+	if (recvq.size() > prevrecvqsize)
+		OnDataReady();
 }
 
 int StreamSocket::ReadToRecvQ(std::string& rq)
@@ -163,13 +169,11 @@ int StreamSocket::ReadToRecvQ(std::string& rq)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
 			rq.append(ReadBuffer, n);
-			OnDataReady();
 		}
 		else if (n > 0)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ);
 			rq.append(ReadBuffer, n);
-			OnDataReady();
 		}
 		else if (n == 0)
 		{
