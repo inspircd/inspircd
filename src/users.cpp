@@ -64,7 +64,9 @@ const char* User::FormatModes(bool showparameters)
 }
 
 User::User(const std::string& uid, Server* srv, int type)
-	: uuid(uid), server(srv), usertype(type)
+	: uuid(uid)
+	, server(srv)
+	, usertype(type)
 {
 	age = ServerInstance->Time();
 	signon = 0;
@@ -83,9 +85,15 @@ User::User(const std::string& uid, Server* srv, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL), eh(this),
-	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
-	already_sent(0)
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL)
+	, eh(this)
+	, bytes_in(0)
+	, bytes_out(0)
+	, cmds_in(0)
+	, cmds_out(0)
+	, nping(0)
+	, CommandFloodPenalty(0)
+	, already_sent(0)
 {
 	exempt = quitting_sendq = false;
 	idle_lastmsg = 0;
