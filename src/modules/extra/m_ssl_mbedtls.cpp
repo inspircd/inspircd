@@ -420,6 +420,7 @@ namespace mbedTLS
 			}
 
 			clientctx.SetOptionalVerifyCert();
+			clientctx.SetCA(cacerts, crl);			
 			// The default for servers is to not request a client certificate from the peer
 			if (requestclientcert)
 			{
