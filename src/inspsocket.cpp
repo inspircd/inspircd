@@ -25,6 +25,14 @@
 #include "inspircd.h"
 #include "iohook.h"
 
+static IOHook* GetNextHook(IOHook* hook)
+{
+	IOHookMiddle* const iohm = IOHookMiddle::ToMiddleHook(hook);
+	if (iohm)
+		return iohm->GetNextHook();
+	return NULL;
+}
+
 BufferedSocket::BufferedSocket()
 {
 	Timeout = NULL;
@@ -112,11 +120,15 @@ void StreamSocket::Close()
 	{
 		// final chance, dump as much of the sendq as we can
 		DoWrite();
-		if (GetIOHook())
+
+		IOHook* hook = GetIOHook();
+		DelIOHook();
+		while (hook)
 		{
-			GetIOHook()->OnStreamSocketClose(this);
-			delete iohook;
-			DelIOHook();
+			hook->OnStreamSocketClose(this);
+			IOHook* const nexthook = GetNextHook(hook);
+			delete hook;
+			hook = nexthook;
 		}
 		SocketEngine::Shutdown(this, 2);
 		SocketEngine::Close(this);
@@ -139,51 +151,74 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 	return true;
 }
 
+int StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
+{
+	if (!hook)
+		return ReadToRecvQ(rq);
+
+	IOHookMiddle* const iohm = IOHookMiddle::ToMiddleHook(hook);
+	if (iohm)
+	{
+		// Call the next hook to put data into the recvq of the current hook
+		const int ret = HookChainRead(iohm->GetNextHook(), iohm->GetRecvQ());
+		if (ret <= 0)
+			return ret;
+	}
+	return hook->OnStreamSocketRead(this, rq);
+}
+
 void StreamSocket::DoRead()
 {
-	if (GetIOHook())
+	const std::string::size_type prevrecvqsize = recvq.size();
+
+	const int result = HookChainRead(GetIOHook(), recvq);
+	if (result < 0)
 	{
-		int rv = GetIOHook()->OnStreamSocketRead(this, recvq);
-		if (rv > 0)
-			OnDataReady();
-		if (rv < 0)
-			SetError("Read Error"); // will not overwrite a better error message
+		SetError("Read Error"); // will not overwrite a better error message
+		return;
 	}
-	else
-	{
+
+	if (recvq.size() > prevrecvqsize)
+		OnDataReady();
+}
+
+int StreamSocket::ReadToRecvQ(std::string& rq)
+{
 		char* ReadBuffer = ServerInstance->GetReadBuffer();
 		int n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 		if (n == ServerInstance->Config->NetBufferSize)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
-			recvq.append(ReadBuffer, n);
-			OnDataReady();
+			rq.append(ReadBuffer, n);
 		}
 		else if (n > 0)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ);
-			recvq.append(ReadBuffer, n);
-			OnDataReady();
+			rq.append(ReadBuffer, n);
 		}
 		else if (n == 0)
 		{
 			error = "Connection closed";
 			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			return -1;
 		}
 		else if (SocketEngine::IgnoreError())
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
+			return 0;
 		}
 		else if (errno == EINTR)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
+			return 0;
 		}
 		else
 		{
 			error = SocketEngine::LastError();
 			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			return -1;
 		}
-	}
+	return n;
 }
 
 /* Don't try to prepare huge blobs of data to send to a blocked socket */
@@ -191,7 +226,7 @@ static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
 
 void StreamSocket::DoWrite()
 {
-	if (sendq.empty())
+	if (getSendQSize() == 0)
 		return;
 	if (!error.empty() || fd < 0)
 	{
@@ -199,26 +234,48 @@ void StreamSocket::DoWrite()
 		return;
 	}
 
-	if (GetIOHook())
+	SendQueue* psendq = &sendq;
+	IOHook* hook = GetIOHook();
+	while (hook)
 	{
-		int rv = GetIOHook()->OnStreamSocketWrite(this);
-		if (rv < 0)
-			SetError("Write Error"); // will not overwrite a better error message
+		int rv = hook->OnStreamSocketWrite(this, *psendq);
+		psendq = NULL;
 
 		// rv == 0 means the socket has blocked. Stop trying to send data.
 		// IOHook has requested unblock notification from the socketengine.
+		if (rv == 0)
+			break;
+
+		if (rv < 0)
+		{
+			SetError("Write Error"); // will not overwrite a better error message
+			break;
+		}
+
+		IOHookMiddle* const iohm = IOHookMiddle::ToMiddleHook(hook);
+		hook = NULL;
+		if (iohm)
+		{
+			psendq = &iohm->GetSendQ();
+			hook = iohm->GetNextHook();
+		}
 	}
-	else
-	{
+
+	if (psendq)
+		FlushSendQ(*psendq);
+}
+
+void StreamSocket::FlushSendQ(SendQueue& sq)
+{
 		// don't even try if we are known to be blocking
 		if (GetEventMask() & FD_WRITE_WILL_BLOCK)
 			return;
 		// start out optimistic - we won't need to write any more
 		int eventChange = FD_WANT_EDGE_WRITE;
-		while (error.empty() && !sendq.empty() && eventChange == FD_WANT_EDGE_WRITE)
+		while (error.empty() && !sq.empty() && eventChange == FD_WANT_EDGE_WRITE)
 		{
 			// Prepare a writev() call to write all buffers efficiently
-			int bufcount = sendq.size();
+			int bufcount = sq.size();
 
 			// cap the number of buffers at MYIOV_MAX
 			if (bufcount > MYIOV_MAX)
@@ -231,7 +288,7 @@ void StreamSocket::DoWrite()
 			{
 				SocketEngine::IOVector iovecs[MYIOV_MAX];
 				size_t j = 0;
-				for (SendQueue::const_iterator i = sendq.begin(), end = i+bufcount; i != end; ++i, j++)
+				for (SendQueue::const_iterator i = sq.begin(), end = i+bufcount; i != end; ++i, j++)
 				{
 					const SendQueue::Element& elem = *i;
 					iovecs[j].iov_base = const_cast<char*>(elem.data());
@@ -241,11 +298,11 @@ void StreamSocket::DoWrite()
 				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
-			if (rv == (int)sendq.bytes())
+			if (rv == (int)sq.bytes())
 			{
 				// it's our lucky day, everything got written out. Fast cleanup.
 				// This won't ever happen if the number of buffers got capped.
-				sendq.clear();
+				sq.clear();
 			}
 			else if (rv > 0)
 			{
@@ -255,19 +312,19 @@ void StreamSocket::DoWrite()
 					// it's going to block now
 					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 				}
-				while (rv > 0 && !sendq.empty())
+				while (rv > 0 && !sq.empty())
 				{
-					const SendQueue::Element& front = sendq.front();
+					const SendQueue::Element& front = sq.front();
 					if (front.length() <= (size_t)rv)
 					{
 						// this string got fully written out
 						rv -= front.length();
-						sendq.pop_front();
+						sq.pop_front();
 					}
 					else
 					{
 						// stopped in the middle of this string
-						sendq.erase_front(rv);
+						sq.erase_front(rv);
 						rv = 0;
 					}
 				}
@@ -299,7 +356,6 @@ void StreamSocket::DoWrite()
 		{
 			SocketEngine::ChangeEventMask(this, eventChange);
 		}
-	}
 }
 
 void StreamSocket::WriteData(const std::string &data)
@@ -433,4 +489,51 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
 		OnError(errcode);
 	}
+}
+
+IOHook* StreamSocket::GetModHook(Module* mod) const
+{
+	for (IOHook* curr = GetIOHook(); curr; curr = GetNextHook(curr))
+	{
+		if (curr->prov->creator == mod)
+			return curr;
+	}
+	return NULL;
+}
+
+void StreamSocket::AddIOHook(IOHook* newhook)
+{
+	IOHook* curr = GetIOHook();
+	if (!curr)
+	{
+		iohook = newhook;
+		return;
+	}
+
+	IOHookMiddle* lasthook;
+	while (curr)
+	{
+		lasthook = IOHookMiddle::ToMiddleHook(curr);
+		if (!lasthook)
+			return;
+		curr = lasthook->GetNextHook();
+	}
+
+	lasthook->SetNextHook(newhook);
+}
+
+size_t StreamSocket::getSendQSize() const
+{
+	size_t ret = sendq.bytes();
+	IOHook* curr = GetIOHook();
+	while (curr)
+	{
+		const IOHookMiddle* const iohm = IOHookMiddle::ToMiddleHook(curr);
+		if (!iohm)
+			break;
+
+		ret += iohm->GetSendQ().bytes();
+		curr = iohm->GetNextHook();
+	}
+	return ret;
 }

@@ -198,6 +198,13 @@ class CoreExport StreamSocket : public EventHandler
 			nbytes = 0;
 		}
 
+		void moveall(SendQueue& other)
+		{
+			nbytes += other.bytes();
+			data.insert(data.end(), other.data.begin(), other.data.end());
+			other.clear();
+		}
+
 	 private:
 	 	/** Private send queue. Note that individual strings may be shared.
 		 */
@@ -227,6 +234,28 @@ class CoreExport StreamSocket : public EventHandler
 	/** Read data from the socket into the recvq, if successful call OnDataReady()
 	 */
 	void DoRead();
+
+	/** Send as much data contained in a SendQueue object as possible.
+	 * All data which successfully sent will be removed from the SendQueue.
+	 * @param sq SendQueue to flush
+	 */
+	void FlushSendQ(SendQueue& sq);
+
+	/** Read incoming data into a receive queue.
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from the socket and put into the recvq
+	 */
+	int ReadToRecvQ(std::string& rq);
+
+	/** Read data from a hook chain recursively, starting at 'hook'.
+	 * If 'hook' is NULL, the recvq is filled with data from SocketEngine::Recv(), otherwise it is filled with data from the
+	 * next hook in the chain.
+	 * @param hook Next IOHook in the chain, can be NULL
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
+	 the socket and put into the recvq
+	 */
+	int HookChainRead(IOHook* hook, std::string& rq);
 
  protected:
 	std::string recvq;
@@ -274,7 +303,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 	/** Useful for implementing sendq exceeded */
-	size_t getSendQSize() const { return sendq.size(); }
+	size_t getSendQSize() const;
 
 	SendQueue& GetSendQ() { return sendq; }
 
@@ -284,6 +313,12 @@ class CoreExport StreamSocket : public EventHandler
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
 	virtual CullResult cull();
+
+	/** Get the IOHook of a module attached to this socket
+	 * @param mod Module whose IOHook to return
+	 * @return IOHook belonging to the module or NULL if the module haven't attached an IOHook to this socket
+	 */
+	IOHook* GetModHook(Module* mod) const;
 };
 /**
  * BufferedSocket is an extendable socket class which modules
@@ -358,5 +393,4 @@ class CoreExport BufferedSocket : public StreamSocket
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
-inline void StreamSocket::AddIOHook(IOHook* hook) { iohook = hook; }
 inline void StreamSocket::DelIOHook() { iohook = NULL; }

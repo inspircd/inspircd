@@ -60,8 +60,13 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	capab = new CapabData;
 	capab->capab_phase = 0;
 
-	if (via->iohookprov)
-		via->iohookprov->OnAccept(this, client, server);
+	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
+	{
+		ListenSocket::IOHookProvRef& iohookprovref = *i;
+		if (iohookprovref)
+			iohookprovref->OnAccept(this, client, server);
+	}
+
 	SendCapabilities(1);
 
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);

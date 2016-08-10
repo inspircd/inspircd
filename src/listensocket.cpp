@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "iohook.h"
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
@@ -26,7 +27,6 @@
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
-	, iohookprov(NULL, std::string())
 {
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
 	bind_desc = bind_to.str();
@@ -178,15 +178,23 @@ void ListenSocket::OnEventHandlerRead()
 	}
 }
 
-bool ListenSocket::ResetIOHookProvider()
+void ListenSocket::ResetIOHookProvider()
 {
+	iohookprovs[0].SetProvider(bind_tag->getString("hook"));
+
+	// Check that all non-last hooks support being in the middle
+	for (IOHookProvList::iterator i = iohookprovs.begin(); i != iohookprovs.end()-1; ++i)
+	{
+		IOHookProvRef& curr = *i;
+		// Ignore if cannot be in the middle
+		if ((curr) && (!curr->IsMiddle()))
+			curr.SetProvider(std::string());
+	}
+
 	std::string provname = bind_tag->getString("ssl");
 	if (!provname.empty())
 		provname.insert(0, "ssl/");
 
-	// Set the new provider name, dynref handles the rest
-	iohookprov.SetProvider(provname);
-
-	// Return true if no provider was set, or one was set and it was also found
-	return (provname.empty() || iohookprov);
+	// SSL should be the last
+	iohookprovs.back().SetProvider(provname);
 }

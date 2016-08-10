@@ -132,7 +132,7 @@ namespace OpenSSL
 			mode |= SSL_MODE_RELEASE_BUFFERS;
 #endif
 			SSL_CTX_set_mode(ctx, mode);
-			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+			SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 			SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 			SSL_CTX_set_info_callback(ctx, StaticSSLInfoCallback);
 		}
@@ -204,6 +204,11 @@ namespace OpenSSL
 			// Set the default options and what is in the conf
 			SSL_CTX_set_options(ctx, ctx_options | setoptions);
 			return SSL_CTX_clear_options(ctx, clearoptions);
+		}
+
+		void SetVerifyCert()
+		{
+			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		}
 
 		SSL* CreateServerSession()
@@ -345,6 +350,10 @@ namespace OpenSSL
 				ERR_print_errors_cb(error_callback, this);
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
 			}
+
+			clictx.SetVerifyCert();
+			if (tag->getBool("requestclientcert", true))
+				ctx.SetVerifyCert();
 		}
 
 		const std::string& GetName() const { return name; }
@@ -656,7 +665,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) CXX11_OVERRIDE
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -666,7 +675,6 @@ class OpenSSLIOHook : public SSLIOHook
 		data_to_write = true;
 
 		// Session is ready for transferring application data
-		StreamSocket::SendQueue& sendq = user->GetSendQ();
 		while (!sendq.empty())
 		{
 			ERR_clear_error();
@@ -910,7 +918,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			LocalUser* user = IS_LOCAL((User*)item);
 
-			if (user && user->eh.GetIOHook() && user->eh.GetIOHook()->prov->creator == this)
+			if ((user) && (user->eh.GetModHook(this)))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -921,13 +929,9 @@ class ModuleSSLOpenSSL : public Module
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((user->eh.GetIOHook()) && (user->eh.GetIOHook()->prov->creator == this))
-		{
-			OpenSSLIOHook* iohook = static_cast<OpenSSLIOHook*>(user->eh.GetIOHook());
-			if (!iohook->IsHandshakeDone())
-				return MOD_RES_DENY;
-		}
-
+		const OpenSSLIOHook* const iohook = static_cast<OpenSSLIOHook*>(user->eh.GetModHook(this));
+		if ((iohook) && (!iohook->IsHandshakeDone()))
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 

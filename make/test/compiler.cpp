@@ -18,9 +18,11 @@
 
 #include <iostream>
 #if defined _LIBCPP_VERSION
+# include <array>
 # include <type_traits>
 # include <unordered_map>
 #else
+# include <tr1/array>
 # include <tr1/type_traits>
 # include <tr1/unordered_map>
 #endif

@@ -72,8 +72,12 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	UserIOHandler* eh = &New->eh;
 
 	// If this listener has an IO hook provider set then tell it about the connection
-	if (via->iohookprov)
-		via->iohookprov->OnAccept(eh, client, server);
+	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
+	{
+		ListenSocket::IOHookProvRef& iohookprovref = *i;
+		if (iohookprovref)
+			iohookprovref->OnAccept(eh, client, server);
+	}
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 
