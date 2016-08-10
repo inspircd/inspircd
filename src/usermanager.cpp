@@ -83,14 +83,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	this->unregistered_count++;
 
-	/* The users default nick is their UUID */
-	New->nick = New->uuid;
 	this->clientlist[New->nick] = New;
-
-	New->registered = REG_NONE;
-	New->signon = ServerInstance->Time();
-	New->lastping = 1;
-
 	this->AddClone(New);
 
 	this->local_users.push_front(New);

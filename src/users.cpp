@@ -64,14 +64,14 @@ const char* User::FormatModes(bool showparameters)
 }
 
 User::User(const std::string& uid, Server* srv, int type)
-	: uuid(uid)
+	: age(ServerInstance->Time())
+	, signon(0)
+	, uuid(uid)
 	, server(srv)
+	, registered(REG_NONE)
+	, quitting(false)
 	, usertype(type)
 {
-	age = ServerInstance->Time();
-	signon = 0;
-	registered = 0;
-	quitting = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -91,14 +91,18 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	, bytes_out(0)
 	, cmds_in(0)
 	, cmds_out(0)
+	, quitting_sendq(false)
+	, lastping(true)
+	, exempt(false)
 	, nping(0)
+	, idle_lastmsg(0)
 	, CommandFloodPenalty(0)
 	, already_sent(0)
 {
-	exempt = quitting_sendq = false;
-	idle_lastmsg = 0;
+	signon = ServerInstance->Time();
+	// The user's default nick is their UUID
+	nick = uuid;
 	ident = "unknown";
-	lastping = 0;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
