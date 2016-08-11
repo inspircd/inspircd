@@ -140,13 +140,10 @@ enum EventMask
  * must then be added to SocketEngine using the method
  * SocketEngine::AddFd(), after which point the derived
  * class will receive events to its OnEventHandler*() methods.
- * The derived class should also implement one of Readable()
- * and Writeable(). In the current implementation, only
- * Readable() is used. If this returns true, the socketengine
- * inserts a readable socket. If it is false, the socketengine
- * inserts a writeable socket. The derived class should never
- * change the value this function returns without first
- * deleting the socket from the socket engine. The only
+ * The event mask passed to SocketEngine::AddFd() determines
+ * what events the EventHandler gets notified about and with
+ * what semantics. SocketEngine::ChangeEventMask() can be
+ * called to update the event mask later. The only
  * requirement beyond this for an event handler is that it
  * must have a file descriptor. What this file descriptor
  * is actually attached to is completely up to you.
