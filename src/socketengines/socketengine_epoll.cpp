@@ -24,7 +24,6 @@
 #include <sys/epoll.h>
 #include <ulimit.h>
 #include <iostream>
-#define EP_DELAY 5
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
  */
