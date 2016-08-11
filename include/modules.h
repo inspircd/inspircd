@@ -201,8 +201,6 @@ class CoreExport Version
 
 	/** Complex version information, including linking compatability data */
 	Version(const std::string &desc, int flags, const std::string& linkdata);
-
-	virtual ~Version() {}
 };
 
 class CoreExport DataProvider : public ServiceProvider
