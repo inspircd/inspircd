@@ -84,7 +84,7 @@ enum EventMask
 	 * EINPROGRESS. An event MAY be sent at any time that writes will not
 	 * block.
 	 *
-	 * Before calling HandleEvent, a socket engine MAY change the state of
+	 * Before calling OnEventHandler*(), a socket engine MAY change the state of
 	 * the FD back to FD_WANT_EDGE_WRITE if it is simpler (for example, if a
 	 * one-shot notification was registered). If further writes are needed,
 	 * it is the responsibility of the event handler to change the state to
@@ -98,7 +98,7 @@ enum EventMask
 	 */
 	FD_WANT_EDGE_WRITE = 0x80,
 	/** Request a one-shot poll-style write notification. The socket will
-	 * return to the FD_WANT_NO_WRITE state before HandleEvent is called.
+	 * return to the FD_WANT_NO_WRITE state before OnEventHandler*() is called.
 	 */
 	FD_WANT_SINGLE_WRITE = 0x100,
 
@@ -106,17 +106,17 @@ enum EventMask
 	FD_WANT_WRITE_MASK = 0x1F0,
 
 	/** Add a trial read. During the next DispatchEvents invocation, this
-	 * will call HandleEvent with EVENT_READ unless reads are known to be
+	 * will call OnEventHandlerRead() unless reads are known to be
 	 * blocking.
 	 */
 	FD_ADD_TRIAL_READ  = 0x1000,
 	/** Assert that reads are known to block. This cancels FD_ADD_TRIAL_READ.
-	 * Reset by SE before running EVENT_READ
+	 * Reset by SE before running OnEventHandlerRead().
 	 */
 	FD_READ_WILL_BLOCK = 0x2000,
 
 	/** Add a trial write. During the next DispatchEvents invocation, this
-	 * will call HandleEvent with EVENT_WRITE unless writes are known to be
+	 * will call OnEventHandlerWrite() unless writes are known to be
 	 * blocking.
 	 *
 	 * This could be used to group several writes together into a single
@@ -125,7 +125,7 @@ enum EventMask
 	 */
 	FD_ADD_TRIAL_WRITE = 0x4000,
 	/** Assert that writes are known to block. This cancels FD_ADD_TRIAL_WRITE.
-	 * Reset by SE before running EVENT_WRITE
+	 * Reset by SE before running OnEventHandlerWrite().
 	 */
 	FD_WRITE_WILL_BLOCK = 0x8000,
 
@@ -136,10 +136,10 @@ enum EventMask
 /** This class is a basic I/O handler class.
  * Any object which wishes to receive basic I/O events
  * from the socketengine must derive from this class and
- * implement the HandleEvent() method. The derived class
+ * implement the OnEventHandler*() methods. The derived class
  * must then be added to SocketEngine using the method
  * SocketEngine::AddFd(), after which point the derived
- * class will receive events to its HandleEvent() method.
+ * class will receive events to its OnEventHandler*() methods.
  * The derived class should also implement one of Readable()
  * and Writeable(). In the current implementation, only
  * Readable() is used. If this returns true, the socketengine
@@ -328,7 +328,7 @@ public:
 	/** Add an EventHandler object to the engine.  Use AddFd to add a file
 	 * descriptor to the engine and have the socket engine monitor it. You
 	 * must provide an object derived from EventHandler which implements
-	 * HandleEvent().
+	 * the required OnEventHandler*() methods.
 	 * @param eh An event handling object to add
 	 * @param event_mask The initial event mask for the object
 	 */
@@ -387,8 +387,7 @@ public:
 	 * this doesn't wait long, only a couple of milliseconds. It returns the
 	 * number of events which occurred during this call.  This method will
 	 * dispatch events to their handlers by calling their
-	 * EventHandler::HandleEvent() methods with the necessary EventType
-	 * value.
+	 * EventHandler::OnEventHandler*() methods.
 	 * @return The number of events which have occured.
 	 */
 	static int DispatchEvents();
