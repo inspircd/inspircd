@@ -49,7 +49,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 	user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 
-	if (parameters.size() == 1)
+	if ((parameters.size() == 1) && (!parameters[0].empty()))
 	{
 		if (parameters[0][0] == '<')
 		{
