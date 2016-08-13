@@ -101,7 +101,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(ERR_WORDFILTERED, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((Channel*)dest)->name.c_str(), index->first.c_str());
+					user->WriteNumeric(ERR_WORDFILTERED, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name.c_str() : ((User*)dest)->nick.c_str()), index->first.c_str());
 					return MOD_RES_DENY;
 				}
 
