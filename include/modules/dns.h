@@ -117,6 +117,18 @@ namespace DNS
 
 		Query() : error(ERROR_NONE), cached(false) { }
 		Query(const Question& q) : question(q), error(ERROR_NONE), cached(false) { }
+
+		const ResourceRecord* FindAnswerOfType(QueryType qtype) const
+		{
+			for (std::vector<DNS::ResourceRecord>::const_iterator i = answers.begin(); i != answers.end(); ++i)
+			{
+				const DNS::ResourceRecord& rr = *i;
+				if (rr.type == qtype)
+					return &rr;
+			}
+
+			return NULL;
+		}
 	};
 
 	class ReplySocket;
@@ -136,11 +148,12 @@ namespace DNS
 
 	/** A DNS query.
 	 */
-	class Request : public Timer, public Question
+	class Request : public Timer
 	{
 	 protected:
 		Manager* const manager;
 	 public:
+		Question question;
 		/* Use result cache if available */
 		bool use_cache;
 		/* Request id */
@@ -150,8 +163,8 @@ namespace DNS
 
 		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true)
 			: Timer((ServerInstance->Config->dns_timeout ? ServerInstance->Config->dns_timeout : 5))
-			, Question(addr, qt)
 			, manager(mgr)
+			, question(addr, qt)
 			, use_cache(usecache)
 			, id(0)
 			, creator(mod)
@@ -178,7 +191,7 @@ namespace DNS
 		 */
 		bool Tick(time_t now)
 		{
-			Query rr(*this);
+			Query rr(this->question);
 			rr.error = ERROR_TIMEDOUT;
 			this->OnError(&rr);
 			delete this;

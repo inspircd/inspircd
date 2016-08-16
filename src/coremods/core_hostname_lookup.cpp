@@ -37,21 +37,6 @@ class UserResolver : public DNS::Request
 	 */
 	const bool fwd;
 
-	const DNS::ResourceRecord* FindAnswerOfType(const DNS::Query* response, DNS::QueryType qtype)
-	{
-		for (std::vector<DNS::ResourceRecord>::const_iterator it = response->answers.begin(); it != response->answers.end(); ++it)
-		{
-			const DNS::ResourceRecord& rr = *it;
-
-			if (rr.type == qtype)
-			{
-				return &rr;
-			}
-		}
-
-		return NULL;
-	}
-
  public:
 	/** Create a resolver.
 	 * @param mgr DNS Manager
@@ -80,10 +65,10 @@ class UserResolver : public DNS::Request
 			return;
 		}
 
-		const DNS::ResourceRecord* ans_record = FindAnswerOfType(r, this->type);
+		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
 		if (ans_record == NULL)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "DNS result for %s: no record of type %d", uuid.c_str(), this->type);
+			OnError(r);
 			return;
 		}
 

@@ -416,7 +416,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			if (!request)
 				continue;
 
-			Query rr(*request);
+			Query rr(request->question);
 			rr.error = ERROR_UNKNOWN;
 			request->OnError(&rr);
 
@@ -426,7 +426,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void Process(DNS::Request* req)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing request to lookup " + req->name + " of type " + ConvToStr(req->type) + " to " + this->myserver.addr());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing request to lookup " + req->question.name + " of type " + ConvToStr(req->question.type) + " to " + this->myserver.addr());
 
 		/* Create an id */
 		unsigned int tries = 0;
@@ -463,7 +463,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		Packet p;
 		p.flags = QUERYFLAGS_RD;
 		p.id = req->id;
-		p.question = *req;
+		p.question = req->question;
 
 		unsigned char buffer[524];
 		unsigned short len = p.Pack(buffer, sizeof(buffer));
@@ -479,7 +479,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 
 		// Update name in the original request so question checking works for PTR queries
-		req->name = p.question.name;
+		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
 			throw Exception("DNS: Unable to send query");
@@ -568,7 +568,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		if (static_cast<Question&>(*request) != recv_packet.question)
+		if (request->question != recv_packet.question)
 		{
 			// This can happen under high latency, drop it silently, do not fail the request
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received an answer that isn't for a question we asked");
@@ -631,7 +631,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 		else
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Lookup complete for " + request->name);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Lookup complete for " + request->question.name);
 			ServerInstance->stats.DnsGood++;
 			request->OnLookupComplete(&recv_packet);
 			this->AddCache(recv_packet);
@@ -815,7 +815,7 @@ class ModuleDNS : public Module
 
 			if (req->creator == mod)
 			{
-				Query rr(*req);
+				Query rr(req->question);
 				rr.error = ERROR_UNLOADED;
 				req->OnError(&rr);
 
