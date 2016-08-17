@@ -791,24 +791,33 @@ std::string ModeParser::GiveModeList(ModeType mt)
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
+struct PrefixModeSorter
+{
+	bool operator()(PrefixMode* lhs, PrefixMode* rhs)
+	{
+		return lhs->GetPrefixRank() < rhs->GetPrefixRank();
+	}
+};
+
 std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 {
 	std::string mletters;
 	std::string mprefixes;
-	insp::flat_map<int, std::pair<char, char> > prefixes;
+	std::vector<PrefixMode*> prefixes;
 
 	const PrefixModeList& list = GetPrefixModes();
 	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		PrefixMode* pm = *i;
 		if (pm->GetPrefix())
-			prefixes[pm->GetPrefixRank()] = std::make_pair(pm->GetPrefix(), pm->GetModeChar());
+			prefixes.push_back(pm);
 	}
 
-	for (insp::flat_map<int, std::pair<char, char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); ++n)
+	std::sort(prefixes.begin(), prefixes.end(), PrefixModeSorter());
+	for (std::vector<PrefixMode*>::const_reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); ++n)
 	{
-		mletters = mletters + n->second.first;
-		mprefixes = mprefixes + n->second.second;
+		mletters += (*n)->GetPrefix();
+		mprefixes += (*n)->GetModeChar();
 	}
 
 	return lettersAndModes ? "(" + mprefixes + ")" + mletters : mletters;

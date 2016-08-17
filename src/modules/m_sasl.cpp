@@ -245,7 +245,7 @@ class SaslAuthenticator
 
 		SendSASL(params);
 
-		if (parameters[0][0] == '*')
+		if (parameters[0].c_str()[0] == '*')
 		{
 			this->Abort();
 			return false;

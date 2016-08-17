@@ -56,7 +56,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			sdest = FindRouteTarget(routing.serverdest);
 			if (!sdest)
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistant server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.serverdest.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistent server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.serverdest.c_str());
 				return;
 			}
 		}

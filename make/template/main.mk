@@ -154,7 +154,7 @@ all: $(FOOTER)
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
-	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
+	cd "$(BUILDPATH)"; $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
 	@${MAKE} INSPIRCD_DEBUG=1 all
@@ -222,9 +222,9 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
-	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
 @IFNDEF INSPIRCD_STATIC
-	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
+	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 @ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
@@ -261,10 +261,10 @@ GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure @CONFIGU
 
 clean:
 	@echo Cleaning...
-	-rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
-	-rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
-	@-rmdir $(BUILDPATH)/bin 2>/dev/null
-	@-rmdir $(BUILDPATH) 2>/dev/null
+	-rm -f "$(BUILDPATH)/bin/inspircd" "$(BUILDPATH)/include" "$(BUILDPATH)/real.mk"
+	-rm -rf "$(BUILDPATH)/obj" "$(BUILDPATH)/modules"
+	@-rmdir "$(BUILDPATH)/bin" 2>/dev/null
+	@-rmdir "$(BUILDPATH)" 2>/dev/null
 	@echo Completed.
 
 deinstall:
@@ -272,7 +272,8 @@ deinstall:
 	-rm -rf $(CONPATH)/examples
 	-rm -f $(MANPATH)/inspircd.1
 	-rm -f $(MANPATH)/inspircd-genssl.1
-	-rm -f $(MODPATH)/*.so
+	-rm -f $(MODPATH)/m_*.so
+	-rm -f $(MODPATH)/core_*.so
 	-rm -f $(BASE)/.gdbargs
 	-rm -f $(BASE)/inspircd.service
 	-rm -f $(BASE)/org.inspircd.plist
@@ -285,8 +286,8 @@ configureclean:
 	rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
-	-rm -rf $(SOURCEPATH)/run
-	find $(SOURCEPATH)/src/modules -type l | xargs rm -f
+	-rm -rf "$(SOURCEPATH)/run"
+	find "$(SOURCEPATH)/src/modules" -type l | xargs rm -f
 
 help:
 	@echo 'InspIRCd Makefile'

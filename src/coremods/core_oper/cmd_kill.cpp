@@ -93,7 +93,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			if (!user->server->IsULine())
+			if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
 			this->lastuuid = u->uuid;
 		}
@@ -104,7 +104,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			 * XXX - this isn't entirely correct, servers A - B - C, oper on A, client on C. Oper kills client, A and B will get remote kill
 			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
 			 */
-			if (!user->server->IsULine())
+			if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 			{
 				if (IS_LOCAL(user))
 					ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());

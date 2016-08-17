@@ -631,8 +631,14 @@ class OpenSSLIOHook : public SSLIOHook
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
+				int mask = 0;
+				// Schedule a read if there is still data in the OpenSSL buffer
+				if (SSL_pending(sess) > 0)
+					mask |= FD_ADD_TRIAL_READ;
 				if (data_to_write)
-					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
+					mask |= FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE;
+				if (mask != 0)
+					SocketEngine::ChangeEventMask(user, mask);
 				return 1;
 			}
 			else if (ret == 0)

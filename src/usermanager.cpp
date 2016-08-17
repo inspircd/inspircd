@@ -151,6 +151,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	{
 		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
+		return;
 	}
 
 	if (ServerInstance->Config->RawLog)

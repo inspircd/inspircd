@@ -1076,6 +1076,9 @@ info_done_dealloc:
 			if (ret > 0)
 			{
 				reader.appendto(recvq);
+				// Schedule a read if there is still data in the GnuTLS buffer
+				if (gnutls_record_check_pending(sess) > 0)
+					SocketEngine::ChangeEventMask(user, FD_ADD_TRIAL_READ);
 				return 1;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)

@@ -507,9 +507,10 @@ class CoreExport InspIRCd
 
 	/** Attempt to write the process id to a given file
 	 * @param filename The PID file to attempt to write to
+	 * @param exitonfail If true and the PID fail cannot be written log to stdout and exit, otherwise only log on failure
 	 * @return This function may bail if the file cannot be written
 	 */
-	void WritePID(const std::string &filename);
+	void WritePID(const std::string& filename, bool exitonfail = true);
 
 	/** This constructor initialises all the subsystems and reads the config file.
 	 * @param argc The argument count passed to main()

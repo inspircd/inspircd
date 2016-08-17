@@ -194,7 +194,7 @@ bool InspIRCd::DaemonSeed()
 #endif
 }
 
-void InspIRCd::WritePID(const std::string &filename)
+void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 {
 #ifndef _WIN32
 	std::string fname(filename);
@@ -208,9 +208,11 @@ void InspIRCd::WritePID(const std::string &filename)
 	}
 	else
 	{
-		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s', exiting.",fname.c_str());
-		Exit(EXIT_STATUS_PID);
+		if (exitonfail)
+			std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s'%s", fname.c_str(), (exitonfail ? ", exiting." : ""));
+		if (exitonfail)
+			Exit(EXIT_STATUS_PID);
 	}
 #endif
 }

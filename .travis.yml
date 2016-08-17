@@ -1,0 +1,12 @@
+compiler:
+  - "clang"
+  - "gcc"
+language: "cpp"
+notifications:
+  email: false
+os:
+  - "linux"
+  - "osx"
+script:
+  - "sh ./tools/travis-ci.sh"
+sudo: required

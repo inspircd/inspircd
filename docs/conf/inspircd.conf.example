@@ -695,6 +695,9 @@
           # hidekills: If defined, replaces who set a /kill with a custom string.
           hidekills=""
 
+          # hideulinekills: Hide kills from clients of ulined servers from server notices.
+          hideulinekills="yes"
+
           # hidesplits: If enabled, non-opers will not be able to see which
           # servers split in a netsplit, they will only be able to see that one
           # occurred (If their client has netsplit detection).

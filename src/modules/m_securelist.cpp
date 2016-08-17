@@ -63,7 +63,7 @@ class ModuleSecureList : public Module
 
 			/* Not exempt, BOOK EM DANNO! */
 			user->WriteNotice("*** You cannot list within the first " + ConvToStr(WaitTime) + " seconds of connecting. Please try again later.");
-			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
+			/* Some clients (e.g. mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */
 			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
