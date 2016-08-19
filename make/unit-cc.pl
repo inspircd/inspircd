@@ -80,18 +80,19 @@ sub do_static_find {
 
 sub do_static_link {
 	my $execstr = "$ENV{CXX} -o $out $ENV{CORELDFLAGS}";
+	my $link_flags = '';
 	for (@ARGV) {
 		if (/\.cmd$/) {
 			open F, '<', $_;
 			my $libs = <F>;
 			chomp $libs;
-			$execstr .= ' '.$libs;
+			$link_flags .= ' '.$libs;
 			close F;
 		} else {
 			$execstr .= ' '.$_;
 		}
 	}
-	$execstr .= ' '.$ENV{LDLIBS};
+	$execstr .= ' '.$ENV{LDLIBS}.' '.$link_flags;
 	message 'LINK', $out, $execstr;
 	exec $execstr;
 }
