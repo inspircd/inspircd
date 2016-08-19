@@ -30,7 +30,7 @@
 #include "commands.h"
 #include "treeserver.h"
 
-CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
+CmdResult CommandNick::HandleRemote(::RemoteUser* user, std::vector<std::string>& params)
 {
 	if ((isdigit(params[0][0])) && (params[0] != user->uuid))
 		throw ProtocolException("Attempted to change nick to an invalid or non-matching UUID");

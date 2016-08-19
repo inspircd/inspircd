@@ -23,7 +23,7 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandAway::HandleRemote(RemoteUser* u, std::vector<std::string>& params)
+CmdResult CommandAway::HandleRemote(::RemoteUser* u, std::vector<std::string>& params)
 {
 	if (params.size())
 	{

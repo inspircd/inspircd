@@ -23,6 +23,21 @@
 #include "commandbuilder.h"
 #include "remoteuser.h"
 
+namespace SpanningTree
+{
+	class CommandAway;
+	class CommandNick;
+	class CommandPing;
+	class CommandPong;
+	class CommandServer;
+}
+
+using SpanningTree::CommandAway;
+using SpanningTree::CommandNick;
+using SpanningTree::CommandPing;
+using SpanningTree::CommandPong;
+using SpanningTree::CommandServer;
+
 /** Handle /RCONNECT
  */
 class CommandRConnect : public Command
@@ -224,11 +239,11 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_LOCALONLY; }
 };
 
-class CommandAway : public UserOnlyServerCommand<CommandAway>
+class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::CommandAway>
 {
  public:
-	CommandAway(Module* Creator) : UserOnlyServerCommand<CommandAway>(Creator, "AWAY", 0, 2) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
+	CommandAway(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandAway>(Creator, "AWAY", 0, 2) { }
+	CmdResult HandleRemote(::RemoteUser* user, std::vector<std::string>& parameters);
 
 	class Builder : public CmdBuilder
 	{
@@ -275,14 +290,14 @@ class CommandIdle : public UserOnlyServerCommand<CommandIdle>
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CommandNick : public UserOnlyServerCommand<CommandNick>
+class SpanningTree::CommandNick : public UserOnlyServerCommand<SpanningTree::CommandNick>
 {
  public:
-	CommandNick(Module* Creator) : UserOnlyServerCommand<CommandNick>(Creator, "NICK", 2) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
+	CommandNick(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandNick>(Creator, "NICK", 2) { }
+	CmdResult HandleRemote(::RemoteUser* user, std::vector<std::string>& parameters);
 };
 
-class CommandPing : public ServerCommand
+class SpanningTree::CommandPing : public ServerCommand
 {
  public:
 	CommandPing(Module* Creator) : ServerCommand(Creator, "PING", 1) { }
@@ -290,10 +305,10 @@ class CommandPing : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CommandPong : public ServerOnlyServerCommand<CommandPong>
+class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::CommandPong>
 {
  public:
-	CommandPong(Module* Creator) : ServerOnlyServerCommand<CommandPong>(Creator, "PONG", 1) { }
+	CommandPong(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandPong>(Creator, "PONG", 1) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
@@ -309,12 +324,12 @@ class CommandSave : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandServer : public ServerOnlyServerCommand<CommandServer>
+class SpanningTree::CommandServer : public ServerOnlyServerCommand<SpanningTree::CommandServer>
 {
 	static void HandleExtra(TreeServer* newserver, const std::vector<std::string>& params);
 
  public:
-	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 3) { }
+	CommandServer(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandServer>(Creator, "SERVER", 3) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 
 	class Builder : public CmdBuilder
@@ -393,16 +408,16 @@ class SpanningTreeCommands
 	CommandFHost fhost;
 	CommandFIdent fident;
 	CommandFName fname;
-	CommandAway away;
+	SpanningTree::CommandAway away;
 	CommandAddLine addline;
 	CommandDelLine delline;
 	CommandEncap encap;
 	CommandIdle idle;
-	CommandNick nick;
-	CommandPing ping;
-	CommandPong pong;
+	SpanningTree::CommandNick nick;
+	SpanningTree::CommandPing ping;
+	SpanningTree::CommandPong pong;
 	CommandSave save;
-	CommandServer server;
+	SpanningTree::CommandServer server;
 	CommandSQuit squit;
 	CommandSNONotice snonotice;
 	CommandEndBurst endburst;
