@@ -168,7 +168,7 @@ int SocketEngine::DispatchEvents()
 	int processed = 0;
 	ServerInstance->UpdateTime();
 
-	for (int index = 0; index < CurrentSetSize && processed < i; index++)
+	for (size_t index = 0; index < CurrentSetSize && processed < i; index++)
 	{
 		struct pollfd& pfd = events[index];
 
@@ -217,7 +217,7 @@ int SocketEngine::DispatchEvents()
 
 			// The vector could've been resized, reference can be invalid by now; don't use it
 			events[index].events = mask_to_poll(mask);
-			eh->eh->OnEventHandlerWrite();
+			eh->OnEventHandlerWrite();
 		}
 	}
 

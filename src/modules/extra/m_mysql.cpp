@@ -20,8 +20,12 @@
  */
 
 
-/* Stop mysql wanting to use long long */
-#define NO_CLIENT_LONG_LONG
+// Fix warnings about the use of `long long` on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-long-long"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+#endif
 
 #include "inspircd.h"
 #include <mysql.h>

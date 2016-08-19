@@ -16,4 +16,3 @@ fi
 set -e
 export TEST_BUILD_MODULES="m_geoip.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_posix.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_openssl.cpp"
 ./tools/test-build $CXX
-./run/bin/inspircd --version
