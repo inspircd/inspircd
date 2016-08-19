@@ -168,7 +168,7 @@ int SocketEngine::DispatchEvents()
 	int processed = 0;
 	ServerInstance->UpdateTime();
 
-	for (int index = 0; index < CurrentSetSize && processed < i; index++)
+	for (size_t index = 0; index < CurrentSetSize && processed < i; index++)
 	{
 		struct pollfd& pfd = events[index];
 
