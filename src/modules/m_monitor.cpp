@@ -245,7 +245,8 @@ class IRCv3::Monitor::Manager
  	WatchedList emptywatchedlist;
 };
 
-void IRCv3::Monitor::Manager::ExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+// inline is needed in static builds to support m_watch including the Manager code from this file
+inline void IRCv3::Monitor::Manager::ExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 {
 	if (format == FORMAT_NETWORK)
 		return;
