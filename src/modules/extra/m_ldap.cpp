@@ -27,7 +27,7 @@
 # pragma comment(lib, "liblber.lib")
 #endif
 
-/* $LinkerFlags: -lldap_r */
+/* $LinkerFlags: -lldap_r -llber */
 
 class LDAPService;
 
