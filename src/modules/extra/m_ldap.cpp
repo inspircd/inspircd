@@ -170,7 +170,6 @@ class LDAPService : public LDAPProvider, public SocketThread
 	time_t last_connect;
 	int searchscope;
 	time_t timeout;
-	time_t last_timeout_check;
 
  public:
 	static LDAPMod** BuildMods(const LDAPMods& attributes)
@@ -247,7 +246,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 	LDAPService(Module* c, ConfigTag* tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
-		, con(NULL), config(tag), last_connect(0), last_timeout_check(0)
+		, con(NULL), config(tag), last_connect(0)
 	{
 		std::string scope = config->getString("searchscope");
 		if (scope == "base")
