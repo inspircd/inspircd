@@ -217,7 +217,7 @@ int SocketEngine::DispatchEvents()
 
 			// The vector could've been resized, reference can be invalid by now; don't use it
 			events[index].events = mask_to_poll(mask);
-			eh->eh->OnEventHandlerWrite();
+			eh->OnEventHandlerWrite();
 		}
 	}
 
