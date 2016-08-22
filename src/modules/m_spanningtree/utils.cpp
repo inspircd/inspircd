@@ -331,7 +331,7 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
 		Link* x = *i;
-		if (InspIRCd::Match(x->Name.c_str(), name.c_str(), rfc_case_insensitive_map))
+		if (InspIRCd::Match(x->Name, name, ascii_case_insensitive_map))
 		{
 			return x;
 		}
