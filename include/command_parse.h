@@ -85,7 +85,7 @@ class CoreExport CommandParser
 	 * With one list it is much simpler, and is used in NAMES, WHOIS, PRIVMSG etc.
 	 *
 	 * If there is only one list and there are duplicates in it, then the command handler is only called for
-	 * unique items. Entries are compared using "irc comparision" (see irc::string).
+	 * unique items. Entries are compared using "irc comparison".
 	 * If the usemax parameter is true (the default) the function only parses until it reaches
 	 * ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
 	 *
