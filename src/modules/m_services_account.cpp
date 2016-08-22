@@ -181,7 +181,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet(m5) && assign(user->nick) != oldnick)
+		if ((user->IsModeSet(m5)) && (ServerInstance->FindNickOnly(oldnick) != user))
 			m5.RemoveMode(user);
 	}
 
