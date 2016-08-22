@@ -416,11 +416,3 @@ inline bool operator!= (const std::string& leftval, const irc::string& rightval)
 {
 	return !(leftval.c_str() == rightval);
 }
-
-/** Assign an irc::string to a std::string.
- */
-inline std::string assign(const irc::string &other) { return other.c_str(); }
-
-/** Assign a std::string to an irc::string.
- */
-inline irc::string assign(const std::string &other) { return other.c_str(); }
