@@ -40,11 +40,9 @@
  * treat [ identical to {, ] identical to }, and \
  * as identical to |.
  *
- * Our hashing functions are designed  to accept
- * std::string and compare/hash them as type irc::string
- * by converting them internally. This makes them
- * backwards compatible with other code which is not
- * aware of irc::string.
+ * There are functors that accept std::string and
+ * compare/hash them as type irc::string by using
+ * mapping arrays internally.
  *******************************************************/
 
 /** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
@@ -74,7 +72,6 @@ CoreExport extern unsigned const char rfc_case_sensitive_map[256];
  */
 namespace irc
 {
-
 	/** Check if two IRC object (e.g. nick or channel) names are equal.
 	 * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
 	 * according to RFC 1459, treating certain otherwise non-identical characters as identical.
@@ -159,14 +156,15 @@ namespace irc
 
 	/** Joins the contents of a vector to a string.
 	 * @param sequence Zero or more items to join.
-	 * @separator The character to place between the items.
+	 * @param separator The character to place between the items, defaults to ' ' (space).
+	 * @return Joined string.
 	 */
    	std::string CoreExport stringjoiner(const std::vector<std::string>& sequence, char separator = ' ');
 
 	/** irc::sepstream allows for splitting token seperated lists.
 	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
-	 * an empty string.
+	 * false.
 	 */
 	class CoreExport sepstream
 	{
