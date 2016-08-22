@@ -94,6 +94,41 @@ namespace stdalgo
 		{
 			return (!strcasecmp(tocstr(str1), tocstr(str2)));
 		}
+
+		/** Replace first occurrence of a substring ('target') in a string ('str') with another string ('replacement').
+		 * @param str String to perform replacement in
+		 * @param target String to replace
+		 * @param replacement String to put in place of 'target'
+		 * @return True if 'target' was replaced with 'replacement', false if it was not found in 'str'.
+		 */
+		template<typename CharT, typename Traits, typename Alloc>
+		inline bool replace(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
+		{
+			const typename std::basic_string<CharT, Traits, Alloc>::size_type p = str.find(target);
+			if (p == std::basic_string<CharT, Traits, Alloc>::npos)
+				return false;
+			str.replace(p, target.size(), replacement);
+			return true;
+		}
+
+		/** Replace all occurrences of a string ('target') in a string ('str') with another string ('replacement').
+		 * @param str String to perform replacement in
+		 * @param target String to replace
+		 * @param replacement String to put in place of 'target'
+		 */
+		template<typename CharT, typename Traits, typename Alloc>
+		inline void replace_all(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
+		{
+			if (target.empty())
+				return;
+
+			typename std::basic_string<CharT, Traits, Alloc>::size_type p = 0;
+			while ((p = str.find(target, p)) != std::basic_string<CharT, Traits, Alloc>::npos)
+			{
+				str.replace(p, target.size(), replacement);
+				p += replacement.size();
+			}
+		}
 	}
 
 	/**
