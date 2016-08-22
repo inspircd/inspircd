@@ -265,12 +265,6 @@ namespace irc
 		 */
 		bool GetToken(std::string &token);
 
-		/** Fetch the next token from the stream as an irc::string
-		 * @param token The next token available, or an empty string if none remain
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetToken(irc::string &token);
-
 		/** Fetch the next token from the stream as an integer
 		 * @param token The next token available, or undefined if none remain
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.

@@ -272,14 +272,6 @@ bool irc::tokenstream::GetToken(std::string &token)
 	return true;
 }
 
-bool irc::tokenstream::GetToken(irc::string &token)
-{
-	std::string stdstring;
-	bool returnval = GetToken(stdstring);
-	token = assign(stdstring);
-	return returnval;
-}
-
 bool irc::tokenstream::GetToken(int &token)
 {
 	std::string tok;
