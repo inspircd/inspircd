@@ -259,7 +259,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	ContainerIter x = lookup_lines.find(line->type);
 	if (x != lookup_lines.end())
 	{
-		LookupIter i = x->second.find(line->Displayable().c_str());
+		LookupIter i = x->second.find(line->Displayable());
 		if (i != x->second.end())
 		{
 			// XLine propagation bug was here, if the line to be added already exists and
@@ -281,7 +281,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	if (xlf->AutoApplyToUserList(line))
 		pending_lines.push_back(line);
 
-	lookup_lines[line->type][line->Displayable().c_str()] = line;
+	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 
 	FOREACH_MOD(OnAddLine, (user, line));
