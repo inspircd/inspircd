@@ -148,12 +148,13 @@ class BanWatcher : public ModeWatcher
 			return;
 
 		irc::string listitem = banmask.c_str();
-		irc::string thischan = chan->name.c_str();
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); ++i)
 		{
+			if (i->chan != chan)
+				continue;
+
 			irc::string target = i->mask.c_str();
-			irc::string tchan = i->channel.c_str();
-			if ((listitem == target) && (tchan == thischan))
+			if (listitem == target)
 			{
 				TimedBanList.erase(i);
 				break;
