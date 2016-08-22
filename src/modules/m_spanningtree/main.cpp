@@ -194,7 +194,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
 	bool ipvalid = true;
 
-	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name), rfc_case_insensitive_map))
+	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, rfc_case_insensitive_map))
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
@@ -320,7 +320,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 		Link* x = *i;
 		if (InspIRCd::Match(x->Name.c_str(),parameters[0], rfc_case_insensitive_map))
 		{
-			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name), rfc_case_insensitive_map))
+			if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, rfc_case_insensitive_map))
 			{
 				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 is ME, not connecting.", x->Name.c_str()));
 				return MOD_RES_DENY;
