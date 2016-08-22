@@ -427,17 +427,3 @@ inline std::string assign(const irc::string &other) { return other.c_str(); }
 /** Assign a std::string to an irc::string.
  */
 inline irc::string assign(const std::string &other) { return other.c_str(); }
-
-/** Trim the leading and trailing spaces from a std::string.
- */
-inline std::string& trim(std::string &str)
-{
-	std::string::size_type start = str.find_first_not_of(" ");
-	std::string::size_type end = str.find_last_not_of(" ");
-	if (start == std::string::npos || end == std::string::npos)
-		str = "";
-	else
-		str = str.substr(start, end-start+1);
-
-	return str;
-}
