@@ -151,7 +151,7 @@ unsigned const char rfc_case_sensitive_map[256] = {
 	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
+bool irc::equals(const std::string& s1, const std::string& s2)
 {
 	const unsigned char* n1 = (const unsigned char*)s1.c_str();
 	const unsigned char* n2 = (const unsigned char*)s2.c_str();

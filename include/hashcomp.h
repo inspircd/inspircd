@@ -98,15 +98,27 @@ template<typename T> const T& SearchAndReplace(T& text, const T& pattern, const 
 namespace irc
 {
 
+	/** Check if two IRC object (e.g. nick or channel) names are equal.
+	 * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
+	 * according to RFC 1459, treating certain otherwise non-identical characters as identical.
+	 * @param s1 First string to compare
+	 * @param s2 Second string to compare
+	 * @return True if the two names are equal, false otherwise
+	 */
+	CoreExport bool equals(const std::string& s1, const std::string& s2);
+
 	/** This class returns true if two strings match.
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
 	 */
-	struct CoreExport StrHashComp
+	struct StrHashComp
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-		bool operator()(const std::string& s1, const std::string& s2) const;
+		bool operator()(const std::string& s1, const std::string& s2) const
+		{
+			return equals(s1, s2);
+		}
 	};
 
 	struct insensitive
