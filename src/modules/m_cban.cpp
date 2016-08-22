@@ -28,7 +28,6 @@
 class CBan : public XLine
 {
 private:
-	std::string displaytext;
 	std::string matchtext;
 
 public:
@@ -36,7 +35,6 @@ public:
 		: XLine(s_time, d, src, re, "CBAN")
 		, matchtext(ch)
 	{
-		this->displaytext = ch;
 	}
 
 	// XXX I shouldn't have to define this
@@ -52,7 +50,7 @@ public:
 
 	const std::string& Displayable()
 	{
-		return displaytext;
+		return matchtext;
 	}
 };
 
