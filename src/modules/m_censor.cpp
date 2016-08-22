@@ -83,7 +83,7 @@ class ModuleCensor : public Module
 					return MOD_RES_DENY;
 				}
 
-				SearchAndReplace(text2, index->first, index->second);
+				stdalgo::string::replace_all(text2, index->first, index->second);
 			}
 		}
 		text = text2.c_str();
