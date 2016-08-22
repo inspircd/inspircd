@@ -337,15 +337,6 @@ namespace irc
 		 */
 		long GetToken();
 	};
-
-	struct hash
-	{
-		/** Hash an irc::string using RFC1459 case sensitivity rules
-		 * @param s A string to hash
-		 * @return The hash value
-		 */
-		size_t CoreExport operator()(const irc::string &s) const;
-	};
 }
 
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */

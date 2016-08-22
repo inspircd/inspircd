@@ -151,14 +151,6 @@ unsigned const char rfc_case_sensitive_map[256] = {
 	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-size_t CoreExport irc::hash::operator()(const irc::string &s) const
-{
-	size_t t = 0;
-	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
-	return t;
-}
-
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
 	const unsigned char* n1 = (const unsigned char*)s1.c_str();
