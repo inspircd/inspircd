@@ -433,11 +433,11 @@ void ServerConfig::Fill()
 		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
 
 	std::string defbind = options->getString("defaultbind");
-	if (assign(defbind) == "ipv4")
+	if (stdalgo::string::equalsci(defbind, "ipv4"))
 	{
 		WildcardIPv6 = false;
 	}
-	else if (assign(defbind) == "ipv6")
+	else if (stdalgo::string::equalsci(defbind, "ipv6"))
 	{
 		WildcardIPv6 = true;
 	}
