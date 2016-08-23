@@ -1169,21 +1169,6 @@
 #<monitor maxentries="30">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MsSQL module: Allows other SQL modules to access MS SQL Server
-# through a unified API.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_mssql.cpp
-# and run make install, then uncomment this module to enable it.
-#<module name="mssql">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# mssql is more complex than described here, see the wiki for more    #
-# info http://wiki.inspircd.org/Modules/mssql                         #
-#
-#<database module="mssql" name="db" user="user" pass="pass" host="localhost" id="db1">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
 # This module is in extras. Re-run configure with:

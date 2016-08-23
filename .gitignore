@@ -16,7 +16,6 @@
 
 /src/modules/m_geoip.cpp
 /src/modules/m_ldap.cpp
-/src/modules/m_mssql.cpp
 /src/modules/m_mysql.cpp
 /src/modules/m_pgsql.cpp
 /src/modules/m_regex_pcre.cpp
