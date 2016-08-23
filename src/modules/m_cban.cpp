@@ -28,15 +28,13 @@
 class CBan : public XLine
 {
 private:
-	std::string displaytext;
-	irc::string matchtext;
+	std::string matchtext;
 
 public:
 	CBan(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& ch)
 		: XLine(s_time, d, src, re, "CBAN")
+		, matchtext(ch)
 	{
-		this->displaytext = ch;
-		this->matchtext = ch.c_str();
 	}
 
 	// XXX I shouldn't have to define this
@@ -47,14 +45,12 @@ public:
 
 	bool Matches(const std::string &s)
 	{
-		if (matchtext == s)
-			return true;
-		return false;
+		return irc::equals(matchtext, s);
 	}
 
 	const std::string& Displayable()
 	{
-		return displaytext;
+		return matchtext;
 	}
 };
 

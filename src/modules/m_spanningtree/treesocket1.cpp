@@ -37,7 +37,7 @@
  * and only do minor initialization tasks ourselves.
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
+	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
 	, burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;

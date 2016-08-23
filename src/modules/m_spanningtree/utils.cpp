@@ -267,31 +267,31 @@ void SpanningTreeUtilities::ReadConfiguration()
 			throw ModuleException("Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
 
 		if (L->Name.find('.') == std::string::npos)
-			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it must contain at least one '.' character");
+			throw ModuleException("The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
 
 		if (L->Name.length() > ServerInstance->Config->Limits.MaxHost)
-			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it is longer than " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters");
+			throw ModuleException("The link name '"+L->Name+"' is invalid as it is longer than " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters");
 
 		if (L->RecvPass.empty())
-			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined");
+			throw ModuleException("Invalid configuration for server '"+L->Name+"', recvpass not defined");
 
 		if (L->SendPass.empty())
-			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined");
+			throw ModuleException("Invalid configuration for server '"+L->Name+"', sendpass not defined");
 
 		if ((L->SendPass.find(' ') != std::string::npos) || (L->RecvPass.find(' ') != std::string::npos))
-			throw ModuleException("Link block '" + assign(L->Name) + "' has a password set that contains a space character which is invalid");
+			throw ModuleException("Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
 
 		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':'))
-			throw ModuleException("Link block '" + assign(L->Name) + "' has a password set that begins with a colon (:) which is invalid");
+			throw ModuleException("Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
 
 		if (L->IPAddr.empty())
 		{
 			L->IPAddr = "*";
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
 		if (!L->Port)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no port defined, you will not be able to /connect it.");
 
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
 		LinkBlocks.push_back(L);
@@ -331,7 +331,7 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
 		Link* x = *i;
-		if (InspIRCd::Match(x->Name.c_str(), name.c_str(), rfc_case_insensitive_map))
+		if (InspIRCd::Match(x->Name, name, ascii_case_insensitive_map))
 		{
 			return x;
 		}

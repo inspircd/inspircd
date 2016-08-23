@@ -40,11 +40,9 @@
  * treat [ identical to {, ] identical to }, and \
  * as identical to |.
  *
- * Our hashing functions are designed  to accept
- * std::string and compare/hash them as type irc::string
- * by converting them internally. This makes them
- * backwards compatible with other code which is not
- * aware of irc::string.
+ * There are functors that accept std::string and
+ * compare/hash them as type irc::string by using
+ * mapping arrays internally.
  *******************************************************/
 
 /** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
@@ -70,43 +68,31 @@ CoreExport extern unsigned const char ascii_case_insensitive_map[256];
  */
 CoreExport extern unsigned const char rfc_case_sensitive_map[256];
 
-template<typename T> const T& SearchAndReplace(T& text, const T& pattern, const T& replace)
-{
-	T replacement;
-	if ((!pattern.empty()) && (!text.empty()))
-	{
-		for (std::string::size_type n = 0; n != text.length(); ++n)
-		{
-			if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
-			{
-				// Found the pattern in the text, replace it, and advance
-				replacement.append(replace);
-				n = n + pattern.length() - 1;
-			}
-			else
-			{
-				replacement += text[n];
-			}
-		}
-	}
-	text = replacement;
-	return text;
-}
-
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc
 {
+	/** Check if two IRC object (e.g. nick or channel) names are equal.
+	 * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
+	 * according to RFC 1459, treating certain otherwise non-identical characters as identical.
+	 * @param s1 First string to compare
+	 * @param s2 Second string to compare
+	 * @return True if the two names are equal, false otherwise
+	 */
+	CoreExport bool equals(const std::string& s1, const std::string& s2);
 
 	/** This class returns true if two strings match.
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
 	 */
-	struct CoreExport StrHashComp
+	struct StrHashComp
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-		bool operator()(const std::string& s1, const std::string& s2) const;
+		bool operator()(const std::string& s1, const std::string& s2) const
+		{
+			return equals(s1, s2);
+		}
 	};
 
 	struct insensitive
@@ -170,14 +156,15 @@ namespace irc
 
 	/** Joins the contents of a vector to a string.
 	 * @param sequence Zero or more items to join.
-	 * @separator The character to place between the items.
+	 * @param separator The character to place between the items, defaults to ' ' (space).
+	 * @return Joined string.
 	 */
    	std::string CoreExport stringjoiner(const std::vector<std::string>& sequence, char separator = ' ');
 
 	/** irc::sepstream allows for splitting token seperated lists.
 	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
-	 * an empty string.
+	 * false.
 	 */
 	class CoreExport sepstream
 	{
@@ -265,12 +252,6 @@ namespace irc
 		 */
 		bool GetToken(std::string &token);
 
-		/** Fetch the next token from the stream as an irc::string
-		 * @param token The next token available, or an empty string if none remain
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetToken(irc::string &token);
-
 		/** Fetch the next token from the stream as an integer
 		 * @param token The next token available, or undefined if none remain
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
@@ -337,107 +318,4 @@ namespace irc
 		 */
 		long GetToken();
 	};
-
-	struct hash
-	{
-		/** Hash an irc::string using RFC1459 case sensitivity rules
-		 * @param s A string to hash
-		 * @return The hash value
-		 */
-		size_t CoreExport operator()(const irc::string &s) const;
-	};
-}
-
-/* Define operators for using >> and << with irc::string to an ostream on an istream. */
-/* This was endless fun. No. Really. */
-/* It was also the first core change Ommeh made, if anyone cares */
-
-/** Operator << for irc::string
- */
-inline std::ostream& operator<<(std::ostream &os, const irc::string &str) { return os << str.c_str(); }
-
-/** Operator >> for irc::string
- */
-inline std::istream& operator>>(std::istream &is, irc::string &str)
-{
-	std::string tmp;
-	is >> tmp;
-	str = tmp.c_str();
-	return is;
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator +
- */
-inline std::string operator+ (std::string& leftval, irc::string& rightval)
-{
-	return leftval + std::string(rightval.c_str());
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator +
- */
-inline irc::string operator+ (irc::string& leftval, std::string& rightval)
-{
-	return leftval + irc::string(rightval.c_str());
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator ==
- */
-inline bool operator== (const std::string& leftval, const irc::string& rightval)
-{
-	return (leftval.c_str() == rightval);
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator ==
- */
-inline bool operator== (const irc::string& leftval, const std::string& rightval)
-{
-	return (leftval == rightval.c_str());
-}
-
-/* Define operators != for irc::string to std::string for easy comparison
- */
-inline bool operator!= (const irc::string& leftval, const std::string& rightval)
-{
-	return !(leftval == rightval.c_str());
-}
-
-/* Define operators != for std::string to irc::string for easy comparison
- */
-inline bool operator!= (const std::string& leftval, const irc::string& rightval)
-{
-	return !(leftval.c_str() == rightval);
-}
-
-/** Assign an irc::string to a std::string.
- */
-inline std::string assign(const irc::string &other) { return other.c_str(); }
-
-/** Assign a std::string to an irc::string.
- */
-inline irc::string assign(const std::string &other) { return other.c_str(); }
-
-/** Trim the leading and trailing spaces from a std::string.
- */
-inline std::string& trim(std::string &str)
-{
-	std::string::size_type start = str.find_first_not_of(" ");
-	std::string::size_type end = str.find_last_not_of(" ");
-	if (start == std::string::npos || end == std::string::npos)
-		str = "";
-	else
-		str = str.substr(start, end-start+1);
-
-	return str;
 }

@@ -632,17 +632,15 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa)
 {
-	irc::string s(str.c_str());
-
-	if (s == "gline")
+	if (stdalgo::string::equalsci(str, "gline"))
 		fa = FA_GLINE;
-	else if (s == "block")
+	else if (stdalgo::string::equalsci(str, "block"))
 		fa = FA_BLOCK;
-	else if (s == "silent")
+	else if (stdalgo::string::equalsci(str, "silent"))
 		fa = FA_SILENT;
-	else if (s == "kill")
+	else if (stdalgo::string::equalsci(str, "kill"))
 		fa = FA_KILL;
-	else if (s == "none")
+	else if (stdalgo::string::equalsci(str, "none"))
 		fa = FA_NONE;
 	else
 		return false;

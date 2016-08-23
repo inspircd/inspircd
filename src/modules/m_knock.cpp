@@ -98,14 +98,12 @@ class ModuleKnock : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
-		irc::string notify(knocknotify.c_str());
-
-		if (notify == "numeric")
+		if (stdalgo::string::equalsci(knocknotify, "numeric"))
 		{
 			cmd.sendnotice = false;
 			cmd.sendnumeric = true;
 		}
-		else if (notify == "both")
+		else if (stdalgo::string::equalsci(knocknotify, "both"))
 		{
 			cmd.sendnotice = true;
 			cmd.sendnumeric = true;

@@ -64,6 +64,73 @@ namespace stdalgo
 		}
 	}
 
+	namespace string
+	{
+		/** Get underlying C string of the string passed as parameter. Useful in template functions.
+		 * @param str C string
+		 * @return Same as input
+		 */
+		inline const char* tocstr(const char* str)
+		{
+			return str;
+		}
+
+		/** Get underlying C string of the string passed as parameter. Useful in template functions.
+		 * @param str std::string object
+		 * @return str.c_str()
+		 */
+		inline const char* tocstr(const std::string& str)
+		{
+			return str.c_str();
+		}
+
+		/** Check if two strings are equal case insensitively.
+		 * @param str1 First string to compare.
+		 * @param str2 Second string to compare.
+		 * @return True if the strings are equal case-insensitively, false otherwise.
+		 */
+		template <typename S1, typename S2>
+		inline bool equalsci(const S1& str1, const S2& str2)
+		{
+			return (!strcasecmp(tocstr(str1), tocstr(str2)));
+		}
+
+		/** Replace first occurrence of a substring ('target') in a string ('str') with another string ('replacement').
+		 * @param str String to perform replacement in
+		 * @param target String to replace
+		 * @param replacement String to put in place of 'target'
+		 * @return True if 'target' was replaced with 'replacement', false if it was not found in 'str'.
+		 */
+		template<typename CharT, typename Traits, typename Alloc>
+		inline bool replace(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
+		{
+			const typename std::basic_string<CharT, Traits, Alloc>::size_type p = str.find(target);
+			if (p == std::basic_string<CharT, Traits, Alloc>::npos)
+				return false;
+			str.replace(p, target.size(), replacement);
+			return true;
+		}
+
+		/** Replace all occurrences of a string ('target') in a string ('str') with another string ('replacement').
+		 * @param str String to perform replacement in
+		 * @param target String to replace
+		 * @param replacement String to put in place of 'target'
+		 */
+		template<typename CharT, typename Traits, typename Alloc>
+		inline void replace_all(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
+		{
+			if (target.empty())
+				return;
+
+			typename std::basic_string<CharT, Traits, Alloc>::size_type p = 0;
+			while ((p = str.find(target, p)) != std::basic_string<CharT, Traits, Alloc>::npos)
+			{
+				str.replace(p, target.size(), replacement);
+				p += replacement.size();
+			}
+		}
+	}
+
 	/**
 	 * Deleter that uses operator delete to delete the item
 	 */

@@ -24,7 +24,7 @@ class Link : public refcountbase
 {
  public:
 	reference<ConfigTag> tag;
-	irc::string Name;
+	std::string Name;
 	std::string IPAddr;
 	int Port;
 	std::string SendPass;

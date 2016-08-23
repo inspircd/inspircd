@@ -37,11 +37,11 @@ class BlockedMessage
 {
  public:
 	std::string message;
-	irc::string target;
+	std::string target;
 	time_t sent;
 
 	BlockedMessage(const std::string& msg, const std::string& tgt, time_t when)
-		: message(msg), target(tgt.c_str()), sent(when)
+		: message(msg), target(tgt), sent(when)
 	{
 	}
 };
@@ -116,7 +116,7 @@ class ModuleBlockAmsg : public Module
 			// OR
 			// The number of target channels is equal to the number of channels the sender is on..a little suspicious.
 			// Check it's more than 1 too, or else users on one channel would have fun.
-			if ((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == user->chans.size())))
+			if ((m && (m->message == parameters[1]) && (!irc::equals(m->target, parameters[0])) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
 				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
@@ -134,7 +134,7 @@ class ModuleBlockAmsg : public Module
 			{
 				// If there's already a BlockedMessage allocated, use it.
 				m->message = parameters[1];
-				m->target = parameters[0].c_str();
+				m->target = parameters[0];
 				m->sent = ServerInstance->Time();
 			}
 			else

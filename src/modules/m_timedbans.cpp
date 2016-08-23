@@ -28,7 +28,6 @@
 class TimedBan
 {
  public:
-	std::string channel;
 	std::string mask;
 	time_t expire;
 	Channel* chan;
@@ -83,7 +82,6 @@ class CommandTban : public Command
 		}
 
 		TimedBan T;
-		std::string channelname = parameters[0];
 		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		unsigned long expire = duration + ServerInstance->Time();
 		if (duration < 1)
@@ -114,7 +112,6 @@ class CommandTban : public Command
 		}
 
 		CUList tmp;
-		T.channel = channelname;
 		T.mask = mask;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
 		T.chan = channel;
@@ -147,13 +144,13 @@ class BanWatcher : public ModeWatcher
 		if (adding)
 			return;
 
-		irc::string listitem = banmask.c_str();
-		irc::string thischan = chan->name.c_str();
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); ++i)
 		{
-			irc::string target = i->mask.c_str();
-			irc::string tchan = i->channel.c_str();
-			if ((listitem == target) && (tchan == thischan))
+			if (i->chan != chan)
+				continue;
+
+			const std::string& target = i->mask;
+			if (irc::equals(banmask, target))
 			{
 				TimedBanList.erase(i);
 				break;
@@ -206,13 +203,11 @@ class ModuleTimedBans : public Module
 
 		for (timedbans::iterator i = expired.begin(); i != expired.end(); i++)
 		{
-			std::string chan = i->channel;
 			std::string mask = i->mask;
-			Channel* cr = ServerInstance->FindChan(chan);
-			if (cr)
+			Channel* cr = i->chan;
 			{
 				CUList empty;
-				std::string expiry = "*** Timed ban on " + chan + " expired.";
+				std::string expiry = "*** Timed ban on " + cr->name + " expired.";
 				cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 				ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 

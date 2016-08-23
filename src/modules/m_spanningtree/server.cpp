@@ -98,7 +98,6 @@ Link* TreeSocket::AuthRemote(const parameterlist& params)
 		return NULL;
 	}
 
-	irc::string servername = params[0].c_str();
 	const std::string& sname = params[0];
 	const std::string& password = params[1];
 	const std::string& sid = params[3];
@@ -115,7 +114,7 @@ Link* TreeSocket::AuthRemote(const parameterlist& params)
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
 		Link* x = *i;
-		if (x->Name != servername && x->Name != "*") // open link allowance
+		if ((!stdalgo::string::equalsci(x->Name, sname)) && (x->Name != "*")) // open link allowance
 			continue;
 
 		if (!ComparePass(*x, password))

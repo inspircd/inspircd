@@ -166,7 +166,7 @@ class BanRedirect : public ModeWatcher
 						return false;
 					}
 
-					if (assign(channel->name) == mask[CHAN])
+					if (irc::equals(channel->name, mask[CHAN]))
 					{
 						source->WriteNumeric(690, channel->name, "You cannot set a ban redirection to the channel the ban is on");
 						return false;
@@ -199,8 +199,7 @@ class BanRedirect : public ModeWatcher
 
 						for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 						{
-							/* Ugly as fuck */
-							if((irc::string(redir->targetchan.c_str()) == irc::string(mask[CHAN].c_str())) && (irc::string(redir->banmask.c_str()) == irc::string(param.c_str())))
+							if ((irc::equals(redir->targetchan, mask[CHAN])) && (irc::equals(redir->banmask, param)))
 							{
 								redirects->erase(redir);
 

@@ -167,8 +167,8 @@ class CommandSilence : public Command
 					for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
 					{
 						// search through for the item
-						irc::string listitem = i->first.c_str();
-						if (listitem == mask && i->second == pattern)
+						const std::string& listitem = i->first;
+						if ((irc::equals(listitem, mask)) && (i->second == pattern))
 						{
 							sl->erase(i);
 							user->WriteNumeric(950, user->nick, InspIRCd::Format("Removed %s %s from silence list", mask.c_str(), decomppattern.c_str()));
@@ -200,8 +200,8 @@ class CommandSilence : public Command
 				std::string decomppattern = DecompPattern(pattern);
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
-					irc::string listitem = n->first.c_str();
-					if (listitem == mask && n->second == pattern)
+					const std::string& listitem = n->first;
+					if ((irc::equals(listitem, mask)) && (n->second == pattern))
 					{
 						user->WriteNumeric(952, user->nick, InspIRCd::Format("%s %s is already on your silence list", mask.c_str(), decomppattern.c_str()));
 						return CMD_FAILURE;

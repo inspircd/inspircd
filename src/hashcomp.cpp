@@ -151,15 +151,7 @@ unsigned const char rfc_case_sensitive_map[256] = {
 	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-size_t CoreExport irc::hash::operator()(const irc::string &s) const
-{
-	size_t t = 0;
-	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
-	return t;
-}
-
-bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
+bool irc::equals(const std::string& s1, const std::string& s2)
 {
 	const unsigned char* n1 = (const unsigned char*)s1.c_str();
 	const unsigned char* n2 = (const unsigned char*)s2.c_str();
@@ -278,14 +270,6 @@ bool irc::tokenstream::GetToken(std::string &token)
 	}
 
 	return true;
-}
-
-bool irc::tokenstream::GetToken(irc::string &token)
-{
-	std::string stdstring;
-	bool returnval = GetToken(stdstring);
-	token = assign(stdstring);
-	return returnval;
 }
 
 bool irc::tokenstream::GetToken(int &token)

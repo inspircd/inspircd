@@ -79,11 +79,11 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(ERR_WORDFILTERED, ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name : ((User*)dest)->nick), index->first, "Your message contained a censored word, and was blocked");
+					user->WriteNumeric(ERR_WORDFILTERED, ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name : ((User*)dest)->nick), index->first.c_str(), "Your message contained a censored word, and was blocked");
 					return MOD_RES_DENY;
 				}
 
-				SearchAndReplace(text2, index->first, index->second);
+				stdalgo::string::replace_all(text2, index->first, index->second);
 			}
 		}
 		text = text2.c_str();
