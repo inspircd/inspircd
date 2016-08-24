@@ -91,8 +91,16 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
 	{
 		ListenSocket::IOHookProvRef& iohookprovref = *i;
-		if (iohookprovref)
-			iohookprovref->OnAccept(eh, client, server);
+		if (!iohookprovref)
+			continue;
+
+		iohookprovref->OnAccept(eh, client, server);
+		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello was already in the queue and there was no common TLS version
+		if (!eh->getError().empty())
+		{
+			QuitUser(New, eh->getError());
+			return;
+		}
 	}
 
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)

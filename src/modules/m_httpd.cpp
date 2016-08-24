@@ -76,10 +76,18 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		, postsize(0)
 		, waitingcull(false)
 	{
-		ServerInstance->Timers.AddTimer(this);
-
 		if ((!via->iohookprovs.empty()) && (via->iohookprovs.back()))
+		{
 			via->iohookprovs.back()->OnAccept(this, client, server);
+			// IOHook may have errored
+			if (!getError().empty())
+			{
+				AddToCull();
+				return;
+			}
+		}
+
+		ServerInstance->Timers.AddTimer(this);
 	}
 
 	~HttpServerSocket()

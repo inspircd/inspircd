@@ -63,8 +63,16 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
 	{
 		ListenSocket::IOHookProvRef& iohookprovref = *i;
-		if (iohookprovref)
-			iohookprovref->OnAccept(this, client, server);
+		if (!iohookprovref)
+			continue;
+
+		iohookprovref->OnAccept(this, client, server);
+		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello was already in the queue and there was no common TLS version
+		if (!getError().empty())
+		{
+			TreeSocket::OnError(I_ERR_OTHER);
+			return;
+		}
 	}
 
 	SendCapabilities(1);
