@@ -70,12 +70,11 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	~UserManager();
 
-	/** Client list, a hash_map containing all clients, local and remote
+	/** Nickname string -> User* map. Contains all users, including unregistered ones.
 	 */
 	user_hash clientlist;
 
-	/** Client list stored by UUID. Contains all clients, and is updated
-	 * automatically by the constructor and destructor of User.
+	/** UUID -> User* map. Contains all users, including unregistered ones.
 	 */
 	user_hash uuidlist;
 
@@ -88,7 +87,8 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	unsigned int unregistered_count;
 
-	/** Perform background user events such as PING checks
+	/** Perform background user events for all local users such as PING checks, registration timeouts,
+	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
 	 */
 	void DoBackgroundUserStuff();
 
@@ -98,22 +98,24 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	bool AllModulesReportReady(LocalUser* user);
 
-	/** Add a client to the system.
-	 * This will create a new User, insert it into the user_hash,
-	 * initialize it as not yet registered, and add it to the socket engine.
-	 * @param socket The socket id (file descriptor) this user is on
-	 * @param via The socket that this user connected using
+	/** Handle a client connection.
+	 * Creates a new LocalUser object, inserts it into the appropriate containers,
+	 * initializes it as not yet registered, and adds it to the socket engine.
+	 *
+	 * The new user may immediately be quit after being created, for example if the user limit
+	 * is reached or if the user is banned.
+	 * @param socket File descriptor of the connection
+	 * @param via Listener socket that this user connected to
 	 * @param client The IP address and client port of the user
 	 * @param server The server IP address and port used by the user
-	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
 	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Disconnect a user gracefully
+	/** Disconnect a user gracefully.
+	 * When this method returns the user provided will be quit, but the User object will continue to be valid and will be deleted at the end of the current main loop iteration.
 	 * @param user The user to remove
 	 * @param quitreason The quit reason to show to normal users
 	 * @param operreason The quit reason to show to opers, can be NULL if same as quitreason
-	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
 	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = NULL);
 
@@ -129,7 +131,7 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	void RemoveCloneCounts(User *user);
 
-	/** Rebuild clone counts
+	/** Rebuild clone counts. Required when <cidr> settings change.
 	 */
 	void RehashCloneCounts();
 

@@ -62,22 +62,17 @@ UserManager::~UserManager()
 	}
 }
 
-/* add a client connection to the sockets list */
 void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	/* NOTE: Calling this one parameter constructor for User automatically
-	 * allocates a new UUID and places it in the hash_map.
-	 */
+	// User constructor allocates a new UUID for the user and inserts it into the uuidlist
 	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 
 	this->unregistered_count++;
-
 	this->clientlist[New->nick] = New;
 	this->AddClone(New);
-
 	this->local_users.push_front(New);
 
 	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
@@ -110,16 +105,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		return;
 	}
 
-	/*
-	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
-	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
-	 */
+	// First class check. We do this again in LocalUser::FullConnect() after DNS is done, and NICK/USER is received.
 	New->SetClass();
-
-	/*
-	 * Check connect class settings and initialise settings into User.
-	 * This will be done again after DNS resolution. -- w00t
-	 */
+	// If the user doesn't have an acceptable connect class CheckClass() quits them
 	New->CheckClass(ServerInstance->Config->CCOnConnect);
 	if (New->quitting)
 		return;
@@ -298,14 +286,11 @@ bool UserManager::AllModulesReportReady(LocalUser* user)
 
 /**
  * This function is called once a second from the mainloop.
- * It is intended to do background checking on all the user structs, e.g.
- * stuff like ping checks, registration timeouts, etc.
+ * It is intended to do background checking on all the users, e.g. do
+ * ping checks, registration timeouts, etc.
  */
 void UserManager::DoBackgroundUserStuff()
 {
-	/*
-	 * loop over all local users..
-	 */
 	for (LocalList::iterator i = local_users.begin(); i != local_users.end(); )
 	{
 		// It's possible that we quit the user below due to ping timeout etc. and QuitUser() removes it from the list
