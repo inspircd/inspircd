@@ -71,14 +71,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
-	// If this listener has an IO hook provider set then tell it about the connection
-	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
-	{
-		ListenSocket::IOHookProvRef& iohookprovref = *i;
-		if (iohookprovref)
-			iohookprovref->OnAccept(eh, client, server);
-	}
-
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 
 	this->unregistered_count++;
@@ -93,6 +85,14 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 		return;
+	}
+
+	// If this listener has an IO hook provider set then tell it about the connection
+	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
+	{
+		ListenSocket::IOHookProvRef& iohookprovref = *i;
+		if (iohookprovref)
+			iohookprovref->OnAccept(eh, client, server);
 	}
 
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
