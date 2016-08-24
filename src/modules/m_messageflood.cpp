@@ -138,8 +138,8 @@ class ModuleMsgFlood : public Module
 					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
 				}
 
-				const std::string kickMessage = "Channel flood triggered (limit is " + ConvToStr(f->lines) +
-					" in " + ConvToStr(f->secs) + " secs)";
+				const std::string kickMessage = "Channel flood triggered (trigger is " + ConvToStr(f->lines) +
+					" lines in " + ConvToStr(f->secs) + " secs)";
 
 				dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
 
