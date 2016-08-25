@@ -73,7 +73,12 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 
 void ServernameResolver::OnError(const DNS::Query *r)
 {
-	/* Ooops! */
+	if (r->error == DNS::ERROR_UNLOADED)
+	{
+		// We're being unloaded, skip the snotice and ConnectServer() below to prevent autoconnect creating new sockets
+		return;
+	}
+
 	if (query == DNS::QUERY_AAAA)
 	{
 		ServernameResolver* snr = new ServernameResolver(this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
@@ -115,6 +120,7 @@ void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 
 void SecurityIPResolver::OnError(const DNS::Query *r)
 {
+	// This can be called because of us being unloaded but we don't have to do anything differently
 	if (query == DNS::QUERY_AAAA)
 	{
 		SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
