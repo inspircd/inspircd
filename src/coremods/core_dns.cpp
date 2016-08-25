@@ -727,7 +727,7 @@ class ModuleDNS : public Module
 	{
 #ifdef _WIN32
 		// attempt to look up their nameserver from the system
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
 
 		PFIXED_INFO pFixedInfo;
 		DWORD dwBufferSize = sizeof(FIXED_INFO);
@@ -751,15 +751,15 @@ class ModuleDNS : public Module
 
 			if (!DNSServer.empty())
 			{
-				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<dns:server> set to '%s' as first active resolver in the system settings.", DNSServer.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "<dns:server> set to '%s' as first active resolver in the system settings.", DNSServer.c_str());
 				return;
 			}
 		}
 
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
 #else
 		// attempt to look up their nameserver from /etc/resolv.conf
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 
 		std::ifstream resolv("/etc/resolv.conf");
 
@@ -770,13 +770,13 @@ class ModuleDNS : public Module
 				resolv >> DNSServer;
 				if (DNSServer.find_first_not_of("0123456789.") == std::string::npos || DNSServer.find_first_not_of("0123456789ABCDEFabcdef:") == std::string::npos)
 				{
-					ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",DNSServer.c_str());
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",DNSServer.c_str());
 					return;
 				}
 			}
 		}
 
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 #endif
 		DNSServer = "127.0.0.1";
 	}
