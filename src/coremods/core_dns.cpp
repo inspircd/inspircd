@@ -338,6 +338,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	cache_map cache;
 
 	irc::sockets::sockaddrs myserver;
+	bool unloading;
 
 	/** Maximum number of entries in cache
 	 */
@@ -402,6 +403,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 
 	MyManager(Module* c) : Manager(c), Timer(5*60, true)
+		, unloading(false)
 	{
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
@@ -410,6 +412,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	~MyManager()
 	{
+		// Ensure Process() will fail for new requests
+		unloading = true;
+
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* request = requests[i];
@@ -426,6 +431,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void Process(DNS::Request* req)
 	{
+		if ((unloading) || (req->creator->dying))
+			throw Exception("Module is being unloaded");
+
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing request to lookup " + req->question.name + " of type " + ConvToStr(req->question.type) + " to " + this->myserver.addr());
 
 		/* Create an id */
