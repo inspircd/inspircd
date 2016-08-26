@@ -38,9 +38,9 @@ ModResult ModuleSpanningTree::OnStats(Stats::Context& stats)
 				ipaddr.append(L->IPAddr);
 
 			const std::string hook = (L->Hook.empty() ? "plaintext" : L->Hook);
-			stats.AddRow(213, stats.GetSymbol(), ipaddr, '*', L->Name.c_str(), L->Port, hook);
+			stats.AddRow(213, stats.GetSymbol(), ipaddr, '*', L->Name, L->Port, hook);
 			if (stats.GetSymbol() == 'c')
-				stats.AddRow(244, 'H', '*', '*', L->Name.c_str());
+				stats.AddRow(244, 'H', '*', '*', L->Name);
 		}
 		return MOD_RES_DENY;
 	}

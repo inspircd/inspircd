@@ -334,7 +334,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 				return MOD_RES_DENY;
 			}
 
-			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
+			TreeServer* CheckDupe = Utils->FindServer(x->Name);
 			if (!CheckDupe)
 			{
 				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Connecting to server: \002%s\002 (%s:%d)", x->Name.c_str(), (x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()), x->Port));

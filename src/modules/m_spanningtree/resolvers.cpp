@@ -53,7 +53,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.
 	 */
-	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
+	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name);
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
 		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, ans_record->rdata);
