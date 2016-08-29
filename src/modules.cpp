@@ -342,6 +342,18 @@ bool ModuleManager::CanUnload(Module* mod)
 	return true;
 }
 
+void ModuleManager::UnregisterModes(Module* mod, ModeType modetype)
+{
+	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
+	for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); )
+	{
+		ModeHandler* const mh = i->second;
+		++i;
+		if (mh->creator == mod)
+			this->DelService(*mh);
+	}
+}
+
 void ModuleManager::DoSafeUnload(Module* mod)
 {
 	// First, notify all modules that a module is about to be unloaded, so in case
@@ -376,23 +388,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		user->doUnhookExtensions(items);
 	}
 
-	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
-	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); )
-	{
-		ModeHandler* mh = i->second;
-		++i;
-		if (mh->creator == mod)
-			this->DelService(*mh);
-	}
-
-	const ModeParser::ModeHandlerMap& chanmodes = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
-	for (ModeParser::ModeHandlerMap::const_iterator i = chanmodes.begin(); i != chanmodes.end(); )
-	{
-		ModeHandler* mh = i->second;
-		++i;
-		if (mh->creator == mod)
-			this->DelService(*mh);
-	}
+	UnregisterModes(mod, MODETYPE_USER);
+	UnregisterModes(mod, MODETYPE_CHANNEL);
 
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{

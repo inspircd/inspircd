@@ -1037,6 +1037,12 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 */
 	bool PrioritizeHooks();
 
+	/** Unregister all user modes or all channel modes owned by a module
+	 * @param mod Module whose modes to unregister
+	 * @param modetype MODETYPE_USER to unregister user modes, MODETYPE_CHANNEL to unregister channel modes
+	 */
+	void UnregisterModes(Module* mod, ModeType modetype);
+
  public:
 	typedef std::map<std::string, Module*> ModuleMap;
 
