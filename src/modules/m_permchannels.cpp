@@ -236,7 +236,7 @@ public:
 					ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
 					if (mode)
 					{
-						if (mode->GetNumParams(true))
+						if (mode->NeedsParam(true))
 							list.GetToken(par);
 						else
 							par.clear();

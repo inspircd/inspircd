@@ -205,12 +205,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	inline bool NeedsOper() const { return oper; }
 	/**
-	 * Returns the number of parameters for the mode. Any non-zero
-	 * value should be considered to be equivalent to one.
-	 * @param adding If this is true, the number of parameters required to set the mode should be returned, otherwise the number of parameters required to unset the mode shall be returned.
-	 * @return The number of parameters the mode expects
+	 * Check if the mode needs a parameter for adding or removing
+	 * @param adding True to check if the mode needs a parameter when setting, false to check if the mode needs a parameter when unsetting
+	 * @return True if the mode needs a parameter for the specified action, false if it doesn't
 	 */
-	int GetNumParams(bool adding);
+	bool NeedsParam(bool adding) const;
 	/**
 	 * Returns the mode character this handler handles.
 	 * @return The mode character

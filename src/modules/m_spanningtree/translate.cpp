@@ -27,7 +27,7 @@ std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List& mod
 	{
 		const Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
-		if (!mh->GetNumParams(item.adding))
+		if (!mh->NeedsParam(item.adding))
 			continue;
 
 		ret.push_back(' ');

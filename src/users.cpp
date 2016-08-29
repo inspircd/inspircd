@@ -51,7 +51,7 @@ const char* User::FormatModes(bool showparameters)
 		if (mh && IsModeSet(mh))
 		{
 			data.push_back(n + 65);
-			if (showparameters && mh->GetNumParams(true))
+			if (showparameters && mh->NeedsParam(true))
 			{
 				std::string p = mh->GetUserParameter(this);
 				if (p.length())

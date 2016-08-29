@@ -44,18 +44,18 @@ ModeHandler::~ModeHandler()
 {
 }
 
-int ModeHandler::GetNumParams(bool adding)
+bool ModeHandler::NeedsParam(bool adding) const
 {
 	switch (parameters_taken)
 	{
 		case PARAM_ALWAYS:
-			return 1;
+			return true;
 		case PARAM_SETONLY:
-			return adding ? 1 : 0;
+			return adding;
 		case PARAM_NONE:
 			break;
 	}
-	return 0;
+	return false;
 }
 
 std::string ModeHandler::GetUserParameter(User* user)
@@ -219,7 +219,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 
 	ModeHandler* mh = mcitem.mh;
 	bool adding = mcitem.adding;
-	int pcnt = mh->GetNumParams(adding);
+	const bool needs_param = mh->NeedsParam(adding);
 
 	std::string& parameter = mcitem.param;
 	// crop mode parameter size to 250 characters
@@ -283,7 +283,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 				return MODEACTION_DENY;
 
 			// A module whacked the parameter completely, and there was one. Abort.
-			if (pcnt && parameter.empty())
+			if ((needs_param) && (parameter.empty()))
 				return MODEACTION_DENY;
 		}
 	}
@@ -318,7 +318,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	/* Call the handler for the mode */
 	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding);
 
-	if (pcnt && parameter.empty())
+	if ((needs_param) && (parameter.empty()))
 		return MODEACTION_DENY;
 
 	if (ma != MODEACTION_ALLOW)
@@ -363,7 +363,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 		}
 
 		std::string parameter;
-		if (mh->GetNumParams(adding) && param_at < endindex)
+		if ((mh->NeedsParam(adding)) && (param_at < endindex))
 			parameter = parameters[param_at++];
 
 		changelist.push(mh, adding, parameter);
@@ -432,7 +432,7 @@ unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User*
 
 		// If the mode is supposed to have a parameter then we first take a look at item.param
 		// and, if we were asked to, also handle mode merges now
-		if (mh->GetNumParams(item.adding))
+		if (mh->NeedsParam(item.adding))
 		{
 			// Skip the mode if the parameter does not pass basic validation
 			if (!IsModeParamValid(user, targetchannel, targetuser, item))
@@ -719,7 +719,7 @@ std::string ModeParser::CreateModeList(ModeType mt, bool needparam)
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
 		ModeHandler* mh = modehandlers[mt][mode-65];
-		if ((mh) && ((!needparam) || (mh->GetNumParams(true))))
+		if ((mh) && ((!needparam) || (mh->NeedsParam(true))))
 			modestr.push_back(mode);
 	}
 
@@ -756,7 +756,7 @@ std::string ModeParser::GiveModeList(ModeType mt)
 		 /* One parameter when adding */
 		if (mh)
 		{
-			if (mh->GetNumParams(true))
+			if (mh->NeedsParam(true))
 			{
 				PrefixMode* pm = mh->IsPrefixMode();
 				if ((mh->IsListMode()) && ((!pm) || (pm->GetPrefix() == 0)))
@@ -766,7 +766,7 @@ std::string ModeParser::GiveModeList(ModeType mt)
 				else
 				{
 					/* ... and one parameter when removing */
-					if (mh->GetNumParams(false))
+					if (mh->NeedsParam(false))
 					{
 						/* But not a list mode */
 						if (!pm)
@@ -858,7 +858,7 @@ void ModeHandler::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
 	if (channel->IsModeSet(this))
 	{
-		if (this->GetNumParams(false))
+		if (this->NeedsParam(false))
 			// Removing this mode requires a parameter
 			changelist.push_remove(this, channel->GetModeParameter(this));
 		else

@@ -98,7 +98,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		if (!mh)
 			throw ProtocolException("Unrecognised mode '" + std::string(1, *v) + "'");
 
-		if (mh->GetNumParams(true))
+		if (mh->NeedsParam(true))
 		{
 			if (paramptr >= params.size() - 1)
 				throw ProtocolException("Out of parameters while processing modes");

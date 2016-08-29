@@ -138,7 +138,7 @@ void Channel::SetDefaultModes()
 			if (mode->IsPrefixMode())
 				continue;
 
-			if (mode->GetNumParams(true))
+			if (mode->NeedsParam(true))
 			{
 				list.GetToken(parameter);
 				// If the parameter begins with a ':' then it's invalid
@@ -148,7 +148,7 @@ void Channel::SetDefaultModes()
 			else
 				parameter.clear();
 
-			if ((mode->GetNumParams(true)) && (parameter.empty()))
+			if ((mode->NeedsParam(true)) && (parameter.empty()))
 				continue;
 
 			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);

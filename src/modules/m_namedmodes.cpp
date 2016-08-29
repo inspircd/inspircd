@@ -31,7 +31,7 @@ static void DisplayList(LocalUser* user, Channel* channel)
 		if (!channel->IsModeSet(mh))
 			continue;
 		numeric.Add("+" + mh->name);
-		if (mh->GetNumParams(true))
+		if (mh->NeedsParam(true))
 		{
 			if ((mh->name == "key") && (!channel->HasUser(user)) && (!user->HasPrivPermission("channels/auspex")))
 				numeric.Add("<key>");
@@ -80,7 +80,7 @@ class CommandProp : public SplitCommand
 			ModeHandler* mh = ServerInstance->Modes->FindMode(prop, MODETYPE_CHANNEL);
 			if (mh)
 			{
-				if (mh->GetNumParams(plus))
+				if (mh->NeedsParam(plus))
 				{
 					if (i != parameters.size())
 						modes.push(mh, plus, parameters[i++]);
@@ -161,7 +161,7 @@ class ModuleNamedModes : public Module
 				}
 
 				curr.param.clear();
-				if (mh->GetNumParams(curr.adding))
+				if (mh->NeedsParam(curr.adding))
 				{
 					if (value.empty())
 					{
