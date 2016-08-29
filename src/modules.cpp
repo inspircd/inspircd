@@ -363,6 +363,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
+	// Unregister modes before extensions because modes may require their extension to show the mode being unset
+	UnregisterModes(mod, MODETYPE_USER);
+	UnregisterModes(mod, MODETYPE_CHANNEL);
+
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
@@ -387,9 +391,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER, user);
 		user->doUnhookExtensions(items);
 	}
-
-	UnregisterModes(mod, MODETYPE_USER);
-	UnregisterModes(mod, MODETYPE_CHANNEL);
 
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
