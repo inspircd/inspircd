@@ -1004,10 +1004,6 @@ class CoreExport Module : public classbase, public usecountbase
  */
 typedef std::vector<Module*> IntModuleList;
 
-/** An event handler iterator
- */
-typedef IntModuleList::iterator EventHandlerIter;
-
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
