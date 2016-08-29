@@ -214,7 +214,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * Returns the mode character this handler handles.
 	 * @return The mode character
 	 */
-	inline char GetModeChar() { return mode; }
+	char GetModeChar() const { return mode; }
 
 	/** Return the id of this mode which is used in User::modes and
 	 * Channel::modes as the index to determine whether a mode is set.
@@ -450,7 +450,7 @@ class CoreExport ModeWatcher : public classbase
 	 * Get the mode type being watched
 	 * @return The mode type being watched (user or channel)
 	 */
-	ModeType GetModeType();
+	ModeType GetModeType() const { return m_type; }
 
 	/**
 	 * Before the mode character is processed by its handler, this method will be called.

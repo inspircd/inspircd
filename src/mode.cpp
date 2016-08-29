@@ -144,11 +144,6 @@ ModeWatcher::~ModeWatcher()
 	ServerInstance->Modes->DelModeWatcher(this);
 }
 
-ModeType ModeWatcher::GetModeType()
-{
-	return m_type;
-}
-
 bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool)
 {
 	return true;
