@@ -353,7 +353,8 @@ void DataKeeper::SaveMemberData(Channel* chan, std::vector<OwnedModesExts>& memb
 		for (size_t j = 0; j < handledmodes[MODETYPE_CHANNEL].size(); j++)
 		{
 			ModeHandler* mh = handledmodes[MODETYPE_CHANNEL][j].mh;
-			if ((mh->IsPrefixMode()) && (memb->hasMode(mh->GetModeChar())))
+			const PrefixMode* const pm = mh->IsPrefixMode();
+			if ((pm) && (memb->HasMode(pm)))
 				currdata.modelist.push_back(InstanceData(j, memb->user->uuid)); // Need to pass the user's uuid to the mode parser to set the mode later
 		}
 

@@ -77,7 +77,7 @@ class ModuleOperPrefixMode : public Module
 		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
 			return;
 
-		if (memb->hasMode(opm.GetModeChar()))
+		if (memb->HasMode(&opm))
 			return;
 
 		// The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.

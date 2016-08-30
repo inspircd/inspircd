@@ -139,7 +139,7 @@ class ModuleOjoin : public Module
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
 		// Don't do anything if they're not +Y
-		if (!memb->hasMode(np.GetModeChar()))
+		if (!memb->HasMode(&np))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.

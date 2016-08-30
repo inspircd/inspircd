@@ -70,13 +70,13 @@ class CoreExport Membership : public Extensible, public insp::intrusive_list_nod
 	 */
 	Membership(User* u, Channel* c) : user(u), chan(c) {}
 
-	/** Returns true if this member has a given prefix mode set
-	 * @param m The prefix mode letter to check
+	/** Check if this member has a given prefix mode set
+	 * @param pm Prefix mode to check
 	 * @return True if the member has the prefix mode set, false otherwise
 	 */
-	inline bool hasMode(char m) const
+	bool HasMode(const PrefixMode* pm) const
 	{
-		return modes.find(m) != std::string::npos;
+		return (modes.find(pm->GetModeChar()) != std::string::npos);
 	}
 
 	/** Returns the rank of this member.

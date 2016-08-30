@@ -34,7 +34,7 @@ class ModuleBadChannelExtban : public Module
 		{
 			std::string rm(mask, 2);
 			char status = 0;
-			ModeHandler* mh = ServerInstance->Modes->FindPrefix(rm[0]);
+			const PrefixMode* const mh = ServerInstance->Modes->FindPrefix(rm[0]);
 			if (mh)
 			{
 				rm.assign(mask, 3, std::string::npos);
@@ -44,7 +44,7 @@ class ModuleBadChannelExtban : public Module
 			{
 				if (InspIRCd::Match((*i)->chan->name, rm))
 				{
-					if (!status || (*i)->hasMode(status))
+					if ((!status) || ((*i)->HasMode(mh)))
 						return MOD_RES_DENY;
 				}
 			}

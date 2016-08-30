@@ -73,6 +73,10 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 		 */
 		if (!adding && chan && IS_LOCAL(user) && !param.empty())
 		{
+			const PrefixMode* const pm = mh->IsPrefixMode();
+			if (!pm)
+				return MOD_RES_PASSTHRU;
+
 			/* Check if the parameter is a valid nick/uuid
 			 */
 			User *u = ServerInstance->FindNick(param);
@@ -83,7 +87,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 				 * This includes any prefix permission mode, even those registered in other modules, e.g. +qaohv. Using ::ModeString()
 				 * here means that the number of modes is restricted to only modes the user has, limiting it to as short a loop as possible.
 				 */
-				if (u->IsModeSet(bm) && memb && memb->hasMode(mh->GetModeChar()))
+				if ((u->IsModeSet(bm)) && (memb) && (memb->HasMode(pm)))
 				{
 					/* BZZZT, Denied! */
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));

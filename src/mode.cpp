@@ -867,7 +867,7 @@ void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 	const Channel::MemberMap& userlist = chan->GetUsers();
 	for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
-		if (i->second->hasMode(this->GetModeChar()))
+		if (i->second->HasMode(this))
 			changelist.push_remove(this, i->first->nick);
 	}
 }

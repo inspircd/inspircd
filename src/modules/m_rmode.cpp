@@ -70,7 +70,7 @@ class CommandRMode : public Command
 			{
 				if (!InspIRCd::Match(it->first->nick, pattern))
 					continue;
-				if (it->second->hasMode(modeletter) && !((it->first == user) && (pm->GetPrefixRank() > VOICE_VALUE)))
+				if (it->second->HasMode(pm) && !((it->first == user) && (pm->GetPrefixRank() > VOICE_VALUE)))
 					changelist.push_remove(mh, it->first->nick);
 			}
 		}
