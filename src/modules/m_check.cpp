@@ -109,6 +109,19 @@ class CommandCheck : public Command
 		return ret;
 	}
 
+	static std::string GetAllowedOperOnlyModes(LocalUser* user, ModeType modetype)
+	{
+		std::string ret;
+		const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
+		for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); ++i)
+		{
+			const ModeHandler* const mh = i->second;
+			if ((mh->NeedsOper()) && (user->HasModePermission(mh)))
+				ret.push_back(mh->GetModeChar());
+		}
+		return ret;
+	}
+
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
@@ -179,17 +192,8 @@ class CommandCheck : public Command
 				context.Write("opertype", oper->name);
 				if (loctarg)
 				{
-					std::string umodes;
-					std::string cmodes;
-					for(char c='A'; c <= 'z'; c++)
-					{
-						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(mh))
-							umodes.push_back(c);
-						mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(mh))
-							cmodes.push_back(c);
-					}
+					std::string umodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_USER);
+					std::string cmodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL);
 					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
 
 					CheckContext::List opcmdlist(context, "commandperms");

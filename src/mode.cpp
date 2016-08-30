@@ -246,11 +246,12 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				PrefixMode* neededmh = NULL;
-				for(char c='A'; c <= 'z'; c++)
+				const PrefixMode* neededmh = NULL;
+				const PrefixModeList& prefixmodes = GetPrefixModes();
+				for (PrefixModeList::const_iterator i = prefixmodes.begin(); i != prefixmodes.end(); ++i)
 				{
-					PrefixMode* privmh = FindPrefixMode(c);
-					if (privmh && privmh->GetPrefixRank() >= neededrank)
+					const PrefixMode* const privmh = *i;
+					if (privmh->GetPrefixRank() >= neededrank)
 					{
 						// this mode is sufficient to allow this action
 						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())

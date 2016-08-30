@@ -82,22 +82,20 @@ std::string TreeSocket::MyModules(int filter)
 static std::string BuildModeList(ModeType type)
 {
 	std::vector<std::string> modes;
-	for(char c='A'; c <= 'z'; c++)
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(type);
+	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type);
-		if (mh)
+		const ModeHandler* const mh = i->second;
+		std::string mdesc = mh->name;
+		mdesc.push_back('=');
+		const PrefixMode* const pm = mh->IsPrefixMode();
+		if (pm)
 		{
-			std::string mdesc = mh->name;
-			mdesc.push_back('=');
-			PrefixMode* pm = mh->IsPrefixMode();
-			if (pm)
-			{
-				if (pm->GetPrefix())
-					mdesc.push_back(pm->GetPrefix());
-			}
-			mdesc.push_back(mh->GetModeChar());
-			modes.push_back(mdesc);
+			if (pm->GetPrefix())
+				mdesc.push_back(pm->GetPrefix());
 		}
+		mdesc.push_back(mh->GetModeChar());
+		modes.push_back(mdesc);
 	}
 	std::sort(modes.begin(), modes.end());
 	return irc::stringjoiner(modes);
