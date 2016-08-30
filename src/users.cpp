@@ -153,19 +153,20 @@ const std::string& User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool User::HasModePermission(unsigned char, ModeType)
+bool User::HasModePermission(const ModeHandler* mh) const
 {
 	return true;
 }
 
-bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
+bool LocalUser::HasModePermission(const ModeHandler* mh) const
 {
 	if (!this->IsOper())
 		return false;
 
+	const unsigned char mode = mh->GetModeChar();
 	if (mode < 'A' || mode > ('A' + 64)) return false;
 
-	return ((type == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
+	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
 
 }
 /*

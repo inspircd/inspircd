@@ -184,10 +184,10 @@ class CommandCheck : public Command
 					for(char c='A'; c <= 'z'; c++)
 					{
 						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_USER))
+						if (mh && mh->NeedsOper() && loctarg->HasModePermission(mh))
 							umodes.push_back(c);
 						mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_CHANNEL))
+						if (mh && mh->NeedsOper() && loctarg->HasModePermission(mh))
 							cmodes.push_back(c);
 					}
 					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
