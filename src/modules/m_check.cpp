@@ -264,7 +264,7 @@ class CommandCheck : public Command
 			 	 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
 				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
-					i->second->GetAllPrefixChars(), i->first->nick.c_str(),
+					i->second->GetAllPrefixChars().c_str(), i->first->nick.c_str(),
 					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str()));
 			}
 

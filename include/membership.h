@@ -110,5 +110,5 @@ class CoreExport Membership : public Extensible, public insp::intrusive_list_nod
 	 * be in rank order, greatest first, as certain IRC clients require
 	 * this when multiple prefixes are used names lists.
 	 */
-	const char* GetAllPrefixChars() const;
+	std::string GetAllPrefixChars() const;
 };
