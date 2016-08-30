@@ -94,9 +94,6 @@ class ModuleDeaf : public Module
 			if (is_bypasschar && !is_a_uline)
 				continue; /* deliver message */
 
-			if (status && !strchr(i->second->GetAllPrefixChars(), status))
-				continue;
-
 			/* don't deliver message! */
 			exempt_list.insert(i->first);
 		}
