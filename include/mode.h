@@ -185,6 +185,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	PrefixMode* IsPrefixMode();
 
 	/**
+	 * Check whether this mode is a prefix mode
+	 * @return non-NULL if this mode is a prefix mode, NULL otherwise
+	 */
+	const PrefixMode* IsPrefixMode() const;
+
+	/**
 	 * Check whether this mode handler inherits from ListModeBase
 	 * @return non-NULL if this mode handler inherits from ListModeBase, NULL otherwise
 	 */
@@ -192,9 +198,21 @@ class CoreExport ModeHandler : public ServiceProvider
 
 	/**
 	 * Check whether this mode handler inherits from ListModeBase
+	 * @return non-NULL if this mode handler inherits from ListModeBase, NULL otherwise
+	 */
+	const ListModeBase* IsListModeBase() const;
+
+	/**
+	 * Check whether this mode handler inherits from ParamModeBase
 	 * @return non-NULL if this mode handler inherits from ParamModeBase, NULL otherwise
 	 */
 	ParamModeBase* IsParameterMode();
+
+	/**
+	 * Check whether this mode handler inherits from ParamModeBase
+	 * @return non-NULL if this mode handler inherits from ParamModeBase, NULL otherwise
+	 */
+	const ParamModeBase* IsParameterMode() const;
 
 	/**
 	 * Returns the mode's type
@@ -790,12 +808,27 @@ inline PrefixMode* ModeHandler::IsPrefixMode()
 	return (this->type_id == MC_PREFIX ? static_cast<PrefixMode*>(this) : NULL);
 }
 
+inline const PrefixMode* ModeHandler::IsPrefixMode() const
+{
+	return (this->type_id == MC_PREFIX ? static_cast<const PrefixMode*>(this) : NULL);
+}
+
 inline ListModeBase* ModeHandler::IsListModeBase()
 {
 	return (this->type_id == MC_LIST ? reinterpret_cast<ListModeBase*>(this) : NULL);
 }
 
+inline const ListModeBase* ModeHandler::IsListModeBase() const
+{
+	return (this->type_id == MC_LIST ? reinterpret_cast<const ListModeBase*>(this) : NULL);
+}
+
 inline ParamModeBase* ModeHandler::IsParameterMode()
 {
 	return (this->type_id == MC_PARAM ? reinterpret_cast<ParamModeBase*>(this) : NULL);
+}
+
+inline const ParamModeBase* ModeHandler::IsParameterMode() const
+{
+	return (this->type_id == MC_PARAM ? reinterpret_cast<const ParamModeBase*>(this) : NULL);
 }
