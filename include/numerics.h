@@ -73,8 +73,8 @@ enum
 	RPL_MAPUSERS                    = 270, // insp-specific
 
 	RPL_AWAY                        = 301,
-	RPL_USERHOST					= 302,
-	RPL_ISON						= 303,
+	RPL_USERHOST                    = 302,
+	RPL_ISON                        = 303,
 	RPL_SYNTAX                      = 304, // insp-specific
 
 	RPL_UNAWAY                      = 305,
@@ -99,7 +99,7 @@ enum
 	RPL_TOPIC                       = 332,
 	RPL_TOPICTIME                   = 333, // not RFC, extremely common though
 
-	RPL_USERIP						= 340,
+	RPL_USERIP                      = 340,
 	RPL_INVITING                    = 341,
 	RPL_INVITELIST                  = 346, // insp-specific (stolen from ircu)
 	RPL_ENDOFINVITELIST             = 347, // insp-specific (stolen from ircu)
