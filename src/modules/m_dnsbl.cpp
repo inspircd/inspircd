@@ -66,7 +66,9 @@ class DNSBLResolver : public DNS::Request
 		if (!them)
 			return;
 
-		const DNS::ResourceRecord &ans_record = r->answers[0];
+		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
+		if (!ans_record)
+			return;
 
 		int i = countExt.get(them);
 		if (i)
@@ -78,7 +80,7 @@ class DNSBLResolver : public DNS::Request
 		bool match = false;
 		in_addr resultip;
 
-		inet_aton(ans_record.rdata.c_str(), &resultip);
+		inet_aton(ans_record->rdata.c_str(), &resultip);
 
 		switch (ConfEntry->type)
 		{
