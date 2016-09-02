@@ -124,7 +124,7 @@ our $interactive = !(
 );
 
 my %version = get_version();
-print_format "<|BOLD Configuring InspIRCd $version{MAJOR}.$version{MINOR}.$version{PATCH}+$version{LABEL} on $^O.|>\n";
+print_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>\n";
 
 our %config;
 if ($interactive) {

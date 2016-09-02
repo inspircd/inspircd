@@ -50,7 +50,7 @@ sub get_version {
 
 	# Attempt to retrieve version information from src/version.sh
 	chomp(my $vf = `sh src/version.sh 2>/dev/null`);
-	if ($vf =~ /^InspIRCd-([0-9]+)\.([0-9]+)\.([0-9]+)(?:\+(\w+))?$/) {
+	if ($vf =~ /^InspIRCd-([0-9]+)\.([0-9]+)\.([0-9]+)(?:-(\w+))?$/) {
 		%version = ( MAJOR => $1, MINOR => $2, PATCH => $3, LABEL => $4 );
 	}
 
@@ -63,16 +63,21 @@ sub get_version {
 		$version{LABEL} = $4 if defined $4;
 	}
 
-	# The user is using a stable release which does not have
-	# a label attached.
-	$version{LABEL} //= 'release';
-
 	# If any of these fields are missing then the user has deleted the
 	# version file and is not running from Git. Fill in the fields with
 	# dummy data so we don't get into trouble with undef values later.
 	$version{MAJOR} //= '0';
 	$version{MINOR} //= '0';
 	$version{PATCH} //= '0';
+
+	# If there is no label then the user is using a stable release which
+	# does not have a label attached.
+	if (defined $version{LABEL}) {
+		$version{FULL} = "$version{MAJOR}.$version{MINOR}.$version{PATCH}-$version{LABEL}"
+	} else {
+		$version{LABEL} = 'release';
+		$version{FULL} = "$version{MAJOR}.$version{MINOR}.$version{PATCH}"
+	}
 
 	return %version;
 }

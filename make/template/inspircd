@@ -55,7 +55,7 @@ my $runpath	=	"@BASE_DIR@";
 my $datadir	=       "@DATA_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"inspircd";
-my $version	=	"@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@+@VERSION_LABEL@";
+my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
 
 if (!("--runasroot" ~~ @ARGV) && ($< == 0 || $> == 0)) {

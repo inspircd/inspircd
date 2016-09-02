@@ -326,7 +326,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_version)
 	{
-		std::cout << std::endl << INSPIRCD_VERSION << " " << INSPIRCD_REVISION << std::endl;
+		std::cout << std::endl << INSPIRCD_VERSION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
