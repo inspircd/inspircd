@@ -253,7 +253,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				}
 				else if (command == "SINFO")
 				{
-					// :22D SINFO version :InspIRCd-2.2
+					// :22D SINFO version :InspIRCd-3.0
 					//     A     B       C
 					std::string::size_type c = line.find(' ', b + 1);
 					if (c == std::string::npos)
@@ -424,7 +424,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	}
 	else if (cmd == "MODENOTICE")
 	{
-		// MODENOTICE is always supported by 2.0 but it's optional in 2.2.
+		// MODENOTICE is always supported by 2.0 but it's optional in 3.0.
 		params.insert(params.begin(), "*");
 		params.insert(params.begin()+1, cmd);
 		cmd = "ENCAP";

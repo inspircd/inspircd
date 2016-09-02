@@ -45,7 +45,7 @@ std::string TreeSocket::MyModules(int filter)
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
 		Module* const mod = i->second;
-		// 2.2 advertises its settings for the benefit of services
+		// 3.0 advertises its settings for the benefit of services
 		// 2.0 would bork on this
 		if (proto_version < 1205 && i->second->ModuleSourceFile == "m_kicknorejoin.so")
 			continue;

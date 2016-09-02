@@ -85,7 +85,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * drop the link to avoid desync.
 	 *
 	 * InspIRCd 2.0 and older required a comma before the uuid even if the user
-	 * had no prefix modes on the channel, InspIRCd 2.2 and later does not require
+	 * had no prefix modes on the channel, InspIRCd 3.0 and later does not require
 	 * a comma in this case anymore.
 	 *
 	 * <membid> is a positive integer representing the id of the membership.

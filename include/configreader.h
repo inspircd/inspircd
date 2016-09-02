@@ -451,11 +451,11 @@ class CoreExport ServerConfig
 	 */
 	OperIndex OperTypes;
 
-	/** Default value for <connect:maxchans>, deprecated in 2.2
+	/** Default value for <connect:maxchans>, deprecated in 3.0
 	 */
 	unsigned int MaxChans;
 
-	/** Default value for <oper:maxchans>, deprecated in 2.2
+	/** Default value for <oper:maxchans>, deprecated in 3.0
 	 */
 	unsigned int OperMaxChans;
 

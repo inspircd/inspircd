@@ -108,7 +108,7 @@ class RemoveBase : public Command
 				if (!IS_LOCAL(target))
 				{
 					// Send an ENCAP REMOVE with parameters being in the old <user> <chan> order which is
-					// compatible with both 2.0 and 2.2. This also turns FPART into REMOVE.
+					// compatible with both 2.0 and 3.0. This also turns FPART into REMOVE.
 					std::vector<std::string> p;
 					p.push_back(target->uuid);
 					p.push_back(channel->name);

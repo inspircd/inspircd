@@ -362,13 +362,13 @@ struct DeprecatedConfig
 static const DeprecatedConfig ChangedConfig[] = {
 	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
 	{ "die",         "value",       "",                 "you need to reread your config" },
-	{ "gnutls",      "starttls",    "",                 "has been replaced with m_starttls as of 2.2" },
+	{ "gnutls",      "starttls",    "",                 "has been replaced with m_starttls as of 3.0" },
 	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
 	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
-	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
-	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
-	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 2.2" },
-	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 2.2" }
+	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 3.0" },
+	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 3.0" },
+	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 3.0" },
+	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 3.0" }
 };
 
 void ServerConfig::Fill()
