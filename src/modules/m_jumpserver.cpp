@@ -162,7 +162,7 @@ class ModuleJumpServer : public Module
 			int port = js.GetPort(user);
 			user->WriteNumeric(RPL_REDIR, js.redirect_to, port, "Please use this Server/Port instead");
 			ServerInstance->Users->QuitUser(user, js.reason);
-			return MOD_RES_PASSTHRU;
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
