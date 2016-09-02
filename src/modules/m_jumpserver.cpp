@@ -161,7 +161,7 @@ class ModuleJumpServer : public Module
 			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
 				user->nick.c_str(), js.redirect_to.c_str(), js.port);
 			ServerInstance->Users->QuitUser(user, js.reason);
-			return MOD_RES_PASSTHRU;
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
