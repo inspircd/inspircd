@@ -145,6 +145,7 @@ class ModuleSpanningTree : public Module
 	void OnPostCommand(Command*, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line) CXX11_OVERRIDE;
 	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
 	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE;
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) CXX11_OVERRIDE;
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE;
 	void OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE;
