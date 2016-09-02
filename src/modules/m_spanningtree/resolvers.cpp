@@ -105,14 +105,17 @@ SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std:
 
 void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 {
-	const DNS::ResourceRecord &ans_record = r->answers[0];
-
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
 	{
 		Link* L = *i;
 		if (L->IPAddr == host)
 		{
-			Utils->ValidIPs.push_back(ans_record.rdata);
+			for (std::vector<DNS::ResourceRecord>::const_iterator j = r->answers.begin(); j != r->answers.end(); ++j)
+			{
+				const DNS::ResourceRecord& ans_record = *j;
+				if (ans_record.type == this->question.type)
+					Utils->ValidIPs.push_back(ans_record.rdata);
+			}
 			break;
 		}
 	}
