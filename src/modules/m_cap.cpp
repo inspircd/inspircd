@@ -55,7 +55,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	static bool CanRequest(LocalUser* user, Ext usercaps, Capability* cap, bool adding)
 	{
-		if ((usercaps & cap->GetMask()) == adding)
+		const bool hascap = ((usercaps & cap->GetMask()) != 0);
+		if (hascap == adding)
 			return true;
 
 		return cap->OnRequest(user, adding);

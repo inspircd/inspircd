@@ -197,7 +197,7 @@ namespace Cap
 			if (!IsRegistered())
 				return false;
 			Ext caps = extitem->get(user);
-			return (caps & GetMask());
+			return ((caps & GetMask()) != 0);
 		}
 
 		/** Turn the capability on/off for a user. If the cap is not registered this method has no effect.

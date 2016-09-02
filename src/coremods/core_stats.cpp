@@ -307,7 +307,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
 				snprintf(percent, 30, "%03.5f%%", per);
-				stats.AddRow(249, std::string("CPU Use (total):  ")+percent));
+				stats.AddRow(249, std::string("CPU Use (total):  ")+percent);
 			}
 #endif
 		}

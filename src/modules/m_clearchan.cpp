@@ -119,7 +119,7 @@ class CommandClearChan : public Command
 					mask = ((method[0] == 'Z') ? curr->GetIPString() : "*@" + curr->host);
 					xline = xlf->Generate(ServerInstance->Time(), 60*60, user->nick, reason, mask);
 				}
-				catch (ModuleException& ex)
+				catch (ModuleException&)
 				{
 					// Nothing, move on to the next user
 					continue;
