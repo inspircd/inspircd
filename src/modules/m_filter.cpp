@@ -22,11 +22,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "m_regex.h"
-
-/* $ModDesc: Text (spam) filtering */
-
-class ModuleFilter;
+#include "modules/regex.h"
 
 enum FilterFlags
 {
@@ -48,6 +44,7 @@ enum FilterAction
 class FilterResult
 {
  public:
+	Regex* regex;
 	std::string freeform;
 	std::string reason;
 	FilterAction action;
@@ -60,9 +57,12 @@ class FilterResult
 	bool flag_notice;
 	bool flag_strip_color;
 
-	FilterResult(const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla) :
-			freeform(free), reason(rea), action(act), gline_time(gt)
+	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla)
+		: freeform(free), reason(rea), action(act), gline_time(gt)
 	{
+		if (!RegexEngine)
+			throw ModuleException("Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
+		regex = RegexEngine->Create(free);
 		this->FillFlags(fla);
 	}
 
@@ -154,17 +154,10 @@ class CommandFilter : public Command
 	}
 };
 
-class ImplFilter : public FilterResult
-{
- public:
-	Regex* regex;
-
-	ImplFilter(ModuleFilter* mymodule, const std::string &rea, FilterAction act, long glinetime, const std::string &pat, const std::string &flgs);
-};
-
-
 class ModuleFilter : public Module
 {
+	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
+
 	bool initing;
 	RegexFactory* factory;
 	void FreeFilters();
@@ -173,28 +166,30 @@ class ModuleFilter : public Module
 	CommandFilter filtcommand;
 	dynamic_reference<RegexFactory> RegexEngine;
 
-	std::vector<ImplFilter> filters;
+	std::vector<FilterResult> filters;
 	int flags;
 
-	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
+	// List of channel names excluded from filtering.
+	ExemptTargetSet exemptedchans;
+
+	// List of target nicknames excluded from filtering.
+	ExemptTargetSet exemptednicks;
 
 	ModuleFilter();
-	void init();
 	CullResult cull();
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void OnRehash(User* user);
-	Version GetVersion();
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
+	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	void OnSyncNetwork(Module* proto, void* opaque);
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-	ModResult OnStats(char symbol, User* user, string_list &results);
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
-	void OnUnloadModule(Module* mod);
+	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
@@ -209,13 +204,13 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		Module *me = creator;
 		if (static_cast<ModuleFilter *>(me)->DeleteFilter(parameters[0]))
 		{
-			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Removed filter '" + parameters[0] + "'");
 			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" removed filter '"+parameters[0]+"'");
 			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Filter '%s' not found in list, try /stats s.", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Filter '" + parameters[0] + "' not found in list, try /stats s.");
 			return CMD_FAILURE;
 		}
 	}
@@ -232,7 +227,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
-				user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), parameters[1].c_str());
+				user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.");
 				return CMD_FAILURE;
 			}
 
@@ -240,12 +235,12 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				if (parameters.size() >= 5)
 				{
-					duration = ServerInstance->Duration(parameters[3]);
+					duration = InspIRCd::Duration(parameters[3]);
 					reasonindex = 4;
 				}
 				else
 				{
-					user->WriteServ("NOTICE %s :*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.", user->nick.c_str());
+					user->WriteNotice("*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.");
 					return CMD_FAILURE;
 				}
 			}
@@ -258,9 +253,9 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
-				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
-						parameters[1].c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
-						flags.c_str(), parameters[reasonindex].c_str());
+				user->WriteNotice("*** Added filter '" + freeform + "', type '" + parameters[1] + "'" +
+					(duration ? ", duration " +  parameters[3] : "") + ", flags '" + flags + "', reason: '" +
+					parameters[reasonindex] + "'");
 
 				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+parameters[reasonindex]);
 
@@ -268,13 +263,13 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick.c_str(), freeform.c_str(), result.second.c_str());
+				user->WriteNotice("*** Filter '" + freeform + "' could not be added: " + result.second);
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Not enough parameters.", user->nick.c_str());
+			user->WriteNotice("*** Not enough parameters.");
 			return CMD_FAILURE;
 		}
 
@@ -283,7 +278,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
-	if ((filter->flag_no_opers) && IS_OPER(user))
+	if ((filter->flag_no_opers) && user->IsOper())
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
@@ -301,14 +296,6 @@ ModuleFilter::ModuleFilter()
 {
 }
 
-void ModuleFilter::init()
-{
-	ServerInstance->Modules->AddService(filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	OnRehash(NULL);
-}
-
 CullResult ModuleFilter::cull()
 {
 	FreeFilters();
@@ -317,29 +304,19 @@ CullResult ModuleFilter::cull()
 
 void ModuleFilter::FreeFilters()
 {
-	for (std::vector<ImplFilter>::const_iterator i = filters.begin(); i != filters.end(); ++i)
+	for (std::vector<FilterResult>::const_iterator i = filters.begin(); i != filters.end(); ++i)
 		delete i->regex;
 
 	filters.clear();
 }
 
-ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
+	// Leave remote users and servers alone
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	flags = FLAG_PRIVMSG;
-	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
-}
-
-ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-{
-	/* Leave ulines alone */
-	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
-		return MOD_RES_PASSTHRU;
-
-	if (!flags)
-		flags = FLAG_NOTICE;
+	flags = (msgtype == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
 
 	FilterResult* f = this->FilterMatch(user, text, flags);
 	if (f)
@@ -348,12 +325,16 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
+			// Check if the target nick is exempted, if yes, ignore this message
+			if (exemptednicks.count(t->nick))
+				return MOD_RES_PASSTHRU;
+
 			target = t->nick;
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			if (exemptfromfilter.find(t->name) != exemptfromfilter.end())
+			if (exemptedchans.count(t->name))
 				return MOD_RES_PASSTHRU;
 
 			target = t->name;
@@ -362,16 +343,16 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		else if (f->action == FA_SILENT)
 		{
 			if (target_type == TYPE_CHANNEL)
-				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked: "+f->reason);
+				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
 		}
 		else if (f->action == FA_KILL)
 		{
@@ -388,7 +369,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -396,7 +377,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 
 ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
-	if (validated && IS_LOCAL(user))
+	if (validated)
 	{
 		flags = 0;
 		bool parting;
@@ -416,7 +397,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (parameters.size() < 2)
 				return MOD_RES_PASSTHRU;
 
-			if (exemptfromfilter.find(parameters[0]) != exemptfromfilter.end())
+			if (exemptedchans.count(parameters[0]))
 				return MOD_RES_PASSTHRU;
 
 			parting = true;
@@ -446,7 +427,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			/* Are they parting, if so, kill is applicable */
 			if ((parting) && (f->action == FA_KILL))
 			{
-				user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
+				user->WriteNotice("*** Your PART message was filtered: " + f->reason);
 				ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 			}
 			if (f->action == FA_GLINE)
@@ -466,15 +447,25 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleFilter::OnRehash(User* user)
+void ModuleFilter::ReadConfig(ConfigStatus& status)
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
-	exemptfromfilter.clear();
+	exemptedchans.clear();
+	exemptednicks.clear();
+
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		std::string chan = i->second->getString("channel");
-		if (!chan.empty())
-			exemptfromfilter.insert(chan);
+		ConfigTag* tag = i->second;
+
+		// If "target" is not found, try the old "channel" key to keep compatibility with 2.0 configs
+		const std::string target = tag->getString("target", tag->getString("channel"));
+		if (!target.empty())
+		{
+			if (target[0] == '#')
+				exemptedchans.insert(target);
+			else
+				exemptednicks.insert(target);
+		}
 	}
 
 	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
@@ -554,11 +545,11 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void ModuleFilter::OnSyncNetwork(Module* proto, void* opaque)
+void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); ++i)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
-		proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(&(*i)));
+		server.SendMetaData("filter", EncodeFilter(&(*i)));
 	}
 }
 
@@ -573,17 +564,9 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		}
 		catch (ModuleException& e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + e.GetReason());
 		}
 	}
-}
-
-ImplFilter::ImplFilter(ModuleFilter* mymodule, const std::string &rea, FilterAction act, long glinetime, const std::string &pat, const std::string &flgs)
-		: FilterResult(pat, rea, act, glinetime, flgs)
-{
-	if (!mymodule->RegexEngine)
-		throw ModuleException("Regex module implementing '"+mymodule->RegexEngine.GetProvider()+"' is not loaded!");
-	regex = mymodule->RegexEngine->Create(pat);
 }
 
 FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
@@ -591,9 +574,9 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 	static std::string stripped_text;
 	stripped_text.clear();
 
-	for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
-		FilterResult* filter = dynamic_cast<FilterResult*>(&(*index));
+		FilterResult* filter = &*i;
 
 		/* Skip ones that dont apply to us */
 		if (!AppliesToMe(user, filter, flgs))
@@ -605,20 +588,15 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
-		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
-		{
-			//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
-			return &*index;
-		}
-		//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
+		if (filter->regex->Matches(filter->flag_strip_color ? stripped_text : text))
+			return filter;
 	}
 	return NULL;
 }
 
 bool ModuleFilter::DeleteFilter(const std::string &freeform)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
 		if (i->freeform == freeform)
 		{
@@ -632,7 +610,7 @@ bool ModuleFilter::DeleteFilter(const std::string &freeform)
 
 std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flgs)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
 		if (i->freeform == freeform)
 		{
@@ -642,11 +620,11 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 	try
 	{
-		filters.push_back(ImplFilter(this, reason, type, duration, freeform, flgs));
+		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs));
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -654,17 +632,15 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa)
 {
-	irc::string s(str.c_str());
-
-	if (s == "gline")
+	if (stdalgo::string::equalsci(str, "gline"))
 		fa = FA_GLINE;
-	else if (s == "block")
+	else if (stdalgo::string::equalsci(str, "block"))
 		fa = FA_BLOCK;
-	else if (s == "silent")
+	else if (stdalgo::string::equalsci(str, "silent"))
 		fa = FA_SILENT;
-	else if (s == "kill")
+	else if (stdalgo::string::equalsci(str, "kill"))
 		fa = FA_KILL;
-	else if (s == "none")
+	else if (stdalgo::string::equalsci(str, "none"))
 		fa = FA_NONE;
 	else
 		return false;
@@ -695,7 +671,7 @@ void ModuleFilter::ReadFilters()
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
-		long gline_time = ServerInstance->Duration(i->second->getString("duration"));
+		unsigned long gline_time = i->second->getDuration("duration", 10*60, 1);
 		if (flgs.empty())
 			flgs = "*";
 
@@ -705,27 +681,31 @@ void ModuleFilter::ReadFilters()
 
 		try
 		{
-			filters.push_back(ImplFilter(this, reason, fa, gline_time, pattern, flgs));
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Regular expression %s loaded.", pattern.c_str());
+			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, gline_time, flgs));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason().c_str());
 		}
 	}
 }
 
-ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
+ModResult ModuleFilter::OnStats(Stats::Context& stats)
 {
-	if (symbol == 's')
+	if (stats.GetSymbol() == 's')
 	{
-		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			stats.AddRow(223, RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
-		for (std::set<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
+		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
 		{
-			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :EXEMPT "+(*i));
+			stats.AddRow(223, "EXEMPT "+(*i));
+		}
+		for (ExemptTargetSet::const_iterator i = exemptednicks.begin(); i != exemptednicks.end(); ++i)
+		{
+			stats.AddRow(223, "EXEMPT "+(*i));
 		}
 	}
 	return MOD_RES_PASSTHRU;

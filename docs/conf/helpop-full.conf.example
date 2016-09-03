@@ -34,7 +34,7 @@ UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
 
 WHOIS     WHOWAS   ISON      USERHOST  WATCH
-LIST      NAMES    WHO       MOTD      RULES
+LIST      NAMES    WHO       MOTD
 ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
 SSLINFO
@@ -102,18 +102,21 @@ This command accepts multiple nicks like so:
 
 Authenticate for a vhost using the specified username and password.">
 
-<helpop key="remove" value="/REMOVE <nick> <channel> [<reason>]
+<helpop key="remove" value="/REMOVE <channel> <nick> [<reason>]
 
 Removes a user from a channel you specify. You must be at least a
 channel halfoperator to remove a user. A removed user will part with
 a message stating they were removed from the channel and by whom.">
 
+<helpop key="rmode" value="/RMODE [channel] [modeletter] {[pattern]}
+
+Removes listmodes from a channel.
+E.g. /RMODE #Chan b m:* will remove all mute extbans.">
+
 <helpop key="fpart" value="/FPART <channel> <nick> [<reason>]
 
-This behaves identically to /REMOVE, the only difference is that the
-<channel> and <nick> parameters are switched around to match /KICK's
-syntax. Also, /REMOVE is a built-in mIRC command which caused trouble
-for some users.">
+This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
+which caused trouble for some users.">
 
 <helpop key="devoice" value="/DEVOICE <channel>
 
@@ -277,11 +280,6 @@ Show the message of the day for <server>. Messages of the day often
 contain important server rules and notices and should be read prior
 to using a server.">
 
-<helpop key="rules" value="/RULES
-
-Show the rules file for the local server. This is similar in effect to
-except that these are not sent automatically on connect.">
-
 <helpop key="oper" value="/OPER <login> <password>
 
 Attempts to authenticate a user as an IRC operator.
@@ -392,7 +390,7 @@ SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
 
 KILL      SAQUIT    GLINE       ZLINE    QLINE
 KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER    OJOIN
+FILTER    OJOIN     CLEARCHAN
 
 CONNECT   SQUIT     RCONNECT    RSQUIT
 
@@ -538,13 +536,14 @@ The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
 
-<helpop key="sajoin" value="/SAJOIN <nick> <channel>
+<helpop key="sajoin" value="/SAJOIN [<nick>] <channel>[,<channel>]
 
-Forces the user to join the channel.">
+Forces the user to join the channel(s).
+If no nick is given, it joins the oper doing the /SAJOIN.">
 
-<helpop key="sapart" value="/SAPART <nick> <channel>
+<helpop key="sapart" value="/SAPART <nick> <channel>[,<channel>]
 
-Forces the user to part the channel.">
+Forces the user to part the channel(s).">
 
 <helpop key="samode" value="/SAMODE <target> (+|-)<modes> [<parameters for modes>]
 
@@ -663,30 +662,30 @@ Disconnects the server matching the given server mask from this server.">
 Lists currently loaded modules, their memory offsets, version numbers,
 and flags. If you are not an operator, you will see reduced detail.">
 
-<helpop key="loadmodule" value="/LOADMODULE <filename.so>
+<helpop key="loadmodule" value="/LOADMODULE <modname>
 
 Loads the specified module into the local server.">
 
-<helpop key="unloadmodule" value="/UNLOADMODULE <filename.so>
+<helpop key="unloadmodule" value="/UNLOADMODULE <modname>
 
 Unloads a module from the local server. The module cannot have the
 static flag set (see the output of /MODULES).">
 
-<helpop key="reloadmodule" value="/RELOADMODULE <filename.so>
+<helpop key="reloadmodule" value="/RELOADMODULE <modname>
 
 Unloads and reloads a module on the local server. This module cannot
 have the static flag set (see the output of /MODULES).">
 
-<helpop key="gloadmodule" value="/GLOADMODULE <filename.so>
+<helpop key="gloadmodule" value="/GLOADMODULE <modname>
 
 Loads the specified module on all linked servers.">
 
-<helpop key="gunloadmodule" value="/GUNLOADMODULE <filename.so>
+<helpop key="gunloadmodule" value="/GUNLOADMODULE <modname>
 
 Unloads a module from all linked servers. The module cannot have the
 static flag set (see the output of /MODULES).">
 
-<helpop key="greloadmodule" value="/GRELOADMODULE <filename.so>
+<helpop key="greloadmodule" value="/GRELOADMODULE <modname>
 
 Unloads and reloads a module on all linked servers. This module cannot
 have the static flag set (see the output of /MODULES).">
@@ -768,6 +767,16 @@ This command clears the DNS cache of the local server.">
 
 Closes all unregistered connections to the local server.">
 
+<helpop key="clearchan" value="/CLEARCHAN <channel> [<KILL|KICK|G|Z>] [<reason>]
+
+Quits or kicks all non-opers from a channel, optionally G/Z-Lines them.
+Useful for quickly nuking bot channels.
+
+The default method, KILL, simply disconnects the victims from the server,
+while methods G and Z also add G/Z-Lines for all the targets.
+
+When used, the victims won't see each other getting kicked or quitting.">
+
 <helpop key="modenotice" value="/MODENOTICE <modeletters> <message>
 
 Sends a notice to all users who have the given mode(s) set.
@@ -829,15 +838,15 @@ using their cloak when they quit.">
 
  v <nickname>       Gives voice to <nickname>, allowing them to speak
                     while the channel is +m.
- h <nickname>       Gives halfop status to <nickname> (this mode can
-                    be disabled).
+ h <nickname>       Gives halfop status to <nickname> (requires
+                    customprefix module).
  o <nickname>       Gives op status to <nickname>.
  a <nickname>       Gives protected status to <nickname>, preventing
                     them from them from being kicked (+q only,
-                    requires chanprotect module).
+                    requires customprefix module).
  q <nickname>       Gives owner status to <nickname>, preventing them
                     from being kicked (Services or only, requires
-                    chanprotect module).
+                    customprefix module).
 
  b <hostmask>       Bans <hostmask> from the channel.
  e <hostmask>       Excepts <hostmask> from bans (requires
@@ -894,6 +903,9 @@ using their cloak when they quit.">
                     module).
  D                  Delays join messages from users until they
                     message the channel (requires delayjoin module).
+ E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similar messages.
+                    Kicks as default, blocks with ~ and bans with *
+                    The last two parameters are optional.
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the
                     specified rate (requires nickflood module).
  G                  Censors messages to the channel based on the
@@ -1045,8 +1057,8 @@ Matching extbans:
                module).
  s:<server>    Matches users on a matching server (requires serverban
                module).
- z:<certfp>    Matches users having the given SSL certificate
-               fingerprint (requires sslmodes module).
+ z:<certfp>    Matches users with a matching SSL certificate fingerprint
+               (requires sslmodes module)
  O:<opertype>  Matches IRCops of a matching type, mostly useful as an
                an invite exception (requires operchans module).
  R:<account>   Matches users logged into a matching account (requires

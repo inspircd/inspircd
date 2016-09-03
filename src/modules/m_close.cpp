@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides /CLOSE functionality */
-
 /** Handle /CLOSE
  */
 class CommandClose : public Command
@@ -30,15 +28,19 @@ class CommandClose : public Command
 	/* Command 'close', needs operator */
 	CommandClose(Module* Creator) : Command(Creator,"CLOSE", 0)
 	{
-	flags_needed = 'o'; }
+		flags_needed = 'o';
+	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *src)
 	{
 		std::map<std::string,int> closed;
 
-		for (LocalUserList::const_iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); ++u)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator u = list.begin(); u != list.end(); )
 		{
+			// Quitting the user removes it from the list
 			LocalUser* user = *u;
+			++u;
 			if (user->registered != REG_ALL)
 			{
 				ServerInstance->Users->QuitUser(user, "Closing all unknown connections per request");
@@ -50,13 +52,14 @@ class CommandClose : public Command
 		int total = 0;
 		for (std::map<std::string,int>::iterator ci = closed.begin(); ci != closed.end(); ci++)
 		{
-			src->WriteServ("NOTICE %s :*** Closed %d unknown connection%s from [%s]",src->nick.c_str(),(*ci).second,((*ci).second>1)?"s":"",(*ci).first.c_str());
-			total += (*ci).second;
+			src->WriteNotice("*** Closed " + ConvToStr(ci->second) + " unknown " + (ci->second == 1 ? "connection" : "connections") +
+				" from [" + ci->first + "]");
+			total += ci->second;
 		}
 		if (total)
-			src->WriteServ("NOTICE %s :*** %i unknown connection%s closed",src->nick.c_str(),total,(total>1)?"s":"");
+			src->WriteNotice("*** " + ConvToStr(total) + " unknown " + (total == 1 ? "connection" : "connections") + " closed");
 		else
-			src->WriteServ("NOTICE %s :*** No unknown connections found",src->nick.c_str());
+			src->WriteNotice("*** No unknown connections found");
 
 		return CMD_SUCCESS;
 	}
@@ -71,16 +74,7 @@ class ModuleClose : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleClose()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides /CLOSE functionality", VF_VENDOR);
 	}

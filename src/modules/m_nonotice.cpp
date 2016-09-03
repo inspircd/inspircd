@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +T to block notices to the channel */
-
 class NoNotice : public SimpleChannelModeHandler
 {
  public:
@@ -39,32 +37,25 @@ class ModuleNoNotice : public Module
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(nt);
-		Implementation eventlist[] = { I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('T');
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('T');
-	}
-
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		ModResult res;
-		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((msgtype == MSG_NOTICE) && (target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))
+			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
 			{
 				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 				else
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Can't send NOTICE to channel (+T set)",user->nick.c_str(), c->name.c_str());
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send NOTICE to channel (+T set)");
 					return MOD_RES_DENY;
 				}
 			}
@@ -72,11 +63,7 @@ class ModuleNoNotice : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleNoNotice()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);
 	}

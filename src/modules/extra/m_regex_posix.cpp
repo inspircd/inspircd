@@ -19,28 +19,15 @@
 
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include <sys/types.h>
 #include <regex.h>
 
-/* $ModDesc: Regex Provider Module for POSIX Regular Expressions */
-/* $ModDep: m_regex.h */
-
-class POSIXRegexException : public ModuleException
-{
-public:
-	POSIXRegexException(const std::string& rx, const std::string& error)
-		: ModuleException("Error in regex " + rx + ": " + error)
-	{
-	}
-};
-
 class POSIXRegex : public Regex
 {
-private:
 	regex_t regbuf;
 
-public:
+ public:
 	POSIXRegex(const std::string& rx, bool extended) : Regex(rx)
 	{
 		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
@@ -58,23 +45,18 @@ public:
 			error = errbuf;
 			delete[] errbuf;
 			regfree(&regbuf);
-			throw POSIXRegexException(rx, error);
+			throw RegexException(rx, error);
 		}
 	}
 
-	virtual ~POSIXRegex()
+	~POSIXRegex()
 	{
 		regfree(&regbuf);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
 };
 
@@ -83,7 +65,7 @@ class PosixFactory : public RegexFactory
  public:
 	bool extended;
 	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new POSIXRegex(expr, extended);
 	}
@@ -92,20 +74,18 @@ class PosixFactory : public RegexFactory
 class ModuleRegexPOSIX : public Module
 {
 	PosixFactory ref;
-public:
-	ModuleRegexPOSIX() : ref(this) {
-		ServerInstance->Modules->AddService(ref);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
+
+ public:
+	ModuleRegexPOSIX() : ref(this)
+	{
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
-	void OnRehash(User* u)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
 	}

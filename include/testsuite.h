@@ -16,12 +16,12 @@
  */
 
 
-#ifndef TESTSUITE_H
-#define TESTSUITE_H
+#pragma once
+
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 
 class TestSuite
 {
-	bool RealGenerateUIDTests();
  public:
 	TestSuite();
 	~TestSuite();

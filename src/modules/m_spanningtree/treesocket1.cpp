@@ -21,78 +21,63 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
+#include "iohook.h"
 
 #include "main.h"
-#include "../spanningtree.h"
+#include "modules/spanningtree.h"
 #include "utils.h"
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "resolvers.h"
+#include "commands.h"
 
-/** Because most of the I/O gubbins are encapsulated within
- * BufferedSocket, we just call the superclass constructor for
- * most of the action, and append a few of our own values
- * to it.
+/** Constructor for outgoing connections.
+ * Because most of the I/O gubbins are encapsulated within
+ * BufferedSocket, we just call DoConnect() for most of the action,
+ * and only do minor initialization tasks ourselves.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: Utils(Util)
+TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
+	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
+	, burstsent(false), age(ServerInstance->Time())
 {
-	age = ServerInstance->Time();
-	linkID = assign(link->Name);
 	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	proto_version = 0;
-	ConnectionFailureShown = false;
-	LinkState = CONNECTING;
-	if (!link->Hook.empty())
-	{
-		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, link->Hook);
-		if (!prov)
-		{
-			SetError("Could not find hook '" + link->Hook + "' for connection to " + linkID);
-			return;
-		}
-		AddIOHook(prov->creator);
-	}
+
 	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }
 
-/** When a listening socket gives us a new file descriptor,
- * we must associate it with a socket without creating a new
- * connection. This constructor is used for this purpose.
+/** Constructor for incoming connections
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	: BufferedSocket(newfd), Utils(Util)
+TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	: BufferedSocket(newfd)
+	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
+	, burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	age = ServerInstance->Time();
-	LinkState = WAIT_AUTH_1;
-	proto_version = 0;
-	ConnectionFailureShown = false;
-	linkID = "inbound from " + client->addr();
 
-	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
-	if (GetIOHook())
-		GetIOHook()->OnStreamSocketAccept(this, client, server);
+	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
+	{
+		ListenSocket::IOHookProvRef& iohookprovref = *i;
+		if (!iohookprovref)
+			continue;
+
+		iohookprovref->OnAccept(this, client, server);
+		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello was already in the queue and there was no common TLS version
+		if (!getError().empty())
+		{
+			TreeSocket::OnError(I_ERR_OTHER);
+			return;
+		}
+	}
+
 	SendCapabilities(1);
 
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
-}
-
-ServerState TreeSocket::GetLinkState()
-{
-	return this->LinkState;
 }
 
 void TreeSocket::CleanNegotiationInfo()
@@ -114,20 +99,30 @@ CullResult TreeSocket::cull()
 
 TreeSocket::~TreeSocket()
 {
-	if (capab)
-		delete capab;
+	delete capab;
 }
 
 /** When an outbound connection finishes connecting, we receive
- * this event, and must send our SERVER string to the other
+ * this event, and must do CAPAB negotiation with the other
  * side. If the other side is happy, as outlined in the server
  * to server docs on the inspircd.org site, the other side
- * will then send back its own server string.
+ * will then send back its own SERVER string eventually.
  */
 void TreeSocket::OnConnected()
 {
 	if (this->LinkState == CONNECTING)
 	{
+		if (!capab->link->Hook.empty())
+		{
+			ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, capab->link->Hook);
+			if (!prov)
+			{
+				SetError("Could not find hook '" + capab->link->Hook + "' for connection to " + linkID);
+				return;
+			}
+			static_cast<IOHookProvider*>(prov)->OnConnect(this);
+		}
+
 		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
@@ -139,6 +134,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
 		linkID.c_str(), getError().c_str());
 	LinkState = DYING;
+	Close();
 }
 
 void TreeSocket::SendError(const std::string &errormessage)
@@ -149,79 +145,31 @@ void TreeSocket::SendError(const std::string &errormessage)
 	SetError(errormessage);
 }
 
-/** This function forces this server to quit, removing this server
- * and any users on it (and servers and users below that, etc etc).
- * It's very slow and pretty clunky, but luckily unless your network
- * is having a REAL bad hair day, this function shouldnt be called
- * too many times a month ;-)
- */
-void TreeSocket::SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users)
+CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	std::string servername = Current->GetName();
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"SquitServer for %s from %s",
-		servername.c_str(), from.c_str());
-	/* recursively squit the servers attached to 'Current'.
-	 * We're going backwards so we don't remove users
-	 * while we still need them ;)
-	 */
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	TreeServer* quitting = Utils->FindServer(params[0]);
+	if (!quitting)
 	{
-		TreeServer* recursive_server = Current->GetChild(q);
-		this->SquitServer(from,recursive_server, num_lost_servers, num_lost_users);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Squit from unknown server");
+		return CMD_FAILURE;
 	}
-	/* Now we've whacked the kids, whack self */
-	num_lost_servers++;
-	num_lost_users += Current->QuitUsers(from);
-}
 
-/** This is a wrapper function for SquitServer above, which
- * does some validation first and passes on the SQUIT to all
- * other remaining servers.
- */
-void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
-{
-	bool LocalSquit = false;
-
-	if ((Current) && (Current != Utils->TreeRoot))
+	CmdResult ret = CMD_SUCCESS;
+	if (quitting == server)
 	{
-		DelServerEvent(Utils->Creator, Current->GetName());
-
-		if (!Current->GetSocket() || Current->GetSocket()->Introduced())
-		{
-			parameterlist params;
-			params.push_back(Current->GetID());
-			params.push_back(":"+reason);
-			Utils->DoOneToAllButSender(Current->GetParent()->GetID(),"SQUIT",params,Current->GetID());
-		}
-
-		if (Current->GetParent() == Utils->TreeRoot)
-		{
-			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
-			LocalSquit = true;
-		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
-		}
-		int num_lost_servers = 0;
-		int num_lost_users = 0;
-		std::string from = Current->GetParent()->GetName()+" "+Current->GetName();
-		SquitServer(from, Current, num_lost_servers, num_lost_users);
-		ServerInstance->SNO->WriteToSnoMask(LocalSquit ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
-			num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
-		Current->Tidy();
-		Current->GetParent()->DelChild(Current);
-		Current->cull();
-		const bool ismyroot = (Current == MyRoot);
-		delete Current;
-		if (ismyroot)
-		{
-			MyRoot = NULL;
-			Close();
-		}
+		ret = CMD_FAILURE;
+		server = server->GetParent();
 	}
-	else
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
+	else if (quitting->GetParent() != server)
+		throw ProtocolException("Attempted to SQUIT a non-directly connected server or the parent");
+
+	server->SQuitChild(quitting, params[1]);
+
+	// XXX: Return CMD_FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
+	// to stop this message from being forwarded.
+	// The squit logic generates a SQUIT message with our sid as the source and sends it to the
+	// remaining servers.
+	return ret;
 }
 
 /** This function is called when we receive data from a remote
@@ -235,22 +183,28 @@ void TreeSocket::OnDataReady()
 	{
 		std::string::size_type rline = line.find('\r');
 		if (rline != std::string::npos)
-			line = line.substr(0,rline);
+			line.erase(rline);
 		if (line.find('\0') != std::string::npos)
 		{
 			SendError("Read null character from socket");
 			break;
 		}
-		ProcessLine(line);
+
+		try
+		{
+			ProcessLine(line);
+		}
+		catch (CoreException& ex)
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error while processing: " + line);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason());
+			SendError(ex.GetReason() + " - check the log file for details");
+		}
+
 		if (!getError().empty())
 			break;
 	}
 	if (LinkState != CONNECTED && recvq.length() > 4096)
 		SendError("RecvQ overrun (line too long)");
 	Utils->Creator->loopCall = false;
-}
-
-bool TreeSocket::Introduced()
-{
-	return (capab == NULL);
 }

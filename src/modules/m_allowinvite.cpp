@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +A, allowing /invite freely on a channel and extban A to deny specific users it */
-
 class AllowInvite : public SimpleChannelModeHandler
 {
  public:
@@ -36,19 +34,12 @@ class ModuleAllowInvite : public Module
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(ni);
-		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('A');
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('A');
-	}
-
-	virtual ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
+	ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 		{
@@ -56,10 +47,10 @@ class ModuleAllowInvite : public Module
 			if (res == MOD_RES_DENY)
 			{
 				// Matching extban, explicitly deny /invite
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You are banned from using INVITE", user->nick.c_str(), channel->name.c_str());
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You are banned from using INVITE");
 				return res;
 			}
-			if (channel->IsModeSet('A') || res == MOD_RES_ALLOW)
+			if (channel->IsModeSet(ni) || res == MOD_RES_ALLOW)
 			{
 				// Explicitly allow /invite
 				return MOD_RES_ALLOW;
@@ -69,11 +60,7 @@ class ModuleAllowInvite : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleAllowInvite()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +A, allowing /invite freely on a channel and extban A to deny specific users it",VF_VENDOR);
 	}

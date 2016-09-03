@@ -21,32 +21,38 @@
 
 #include "main.h"
 #include "utils.h"
-#include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
+CmdResult CommandAway::HandleRemote(::RemoteUser* u, std::vector<std::string>& params)
 {
-	User* u = ServerInstance->FindNick(prefix);
-	if ((!u) || (IS_SERVER(u)))
-		return true;
 	if (params.size())
 	{
-		FOREACH_MOD(I_OnSetAway, OnSetAway(u, params[params.size() - 1]));
+		FOREACH_MOD(OnSetAway, (u, params.back()));
 
 		if (params.size() > 1)
-			u->awaytime = atoi(params[0].c_str());
+			u->awaytime = ConvToInt(params[0]);
 		else
 			u->awaytime = ServerInstance->Time();
 
-		u->awaymsg = params[params.size() - 1];
-
-		params[params.size() - 1] = ":" + params[params.size() - 1];
+		u->awaymsg = params.back();
 	}
 	else
 	{
-		FOREACH_MOD(I_OnSetAway, OnSetAway(u, ""));
+		FOREACH_MOD(OnSetAway, (u, ""));
 		u->awaymsg.clear();
 	}
-	Utils->DoOneToAllButSender(prefix,"AWAY",params,u->server);
-	return true;
+	return CMD_SUCCESS;
+}
+
+CommandAway::Builder::Builder(User* user)
+	: CmdBuilder(user, "AWAY")
+{
+	push_int(user->awaytime).push_last(user->awaymsg);
+}
+
+CommandAway::Builder::Builder(User* user, const std::string& msg)
+	: CmdBuilder(user, "AWAY")
+{
+	if (!msg.empty())
+		push_int(ServerInstance->Time()).push_last(msg);
 }

@@ -18,13 +18,15 @@
 
 
 #include "inspircd.h"
-#include "ssl.h"
-
-/* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
+#include "modules/ssl.h"
 
 class SSLCertExt : public ExtensionItem {
  public:
-	SSLCertExt(Module* parent) : ExtensionItem("ssl_cert", parent) {}
+	SSLCertExt(Module* parent)
+		: ExtensionItem("ssl_cert", ExtensionItem::EXT_USER, parent)
+	{
+	}
+
 	ssl_cert* get(const Extensible* item) const
 	{
 		return static_cast<ssl_cert*>(get_raw(item));
@@ -93,101 +95,93 @@ class CommandSSLInfo : public Command
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-		if (operonlyfp && !IS_OPER(user) && target != user)
+		if (operonlyfp && !user->IsOper() && target != user)
 		{
-			user->WriteServ("NOTICE %s :*** You cannot view SSL certificate information for other users", user->nick.c_str());
+			user->WriteNotice("*** You cannot view SSL certificate information for other users");
 			return CMD_FAILURE;
 		}
 		ssl_cert* cert = CertExt.get(target);
 		if (!cert)
 		{
-			user->WriteServ("NOTICE %s :*** No SSL certificate for this user", user->nick.c_str());
+			user->WriteNotice("*** No SSL certificate for this user");
 		}
 		else if (cert->GetError().length())
 		{
-			user->WriteServ("NOTICE %s :*** No SSL certificate information for this user (%s).", user->nick.c_str(), cert->GetError().c_str());
+			user->WriteNotice("*** No SSL certificate information for this user (" + cert->GetError() + ").");
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Distinguished Name: %s", user->nick.c_str(), cert->GetDN().c_str());
-			user->WriteServ("NOTICE %s :*** Issuer:             %s", user->nick.c_str(), cert->GetIssuer().c_str());
-			user->WriteServ("NOTICE %s :*** Key Fingerprint:    %s", user->nick.c_str(), cert->GetFingerprint().c_str());
+			user->WriteNotice("*** Distinguished Name: " + cert->GetDN());
+			user->WriteNotice("*** Issuer:             " + cert->GetIssuer());
+			user->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
 		}
 		return CMD_SUCCESS;
 	}
 };
 
-class ModuleSSLInfo : public Module
+class UserCertificateAPIImpl : public UserCertificateAPIBase
 {
-	CommandSSLInfo cmd;
+	SSLCertExt& ext;
 
  public:
-	ModuleSSLInfo() : cmd(this)
+	UserCertificateAPIImpl(Module* mod, SSLCertExt& certext)
+		: UserCertificateAPIBase(mod), ext(certext)
 	{
 	}
 
-	void init()
+ 	ssl_cert* GetCertificate(User* user) CXX11_OVERRIDE
+ 	{
+ 		return ext.get(user);
+ 	}
+};
+
+class ModuleSSLInfo : public Module, public Whois::EventListener
+{
+	CommandSSLInfo cmd;
+	UserCertificateAPIImpl APIImpl;
+
+ public:
+	ModuleSSLInfo()
+		: Whois::EventListener(this)
+		, cmd(this)
+		, APIImpl(this, cmd.CertExt)
 	{
-		ServerInstance->Modules->AddService(cmd);
-
-		ServerInstance->Modules->AddService(cmd.CertExt);
-
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest)
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = cmd.CertExt.get(dest);
+		ssl_cert* cert = cmd.CertExt.get(whois.GetTarget());
 		if (cert)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
+			whois.SendLine(671, "is using a secure connection");
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-			if ((!operonlyfp || source == dest || IS_OPER(source)) && !cert->fingerprint.empty())
-				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
-					source->nick.c_str(), dest->nick.c_str(), cert->fingerprint.c_str());
+			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
+				whois.SendLine(276, InspIRCd::Format("has client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
 
-	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
-	{
-		std::stringstream hl(hostlist);
-		std::string xhost;
-		while (hl >> xhost)
-		{
-			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if ((command == "OPER") && (validated))
 		{
-			OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
+			ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
 				OperInfo* ifo = i->second;
-				if (!ifo->oper_block)
-					return MOD_RES_PASSTHRU;
-
 				ssl_cert* cert = cmd.CertExt.get(user);
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
+					user->WriteNumeric(491, "This oper login requires an SSL connection.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -195,7 +189,7 @@ class ModuleSSLInfo : public Module
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
+					user->WriteNumeric(491, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -206,59 +200,63 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		SocketCertificateRequest req(&user->eh, this);
-		if (!req.cert)
-			return;
-		cmd.CertExt.set(user, req.cert);
+		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
+		if (cert)
+			cmd.CertExt.set(user, cert);
 	}
 
-	void OnPostConnect(User* user)
+	void OnPostConnect(User* user) CXX11_OVERRIDE
 	{
-		ssl_cert *cert = cmd.CertExt.get(user);
-		if (!cert || cert->fingerprint.empty())
+		LocalUser* const localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
+		if (!ssliohook)
+			return;
+
+		ssl_cert* const cert = ssliohook->GetCertificate();
+
+		{
+			std::string text = "*** You are connected using SSL cipher '";
+			ssliohook->GetCiphersuite(text);
+			text.push_back('\'');
+			if ((cert) && (!cert->GetFingerprint().empty()))
+				text.append(" and your SSL certificate fingerprint is ").append(cert->GetFingerprint());
+			user->WriteNotice(text);
+		}
+
+		if (!cert)
 			return;
 		// find an auto-oper block for this user
-		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
+		for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
 		{
 			OperInfo* ifo = i->second;
-			if (!ifo->oper_block)
-				continue;
-
 			std::string fp = ifo->oper_block->getString("fingerprint");
 			if (fp == cert->fingerprint && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		SocketCertificateRequest req(&user->eh, this);
+		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
 		bool ok = true;
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
-			ok = (req.cert && req.cert->IsCAVerified());
+			ok = (cert && cert->IsCAVerified());
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
-			ok = (req.cert != NULL);
+			ok = (cert != NULL);
 		}
 
 		if (!ok)
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("GET_USER_CERT", request.id) == 0)
-		{
-			UserCertificateRequest& req = static_cast<UserCertificateRequest&>(request);
-			req.cert = cmd.CertExt.get(req.user);
-		}
-	}
 };
 
 MODULE_INIT(ModuleSSLInfo)
-

@@ -18,24 +18,8 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
-
-/* $ModDesc: Allows storage of oper credentials in an SQL table */
-
-static bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
-{
-	std::stringstream hl(hostlist);
-	std::string xhost;
-	while (hl >> xhost)
-	{
-		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
-}
+#include "modules/sql.h"
+#include "modules/hash.h"
 
 class OpMeQuery : public SQLQuery
 {
@@ -46,9 +30,9 @@ class OpMeQuery : public SQLQuery
 	{
 	}
 
-	void OnResult(SQLResult& res)
+	void OnResult(SQLResult& res) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -57,30 +41,17 @@ class OpMeQuery : public SQLQuery
 		SQLEntries row;
 		while (res.GetRow(row))
 		{
-#if 0
-			parameterlist cols;
-			res.GetCols(cols);
-
-			std::vector<KeyVal>* items;
-			reference<ConfigTag> tag = ConfigTag::create("oper", "<m_sqloper>", 0, items);
-			for(unsigned int i=0; i < cols.size(); i++)
-			{
-				if (!row[i].nul)
-					items->insert(std::make_pair(cols[i], row[i]));
-			}
-#else
 			if (OperUser(user, row[0], row[1]))
 				return;
-#endif
 		}
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
 
-	void OnError(SQLerror& error)
+	void OnError(SQLerror& error) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.Str());
 		fallback();
 	}
 
@@ -90,7 +61,7 @@ class OpMeQuery : public SQLQuery
 		if (!user)
 			return;
 
-		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
+		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
 
 		if (oper_command)
 		{
@@ -101,16 +72,16 @@ class OpMeQuery : public SQLQuery
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_sqloper",SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 
 	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
-		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
-		if (iter == ServerInstance->Config->oper_blocks.end())
+		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(type);
+		if (iter == ServerInstance->Config->OperTypes.end())
 		{
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
 		}
 		OperInfo* ifo = iter->second;
@@ -119,7 +90,7 @@ class OpMeQuery : public SQLQuery
 
 		hostname.append("@").append(user->host);
 
-		if (OneOfMatches(hostname.c_str(), user->GetIPString(), pattern))
+		if (InspIRCd::MatchMask(pattern, hostname, user->GetIPString()))
 		{
 			/* Opertype and host match, looks like this is it. */
 
@@ -140,15 +111,7 @@ class ModuleSQLOper : public Module
 public:
 	ModuleSQLOper() : SQL(this, "SQL") {}
 
-	void init()
-	{
-		OnRehash(NULL);
-
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
@@ -159,10 +122,10 @@ public:
 			SQL.SetProvider("SQL/" + dbid);
 
 		hashtype = tag->getString("hash");
-		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
+		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password' AND active=1;");
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (validated && command == "OPER" && parameters.size() >= 2)
 		{
@@ -172,7 +135,7 @@ public:
 				/* Query is in progress, it will re-invoke OPER if needed */
 				return MOD_RES_DENY;
 			}
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: database not present");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "database not present");
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -184,16 +147,15 @@ public:
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
-		userinfo["password"] = hash ? hash->hexsum(password) : password;
+		userinfo["password"] = hash ? hash->Generate(password) : password;
 
 		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSQLOper)

@@ -21,13 +21,10 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the CHGHOST command */
-
 /** Handle /CHGHOST
  */
 class CommandChghost : public Command
 {
- private:
 	char* hostmap;
  public:
 	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
@@ -35,16 +32,16 @@ class CommandChghost : public Command
 		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<nick> <newhost>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		const char* x = parameters[1].c_str();
 
-		if (parameters[1].length() > 63)
+		if (parameters[1].length() > ServerInstance->Config->Limits.MaxHost)
 		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
+			user->WriteNotice("*** CHGHOST: Host too long");
 			return CMD_FAILURE;
 		}
 
@@ -52,7 +49,7 @@ class CommandChghost : public Command
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+user->nick+" :*** CHGHOST: Invalid characters in hostname");
+				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
@@ -60,15 +57,15 @@ class CommandChghost : public Command
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		// Allow services to change the host of unregistered users
-		if ((!dest) || ((dest->registered != REG_ALL) && (!ServerInstance->ULine(user->server))))
+		if ((!dest) || ((dest->registered != REG_ALL) && (!user->server->IsULine())))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
 		{
-			if ((dest->ChangeDisplayedHost(parameters[1].c_str())) && (!ServerInstance->ULine(user->server)))
+			if ((dest->ChangeDisplayedHost(parameters[1])) && (!user->server->IsULine()))
 			{
 				// fix by brain - ulines set hosts silently
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
@@ -80,10 +77,7 @@ class CommandChghost : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -92,20 +86,13 @@ class ModuleChgHost : public Module
 {
 	CommandChghost cmd;
 	char hostmap[256];
+
  public:
 	ModuleChgHost() : cmd(this, hostmap)
 	{
 	}
 
-	void init()
-	{
-		OnRehash(NULL);
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
@@ -114,15 +101,10 @@ class ModuleChgHost : public Module
 			hostmap[(unsigned char)*n] = 1;
 	}
 
-	~ModuleChgHost()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleChgHost)

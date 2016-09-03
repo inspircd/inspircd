@@ -19,49 +19,37 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the ability to abbreviate commands a-la BBC BASIC keywords. */
-
 class ModuleAbbreviation : public Module
 {
  public:
-	void init()
-	{
-		ServerInstance->Modules->Attach(I_OnPreCommand, this);
-	}
-
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
 		if (validated || command.empty() || *command.rbegin() != '.')
 			return MOD_RES_PASSTHRU;
 
-		/* Whack the . off the end */
-		command.erase(command.end() - 1);
-
 		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
-		size_t clen = command.length();
+		size_t clen = command.length() - 1;
 		std::string foundcommand, matchlist;
 		bool foundmatch = false;
-		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
+		const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+		for (CommandParser::CommandMap::const_iterator n = commands.begin(); n != commands.end(); ++n)
 		{
-			if (n->first.length() < clen)
-				continue;
-
-			if (command == n->first.substr(0, clen))
+			if (!command.compare(0, clen, n->first, 0, clen))
 			{
 				if (matchlist.length() > 450)
 				{
-					user->WriteNumeric(420, "%s :Ambiguous abbreviation and too many possible matches.", user->nick.c_str());
+					user->WriteNumeric(420, "Ambiguous abbreviation and too many possible matches.");
 					return MOD_RES_DENY;
 				}
 
@@ -79,16 +67,11 @@ class ModuleAbbreviation : public Module
 		/* Ambiguous command, list the matches */
 		if (!matchlist.empty())
 		{
-			user->WriteNumeric(420, "%s :Ambiguous abbreviation, possible matches: %s%s", user->nick.c_str(), foundcommand.c_str(), matchlist.c_str());
+			user->WriteNumeric(420, InspIRCd::Format("Ambiguous abbreviation, possible matches: %s%s", foundcommand.c_str(), matchlist.c_str()));
 			return MOD_RES_DENY;
 		}
 
-		if (foundcommand.empty())
-		{
-			/* No match, we have to put the . back again so that the invalid command numeric looks correct. */
-			command += '.';
-		}
-		else
+		if (!foundcommand.empty())
 		{
 			command = foundcommand;
 		}

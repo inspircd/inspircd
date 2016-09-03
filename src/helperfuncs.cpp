@@ -22,8 +22,6 @@
  */
 
 
-/* $Core */
-
 #ifdef _WIN32
 #define _CRT_RAND_S
 #include <stdlib.h>
@@ -34,66 +32,19 @@
 #include "exitcodes.h"
 #include <iostream>
 
-std::string InspIRCd::GetServerDescription(const std::string& servername)
-{
-	std::string description;
-
-	FOREACH_MOD(I_OnGetServerDescription,OnGetServerDescription(servername,description));
-
-	if (!description.empty())
-	{
-		return description;
-	}
-	else
-	{
-		// not a remote server that can be found, it must be me.
-		return Config->ServerDesc;
-	}
-}
-
 /* Find a user record by nickname and return a pointer to it */
 User* InspIRCd::FindNick(const std::string &nick)
 {
 	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
-
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
-}
-
-User* InspIRCd::FindNick(const char* nick)
-{
-	if (isdigit(*nick))
-		return FindUUID(nick);
-
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
+	return FindNickOnly(nick);
 }
 
 User* InspIRCd::FindNickOnly(const std::string &nick)
 {
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
+	user_hash::iterator iter = this->Users->clientlist.find(nick);
 
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
-}
-
-User* InspIRCd::FindNickOnly(const char* nick)
-{
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
+	if (iter == this->Users->clientlist.end())
 		return NULL;
 
 	return iter->second;
@@ -101,64 +52,24 @@ User* InspIRCd::FindNickOnly(const char* nick)
 
 User *InspIRCd::FindUUID(const std::string &uid)
 {
-	user_hash::iterator finduuid = this->Users->uuidlist->find(uid);
+	user_hash::iterator finduuid = this->Users->uuidlist.find(uid);
 
-	if (finduuid == this->Users->uuidlist->end())
+	if (finduuid == this->Users->uuidlist.end())
 		return NULL;
 
 	return finduuid->second;
 }
-
-User *InspIRCd::FindUUID(const char *uid)
-{
-	return FindUUID(std::string(uid));
-}
-
 /* find a channel record by channel name and return a pointer to it */
-Channel* InspIRCd::FindChan(const char* chan)
-{
-	chan_hash::iterator iter = chanlist->find(chan);
-
-	if (iter == chanlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
-}
 
 Channel* InspIRCd::FindChan(const std::string &chan)
 {
-	chan_hash::iterator iter = chanlist->find(chan);
+	chan_hash::iterator iter = chanlist.find(chan);
 
-	if (iter == chanlist->end())
+	if (iter == chanlist.end())
 		/* Couldn't find it */
 		return NULL;
 
 	return iter->second;
-}
-
-/* Send an error notice to all users, registered or not */
-void InspIRCd::SendError(const std::string &s)
-{
-	for (LocalUserList::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
-	{
-		User* u = *i;
-		if (u->registered == REG_ALL)
-		{
-		   	u->WriteServ("NOTICE %s :%s",u->nick.c_str(),s.c_str());
-	   	}
-		else
-		{
-			/* Unregistered connections receive ERROR, not a NOTICE */
-			u->Write("ERROR :" + s);
-		}
-	}
-}
-
-/* return channel count */
-long InspIRCd::ChannelCount()
-{
-	return chanlist->size();
 }
 
 bool InspIRCd::IsValidMask(const std::string &mask)
@@ -216,7 +127,8 @@ void InspIRCd::StripColor(std::string &sentence)
 		else
 			seq = 0;
 
-		if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
+		// Strip all control codes too except \001 for CTCP
+		if (seq || ((*i >= 0) && (*i < 32) && (*i != 1)))
 			i = sentence.erase(i);
 		else
 			++i;
@@ -281,47 +193,35 @@ void InspIRCd::ProcessColors(file_cache& input)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const char *chname, size_t max)
+bool IsChannelHandler::Call(const std::string& chname)
 {
-	const char *c = chname + 1;
-
-	/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
-	if (!chname || *chname != '#')
-	{
+	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.ChanMax)
 		return false;
-	}
 
-	while (*c)
+	if (chname[0] != '#')
+		return false;
+
+	for (std::string::const_iterator i = chname.begin()+1; i != chname.end(); ++i)
 	{
-		switch (*c)
+		switch (*i)
 		{
 			case ' ':
 			case ',':
 			case 7:
 				return false;
 		}
-
-		c++;
-	}
-
-	size_t len = c - chname;
-	/* too long a name - note funky pointer arithmetic here. */
-	if (len > max)
-	{
-			return false;
 	}
 
 	return true;
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const char* n, size_t max)
+bool IsNickHandler::Call(const std::string& n)
 {
-	if (!n || !*n)
+	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;
 
-	unsigned int p = 0;
-	for (const char* i = n; *i; i++, p++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -329,7 +229,7 @@ bool IsNickHandler::Call(const char* n, size_t max)
 			continue;
 		}
 
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
+		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i != n.begin()))
 		{
 			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
 			continue;
@@ -339,17 +239,16 @@ bool IsNickHandler::Call(const char* n, size_t max)
 		return false;
 	}
 
-	/* too long? or not */
-	return (p <= max);
+	return true;
 }
 
 /* return true for good ident, false else */
-bool IsIdentHandler::Call(const char* n)
+bool IsIdentHandler::Call(const std::string& n)
 {
-	if (!n || !*n)
+	if (n.empty())
 		return false;
 
-	for (const char* i = n; *i; i++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -367,7 +266,7 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
-bool IsSIDHandler::Call(const std::string &str)
+bool InspIRCd::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits
@@ -377,66 +276,22 @@ bool IsSIDHandler::Call(const std::string &str)
 			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
 }
 
-/* open the proper logfile */
-bool InspIRCd::OpenLog(char**, int)
-{
-	if (!Config->cmdline.writelog) return true; // Skip opening default log if -nolog
-
-	if (Config->cmdline.startup_log.empty())
-		Config->cmdline.startup_log = LOG_PATH "/startup.log";
-	FILE* startup = fopen(Config->cmdline.startup_log.c_str(), "a+");
-
-	if (!startup)
-	{
-		return false;
-	}
-
-	FileWriter* fw = new FileWriter(startup);
-	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? DEBUG : DEFAULT), fw);
-
-	this->Logs->AddLogType("*", f, true);
-
-	return true;
-}
-
 void InspIRCd::CheckRoot()
 {
 #ifndef _WIN32
 	if (geteuid() == 0)
 	{
 		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Can't start as root");
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif
 }
 
-void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
-{
-	std::string copy_text = text;
-
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));
-
-	if (MOD_RESULT != MOD_RES_DENY)
-		user->WriteServ("%d %s", numeric, copy_text.c_str());
-}
-
-void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...)
-{
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-	va_start (argsPtr, format);
-	vsnprintf(textbuffer, MAXBUF, format, argsPtr);
-	va_end(argsPtr);
-
-	this->SendWhoisLine(user, dest, numeric, std::string(textbuffer));
-}
-
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */
-long InspIRCd::Duration(const std::string &str)
+unsigned long InspIRCd::Duration(const std::string &str)
 {
 	unsigned char multiplier = 0;
 	long total = 0;
@@ -476,31 +331,44 @@ long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-bool InspIRCd::ULine(const std::string& sserver)
+const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 {
-	if (sserver.empty())
-		return true;
+	static std::vector<char> formatBuffer(1024);
 
-	return (Config->ulines.find(sserver.c_str()) != Config->ulines.end());
+	while (true)
+	{
+		va_list dst;
+		va_copy(dst, vaList);
+
+		int vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, dst);
+		va_end(dst);
+
+		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
+		{
+			break;
+		}
+
+		formatBuffer.resize(formatBuffer.size() * 2);
+	}
+
+	return &formatBuffer[0];
 }
 
-bool InspIRCd::SilentULine(const std::string& sserver)
+const char* InspIRCd::Format(const char* formatString, ...)
 {
-	std::map<irc::string,bool>::iterator n = Config->ulines.find(sserver.c_str());
-	if (n != Config->ulines.end())
-		return n->second;
-	else
-		return false;
+	const char* ret;
+	VAFORMAT(ret, formatString, formatString);
+	return ret;
 }
 
-std::string InspIRCd::TimeString(time_t curtime)
+std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32
 	if (curtime < 0)
 		curtime = 0;
 #endif
 
-	struct tm* timeinfo = localtime(&curtime);
+	struct tm* timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	if (!timeinfo)
 	{
 		curtime = 0;
@@ -514,27 +382,15 @@ std::string InspIRCd::TimeString(time_t curtime)
 	else if (timeinfo->tm_year + 1900 < 1000)
 		timeinfo->tm_year = 0;
 
-	return std::string(asctime(timeinfo),24);
-}
+	// This is the default format used by asctime without the terminating new line.
+	if (!format)
+		format = "%a %b %d %H:%M:%S %Y";
 
-// You should only pass a single character to this.
-void InspIRCd::AddExtBanChar(char c)
-{
-	std::string &tok = Config->data005;
-	std::string::size_type ebpos = tok.find(" EXTBAN=,");
+	char buffer[512];
+	if (!strftime(buffer, sizeof(buffer), format, timeinfo))
+		buffer[0] = '\0';
 
-	if (ebpos == std::string::npos)
-	{
-		tok.append(" EXTBAN=,");
-		tok.push_back(c);
-	}
-	else
-	{
-		ebpos += 9;
-		while (isalpha(tok[ebpos]) && tok[ebpos] < c)
-			ebpos++;
-		tok.insert(ebpos, 1, c);
-	}
+	return buffer;
 }
 
 std::string InspIRCd::GenRandomStr(int length, bool printable)
@@ -588,11 +444,11 @@ ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::st
 		std::string::size_type pos = current.find(':');
 		if (pos == std::string::npos)
 			continue;
-		if (current.substr(0,pos) == restriction)
+		if (!current.compare(0, pos, restriction))
 			minmode = current[pos+1];
 	}
 
-	ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
+	PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(minmode);
 	if (mh && mypfx >= mh->GetPrefixRank())
 		return MOD_RES_ALLOW;
 	if (mh || minmode == '*')

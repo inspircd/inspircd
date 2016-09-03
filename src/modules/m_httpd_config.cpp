@@ -19,18 +19,17 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
-#include "protocol.h"
+#include "modules/httpd.h"
 
-/* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */
-
-class ModuleHttpConfig : public Module
+class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 {
+	HTTPdAPI API;
+
  public:
-	void init()
+	ModuleHttpConfig()
+		: HTTPRequestEventListener(this)
+		, API(this)
 	{
-		Implementation eventlist[] = { I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	std::string Sanitize(const std::string &str)
@@ -67,14 +66,12 @@ class ModuleHttpConfig : public Module
 		return ret;
 	}
 
-	void OnEvent(Event& event)
+	ModResult HandleRequest(HTTPRequest* http)
 	{
 		std::stringstream data("");
 
-		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
-			HTTPRequest* http = (HTTPRequest*)&event;
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 
 			if ((http->GetURI() == "/config") || (http->GetURI() == "/config/"))
 			{
@@ -95,18 +92,21 @@ class ModuleHttpConfig : public Module
 				data << "</body></html>";
 				/* Send the document back to m_httpd */
 				HTTPDocumentResponse response(this, *http, &data, 200);
-				response.headers.SetHeader("X-Powered-By", "m_httpd_config.so");
+				response.headers.SetHeader("X-Powered-By", MODNAME);
 				response.headers.SetHeader("Content-Type", "text/html");
-				response.Send();
+				API->SendResponse(response);
+				return MOD_RES_DENY; // Handled
 			}
 		}
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleHttpConfig()
+	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
 	{
+		return HandleRequest(&req);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd.so", VF_VENDOR);
 	}

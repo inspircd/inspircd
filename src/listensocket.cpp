@@ -19,14 +19,17 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "socketengine.h"
+#include "iohook.h"
+
+#ifndef _WIN32
+#include <netinet/tcp.h>
+#endif
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
 {
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
-	bind_desc = irc::sockets::satouser(bind_to);
+	bind_desc = bind_to.str();
 
 	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
 
@@ -51,23 +54,39 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	}
 #endif
 
-	ServerInstance->SE->SetReuse(fd);
-	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
+	SocketEngine::SetReuse(fd);
+	int rv = SocketEngine::Bind(this->fd, bind_to);
 	if (rv >= 0)
-		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
+		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
+
+	// Default defer to on for TLS listeners because in TLS the client always speaks first
+	int timeout = tag->getInt("defer", (tag->getString("ssl").empty() ? 0 : 3));
+	if (timeout && !rv)
+	{
+#if defined TCP_DEFER_ACCEPT
+		setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
+#elif defined SO_ACCEPTFILTER
+		struct accept_filter_arg afa;
+		memset(&afa, 0, sizeof(afa));
+		strcpy(afa.af_name, "dataready");
+		setsockopt(fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
+#endif
+	}
 
 	if (rv < 0)
 	{
 		int errstore = errno;
-		ServerInstance->SE->Shutdown(this, 2);
-		ServerInstance->SE->Close(this);
+		SocketEngine::Shutdown(this, 2);
+		SocketEngine::Close(this->GetFd());
 		this->fd = -1;
 		errno = errstore;
 	}
 	else
 	{
-		ServerInstance->SE->NonBlocking(this->fd);
-		ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		SocketEngine::NonBlocking(this->fd);
+		SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+
+		this->ResetIOHookProvider();
 	}
 }
 
@@ -75,55 +94,33 @@ ListenSocket::~ListenSocket()
 {
 	if (this->GetFd() > -1)
 	{
-		ServerInstance->SE->DelFd(this);
-		ServerInstance->Logs->Log("SOCKET", DEBUG,"Shut down listener on fd %d", this->fd);
-		ServerInstance->SE->Shutdown(this, 2);
-		if (ServerInstance->SE->Close(this) != 0)
-			ServerInstance->Logs->Log("SOCKET", DEBUG,"Failed to cancel listener: %s", strerror(errno));
-		this->fd = -1;
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
+		SocketEngine::Shutdown(this, 2);
+		if (SocketEngine::Close(this) != 0)
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
 	}
 }
 
-/* Just seperated into another func for tidiness really.. */
-void ListenSocket::AcceptInternal()
+void ListenSocket::OnEventHandlerRead()
 {
 	irc::sockets::sockaddrs client;
 	irc::sockets::sockaddrs server;
 
 	socklen_t length = sizeof(client);
-	int incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
+	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Accepting connection on socket %s fd %d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
-		ServerInstance->stats->statsRefused++;
+		ServerInstance->stats.Refused++;
 		return;
 	}
 
 	socklen_t sz = sizeof(server);
 	if (getsockname(incomingSockfd, &server.sa, &sz))
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Can't get peername: %s", strerror(errno));
 		irc::sockets::aptosa(bind_addr, bind_port, server);
-	}
-
-	/*
-	 * XXX -
-	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
-	 * its a pretty big but for the moment valid assumption:
-	 * file descriptors are handed out starting at 0, and are recycled as theyre freed.
-	 * therefore if there is ever an fd over 65535, 65536 clients must be connected to the
-	 * irc server at once (or the irc server otherwise initiating this many connections, files etc)
-	 * which for the time being is a physical impossibility (even the largest networks dont have more
-	 * than about 10,000 users on ONE server!)
-	 */
-	if (incomingSockfd >= ServerInstance->SE->GetMaxFds())
-	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "Server is full");
-		ServerInstance->SE->Shutdown(incomingSockfd, 2);
-		ServerInstance->SE->Close(incomingSockfd);
-		ServerInstance->stats->statsRefused++;
-		return;
 	}
 
 	if (client.sa.sa_family == AF_INET6)
@@ -156,7 +153,7 @@ void ListenSocket::AcceptInternal()
 		}
 	}
 
-	ServerInstance->SE->NonBlocking(incomingSockfd);
+	SocketEngine::NonBlocking(incomingSockfd);
 
 	ModResult res;
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
@@ -171,29 +168,34 @@ void ListenSocket::AcceptInternal()
 	}
 	if (res == MOD_RES_ALLOW)
 	{
-		ServerInstance->stats->statsAccept++;
+		ServerInstance->stats.Accept++;
 	}
 	else
 	{
-		ServerInstance->stats->statsRefused++;
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s - %s",
+		ServerInstance->stats.Refused++;
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
-		ServerInstance->SE->Close(incomingSockfd);
+		SocketEngine::Close(incomingSockfd);
 	}
 }
 
-void ListenSocket::HandleEvent(EventType e, int err)
+void ListenSocket::ResetIOHookProvider()
 {
-	switch (e)
+	iohookprovs[0].SetProvider(bind_tag->getString("hook"));
+
+	// Check that all non-last hooks support being in the middle
+	for (IOHookProvList::iterator i = iohookprovs.begin(); i != iohookprovs.end()-1; ++i)
 	{
-		case EVENT_ERROR:
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
-			break;
-		case EVENT_WRITE:
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
-			break;
-		case EVENT_READ:
-			this->AcceptInternal();
-			break;
+		IOHookProvRef& curr = *i;
+		// Ignore if cannot be in the middle
+		if ((curr) && (!curr->IsMiddle()))
+			curr.SetProvider(std::string());
 	}
+
+	std::string provname = bind_tag->getString("ssl");
+	if (!provname.empty())
+		provname.insert(0, "ssl/");
+
+	// SSL should be the last
+	iohookprovs.back().SetProvider(provname);
 }

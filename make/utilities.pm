@@ -20,28 +20,25 @@
 #
 
 
-package make::utilities;
+BEGIN {
+	require 5.8.0;
+}
 
-require 5.8.0;
+package make::utilities;
 
 use strict;
 use warnings FATAL => qw(all);
 
 use Exporter 'import';
-use POSIX;
+use Fcntl;
+use File::Path;
 use File::Temp;
 use Getopt::Long;
-use Fcntl;
+use POSIX;
+
 our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
-# Parse the output of a *_config program,
-# such as pcre_config, take out the -L
-# directive and return an rpath for it.
-
-# \e[1;32msrc/Makefile\e[0m
-
 my %already_added = ();
-my $if_skip_lines = 0;
 
 sub promptstring($$$$$)
 {
@@ -94,33 +91,9 @@ sub make_rpath($;$)
 	return $output;
 }
 
-sub extend_pkg_path()
-{
-	return if defined $ENV{DISABLE_EXTEND_PKG_PATH};
-	if (!exists $ENV{PKG_CONFIG_PATH})
-	{
-		$ENV{PKG_CONFIG_PATH} = "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
-	}
-	else
-	{
-		$ENV{PKG_CONFIG_PATH} .= ":/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
-	}
-}
-
 sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
-
-	my $key = "default_includedir_$packagename";
-	if (exists $main::config{$key})
-	{
-		print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
-		my $ret = $main::config{$key};
-		print "\e[1;32m$ret\e[0m (cached)\n";
-		return $ret;
-	}
-
-	extend_pkg_path();
 
 	print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
@@ -194,8 +167,6 @@ sub pkgconfig_check_version($$;$)
 {
 	my ($packagename, $version, $module) = @_;
 
-	extend_pkg_path();
-
 	print "Checking version of package \e[1;32m$packagename\e[0m is >= \e[1;32m$version\e[0m... ";
 
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
@@ -226,17 +197,6 @@ sub pkgconfig_check_version($$;$)
 sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
-
-	my $key = "default_libdir_$packagename";
-	if (exists $main::config{$key})
-	{
-		print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
-		my $ret = $main::config{$key};
-		print "\e[1;32m$ret\e[0m (cached)\n";
-		return $ret;
-	}
-
-	extend_pkg_path();
 
 	print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
@@ -309,25 +269,6 @@ sub translate_functions($$)
 	{
 		$module =~ /modules*\/(.+?)$/;
 		$module = $1;
-
-		# This is only a cursory check, just designed to catch casual accidental use of backticks.
-		# There are pleanty of ways around it, but its not supposed to be for security, just checking
-		# that people are using the new configuration api as theyre supposed to and not just using
-		# backticks instead of eval(), being as eval has accountability. People wanting to get around
-		# the accountability will do so anyway.
-		if (($line =~ /`/) && ($line !~ /eval\(.+?`.+?\)/))
-		{
-			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
-		}
-
-		if ($line =~ /if(gt|lt)\("(.+?)","(.+?)"\)/) {
-			chomp(my $result = `$2 2>/dev/null`);
-			if (($1 eq 'gt' && $result le $3) || ($1 eq 'lt' && $result ge $3)) {
-				$line = substr $line, 0, $-[0];
-			} else {
-				$line =~ s/if$1\("$2","$3"\)//;
-			}
-		}
 
 		if ($line =~ /ifuname\(\!"(\w+)"\)/)
 		{

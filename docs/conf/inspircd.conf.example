@@ -34,6 +34,15 @@
 #                                                                      #
 ########################################################################
 
+#-#-#-#-#-#-#-#-#-#  CONFIGURATION FORMAT  #-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+# In order to maintain compatibility with older configuration files,  #
+# you can change the configuration parser to parse as it did in       #
+# previous releases. When using the "compat" format, you need to use  #
+# C++ escape sequences (e.g. \n) instead of XML ones (e.g. &nl;) and  #
+# can not use <define> to create macros.                              #
+#<config format="compat">
+
 #-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This optional tag allows you to include another config file         #
@@ -65,11 +74,6 @@
 #                                                                     #
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
-#                                                                     #
-# Using variable definitions REQUIRES that the config format be       #
-# changed to "xml" from the default "compat" that uses escape         #
-# sequences such as "\"" and "\n", and does not support <define>      #
-<config format="xml">
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
@@ -128,7 +132,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list for          #
+#  spanningtree module! Please see the modules list for               #
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT work!                                #
 
@@ -153,15 +157,31 @@
       # loaded for SSL to work. If you do not want the port(s) in this bind
       # tag to support SSL, just remove or comment out this option.
       ssl="gnutls"
+
+      # defer: When this is non-zero, connections will not be handed over to
+      # the daemon from the operating system before data is ready.
+      # In Linux, the value indicates the number of seconds we'll wait for a
+      # connection to come up with data. Don't set it too low!
+      # In BSD the value is ignored; only zero and non-zero is possible.
+      # Windows ignores this parameter completely.
+      # Note: This does not take effect on rehash.
+      # To change it on a running bind, you'll have to comment it out,
+      # rehash, comment it in and rehash again.
+      defer="0"
 >
 
 <bind address="" port="6660-6669" type="clients">
+
+# Listener accepting HTML5 WebSocket connections.
+# Requires the websocket module and SHA-1 hashing support (provided by the sha1
+# module).
+#<bind address="" port="7002" type="clients" hook="websocket">
 
 # When linking servers, the OpenSSL and GnuTLS implementations are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
 # Supported SSL types are: "openssl" and "gnutls".
-# You must load m_ssl_openssl for OpenSSL or m_ssl_gnutls for GnuTLS.
+# You must load the ssl_openssl module for OpenSSL or ssl_gnutls for GnuTLS.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
@@ -176,9 +196,9 @@
 
 <power
        # hash: what hash these passwords are hashed with.
-       # Requires the module for selected hash (m_md5.so, m_sha256.so
-       # or m_ripemd160.so) be loaded and the password hashing module
-       # (m_password_hash.so) loaded.
+       # Requires the module for selected hash (md5, sha256, or
+       # ripemd160) be loaded and the password hashing module
+       # (password_hash) loaded.
        # Options here are: "md5", "sha256" and "ripemd160", or one of
        # these prefixed with "hmac-", e.g.: "hmac-sha256".
        # Optional, but recommended. Create hashed passwords with:
@@ -236,9 +256,8 @@
          allow="203.0.113.*"
 
          # hash: what hash this password is hashed with. requires the module
-         # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-         # loaded and the password hashing module (m_password_hash.so)
-         # loaded. Options here are: "md5", "sha256" and "ripemd160".
+         # for selected hash (md5, sha256 or ripemd160) be loaded and the
+         # password hashing module (password_hash) loaded.
          # Optional, but recommended. Create hashed passwords with:
          # /mkpasswd <hash> <password>
          #hash="sha256"
@@ -247,8 +266,8 @@
          password="secret"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+         # be in at one time.
+         maxchans="20"
 
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
@@ -265,8 +284,12 @@
          # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to on)
          maxconnwarn="off"
 
+         # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         resolvehostnames="yes"
+
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
-         # This setting only has effect when m_dnsbl is loaded.
+         # This setting only has effect when the dnsbl module is loaded.
          #usednsbl="yes"
 
          # useident: Defines if users in this class MUST respond to a ident query or not.
@@ -276,15 +299,15 @@
          limit="5000"
 
          # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
+         # For the example to work, this also requires that the "cloaking"
          # module be loaded as well.
          modes="+x"
 
          # requireident, requiressl, requireaccount: require that users of this
          # block have a valid ident response, use SSL, or have authenticated.
-         # Requires m_ident, m_sslinfo, or m_services_account respectively.
+         # Requires ident, sslinfo, or the services_account module, respectively.
          requiressl="on"
          # NOTE: For requireaccount, you must complete the signon prior to full
          # connection. Currently, this is only possible by using SASL
@@ -316,8 +339,8 @@
          allow="*"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+         # be in at one time.
+         maxchans="20"
 
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
@@ -372,6 +395,10 @@
          # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
 
+         # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         resolvehostnames="yes"
+
          # useident: Defines if users in this class must respond to a ident query or not.
          useident="no"
 
@@ -379,9 +406,9 @@
          limit="5000"
 
          # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
+         # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x">
 
@@ -412,11 +439,11 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="conf/examples/opers.conf.example">
+<include file="examples/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="conf/examples/links.conf.example">
+<include file="examples/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -424,23 +451,12 @@
 # Files block - contains files whose contents are used by the ircd
 #
 #   motd - displayed on connect and when a user executes /MOTD
-#   rules - displayed when the user executes /RULES
 # Modules can also define their own files
-<files motd="conf/examples/motd.txt.example" rules="conf/examples/rules.txt.example">
+<files motd="examples/motd.txt.example">
 
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
-#<execfiles rules="wget -O - http://www.example.com/rules.txt">
-
-#-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-
-<channels
-          # users: Maximum number of channels a user can be in at once.
-          users="20"
-
-          # opers: Maximum number of channels an oper can be in at once.
-          opers="60">
+#<execfiles motd="wget -O - http://www.example.com/motd.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # If these values are not defined, InspIRCd uses the default DNS resolver
@@ -551,20 +567,10 @@
          # the correct parameters are.
          syntaxhints="no"
 
-         # cyclehosts: If enabled, when a user gets a host set, it will cycle
-         # them in all their channels. If not, it will simply change their host
-         # without cycling them.
-         cyclehosts="yes"
-
          # cyclehostsfromuser: If enabled, the source of the mode change for
          # cyclehosts will be the user who cycled. This can look nicer, but
          # triggers anti-takeover mechanisms of some obsolete bots.
          cyclehostsfromuser="no"
-
-         # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
-         # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
-         # it will just message the user normally.
-         ircumsgprefix="no"
 
          # announcets: If set to yes, when the timestamp on a channel changes, all users
          # in the channel will be sent a NOTICE about it.
@@ -594,11 +600,11 @@
 
          # defaultmodes: What modes are set on a empty channel when a user
          # joins it and it is unregistered.
-         defaultmodes="nt"
+         defaultmodes="not"
 
-         # moronbanner: This is the text that is sent to a user when they are
+         # xlinemessage: This is the text that is sent to a user when they are
          # banned from the server.
-         moronbanner="You're banned! Email abuse@example.com with the ERROR line below for help."
+         xlinemessage="You're banned! Email irc@example.com with the ERROR line below for help."
 
          # exemptchanops: exemptions for channel access restrictions based on prefix.
          exemptchanops="nonick:v flood:o"
@@ -609,12 +615,7 @@
 
          # nosnoticestack: This prevents snotices from 'stacking' and giving you
          # the message saying '(last message repeated X times)'. Defaults to no.
-         nosnoticestack="no"
-
-         # welcomenotice: When turned on, this sends a NOTICE to connecting users
-         # with the text Welcome to <networkname>! after successful registration.
-         # Defaults to yes.
-         welcomenotice="yes">
+         nosnoticestack="no">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
@@ -629,33 +630,37 @@
              # in the accept queue. This is *NOT* the total maximum number of
              # connections per server. Some systems may only allow this to be up
              # to 5, while others (such as Linux and *BSD) default to 128.
+             # Setting this above the limit imposed by your OS can have undesired
+             # effects.
              somaxconn="128"
-
-             # limitsomaxconn: By default, somaxconn (see above) is limited to a
-             # safe maximum value in the 2.0 branch for compatibility reasons.
-             # This setting can be used to disable this limit, forcing InspIRCd
-             # to use the value specified above.
-             limitsomaxconn="true"
 
              # softlimit: This optional feature allows a defined softlimit for
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
+
+             # clonesonconnect: If this is set to false, we won't check for clones
+             # on initial connection, but only after the DNS check is done.
+             # This can be useful where your main class is more restrictive
+             # than some other class a user can be assigned after DNS lookup is complete.
+             # Turning this option off will make the server spend more time on users we may
+             # potentially not want. Normally this should be neglible, though.
+             # Default value is true
+             clonesonconnect="true"
 
              # quietbursts: When syncing or splitting from a network, a server
              # can generate a lot of connect and quit messages to opers with
              # +C and +Q snomasks. Setting this to yes squelches those messages,
              # which makes it easier for opers, but degrades the functionality of
              # bots like BOPM during netsplits.
-             quietbursts="yes"
-
-             # nouserdns: If enabled, no DNS lookups will be performed on
-             # connecting users. This can save a lot of resources on very busy servers.
-             nouserdns="no">
+             quietbursts="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
 <security
+          # allowcoreunload: If this value is set to yes, Opers will be able to
+          # unload core modules (e.g. cmd_privmsg.so).
+          allowcoreunload="no"
 
           # announceinvites: This option controls which members of the channel
           # receive an announcement when someone is INVITEd. Available values:
@@ -665,11 +670,6 @@
           # 'dynamic' - send invite announcements to halfops (if available) and
           #             higher ranked users. This is the recommended setting.
           announceinvites="dynamic"
-
-          # hidemodes: If enabled, then the listmodes given will be hidden
-          # from users below halfop. This is not recommended to be set on +b
-          # as it may break some functionality in popular clients such as mIRC.
-          hidemodes="eI"
 
           # hideulines: If this value is set to yes, U-lined servers will
           # be hidden from non-opers in /links and /map.
@@ -707,8 +707,8 @@
           # (Commands like /notice, /privmsg, /kick, etc)
           maxtargets="20"
 
-          # customversion: Displays a custom string when a user /version's
-          # the ircd. This may be set for security reasons or vanity reasons.
+          # customversion: A custom message to be displayed in the comments field
+          # of the VERSION command response. This does not hide the InspIRCd version.
           customversion=""
 
           # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
@@ -772,6 +772,9 @@
         # maxident: Maximum length of a ident/username.
         maxident="11"
 
+        # maxhost: Maximum length of a hostname.
+        maxhost="64"
+
         # maxquit: Maximum length of a quit message.
         maxquit="255"
 
@@ -787,6 +790,14 @@
         # maxaway: Maximum length of an away message.
         maxaway="200">
 
+#-#-#-#-#-#-#-#-#-#-#-#-# PATHS CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This configuration tag defines the location that InspIRCd stores    #
+# various types of files such as configuration files, log files and   #
+# modules. You will probably not need to change these from the values #
+# set when InspIRCd was built unless you are using a binary package   #
+# where you do not have the ability to set build time configuration.  #
+#<path configdir="conf" datadir="data" logdir="logs" moduledir="modules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
@@ -801,7 +812,7 @@
 # to do what they want.
 #
 # An example log tag would be:
-#  <log method="file" type="OPER" level="default" target="logs/opers.log">
+#  <log method="file" type="OPER" level="default" target="opers.log">
 # which would log all information on /oper (failed and successful) to
 # a file called opers.log.
 #
@@ -811,7 +822,7 @@
 #  - OPER - succesful and failed oper attempts
 #  - KILL - kill related messages
 #  - snomask - server notices (*all* snomasks will be logged)
-#  - FILTER - messages related to filter matches (m_filter)
+#  - FILTER - messages related to filter matches (filter module)
 #  - CONFIG - configuration related messages
 #  - COMMAND - die and restart messages, and messages related to unknown user types
 #  - SOCKET - socket engine informational/error messages
@@ -838,7 +849,7 @@
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
 
-<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="logs/ircd.log">
+<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="ircd.log">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -956,7 +967,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="conf/examples/modules.conf.example">
+<include file="examples/modules.conf.example">
 
 # Here are some pre-built modules.conf files that closely match the
 # default configurations of some popular IRCd's. You still may want to
@@ -968,10 +979,10 @@
 # recommended that you make your own modules file based on modules.conf.example.
 
 # Settings similar to UnrealIRCd defaults.
-#<include file="conf/examples/modules/unrealircd.conf.example">
+#<include file="examples/modules/unrealircd.conf.example">
 
 # Settings similar to Charybdis IRCd defaults.
-#<include file="conf/examples/modules/charybdis.conf.example">
+#<include file="examples/modules/charybdis.conf.example">
 
 
 #########################################################################

@@ -22,10 +22,8 @@
  */
 
 
-/* $ModDesc: Provides support for ircu-style services accounts, including chmode +R, etc. */
-
 #include "inspircd.h"
-#include "account.h"
+#include "modules/account.h"
 
 /** Channel mode +r - mark a channel as identified
  */
@@ -40,15 +38,15 @@ class Channel_r : public ModeHandler
 		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
-			if ((adding != channel->IsModeSet('r')))
+			if ((adding != channel->IsModeSet(this)))
 			{
-				channel->SetMode('r',adding);
+				channel->SetMode(this, adding);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick.c_str());
+			source->WriteNumeric(500, "Only a server may modify the +r channel mode");
 		}
 		return MODEACTION_DENY;
 	}
@@ -66,15 +64,15 @@ class User_r : public ModeHandler
 	{
 		if (!IS_LOCAL(source))
 		{
-			if ((adding != dest->IsModeSet('r')))
+			if ((adding != dest->IsModeSet(this)))
 			{
-				dest->SetMode('r',adding);
+				dest->SetMode(this, adding);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick.c_str());
+			source->WriteNumeric(500, "Only a server may modify the +r user mode");
 		}
 		return MODEACTION_DENY;
 	}
@@ -104,86 +102,90 @@ class AChannel_M : public SimpleChannelModeHandler
 	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
 };
 
-class ModuleServicesAccount : public Module
+class AccountExtItemImpl : public AccountExtItem
+{
+	Events::ModuleEventProvider eventprov;
+
+ public:
+	AccountExtItemImpl(Module* mod)
+		: AccountExtItem("accountname", ExtensionItem::EXT_USER, mod)
+		, eventprov(mod, "event/account")
+	{
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		User* user = static_cast<User*>(container);
+
+		StringExtItem::unserialize(format, container, value);
+
+		// If we are being reloaded then don't send the numeric or run the event
+		if (format == FORMAT_INTERNAL)
+			return;
+
+		if (!value.empty())
+		{
+			// Logged in
+			if (IS_LOCAL(user))
+			{
+				user->WriteNumeric(900, user->GetFullHost(), value, InspIRCd::Format("You are now logged in as %s", value.c_str()));
+			}
+		}
+		// If value is empty then logged out
+
+		FOREACH_MOD_CUSTOM(eventprov, AccountEventListener, OnAccountChange, (user, value));
+	}
+};
+
+class ModuleServicesAccount : public Module, public Whois::EventListener
 {
 	AChannel_R m1;
 	AChannel_M m2;
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
-	AccountExtItem accountname;
+	AccountExtItemImpl accountname;
 	bool checking_ban;
-
-	static bool ReadCGIIRCExt(const char* extname, User* user, const std::string*& out)
-	{
-		ExtensionItem* wiext = ServerInstance->Extensions.GetItem(extname);
-		if (!wiext)
-			return false;
-
-		if (wiext->creator->ModuleSourceFile != "m_cgiirc.so")
-			return false;
-
-		StringExtItem* stringext = static_cast<StringExtItem*>(wiext);
-		std::string* addr = stringext->get(user);
-		if (!addr)
-			return false;
-
-		out = addr;
-		return true;
-	}
-
  public:
-	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
-		accountname("accountname", this), checking_ban(false)
+	ModuleServicesAccount()
+		: Whois::EventListener(this)
+		, m1(this), m2(this), m3(this), m4(this), m5(this)
+		, accountname(this)
+		, checking_ban(false)
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
-		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
-
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void On005Numeric(std::string &t)
-	{
-		ServerInstance->AddExtBanChar('R');
-		ServerInstance->AddExtBanChar('U');
+		tokens["EXTBAN"].push_back('R');
+		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	void OnWhois(User* source, User* dest)
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		std::string *account = accountname.get(dest);
+		std::string* account = accountname.get(whois.GetTarget());
 
 		if (account)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
+			whois.SendLine(330, *account, "is logged in as");
 		}
 
-		if (dest->IsModeSet('r'))
+		if (whois.GetTarget()->IsModeSet(m5))
 		{
 			/* user is registered */
-			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick.c_str(), dest->nick.c_str());
+			whois.SendLine(307, "is a registered nick");
 		}
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
-		{
-			std::vector<std::string> modechange;
-			modechange.push_back(user->nick);
-			modechange.push_back("-r");
-			ServerInstance->SendMode(modechange, ServerInstance->FakeClient);
-		}
+		if ((user->IsModeSet(m5)) && (ServerInstance->FindNickOnly(oldnick) != user))
+			m5.RemoveMode(user);
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -196,10 +198,10 @@ class ModuleServicesAccount : public Module
 			Channel* c = (Channel*)dest;
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"regmoderated");
 
-			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
+			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, user->nick+" "+c->name+" :You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(477, c->name, "You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
 		}
@@ -207,17 +209,17 @@ class ModuleServicesAccount : public Module
 		{
 			User* u = (User*)dest;
 
-			if (u->IsModeSet('R') && !is_registered)
+			if (u->IsModeSet(m3) && !is_registered)
 			{
 				// user messaging a +R user and is not registered
-				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
+				user->WriteNumeric(477, u->nick, "You need to be identified to a registered account to message this user");
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) CXX11_OVERRIDE
 	{
 		if (checking_ban)
 			return MOD_RES_PASSTHRU;
@@ -253,27 +255,19 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
-	}
-
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
-	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
 
 		if (chan)
 		{
-			if (chan->IsModeSet('R'))
+			if (chan->IsModeSet(m1))
 			{
 				if (!is_registered)
 				{
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
+					user->WriteNumeric(477, chan->name, "You need to be identified to a registered account to join this channel");
 					return MOD_RES_DENY;
 				}
 			}
@@ -281,56 +275,14 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	// Whenever the linking module receives metadata from another server and doesnt know what
-	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
-	// module in turn to figure out if this metadata key belongs to them, and what they want
-	// to do with it.
-	// In our case we're only sending a single string around, so we just construct a std::string.
-	// Some modules will probably get much more complex and format more detailed structs and classes
-	// in a textual way for sending over the link.
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
-	{
-		User* dest = dynamic_cast<User*>(target);
-		// check if its our metadata key, and its associated with a user
-		if (dest && (extname == "accountname"))
-		{
-			std::string *account = accountname.get(dest);
-			if (account && !account->empty())
-			{
-				trim(*account);
-
-				if (IS_LOCAL(dest))
-				{
-					const std::string* host = &dest->dhost;
-					if (dest->registered != REG_ALL)
-					{
-						if (!ReadCGIIRCExt("cgiirc_webirc_hostname", dest, host))
-						{
-							ReadCGIIRCExt("cgiirc_webirc_ip", dest, host);
-						}
-					}
-
-					dest->WriteNumeric(900, "%s %s!%s@%s %s :You are now logged in as %s",
-						dest->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), host->c_str(), account->c_str(), account->c_str());
-				}
-
-				AccountEvent(this, dest, *account).Send();
-			}
-			else
-			{
-				AccountEvent(this, dest, "").Send();
-			}
-		}
-	}
-
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
 	}

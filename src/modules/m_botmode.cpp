@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides user mode +B to mark the user as a bot */
-
 /** Handles user mode +B
  */
 class BotMode : public SimpleUserModeHandler
@@ -31,40 +29,28 @@ class BotMode : public SimpleUserModeHandler
 	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, "bot", 'B') { }
 };
 
-class ModuleBotMode : public Module
+class ModuleBotMode : public Module, public Whois::EventListener
 {
 	BotMode bm;
  public:
 	ModuleBotMode()
-		: bm(this)
+		: Whois::EventListener(this)
+		, bm(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(bm);
-		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleBotMode()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
-	virtual void OnWhois(User* src, User* dst)
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (dst->IsModeSet('B'))
+		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 335, src->nick+" "+dst->nick+" :is a bot on "+ServerInstance->Config->Network);
+			whois.SendLine(335, "is a bot on " + ServerInstance->Config->Network);
 		}
 	}
-
 };
-
 
 MODULE_INIT(ModuleBotMode)

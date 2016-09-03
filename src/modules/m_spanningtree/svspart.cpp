@@ -19,16 +19,10 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "commands.h"
 
-CmdResult CommandSVSPart::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandSVSPart::Handle(User* user, std::vector<std::string>& parameters)
 {
 	User* u = ServerInstance->FindUUID(parameters[0]);
 	if (!u)
@@ -48,8 +42,5 @@ CmdResult CommandSVSPart::Handle(const std::vector<std::string>& parameters, Use
 
 RouteDescriptor CommandSVSPart::GetRouting(User* user, const std::vector<std::string>& parameters)
 {
-	User* u = ServerInstance->FindUUID(parameters[0]);
-	if (u)
-		return ROUTE_OPT_UCAST(u->server);
-	return ROUTE_LOCALONLY;
+	return ROUTE_OPT_UCAST(parameters[0]);
 }

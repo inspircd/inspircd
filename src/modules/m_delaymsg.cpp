@@ -19,14 +19,13 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channelmode +d <int>, to deny messages to a channel until <int> seconds. */
-
-class DelayMsgMode : public ModeHandler
+class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 {
  public:
 	LocalIntExt jointime;
-	DelayMsgMode(Module* Parent) : ModeHandler(Parent, "delaymsg", 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
-		, jointime("delaymsg", Parent)
+	DelayMsgMode(Module* Parent)
+		: ParamMode<DelayMsgMode, LocalIntExt>(Parent, "delaymsg", 'd')
+		, jointime("delaymsg", ExtensionItem::EXT_MEMBERSHIP, Parent)
 	{
 		levelrequired = OP_VALUE;
 	}
@@ -36,63 +35,49 @@ class DelayMsgMode : public ModeHandler
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnSet(User* source, Channel* chan, std::string& parameter);
+	void OnUnset(User* source, Channel* chan);
+
+	void SerializeParam(Channel* chan, int n, std::string& out)
+	{
+		out += ConvToStr(n);
+	}
 };
 
 class ModuleDelayMsg : public Module
 {
- private:
 	DelayMsgMode djm;
+	bool allownotice;
  public:
 	ModuleDelayMsg() : djm(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(djm);
-		ServerInstance->Modules->AddService(djm.jointime);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
-	}
-	Version GetVersion();
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&);
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
-	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list);
-	void OnRehash(User* user);
+	Version GetVersion() CXX11_OVERRIDE;
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 };
 
-ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
 {
-	if (adding)
-	{
-		if ((channel->IsModeSet('d')) && (channel->GetModeParameter('d') == parameter))
-			return MODEACTION_DENY;
+	// Setting a new limit, sanity check
+	unsigned int limit = ConvToInt(parameter);
+	if (limit == 0)
+		limit = 1;
 
-		/* Setting a new limit, sanity check */
-		long limit = atoi(parameter.c_str());
-
-		/* Wrap low values at 32768 */
-		if (limit < 0)
-			limit = 0x7FFF;
-
-		parameter = ConvToStr(limit);
-	}
-	else
-	{
-		if (!channel->IsModeSet('d'))
-			return MODEACTION_DENY;
-
-		/*
-		 * Clean up metadata
-		 */
-		const UserMembList* names = channel->GetUsers();
-		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
-			jointime.set(n->second, 0);
-	}
-	channel->SetModeParam('d', adding ? parameter : "");
+	ext.set(chan, limit);
 	return MODEACTION_ALLOW;
+}
+
+void DelayMsgMode::OnUnset(User* source, Channel* chan)
+{
+	/*
+	 * Clean up metadata
+	 */
+	const Channel::MemberMap& users = chan->GetUsers();
+	for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
+		jointime.set(n->second, 0);
 }
 
 Version ModuleDelayMsg::GetVersion()
@@ -102,19 +87,18 @@ Version ModuleDelayMsg::GetVersion()
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet('d')))
+	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet(djm)))
 	{
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
 }
 
-ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
-	/* Server origin */
-	if ((!user) || (!IS_LOCAL(user)))
+	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	if (target_type != TYPE_CHANNEL)
+	if ((target_type != TYPE_CHANNEL) || ((!allownotice) && (msgtype == MSG_NOTICE)))
 		return MOD_RES_PASSTHRU;
 
 	Channel* channel = (Channel*) dest;
@@ -128,14 +112,13 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	std::string len = channel->GetModeParameter('d');
+	int len = djm.ext.get(channel);
 
-	if (ts + atoi(len.c_str()) > ServerInstance->Time())
+	if ((ts + len) > ServerInstance->Time())
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(404, "%s %s :You must wait %s seconds after joining to send to channel (+d)",
-				user->nick.c_str(), channel->name.c_str(), len.c_str());
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, InspIRCd::Format("You must wait %d seconds after joining to send to channel (+d)", len));
 			return MOD_RES_DENY;
 		}
 	}
@@ -147,19 +130,10 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult ModuleDelayMsg::OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list)
-{
-	return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
-}
-
-void ModuleDelayMsg::OnRehash(User* user)
+void ModuleDelayMsg::ReadConfig(ConfigStatus& status)
 {
 	ConfigTag* tag = ServerInstance->Config->ConfValue("delaymsg");
-	if (tag->getBool("allownotice", true))
-		ServerInstance->Modules->Detach(I_OnUserPreNotice, this);
-	else
-		ServerInstance->Modules->Attach(I_OnUserPreNotice, this);
+	allownotice = tag->getBool("allownotice", true);
 }
 
 MODULE_INIT(ModuleDelayMsg)
-

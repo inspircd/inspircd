@@ -23,6 +23,25 @@
 
 #include "inspircd.h"
 
+
+/** Reference table, contains all current handlers
+ **/
+std::vector<EventHandler*> SocketEngine::ref;
+
+/** Current number of descriptors in the engine
+ */
+size_t SocketEngine::CurrentSetSize = 0;
+
+/** List of handlers that want a trial read/write
+ */
+std::set<int> SocketEngine::trials;
+
+int SocketEngine::MAX_DESCRIPTORS;
+
+/** Socket engine statistics: count of various events, bandwidth usage
+ */
+SocketEngine::Statistics SocketEngine::stats;
+
 EventHandler::EventHandler()
 {
 	fd = -1;
@@ -34,20 +53,12 @@ void EventHandler::SetFd(int FD)
 	this->fd = FD;
 }
 
-SocketEngine::SocketEngine()
-{
-	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
-	lastempty = ServerInstance->Time();
-	indata = outdata = 0;
-}
-
-SocketEngine::~SocketEngine()
+void EventHandler::OnEventHandlerWrite()
 {
 }
 
-void SocketEngine::SetEventMask(EventHandler* eh, int mask)
+void EventHandler::OnEventHandlerError(int errornum)
 {
-	eh->event_mask = mask;
 }
 
 void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
@@ -60,7 +71,7 @@ void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
 		new_m &= ~FD_WANT_READ_MASK;
 	if (change & FD_WANT_WRITE_MASK)
 		new_m &= ~FD_WANT_WRITE_MASK;
-	
+
 	// if adding a trial read/write, insert it into the set
 	if (change & FD_TRIAL_NOTE_MASK && !(old_m & FD_TRIAL_NOTE_MASK))
 		trials.insert(eh->GetFd());
@@ -88,23 +99,44 @@ void SocketEngine::DispatchTrialWrites()
 		int mask = eh->event_mask;
 		eh->event_mask &= ~(FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
 		if ((mask & (FD_ADD_TRIAL_READ | FD_READ_WILL_BLOCK)) == FD_ADD_TRIAL_READ)
-			eh->HandleEvent(EVENT_READ, 0);
+			eh->OnEventHandlerRead();
 		if ((mask & (FD_ADD_TRIAL_WRITE | FD_WRITE_WILL_BLOCK)) == FD_ADD_TRIAL_WRITE)
-			eh->HandleEvent(EVENT_WRITE, 0);
+			eh->OnEventHandlerWrite();
+	}
+}
+
+bool SocketEngine::AddFdRef(EventHandler* eh)
+{
+	int fd = eh->GetFd();
+	if (HasFd(fd))
+		return false;
+
+	while (static_cast<unsigned int>(fd) >= ref.size())
+		ref.resize(ref.empty() ? 1 : (ref.size() * 2));
+	ref[fd] = eh;
+	CurrentSetSize++;
+	return true;
+}
+
+void SocketEngine::DelFdRef(EventHandler *eh)
+{
+	int fd = eh->GetFd();
+	if (GetRef(fd) == eh)
+	{
+		ref[fd] = NULL;
+		CurrentSetSize--;
 	}
 }
 
 bool SocketEngine::HasFd(int fd)
 {
-	if ((fd < 0) || (fd > GetMaxFds()))
-		return false;
-	return (ref[fd] != NULL);
+	return GetRef(fd) != NULL;
 }
 
 EventHandler* SocketEngine::GetRef(int fd)
 {
-	if ((fd < 0) || (fd > GetMaxFds()))
-		return 0;
+	if (fd < 0 || static_cast<unsigned int>(fd) >= ref.size())
+		return NULL;
 	return ref[fd];
 }
 
@@ -112,7 +144,7 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 {
 	if (!eh)
 		return false;
-	if ((eh->GetFd() < 0) || (eh->GetFd() > GetMaxFds()))
+	if (eh->GetFd() < 0)
 		return false;
 	return true;
 }
@@ -123,13 +155,12 @@ int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 	return accept(fd->GetFd(), addr, addrlen);
 }
 
-int SocketEngine::Close(EventHandler* fd)
+int SocketEngine::Close(EventHandler* eh)
 {
-#ifdef _WIN32
-	return closesocket(fd->GetFd());
-#else
-	return close(fd->GetFd());
-#endif
+	DelFd(eh);
+	int ret = Close(eh->GetFd());
+	eh->SetFd(-1);
+	return ret;
 }
 
 int SocketEngine::Close(int fd)
@@ -173,7 +204,7 @@ int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, s
 {
 	int nbRecvd = recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
 	if (nbRecvd > 0)
-		this->UpdateStats(nbRecvd, 0);
+		stats.Update(nbRecvd, 0);
 	return nbRecvd;
 }
 
@@ -181,7 +212,7 @@ int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
 	int nbSent = send(fd->GetFd(), (const char*)buf, len, flags);
 	if (nbSent > 0)
-		this->UpdateStats(0, nbSent);
+		stats.Update(0, nbSent);
 	return nbSent;
 }
 
@@ -189,7 +220,7 @@ int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
 	int nbRecvd = recv(fd->GetFd(), (char*)buf, len, flags);
 	if (nbRecvd > 0)
-		this->UpdateStats(nbRecvd, 0);
+		stats.Update(nbRecvd, 0);
 	return nbRecvd;
 }
 
@@ -197,9 +228,36 @@ int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flag
 {
 	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
 	if (nbSent > 0)
-		this->UpdateStats(0, nbSent);
+		stats.Update(0, nbSent);
 	return nbSent;
 }
+
+int SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
+{
+	int sent = writev(fd->GetFd(), iovec, count);
+	if (sent > 0)
+		stats.Update(0, sent);
+	return sent;
+}
+
+#ifdef _WIN32
+int SocketEngine::WriteV(EventHandler* fd, const iovec* iovec, int count)
+{
+	// On Windows the fields in iovec are not in the order required by the Winsock API; IOVector has
+	// the fields in the correct order.
+	// Create temporary IOVectors from the iovecs and pass them to the WriteV() method that accepts the
+	// platform's native struct.
+	IOVector wiovec[128];
+	count = std::min(count, static_cast<int>(sizeof(wiovec) / sizeof(IOVector)));
+
+	for (int i = 0; i < count; i++)
+	{
+		wiovec[i].iov_len = iovec[i].iov_len;
+		wiovec[i].iov_base = reinterpret_cast<char*>(iovec[i].iov_base);
+	}
+	return WriteV(fd, wiovec, count);
+}
+#endif
 
 int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
 {
@@ -231,24 +289,27 @@ int SocketEngine::Shutdown(int fd, int how)
 	return shutdown(fd, how);
 }
 
-void SocketEngine::RecoverFromFork()
+void SocketEngine::Statistics::Update(size_t len_in, size_t len_out)
 {
-}
-
-void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
-{
-	if (lastempty != ServerInstance->Time())
-	{
-		lastempty = ServerInstance->Time();
-		indata = outdata = 0;
-	}
+	CheckFlush();
 	indata += len_in;
 	outdata += len_out;
 }
 
-void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total)
+void SocketEngine::Statistics::CheckFlush() const
 {
-	UpdateStats(0, 0); /* Forces emptying of the values if its been more than a second */
+	// Reset the in/out byte counters if it has been more than a second
+	time_t now = ServerInstance->Time();
+	if (lastempty != now)
+	{
+		lastempty = now;
+		indata = outdata = 0;
+	}
+}
+
+void SocketEngine::Statistics::GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const
+{
+	CheckFlush();
 	float in_kbit = indata * 8;
 	float out_kbit = outdata * 8;
 	kbitpersec_total = ((in_kbit + out_kbit) / 1024);

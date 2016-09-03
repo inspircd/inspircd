@@ -19,9 +19,8 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
+#include "cachetimer.h"
 #include "resolvers.h"
 #include "main.h"
 #include "utils.h"
@@ -29,29 +28,35 @@
 #include "link.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
-
 /** This class is used to resolve server hostnames during /connect and autoconnect.
  * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this
  * resolver step first ourselves if we need it. This is totally nonblocking, and will
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac)
-	: Resolver(hostname, qt, cached, Util->Creator), Utils(Util), query(qt), host(hostname), MyLink(x), myautoconnect(myac)
+ServernameResolver::ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac)
+	: DNS::Request(mgr, Utils->Creator, hostname, qt)
+	, query(qt), host(hostname), MyLink(x), myautoconnect(myac)
 {
 }
 
-void ServernameResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 {
+	const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(this->question.type);
+	if (!ans_record)
+	{
+		OnError(r);
+		return;
+	}
+
 	/* Initiate the connection, now that we have an IP to use.
 	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.
 	 */
-	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
+	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name);
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-		TreeSocket* newsocket = new TreeSocket(Utils, MyLink, myautoconnect, result);
+		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, ans_record->rdata);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
@@ -66,47 +71,83 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 	}
 }
 
-void ServernameResolver::OnError(ResolverError e, const std::string &errormessage)
+void ServernameResolver::OnError(const DNS::Query *r)
 {
-	/* Ooops! */
-	if (query == DNS_QUERY_AAAA)
+	if (r->error == DNS::ERROR_UNLOADED)
 	{
-		bool cached = false;
-		ServernameResolver* snr = new ServernameResolver(Utils, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
-		ServerInstance->AddResolver(snr, cached);
+		// We're being unloaded, skip the snotice and ConnectServer() below to prevent autoconnect creating new sockets
 		return;
 	}
-	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), errormessage.c_str() );
+
+	if (query == DNS::QUERY_AAAA)
+	{
+		ServernameResolver* snr = new ServernameResolver(this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
+		try
+		{
+			this->manager->Process(snr);
+			return;
+		}
+		catch (DNS::Exception &)
+		{
+			delete snr;
+		}
+	}
+
+	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 
-SecurityIPResolver::SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link* x, bool &cached, QueryType qt)
-		: Resolver(hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
+SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt)
+	: DNS::Request(mgr, me, hostname, qt)
+	, MyLink(x), mine(me), host(hostname), query(qt)
 {
 }
 
-void SecurityIPResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 {
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
 	{
 		Link* L = *i;
 		if (L->IPAddr == host)
 		{
-			Utils->ValidIPs.push_back(result);
+			for (std::vector<DNS::ResourceRecord>::const_iterator j = r->answers.begin(); j != r->answers.end(); ++j)
+			{
+				const DNS::ResourceRecord& ans_record = *j;
+				if (ans_record.type == this->question.type)
+					Utils->ValidIPs.push_back(ans_record.rdata);
+			}
 			break;
 		}
 	}
 }
 
-void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessage)
+void SecurityIPResolver::OnError(const DNS::Query *r)
 {
-	if (query == DNS_QUERY_AAAA)
+	// This can be called because of us being unloaded but we don't have to do anything differently
+	if (query == DNS::QUERY_AAAA)
 	{
-		bool cached = false;
-		SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A);
-		ServerInstance->AddResolver(res, cached);
-		return;
+		SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
+		try
+		{
+			this->manager->Process(res);
+			return;
+		}
+		catch (DNS::Exception &)
+		{
+			delete res;
+		}
 	}
-	ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",
-		MyLink->Name.c_str(),errormessage.c_str());
+	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Could not resolve IP associated with Link '%s': %s",
+		MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
+}
+
+CacheRefreshTimer::CacheRefreshTimer()
+	: Timer(3600, true)
+{
+}
+
+bool CacheRefreshTimer::Tick(time_t TIME)
+{
+	Utils->RefreshIPCache();
+	return true;
 }

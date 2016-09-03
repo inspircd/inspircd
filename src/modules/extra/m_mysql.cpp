@@ -20,12 +20,16 @@
  */
 
 
-/* Stop mysql wanting to use long long */
-#define NO_CLIENT_LONG_LONG
+// Fix warnings about the use of `long long` on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-long-long"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+#endif
 
 #include "inspircd.h"
 #include <mysql.h>
-#include "sql.h"
+#include "modules/sql.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "libmysql.lib")
@@ -33,7 +37,6 @@
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
 
-/* $ModDesc: SQL Service Provider module for all other m_sql* modules */
 /* $CompileFlags: exec("mysql_config --include") */
 /* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 
@@ -90,7 +93,7 @@ struct RQueueItem
 	RQueueItem(SQLQuery* Q, MySQLresult* R) : q(Q), r(R) {}
 };
 
-typedef std::map<std::string, SQLConnection*> ConnMap;
+typedef insp::flat_map<std::string, SQLConnection*> ConnMap;
 typedef std::deque<QQueueItem> QueryQueue;
 typedef std::deque<RQueueItem> ResultQueue;
 
@@ -105,11 +108,11 @@ class ModuleSQL : public Module
 	ConnMap connections; // main thread only
 
 	ModuleSQL();
-	void init();
+	void init() CXX11_OVERRIDE;
 	~ModuleSQL();
-	void OnRehash(User* user);
-	void OnUnloadModule(Module* mod);
-	Version GetVersion();
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
+	Version GetVersion() CXX11_OVERRIDE;
 };
 
 class DispatcherThread : public SocketThread
@@ -119,8 +122,8 @@ class DispatcherThread : public SocketThread
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
-	virtual void Run();
-	virtual void OnNotify();
+	void Run();
+	void OnNotify();
 };
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -186,21 +189,17 @@ class MySQLresult : public SQLResult
 
 	}
 
-	~MySQLresult()
-	{
-	}
-
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.assign(colnames.begin(), colnames.end());
 	}
 
-	virtual SQLEntry GetValue(int row, int column)
+	SQLEntry GetValue(int row, int column)
 	{
 		if ((row >= 0) && (row < rows) && (column >= 0) && (column < (int)fieldlists[row].size()))
 		{
@@ -209,7 +208,7 @@ class MySQLresult : public SQLResult
 		return SQLEntry();
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
 		{
@@ -260,6 +259,12 @@ class SQLConnection : public SQLProvider
 		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
 		if (!rv)
 			return rv;
+
+		// Enable character set settings
+		std::string charset = config->getString("charset");
+		if ((!charset.empty()) && (mysql_set_character_set(connection, charset.c_str())))
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not set character set to \"%s\"", charset.c_str());
+
 		std::string initquery;
 		if (config->readString("initialquery", initquery))
 		{
@@ -383,12 +388,7 @@ ModuleSQL::ModuleSQL()
 void ModuleSQL::init()
 {
 	Dispatcher = new DispatcherThread(this);
-	ServerInstance->Threads->Start(Dispatcher);
-
-	Implementation eventlist[] = { I_OnRehash, I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
-	OnRehash(NULL);
+	ServerInstance->Threads.Start(Dispatcher);
 }
 
 ModuleSQL::~ModuleSQL()
@@ -405,7 +405,7 @@ ModuleSQL::~ModuleSQL()
 	}
 }
 
-void ModuleSQL::OnRehash(User* user)
+void ModuleSQL::ReadConfig(ConfigStatus& status)
 {
 	ConnMap conns;
 	ConfigTagList tags = ServerInstance->Config->ConfTags("database");

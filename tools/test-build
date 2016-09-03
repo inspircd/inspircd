@@ -1,0 +1,73 @@
+#!/usr/bin/env perl
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2013-2014 Peter Powell <petpow@saberuk.com>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+BEGIN {
+	require 5.10.0;
+	unless (-f 'configure') {
+		print "Error: $0 must be run from the main source directory!\n";
+		exit 1;
+	}
+}
+
+use feature ':5.10';
+use strict;
+use warnings FATAL => qw(all);
+
+use make::common;
+use make::configure;
+
+$ENV{INSPIRCD_DEBUG} = $ENV{INSPIRCD_VERBOSE} = 1;
+
+system 'git', 'clean', '-dfx';
+
+my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
+foreach my $compiler (@compilers) {
+	if (system "$compiler -v > /dev/null 2>&1") {
+		say "Skipping $compiler as it is not installed on this system!";
+		next;
+	}
+	$ENV{CXX} = $compiler;
+	my @socketengines = qw(select);
+	push @socketengines, 'epoll' if test_header $compiler, 'sys/epoll.h';
+	push @socketengines, 'kqueue' if test_file $compiler, 'kqueue.cpp';
+	push @socketengines, 'poll' if test_header $compiler, 'poll.h';
+	push @socketengines, 'ports' if test_header $compiler, 'ports.h';
+	foreach my $socketengine (@socketengines) {
+		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
+		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};
+		if (system './configure', '--development', '--socketengine', $socketengine) {
+			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
+			exit 1;
+		}
+		$ENV{INSPIRCD_STATIC} = 1;
+		if (system 'make', '-j'.get_cpu_count, 'install') {
+			say "Failed to compile with static modules using the $compiler compiler and the $socketengine socket engine!";
+			exit 1;
+		}
+		delete $ENV{INSPIRCD_STATIC};
+		if (system 'make', '-j'.get_cpu_count, 'install') {
+			say "Failed to compile with dynamic modules using the $compiler compiler and the $socketengine socket engine!";
+			exit 1;
+		}
+		say "Building using the $compiler compiler and the $socketengine socket engine succeeded!";
+	}
+
+	system 'git', 'clean', '-dfx';
+}

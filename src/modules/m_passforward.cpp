@@ -17,29 +17,19 @@
  */
 
 
-/* $ModDesc: Forwards a password users can send on connect (for example for NickServ identification). */
-
 #include "inspircd.h"
 
 class ModulePassForward : public Module
 {
- private:
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:
-	void init()
-	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sends server password to NickServ", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
@@ -54,22 +44,22 @@ class ModulePassForward : public Module
 			char c = format[i];
 			if (c == '$')
 			{
-				if (format.substr(i, 13) == "$nickrequired")
+				if (!format.compare(i, 13, "$nickrequired", 13))
 				{
 					result.append(nickrequired);
 					i += 12;
 				}
-				else if (format.substr(i, 5) == "$nick")
+				else if (!format.compare(i, 5, "$nick", 5))
 				{
 					result.append(user->nick);
 					i += 4;
 				}
-				else if (format.substr(i, 5) == "$user")
+				else if (!format.compare(i, 5, "$user", 5))
 				{
 					result.append(user->ident);
 					i += 4;
 				}
-				else if (format.substr(i,5) == "$pass")
+				else if (!format.compare(i, 5, "$pass", 5))
 				{
 					result.append(user->password);
 					i += 4;
@@ -82,17 +72,21 @@ class ModulePassForward : public Module
 		}
 	}
 
-	virtual void OnPostConnect(User* ruser)
+	void OnPostConnect(User* ruser) CXX11_OVERRIDE
 	{
 		LocalUser* user = IS_LOCAL(ruser);
 		if (!user || user->password.empty())
+			return;
+
+		// If the connect class requires a password, don't forward it
+		if (!user->MyClass->config->getString("password").empty())
 			return;
 
 		if (!nickrequired.empty())
 		{
 			/* Check if nick exists and its server is ulined */
 			User* u = ServerInstance->FindNick(nickrequired);
-			if (!u || !ServerInstance->ULine(u->server))
+			if (!u || !u->server->IsULine())
 				return;
 		}
 
@@ -102,7 +96,7 @@ class ModulePassForward : public Module
 
 		tmp.clear();
 		FormatStr(tmp,forwardcmd, user);
-		ServerInstance->Parser->ProcessBuffer(tmp,user);
+		ServerInstance->Parser.ProcessBuffer(tmp,user);
 	}
 };
 

@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
-
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 /*	IBLOCK_NOTICE		- Send a notice to the user informing them of what happened.
  *	IBLOCK_NOTICEOPERS	- Send a notice to the user informing them and send an oper notice.
@@ -37,13 +35,13 @@ enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOP
  */
 class BlockedMessage
 {
-public:
+ public:
 	std::string message;
-	irc::string target;
+	std::string target;
 	time_t sent;
 
-	BlockedMessage(const std::string &msg, const irc::string &tgt, time_t when)
-	: message(msg), target(tgt), sent(when)
+	BlockedMessage(const std::string& msg, const std::string& tgt, time_t when)
+		: message(msg), target(tgt), sent(when)
 	{
 	}
 };
@@ -55,46 +53,35 @@ class ModuleBlockAmsg : public Module
 	SimpleExtItem<BlockedMessage> blockamsg;
 
  public:
-	ModuleBlockAmsg() : blockamsg("blockamsg", this)
+	ModuleBlockAmsg()
+		: blockamsg("blockamsg", ExtensionItem::EXT_USER, this)
 	{
 	}
 
-	void init()
-	{
-		this->OnRehash(NULL);
-		ServerInstance->Modules->AddService(blockamsg);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleBlockAmsg()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
 		ForgetDelay = tag->getInt("delay", -1);
 		std::string act = tag->getString("action");
 
-		if(act == "notice")
+		if (act == "notice")
 			action = IBLOCK_NOTICE;
-		else if(act == "noticeopers")
+		else if (act == "noticeopers")
 			action = IBLOCK_NOTICEOPERS;
-		else if(act == "silent")
+		else if (act == "silent")
 			action = IBLOCK_SILENT;
-		else if(act == "kill")
+		else if (act == "kill")
 			action = IBLOCK_KILL;
 		else
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		// Don't do anything with unregistered users
 		if (user->registered != REG_ALL)
@@ -102,33 +89,24 @@ class ModuleBlockAmsg : public Module
 
 		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))
 		{
-			// parameters[0] should have the target(s) in it.
-			// I think it will be faster to first check if there are any commas, and if there are then try and parse it out.
-			// Most messages have a single target so...
+			// parameters[0] is the target list, count how many channels are there
+			unsigned int targets = 0;
+			// Is the first target a channel?
+			if (*parameters[0].c_str() == '#')
+				targets = 1;
 
-			int targets = 1;
-			int userchans = 0;
-
-			if(*parameters[0].c_str() != '#')
+			for (const char* c = parameters[0].c_str(); *c; c++)
 			{
-				// Decrement if the first target wasn't a channel.
-				targets--;
-			}
-
-			for(const char* c = parameters[0].c_str(); *c; c++)
-				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
+				if ((*c == ',') && (*(c+1) == '#'))
 					targets++;
+			}
 
 			/* targets should now contain the number of channel targets the msg/notice was pointed at.
 			 * If the msg/notice was a PM there should be no channel targets and 'targets' should = 0.
 			 * We don't want to block PMs so...
 			 */
-			if(targets == 0)
-			{
+			if (targets == 0)
 				return MOD_RES_PASSTHRU;
-			}
-
-			userchans = user->chans.size();
 
 			// Check that this message wasn't already sent within a few seconds.
 			BlockedMessage* m = blockamsg.get(user);
@@ -138,36 +116,35 @@ class ModuleBlockAmsg : public Module
 			// OR
 			// The number of target channels is equal to the number of channels the sender is on..a little suspicious.
 			// Check it's more than 1 too, or else users on one channel would have fun.
-			if((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == userchans)))
+			if ((m && (m->message == parameters[1]) && (!irc::equals(m->target, parameters[0])) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
-				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
+				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
 					ServerInstance->SNO->WriteToSnoMask('a', "%s had an /amsg or /ame denied", user->nick.c_str());
 
-				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
+				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users->QuitUser(user, "Attempted to global message (/amsg or /ame)");
-				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
-					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) denied", user->nick.c_str());
+				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
+					user->WriteNotice("Global message (/amsg or /ame) denied");
 
 				return MOD_RES_DENY;
 			}
 
-			if(m)
+			if (m)
 			{
 				// If there's already a BlockedMessage allocated, use it.
 				m->message = parameters[1];
-				m->target = parameters[0].c_str();
+				m->target = parameters[0];
 				m->sent = ServerInstance->Time();
 			}
 			else
 			{
-				m = new BlockedMessage(parameters[1], parameters[0].c_str(), ServerInstance->Time());
+				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
 				blockamsg.set(user, m);
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 };
-
 
 MODULE_INIT(ModuleBlockAmsg)

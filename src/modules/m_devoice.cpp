@@ -24,8 +24,6 @@
  *  Syntax: /DEVOICE <#chan>
  */
 
-/* $ModDesc: Provides voiced users with the ability to devoice themselves. */
-
 #include "inspircd.h"
 
 /** Handle /DEVOICE
@@ -36,24 +34,17 @@ class CommandDevoice : public Command
 	CommandDevoice(Module* Creator) : Command(Creator,"DEVOICE", 1)
 	{
 		syntax = "<channel>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		Channel* c = ServerInstance->FindChan(parameters[0]);
-		if (c && c->HasUser(user))
-		{
-			std::vector<std::string> modes;
-			modes.push_back(parameters[0]);
-			modes.push_back("-v");
-			modes.push_back(user->nick);
+		std::vector<std::string> modes;
+		modes.push_back(parameters[0]);
+		modes.push_back("-v");
+		modes.push_back(user->nick);
 
-			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
-			return CMD_SUCCESS;
-		}
-
-		return CMD_FAILURE;
+		ServerInstance->Parser.CallHandler("MODE", modes, ServerInstance->FakeClient);
+		return CMD_SUCCESS;
 	}
 };
 
@@ -65,16 +56,7 @@ class ModuleDeVoice : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleDeVoice()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides voiced users with the ability to devoice themselves.", VF_VENDOR);
 	}

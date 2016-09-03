@@ -21,24 +21,20 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for seeing local and remote nickchanges via snomasks 'n' and 'N'. */
-
 class ModuleSeeNicks : public Module
 {
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
-		Implementation eventlist[] = { I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for seeing local and remote nickchanges via snomasks", VF_VENDOR);
 	}
 
-	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
 	}

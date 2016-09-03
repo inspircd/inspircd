@@ -10,7 +10,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module!                                          #
+#  spanningtree module!                                               #
 #                                                                     #
 #                                                                     #
 
@@ -29,7 +29,7 @@
 
       # allowmask: Range of IP addresses to allow for this link.
       # Can be a CIDR (see example).
-      allowmask="203.0.113.0/24"
+      allowmask="203.0.113.0/24 127.0.0.0/8 2001:db8::/32"
 
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the
@@ -40,15 +40,15 @@
       # making an outbound connection to the server. Options are: "openssl"
       # and "gnutls" (they are compatible with each other).
       #
-      # You will need to load the m_ssl_openssl.so module for OpenSSL,
-      # m_ssl_gnutls.so for GnuTLS. The server port that you connect to
+      # You will need to load the ssl_openssl module for OpenSSL,
+      # or ssl_gnutls for GnuTLS. The server port that you connect to
       # must be capable of accepting this type of connection.
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be
-      # authenticated using SSL Fingerprints. See http://wiki.inspircd.org/SSL
-      # for more information. This will require an SSL link for both inbound
-      # and outbound connections.
+      # authenticated using SSL certificate fingerprints. See
+      # http://wiki.inspircd.org/SSL for more information. This will
+      # require an SSL link for both inbound and outbound connections.
       #fingerprint=""
 
       # bind: Local IP address to bind to.
@@ -95,7 +95,7 @@
 # Simple autoconnect block. This enables automatic connection of a server
 # Recommended setup is to have leaves connect to the hub, and have no
 # automatic connections started by the hub.
-<autoconnect period="300" server="hub.example.org">
+<autoconnect period="10m" server="hub.example.org">
 
 # Failover autoconnect block. If you have multiple hubs, or want your network
 # to automatically link even if the hub is down, you can specify multiple

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Shows a message to opers after oper-up, adds /opermotd */
-
 /** Handle /OPERMOTD
  */
 class CommandOpermotd : public Command
@@ -45,28 +43,27 @@ class CommandOpermotd : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		if (!parameters.empty())
+		if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[0]);
 		return ROUTE_LOCALONLY;
 	}
 
 	void ShowOperMOTD(User* user)
 	{
-		const std::string& servername = ServerInstance->Config->ServerName;
 		if (opermotd.empty())
 		{
-			user->SendText(":%s 455 %s :OPERMOTD file is missing", servername.c_str(), user->nick.c_str());
+			user->WriteRemoteNumeric(455, "OPERMOTD file is missing");
 			return;
 		}
 
-		user->SendText(":%s 375 %s :- IRC Operators Message of the Day", servername.c_str(), user->nick.c_str());
+		user->WriteRemoteNumeric(375, "- IRC Operators Message of the Day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), i->c_str());
+			user->WriteRemoteNumeric(372, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->SendText(":%s 376 %s :- End of OPERMOTD", servername.c_str(), user->nick.c_str());
+		user->WriteRemoteNumeric(376, "- End of OPERMOTD");
 	}
 };
 
@@ -82,34 +79,32 @@ class ModuleOpermotd : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
 	}
 
-	virtual void OnOper(User* user, const std::string &opertype)
+	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE
 	{
 		if (onoper && IS_LOCAL(user))
 			cmd.ShowOperMOTD(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		cmd.opermotd.clear();
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
 		onoper = conf->getBool("onoper", true);
 
-		FileReader f(conf->getString("file", "opermotd"));
-		for (int i=0, filesize = f.FileSize(); i < filesize; i++)
-			cmd.opermotd.push_back(f.GetLine(i));
+		try
+		{
+			FileReader reader(conf->getString("file", "opermotd"));
+			cmd.opermotd = reader.GetVector();
+		}
+		catch (CoreException&)
+		{
+			// Nothing happens here as we do the error handling in ShowOperMOTD.
+		}
 
 		if (conf->getBool("processcolors"))
 			InspIRCd::ProcessColors(cmd.opermotd);

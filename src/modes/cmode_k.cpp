@@ -21,79 +21,54 @@
 
 
 #include "inspircd.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
-#include "modes/cmode_k.h"
+#include "builtinmodes.h"
 
-ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, MODETYPE_CHANNEL)
-{
-}
-
-void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
-{
-	/** +k needs a parameter when being removed,
-	 * so we have a special-case RemoveMode here for it
-	 */
-
-	if (channel->IsModeSet('k'))
-	{
-		if (stack)
-		{
-			stack->Push('k', channel->GetModeParameter('k'));
-		}
-		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(channel->name);
-			parameters.push_back("-k");
-			parameters.push_back(channel->GetModeParameter('k'));
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-		}
-	}
-}
-
-void ModeChannelKey::RemoveMode(User*, irc::modestacker* stack)
+ModeChannelKey::ModeChannelKey()
+	: ParamMode<ModeChannelKey, LocalStringExt>(NULL, "key", 'k', PARAM_ALWAYS)
 {
 }
 
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	bool exists = channel->IsModeSet('k');
+	const std::string* key = ext.get(channel);
+	bool exists = (key != NULL);
 	if (IS_LOCAL(source))
 	{
 		if (exists == adding)
 			return MODEACTION_DENY;
-		if (exists && (parameter != channel->GetModeParameter('k')))
+		if (exists && (parameter != *key))
 		{
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
 		}
 	} else {
-		if (exists && adding && parameter == channel->GetModeParameter('k'))
+		if (exists && adding && parameter == *key)
 		{
 			/* no-op, don't show */
 			return MODEACTION_DENY;
 		}
 	}
 
-	/* invalid keys */
-	if (!parameter.length())
-		return MODEACTION_DENY;
-
-	if (parameter.rfind(' ') != std::string::npos)
-		return MODEACTION_DENY;
-
+	channel->SetMode(this, adding);
 	if (adding)
 	{
-		std::string ckey;
-		ckey.assign(parameter, 0, 32);
-		parameter = ckey;
-		channel->SetModeParam('k', parameter);
+		if (parameter.length() > maxkeylen)
+			parameter.erase(maxkeylen);
+		ext.set(channel, parameter);
 	}
 	else
-	{
-		channel->SetModeParam('k', "");
-	}
+		ext.unset(channel);
+
 	return MODEACTION_ALLOW;
+}
+
+void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key, std::string& out)
+{
+	out += *key;
+}
+
+ModeAction ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param)
+{
+	// Dummy function, never called
+	return MODEACTION_DENY;
 }

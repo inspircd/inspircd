@@ -18,10 +18,9 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
-
-/* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
+#include "modules/sql.h"
+#include "modules/hash.h"
+#include "modules/ssl.h"
 
 enum AuthState {
 	AUTH_STATE_NONE = 0,
@@ -39,8 +38,8 @@ class AuthQuery : public SQLQuery
 		: SQLQuery(me), uid(u), pendingExt(e), verbose(v)
 	{
 	}
-	
-	void OnResult(SQLResult& res)
+
+	void OnResult(SQLResult& res) CXX11_OVERRIDE
 	{
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
@@ -57,7 +56,7 @@ class AuthQuery : public SQLQuery
 		}
 	}
 
-	void OnError(SQLerror& error)
+	void OnError(SQLerror& error) CXX11_OVERRIDE
 	{
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
@@ -79,19 +78,13 @@ class ModuleSQLAuth : public Module
 	bool verbose;
 
  public:
-	ModuleSQLAuth() : pendingExt("sqlauth-wait", this), SQL(this, "SQL")
+	ModuleSQLAuth()
+		: pendingExt("sqlauth-wait", ExtensionItem::EXT_USER, this)
+		, SQL(this, "SQL")
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(pendingExt);
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");
@@ -105,7 +98,7 @@ class ModuleSQLAuth : public Module
 		verbose = conf->getBool("verbose");
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		// Note this is their initial (unresolved) connect block
 		ConfigTag* tag = user->MyClass->config;
@@ -133,18 +126,21 @@ class ModuleSQLAuth : public Module
 
 		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
 		if (md5)
-			userinfo["md5pass"] = md5->hexsum(user->password);
+			userinfo["md5pass"] = md5->Generate(user->password);
 
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
-			userinfo["sha256pass"] = sha256->hexsum(user->password);
+			userinfo["sha256pass"] = sha256->Generate(user->password);
+
+		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
+		userinfo["certfp"] = certfp;
 
 		SQL->submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		switch (pendingExt.get(user))
 		{
@@ -159,7 +155,7 @@ class ModuleSQLAuth : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allow/Deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}

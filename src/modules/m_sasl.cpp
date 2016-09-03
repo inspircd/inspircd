@@ -19,23 +19,125 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
-#include "account.h"
-#include "sasl.h"
-#include "ssl.h"
+#include "modules/cap.h"
+#include "modules/account.h"
+#include "modules/sasl.h"
+#include "modules/ssl.h"
+#include "modules/spanningtree.h"
 
-/* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
+static std::string sasl_target;
+
+class ServerTracker : public SpanningTreeEventListener
+{
+	bool online;
+
+	void Update(const Server* server, bool linked)
+	{
+		if (sasl_target == "*")
+			return;
+
+		if (InspIRCd::Match(server->GetName(), sasl_target))
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_VERBOSE, "SASL target server \"%s\" %s", sasl_target.c_str(), (linked ? "came online" : "went offline"));
+			online = linked;
+		}
+	}
+
+	void OnServerLink(const Server* server) CXX11_OVERRIDE
+	{
+		Update(server, true);
+	}
+
+	void OnServerSplit(const Server* server) CXX11_OVERRIDE
+	{
+		Update(server, false);
+	}
+
+ public:
+	ServerTracker(Module* mod)
+		: SpanningTreeEventListener(mod)
+	{
+		Reset();
+	}
+
+	void Reset()
+	{
+		if (sasl_target == "*")
+		{
+			online = true;
+			return;
+		}
+
+		online = false;
+
+		ProtocolInterface::ServerList servers;
+		ServerInstance->PI->GetServerList(servers);
+		for (ProtocolInterface::ServerList::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		{
+			const ProtocolInterface::ServerInfo& server = *i;
+			if (InspIRCd::Match(server.servername, sasl_target))
+			{
+				online = true;
+				break;
+			}
+		}
+	}
+
+	bool IsOnline() const { return online; }
+};
+
+class SASLCap : public Cap::Capability
+{
+	std::string mechlist;
+	const ServerTracker& servertracker;
+
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		// Requesting this cap is allowed anytime
+		if (adding)
+			return true;
+
+		// But removing it can only be done when unregistered
+		return (user->registered != REG_ALL);
+	}
+
+	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	{
+		return servertracker.IsOnline();
+	}
+
+	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
+	{
+		return &mechlist;
+	}
+
+ public:
+	SASLCap(Module* mod, const ServerTracker& tracker)
+		: Cap::Capability(mod, "sasl")
+		, servertracker(tracker)
+	{
+	}
+
+	void SetMechlist(const std::string& newmechlist)
+	{
+		if (mechlist == newmechlist)
+			return;
+
+		mechlist = newmechlist;
+		NotifyValueChange();
+	}
+};
 
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
-static std::string sasl_target = "*";
+static Events::ModuleEventProvider* saslevprov;
 
 static void SendSASL(const parameterlist& params)
 {
-	if (!ServerInstance->PI->SendEncapsulatedData(params))
+	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
 	{
-		SASLFallback(NULL, params);
+		FOREACH_MOD_CUSTOM(*saslevprov, SASLEventListener, OnSASLAuth, (params));
 	}
 }
 
@@ -56,17 +158,15 @@ class SaslAuthenticator
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		parameterlist params;
-		params.push_back(sasl_target);
-		params.push_back("SASL");
 		params.push_back(user->uuid);
 		params.push_back("*");
 		params.push_back("S");
 		params.push_back(method);
 
-		if (method == "EXTERNAL" && IS_LOCAL(user_))
+		LocalUser* localuser = IS_LOCAL(user);
+		if (method == "EXTERNAL" && localuser)
 		{
-			SocketCertificateRequest req(&((LocalUser*)user_)->eh, ServerInstance->Modules->Find("m_sasl.so"));
-			std::string fp = req.GetFingerprint();
+			std::string fp = SSLClientCert::GetFingerprint(&localuser->eh);
 
 			if (fp.size())
 				params.push_back(fp);
@@ -110,15 +210,15 @@ class SaslAuthenticator
 				this->result = this->GetSaslResult(msg[3]);
 			}
 			else if (msg[2] == "M")
-				this->user->WriteNumeric(908, "%s %s :are available SASL mechanisms", this->user->nick.c_str(), msg[3].c_str());
+				this->user->WriteNumeric(908, msg[3], "are available SASL mechanisms");
 			else
-				ServerInstance->Logs->Log("m_sasl", DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
 			break;
 		 case SASL_DONE:
 			break;
 		 default:
-			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
 			break;
 		}
 
@@ -137,8 +237,6 @@ class SaslAuthenticator
 			return true;
 
 		parameterlist params;
-		params.push_back(sasl_target);
-		params.push_back("SASL");
 		params.push_back(this->user->uuid);
 		params.push_back(this->agent);
 		params.push_back("C");
@@ -164,13 +262,13 @@ class SaslAuthenticator
 		switch (this->result)
 		{
 		 case SASL_OK:
-			this->user->WriteNumeric(903, "%s :SASL authentication successful", this->user->nick.c_str());
+			this->user->WriteNumeric(903, "SASL authentication successful");
 			break;
 	 	 case SASL_ABORT:
-			this->user->WriteNumeric(906, "%s :SASL authentication aborted", this->user->nick.c_str());
+			this->user->WriteNumeric(906, "SASL authentication aborted");
 			break;
 		 case SASL_FAIL:
-			this->user->WriteNumeric(904, "%s :SASL authentication failed", this->user->nick.c_str());
+			this->user->WriteNumeric(904, "SASL authentication failed");
 			break;
 		 default:
 			break;
@@ -184,8 +282,8 @@ class CommandAuthenticate : public Command
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
-	GenericCap& cap;
-	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
+	Cap::Capability& cap;
+	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
 		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
 	{
 		works_before_reg = true;
@@ -193,10 +291,8 @@ class CommandAuthenticate : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		/* Only allow AUTHENTICATE on unregistered clients */
-		if (user->registered != REG_ALL)
 		{
-			if (!cap.ext.get(user))
+			if (!cap.get(user))
 				return CMD_FAILURE;
 
 			SaslAuthenticator *sasl = authExt.get(user);
@@ -223,10 +319,10 @@ class CommandSASL : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
-		User* target = ServerInstance->FindNick(parameters[1]);
-		if ((!target) || (IS_SERVER(target)))
+		User* target = ServerInstance->FindUUID(parameters[1]);
+		if (!target)
 		{
-			ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", parameters[1].c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -252,34 +348,37 @@ class CommandSASL : public Command
 class ModuleSASL : public Module
 {
 	SimpleExtItem<SaslAuthenticator> authExt;
-	GenericCap cap;
+	ServerTracker servertracker;
+	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
+	Events::ModuleEventProvider sasleventprov;
+
  public:
 	ModuleSASL()
-		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
+		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
+		, servertracker(this)
+		, cap(this, servertracker)
+		, auth(this, authExt, cap)
+		, sasl(this, authExt)
+		, sasleventprov(this, "event/sasl")
 	{
+		saslevprov = &sasleventprov;
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
-		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
-		ServerInstance->Modules->AddServices(providelist, 3);
-
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
-			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
+		servertracker.Reset();
 	}
 
-	ModResult OnUserRegister(LocalUser *user)
+	ModResult OnUserRegister(LocalUser *user) CXX11_OVERRIDE
 	{
 		SaslAuthenticator *sasl_ = authExt.get(user);
 		if (sasl_)
@@ -291,14 +390,15 @@ class ModuleSASL : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE
 	{
-		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
+		if ((target == NULL) && (extname == "saslmechlist"))
+			cap.SetMechlist(extdata);
 	}
 
-	void OnEvent(Event &ev)
+	Version GetVersion() CXX11_OVERRIDE
 	{
-		cap.HandleEvent(ev);
+		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
 	}
 };
 

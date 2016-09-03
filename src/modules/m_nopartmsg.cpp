@@ -19,45 +19,27 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b p: - part message bans */
-
 class ModulePartMsgBan : public Module
 {
- private:
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnUserPart, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModulePartMsgBan()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements extban +b p: - part message bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-
-	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(memb->user))
 			return;
 
 		if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY)
 			partmessage.clear();
-
-		return;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('p');
+		tokens["EXTBAN"].push_back('p');
 	}
 };
 
-
 MODULE_INIT(ModulePartMsgBan)
-

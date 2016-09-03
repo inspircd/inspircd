@@ -21,28 +21,27 @@
 
 
 #include "inspircd.h"
-#include "account.h"
-
-/* $ModDesc: Prevents users whose nicks are not registered from creating new channels */
+#include "modules/account.h"
 
 class ModuleRegOnlyCreate : public Module
 {
+	UserModeReference regusermode;
+
  public:
-	void init()
+	ModuleRegOnlyCreate()
+		: regusermode(this, "u_registered")
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (chan)
 			return MOD_RES_PASSTHRU;
 
-		if (IS_OPER(user))
+		if (user->IsOper())
 			return MOD_RES_PASSTHRU;
 
-		if (user->IsModeSet('r'))
+		if (user->IsModeSet(regusermode))
 			return MOD_RES_PASSTHRU;
 
 		const AccountExtItem* ext = GetAccountExtItem();
@@ -50,15 +49,11 @@ class ModuleRegOnlyCreate : public Module
 			return MOD_RES_PASSTHRU;
 
 		// XXX. there may be a better numeric for this..
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname);
+		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, cname, "You must have a registered nickname to create a new channel");
 		return MOD_RES_DENY;
 	}
 
-	~ModuleRegOnlyCreate()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Prevents users whose nicks are not registered from creating new channels", VF_VENDOR);
 	}

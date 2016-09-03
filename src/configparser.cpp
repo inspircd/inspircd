@@ -119,13 +119,13 @@ struct Parser
 		while (1)
 		{
 			ch = next();
-			if (ch == '&' && (flags & FLAG_USE_XML))
+			if (ch == '&' && !(flags & FLAG_USE_COMPAT))
 			{
 				std::string varname;
 				while (1)
 				{
 					ch = next();
-					if (isalnum(ch))
+					if (isalnum(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
@@ -136,12 +136,32 @@ struct Parser
 						throw CoreException("Parse error");
 					}
 				}
-				std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
-				if (var == stack.vars.end())
-					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
-				value.append(var->second);
+				if (varname.empty())
+					throw CoreException("Empty XML entity reference");
+				else if (varname[0] == '#' && (varname.size() == 1 || (varname.size() == 2 && varname[1] == 'x')))
+					throw CoreException("Empty numeric character reference");
+				else if (varname[0] == '#')
+				{
+					const char* cvarname = varname.c_str();
+					char* endptr;
+					unsigned long lvalue;
+					if (cvarname[1] == 'x')
+						lvalue = strtoul(cvarname + 2, &endptr, 16);
+					else
+						lvalue = strtoul(cvarname + 1, &endptr, 10);
+					if (*endptr != '\0' || lvalue > 255)
+						throw CoreException("Invalid numeric character reference '&" + varname + ";'");
+					value.push_back(static_cast<char>(lvalue));
+				}
+				else
+				{
+					insp::flat_map<std::string, std::string>::iterator var = stack.vars.find(varname);
+					if (var == stack.vars.end())
+						throw CoreException("Undefined XML entity reference '&" + varname + ";'");
+					value.append(var->second);
+				}
 			}
-			else if (ch == '\\' && !(flags & FLAG_USE_XML))
+			else if (ch == '\\' && (flags & FLAG_USE_COMPAT))
 			{
 				int esc = next();
 				if (esc == 'n')
@@ -183,7 +203,10 @@ struct Parser
 		std::set<std::string> seen;
 		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv(items, seen));
+		while (kv(items, seen))
+		{
+			// Do nothing here (silences a GCC warning).
+		}
 
 		if (name == mandatory_tag)
 		{
@@ -211,7 +234,7 @@ struct Parser
 		}
 		else if (name == "define")
 		{
-			if (!(flags & FLAG_USE_XML))
+			if (flags & FLAG_USE_COMPAT)
 				throw CoreException("<define> tags may only be used in XML-style config (add <config format=\"xml\">)");
 			std::string varname = tag->getString("name");
 			std::string value = tag->getString("value");
@@ -223,9 +246,9 @@ struct Parser
 		{
 			std::string format = tag->getString("format");
 			if (format == "xml")
-				flags |= FLAG_USE_XML;
+				flags &= ~FLAG_USE_COMPAT;
 			else if (format == "compat")
-				flags &= ~FLAG_USE_XML;
+				flags |= FLAG_USE_COMPAT;
 			else if (!format.empty())
 				throw CoreException("Unknown configuration format " + format);
 		}
@@ -297,7 +320,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseFile(name, flags, mandatorytag))
+		if (!ParseFile(ServerInstance->Config->Paths.PrependConfig(name), flags, mandatorytag))
 			throw CoreException("Included");
 	}
 	else if (tag->readString("executable", name))
@@ -308,7 +331,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", true))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseExec(name, flags, mandatorytag))
+		if (!ParseFile(name, flags, mandatorytag, true))
 			throw CoreException("Included");
 	}
 }
@@ -320,14 +343,15 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"), exec);
+	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
 	if (!file)
-		throw CoreException("Could not read \"" + name + "\" for \"" + key + "\" file");
+		throw CoreException("Could not read \"" + path + "\" for \"" + key + "\" file");
 
 	file_cache& cache = FilesOutput[key];
 	cache.clear();
 
-	char linebuf[MAXBUF*10];
+	char linebuf[5120];
 	while (fgets(linebuf, sizeof(linebuf), file))
 	{
 		size_t len = strlen(linebuf);
@@ -340,68 +364,27 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
-bool ParseStack::ParseFile(const std::string& name, int flags, const std::string& mandatory_tag)
+bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
-	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading file %s", name.c_str());
-	for (unsigned int t = 0; t < reading.size(); t++)
-	{
-		if (std::string(name) == reading[t])
-		{
-			throw CoreException("File " + name + " is included recursively (looped inclusion)");
-		}
-	}
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
+	if (stdalgo::isin(reading, path))
+		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file(fopen(name.c_str(), "r"));
+	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
 	if (!file)
-		throw CoreException("Could not read \"" + name + "\" for include");
+		throw CoreException("Could not read \"" + path + "\" for include");
 
-	reading.push_back(name);
-	Parser p(*this, flags, file, name, mandatory_tag);
+	reading.push_back(path);
+	Parser p(*this, flags, file, path, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;
 }
 
-bool ParseStack::ParseExec(const std::string& name, int flags, const std::string& mandatory_tag)
-{
-	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading executable %s", name.c_str());
-	for (unsigned int t = 0; t < reading.size(); t++)
-	{
-		if (std::string(name) == reading[t])
-		{
-			throw CoreException("Executable " + name + " is included recursively (looped inclusion)");
-		}
-	}
-
-	/* It's not already included, add it to the list of files we've loaded */
-
-	FileWrapper file(popen(name.c_str(), "r"), true);
-	if (!file)
-		throw CoreException("Could not open executable \"" + name + "\" for include");
-
-	reading.push_back(name);
-	Parser p(*this, flags, file, name, mandatory_tag);
-	bool ok = p.outer_parse();
-	reading.pop_back();
-	return ok;
-}
-
-#ifdef __clang__
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wunknown-pragmas"
-# pragma clang diagnostic ignored "-Wundefined-bool-conversion"
-#elif defined __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wpragmas"
-# pragma GCC diagnostic ignored "-Wnonnull-compare"
-#endif
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)
 {
-	// TODO: this is undefined behaviour but changing the API is too risky for 2.0.
-	if (!this)
-		return false;
 	for(std::vector<KeyVal>::iterator j = items.begin(); j != items.end(); ++j)
 	{
 		if(j->first != key)
@@ -409,7 +392,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = j->second;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -419,11 +402,6 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	}
 	return false;
 }
-#ifdef __clang__
-# pragma clang diagnostic pop
-#elif defined __GNUC__
-# pragma GCC diagnostic pop
-#endif
 
 std::string ConfigTag::getString(const std::string& key, const std::string& def)
 {
@@ -432,7 +410,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def)
 	return res;
 }
 
-long ConfigTag::getInt(const std::string &key, long def)
+long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 {
 	std::string result;
 	if(!readString(key, result))
@@ -446,16 +424,39 @@ long ConfigTag::getInt(const std::string &key, long def)
 	switch (toupper(*res_tail))
 	{
 		case 'K':
-			res= res* 1024;
+			res = res * 1024;
 			break;
 		case 'M':
-			res= res* 1024 * 1024;
+			res = res * 1024 * 1024;
 			break;
 		case 'G':
-			res= res* 1024 * 1024 * 1024;
+			res = res * 1024 * 1024 * 1024;
 			break;
 	}
+
+	CheckRange(key, res, def, min, max);
 	return res;
+}
+
+void ConfigTag::CheckRange(const std::string& key, long& res, long def, long min, long max)
+{
+	if (res < min || res > max)
+	{
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %ld is not between %ld and %ld; set to %ld.",
+			tag.c_str(), key.c_str(), res, min, max, def);
+		res = def;
+	}
+}
+
+long ConfigTag::getDuration(const std::string& key, long def, long min, long max)
+{
+	std::string duration;
+	if (!readString(key, duration))
+		return def;
+
+	long ret = InspIRCd::Duration(duration);
+	CheckRange(key, ret, def, min, max);
+	return ret;
 }
 
 double ConfigTag::getFloat(const std::string &key, double def)
@@ -477,7 +478,7 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if (result == "no" || result == "false" || result == "0" || result == "off")
 		return false;
 
-	ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 		" is not valid, ignoring");
 	return def;
 }

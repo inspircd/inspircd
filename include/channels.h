@@ -20,74 +20,65 @@
  */
 
 
-#ifndef CHANNELS_H
-#define CHANNELS_H
+#pragma once
 
 #include "membership.h"
 #include "mode.h"
+#include "parammode.h"
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
-class HostItem
-{
- public:
-	/** Time the item was added
-	 */
-	time_t set_time;
-	/** Who added the item
-	 */
-	std::string set_by;
-	/** The actual item data
-	 */
-	std::string data;
-
-	HostItem() { /* stub */ }
-	virtual ~HostItem() { /* stub */ }
-};
-
-/** A subclass of HostItem designed to hold channel bans (+b)
- */
-class BanItem : public HostItem
-{
-};
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class CoreExport Channel : public Extensible, public InviteBase
+class CoreExport Channel : public Extensible
 {
-	/** Connect a Channel to a User
+ public:
+	/** A map of Memberships on a channel keyed by User pointers
 	 */
-	static Channel* ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
+ 	typedef std::map<User*, insp::aligned_storage<Membership> > MemberMap;
 
+ private:
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
 
-	/** Maximum number of bans (cached)
-	 */
-	int maxbans;
-
 	/** Modes for the channel.
-	 * This is not a null terminated string! It is a bitset where
-	 * each item in it represents if a mode is set. For example
-	 * for mode +A, index 0. Use modechar-65 to calculate which
-	 * field to check.
+	 * It is a bitset where each item in it represents if a mode is set.
+	 * To see if a mode is set, inspect modes[mh->modeid]
 	 */
-	std::bitset<64> modes;
+	std::bitset<ModeParser::MODEID_MAX> modes;
 
-	/** Parameters for custom modes.
-	 * One for each custom mode letter.
+	/** Remove the given membership from the channel's internal map of
+	 * memberships and destroy the Membership object.
+	 * This function does not remove the channel from User::chanlist.
+	 * Since the parameter is an iterator to the target, the complexity
+	 * of this function is constant.
+	 * @param membiter The MemberMap iterator to remove, must be valid
 	 */
-	CustomModeList custom_mode_params;
+	void DelUser(const MemberMap::iterator& membiter);
 
  public:
 	/** Creates a channel record and initialises it with default values
-	 * @throw Nothing at present.
+	 * @param name The name of the channel
+	 * @param ts The creation time of the channel
+	 * @throw CoreException if this channel name is in use
 	 */
 	Channel(const std::string &name, time_t ts);
+
+	/** Checks whether the channel should be destroyed, and if yes, begins
+	 * the teardown procedure.
+	 *
+	 * If there are users on the channel or a module vetoes the deletion
+	 * (OnPreChannelDelete hook) then nothing else happens.
+	 * Otherwise, first the OnChannelDelete event is fired, then the channel is
+	 * removed from the channel list. All pending invites are destroyed and
+	 * finally the channel is added to the cull list.
+	 */
+	void CheckDestroy();
 
 	/** The channel's name.
 	 */
@@ -99,7 +90,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 
 	/** User list.
 	 */
-	UserMembList userlist;
+	MemberMap userlist;
 
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -116,32 +107,19 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	std::string setby; /* 128 */
 
-	/** The list of all bans set on the channel.
-	 */
-	BanList bans;
-
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
 	 * @param value True if you want to set the mode or false if you want to remove it
 	 */
 	void SetMode(ModeHandler* mode, bool value);
-	void SetMode(char mode,bool mode_on);
-
-	/** Sets or unsets a custom mode in the channels info
-	 * @param mode The mode character to set or unset
-	 * @param parameter The parameter string to associate with this mode character.
-	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
-	 */
-	void SetModeParam(ModeHandler* mode, const std::string& parameter);
-	void SetModeParam(char mode, const std::string& parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
-	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
-
+	bool IsModeSet(ModeHandler* mode) { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
+	bool IsModeSet(ModeHandler& mode) { return IsModeSet(&mode); }
+	bool IsModeSet(ChanModeReference& mode);
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query
@@ -153,24 +131,25 @@ class CoreExport Channel : public Extensible, public InviteBase
 	  *
 	  * @return The parameter for this mode is returned, or an empty string
 	  */
-	std::string GetModeParameter(char mode);
 	std::string GetModeParameter(ModeHandler* mode);
+	std::string GetModeParameter(ChanModeReference& mode);
+	std::string GetModeParameter(ParamModeBase* pm);
 
 	/** Sets the channel topic.
-	 * @param u The user setting the topic
-	 * @param t The topic to set it to. Non-const, as it may be modified by a hook.
-	 * @param forceset If set to true then all access checks will be bypassed.
+	 * @param user The user setting the topic.
+	 * @param topic The topic to set it to.
+	 * @param topicts Timestamp of the new topic.
+	 * @param setter Setter string, may be used when the original setter is no longer online.
+	 * If omitted or NULL, the setter string is obtained from the user.
 	 */
-	int SetTopic(User *u, std::string &t, bool forceset = false);
+	void SetTopic(User* user, const std::string& topic, time_t topicts, const std::string* setter = NULL);
 
 	/** Obtain the channel "user counter"
-	 * This returns the channel reference counter, which is initialized
-	 * to 0 when the channel is created and incremented/decremented
-	 * upon joins, parts quits and kicks.
+	 * This returns the number of users on this channel
 	 *
 	 * @return The number of users on this channel
 	 */
-	long GetUserCounter();
+	long GetUserCounter() const { return userlist.size(); }
 
 	/** Add a user pointer to the internal reference list
 	 * @param user The user to add
@@ -196,7 +175,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 *
 	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
-	const UserMembList* GetUsers();
+	const MemberMap& GetUsers() const { return userlist; }
 
 	/** Returns true if the user given is on the given channel.
 	 * @param user The user to look for
@@ -208,28 +187,50 @@ class CoreExport Channel : public Extensible, public InviteBase
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
-	 * @param user The user being kicked (must be on this channel)
+	 * @param victimiter Iterator to the user being kicked, must be valid
 	 * @param reason The reason for the kick
 	 */
-	void KickUser(User *src, User *user, const char* reason);
+	void KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason);
+
+	/** Make src kick user from this channel with the given reason.
+	 * @param src The source of the kick
+	 * @param user The user being kicked
+	 * @param reason The reason for the kick
+	 */
+	void KickUser(User* src, User* user, const std::string& reason)
+	{
+		MemberMap::iterator it = userlist.find(user);
+		if (it != userlist.end())
+			KickUser(src, it, reason);
+	}
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
 	 * @param reason The part reason
+	 * @return True if the user was on the channel and left, false if they weren't and nothing happened
 	 */
-	void PartUser(User *user, std::string &reason);
+	bool PartUser(User* user, std::string& reason);
 
-	/* Join a user to a channel. May be a channel that doesnt exist yet.
+	/** Join a local user to a channel, with or without permission checks. May be a channel that doesn't exist yet.
 	 * @param user The user to join to the channel.
-	 * @param cn The channel name to join to. Does not have to exist.
+	 * @param channame The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
 	 * @return A pointer to the Channel the user was joined to. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
-	 * If the user could not be joined to a channel, the return value may be NULL.
+	 * If the user could not be joined to a channel, the return value is NULL.
 	 */
-	static Channel* JoinUser(User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
+	static Channel* JoinUser(LocalUser* user, std::string channame, bool override = false, const std::string& key = "");
+
+	/** Join a user to an existing channel, without doing any permission checks
+	 * @param user The user to join to the channel
+	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
+	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
+	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
+	 * @return A newly created Membership object, or NULL if the user was already inside the channel or if the user is a server user
+	 */
+	Membership* ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
@@ -301,48 +302,12 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Write a line of text that already includes the source */
 	void RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
-	/** Returns the maximum number of bans allowed to be set on this channel
-	 * @return The maximum number of bans allowed
-	 */
-	long GetMaxBans();
-
 	/** Return the channel's modes with parameters.
 	 * @param showkey If this is set to true, the actual key is shown,
 	 * otherwise it is replaced with '&lt;KEY&gt;'
 	 * @return The channel mode string
 	 */
-	char* ChanModes(bool showkey);
-
-	/** Spool the NAMES list for this channel to the given user
-	 * @param user The user to spool the NAMES list to
-	 */
-	void UserList(User *user);
-
-	/** Get the number of invisible users on this channel
-	 * @return Number of invisible users
-	 */
-	int CountInvisible();
-
-	/** Get a users prefix on this channel in a string.
-	 * @param user The user to look up
-	 * @return A character array containing the prefix string.
-	 * Unlike GetStatus and GetStatusFlags which will only return the
-	 * core specified modes @, % and + (op, halfop and voice), GetPrefixChar
-	 * will also return module-defined prefixes. If the user has to prefix,
-	 * an empty but non-null string is returned. If the user has multiple
-	 * prefixes, the highest is returned. If you do not recognise the prefix
-	 * character you can get, you can deal with it in a 'proprtional' manner
-	 * compared to known prefixes, using GetPrefixValue().
-	 */
-	const char* GetPrefixChar(User *user);
-
-	/** Return all of a users mode prefixes into a char* string.
-	 * @param user The user to look up
-	 * @return A list of all prefix characters. The prefixes will always
-	 * be in rank order, greatest first, as certain IRC clients require
-	 * this when multiple prefixes are used names lists.
-	 */
-	const char* GetAllPrefixChars(User* user);
+	const char* ChanModes(bool showkey);
 
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
@@ -356,24 +321,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
 	unsigned int GetPrefixValue(User* user);
-
-	/** This method removes all prefix characters from a user.
-	 * It will not inform the user or the channel of the removal of prefixes,
-	 * and should be used when the user parts or quits.
-	 * @param user The user to remove all prefixes from
-	 */
-	void RemoveAllPrefixes(User* user);
-
-	/** Add a prefix character to a user.
-	 * Only the core should call this method, usually  from
-	 * within the mode parser or when the first user joins
-	 * the channel (to grant ops to them)
-	 * @param user The user to associate the privilage with
-	 * @param prefix The prefix character to associate
-	 * @param adding True if adding the prefix, false when removing
-	 * @return True if a change was made
-	 */
-	bool SetPrefix(User* user, char prefix, bool adding);
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist
@@ -389,9 +336,44 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
 
-	/** Clears the cached max bans value
+	/** Write a NOTICE to all local users on the channel
+	 * @param text Text to send
 	 */
-	void ResetMaxBans();
+	void WriteNotice(const std::string& text);
 };
 
-#endif
+inline bool Channel::HasUser(User* user)
+{
+	return (userlist.find(user) != userlist.end());
+}
+
+inline std::string Channel::GetModeParameter(ChanModeReference& mode)
+{
+	if (!mode)
+		return "";
+	return GetModeParameter(*mode);
+}
+
+inline std::string Channel::GetModeParameter(ModeHandler* mh)
+{
+	std::string out;
+	ParamModeBase* pm = mh->IsParameterMode();
+	if (pm && this->IsModeSet(pm))
+		pm->GetParameter(this, out);
+	return out;
+}
+
+inline std::string Channel::GetModeParameter(ParamModeBase* pm)
+{
+	std::string out;
+	if (this->IsModeSet(pm))
+		pm->GetParameter(this, out);
+	return out;
+}
+
+inline bool Channel::IsModeSet(ChanModeReference& mode)
+{
+	if (!mode)
+		return false;
+	return IsModeSet(*mode);
+}

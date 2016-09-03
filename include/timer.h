@@ -19,8 +19,9 @@
  */
 
 
-#ifndef INSPIRCD_TIMER_H
-#define INSPIRCD_TIMER_H
+#pragma once
+
+class Module;
 
 /** Timer class for one-second resolution timers
  * Timer provides a facility which allows module
@@ -29,61 +30,65 @@
  * resolution. To use Timer, inherit a class from
  * Timer, then insert your inherited class into the
  * queue using Server::AddTimer(). The Tick() method of
- * your object (which you should override) will be called
+ * your object (which you have to override) will be called
  * at the given time.
  */
 class CoreExport Timer
 {
- private:
 	/** The triggering time
 	 */
 	time_t trigger;
+
 	/** Number of seconds between triggers
 	 */
-	long secs;
+	unsigned int secs;
+
 	/** True if this is a repeating timer
 	 */
 	bool repeat;
+
  public:
 	/** Default constructor, initializes the triggering time
 	 * @param secs_from_now The number of seconds from now to trigger the timer
-	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(long secs_from_now, time_t now, bool repeating = false)
-	{
-		trigger = now + secs_from_now;
-		secs = secs_from_now;
-		repeat = repeating;
-	}
+	Timer(unsigned int secs_from_now, bool repeating = false);
 
-	/** Default destructor, does nothing.
+	/** Default destructor, removes the timer from the timer manager
 	 */
-	virtual ~Timer() { }
+	virtual ~Timer();
 
 	/** Retrieve the current triggering time
 	 */
-	virtual time_t GetTimer()
+	time_t GetTrigger() const
 	{
 		return trigger;
 	}
 
 	/** Sets the trigger timeout to a new value
+	 * This does not update the bookkeeping in TimerManager, use SetInterval()
+	 * to change the interval between ticks while keeping TimerManager updated
 	 */
-	virtual void SetTimer(time_t t)
+	void SetTrigger(time_t nexttrigger)
 	{
-		trigger = t;
+		trigger = nexttrigger;
 	}
+
+	/** Sets the interval between two ticks.
+	 */
+	void SetInterval(time_t interval);
 
 	/** Called when the timer ticks.
 	 * You should override this method with some useful code to
 	 * handle the tick event.
+	 * @param TIME The current time.
+	 * @return True if the Timer object is still valid, false if it was destructed.
 	 */
-	virtual void Tick(time_t TIME) = 0;
+	virtual bool Tick(time_t TIME) = 0;
 
 	/** Returns true if this timer is set to repeat
 	 */
-	bool GetRepeat()
+	bool GetRepeat() const
 	{
 		return repeat;
 	}
@@ -91,7 +96,7 @@ class CoreExport Timer
 	/** Returns the interval (number of seconds between ticks)
 	 * of this timer object.
 	 */
-	long GetSecs()
+	unsigned int GetInterval() const
 	{
 		return secs;
 	}
@@ -99,12 +104,6 @@ class CoreExport Timer
 	/** Cancels the repeat state of a repeating timer.
 	 * If you call this method, then the next time your
 	 * timer ticks, it will be removed immediately after.
-	 * You should use this method call to remove a recurring
-	 * timer if you wish to do so within the timer's Tick
-	 * event, as calling TimerManager::DelTimer() from within
-	 * the Timer::Tick() method is dangerous and may
-	 * cause a segmentation fault. Calling CancelRepeat()
-	 * is safe in this case.
 	 */
 	void CancelRepeat()
 	{
@@ -112,24 +111,19 @@ class CoreExport Timer
 	}
 };
 
-
 /** This class manages sets of Timers, and triggers them at their defined times.
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
 class CoreExport TimerManager
 {
- protected:
+	typedef std::multimap<time_t, Timer*> TimerMap;
+
 	/** A list of all pending timers
 	 */
-	std::vector<Timer *> Timers;
+	TimerMap Timers;
 
  public:
-	/** Constructor
-	 */
-	TimerManager();
-	~TimerManager();
-
 	/** Tick all pending Timers
 	 * @param TIME the current system time
 	 */
@@ -140,15 +134,8 @@ class CoreExport TimerManager
 	 */
 	void AddTimer(Timer *T);
 
-	/** Delete an Timer
-	 * @param T an Timer derived class to delete
+	/** Remove a Timer
+	 * @param T an Timer derived class to remove
 	 */
 	void DelTimer(Timer* T);
-
-	/** Compares two timers
-	 */
-	static bool TimerComparison( Timer *one,  Timer*two);
 };
-
-#endif
-

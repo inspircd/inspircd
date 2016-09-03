@@ -21,73 +21,35 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
-/** FMODE command - server mode with timestamp checks */
-CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who)
+/** FMODE command - channel mode change with timestamp checks */
+CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 {
-	std::string sourceserv = who->server;
+	time_t TS = ServerCommand::ExtractTS(params[1]);
 
-	std::vector<std::string> modelist;
-	time_t TS = 0;
-	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
-	{
-		if (q == 1)
-		{
-			/* The timestamp is in this position.
-			 * We don't want to pass that up to the
-			 * server->client protocol!
-			 */
-			TS = atoi(params[q].c_str());
-		}
-		else
-		{
-			/* Everything else is fine to append to the modelist */
-			modelist.push_back(params[q]);
-		}
+	Channel* const chan = ServerInstance->FindChan(params[0]);
+	if (!chan)
+		// Channel doesn't exist
+		return CMD_FAILURE;
 
-	}
-	/* Extract the TS value of the object, either User or Channel */
-	User* dst = ServerInstance->FindNick(params[0]);
-	Channel* chan = NULL;
-	time_t ourTS = 0;
+	// Extract the TS of the channel in question
+	time_t ourTS = chan->age;
 
-	if (dst)
-	{
-		ourTS = dst->age;
-	}
-	else
-	{
-		chan = ServerInstance->FindChan(params[0]);
-		if (chan)
-		{
-			ourTS = chan->age;
-		}
-		else
-			/* Oops, channel doesnt exist! */
-			return CMD_FAILURE;
-	}
-
-	if (!TS)
-	{
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
-		return CMD_INVALID;
-	}
-
-	/* TS is equal or less: Merge the mode changes into ours and pass on.
+	/* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
 	 */
-	if (TS <= ourTS)
-	{
-		bool merge = (TS == ourTS) && IS_SERVER(who);
-		ServerInstance->Modes->Process(modelist, who, merge);
-		return CMD_SUCCESS;
-	}
-	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
+	if (TS > ourTS)
+		return CMD_FAILURE;
+
+	/* TS is equal or less: apply the mode change locally and forward the message
 	 */
-	return CMD_FAILURE;
+
+	// Turn modes into a Modes::ChangeList; may have more elements than max modes
+	Modes::ChangeList changelist;
+	ServerInstance->Modes.ModeParamsToChangeList(who, MODETYPE_CHANNEL, params, changelist, 2);
+
+	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
+	if ((TS == ourTS) && IS_SERVER(who))
+		flags |= ModeParser::MODE_MERGE;
+
+	ServerInstance->Modes->Process(who, chan, NULL, changelist, flags);
+	return CMD_SUCCESS;
 }
-
-

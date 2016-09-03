@@ -23,8 +23,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services. */
-
 namespace
 {
 	bool silent;
@@ -35,16 +33,12 @@ namespace
 class SVSHold : public XLine
 {
 public:
-	irc::string nickname;
+	std::string nickname;
 
 	SVSHold(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& nick)
 		: XLine(s_time, d, src, re, "SVSHOLD")
 	{
-		this->nickname = nick.c_str();
-	}
-
-	~SVSHold()
-	{
+		this->nickname = nick;
 	}
 
 	bool Matches(User *u)
@@ -56,23 +50,21 @@ public:
 
 	bool Matches(const std::string &s)
 	{
-		if (nickname == s)
-			return true;
-		return false;
+		return InspIRCd::Match(s, nickname);
 	}
 
 	void DisplayExpiry()
 	{
 		if (!silent)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
-				this->nickname.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
+			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
+				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
 		}
 	}
 
-	const char* Displayable()
+	const std::string& Displayable()
 	{
-		return nickname.c_str();
+		return nickname;
 	}
 };
 
@@ -104,7 +96,6 @@ class CommandSvshold : public Command
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
 		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
-		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
@@ -112,7 +103,7 @@ class CommandSvshold : public Command
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 		{
 			/* don't allow SVSHOLD from non-ulined clients */
 			return CMD_FAILURE;
@@ -127,7 +118,7 @@ class CommandSvshold : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** SVSHOLD %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found in list, try /stats S.");
 			}
 		}
 		else
@@ -135,8 +126,7 @@ class CommandSvshold : public Command
 			if (parameters.size() < 3)
 				return CMD_FAILURE;
 
-			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration = ServerInstance->Duration(parameters[1]);
+			unsigned long duration = InspIRCd::Duration(parameters[1]);
 			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 
 			if (ServerInstance->XLines->AddLine(r, user))
@@ -151,7 +141,7 @@ class CommandSvshold : public Command
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = ServerInstance->TimeString(c_requires_crap);
+					std::string timestr = InspIRCd::TimeString(c_requires_crap);
 					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), parameters[2].c_str());
 				}
 			}
@@ -182,50 +172,46 @@ class ModuleSVSHold : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
-		silent = tag->getBool("silent");
+		silent = tag->getBool("silent", true);
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list &out)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if(symbol != 'S')
+		if (stats.GetSymbol() != 'S')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, user, out);
+		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, stats);
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreNick(User *user, const std::string &newnick)
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 
 		if (rl)
 		{
-			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason.c_str());
+			user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Services reserved nickname: %s", rl->reason.c_str()));
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleSVSHold()
+	~ModuleSVSHold()
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
 		ServerInstance->XLines->UnregisterFactory(&s);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
 	}

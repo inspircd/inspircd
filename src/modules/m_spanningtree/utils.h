@@ -20,36 +20,34 @@
  */
 
 
-#ifndef M_SPANNINGTREE_UTILS_H
-#define M_SPANNINGTREE_UTILS_H
+#pragma once
 
 #include "inspircd.h"
+#include "cachetimer.h"
 
-/* Foward declarations */
 class TreeServer;
 class TreeSocket;
 class Link;
 class Autoconnect;
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
+class CmdBuilder;
 
-/* This hash_map holds the hash equivalent of the server
- * tree, used for rapid linear lookups.
+extern SpanningTreeUtilities* Utils;
+
+/** Associative container type, mapping server names/ids to TreeServers
  */
-#ifdef HASHMAP_DEPRECATED
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::insensitive, irc::StrHashComp> server_hash;
-#else
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<std::string>, irc::StrHashComp> server_hash;
-#endif
-
-typedef std::map<TreeServer*,TreeServer*> TreeServerList;
+typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
 class SpanningTreeUtilities : public classbase
 {
+	CacheRefreshTimer RefreshTimer;
+
  public:
+ 	typedef std::set<TreeSocket*> TreeSocketSet;
 	typedef std::map<TreeSocket*, std::pair<std::string, int> > TimeoutList;
 
 	/** Creator module
@@ -100,14 +98,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	std::vector<reference<Autoconnect> > AutoconnectBlocks;
 
-	/** True (default) if we are to use challenge-response HMAC
-	 * to authenticate passwords.
-	 *
-	 * NOTE: This defaults to on, but should be turned off if
-	 * you are linking to an older version of inspircd.
-	 */
-	bool ChallengeResponse;
-
 	/** Ping frequency of server to server links
 	 */
 	int PingFreq;
@@ -124,33 +114,33 @@ class SpanningTreeUtilities : public classbase
 	 */
 	~SpanningTreeUtilities();
 
-	void RouteCommand(TreeServer*, const std::string&, const parameterlist&, User*);
+	void RouteCommand(TreeServer* origin, CommandBase* cmd, const parameterlist& parameters, User* user);
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& target);
+	void DoOneToOne(const CmdBuilder& params, Server* target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& omit);
+	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
 
 	/** Send a message from this server to all others
 	 */
-	bool DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
+	void DoOneToMany(const CmdBuilder& params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
 
-	/** Add a server to the server list for GetListOfServersForChannel
+	/** Handle nick collision
 	 */
-	void AddThisServer(TreeServer* server, TreeServerList &list);
+	bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list);
+	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list);
 
-	/** Find a server by name
+	/** Find a server by name or SID
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
 
@@ -158,9 +148,10 @@ class SpanningTreeUtilities : public classbase
 	 */
 	TreeServer* FindServerID(const std::string &id);
 
-	/** Find a route to a server by name
+	/** Find a server based on a target string.
+	 * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
 	 */
-	TreeServer* BestRouteTo(const std::string &ServerName);
+	TreeServer* FindRouteTarget(const std::string& target);
 
 	/** Find a server by glob mask
 	 */
@@ -174,10 +165,12 @@ class SpanningTreeUtilities : public classbase
 	 */
 	void RefreshIPCache();
 
-	/** Recreate serverlist and sidlist, this is needed because of m_nationalchars changing
-	 * national_case_insensitive_map which is used by the hash function
+	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
-	void Rehash();
+	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
 };
 
-#endif
+inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
+{
+	DoOneToAllButSender(params, NULL);
+}

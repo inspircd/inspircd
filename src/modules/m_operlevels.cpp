@@ -20,27 +20,20 @@
  */
 
 
-/* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
-
 #include "inspircd.h"
 
 class ModuleOperLevels : public Module
 {
 	public:
-		void init()
-		{
-			ServerInstance->Modules->Attach(I_OnKill, this);
-		}
-
-		virtual Version GetVersion()
+		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR);
 		}
 
-		virtual ModResult OnKill(User* source, User* dest, const std::string &reason)
+		ModResult OnKill(User* source, User* dest, const std::string &reason) CXX11_OVERRIDE
 		{
 			// oper killing an oper?
-			if (IS_OPER(dest) && IS_OPER(source))
+			if (dest->IsOper() && source->IsOper())
 			{
 				std::string level = dest->oper->getConfig("level");
 				long dest_level = atol(level.c_str());
@@ -50,8 +43,8 @@ class ModuleOperLevels : public Module
 				if (dest_level > source_level)
 				{
 					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
-					dest->WriteServ("NOTICE %s :*** Oper %s attempted to /kill you!",dest->nick.c_str(),source->nick.c_str());
-					source->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper %s is a higher level than you",source->nick.c_str(),dest->nick.c_str());
+					dest->WriteNotice("*** Oper " + source->nick + " attempted to /kill you!");
+					source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
 					return MOD_RES_DENY;
 				}
 			}
@@ -60,4 +53,3 @@ class ModuleOperLevels : public Module
 };
 
 MODULE_INIT(ModuleOperLevels)
-

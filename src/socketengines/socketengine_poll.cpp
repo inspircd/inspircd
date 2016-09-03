@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
  *   Copyright (C) 2009 Craig Edwards <craigedwards@brainbox.cc>
@@ -20,65 +21,26 @@
  */
 
 
-#include "inspircd.h"
 #include "exitcodes.h"
-
-#ifndef SOCKETENGINE_POLL
-#define SOCKETENGINE_POLL
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <map>
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include "socketengine.h"
 
-#ifndef _WIN32
-# ifndef __USE_XOPEN
-#  define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
-# endif
-# include <poll.h>
-# include <sys/poll.h>
-# include <sys/resource.h>
-#else
-# define struct pollfd WSAPOLLFD
-# define poll WSAPoll
-#endif
-
-class InspIRCd;
+#include <sys/poll.h>
+#include <sys/resource.h>
 
 /** A specialisation of the SocketEngine class, designed to use poll().
  */
-class PollEngine : public SocketEngine
+namespace
 {
-private:
 	/** These are used by poll() to hold socket events
 	 */
-	struct pollfd *events;
-	/** This map maps fds to an index in the events array.
+	std::vector<struct pollfd> events(16);
+	/** This vector maps fds to an index in the events array.
 	 */
-	std::map<int, unsigned int> fd_mappings;
-public:
-	/** Create a new PollEngine
-	 */
-	PollEngine();
-	/** Delete a PollEngine
-	 */
-	virtual ~PollEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual EventHandler* GetRef(int fd);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-	virtual std::string GetName();
-};
+	std::vector<int> fd_mappings(16);
+}
 
-#endif
-
-PollEngine::PollEngine()
+void SocketEngine::Init()
 {
-	CurrentSetSize = 0;
 	struct rlimit limits;
 	if (!getrlimit(RLIMIT_NOFILE, &limits))
 	{
@@ -86,23 +48,17 @@ PollEngine::PollEngine()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
-		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
+		// MAX_DESCRIPTORS is mainly used for display purposes, it's not a problem that getrlimit() failed
+		MAX_DESCRIPTORS = -1;
 	}
-
-	ref = new EventHandler* [GetMaxFds()];
-	events = new struct pollfd[GetMaxFds()];
-
-	memset(events, 0, GetMaxFds() * sizeof(struct pollfd));
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
-PollEngine::~PollEngine()
+void SocketEngine::Deinit()
 {
-	// No destruction required, either.
-	delete[] ref;
-	delete[] events;
+}
+
+void SocketEngine::RecoverFromFork()
+{
 }
 
 static int mask_to_poll(int event_mask)
@@ -115,71 +71,70 @@ static int mask_to_poll(int event_mask)
 	return rv;
 }
 
-bool PollEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "AddFd out of range: (fd: %d)", fd);
 		return false;
 	}
 
-	if (fd_mappings.find(fd) != fd_mappings.end())
+	if (static_cast<unsigned int>(fd) < fd_mappings.size() && fd_mappings[fd] != -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
 	unsigned int index = CurrentSetSize;
 
+	if (!SocketEngine::AddFdRef(eh))
+	{
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
+		return false;
+	}
+
+	while (static_cast<unsigned int>(fd) >= fd_mappings.size())
+		fd_mappings.resize(fd_mappings.size() * 2, -1);
 	fd_mappings[fd] = index;
-	ref[index] = eh;
+
+	ResizeDouble(events);
 	events[index].fd = fd;
 	events[index].events = mask_to_poll(event_mask);
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[index].events, index);
-	SocketEngine::SetEventMask(eh, event_mask);
-	CurrentSetSize++;
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d (%d; index %d)", fd, events[index].events, index);
+	eh->SetEventMask(event_mask);
 	return true;
 }
 
-EventHandler* PollEngine::GetRef(int fd)
-{
-	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
-	if (it == fd_mappings.end())
-		return NULL;
-	return ref[it->second];
-}
-
-void PollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
-{
-	std::map<int, unsigned int>::iterator it = fd_mappings.find(eh->GetFd());
-	if (it == fd_mappings.end())
-	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"SetEvents() on unknown fd: %d", eh->GetFd());
-		return;
-	}
-
-	events[it->second].events = mask_to_poll(new_mask);
-}
-
-void PollEngine::DelFd(EventHandler* eh)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if (fd < 0 || static_cast<unsigned int>(fd) >= fd_mappings.size() || fd_mappings[fd] == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SetEvents() on unknown fd: %d", eh->GetFd());
 		return;
 	}
 
-	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
-	if (it == fd_mappings.end())
+	events[fd_mappings[fd]].events = mask_to_poll(new_mask);
+}
+
+void SocketEngine::DelFd(EventHandler* eh)
+{
+	int fd = eh->GetFd();
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd() on unknown fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd out of range: (fd: %d)", fd);
 		return;
 	}
 
-	unsigned int index = it->second;
+	if (static_cast<unsigned int>(fd) >= fd_mappings.size() || fd_mappings[fd] == -1)
+	{
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd() on unknown fd: %d", fd);
+		return;
+	}
+
+	unsigned int index = fd_mappings[fd];
 	unsigned int last_index = CurrentSetSize - 1;
 	int last_fd = events[last_index].fd;
 
@@ -193,89 +148,78 @@ void PollEngine::DelFd(EventHandler* eh)
 		// move last_fd from last_index into index
 		events[index].fd = last_fd;
 		events[index].events = events[last_index].events;
-
-		ref[index] = ref[last_index];
 	}
 
 	// Now remove all data for the last fd we got into out list.
 	// Above code made sure this always is right
-	fd_mappings.erase(it);
+	fd_mappings[fd] = -1;
 	events[last_index].fd = 0;
 	events[last_index].events = 0;
-	ref[last_index] = NULL;
 
-	CurrentSetSize--;
+	SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d (index: %d) "
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d (index: %d) "
 			"(Filled gap with: %d (index: %d))", fd, index, last_fd, last_index);
 }
 
-int PollEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
-	int i = poll(events, CurrentSetSize, 1000);
-	int index;
-	socklen_t codesize = sizeof(int);
-	int errcode;
+	int i = poll(&events[0], CurrentSetSize, 1000);
 	int processed = 0;
 	ServerInstance->UpdateTime();
 
-	if (i > 0)
+	for (size_t index = 0; index < CurrentSetSize && processed < i; index++)
 	{
-		for (index = 0; index < CurrentSetSize && processed != i; index++)
+		struct pollfd& pfd = events[index];
+
+		// Copy these in case the vector gets resized and pfd invalidated
+		const int fd = pfd.fd;
+		const short revents = pfd.revents;
+
+		if (revents)
+			processed++;
+
+		EventHandler* eh = GetRef(fd);
+		if (!eh)
+			continue;
+
+		if (revents & POLLHUP)
 		{
-			if (events[index].revents)
-				processed++;
-			EventHandler* eh = ref[index];
-			if (!eh)
+			eh->OnEventHandlerError(0);
+			continue;
+		}
+
+		if (revents & POLLERR)
+		{
+			// Get error number
+			socklen_t codesize = sizeof(int);
+			int errcode;
+			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+				errcode = errno;
+			eh->OnEventHandlerError(errcode);
+			continue;
+		}
+
+		if (revents & POLLIN)
+		{
+			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			eh->OnEventHandlerRead();
+			if (eh != GetRef(fd))
+				// whoops, deleted out from under us
 				continue;
+		}
 
-			if (events[index].revents & POLLHUP)
-			{
-				eh->HandleEvent(EVENT_ERROR, 0);
-				continue;
-			}
+		if (revents & POLLOUT)
+		{
+			int mask = eh->GetEventMask();
+			mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE);
+			eh->SetEventMask(mask);
 
-			if (events[index].revents & POLLERR)
-			{
-				// Get fd
-				int fd = events[index].fd;
-
-				// Get error number
-				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
-					errcode = errno;
-				eh->HandleEvent(EVENT_ERROR, errcode);
-				continue;
-			}
-
-			if (events[index].revents & POLLIN)
-			{
-				SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
-				eh->HandleEvent(EVENT_READ);
-				if (eh != ref[index])
-					// whoops, deleted out from under us
-					continue;
-			}
-			
-			if (events[index].revents & POLLOUT)
-			{
-				int mask = eh->GetEventMask();
-				mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE);
-				SetEventMask(eh, mask);
-				events[index].events = mask_to_poll(mask);
-				eh->HandleEvent(EVENT_WRITE);
-			}
+			// The vector could've been resized, reference can be invalid by now; don't use it
+			events[index].events = mask_to_poll(mask);
+			eh->OnEventHandlerWrite();
 		}
 	}
 
 	return i;
-}
-
-std::string PollEngine::GetName()
-{
-	return "poll";
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new PollEngine;
 }

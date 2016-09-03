@@ -21,62 +21,71 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command SAJOIN to allow opers to force-join users to channels */
-
 /** Handle /SAJOIN
  */
 class CommandSajoin : public Command
 {
  public:
-	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 2)
+	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		flags_needed = 'o'; Penalty = 0; syntax = "[<nick>] <channel>[,<channel>]";
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		const unsigned int channelindex = (parameters.size() > 1) ? 1 : 0;
+		if (CommandParser::LoopCall(user, this, parameters, channelindex))
+			return CMD_FAILURE;
+
+		const std::string& channel = parameters[channelindex];
+		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
+
+		User* dest = ServerInstance->FindNick(nickname);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (ServerInstance->ULine(dest->server))
+			if (user != dest && !user->HasPrivPermission("users/sajoin-others", false))
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
-				return CMD_FAILURE;
-			}
-			if (IS_LOCAL(user) && !ServerInstance->IsChannel(parameters[1].c_str(), ServerInstance->Config->Limits.ChanMax))
-			{
-				/* we didn't need to check this for each character ;) */
-				user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
+				user->WriteNotice("*** You are not allowed to /SAJOIN other users (the privilege users/sajoin-others is needed to /SAJOIN others).");
 				return CMD_FAILURE;
 			}
 
-			/* For local users, we send the JoinUser which may create a channel and set its TS.
-			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
-			 * and then that server will generate the users JOIN or FJOIN instead.
-			 */
-			if (IS_LOCAL(dest))
+			if (dest->server->IsULine())
 			{
-				Channel::JoinUser(dest, parameters[1].c_str(), true, "", false, ServerInstance->Time());
-				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
-				Channel* n = ServerInstance->FindChan(parameters[1]);
-				if (n)
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				return CMD_FAILURE;
+			}
+			if (IS_LOCAL(user) && !ServerInstance->IsChannel(channel))
+			{
+				/* we didn't need to check this for each character ;) */
+				user->WriteNotice("*** Invalid characters in channel name or name too long");
+				return CMD_FAILURE;
+			}
+
+			Channel* chan = ServerInstance->FindChan(channel);
+			if ((chan) && (chan->HasUser(dest)))
+			{
+				user->WriteRemoteNotice("*** " + dest->nick + " is already on " + channel);
+				return CMD_FAILURE;
+			}
+
+			/* For local users, we call Channel::JoinUser which may create a channel and set its TS.
+			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
+			 * and then that server will handle the command.
+			 */
+			LocalUser* localuser = IS_LOCAL(dest);
+			if (localuser)
+			{
+				chan = Channel::JoinUser(localuser, channel, true);
+				if (chan)
 				{
-					if (n->HasUser(dest))
-					{
-						ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
-						return CMD_SUCCESS;
-					}
-					else
-					{
-						user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
-						return CMD_FAILURE;
-					}
+					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
+					return CMD_SUCCESS;
 				}
 				else
 				{
-					user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]);
+					user->WriteNotice("*** Could not join "+dest->nick+" to "+channel);
 					return CMD_FAILURE;
 				}
 			}
@@ -87,17 +96,14 @@ class CommandSajoin : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE "+user->nick+" :*** No such nickname "+parameters[0]);
+			user->WriteNotice("*** No such nickname "+nickname);
 			return CMD_FAILURE;
 		}
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -110,20 +116,10 @@ class ModuleSajoin : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSajoin()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSajoin)

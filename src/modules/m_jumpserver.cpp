@@ -20,8 +20,7 @@
 
 
 #include "inspircd.h"
-
-/* $ModDesc: Provides support for the RPL_REDIR numeric and the /JUMPSERVER command. */
+#include "modules/ssl.h"
 
 /** Handle /JUMPSERVER
  */
@@ -32,11 +31,14 @@ class CommandJumpserver : public Command
 	std::string redirect_to;
 	std::string reason;
 	int port;
+	int sslport;
 
 	CommandJumpserver(Module* Creator) : Command(Creator, "JUMPSERVER", 0, 4)
 	{
-		flags_needed = 'o'; syntax = "[<server> <port> <+/-an> <reason>]";
+		flags_needed = 'o';
+		syntax = "[<server> <port>[:<sslport>] <+/-an> <reason>]";
 		port = 0;
+		sslport = 0;
 		redirect_new_users = false;
 	}
 
@@ -53,11 +55,12 @@ class CommandJumpserver : public Command
 		if (!parameters.size())
 		{
 			if (port)
-				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick.c_str(), redirect_to.c_str(), port);
+				user->WriteNotice("*** Disabled jumpserver (previously set to '" + redirect_to + ":" + ConvToStr(port) + "')");
 			else
-				user->WriteServ("NOTICE %s :*** Jumpserver was not enabled.", user->nick.c_str());
+				user->WriteNotice("*** Jumpserver was not enabled.");
 
 			port = 0;
+			sslport = 0;
 			redirect_to.clear();
 			return CMD_SUCCESS;
 		}
@@ -84,27 +87,36 @@ class CommandJumpserver : public Command
 						redirect_new_users = direction;
 					break;
 					default:
-						user->WriteServ("NOTICE %s :*** Invalid JUMPSERVER flag: %c", user->nick.c_str(), *n);
+						user->WriteNotice("*** Invalid JUMPSERVER flag: " + ConvToStr(*n));
 						return CMD_FAILURE;
 					break;
 				}
 			}
 
-			if (!atoi(parameters[1].c_str()))
+			size_t delimpos = parameters[1].find(':');
+			port = ConvToInt(parameters[1].substr(0, delimpos ? delimpos : std::string::npos));
+			sslport = (delimpos == std::string::npos ? 0 : ConvToInt(parameters[1].substr(delimpos + 1)));
+
+			if (parameters[1].find_first_not_of("0123456789:") != std::string::npos
+				|| parameters[1].rfind(':') != delimpos
+				|| port > 65535 || sslport > 65535)
 			{
-				user->WriteServ("NOTICE %s :*** Invalid port number", user->nick.c_str());
+				user->WriteNotice("*** Invalid port number");
 				return CMD_FAILURE;
 			}
 
 			if (redirect_all_immediately)
 			{
 				/* Redirect everyone but the oper sending the command */
-				for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+				const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+				for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); )
 				{
-					User* t = *i;
-					if (!IS_OPER(t))
+					// Quitting the user removes it from the list
+					LocalUser* t = *i;
+					++i;
+					if (!t->IsOper())
 					{
-						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
+						t->WriteNumeric(RPL_REDIR, parameters[0], GetPort(t), "Please use this Server/Port instead");
 						ServerInstance->Users->QuitUser(t, reason);
 						n_done++;
 					}
@@ -116,24 +128,24 @@ class CommandJumpserver : public Command
 			}
 
 			if (redirect_new_users)
-			{
 				redirect_to = parameters[0];
-				port = atoi(parameters[1].c_str());
-			}
 
-			user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str(),
-					redirect_all_immediately ? "a" : "",
-					redirect_new_users ? "n" : "",
-					n_done ? " (" : "",
-					n_done ? n_done_s.c_str() : "",
-					n_done ? " user(s) redirected)" : "",
-					reason.c_str());
+			user->WriteNotice("*** Set jumpserver to server '" + parameters[0] + "' port '" + (port ? ConvToStr(port) : "Auto") + ", SSL " + (sslport ? ConvToStr(sslport) : "Auto") + "', flags '+" +
+				(redirect_all_immediately ? "a" : "") + (redirect_new_users ? "n'" : "'") +
+				(n_done ? " (" + n_done_s + "user(s) redirected): " : ": ") + reason);
 		}
 
 		return CMD_SUCCESS;
 	}
-};
 
+	int GetPort(LocalUser* user)
+	{
+		int p = (SSLIOHook::IsSSL(&user->eh) ? sslport : port);
+		if (p == 0)
+			p = user->GetServerPort();
+		return p;
+	}
+};
 
 class ModuleJumpServer : public Module
 {
@@ -143,40 +155,29 @@ class ModuleJumpServer : public Module
 	{
 	}
 
-	void init()
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(js);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleJumpServer()
-	{
-	}
-
-	virtual ModResult OnUserRegister(LocalUser* user)
-	{
-		if (js.port && js.redirect_new_users)
+		if (js.redirect_new_users)
 		{
-			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
-				user->nick.c_str(), js.redirect_to.c_str(), js.port);
+			int port = js.GetPort(user);
+			user->WriteNumeric(RPL_REDIR, js.redirect_to, port, "Please use this Server/Port instead");
 			ServerInstance->Users->QuitUser(user, js.reason);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
-		if (!user) js.redirect_new_users = false;
+		if (!status.srcuser)
+			js.redirect_new_users = false;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the RPL_REDIR numeric and the /JUMPSERVER command.", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleJumpServer)

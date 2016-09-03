@@ -17,32 +17,27 @@
  */
 
 
-#ifndef M_SPANNINGTREE_PROTOCOLINTERFACE_H
-#define M_SPANNINGTREE_PROTOCOLINTERFACE_H
-
-class SpanningTreeUtilities;
-class ModuleSpanningTree;
+#pragma once
 
 class SpanningTreeProtocolInterface : public ProtocolInterface
 {
-	SpanningTreeUtilities* Utils;
-	void SendChannel(Channel* target, char status, const std::string &text);
  public:
-	SpanningTreeProtocolInterface(SpanningTreeUtilities* util) : Utils(util) { }
-	virtual ~SpanningTreeProtocolInterface() { }
+	class Server : public ProtocolInterface::Server
+	{
+		TreeSocket* const sock;
 
-	virtual bool SendEncapsulatedData(const parameterlist &encap);
-	virtual void SendMetaData(Extensible* target, const std::string &key, const std::string &data);
-	virtual void SendTopic(Channel* channel, std::string &topic);
-	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &types);
-	virtual void SendSNONotice(const std::string &snomask, const std::string &text);
-	virtual void PushToClient(User* target, const std::string &rawline);
-	virtual void SendChannelPrivmsg(Channel* target, char status, const std::string &text);
-	virtual void SendChannelNotice(Channel* target, char status, const std::string &text);
-	virtual void SendUserPrivmsg(User* target, const std::string &text);
-	virtual void SendUserNotice(User* target, const std::string &text);
-	virtual void GetServerList(ProtoServerList &sl);
+	 public:
+		Server(TreeSocket* s) : sock(s) { }
+		void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	};
+
+	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source) CXX11_OVERRIDE;
+	void BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source, User* omit) CXX11_OVERRIDE;
+	void SendMetaData(User* user, const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	void SendSNONotice(char snomask, const std::string& text) CXX11_OVERRIDE;
+	void SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype);
+	void SendMessage(User* target, const std::string& text, MessageType msgtype);
+	void GetServerList(ServerList& sl);
 };
-
-#endif
-

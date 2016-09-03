@@ -19,43 +19,28 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b s: - server name bans */
-
 class ModuleServerBan : public Module
 {
- private:
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleServerBan()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Extban 's' - server ban",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':'))
 		{
-			if (InspIRCd::Match(user->server, mask.substr(2)))
+			if (InspIRCd::Match(user->server->GetName(), mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('s');
+		tokens["EXTBAN"].push_back('s');
 	}
 };
 
-
 MODULE_INIT(ModuleServerBan)
-

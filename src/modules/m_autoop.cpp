@@ -19,9 +19,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
-
-/* $ModDesc: Provides support for the +w channel mode, autoop list */
+#include "listmode.h"
 
 /** Handles +w channel mode
  */
@@ -34,17 +32,13 @@ class AutoOpList : public ListModeBase
 		tidy = false;
 	}
 
-	ModeHandler* FindMode(const std::string& mid)
+	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
-		for(char c='A'; c <= 'z'; c++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-			if (mh && mh->name == mid)
-				return mh;
-		}
-		return NULL;
+			return ServerInstance->Modes->FindPrefixMode(mid[0]);
+
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
@@ -53,13 +47,12 @@ class AutoOpList : public ListModeBase
 		if (pos == 0 || pos == std::string::npos)
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 		unsigned int mylevel = channel->GetPrefixValue(source);
-		std::string mid = parameter.substr(0, pos);
-		ModeHandler* mh = FindMode(mid);
+		std::string mid(parameter, 0, pos);
+		PrefixMode* mh = FindMode(mid);
 
-		if (adding && (!mh || !mh->GetPrefixRank()))
+		if (adding && !mh)
 		{
-			source->WriteNumeric(415, "%s %s :Cannot find prefix mode '%s' for autoop",
-				source->nick.c_str(), mid.c_str(), mid.c_str());
+			source->WriteNumeric(415, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
 			return MOD_RES_DENY;
 		}
 		else if (!mh)
@@ -70,8 +63,7 @@ class AutoOpList : public ListModeBase
 			return MOD_RES_DENY;
 		if (mh->GetLevelRequired() > mylevel)
 		{
-			source->WriteNumeric(482, "%s %s :You must be able to set mode '%s' to include it in an autoop",
-				source->nick.c_str(), channel->name.c_str(), mid.c_str());
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to set mode '%s' to include it in an autoop", mid.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -82,62 +74,42 @@ class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
 
-public:
+ public:
 	ModuleAutoOp() : mh(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(mh);
-		mh.DoImplements(this);
-
-		Implementation list[] = { I_OnPostJoin, };
-		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
-	}
-
-	void OnPostJoin(Membership *memb)
+	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(memb->user))
 			return;
 
-		modelist* list = mh.extItem.get(memb->chan);
+		ListModeBase::ModeList* list = mh.GetList(memb->chan);
 		if (list)
 		{
-			std::string modeline("+");
-			std::vector<std::string> modechange;
-			modechange.push_back(memb->chan->name);
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			Modes::ChangeList changelist;
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				std::string::size_type colon = it->mask.find(':');
 				if (colon == std::string::npos)
 					continue;
 				if (memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
 				{
-					ModeHandler* given = mh.FindMode(it->mask.substr(0, colon));
-					if (given && given->GetPrefixRank())
-						modeline.push_back(given->GetModeChar());
+					PrefixMode* given = mh.FindMode(it->mask.substr(0, colon));
+					if (given)
+						changelist.push_add(given, memb->user->nick);
 				}
 			}
-			modechange.push_back(modeline);
-			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
-				modechange.push_back(memb->user->nick);
-			if(modechange.size() >= 3)
-				ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
 		}
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		mh.DoSyncChannel(chan, proto, opaque);
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		mh.DoRehash();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the +w channel mode", VF_VENDOR);
 	}

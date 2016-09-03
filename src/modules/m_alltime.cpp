@@ -21,26 +21,21 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Display timestamps from all servers connected to the network */
-
 class CommandAlltime : public Command
 {
  public:
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
 		flags_needed = 'o';
-		translation.push_back(TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		char fmtdate[64];
-		time_t now = ServerInstance->Time();
-		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(&now));
+		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
-		std::string msg = ":" + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
+		std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
-		user->SendText(msg);
+		user->WriteRemoteNotice(msg);
 
 		/* we want this routed out! */
 		return CMD_SUCCESS;
@@ -52,7 +47,6 @@ class CommandAlltime : public Command
 	}
 };
 
-
 class Modulealltime : public Module
 {
 	CommandAlltime mycommand;
@@ -62,16 +56,7 @@ class Modulealltime : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(mycommand);
-	}
-
-	virtual ~Modulealltime()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Display timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
 	}

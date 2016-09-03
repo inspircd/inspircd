@@ -26,9 +26,7 @@
  */
 
 
-/* $Core */
 #include "inspircd.h"
-#include "inspircd_version.h"
 #include <signal.h>
 
 #ifndef _WIN32
@@ -54,12 +52,7 @@
 #include <fstream>
 #include <iostream>
 #include "xline.h"
-#include "bancache.h"
-#include "socketengine.h"
-#include "socket.h"
-#include "command_parse.h"
 #include "exitcodes.h"
-#include "caller.h"
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
@@ -78,27 +71,25 @@ unsigned const char *national_case_insensitive_map = rfc_case_insensitive_map;
  */
 const char* ExitCodes[] =
 {
-		"No error", /* 0 */
-		"DIE command", /* 1 */
-		"execv() failed", /* 2 */
-		"Internal error", /* 3 */
-		"Config file error", /* 4 */
-		"Logfile error", /* 5 */
-		"POSIX fork failed", /* 6 */
-		"Bad commandline parameters", /* 7 */
-		"No ports could be bound", /* 8 */
-		"Can't write PID file", /* 9 */
-		"SocketEngine could not initialize", /* 10 */
-		"Refusing to start up as root", /* 11 */
-		"Found a <die> tag!", /* 12 */
-		"Couldn't load module on startup", /* 13 */
-		"Could not create windows forked process", /* 14 */
-		"Received SIGTERM", /* 15 */
-		"Bad command handler loaded", /* 16 */
-		"RegisterServiceCtrlHandler failed", /* 17 */
-		"UpdateSCMStatus failed", /* 18 */
-		"CreateEvent failed" /* 19 */
+		"No error",								// 0
+		"DIE command",							// 1
+		"Config file error",					// 2
+		"Logfile error",						// 3
+		"POSIX fork failed",					// 4
+		"Bad commandline parameters",			// 5
+		"Can't write PID file",					// 6
+		"SocketEngine could not initialize",	// 7
+		"Refusing to start up as root",			// 8
+		"Couldn't load module on startup",		// 9
+		"Received SIGTERM"						// 10
 };
+
+#ifdef INSPIRCD_ENABLE_TESTSUITE
+/** True if we have been told to run the testsuite from the commandline,
+ * rather than entering the mainloop.
+ */
+static int do_testsuite = 0;
+#endif
 
 template<typename T> static void DeleteZero(T*&n)
 {
@@ -109,21 +100,13 @@ template<typename T> static void DeleteZero(T*&n)
 
 void InspIRCd::Cleanup()
 {
+	// Close all listening sockets
 	for (unsigned int i = 0; i < ports.size(); i++)
 	{
-		/* This calls the constructor and closes the listening socket */
 		ports[i]->cull();
 		delete ports[i];
 	}
 	ports.clear();
-
-	/* Close all client sockets, or the new process inherits them */
-	LocalUserList::reverse_iterator i = Users->local_users.rbegin();
-	while (i != this->Users->local_users.rend())
-	{
-		User* u = *i++;
-		Users->QuitUser(u, "Server shutdown");
-	}
 
 	GlobalCulls.Apply();
 	Modules->UnloadAll();
@@ -131,98 +114,15 @@ void InspIRCd::Cleanup()
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
+	{
+		delete FakeClient->server;
 		FakeClient->cull();
-	if (Res)
-		Res->cull();
+	}
 	DeleteZero(this->FakeClient);
-	DeleteZero(this->Users);
-	DeleteZero(this->Modes);
 	DeleteZero(this->XLines);
-	DeleteZero(this->Parser);
-	DeleteZero(this->stats);
-	DeleteZero(this->Modules);
-	DeleteZero(this->BanCache);
-	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->Res);
-	DeleteZero(this->chanlist);
-	DeleteZero(this->PI);
-	DeleteZero(this->Threads);
-	DeleteZero(this->Timers);
-	DeleteZero(this->SE);
-	/* Close logging */
-	this->Logs->CloseLogs();
-	DeleteZero(this->Logs);
-}
-
-void InspIRCd::Restart(const std::string &reason)
-{
-	/* SendError flushes each client's queue,
-	 * regardless of writeability state
-	 */
-	this->SendError(reason);
-
-	/* Figure out our filename (if theyve renamed it, we're boned) */
-	std::string me;
-
-	char** argv = Config->cmdline.argv;
-
-#ifdef _WIN32
-	char module[MAX_PATH];
-	if (GetModuleFileNameA(NULL, module, MAX_PATH))
-		me = module;
-#else
-	me = argv[0];
-#endif
-
-	this->Cleanup();
-
-	if (execv(me.c_str(), argv) == -1)
-	{
-		/* Will raise a SIGABRT if not trapped */
-		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
-	}
-}
-
-void InspIRCd::ResetMaxBans()
-{
-	for (chan_hash::const_iterator i = chanlist->begin(); i != chanlist->end(); i++)
-		i->second->ResetMaxBans();
-}
-
-/** Because hash_map doesn't free its buckets when we delete items, we occasionally
- * recreate the hash to free them up.
- * We do this by copying the entries from the old hash to a new hash, causing all
- * empty buckets to be weeded out of the hash.
- * Since this is quite expensive, it's not done very often.
- */
-void InspIRCd::RehashUsersAndChans()
-{
-	user_hash* old_users = Users->clientlist;
-	Users->clientlist = new user_hash;
-	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
-		Users->clientlist->insert(*n);
-	delete old_users;
-
-	user_hash* old_uuid = Users->uuidlist;
-	Users->uuidlist = new user_hash;
-	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
-		Users->uuidlist->insert(*n);
-	delete old_uuid;
-
-	chan_hash* old_chans = chanlist;
-	chanlist = new chan_hash;
-	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
-		chanlist->insert(*n);
-	delete old_chans;
-
-	// Reset the already_sent IDs so we don't wrap it around and drop a message
-	LocalUser::already_sent_id = 0;
-	for (LocalUserList::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
-	{
-		(**i).already_sent = 0;
-		(**i).RemoveExpiredInvites();
-	}
+	SocketEngine::Deinit();
+	Logs->CloseLogs();
 }
 
 void InspIRCd::SetSignals()
@@ -258,8 +158,8 @@ bool InspIRCd::DaemonSeed()
 	// Do not use QuickExit here: It will exit with status SIGTERM which would break e.g. daemon scripts
 	signal(SIGTERM, VoidSignalHandler);
 
-	int childpid;
-	if ((childpid = fork ()) < 0)
+	int childpid = fork();
+	if (childpid < 0)
 		return false;
 	else if (childpid > 0)
 	{
@@ -282,13 +182,13 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to getrlimit()!");
 		return false;
 	}
 	rl.rlim_cur = rl.rlim_max;
 
 	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP",DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setrlimit() failed, cannot increase coredump size.");
 
 	return true;
 #endif
@@ -299,7 +199,7 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 #ifndef _WIN32
 	std::string fname(filename);
 	if (fname.empty())
-		fname = DATA_PATH "/inspircd.pid";
+		fname = ServerInstance->Config->Paths.PrependData("inspircd.pid");
 	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{
@@ -310,7 +210,7 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 	{
 		if (exitonfail)
 			std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s'%s",fname.c_str(), (exitonfail ? ", exiting." : ""));
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s'%s", fname.c_str(), (exitonfail ? ", exiting." : ""));
 		if (exitonfail)
 			Exit(EXIT_STATUS_PID);
 	}
@@ -318,82 +218,43 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName(CONFIG_PATH "/inspircd.conf"),
+	 ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf"),
+	 PI(&DefaultProtocolInterface),
 
 	 /* Functor pointer initialisation.
 	  *
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 NICKForced("NICKForced", NULL),
-	 OperQuit("OperQuit", NULL),
+	 OperQuit("operquit", ExtensionItem::EXT_USER, NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
-	 IsSID(&HandleIsSID),
-	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FloodQuitUser(&HandleFloodQuitUser),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
 
-	Extensions.Register(&NICKForced);
 	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;
+	// Flag variables passed to getopt_long() later
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
-	int c = 0;
+	    do_nolog = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
-	this->Logs = 0;
-	this->Threads = 0;
-	this->PI = 0;
-	this->Users = 0;
-	this->chanlist = 0;
 	this->Config = 0;
-	this->SNO = 0;
-	this->BanCache = 0;
-	this->Modules = 0;
-	this->stats = 0;
-	this->Timers = 0;
-	this->Parser = 0;
 	this->XLines = 0;
-	this->Modes = 0;
-	this->Res = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
 
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
-	// This must be created first, so other parts of Insp can use it while starting up
-	this->Logs = new LogManager;
-
-	SE = CreateSocketEngine();
-
-	this->Threads = new ThreadEngine;
-
-	/* Default implementation does nothing */
-	this->PI = new ProtocolInterface;
-
-	this->s_signal = 0;
-
-	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager;
-
-	this->Users->clientlist = new user_hash();
-	this->Users->uuidlist = new user_hash();
-	this->chanlist = new chan_hash();
+	SocketEngine::Init();
 
 	this->Config = new ServerConfig;
-	this->SNO = new SnomaskManager;
-	this->BanCache = new BanCacheManager;
-	this->Modules = new ModuleManager();
-	this->stats = new serverstats();
-	this->Timers = new TimerManager;
-	this->Parser = new CommandParser;
+	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 
 	this->Config->cmdline.argv = argv;
@@ -422,28 +283,26 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	struct option longopts[] =
 	{
 		{ "nofork",	no_argument,		&do_nofork,	1	},
-		{ "logfile",	required_argument,	NULL,		'f'	},
 		{ "config",	required_argument,	NULL,		'c'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 		{ "testsuite",	no_argument,		&do_testsuite,	1	},
+#endif
 		{ 0, 0, 0, 0 }
 	};
 
+	int c;
 	int index;
-	while ((c = getopt_long(argc, argv, ":c:f:", longopts, &index)) != -1)
+	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
 	{
 		switch (c)
 		{
-			case 'f':
-				/* Log filename was set */
-				Config->cmdline.startup_log = optarg;
-			break;
 			case 'c':
 				/* Config filename was set */
-				ConfigFileName = optarg;
+				ConfigFileName = ServerInstance->Config->Paths.PrependConfig(optarg);
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
@@ -453,19 +312,21 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			default:
 				/* Fall through to handle other weird values too */
 				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
-				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--logfile <filename>] " << std::endl <<
-					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version] [--config <config>] [--testsuite]" << std::endl;
+				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--config <config>]" << std::endl <<
+					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
 	}
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	if (do_testsuite)
 		do_nofork = do_debug = true;
+#endif
 
 	if (do_version)
 	{
-		std::cout << std::endl << VERSION << " r" << REVISION << std::endl;
+		std::cout << std::endl << INSPIRCD_VERSION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
@@ -479,28 +340,22 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
 	Config->cmdline.writelog = !do_nolog;
-	Config->cmdline.TestSuite = (do_testsuite != 0);
 
 	if (do_debug)
 	{
 		FileWriter* fw = new FileWriter(stdout);
-		FileLogStream* fls = new FileLogStream(RAWIO, fw);
+		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
-	else if (!this->OpenLog(argv, argc))
-	{
-		std::cout << "ERROR: Could not open initial logfile " << Config->cmdline.startup_log << ": " << strerror(errno) << std::endl << std::endl;
-		Exit(EXIT_STATUS_LOG);
-	}
 
-	if (!ServerConfig::FileExists(ConfigFileName.c_str()))
+	if (!FileSystem::FileExists(ConfigFileName))
 	{
 #ifdef _WIN32
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
 		std::string txtconf = this->ConfigFileName;
 		txtconf.append(".txt");
 
-		if (ServerConfig::FileExists(txtconf.c_str()))
+		if (FileSystem::FileExists(txtconf))
 		{
 			ConfigFileName = txtconf;
 		}
@@ -508,20 +363,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 		{
 			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
 
-	std::cout << con_green << "Inspire Internet Relay Chat Server" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
-	std::cout << con_green << "(C) InspIRCd Development Team." << con_reset << std::endl << std::endl;
-	std::cout << "Developers:" << std::endl;
-	std::cout << con_green << "\tBrain, FrostyCoolSlug, w00t, Om, Special, peavey" << std::endl;
-	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << std::endl;
-	std::cout << "\tAttila" << con_reset << std::endl << std::endl;
-	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
-
-	this->Modes = new ModeParser;
+	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
+	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
 
 #ifndef _WIN32
 	if (!do_root)
@@ -547,47 +395,32 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!this->DaemonSeed())
 		{
 			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
 	}
 
-	SE->RecoverFromFork();
+	SocketEngine::RecoverFromFork();
 
-	/* During startup we don't actually initialize this
-	 * in the thread engine.
+	/* During startup we read the configuration now, not in
+	 * a seperate thread
 	 */
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
+	ModeParser::InitBuiltinModes();
 
-	this->Res = new DNS();
-
-	/*
-	 * Initialise SID/UID.
- 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
-	 *   -- w00t
- 	 */
+	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())
-	{
-		// Generate one
-		unsigned int sid = 0;
-		char sidstr[4];
+		Config->sid = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
 
-		for (const char* x = Config->ServerName.c_str(); *x; ++x)
-			sid = 5 * sid + *x;
-		for (const char* y = Config->ServerDesc.c_str(); *y; ++y)
-			sid = 5 * sid + *y;
-		sprintf(sidstr, "%03d", sid % 1000);
+	// Initialize the UID generator with our sid
+	this->UIDGen.init(Config->sid);
 
-		Config->sid = sidstr;
-	}
+	// Create the server user for this server
+	this->FakeClient = new FakeUser(Config->sid, Config->ServerName, Config->ServerDesc);
 
-	/* set up fake client again this time with the correct uid */
-	this->FakeClient = new FakeUser(Config->sid, Config->ServerName);
-
-	// Get XLine to do it's thing.
-	this->XLines->CheckELines();
+	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
 	int bounditems = BindPorts(pl);
@@ -596,8 +429,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Modules->LoadAll();
 
-	/* Just in case no modules were loaded - fix for bug #101 */
-	this->BuildISupport();
+	// Build ISupport as ModuleManager::LoadAll() does not do it
+	this->ISupport.Build();
 	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
 	if (!pl.empty())
@@ -614,7 +447,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
 	}
 
-	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SE->GetMaxFds() << " max open sockets" << std::endl;
+	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
 	if (!Config->cmdline.nofork)
@@ -622,7 +455,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "Error killing parent process: %s",strerror(errno));
+			Logs->Log("STARTUP", LOG_DEFAULT, "Error killing parent process: %s",strerror(errno));
 		}
 	}
 
@@ -636,7 +469,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 *
 	 *    -- nenolod
 	 */
-	if ((!do_nofork) && (!do_testsuite) && (!Config->cmdline.forcedebug))
+	if ((!do_nofork) && (!Config->cmdline.forcedebug))
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -645,16 +478,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		fclose(stdout);
 
 		if (dup2(fd, STDIN_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdin.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdin.");
 		if (dup2(fd, STDOUT_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdout.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdout.");
 		if (dup2(fd, STDERR_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stderr.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stderr.");
 		close(fd);
 	}
 	else
 	{
-		Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		Logs->Log("STARTUP", LOG_DEFAULT, "Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -666,10 +499,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		FreeConsole();
 	}
 
-	QueryPerformanceFrequency(&stats->QPFrequency);
+	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
-	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
 	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
@@ -683,7 +516,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGROUPS", DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -695,7 +528,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -703,7 +536,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (wrong group?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid() failed (wrong group?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -718,7 +551,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -726,7 +559,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (wrong user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid() failed (wrong user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -755,15 +588,17 @@ void InspIRCd::UpdateTime()
 #endif
 }
 
-int InspIRCd::Run()
+void InspIRCd::Run()
 {
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
-	if (Config->cmdline.TestSuite)
+	if (do_testsuite)
 	{
 		TestSuite* ts = new TestSuite;
 		delete ts;
-		Exit(0);
+		return;
 	}
+#endif
 
 	UpdateTime();
 	time_t OLDTIME = TIME.tv_sec;
@@ -778,7 +613,7 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
+			this->Logs->Log("CONFIG", LOG_DEBUG, "Detected ConfigThread exiting, tidying up...");
 
 			this->ConfigThread->Finish();
 
@@ -798,18 +633,18 @@ int InspIRCd::Run()
 		{
 #ifndef _WIN32
 			getrusage(RUSAGE_SELF, &ru);
-			stats->LastSampled = TIME;
-			stats->LastCPU = ru.ru_utime;
+			stats.LastSampled = TIME;
+			stats.LastCPU = ru.ru_utime;
 #else
-			if(QueryPerformanceCounter(&stats->LastSampled))
+			if(QueryPerformanceCounter(&stats.LastSampled))
 			{
 				FILETIME CreationTime;
 				FILETIME ExitTime;
 				FILETIME KernelTime;
 				FILETIME UserTime;
 				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
-				stats->LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-				stats->LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+				stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+				stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
 			}
 #endif
 
@@ -826,17 +661,14 @@ int InspIRCd::Run()
 			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
-			{
-				this->RehashUsersAndChans();
-				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-			}
+				FOREACH_MOD(OnGarbageCollect, ());
 
-			Timers->TickTimers(TIME.tv_sec);
-			this->DoBackgroundUserStuff();
+			Timers.TickTimers(TIME.tv_sec);
+			Users->DoBackgroundUserStuff();
 
 			if ((TIME.tv_sec % 5) == 0)
 			{
-				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME.tv_sec));
+				FOREACH_MOD(OnBackgroundTimer, (TIME.tv_sec));
 				SNO->FlushSnotices();
 			}
 		}
@@ -848,8 +680,8 @@ int InspIRCd::Run()
 		 * This will cause any read or write events to be
 		 * dispatched to their handlers.
 		 */
-		this->SE->DispatchTrialWrites();
-		this->SE->DispatchEvents();
+		SocketEngine::DispatchTrialWrites();
+		SocketEngine::DispatchEvents();
 
 		/* if any users were quit, take them out */
 		GlobalCulls.Apply();
@@ -861,25 +693,6 @@ int InspIRCd::Run()
 			s_signal = 0;
 		}
 	}
-
-	return 0;
-}
-
-/**********************************************************************************/
-
-/**
- * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
- */
-
-/* this returns true when all modules are satisfied that the user should be allowed onto the irc server
- * (until this returns true, a user will block in the waiting state, waiting to connect up to the
- * registration timeout maximum seconds)
- */
-bool InspIRCd::AllModulesReportReady(LocalUser* user)
-{
-	ModResult res;
-	FIRST_MOD_RESULT(OnCheckReady, res, (user));
-	return (res == MOD_RES_PASSTHRU);
 }
 
 sig_atomic_t InspIRCd::s_signal = 0;

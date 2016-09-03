@@ -23,22 +23,17 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
-
 /** Holds a CBAN item
  */
 class CBan : public XLine
 {
-public:
-	irc::string matchtext;
+private:
+	std::string matchtext;
 
+public:
 	CBan(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& ch)
 		: XLine(s_time, d, src, re, "CBAN")
-	{
-		this->matchtext = ch.c_str();
-	}
-
-	~CBan()
+		, matchtext(ch)
 	{
 	}
 
@@ -50,20 +45,12 @@ public:
 
 	bool Matches(const std::string &s)
 	{
-		if (matchtext == s)
-			return true;
-		return false;
+		return irc::equals(matchtext, s);
 	}
 
-	void DisplayExpiry()
+	const std::string& Displayable()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired CBan %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-	}
-
-	const char* Displayable()
-	{
-		return matchtext.c_str();
+		return matchtext;
 	}
 };
 
@@ -95,7 +82,6 @@ class CommandCBan : public Command
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
 		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
-		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
@@ -111,14 +97,14 @@ class CommandCBan : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** CBan " + parameters[0] + " not found in list, try /stats C.");
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration = ServerInstance->Duration(parameters[1]);
+			unsigned long duration = InspIRCd::Duration(parameters[1]);
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 
@@ -131,14 +117,14 @@ class CommandCBan : public Command
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = ServerInstance->TimeString(c_requires_crap);
+					std::string timestr = InspIRCd::TimeString(c_requires_crap);
 					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), reason);
 				}
 			}
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
 				return CMD_FAILURE;
 			}
 		}
@@ -164,51 +150,46 @@ class ModuleCBan : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
-
-		ServerInstance->Modules->AddService(mycommand);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleCBan()
+	~ModuleCBan()
 	{
 		ServerInstance->XLines->DelAll("CBAN");
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list &out)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'C')
+		if (stats.GetSymbol() != 'C')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("CBAN", 210, user, out);
+		ServerInstance->XLines->InvokeStats("CBAN", 210, stats);
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason.c_str());
+			user->WriteNumeric(384, cname, InspIRCd::Format("Cannot join channel, CBANed (%s)", rl->reason.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				 user->nick.c_str(), cname, rl->reason.c_str());
+				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Gives /cban, aka C:lines. Think Q:lines, for channels.", VF_COMMON | VF_VENDOR);
 	}
 };
 
 MODULE_INIT(ModuleCBan)
-

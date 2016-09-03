@@ -23,8 +23,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
-
-/* $ModDesc: Provides handling of DNS blacklists */
+#include "modules/dns.h"
 
 /* Class holding data for a single entry */
 class DNSBLConfEntry : public refcountbase
@@ -40,13 +39,12 @@ class DNSBLConfEntry : public refcountbase
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;
 		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
-		~DNSBLConfEntry() { }
 };
 
 
 /** Resolver for CGI:IRC hostnames encoded in ident/GECOS
  */
-class DNSBLResolver : public Resolver
+class DNSBLResolver : public DNS::Request
 {
 	std::string theiruid;
 	LocalStringExt& nameExt;
@@ -55,170 +53,169 @@ class DNSBLResolver : public Resolver
 
  public:
 
-	DNSBLResolver(Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf, bool &cached)
-		: Resolver(hostname, DNS_QUERY_A, cached, me), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
+		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
 	{
 	}
 
 	/* Note: This may be called multiple times for multiple A record results */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		/* Check the user still exists */
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
-		if (them)
+		if (!them)
+			return;
+
+		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
+		if (!ans_record)
+			return;
+
+		int i = countExt.get(them);
+		if (i)
+			countExt.set(them, i - 1);
+
+		// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
+
+		unsigned int bitmask = 0, record = 0;
+		bool match = false;
+		in_addr resultip;
+
+		inet_aton(ans_record->rdata.c_str(), &resultip);
+
+		switch (ConfEntry->type)
 		{
-			int i = countExt.get(them);
-			if (i)
-				countExt.set(them, i - 1);
-			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
-			if(result.length())
-			{
-				unsigned int bitmask = 0, record = 0;
-				bool match = false;
-				in_addr resultip;
-
-				inet_aton(result.c_str(), &resultip);
-
-				switch (ConfEntry->type)
-				{
-					case DNSBLConfEntry::A_BITMASK:
-						bitmask = resultip.s_addr >> 24; /* Last octet (network byte order) */
-						bitmask &= ConfEntry->bitmask;
-						match = (bitmask != 0);
-					break;
-					case DNSBLConfEntry::A_RECORD:
-						record = resultip.s_addr >> 24; /* Last octet */
-						match = (ConfEntry->records[record] == 1);
-					break;
-				}
-
-				if (match)
-				{
-					std::string reason = ConfEntry->reason;
-					std::string::size_type x = reason.find("%ip%");
-					while (x != std::string::npos)
-					{
-						reason.erase(x, 4);
-						reason.insert(x, them->GetIPString());
-						x = reason.find("%ip%");
-					}
-
-					ConfEntry->stats_hits++;
-
-					switch (ConfEntry->banaction)
-					{
-						case DNSBLConfEntry::I_KILL:
-						{
-							ServerInstance->Users->QuitUser(them, "Killed (" + reason + ")");
-							break;
-						}
-						case DNSBLConfEntry::I_MARK:
-						{
-							if (!ConfEntry->ident.empty())
-							{
-								them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
-								them->ChangeIdent(ConfEntry->ident.c_str());
-							}
-
-							if (!ConfEntry->host.empty())
-							{
-								them->WriteServ("304 " + them->nick + " :Your host has been set to " + ConfEntry->host + " because you matched " + reason);
-								them->ChangeDisplayedHost(ConfEntry->host.c_str());
-							}
-
-							nameExt.set(them, ConfEntry->name);
-							break;
-						}
-						case DNSBLConfEntry::I_KLINE:
-						{
-							KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-									"*", them->GetIPString());
-							if (ServerInstance->XLines->AddLine(kl,NULL))
-							{
-								std::string timestr = ServerInstance->TimeString(kl->expiry);
-								ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
-								ServerInstance->XLines->ApplyLines();
-							}
-							else
-							{
-								delete kl;
-								return;
-							}
-							break;
-						}
-						case DNSBLConfEntry::I_GLINE:
-						{
-							GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-									"*", them->GetIPString());
-							if (ServerInstance->XLines->AddLine(gl,NULL))
-							{
-								std::string timestr = ServerInstance->TimeString(gl->expiry);
-								ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
-								ServerInstance->XLines->ApplyLines();
-							}
-							else
-							{
-								delete gl;
-								return;
-							}
-							break;
-						}
-						case DNSBLConfEntry::I_ZLINE:
-						{
-							ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-									them->GetIPString());
-							if (ServerInstance->XLines->AddLine(zl,NULL))
-							{
-								std::string timestr = ServerInstance->TimeString(zl->expiry);
-								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
-								ServerInstance->XLines->ApplyLines();
-							}
-							else
-							{
-								delete zl;
-								return;
-							}
-							break;
-						}
-						case DNSBLConfEntry::I_UNKNOWN:
-						{
-							break;
-						}
-						break;
-					}
-
-					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
-				}
-				else
-					ConfEntry->stats_misses++;
-			}
-			else
-				ConfEntry->stats_misses++;
+			case DNSBLConfEntry::A_BITMASK:
+				bitmask = resultip.s_addr >> 24; /* Last octet (network byte order) */
+				bitmask &= ConfEntry->bitmask;
+				match = (bitmask != 0);
+			break;
+			case DNSBLConfEntry::A_RECORD:
+				record = resultip.s_addr >> 24; /* Last octet */
+				match = (ConfEntry->records[record] == 1);
+			break;
 		}
+
+		if (match)
+		{
+			std::string reason = ConfEntry->reason;
+			std::string::size_type x = reason.find("%ip%");
+			while (x != std::string::npos)
+			{
+				reason.erase(x, 4);
+				reason.insert(x, them->GetIPString());
+				x = reason.find("%ip%");
+			}
+
+			ConfEntry->stats_hits++;
+
+			switch (ConfEntry->banaction)
+			{
+				case DNSBLConfEntry::I_KILL:
+				{
+					ServerInstance->Users->QuitUser(them, "Killed (" + reason + ")");
+					break;
+				}
+				case DNSBLConfEntry::I_MARK:
+				{
+					if (!ConfEntry->ident.empty())
+					{
+						them->WriteNumeric(304, "Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
+						them->ChangeIdent(ConfEntry->ident);
+					}
+
+					if (!ConfEntry->host.empty())
+					{
+						them->WriteNumeric(304, "Your host has been set to " + ConfEntry->host + " because you matched " + reason);
+						them->ChangeDisplayedHost(ConfEntry->host);
+					}
+
+					nameExt.set(them, ConfEntry->name);
+					break;
+				}
+				case DNSBLConfEntry::I_KLINE:
+				{
+					KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+							"*", them->GetIPString());
+					if (ServerInstance->XLines->AddLine(kl,NULL))
+					{
+						std::string timestr = InspIRCd::TimeString(kl->expiry);
+						ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
+							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->XLines->ApplyLines();
+					}
+					else
+					{
+						delete kl;
+						return;
+					}
+					break;
+				}
+				case DNSBLConfEntry::I_GLINE:
+				{
+					GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+							"*", them->GetIPString());
+					if (ServerInstance->XLines->AddLine(gl,NULL))
+					{
+						std::string timestr = InspIRCd::TimeString(gl->expiry);
+						ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
+							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->XLines->ApplyLines();
+					}
+					else
+					{
+						delete gl;
+						return;
+					}
+					break;
+				}
+				case DNSBLConfEntry::I_ZLINE:
+				{
+					ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+							them->GetIPString());
+					if (ServerInstance->XLines->AddLine(zl,NULL))
+					{
+						std::string timestr = InspIRCd::TimeString(zl->expiry);
+						ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
+							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->XLines->ApplyLines();
+					}
+					else
+					{
+						delete zl;
+						return;
+					}
+					break;
+				}
+				case DNSBLConfEntry::I_UNKNOWN:
+				default:
+					break;
+			}
+
+			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+		}
+		else
+			ConfEntry->stats_misses++;
 	}
 
-	virtual void OnError(ResolverError e, const std::string &errormessage)
+	void OnError(const DNS::Query *q) CXX11_OVERRIDE
 	{
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
-		if (them)
-		{
-			int i = countExt.get(them);
-			if (i)
-				countExt.set(them, i - 1);
-		}
-	}
+		if (!them)
+			return;
 
-	virtual ~DNSBLResolver()
-	{
+		int i = countExt.get(them);
+		if (i)
+			countExt.set(them, i - 1);
+
+		if (q->error == DNS::ERROR_NO_RECORDS || q->error == DNS::ERROR_DOMAIN_NOT_FOUND)
+			ConfEntry->stats_misses++;
 	}
 };
 
 class ModuleDNSBL : public Module
 {
 	std::vector<reference<DNSBLConfEntry> > DNSBLConfEntries;
+	dynamic_reference<DNS::Manager> DNS;
 	LocalStringExt nameExt;
 	LocalIntExt countExt;
 
@@ -241,25 +238,21 @@ class ModuleDNSBL : public Module
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
-	ModuleDNSBL() : nameExt("dnsbl_match", this), countExt("dnsbl_pending", this) { }
-
-	void init()
+	ModuleDNSBL()
+		: DNS(this, "DNS")
+		, nameExt("dnsbl_match", ExtensionItem::EXT_USER, this)
+		, countExt("dnsbl_pending", ExtensionItem::EXT_USER, this)
 	{
-		ReadConf();
-		ServerInstance->Modules->AddService(nameExt);
-		ServerInstance->Modules->AddService(countExt);
-		Implementation eventlist[] = { I_OnRehash, I_OnSetUserIP, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides handling of DNS blacklists", VF_VENDOR);
 	}
 
 	/** Fill our conf vector with data
 	 */
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		DNSBLConfEntries.clear();
 
@@ -291,7 +284,7 @@ class ModuleDNSBL : public Module
 			}
 
 			e->banaction = str2banaction(tag->getString("action"));
-			e->duration = ServerInstance->Duration(tag->getString("duration", "60"));
+			e->duration = tag->getDuration("duration", 60, 1);
 
 			/* Use portparser for record replies */
 
@@ -316,11 +309,6 @@ class ModuleDNSBL : public Module
 				std::string location = tag->getTagLocation();
 				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction", location.c_str());
 			}
-			else if (e->duration <= 0)
-			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid duration", location.c_str());
-			}
 			else
 			{
 				if (e->reason.empty())
@@ -336,14 +324,9 @@ class ModuleDNSBL : public Module
 		}
 	}
 
-	void OnRehash(User* user)
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
-		ReadConf();
-	}
-
-	void OnSetUserIP(LocalUser* user)
-	{
-		if ((user->exempt) || (user->client_sa.sa.sa_family != AF_INET))
+		if ((user->exempt) || !DNS)
 			return;
 
 		if (user->MyClass)
@@ -352,40 +335,61 @@ class ModuleDNSBL : public Module
 				return;
 		}
 		else
-			ServerInstance->Logs->Log("m_dnsbl", DEBUG, "User has no connect class in OnSetUserIP");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
-		unsigned char a, b, c, d;
-		char reversedipbuf[128];
 		std::string reversedip;
+		if (user->client_sa.sa.sa_family == AF_INET)
+		{
+			unsigned int a, b, c, d;
+			d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+			c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+			b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+			a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
-		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-		b = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-		a = (unsigned char) user->client_sa.in4.sin_addr.s_addr & 0xFF;
+			reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
+		}
+		else if (user->client_sa.sa.sa_family == AF_INET6)
+		{
+			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
 
-		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
-		reversedip = std::string(reversedipbuf);
+			std::string buf = BinToHex(ip, 16);
+			for (std::string::const_reverse_iterator it = buf.rbegin(); it != buf.rend(); ++it)
+			{
+				reversedip.push_back(*it);
+				reversedip.push_back('.');
+			}
+		}
+		else
+			return;
+
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
 		countExt.set(user, DNSBLConfEntries.size());
 
 		// For each DNSBL, we will run through this lookup
-		unsigned int i = 0;
-		while (i < DNSBLConfEntries.size())
+		for (unsigned i = 0; i < DNSBLConfEntries.size(); ++i)
 		{
 			// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
 			std::string hostname = reversedip + "." + DNSBLConfEntries[i]->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			bool cached;
-			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, user, DNSBLConfEntries[i], cached);
-			ServerInstance->AddResolver(r, cached);
+			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, DNSBLConfEntries[i]);
+			try
+			{
+				this->DNS->Process(r);
+			}
+			catch (DNS::Exception &ex)
+			{
+				delete r;
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
+			}
+
 			if (user->quitting)
 				break;
-			i++;
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		std::string dnsbl;
 		if (!myclass->config->readString("dnsbl", dnsbl))
@@ -396,17 +400,17 @@ class ModuleDNSBL : public Module
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
 	}
-	
-	ModResult OnCheckReady(LocalUser *user)
+
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		if (countExt.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'd')
+		if (stats.GetSymbol() != 'd')
 			return MOD_RES_PASSTHRU;
 
 		unsigned long total_hits = 0, total_misses = 0;
@@ -416,12 +420,12 @@ class ModuleDNSBL : public Module
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;
 
-			results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
+			stats.AddRow(304, "DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
 					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
 		}
 
-		results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
-		results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
+		stats.AddRow(304, "DNSBLSTATS Total hits: " + ConvToStr(total_hits));
+		stats.AddRow(304, "DNSBLSTATS Total misses: " + ConvToStr(total_misses));
 
 		return MOD_RES_PASSTHRU;
 	}

@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Craig Edwards <craigedwards@brainbox.cc>
  *
@@ -18,10 +19,7 @@
  */
 
 
-#include "inspircd_config.h"
-
 #include "inspircd.h"
-#include "socketengine.h"
 
 #ifndef _WIN32
 #include <sys/select.h>
@@ -29,76 +27,56 @@
 
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */
-class SelectEngine : public SocketEngine
+namespace
 {
 	fd_set ReadSet, WriteSet, ErrSet;
-	int MaxFD;
+	int MaxFD = 0;
+}
 
-public:
-	/** Create a new SelectEngine
-	 */
-	SelectEngine();
-	/** Delete a SelectEngine
-	 */
-	virtual ~SelectEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void DelFd(EventHandler* eh);
-	void OnSetEvent(EventHandler* eh, int, int);
-	virtual int DispatchEvents();
-	virtual std::string GetName();
-};
-
-SelectEngine::SelectEngine()
+void SocketEngine::Init()
 {
 	MAX_DESCRIPTORS = FD_SETSIZE;
-	CurrentSetSize = 0;
-
-	ref = new EventHandler* [GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 
 	FD_ZERO(&ReadSet);
 	FD_ZERO(&WriteSet);
 	FD_ZERO(&ErrSet);
-	MaxFD = 0;
 }
 
-SelectEngine::~SelectEngine()
+void SocketEngine::Deinit()
 {
-	delete[] ref;
 }
 
-bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
+void SocketEngine::RecoverFromFork()
+{
+}
+
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
-	ref[fd] = eh;
-
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	OnSetEvent(eh, 0, event_mask);
 	FD_SET(fd, &ErrSet);
 	if (fd > MaxFD)
 		MaxFD = fd;
 
-	CurrentSetSize++;
-
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 	return true;
 }
 
-void SelectEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return;
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
+	SocketEngine::DelFdRef(eh);
 
 	FD_CLR(fd, &ReadSet);
 	FD_CLR(fd, &WriteSet);
@@ -106,10 +84,10 @@ void SelectEngine::DelFd(EventHandler* eh)
 	if (fd == MaxFD)
 		--MaxFD;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	int fd = eh->GetFd();
 	int diff = old_mask ^ new_mask;
@@ -130,7 +108,7 @@ void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	}
 }
 
-int SelectEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	timeval tval;
 	tval.tv_sec = 1;
@@ -141,63 +119,50 @@ int SelectEngine::DispatchEvents()
 	int sresult = select(MaxFD + 1, &rfdset, &wfdset, &errfdset, &tval);
 	ServerInstance->UpdateTime();
 
-	/* Nothing to process this time around */
-	if (sresult < 1)
-		return 0;
-
 	for (int i = 0, j = sresult; i <= MaxFD && j > 0; i++)
 	{
 		int has_read = FD_ISSET(i, &rfdset), has_write = FD_ISSET(i, &wfdset), has_error = FD_ISSET(i, &errfdset);
 
-		if (has_read || has_write || has_error)
+		if (!(has_read || has_write || has_error))
+			continue;
+
+		--j;
+
+		EventHandler* ev = GetRef(i);
+		if (!ev)
+			continue;
+
+		if (has_error)
 		{
-			--j;
+			stats.ErrorEvents++;
 
-			EventHandler* ev = ref[i];
-			if (!ev)
+			socklen_t codesize = sizeof(int);
+			int errcode = 0;
+			if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+				errcode = errno;
+
+			ev->OnEventHandlerError(errcode);
+			continue;
+		}
+
+		if (has_read)
+		{
+			stats.ReadEvents++;
+			ev->SetEventMask(ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			ev->OnEventHandlerRead();
+			if (ev != GetRef(i))
 				continue;
+		}
 
-			if (has_error)
-			{
-				ErrorEvents++;
-
-				socklen_t codesize = sizeof(int);
-				int errcode = 0;
-				if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
-					errcode = errno;
-
-				ev->HandleEvent(EVENT_ERROR, errcode);
-				continue;
-			}
-
-			if (has_read)
-			{
-				ReadEvents++;
-				SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
-				ev->HandleEvent(EVENT_READ);
-				if (ev != ref[i])
-					continue;
-			}
-			if (has_write)
-			{
-				WriteEvents++;
-				int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
-				this->OnSetEvent(ev, ev->GetEventMask(), newmask);
-				SetEventMask(ev, newmask);
-				ev->HandleEvent(EVENT_WRITE);
-			}
+		if (has_write)
+		{
+			stats.WriteEvents++;
+			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+			SocketEngine::OnSetEvent(ev, ev->GetEventMask(), newmask);
+			ev->SetEventMask(newmask);
+			ev->OnEventHandlerWrite();
 		}
 	}
 
 	return sresult;
-}
-
-std::string SelectEngine::GetName()
-{
-	return "select";
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new SelectEngine;
 }

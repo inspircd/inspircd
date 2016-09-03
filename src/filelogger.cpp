@@ -19,15 +19,10 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include <fstream>
-#include "socketengine.h"
-#include "filelogger.h"
 
-FileLogStream::FileLogStream(int loglevel, FileWriter *fw)
-	: LogStream(loglevel), f(fw)
+FileLogStream::FileLogStream(LogLevel loglevel, FileWriter *fw) : LogStream(loglevel), f(fw)
 {
 	ServerInstance->Logs->AddLoggerRef(f);
 }
@@ -38,9 +33,9 @@ FileLogStream::~FileLogStream()
 	ServerInstance->Logs->DelLoggerRef(f);
 }
 
-void FileLogStream::OnLog(int loglevel, const std::string &type, const std::string &text)
+void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std::string &text)
 {
-	static char TIMESTR[26];
+	static std::string TIMESTR;
 	static time_t LAST = 0;
 
 	if (loglevel < this->loglvl)
@@ -50,14 +45,9 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 
 	if (ServerInstance->Time() != LAST)
 	{
-		time_t local = ServerInstance->Time();
-		struct tm *timeinfo = localtime(&local);
-
-		strlcpy(TIMESTR,asctime(timeinfo),26);
-		TIMESTR[24] = ':';
+		TIMESTR = InspIRCd::TimeString(ServerInstance->Time());
 		LAST = ServerInstance->Time();
 	}
 
-	std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
-	this->f->WriteLogLine(out);
+	this->f->WriteLogLine(TIMESTR + " " + type + ": " + text + "\n");
 }

@@ -26,17 +26,12 @@
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
-#include "caller.h"
 #include <fstream>
 
-/* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
-
-class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
+class lwbNickHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
-	lwbNickHandler() { }
-	virtual ~lwbNickHandler() { }
-	virtual bool Call(const char*, size_t);
+	bool Call(const std::string&);
 };
 
 								 /*,m_reverse_additionalUp[256];*/
@@ -71,11 +66,12 @@ char utf8size(unsigned char * mb)
 
 
 /* Conditions added */
-bool lwbNickHandler::Call(const char* n, size_t max)
+bool lwbNickHandler::Call(const std::string& nick)
 {
-	if (!n || !*n)
+	if (nick.empty())
 		return false;
 
+	const char* n = nick.c_str();
 	unsigned int p = 0;
 	for (const char* i = n; *i; i++, p++)
 	{
@@ -215,20 +211,28 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 	}
 
 	/* too long? or not -- pointer arithmetic rocks */
-	return (p < max);
+	return (p < ServerInstance->Config->Limits.NickMax);
 }
 
 
 class ModuleNationalChars : public Module
 {
- private:
 	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller2<bool, const char*, size_t> rememberer;
+	caller1<bool, const std::string&> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 	unsigned char prev_map[256];
+
+	template <typename T>
+	void RehashHashmap(T& hashmap)
+	{
+		T newhash(hashmap.bucket_count());
+		for (typename T::const_iterator i = hashmap.begin(); i != hashmap.end(); ++i)
+			newhash.insert(std::make_pair(i->first, i->second));
+		hashmap.swap(newhash);
+	}
 
 	void CheckRehash()
 	{
@@ -238,20 +242,9 @@ class ModuleNationalChars : public Module
 
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 
-		ServerInstance->RehashUsersAndChans();
-
-		// The OnGarbageCollect() method in m_watch rebuilds the hashmap used by it
-		Module* mod = ServerInstance->Modules->Find("m_watch.so");
-		if (mod)
-			mod->OnGarbageCollect();
-
-		// Send a Request to m_spanningtree asking it to rebuild its hashmaps
-		mod = ServerInstance->Modules->Find("m_spanningtree.so");
-		if (mod)
-		{
-			Request req(this, mod, "rehash");
-			req.Send();
-		}
+		RehashHashmap(ServerInstance->Users.clientlist);
+		RehashHashmap(ServerInstance->Users.uuidlist);
+		RehashHashmap(ServerInstance->chanlist);
 	}
 
  public:
@@ -261,34 +254,28 @@ class ModuleNationalChars : public Module
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 
 		ServerInstance->IsNick = &myhandler;
-
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		std::string tmp(casemapping);
-		tmp.insert(0, "CASEMAPPING=");
-		SearchAndReplace(output, std::string("CASEMAPPING=rfc1459"), tmp);
+		tokens["CASEMAPPING"] = casemapping;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
-		casemapping = tag->getString("casemapping", ServerConfig::CleanFilename(charset.c_str()));
+		casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset));
 		if (casemapping.find(' ') != std::string::npos)
 			throw ModuleException("<nationalchars:casemapping> must not contain any spaces!");
 #if defined _WIN32
-		if (!ServerInstance->Config->StartsWithWindowsDriveLetter(charset))
+		if (!FileSystem::StartsWithWindowsDriveLetter(charset))
 			charset.insert(0, "./locales/");
 #else
 		if(charset[0] != '/')
@@ -307,16 +294,19 @@ class ModuleNationalChars : public Module
 		if (!forcequit)
 			return;
 
-		for (LocalUserList::const_iterator iter = ServerInstance->Users->local_users.begin(); iter != ServerInstance->Users->local_users.end(); ++iter)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); )
 		{
 			/* Fix by Brain: Dont quit UID users */
+			// Quitting the user removes it from the list
 			User* n = *iter;
-			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick.c_str(), ServerInstance->Config->Limits.NickMax))
+			++iter;
+			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick))
 				ServerInstance->Users->QuitUser(n, message);
 		}
 	}
 
-	virtual ~ModuleNationalChars()
+	~ModuleNationalChars()
 	{
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
@@ -324,7 +314,7 @@ class ModuleNationalChars : public Module
 		CheckRehash();
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON, charset);
 	}
@@ -340,10 +330,10 @@ class ModuleNationalChars : public Module
 	/*so Bynets Unreal distribution stuff*/
 	bool loadtables(std::string filename, unsigned char ** tables, unsigned char cnt, char faillimit)
 	{
-		std::ifstream ifs(filename.c_str());
+		std::ifstream ifs(ServerInstance->Config->Paths.PrependConfig(filename).c_str());
 		if (ifs.fail())
 		{
-			ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for missing file: %s", filename.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "loadtables() called for missing file: %s", filename.c_str());
 			return false;
 		}
 
@@ -358,7 +348,7 @@ class ModuleNationalChars : public Module
 		{
 			if (loadtable(ifs, tables[n], 255) && (n < faillimit))
 			{
-				ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
 				return false;
 			}
 		}

@@ -22,20 +22,33 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implementation of callerid, usermode +g, /accept */
+enum
+{
+	RPL_ACCEPTLIST = 281,
+	RPL_ENDOFACCEPT = 282,
+	ERR_ACCEPTFULL = 456,
+	ERR_ACCEPTEXIST = 457,
+	ERR_ACCEPTNOT = 458,
+	ERR_TARGUMODEG = 716,
+	RPL_TARGNOTIFY = 717,
+	RPL_UMODEGMSG = 718
+};
 
 class callerid_data
 {
  public:
+ 	typedef insp::flat_set<User*> UserSet;
+	typedef std::vector<callerid_data*> CallerIdDataSet;
+
 	time_t lastnotify;
 
 	/** Users I accept messages from
 	 */
-	std::set<User*> accepting;
+	UserSet accepting;
 
 	/** Users who list me as accepted
 	 */
-	std::list<callerid_data *> wholistsme;
+	CallerIdDataSet wholistsme;
 
 	callerid_data() : lastnotify(0) { }
 
@@ -43,7 +56,7 @@ class callerid_data
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
+		for (UserSet::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			User* u = *i;
 			// Encode UIDs.
@@ -56,18 +69,26 @@ class callerid_data
 struct CallerIDExtInfo : public ExtensionItem
 {
 	CallerIDExtInfo(Module* parent)
-		: ExtensionItem("callerid_data", parent)
+		: ExtensionItem("callerid_data", ExtensionItem::EXT_USER, parent)
 	{
 	}
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
-		callerid_data* dat = static_cast<callerid_data*>(item);
-		return dat->ToString(format);
+		std::string ret;
+		if (format != FORMAT_NETWORK)
+		{
+			callerid_data* dat = static_cast<callerid_data*>(item);
+			ret = dat->ToString(format);
+		}
+		return ret;
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
+		if (format == FORMAT_NETWORK)
+			return;
+
 		void* old = get_raw(container);
 		if (old)
 			this->free(old);
@@ -81,11 +102,8 @@ struct CallerIDExtInfo : public ExtensionItem
 
 		while (s.GetToken(tok))
 		{
-			if (tok.empty())
-				continue;
-
 			User *u = ServerInstance->FindNick(tok);
-			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
+			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
 			{
 				if (dat->accepting.insert(u).second)
 				{
@@ -112,21 +130,18 @@ struct CallerIDExtInfo : public ExtensionItem
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-		for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
+		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
 		{
 			callerid_data *targ = this->get(*it, false);
 
 			if (!targ)
 			{
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
-			std::list<callerid_data*>::iterator it2 = std::find(targ->wholistsme.begin(), targ->wholistsme.end(), dat);
-			if (it2 != targ->wholistsme.end())
-				targ->wholistsme.erase(it2);
-			else
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
+			if (!stdalgo::vector::swaperase(targ->wholistsme, dat))
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -140,6 +155,28 @@ public:
 
 class CommandAccept : public Command
 {
+	/** Pair: first is the target, second is true to add, false to remove
+	 */
+	typedef std::pair<User*, bool> ACCEPTAction;
+
+	static ACCEPTAction GetTargetAndAction(std::string& tok, User* cmdfrom = NULL)
+	{
+		bool remove = (tok[0] == '-');
+		if ((remove) || (tok[0] == '+'))
+			tok.erase(tok.begin());
+
+		User* target;
+		if (!cmdfrom || !IS_LOCAL(cmdfrom))
+			target = ServerInstance->FindNick(tok);
+		else
+			target = ServerInstance->FindNickOnly(tok);
+
+		if ((!target) || (target->registered != REG_ALL) || (target->quitting))
+			target = NULL;
+
+		return std::make_pair(target, !remove);
+	}
+
 public:
 	CallerIDExtInfo extInfo;
 	unsigned int maxaccepts;
@@ -148,42 +185,21 @@ public:
 	{
 		allow_empty_last_param = false;
 		syntax = "*|(+|-)<nick>[,(+|-)<nick> ...]";
-		TRANSLATE2(TR_CUSTOM, TR_END);
+		TRANSLATE1(TR_CUSTOM);
 	}
 
-	virtual void EncodeParameter(std::string& parameter, int index)
+	void EncodeParameter(std::string& parameter, int index)
 	{
-		if (index != 0)
+		// Send lists as-is (part of 2.0 compat)
+		if (parameter.find(',') != std::string::npos)
 			return;
-		std::string out;
-		irc::commasepstream nicks(parameter);
-		std::string tok;
-		while (nicks.GetToken(tok))
-		{
-			if (tok == "*")
-			{
-				continue; // Drop list requests, since remote servers ignore them anyway.
-			}
-			if (!out.empty())
-				out.append(",");
-			bool dash = false;
-			if (tok[0] == '-')
-			{
-				dash = true;
-				tok.erase(0, 1); // Remove the dash.
-			}
-			else if (tok[0] == '+')
-				tok.erase(0, 1);
 
-			User* u = ServerInstance->FindNick(tok);
-			if ((!u) || (u->registered != REG_ALL) || (u->quitting) || (IS_SERVER(u)))
-				continue;
+		// Convert a [+|-]<nick> into a [-]<uuid>
+		ACCEPTAction action = GetTargetAndAction(parameter);
+		if (!action.first)
+			return;
 
-			if (dash)
-				out.append("-");
-			out.append(u->uuid);
-		}
-		parameter = out;
+		parameter = (action.second ? "" : "-") + action.first->uuid;
 	}
 
 	/** Will take any number of nicks (up to MaxTargets), which can be seperated by commas.
@@ -193,54 +209,58 @@ public:
 	 */
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
+
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
 
-		const std::string& tok = parameters[0];
-
-		if (tok == "*")
+		if (parameters[0] == "*")
 		{
-			if (IS_LOCAL(user))
-				ListAccept(user);
+			ListAccept(user);
 			return CMD_SUCCESS;
 		}
-		else if (tok[0] == '-')
-		{
-			User* whotoremove;
-			if (IS_LOCAL(user))
-				whotoremove = ServerInstance->FindNickOnly(tok.substr(1));
-			else
-				whotoremove = ServerInstance->FindNick(tok.substr(1));
 
-			if (whotoremove)
-				return (RemoveAccept(user, whotoremove) ? CMD_SUCCESS : CMD_FAILURE);
-			else
-				return CMD_FAILURE;
+		std::string tok = parameters[0];
+		ACCEPTAction action = GetTargetAndAction(tok, user);
+		if (!action.first)
+		{
+			user->WriteNumeric(Numerics::NoSuchNick(tok));
+			return CMD_FAILURE;
 		}
+
+		if ((!IS_LOCAL(user)) && (!IS_LOCAL(action.first)))
+			// Neither source nor target is local, forward the command to the server of target
+			return CMD_SUCCESS;
+
+		// The second item in the pair is true if the first char is a '+' (or nothing), false if it's a '-'
+		if (action.second)
+			return (AddAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 		else
-		{
-			const std::string target = (tok[0] == '+' ? tok.substr(1) : tok);
-			User* whotoadd;
-			if (IS_LOCAL(user))
-				whotoadd = ServerInstance->FindNickOnly(target);
-			else
-				whotoadd = ServerInstance->FindNick(target);
-
-			if ((whotoadd) && (whotoadd->registered == REG_ALL) && (!whotoadd->quitting) && (!IS_SERVER(whotoadd)))
-				return (AddAccept(user, whotoadd) ? CMD_SUCCESS : CMD_FAILURE);
-			else
-			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
-				return CMD_FAILURE;
-			}
-		}
+			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		// There is a list in parameters[0] in two cases:
+		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,
+		// we don't split those but broadcast them, as before.
+		//
+		// Or if the source is local then LoopCall() runs OnPostCommand() after each entry in the list,
+		// meaning the linking module has sent an ACCEPT already for each entry in the list to the
+		// appropiate server and the ACCEPT with the list of nicks (this) doesn't need to be sent anywhere.
+		if ((!IS_LOCAL(user)) && (parameters[0].find(',') != std::string::npos))
+			return ROUTE_BROADCAST;
+
+		// Find the target
+		std::string targetstring = parameters[0];
+		ACCEPTAction action = GetTargetAndAction(targetstring, user);
+		if (!action.first)
+			// Target is a "*" or source is local and the target is a list of nicks
+			return ROUTE_LOCALONLY;
+
+		// Route to the server of the target
+		return ROUTE_UNICAST(action.first->server);
 	}
 
 	void ListAccept(User* user)
@@ -248,10 +268,10 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (dat)
 		{
-			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
-				user->WriteNumeric(281, "%s %s", user->nick.c_str(), (*i)->nick.c_str());
+			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
+				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
 		}
-		user->WriteNumeric(282, "%s :End of ACCEPT list", user->nick.c_str());
+		user->WriteNumeric(RPL_ENDOFACCEPT, "End of ACCEPT list");
 	}
 
 	bool AddAccept(User* user, User* whotoadd)
@@ -260,12 +280,12 @@ public:
 		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
+			user->WriteNumeric(ERR_ACCEPTFULL, InspIRCd::Format("Accept list is full (limit is %d)", maxaccepts));
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
 		{
-			user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTEXIST, whotoadd->nick, "is already on your accept list");
 			return false;
 		}
 
@@ -273,7 +293,7 @@ public:
 		callerid_data *targ = extInfo.get(whotoadd, true);
 		targ->wholistsme.push_back(dat);
 
-		user->WriteServ("NOTICE %s :%s is now on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
+		user->WriteNotice(whotoadd->nick + " is now on your accept list");
 		return true;
 	}
 
@@ -283,43 +303,35 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (!dat)
 		{
-			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, whotoremove->nick, "is not on your accept list");
 			return false;
 		}
-		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
-		if (i == dat->accepting.end())
+		if (!dat->accepting.erase(whotoremove))
 		{
-			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, whotoremove->nick, "is not on your accept list");
 			return false;
 		}
-
-		dat->accepting.erase(i);
 
 		// Look up their list to remove me.
 		callerid_data *dat2 = extInfo.get(whotoremove, false);
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
-		std::list<callerid_data*>::iterator it = std::find(dat2->wholistsme.begin(), dat2->wholistsme.end(), dat);
-		if (it != dat2->wholistsme.end())
-			// Found me!
-			dat2->wholistsme.erase(it);
-		else
-			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
-		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
 		return true;
 	}
 };
 
 class ModuleCallerID : public Module
 {
-private:
 	CommandAccept cmd;
 	User_g myumode;
 
@@ -339,17 +351,13 @@ private:
 			return;
 
 		// Iterate over the list of people who accept me, and remove all entries
-		for (std::list<callerid_data *>::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); it++)
+		for (callerid_data::CallerIdDataSet::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); ++it)
 		{
 			callerid_data *dat = *(it);
 
 			// Find me on their callerid list
-			std::set<User *>::iterator it2 = dat->accepting.find(who);
-
-			if (it2 != dat->accepting.end())
-				dat->accepting.erase(it2);
-			else
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
+			if (!dat->accepting.erase(who))
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();
@@ -360,53 +368,39 @@ public:
 	{
 	}
 
-	void init()
-	{
-		OnRehash(NULL);
-
-		ServerInstance->Modules->AddService(myumode);
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.extInfo);
-
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPostNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleCallerID()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::string& output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		output += " CALLERID=g";
+		tokens["CALLERID"] = "g";
 	}
 
-	ModResult PreText(User* user, User* dest, std::string& text)
+	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (!dest->IsModeSet('g') || (user == dest))
+		if (!IS_LOCAL(user) || target_type != TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		if (operoverride && IS_OPER(user))
+		User* dest = static_cast<User*>(voiddest);
+		if (!dest->IsModeSet(myumode) || (user == dest))
+			return MOD_RES_PASSTHRU;
+
+		if (operoverride && user->IsOper())
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
-		std::set<User*>::iterator i = dat->accepting.find(user);
-
-		if (i == dat->accepting.end())
+		if (!dat->accepting.count(user))
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
+			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, "is in +g mode (server-side ignore).");
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
-				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
-				dest->SendText(":%s 718 %s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
-					ServerInstance->Config->ServerName.c_str(), dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->dhost.c_str()), InspIRCd::Format("is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
+						user->nick.c_str()));
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;
@@ -414,34 +408,18 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
-	{
-		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
-	{
-		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnUserPostNick(User* user, const std::string& oldnick)
+	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		RemoveFromAllAccepts(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getInt("maxaccepts", 16);
@@ -449,8 +427,12 @@ public:
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getInt("cooldown", 60);
 	}
+
+	void Prioritize() CXX11_OVERRIDE
+	{
+		// Want to be after modules like silence or services_account
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+	}
 };
 
 MODULE_INIT(ModuleCallerID)
-
-

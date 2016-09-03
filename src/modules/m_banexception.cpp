@@ -22,10 +22,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
-
-/* $ModDesc: Provides support for the +e channel mode */
-/* $ModDep: ../../include/u_listmode.h */
+#include "listmode.h"
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
@@ -49,85 +46,63 @@ class ModuleBanException : public Module
 {
 	BanException be;
 
-public:
+ public:
 	ModuleBanException() : be(this)
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(be);
-
-		be.DoImplements(this);
-		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
-		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
+		tokens["EXCEPTS"] = "e";
 	}
 
-	void On005Numeric(std::string &output)
+	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE
 	{
-		output.append(" EXCEPTS=e");
-	}
+		ListModeBase::ModeList* list = be.GetList(chan);
+		if (!list)
+			return MOD_RES_PASSTHRU;
 
-	ModResult OnExtBanCheck(User *user, Channel *chan, char type)
-	{
-		if (chan != NULL)
+		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 		{
-			modelist *list = be.extItem.get(chan);
+			if (it->mask[0] != type || it->mask[1] != ':')
+				continue;
 
-			if (!list)
-				return MOD_RES_PASSTHRU;
-
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			if (chan->CheckBan(user, it->mask.substr(2)))
 			{
-				if (it->mask[0] != type || it->mask[1] != ':')
-					continue;
-
-				if (chan->CheckBan(user, it->mask.substr(2)))
-				{
-					// They match an entry on the list, so let them pass this.
-					return MOD_RES_ALLOW;
-				}
+				// They match an entry on the list, so let them pass this.
+				return MOD_RES_ALLOW;
 			}
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan)
+	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
 	{
-		if (chan)
+		ListModeBase::ModeList* list = be.GetList(chan);
+		if (!list)
 		{
-			modelist *list = be.extItem.get(chan);
+			// No list, proceed normally
+			return MOD_RES_PASSTHRU;
+		}
 
-			if (!list)
+		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+		{
+			if (chan->CheckBan(user, it->mask))
 			{
-				// No list, proceed normally
-				return MOD_RES_PASSTHRU;
-			}
-
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
-			{
-				if (chan->CheckBan(user, it->mask))
-				{
-					// They match an entry on the list, so let them in.
-					return MOD_RES_ALLOW;
-				}
+				// They match an entry on the list, so let them in.
+				return MOD_RES_ALLOW;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		be.DoSyncChannel(chan, proto, opaque);
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		be.DoRehash();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the +e channel mode", VF_VENDOR);
 	}

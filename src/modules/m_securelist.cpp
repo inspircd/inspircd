@@ -21,31 +21,18 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Disallows /LIST for recently connected clients to hinder spam bots */
-
 class ModuleSecureList : public Module
 {
- private:
 	std::vector<std::string> allowlist;
 	time_t WaitTime;
+
  public:
-	void init()
-	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleSecureList()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		allowlist.clear();
 
@@ -61,13 +48,13 @@ class ModuleSecureList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!IS_OPER(user)))
+		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!user->IsOper()))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
@@ -75,20 +62,20 @@ class ModuleSecureList : public Module
 					return MOD_RES_PASSTHRU;
 
 			/* Not exempt, BOOK EM DANNO! */
-			user->WriteServ("NOTICE %s :*** You cannot list within the first %lu seconds of connecting. Please try again later.",user->nick.c_str(), (unsigned long) WaitTime);
+			user->WriteNotice("*** You cannot list within the first " + ConvToStr(WaitTime) + " seconds of connecting. Please try again later.");
 			/* Some clients (e.g. mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */
-			user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
-			user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
+			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+			user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		output.append(" SECURELIST");
+		tokens["SECURELIST"];
 	}
 };
 

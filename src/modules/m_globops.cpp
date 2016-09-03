@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for GLOBOPS and snomask +g */
-
 /** Handle /GLOBOPS
  */
 class CommandGlobops : public Command
@@ -33,7 +31,6 @@ class CommandGlobops : public Command
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
 		flags_needed = 'o'; syntax = "<any-text>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -49,17 +46,15 @@ class ModuleGlobops : public Module
  public:
 	ModuleGlobops() : cmd(this) {}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleGlobops)

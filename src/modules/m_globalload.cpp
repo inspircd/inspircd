@@ -22,8 +22,6 @@
  */
 
 
-/* $ModDesc: Allows global loading of a module. */
-
 #include "inspircd.h"
 
 /** Handle /GLOADMODULE
@@ -35,7 +33,6 @@ class CommandGloadmodule : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<modulename> [servermask]";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -47,11 +44,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
 			{
-				user->WriteNumeric(974, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -79,6 +76,13 @@ class CommandGunloadmodule : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
+			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
+		{
+			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
+			return CMD_FAILURE;
+		}
+
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
@@ -89,16 +93,15 @@ class CommandGunloadmodule : public Command
 				if (ServerInstance->Modules->Unload(m))
 				{
 					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-					user->SendText(":%s 973 %s %s :Module successfully unloaded.",
-						ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+					user->WriteRemoteNumeric(973, parameters[0], "Module successfully unloaded.");
 				}
 				else
 				{
-					user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 				}
 			}
 			else
-				user->SendText(":%s 972 %s %s :No such module", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "No such module");
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
@@ -109,25 +112,6 @@ class CommandGunloadmodule : public Command
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
 		return ROUTE_BROADCAST;
-	}
-};
-
-class GReloadModuleWorker : public HandlerBase1<void, bool>
-{
- public:
-	const std::string nick;
-	const std::string name;
-	const std::string uid;
-	GReloadModuleWorker(const std::string& usernick, const std::string& uuid, const std::string& modn)
-		: nick(usernick), name(modn), uid(uuid) {}
-	void Call(bool result)
-	{
-		ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
-		User* user = ServerInstance->FindNick(uid);
-		if (user)
-			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
-				user->nick.c_str(), name.c_str(), result ? "" : "un");
-		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
 
@@ -150,14 +134,12 @@ class CommandGreloadmodule : public Command
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
 			if (m)
 			{
-				GReloadModuleWorker* worker = NULL;
-				if ((m != creator) && (!creator->dying))
-					worker = new GReloadModuleWorker(user->nick, user->uuid, parameters[0]);
-				ServerInstance->Modules->Reload(m, worker);
+				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
+				ServerInstance->Parser.CallHandler("RELOADMODULE", parameters, user);
 			}
 			else
 			{
-				user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
 				return CMD_FAILURE;
 			}
 		}
@@ -185,22 +167,10 @@ class ModuleGlobalLoad : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd1);
-		ServerInstance->Modules->AddService(cmd2);
-		ServerInstance->Modules->AddService(cmd3);
-	}
-
-	~ModuleGlobalLoad()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
 	}
 };
 
 MODULE_INIT(ModuleGlobalLoad)
-

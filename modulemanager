@@ -22,7 +22,7 @@
 use strict;
 use warnings FATAL => qw(all);
 
-use make::configure;
+use make::common;
 
 BEGIN {
 	unless (module_installed("LWP::Simple")) {
@@ -31,11 +31,11 @@ BEGIN {
 	unless (module_installed("Crypt::SSLeay") || module_installed("IO::Socket::SSL")) {
 		die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
 	}
+
 }
 
+use File::Basename;
 use LWP::Simple;
-
-our @modlist;
 
 my %installed;
 # $installed{name} = $version
@@ -131,8 +131,6 @@ while (<SRC>) {
 }
 close SRC;
 
-getmodules(1);
-
 # determine core version
 `./src/version.sh` =~ /InspIRCd-([0-9.]+)/ or die "Cannot determine inspircd version";
 $installed{core} = $1;
@@ -156,9 +154,8 @@ $modules{core}{$1} = {
 };
 
 # set up core module list
-for my $modname (@modlist) {
-	my $mod = "m_$modname";
-	my $modfile = "src/modules/$mod.cpp";
+for my $modname (<src/modules/m_*.cpp>) {
+	my $mod = basename($modname, '.cpp');
 	my $ver = getmodversion($mod) || '0.0';
 	$ver =~ s/\$Rev: (.*) \$/$1/; # for storing revision in SVN
 	$installed{$mod} = $ver;

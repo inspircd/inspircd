@@ -18,11 +18,6 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
-#include "socket.h"
-#include "socketengine.h"
-#include "command_parse.h"
-#include "dns.h"
 #include "exitcodes.h"
 #include <iostream>
 
@@ -30,40 +25,44 @@
 #include <dirent.h>
 #endif
 
-#ifndef PURE_STATIC
+#ifndef INSPIRCD_STATIC
 
-bool ModuleManager::Load(const std::string& filename, bool defer)
+bool ModuleManager::Load(const std::string& modname, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
-	if (filename.find('/') != std::string::npos)
+	if (modname.find('/') != std::string::npos)
 	{
-		LastModuleError = "You can't load modules with a path: " + filename;
+		LastModuleError = "You can't load modules with a path: " + modname;
 		return false;
 	}
 
-	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename.c_str());
+	const std::string filename = ExpandModName(modname);
+	const std::string moduleFile = ServerInstance->Config->Paths.PrependModule(filename);
 
-	if (!ServerConfig::FileExists(modfile))
+	if (!FileSystem::FileExists(moduleFile))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename) != Modules.end())
 	{
 		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
 	Module* newmod = NULL;
-	DLLManager* newhandle = new DLLManager(modfile);
+	DLLManager* newhandle = new DLLManager(moduleFile.c_str());
+	ServiceList newservices;
+	if (!defer)
+		this->NewServices = &newservices;
 
 	try
 	{
 		newmod = newhandle->CallInit();
+		this->NewServices = NULL;
 
 		if (newmod)
 		{
@@ -74,28 +73,35 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			std::string version = newhandle->GetVersion();
 			if (defer)
 			{
-				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)",
+				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)",
 					filename.c_str(), version.c_str());
 			}
 			else
 			{
+				ConfigStatus confstatus;
+
+				AttachAll(newmod);
+				AddServices(newservices);
 				newmod->init();
+				newmod->ReadConfig(confstatus);
 
 				Version v = newmod->GetVersion();
-				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
+				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)%s",
 					filename.c_str(), version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 		}
 		else
 		{
 			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 			delete newhandle;
 			return false;
 		}
 	}
 	catch (CoreException& modexcept)
 	{
+		this->NewServices = NULL;
+
 		// failure in module constructor
 		if (newmod)
 		{
@@ -105,109 +111,41 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
-	this->ModCount++;
 	if (defer)
 		return true;
 
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
-	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
-	 * of others
-	 */
-	for(int tries = 0; tries < 20; tries++)
-	{
-		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second->Prioritize();
-
-		if (prioritizationState == PRIO_STATE_LAST)
-			break;
-		if (tries == 19)
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename);
-	}
-
-	ServerInstance->BuildISupport();
+	FOREACH_MOD(OnLoadModule, (newmod));
+	PrioritizeHooks();
+	ServerInstance->ISupport.Build();
 	return true;
-}
-
-namespace {
-	struct UnloadAction : public HandlerBase0<void>
-	{
-		Module* const mod;
-		UnloadAction(Module* m) : mod(m) {}
-		void Call()
-		{
-			DLLManager* dll = mod->ModuleDLLManager;
-			ServerInstance->Modules->DoSafeUnload(mod);
-			ServerInstance->GlobalCulls.Apply();
-			delete dll;
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
-	};
-
-	struct ReloadAction : public HandlerBase0<void>
-	{
-		Module* const mod;
-		HandlerBase1<void, bool>* const callback;
-		ReloadAction(Module* m, HandlerBase1<void, bool>* c)
-			: mod(m), callback(c) {}
-		void Call()
-		{
-			DLLManager* dll = mod->ModuleDLLManager;
-			std::string name = mod->ModuleSourceFile;
-			ServerInstance->Modules->DoSafeUnload(mod);
-			ServerInstance->GlobalCulls.Apply();
-			delete dll;
-			bool rv = ServerInstance->Modules->Load(name.c_str());
-			if (callback)
-				callback->Call(rv);
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
-	};
-}
-
-bool ModuleManager::Unload(Module* mod)
-{
-	if (!CanUnload(mod))
-		return false;
-	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
-	return true;
-}
-
-void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
-{
-	if (CanUnload(mod))
-		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
-	else if (callback)
-		callback->Call(false);
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */
-void ModuleManager::LoadAll()
+void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	ModCount = 0;
-
 	std::cout << std::endl << "Loading core commands";
 	fflush(stdout);
 
-	DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
+	DIR* library = opendir(ServerInstance->Config->Paths.Module.c_str());
 	if (library)
 	{
 		dirent* entry = NULL;
 		while (0 != (entry = readdir(library)))
 		{
-			if (InspIRCd::Match(entry->d_name, "cmd_*.so", ascii_case_insensitive_map))
+			if (InspIRCd::Match(entry->d_name, "core_*.so", ascii_case_insensitive_map))
 			{
 				std::cout << ".";
 				fflush(stdout);
 
+				this->NewServices = &servicemap[entry->d_name];
+
 				if (!Load(entry->d_name, true))
 				{
-					ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
+					ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
 					std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_MODULE);
 				}
@@ -215,57 +153,6 @@ void ModuleManager::LoadAll()
 		}
 		closedir(library);
 		std::cout << std::endl;
-	}
-
-	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		std::string name = tag->getString("name");
-		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
-
-		if (!this->Load(name, true))
-		{
-			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
-		}
-	}
-
-	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
-	{
-		Module* mod = i->second;
-		try
-		{
-			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", i->first.c_str());
-			mod->init();
-		}
-		catch (CoreException& modexcept)
-		{
-			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
-		}
-	}
-
-	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
-	 * of others
-	 */
-	for(int tries = 0; tries < 20; tries++)
-	{
-		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second->Prioritize();
-
-		if (prioritizationState == PRIO_STATE_LAST)
-			break;
-		if (tries == 19)
-		{
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected");
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
-		}
 	}
 }
 

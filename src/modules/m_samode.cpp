@@ -20,8 +20,6 @@
  */
 
 
-/* $ModDesc: Provides command SAMODE to allow opers to change modes on channels and users */
-
 #include "inspircd.h"
 
 /** Handle /SAMODE
@@ -44,16 +42,35 @@ class CommandSamode : public Command
 			User* target = ServerInstance->FindNickOnly(parameters[0]);
 			if ((!target) || (target->registered != REG_ALL))
 			{
-				user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 				return CMD_FAILURE;
 			}
+
+			// Changing the modes of another user requires a special permission
+			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes", true)))
+				return CMD_FAILURE;
 		}
 
+		// XXX: Make ModeParser clear LastParse
+		Modes::ChangeList emptychangelist;
+		ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
+
 		this->active = true;
-		ServerInstance->Parser->CallHandler("MODE", parameters, user);
-		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+		CmdResult result = ServerInstance->Parser.CallHandler("MODE", parameters, user);
 		this->active = false;
+
+		if (result == CMD_SUCCESS)
+		{
+			// If lastparse is empty and the MODE command handler returned CMD_SUCCESS then
+			// the client queried the list of a listmode (e.g. /SAMODE #chan b), which was
+			// handled internally by the MODE command handler.
+			//
+			// Viewing the modes of a user or a channel can also result in CMD_SUCCESS, but
+			// that is not possible with /SAMODE because we require at least 2 parameters.
+			const std::string& lastparse = ServerInstance->Modes.GetLastParse();
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? irc::stringjoiner(parameters) : lastparse));
+		}
+
 		return CMD_SUCCESS;
 	}
 };
@@ -67,22 +84,12 @@ class ModuleSaMode : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->Attach(I_OnPreMode, this);
-	}
-
-	~ModuleSaMode()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;
@@ -92,7 +99,7 @@ class ModuleSaMode : public Module
 	void Prioritize()
 	{
 		Module *override = ServerInstance->Modules->Find("m_override.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, &override);
+		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
 	}
 };
 

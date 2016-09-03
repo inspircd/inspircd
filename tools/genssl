@@ -1,0 +1,152 @@
+#!/usr/bin/env perl
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+#   Copyright (C) 2007 Craig Edwards <craigedwards@brainbox.cc>
+#   Copyright (C) 2013 Peter Powell <petpow@saberuk.com>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+BEGIN {
+	require 5.10.0;
+}
+
+use feature ':5.10';
+use strict;
+use warnings FATAL => qw(all);
+
+use File::Temp();
+
+# IMPORTANT: This script has to be able to run by itself so that it can be used
+#            by binary distributions where the make/utilities.pm module will not
+#            be available!
+
+sub prompt($$) {
+	my ($question, $default) = @_;
+	return prompt_string(1, $question, $default) if eval 'use make::console; 1';
+	say $question;
+	print "[$default] => ";
+	chomp(my $answer = <STDIN>);
+	say '';
+	return $answer ? $answer : $default;
+}
+
+if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
+	say 'Syntax: genssl <auto|gnutls|openssl>';
+	exit 1;
+}
+
+# On OS X the GnuTLS certtool is prefixed to avoid collision with the system certtool.
+my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
+
+# Check whether the user has the required tools installed.
+my $has_gnutls = `$certtool --version v 2>/dev/null`;
+my $has_openssl = !system 'openssl version >/dev/null 2>&1';
+
+# The framework the user has specified.
+my $tool = lc $ARGV[0];
+
+# If the user has not explicitly specified a framework then detect one.
+if ($tool eq 'auto') {
+	if ($has_gnutls) {
+		$tool = 'gnutls';
+	} elsif ($has_openssl) {
+		$tool = 'openssl';
+	} else {
+		say STDERR "SSL generation failed: could not find $certtool or openssl in the PATH!";
+		exit 1;
+	}
+} elsif ($tool eq 'gnutls' && !$has_gnutls) {
+	say STDERR "SSL generation failed: could not find '$certtool' in the PATH!";
+	exit 1;
+} elsif ($tool eq 'openssl' && !$has_openssl) {
+	say STDERR 'SSL generation failed: could not find \'openssl\' in the PATH!';
+	exit 1;
+}
+
+# Harvest information needed to generate the certificate.
+my $common_name = prompt('What is the hostname of your server?', 'irc.example.com');
+my $email = prompt('What email address can you be contacted at?', 'example@example.com');
+my $unit = prompt('What is the name of your unit?', 'Server Admins');
+my $organization = prompt('What is the name of your organization?', 'Example IRC Network');
+my $city = prompt('What city are you located in?', 'Example City');
+my $state = prompt('What state are you located in?', 'Example State');
+my $country = prompt('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
+my $days = prompt('How many days do you want your certificate to be valid for?', '365');
+
+# Contains the SSL certificate in DER form.
+my $dercert;
+
+# Contains the exit code of openssl/gnutls-certtool.
+my $status = 0;
+
+if ($tool eq 'gnutls') {
+	$has_gnutls =~ /certtool.+?(\d+\.\d+)/;
+	my $sec_param = $1 lt '2.10' ? '--bits 2048' : '--sec-param normal';
+	my $tmp = new File::Temp();
+	print $tmp <<__GNUTLS_END__;
+cn              = "$common_name"
+email           = "$email"
+unit            = "$unit"
+organization    = "$organization"
+locality        = "$city"
+state           = "$state"
+country         = "$country"
+expiration_days = $days
+tls_www_client
+tls_www_server
+signing_key
+encryption_key
+cert_signing_key
+crl_signing_key
+code_signing_key
+ocsp_signing_key
+time_stamping_key
+__GNUTLS_END__
+	close($tmp);
+	$status ||= system "$certtool --generate-privkey $sec_param --outfile key.pem";
+	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
+	$status ||= system "$certtool --generate-dh-params $sec_param --outfile dhparams.pem";
+	$dercert = `$certtool --certificate-info --infile cert.pem --outder` unless $status;
+} elsif ($tool eq 'openssl') {
+	my $tmp = new File::Temp();
+	print $tmp <<__OPENSSL_END__;
+$country
+$state
+$city
+$organization
+$unit
+$common_name
+$email
+__OPENSSL_END__
+	close($tmp);
+	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
+	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
+	$dercert = `openssl x509 -in cert.pem -outform DER` unless $status;
+}
+
+if ($status) {
+	say STDERR "SSL generation failed: $tool exited with a non-zero status!";
+	exit 1;
+}
+
+if (defined $dercert && eval 'use Digest::SHA; 1') {
+	my $hash = Digest::SHA->new(256);
+	$hash->add($dercert);
+	say '';
+	say 'Add this TLSA record to your domain for DANE support:';
+	say "_6697._tcp." . $common_name . " TLSA 3 0 1 " . $hash->hexdigest;
+}

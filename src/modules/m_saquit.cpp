@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
-
 /** Handle /SAQUIT
  */
 class CommandSaquit : public Command
@@ -31,24 +29,24 @@ class CommandSaquit : public Command
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <reason>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
-		if ((dest) && (!IS_SERVER(dest)) && (dest->registered == REG_ALL))
+		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (ServerInstance->ULine(dest->server))
+			if (dest->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;
 			}
 
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))
 				return CMD_SUCCESS;
-			
+
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "+parameters[1]);
 
 			ServerInstance->Users->QuitUser(dest, parameters[1]);
@@ -56,17 +54,14 @@ class CommandSaquit : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Invalid nickname '" + parameters[0] + "'");
 			return CMD_FAILURE;
 		}
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -79,20 +74,10 @@ class ModuleSaquit : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSaquit()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSaquit)

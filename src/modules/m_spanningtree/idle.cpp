@@ -18,67 +18,53 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
-
-#include "main.h"
 #include "utils.h"
-#include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
+CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>& params)
 {
-	if (params.size() < 1)
-		return true;
-	User* u = ServerInstance->FindNick(prefix);
-	if (u)
+	/**
+	 * There are two forms of IDLE: request and reply. Requests have one parameter,
+	 * replies have more than one.
+	 *
+	 * If this is a request, 'issuer' did a /whois and its server wants to learn the
+	 * idle time of the user in params[0].
+	 *
+	 * If this is a reply, params[0] is the user who did the whois and params.back() is
+	 * the number of seconds 'issuer' has been idle.
+	 */
+
+	User* target = ServerInstance->FindUUID(params[0]);
+	if ((!target) || (target->registered != REG_ALL))
+		return CMD_FAILURE;
+
+	LocalUser* localtarget = IS_LOCAL(target);
+	if (!localtarget)
 	{
-		// an incoming request
-		if (params.size() == 1)
-		{
-			User* x = ServerInstance->FindNick(params[0]);
-			if ((x) && (IS_LOCAL(x)))
-			{
-				long idle = labs((long)((x->idle_lastmsg) - ServerInstance->Time()));
-				parameterlist par;
-				par.push_back(prefix);
-				par.push_back(ConvToStr(x->signon));
-				par.push_back(ConvToStr(idle));
-				// ours, we're done, pass it BACK
-				Utils->DoOneToOne(params[0], "IDLE", par, u->server);
-			}
-			else
-			{
-				// not ours pass it on
-				if (x)
-					Utils->DoOneToOne(prefix, "IDLE", params, x->server);
-			}
-		}
-		else if (params.size() == 3)
-		{
-			std::string who_did_the_whois = params[0];
-			User* who_to_send_to = ServerInstance->FindNick(who_did_the_whois);
-			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)) && (who_to_send_to->registered == REG_ALL))
-			{
-				// an incoming reply to a whois we sent out
-				std::string nick_whoised = prefix;
-				unsigned long signon = atoi(params[1].c_str());
-				unsigned long idle = atoi(params[2].c_str());
-				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
-				{
-					ServerInstance->DoWhois(who_to_send_to, u, signon, idle, nick_whoised.c_str());
-				}
-			}
-			else
-			{
-				// not ours, pass it on
-				if (who_to_send_to)
-					Utils->DoOneToOne(prefix, "IDLE", params, who_to_send_to->server);
-			}
-		}
+		// Forward to target's server
+		return CMD_SUCCESS;
 	}
-	return true;
+
+	if (params.size() >= 2)
+	{
+		ServerInstance->Parser.CallHandler("WHOIS", params, issuer);
+	}
+	else
+	{
+		// A server is asking us the idle time of our user
+		unsigned int idle;
+		if (localtarget->idle_lastmsg >= ServerInstance->Time())
+			// Possible case when our clock ticked backwards
+			idle = 0;
+		else
+			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
+
+		CmdBuilder reply(params[0], "IDLE");
+		reply.push_back(issuer->uuid);
+		reply.push_back(ConvToStr(target->signon));
+		reply.push_back(ConvToStr(idle));
+		reply.Unicast(issuer);
+	}
+
+	return CMD_SUCCESS;
 }
-
-

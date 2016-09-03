@@ -22,6 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 #include "configreader.h"
@@ -85,7 +86,7 @@ CoreExport int insp_inet_pton(int af, const char *src, void *dst)
 		}
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -163,7 +164,7 @@ int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, cons
 //					optind++;		// Trash this next argument, we won't be needing it.
 					par = ___argv[optind-1];
 				}
-			}			
+			}
 
 			// increment the argument for next time
 //			optind++;
@@ -189,9 +190,9 @@ int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, cons
 			{
 				if (__longopts[i].val == -1 || par == 0)
 					return 1;
-				
+
 				return __longopts[i].val;
-			}			
+			}
 			break;
 		}
 	}

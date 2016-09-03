@@ -22,26 +22,15 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Sets (and unsets) modes on opers when they oper up */
-
 class ModuleModesOnOper : public Module
 {
  public:
-	void init()
-	{
-		ServerInstance->Modules->Attach(I_OnPostOper, this);
-	}
-
-	virtual ~ModuleModesOnOper()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR);
 	}
 
-	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
+	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -71,7 +60,7 @@ class ModuleModesOnOper : public Module
 		while (ss >> buf)
 			modes.push_back(buf);
 
-		ServerInstance->SendMode(modes, u);
+		ServerInstance->Parser.CallHandler("MODE", modes, u);
 	}
 };
 

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +Q to prevent kicks on the channel. */
-
 class NoKicks : public SimpleChannelModeHandler
 {
  public:
@@ -40,38 +38,26 @@ class ModuleNoKicks : public Module
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(nk);
-		Implementation eventlist[] = { I_OnUserPreKick, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('Q');
 	}
 
-	void On005Numeric(std::string &output)
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('Q');
-	}
-
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
-	{
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
+		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet(nk)))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (+Q set)", memb->user->nick.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleNoKicks()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +Q to prevent kicks on the channel.", VF_VENDOR);
 	}
 };
-
 
 MODULE_INIT(ModuleNoKicks)

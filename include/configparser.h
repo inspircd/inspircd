@@ -17,6 +17,8 @@
  */
 
 
+#pragma once
+
 struct fpos
 {
 	std::string filename;
@@ -31,7 +33,7 @@ struct fpos
 
 enum ParseFlags
 {
-	FLAG_USE_XML = 1,
+	FLAG_USE_COMPAT = 1,
 	FLAG_NO_EXEC = 2,
 	FLAG_NO_INC = 4
 };
@@ -39,7 +41,7 @@ enum ParseFlags
 struct ParseStack
 {
 	std::vector<std::string> reading;
-	std::map<std::string, std::string> vars;
+	insp::flat_map<std::string, std::string> vars;
 	ConfigDataHash& output;
 	ConfigFileCache& FilesOutput;
 	std::stringstream& errstr;
@@ -51,8 +53,7 @@ struct ParseStack
 		vars["quot"] = "\"";
 		vars["newline"] = vars["nl"] = "\n";
 	}
-	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = "");
-	bool ParseExec(const std::string& name, int flags, const std::string& mandatory_tag = "");
+	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(ConfigTag* includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
 };
@@ -76,5 +77,3 @@ struct FileWrapper
 		}
 	}
 };
-
-

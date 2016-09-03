@@ -1,4 +1,4 @@
-# Sample configuration file for m_helpop.so
+# Sample configuration file for the helpop module.
 # You can either copy this into your conf folder and set up the module to use it,
 # or you can customize the responses for your network and/or add more.
 #
@@ -37,7 +37,7 @@ UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
 
 WHOIS     WHOWAS   ISON      USERHOST  WATCH
-LIST      NAMES    WHO       MOTD      RULES
+LIST      NAMES    WHO       MOTD
 ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
 SSLINFO
@@ -62,7 +62,7 @@ SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
 
 KILL      SAQUIT    GLINE       ZLINE    QLINE
 KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER
+FILTER    CLEARCHAN
 
 CONNECT   SQUIT     RCONNECT    RSQUIT
 
@@ -117,15 +117,15 @@ LOCKSERV       UNLOCKSERV">
 
  v <nickname>       Gives voice to <nickname>, allowing them to speak
                     while the channel is +m.
- h <nickname>       Gives halfop status to <nickname> (this mode can
-                    be disabled).
+ h <nickname>       Gives halfop status to <nickname> (requires
+                    customprefix module).
  o <nickname>       Gives op status to <nickname>.
  a <nickname>       Gives protected status to <nickname>, preventing
                     them from them from being kicked (+q only,
-                    requires chanprotect module).
+                    requires customprefix module).
  q <nickname>       Gives owner status to <nickname>, preventing them
                     from being kicked (Services or only, requires
-                    chanprotect module).
+                    customprefix module).
 
  b <hostmask>       Bans <hostmask> from the channel.
  e <hostmask>       Excepts <hostmask> from bans (requires
@@ -182,6 +182,9 @@ LOCKSERV       UNLOCKSERV">
                     module).
  D                  Delays join messages from users until they
                     message the channel (requires delayjoin module).
+ E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similar messages.
+                    Kicks as default, blocks with ~ and bans with *
+                    The last two parameters are optional.
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the
                     specified rate (requires nickflood module).
  G                  Censors messages to the channel based on the

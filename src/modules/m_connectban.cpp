@@ -20,61 +20,39 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Throttles the connections of IP ranges who try to connect flood. */
-
 class ModuleConnectBan : public Module
 {
- private:
-	clonemap connects;
+	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
+	ConnectMap connects;
 	unsigned int threshold;
 	unsigned int banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
+	std::string banmessage;
+
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
-	}
-
-	virtual ~ModuleConnectBan()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getInt("ipv4cidr", 32);
-		if (ipv4_cidr == 0)
-			ipv4_cidr = 32;
-
-		ipv6_cidr = tag->getInt("ipv6cidr", 128);
-		if (ipv6_cidr == 0)
-			ipv6_cidr = 128;
-
-		threshold = tag->getInt("threshold", 10);
-		if (threshold == 0)
-			threshold = 10;
-
-		banduration = ServerInstance->Duration(tag->getString("duration", "10m"));
-		if (banduration == 0)
-			banduration = 10*60;
+		ipv4_cidr = tag->getInt("ipv4cidr", 32, 1, 32);
+		ipv6_cidr = tag->getInt("ipv6cidr", 128, 1, 128);
+		threshold = tag->getInt("threshold", 10, 1);
+		banduration = tag->getDuration("duration", 10*60, 1);
+		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 	}
 
-	virtual void OnSetUserIP(LocalUser* u)
+	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
 	{
 		if (u->exempt)
 			return;
 
 		int range = 32;
-		clonemap::iterator i;
 
 		switch (u->client_sa.sa.sa_family)
 		{
@@ -87,7 +65,7 @@ class ModuleConnectBan : public Module
 		}
 
 		irc::sockets::cidr_mask mask(u->client_sa, range);
-		i = connects.find(mask);
+		ConnectMap::iterator i = connects.find(mask);
 
 		if (i != connects.end())
 		{
@@ -96,7 +74,7 @@ class ModuleConnectBan : public Module
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.", mask.str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, banmessage, mask.str());
 				if (!ServerInstance->XLines->AddLine(zl, NULL))
 				{
 					delete zl;
@@ -104,7 +82,7 @@ class ModuleConnectBan : public Module
 				}
 				ServerInstance->XLines->ApplyLines();
 				std::string maskstr = mask.str();
-				std::string timestr = ServerInstance->TimeString(zl->expiry);
+				std::string timestr = InspIRCd::TimeString(zl->expiry);
 				ServerInstance->SNO->WriteGlobalSno('x',"Module m_connectban added Z:line on *@%s to expire on %s: Connect flooding",
 					maskstr.c_str(), timestr.c_str());
 				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
@@ -117,9 +95,9 @@ class ModuleConnectBan : public Module
 		}
 	}
 
-	virtual void OnGarbageCollect()
+	void OnGarbageCollect()
 	{
-		ServerInstance->Logs->Log("m_connectban",DEBUG, "Clearing map.");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Clearing map.");
 		connects.clear();
 	}
 };

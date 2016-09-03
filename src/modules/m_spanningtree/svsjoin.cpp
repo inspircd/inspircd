@@ -19,19 +19,13 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "commands.h"
 
-CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandSVSJoin::Handle(User* user, std::vector<std::string>& parameters)
 {
 	// Check for valid channel name
-	if (!ServerInstance->IsChannel(parameters[1].c_str(), ServerInstance->Config->Limits.ChanMax))
+	if (!ServerInstance->IsChannel(parameters[1]))
 		return CMD_FAILURE;
 
 	// Check target exists
@@ -40,15 +34,25 @@ CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 
 	/* only join if it's local, otherwise just pass it on! */
-	if (IS_LOCAL(u))
-		Channel::JoinUser(u, parameters[1].c_str(), false, "", false, ServerInstance->Time());
+	LocalUser* localuser = IS_LOCAL(u);
+	if (localuser)
+	{
+		bool override = false;
+		std::string key;
+		if (parameters.size() >= 3)
+		{
+			key = parameters[2];
+			if (key.empty())
+				override = true;
+		}
+
+		Channel::JoinUser(localuser, parameters[1], override, key);
+	}
+
 	return CMD_SUCCESS;
 }
 
 RouteDescriptor CommandSVSJoin::GetRouting(User* user, const std::vector<std::string>& parameters)
 {
-	User* u = ServerInstance->FindUUID(parameters[0]);
-	if (u)
-		return ROUTE_OPT_UCAST(u->server);
-	return ROUTE_LOCALONLY;
+	return ROUTE_OPT_UCAST(parameters[0]);
 }

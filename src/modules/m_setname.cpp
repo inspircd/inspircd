@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the SETNAME command */
-
 
 
 class CommandSetname : public Command
@@ -32,18 +30,17 @@ class CommandSetname : public Command
 	{
 		allow_empty_last_param = false;
 		syntax = "<new-gecos>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick.c_str());
+			user->WriteNotice("*** SETNAME: GECOS too long");
 			return CMD_FAILURE;
 		}
 
-		if (user->ChangeName(parameters[0].c_str()))
+		if (user->ChangeName(parameters[0]))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their GECOS to '%s'", user->nick.c_str(), parameters[0].c_str());
 		}
@@ -62,16 +59,7 @@ class ModuleSetName : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSetName()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the SETNAME command", VF_VENDOR);
 	}

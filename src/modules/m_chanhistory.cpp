@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel history for a given number of lines */
-
 struct HistoryItem
 {
 	time_t ts;
@@ -32,10 +30,13 @@ struct HistoryList
 {
 	std::deque<HistoryItem> lines;
 	unsigned int maxlen, maxtime;
-	HistoryList(unsigned int len, unsigned int time) : maxlen(len), maxtime(time) {}
+	std::string param;
+
+	HistoryList(unsigned int len, unsigned int time, const std::string& oparam)
+		: maxlen(len), maxtime(time), param(oparam) { }
 };
 
-class HistoryMode : public ModeHandler
+class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 {
 	bool IsValidDuration(const std::string& duration)
 	{
@@ -52,58 +53,52 @@ class HistoryMode : public ModeHandler
 	}
 
  public:
-	SimpleExtItem<HistoryList> ext;
 	unsigned int maxlines;
-	HistoryMode(Module* Creator) : ModeHandler(Creator, "history", 'H', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("history", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	HistoryMode(Module* Creator)
+		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if (colon == std::string::npos)
+			return MODEACTION_DENY;
+
+		std::string duration(parameter, colon+1);
+		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
+			return MODEACTION_DENY;
+
+		unsigned int len = ConvToInt(parameter.substr(0, colon));
+		int time = InspIRCd::Duration(duration);
+		if (len == 0 || time < 0)
+			return MODEACTION_DENY;
+		if (len > maxlines && IS_LOCAL(source))
+			return MODEACTION_DENY;
+		if (len > maxlines)
+			len = maxlines;
+
+		HistoryList* history = ext.get(channel);
+		if (history)
 		{
-			std::string::size_type colon = parameter.find(':');
-			if (colon == std::string::npos)
-				return MODEACTION_DENY;
+			// Shrink the list if the new line number limit is lower than the old one
+			if (len < history->lines.size())
+				history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
 
-			std::string duration = parameter.substr(colon+1);
-			if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
-				return MODEACTION_DENY;
-
-			unsigned int len = ConvToInt(parameter.substr(0, colon));
-			int time = ServerInstance->Duration(duration);
-			if (len == 0 || time < 0)
-				return MODEACTION_DENY;
-			if (len > maxlines && IS_LOCAL(source))
-				return MODEACTION_DENY;
-			if (len > maxlines)
-				len = maxlines;
-			if (parameter == channel->GetModeParameter(this))
-				return MODEACTION_DENY;
-
-			HistoryList* history = ext.get(channel);
-			if (history)
-			{
-				// Shrink the list if the new line number limit is lower than the old one
-				if (len < history->lines.size())
-					history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
-
-				history->maxlen = len;
-				history->maxtime = time;
-			}
-			else
-			{
-				ext.set(channel, new HistoryList(len, time));
-			}
-			channel->SetModeParam('H', parameter);
+			history->maxlen = len;
+			history->maxtime = time;
+			history->param = parameter;
 		}
 		else
 		{
-			if (!channel->IsModeSet('H'))
-				return MODEACTION_DENY;
-			ext.unset(channel);
-			channel->SetModeParam('H', "");
+			ext.set(channel, new HistoryList(len, time, parameter));
 		}
 		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const HistoryList* history, std::string& out)
+	{
+		out.append(history->param);
 	}
 };
 
@@ -111,49 +106,43 @@ class ModuleChanHistory : public Module
 {
 	HistoryMode m;
 	bool sendnotice;
+	UserModeReference botmode;
+	bool dobots;
  public:
-	ModuleChanHistory() : m(this)
+	ModuleChanHistory() : m(this), botmode(this, "bot")
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(m);
-		ServerInstance->Modules->AddService(m.ext);
-
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
-	}
-
-	void OnRehash(User*)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getInt("maxlines", 50);
 		sendnotice = tag->getBool("notice", true);
+		dobots = tag->getBool("bots", true);
 	}
 
-	void OnUserMessage(User* user,void* dest,int target_type, const std::string &text, char status, const CUList&)
+	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_CHANNEL && status == 0)
+		if ((target_type == TYPE_CHANNEL) && (status == 0) && (msgtype == MSG_PRIVMSG))
 		{
 			Channel* c = (Channel*)dest;
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				char buf[MAXBUF];
-				snprintf(buf, MAXBUF, ":%s PRIVMSG %s :%s",
-					user->GetFullHost().c_str(), c->name.c_str(), text.c_str());
-				list->lines.push_back(HistoryItem(buf));
+				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + text;
+				list->lines.push_back(HistoryItem(line));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
 		}
 	}
 
-	void OnPostJoin(Membership* memb)
+	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
 		if (IS_REMOTE(memb->user))
+			return;
+
+		if (memb->user->IsModeSet(botmode) && !dobots)
 			return;
 
 		HistoryList* list = m.ext.get(memb->chan);
@@ -165,8 +154,7 @@ class ModuleChanHistory : public Module
 
 		if (sendnotice)
 		{
-			memb->user->WriteServ("NOTICE %s :Replaying up to %d lines of pre-join history spanning up to %d seconds",
-				memb->chan->name.c_str(), list->maxlen, list->maxtime);
+			memb->user->WriteNotice("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history spanning up to " + ConvToStr(list->maxtime) + " seconds");
 		}
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
@@ -176,7 +164,7 @@ class ModuleChanHistory : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel history replayed on join", VF_VENDOR);
 	}

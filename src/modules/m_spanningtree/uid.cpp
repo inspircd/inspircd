@@ -23,173 +23,149 @@
 #include "commands.h"
 
 #include "utils.h"
-#include "link.h"
-#include "treesocket.h"
 #include "treeserver.h"
-#include "resolvers.h"
+#include "remoteuser.h"
 
-CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
+CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::string>& params)
 {
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
-	/** Do we have enough parameters:
+	/**
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
 	 */
-	time_t age_t = ConvToInt(params[1]);
-	time_t signon = ConvToInt(params[7]);
+	time_t age_t = ServerCommand::ExtractTS(params[1]);
+	time_t signon = ServerCommand::ExtractTS(params[7]);
 	std::string empty;
-	std::string modestr(params[8]);
+	const std::string& modestr = params[8];
 
-	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
-
-	if (!remoteserver)
-		return CMD_INVALID;
-	/* Is this a valid UID, and not misrouted? */
-	if (params[0].length() != 9 || params[0].substr(0,3) != serversrc->uuid)
-		return CMD_INVALID;
-	/* Check parameters for validity before introducing the client, discovered by dmb */
-	if (!age_t)
-		return CMD_INVALID;
-	if (!signon)
-		return CMD_INVALID;
+	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
+	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetID()))
+		throw ProtocolException("Bogus UUID");
+	// Sanity check on mode string: must begin with '+'
 	if (modestr[0] != '+')
-		return CMD_INVALID;
-	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
+		throw ProtocolException("Invalid mode string");
 
-	/* check for collision */
-	User* const collideswith = ServerInstance->FindNickOnly(params[2]);
-
+	// See if there is a nick collision
+	User* collideswith = ServerInstance->FindNickOnly(params[2]);
 	if ((collideswith) && (collideswith->registered != REG_ALL))
 	{
 		// User that the incoming user is colliding with is not fully registered, we force nick change the
 		// unregistered user to their uuid and tell them what happened
 		collideswith->WriteFrom(collideswith, "NICK %s", collideswith->uuid.c_str());
-		collideswith->WriteNumeric(433, "%s %s :Nickname overruled.", collideswith->nick.c_str(), collideswith->nick.c_str());
+		collideswith->WriteNumeric(ERR_NICKNAMEINUSE, collideswith->nick, "Nickname overruled.");
 
 		// Clear the bit before calling User::ChangeNick() to make it NOT run the OnUserPostNick() hook
 		collideswith->registered &= ~REG_NICK;
-		collideswith->ChangeNick(collideswith->uuid, true);
+		collideswith->ChangeNick(collideswith->uuid);
 	}
 	else if (collideswith)
 	{
-		/*
-		 * Nick collision.
-		 */
-		int collide = sock->DoCollision(collideswith, age_t, params[5], params[6], params[0]);
-		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
-
-		if (collide != 1)
+		// The user on this side is registered, handle the collision
+		bool they_change = Utils->DoCollision(collideswith, remoteserver, age_t, params[5], params[6], params[0], "UID");
+		if (they_change)
 		{
-			/* remote client lost, make sure we change their nick for the hash too
-			 *
-			 * This alters the line that will be sent to other servers, which
-			 * commands normally shouldn't do; hence the required const_cast.
-			 */
-			const_cast<parameterlist&>(params)[2] = params[0];
+			// The client being introduced needs to change nick to uuid, change the nick in the message before
+			// processing/forwarding it. Also change the nick TS to CommandSave::SavedTimestamp.
+			age_t = CommandSave::SavedTimestamp;
+			params[1] = ConvToStr(CommandSave::SavedTimestamp);
+			params[2] = params[0];
 		}
 	}
 
-	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
-	 * sets it up in the UUID hash for us.
+	/* For remote users, we pass the UUID they sent to the constructor.
+	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
-	User* _new = NULL;
-	try
-	{
-		_new = new RemoteUser(params[0], remoteserver->GetName());
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
-		return CMD_INVALID;
-	}
-	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
+	RemoteUser* _new = new SpanningTree::RemoteUser(params[0], remoteserver);
+	ServerInstance->Users->clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->host = params[3];
 	_new->dhost = params[4];
 	_new->ident = params[5];
-	_new->fullname = params[params.size() - 1];
+	_new->fullname = params.back();
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;
 
-	/* we need to remove the + from the modestring, so we can do our stuff */
-	std::string::size_type pos_after_plus = modestr.find_first_not_of('+');
-	if (pos_after_plus != std::string::npos)
-	modestr = modestr.substr(pos_after_plus);
-
 	unsigned int paramptr = 9;
-	for (std::string::iterator v = modestr.begin(); v != modestr.end(); v++)
+
+	for (std::string::const_iterator v = modestr.begin(); v != modestr.end(); ++v)
 	{
-		/* For each mode thats set, increase counter */
+		// Accept more '+' chars, for now
+		if (*v == '+')
+			continue;
+
+		/* For each mode thats set, find the mode handler and set it on the new user */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
+		if (!mh)
+			throw ProtocolException("Unrecognised mode '" + std::string(1, *v) + "'");
 
-		if (mh)
+		if (mh->NeedsParam(true))
 		{
-			if (mh->GetNumParams(true))
-			{
-				if (paramptr >= params.size() - 1)
-					return CMD_INVALID;
-				std::string mp = params[paramptr++];
-				/* IMPORTANT NOTE:
-				 * All modes are assumed to succeed here as they are being set by a remote server.
-				 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
-				 * to note as all but one modules currently cannot ever fail in this situation, except for
-				 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
-				 * but here, at client introduction. You may safely assume this behaviour is standard and
-				 * will not change in future versions if you want to make use of this protective behaviour
-				 * yourself.
-				 */
-				mh->OnModeChange(_new, _new, NULL, mp, true);
-			}
-			else
-				mh->OnModeChange(_new, _new, NULL, empty, true);
-			_new->SetMode(*v, true);
+			if (paramptr >= params.size() - 1)
+				throw ProtocolException("Out of parameters while processing modes");
+			std::string mp = params[paramptr++];
+			/* IMPORTANT NOTE:
+			 * All modes are assumed to succeed here as they are being set by a remote server.
+			 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
+			 * to note as all but one modules currently cannot ever fail in this situation, except for
+			 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
+			 * but here, at client introduction. You may safely assume this behaviour is standard and
+			 * will not change in future versions if you want to make use of this protective behaviour
+			 * yourself.
+			 */
+			mh->OnModeChange(_new, _new, NULL, mp, true);
 		}
+		else
+			mh->OnModeChange(_new, _new, NULL, empty, true);
+		_new->SetMode(mh, true);
 	}
-
-	/* now we've done with modes processing, put the + back for remote servers */
-	if (modestr[0] != '+')
-		modestr = "+" + modestr;
 
 	_new->SetClientIP(params[6].c_str());
 
-	ServerInstance->Users->AddGlobalClone(_new);
-	remoteserver->SetUserCount(1); // increment by 1
+	ServerInstance->Users->AddClone(_new);
+	remoteserver->UserCount++;
 
 	bool dosend = true;
 
-	if ((Utils->quiet_bursts && remoteserver->bursting) || ServerInstance->SilentULine(_new->server))
+	if ((Utils->quiet_bursts && remoteserver->IsBehindBursting()) || _new->server->IsSilentULine())
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
 
-	FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
+	FOREACH_MOD(OnPostConnect, (_new));
 
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
+CmdResult CommandFHost::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
-	src->ChangeDisplayedHost(params[0].c_str());
+	src->ChangeDisplayedHost(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
+CmdResult CommandFIdent::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
-	src->ChangeIdent(params[0].c_str());
+	src->ChangeIdent(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFName::Handle(const parameterlist &params, User* src)
+CmdResult CommandFName::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
-	src->ChangeName(params[0].c_str());
+	src->ChangeName(params[0]);
 	return CMD_SUCCESS;
 }
 
+CommandUID::Builder::Builder(User* user)
+	: CmdBuilder(TreeServer::Get(user)->GetID(), "UID")
+{
+	push(user->uuid);
+	push_int(user->age);
+	push(user->nick);
+	push(user->host);
+	push(user->dhost);
+	push(user->ident);
+	push(user->GetIPString());
+	push_int(user->signon);
+	push('+').push_raw(user->FormatModes(true));
+	push_last(user->fullname);
+}

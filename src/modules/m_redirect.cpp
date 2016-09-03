@@ -24,66 +24,51 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +L (limit redirection) and usermode +L (no forced redirection) */
-
 /** Handle channel mode +L
  */
-class Redirect : public ModeHandler
+class Redirect : public ParamMode<Redirect, LocalStringExt>
 {
  public:
-	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
+	Redirect(Module* Creator)
+		: ParamMode<Redirect, LocalStringExt>(Creator, "redirect", 'L') { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
 	{
-		if (adding)
+		if (IS_LOCAL(source))
 		{
-			if (IS_LOCAL(source))
+			if (!ServerInstance->IsChannel(parameter))
 			{
-				if (!ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
-				{
-					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-			}
-
-			if (IS_LOCAL(source) && !IS_OPER(source))
-			{
-				Channel* c = ServerInstance->FindChan(parameter);
-				if (!c)
-				{
-					source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-				else if (c->GetPrefixValue(source) < OP_VALUE)
-				{
-					source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-			}
-
-			if (channel->GetModeParameter('L') == parameter)
+				source->WriteNumeric(ERR_NOSUCHCHANNEL, parameter, "Invalid channel name");
 				return MODEACTION_DENY;
-			/*
-			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
-			 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
-			 */
-			channel->SetModeParam('L', parameter);
-			return MODEACTION_ALLOW;
-		}
-		else
-		{
-			if (channel->IsModeSet('L'))
-			{
-				channel->SetModeParam('L', "");
-				return MODEACTION_ALLOW;
 			}
 		}
 
-		return MODEACTION_DENY;
+		if (IS_LOCAL(source) && !source->IsOper())
+		{
+			Channel* c = ServerInstance->FindChan(parameter);
+			if (!c)
+			{
+				source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", parameter.c_str()));
+				return MODEACTION_DENY;
+			}
+			else if (c->GetPrefixValue(source) < OP_VALUE)
+			{
+				source->WriteNumeric(690, InspIRCd::Format("You must be opped on %s to set it as a redirect.", parameter.c_str()));
+				return MODEACTION_DENY;
+			}
+		}
 
+		/*
+		 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
+		 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
+		 */
+		ext.set(channel, parameter);
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const std::string* str, std::string& out)
+	{
+		out += *str;
 	}
 };
 
@@ -92,75 +77,62 @@ class Redirect : public ModeHandler
 class AntiRedirect : public SimpleUserModeHandler
 {
 	public:
-		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L') {}
+		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L')
+		{
+			if (!ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect"))
+				DisableAutoRegister();
+		}
 };
 
 class ModuleRedirect : public Module
 {
-
 	Redirect re;
 	AntiRedirect re_u;
+	ChanModeReference limitmode;
 	bool UseUsermode;
 
  public:
-
 	ModuleRedirect()
-		: re(this), re_u(this)
+		: re(this)
+		, re_u(this)
+		, limitmode(this, "limit")
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		/* Setting this here so it isn't changable by rehasing the config later. */
 		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
-
-		/* Channel mode */
-		ServerInstance->Modules->AddService(re);
-
-		/* Check to see if the usermode is enabled in the config */
-		if (UseUsermode)
-		{
-			/* Log noting that this breaks compatability. */
-			ServerInstance->Logs->Log("m_redirect", DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
-
-			/* Try to add the usermode */
-			ServerInstance->Modules->AddService(re_u);
-		}
-
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L') && chan->IsModeSet('l'))
+			if (chan->IsModeSet(re) && chan->IsModeSet(limitmode))
 			{
-				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter('l')))
+				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limitmode)))
 				{
-					std::string channel = chan->GetModeParameter('L');
+					const std::string& channel = *re.ext.get(chan);
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
-					Channel* destchan = NULL;
-					destchan = ServerInstance->FindChan(channel);
-					if (destchan && destchan->IsModeSet('L'))
+					Channel* destchan = ServerInstance->FindChan(channel);
+					if (destchan && destchan->IsModeSet(re))
 					{
-						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
+						user->WriteNumeric(470, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");
 						return MOD_RES_DENY;
 					}
 					/* We check the bool value here to make sure we have it enabled, if we don't then
 						usermode +L might be assigned to something else. */
-					if (UseUsermode && user->IsModeSet('L'))
+					if (UseUsermode && user->IsModeSet(re_u))
 					{
-						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.",
-						user->nick.c_str(), cname, channel.c_str());
+						user->WriteNumeric(470, cname, channel, "Force redirection stopped.");
 						return MOD_RES_DENY;
 					}
 					else
 					{
-						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
-						Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
+						user->WriteNumeric(470, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirect channel.");
+						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}
 				}
@@ -169,11 +141,7 @@ class ModuleRedirect : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleRedirect()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);
 	}

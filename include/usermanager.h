@@ -17,93 +17,112 @@
  */
 
 
-#ifndef USERMANAGER_H
-#define USERMANAGER_H
+#pragma once
 
 #include <list>
 
-/** A list of ip addresses cross referenced against clone counts */
-typedef std::map<irc::sockets::cidr_mask, unsigned int> clonemap;
-
-class CoreExport UserManager
+class CoreExport UserManager : public fakederef<UserManager>
 {
- private:
-	/** Map of local ip addresses for clone counting
-	 */
-	clonemap local_clones;
  public:
-	UserManager();
-
-	~UserManager()
+	struct CloneCounts
 	{
-		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)
-		{
-			delete i->second;
-		}
-		clientlist->clear();
-		delete clientlist;
-		delete uuidlist;
-	}
+		unsigned int global;
+		unsigned int local;
+		CloneCounts() : global(0), local(0) { }
+	};
 
-	/** Client list, a hash_map containing all clients, local and remote
+	/** Container that maps IP addresses to clone counts
 	 */
-	user_hash* clientlist;
+	typedef std::map<irc::sockets::cidr_mask, CloneCounts> CloneMap;
 
-	/** Client list stored by UUID. Contains all clients, and is updated
-	 * automatically by the constructor and destructor of User.
+	/** Sequence container in which each element is a User*
 	 */
-	user_hash* uuidlist;
+	typedef std::vector<User*> OperList;
+
+	/** A list holding local users
+	*/
+	typedef insp::intrusive_list<LocalUser> LocalList;
+
+ private:
+	/** Map of IP addresses for clone counting
+	 */
+	CloneMap clonemap;
+
+	/** A CloneCounts that contains zero for both local and global
+	 */
+	const CloneCounts zeroclonecounts;
 
 	/** Local client list, a list containing only local clients
 	 */
-	LocalUserList local_users;
+	LocalList local_users;
+
+	/** Last used already sent id, used when sending messages to neighbors to help determine whether the message has
+	 * been sent to a particular user or not. See User::ForEachNeighbor() for more info.
+	 */
+	already_sent_t already_sent_id;
+
+ public:
+	/** Constructor, initializes variables
+	 */
+	UserManager();
+
+	/** Destructor, destroys all users in clientlist
+	 */
+	~UserManager();
+
+	/** Nickname string -> User* map. Contains all users, including unregistered ones.
+	 */
+	user_hash clientlist;
+
+	/** UUID -> User* map. Contains all users, including unregistered ones.
+	 */
+	user_hash uuidlist;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
-	std::list<User*> all_opers;
+	OperList all_opers;
 
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
 	 */
 	unsigned int unregistered_count;
 
-	/** Number of elements in local_users
+	/** Perform background user events for all local users such as PING checks, registration timeouts,
+	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
 	 */
-	unsigned int local_count;
+	void DoBackgroundUserStuff();
 
-	/** Map of global ip addresses for clone counting
-	 * XXX - this should be private, but m_clones depends on it currently.
+	/** Returns true when all modules have done pre-registration checks on a user
+	 * @param user The user to verify
+	 * @return True if all modules have finished checking this user
 	 */
-	clonemap global_clones;
+	bool AllModulesReportReady(LocalUser* user);
 
-	/** Add a client to the system.
-	 * This will create a new User, insert it into the user_hash,
-	 * initialize it as not yet registered, and add it to the socket engine.
-	 * @param socket The socket id (file descriptor) this user is on
-	 * @param via The socket that this user connected using
+	/** Handle a client connection.
+	 * Creates a new LocalUser object, inserts it into the appropriate containers,
+	 * initializes it as not yet registered, and adds it to the socket engine.
+	 *
+	 * The new user may immediately be quit after being created, for example if the user limit
+	 * is reached or if the user is banned.
+	 * @param socket File descriptor of the connection
+	 * @param via Listener socket that this user connected to
 	 * @param client The IP address and client port of the user
 	 * @param server The server IP address and port used by the user
-	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
 	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Disconnect a user gracefully
+	/** Disconnect a user gracefully.
+	 * When this method returns the user provided will be quit, but the User object will continue to be valid and will be deleted at the end of the current main loop iteration.
 	 * @param user The user to remove
 	 * @param quitreason The quit reason to show to normal users
-	 * @param operreason The quit reason to show to opers
-	 * @return Although this function has no return type, on exit the user provided will no longer exist.
+	 * @param operreason The quit reason to show to opers, can be NULL if same as quitreason
 	 */
-	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");
+	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = NULL);
 
-	/** Add a user to the local clone map
+	/** Add a user to the clone map
 	 * @param user The user to add
 	 */
-	void AddLocalClone(User *user);
-
-	/** Add a user to the global clone map
-	 * @param user The user to add
-	 */
-	void AddGlobalClone(User *user);
+	void AddClone(User* user);
 
 	/** Remove all clone counts from the user, you should
 	 * use this if you change the user's IP address
@@ -112,53 +131,57 @@ class CoreExport UserManager
 	 */
 	void RemoveCloneCounts(User *user);
 
-	/** Rebuild clone counts
+	/** Rebuild clone counts. Required when <cidr> settings change.
 	 */
 	void RehashCloneCounts();
 
-	/** Return the number of global clones of this user
-	 * @param user The user to get a count for
-	 * @return The global clone count of this user
+	/** Return the number of local and global clones of this user
+	 * @param user The user to get the clone counts for
+	 * @return The clone counts of this user. The returned reference is volatile - you
+	 * must assume that it becomes invalid as soon as you call any function other than
+	 * your own.
 	 */
-	unsigned long GlobalCloneCount(User *user);
+	const CloneCounts& GetCloneCounts(User* user) const;
 
-	/** Return the number of local clones of this user
-	 * @param user The user to get a count for
-	 * @return The local clone count of this user
+	/** Return a map containg IP addresses and their clone counts
+	 * @return The clone count map
 	 */
-	unsigned long LocalCloneCount(User *user);
+	const CloneMap& GetCloneMap() const { return clonemap; }
 
-	/** Return a count of users, unknown and known connections
-	 * @return The number of users
+	/** Return a count of all global users, unknown and known connections
+	 * @return The number of users on the network, including local unregistered users
 	 */
-	unsigned int UserCount();
+	unsigned int UserCount() const { return this->clientlist.size(); }
 
-	/** Return a count of fully registered connections only
-	 * @return The number of registered users
+	/** Return a count of fully registered connections on the network
+	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount();
+	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount(); }
 
-	/** Return a count of opered (umode +o) users only
-	 * @return The number of opers
+	/** Return a count of opered (umode +o) users on the network
+	 * @return The number of opers on the network
 	 */
-	unsigned int OperCount();
+	unsigned int OperCount() const { return this->all_opers.size(); }
 
-	/** Return a count of unregistered (before NICK/USER) users only
-	 * @return The number of unregistered (unknown) connections
+	/** Return a count of local unregistered (before NICK/USER) users
+	 * @return The number of local unregistered (unknown) connections
 	 */
-	unsigned int UnregisteredUserCount();
+	unsigned int UnregisteredUserCount() const { return this->unregistered_count; }
 
-	/** Return a count of local users on this server only
-	 * @return The number of local users
+	/** Return a count of local registered users
+	 * @return The number of registered local users
 	 */
-	unsigned int LocalUserCount();
+	unsigned int LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
 
-
-
-
-	/** Number of users with a certain mode set on them
+	/** Get a hash map containing all users, keyed by their nickname
+	 * @return A hash map mapping nicknames to User pointers
 	 */
-	int ModeCount(const char mode);
+	user_hash& GetUsers() { return clientlist; }
+
+	/** Get a list containing all local users
+	 * @return A const list of local users
+	 */
+	const LocalList& GetLocalUsers() const { return local_users; }
 
 	/** Send a server notice to all local users
 	 * @param text The text format string to send
@@ -166,11 +189,8 @@ class CoreExport UserManager
 	 */
 	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	/** Send a server message (PRIVMSG) to all local users
-	 * @param text The text format string to send
-	 * @param ... The format arguments
+	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
+	 * @return Next already_sent id
 	 */
-	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
+	already_sent_t NextAlreadySentId();
 };
-
-#endif

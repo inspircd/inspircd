@@ -18,40 +18,38 @@
  */
 
 
-#ifndef INSPSTRING_H
-#define INSPSTRING_H
+#pragma once
 
-// This (inspircd_config) is needed as inspstring doesn't pull in the central header
-#include "inspircd_config.h"
+// This (config) is needed as inspstring doesn't pull in the central header
+#include "config.h"
 #include <cstring>
-//#include <cstddef>
 
-#ifndef HAS_STRLCPY
-/** strlcpy() implementation for systems that don't have it (linux) */
-CoreExport size_t strlcpy(char *dst, const char *src, size_t siz);
-/** strlcat() implementation for systems that don't have it (linux) */
-CoreExport size_t strlcat(char *dst, const char *src, size_t siz);
-#endif
+/** Sets ret to the formated string. last is the last parameter before ..., and format is the format in printf-style */
+#define VAFORMAT(ret, last, format) \
+	do { \
+	va_list _vaList; \
+	va_start(_vaList, last); \
+	ret = InspIRCd::Format(_vaList, format); \
+	va_end(_vaList); \
+	} while (false);
 
-/** charlcat() will append one character to a string using the same
- * safety scemantics as strlcat().
- * @param x The string to operate on
- * @param y the character to append to the end of x
- * @param z The maximum allowed length for z including null terminator
+/** Compose a hex string from raw data.
+ * @param raw The raw data to compose hex from (can be NULL if rawsize is 0)
+ * @param rawsize The size of the raw data buffer
+ * @return The hex string
  */
-CoreExport int charlcat(char* x,char y,int z);
-/** charremove() will remove all instances of a character from a string
- * @param mp The string to operate on
- * @param remove The character to remove
- */
-CoreExport bool charremove(char* mp, char remove);
+CoreExport std::string BinToHex(const void* raw, size_t rawsize);
 
-/** Binary to hexadecimal conversion */
-CoreExport std::string BinToHex(const std::string& data);
 /** Base64 encode */
 CoreExport std::string BinToBase64(const std::string& data, const char* table = NULL, char pad = 0);
 /** Base64 decode */
 CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
 
-#endif
-
+/** Compose a hex string from the data in a std::string.
+ * @param data The data to compose hex from
+ * @return The hex string.
+ */
+inline std::string BinToHex(const std::string& data)
+{
+	return BinToHex(data.data(), data.size());
+}

@@ -20,42 +20,63 @@
  */
 
 
-#ifndef SNOMASKS_H
-#define SNOMASKS_H
+#pragma once
 
+class SnomaskManager;
 class Snomask
 {
- public:
+	/** Description of this snomask, e.g.: OPER, ANNOUNCEMENT, XLINE
+	 */
 	std::string Description;
-	std::string LastMessage;
-	int Count;
-	bool LastBlocked;
-	char LastLetter;
 
+	/** Information about the last sent message,
+	 * used for sending "last message repeated X times" messages
+	 */
+	std::string LastMessage;
+	char LastLetter;
+	unsigned int Count;
+
+	/** Log and send a message to all opers who have the given snomask set
+	 * @param letter The target users of this message
+	 * @param desc The description of this snomask, will be prepended to the message
+	 * @param msg The message to send
+	 */
+	static void Send(char letter, const std::string& desc, const std::string& msg);
+
+ public:
 	/** Create a new Snomask
 	 */
-	Snomask() : Count(0), LastBlocked(false), LastLetter(0)
-	{
-	}
+	Snomask();
 
 	/** Sends a message to all opers with this snomask.
+	 * @param message The message to send
+	 * @param remote If true the message will go to the uppercase variant of this snomask
 	 */
-	void SendMessage(const std::string &message, char letter);
+	void SendMessage(const std::string& message, char letter);
 
 	/** Sends out the (last message repeated N times) message
 	 */
 	void Flush();
+
+	/** Returns the description of this snomask
+	 * @param letter The letter of this snomask. If uppercase, the description of the remote
+	 * variant of this snomask will be returned (i.e.: "REMOTE" will be prepended to the description).
+	 * @return The description of this snomask
+	 */
+	std::string GetDescription(char letter) const;
+
+	friend class SnomaskManager;
 };
 
 /** Snomask manager handles routing of SNOMASK (usermode +s) messages to opers.
  * Modules and the core can enable and disable snomask characters. If they do,
  * then sending snomasks using these characters becomes possible.
  */
-class CoreExport SnomaskManager
+class CoreExport SnomaskManager : public fakederef<SnomaskManager>
 {
- public:
 	Snomask	masks[26];
 
+ public:
 	/** Create a new SnomaskManager
 	 */
 	SnomaskManager();
@@ -95,7 +116,6 @@ class CoreExport SnomaskManager
 	 */
 	void WriteGlobalSno(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:
 	 * Calls to WriteToSnoMask write to a cache, if the call is the same as it was
@@ -105,6 +125,12 @@ class CoreExport SnomaskManager
 	 * is not particularly significant, in order to keep notices going out.
 	 */
 	void FlushSnotices();
-};
 
-#endif
+	/** Check whether a given character is an enabled (initialized) snomask.
+	 * Valid snomask chars are lower- or uppercase letters and have a description.
+	 * Snomasks are initialized with EnableSnomask().
+	 * @param ch The character to check
+	 * @return True if the given char is allowed to be set via +s.
+	 */
+	bool IsSnomaskUsable(char ch) const;
+};

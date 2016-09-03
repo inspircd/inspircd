@@ -23,16 +23,19 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
-
 /** Handle user mode +W
  */
 class SeeWhois : public SimpleUserModeHandler
 {
  public:
-	SeeWhois(Module* Creator, bool IsOpersOnly) : SimpleUserModeHandler(Creator, "showwhois", 'W')
+	SeeWhois(Module* Creator)
+		: SimpleUserModeHandler(Creator, "showwhois", 'W')
 	{
-		oper = IsOpersOnly;
+	}
+
+	void SetOperOnly(bool operonly)
+	{
+		oper = operonly;
 	}
 };
 
@@ -46,9 +49,9 @@ class WhoisNoticeCmd : public Command
 
 	void HandleFast(User* dest, User* src)
 	{
-		dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you",
-			dest->nick.c_str(), src->nick.c_str(), src->ident.c_str(),
-			dest->HasPrivPermission("users/auspex") ? src->host.c_str() : src->dhost.c_str());
+		dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
+			(dest->HasPrivPermission("users/auspex") ? src->host : src->dhost) +
+			") did a /whois on you");
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
@@ -66,49 +69,42 @@ class WhoisNoticeCmd : public Command
 	}
 };
 
-class ModuleShowwhois : public Module
+class ModuleShowwhois : public Module, public Whois::EventListener
 {
 	bool ShowWhoisFromOpers;
-	SeeWhois* sw;
+	SeeWhois sw;
 	WhoisNoticeCmd cmd;
 
  public:
 
 	ModuleShowwhois()
-		: sw(NULL), cmd(this)
+		: Whois::EventListener(this)
+		, sw(this)
+		, cmd(this)
 	{
 	}
 
-	void init()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
 
-		bool OpersOnly = tag->getBool("opersonly", true);
+		sw.SetOperOnly(tag->getBool("opersonly", true));
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
-
-		sw = new SeeWhois(this, OpersOnly);
-		ServerInstance->Modules->AddService(*sw);
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleShowwhois()
-	{
-		delete sw;
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest)
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (!dest->IsModeSet('W') || source == dest)
+		User* const source = whois.GetSource();
+		User* const dest = whois.GetTarget();
+		if (!dest->IsModeSet(sw) || whois.IsSelfWhois())
 			return;
 
-		if (!ShowWhoisFromOpers && IS_OPER(source))
+		if (!ShowWhoisFromOpers && source->IsOper())
 			return;
 
 		if (IS_LOCAL(dest))
@@ -118,14 +114,11 @@ class ModuleShowwhois : public Module
 		else
 		{
 			std::vector<std::string> params;
-			params.push_back(dest->server);
-			params.push_back("WHOISNOTICE");
 			params.push_back(dest->uuid);
 			params.push_back(source->uuid);
-			ServerInstance->PI->SendEncapsulatedData(params);
+			ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(), cmd.name, params);
 		}
 	}
-
 };
 
 MODULE_INIT(ModuleShowwhois)

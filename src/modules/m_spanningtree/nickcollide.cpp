@@ -19,23 +19,25 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
-
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
+#include "commandbuilder.h"
+#include "commands.h"
 
 /*
  * Yes, this function looks a little ugly.
  * However, in some circumstances we may not have a User, so we need to do things this way.
- * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
- * Sends SAVEs as appropriate and forces nickchanges too.
+ * Returns true if remote or both lost, false otherwise.
+ * Sends SAVEs as appropriate and forces nick change of the user 'u' if our side loses or if both lose.
+ * Does not change the nick of the user that is trying to claim the nick of 'u', i.e. the "remote" user.
  */
-int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid)
+bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd)
 {
+	// At this point we're sure that a collision happened, increment the counter regardless of who wins
+	ServerInstance->stats.Collisions++;
+
 	/*
 	 * Under old protocol rules, we would have had to kill both clients.
 	 * Really, this sucks.
@@ -56,21 +58,14 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	bool bChangeLocal = true;
 	bool bChangeRemote = true;
 
-	/* for brevity, don't use the User - use defines to avoid any copy */
-	#define localts u->age
-	#define localident u->ident
-	#define localip u->GetIPString()
-
-	/* mmk. let's do this again. */
-	if (remotets == localts)
+	// If the timestamps are not equal only one of the users has to change nick,
+	// otherwise both have to change
+	const time_t localts = u->age;
+	if (remotets != localts)
 	{
-		/* equal. fuck them both! do nada, let the handler at the bottom figure this out. */
-	}
-	else
-	{
-		/* fuck. now it gets complex. */
-
 		/* first, let's see if ident@host matches. */
+		const std::string& localident = u->ident;
+		const std::string& localip = u->GetIPString();
 		bool SamePerson = (localident == remoteident)
 				&& (localip == remoteip);
 
@@ -81,19 +76,22 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		if((SamePerson && remotets < localts) ||
 		   (!SamePerson && remotets > localts))
 		{
-			/* remote needs to change */
+			// Only remote needs to change
 			bChangeLocal = false;
 		}
 		else
 		{
-			/* ours needs to change */
+			// Only ours needs to change
 			bChangeRemote = false;
 		}
 	}
 
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Nick collision on \"%s\" caused by %s: %s/%lu/%s@%s %d <-> %s/%lu/%s@%s %d", u->nick.c_str(), collidecmd,
+		u->uuid.c_str(), (unsigned long)localts, u->ident.c_str(), u->GetIPString().c_str(), bChangeLocal,
+		remoteuid.c_str(), (unsigned long)remotets, remoteident.c_str(), remoteip.c_str(), bChangeRemote);
+
 	/*
-	 * Cheat a little here. Instead of a dedicated command to change UID,
-	 * use SAVE and accept the losing client with its UID (as we know the SAVE will
+	 * Send SAVE and accept the losing client with its UID (as we know the SAVE will
 	 * not fail under any circumstances -- UIDs are netwide exclusive).
 	 *
 	 * This means that each side of a collide will generate one extra NICK back to where
@@ -107,38 +105,23 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	{
 		/*
 		 * Local-side nick needs to change. Just in case we are hub, and
-		 * this "local" nick is actually behind us, send an SAVE out.
+		 * this "local" nick is actually behind us, send a SAVE out.
 		 */
-		parameterlist params;
+		CmdBuilder params("SAVE");
 		params.push_back(u->uuid);
 		params.push_back(ConvToStr(u->age));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+		params.Broadcast();
 
-		u->ForceNickChange(u->uuid.c_str());
-
-		if (!bChangeRemote)
-			return 1;
+		u->ChangeNick(u->uuid, CommandSave::SavedTimestamp);
 	}
 	if (bChangeRemote)
 	{
-		User *remote = ServerInstance->FindUUID(remoteuid);
 		/*
-		 * remote side needs to change. If this happens, we will modify
-		 * the UID or halt the propagation of the nick change command,
-		 * so other servers don't need to see the SAVE
+		 * Remote side needs to change. If this happens, we modify the UID or NICK and
+		 * send back a SAVE to the source.
 		 */
-		WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
-
-		if (remote)
-		{
-			/* nick change collide. Force change their nick. */
-			remote->ForceNickChange(remoteuid.c_str());
-		}
-
-		if (!bChangeLocal)
-			return 2;
+		CmdBuilder("SAVE").push(remoteuid).push_int(remotets).Unicast(server->ServerUser);
 	}
 
-	return 3;
+	return bChangeRemote;
 }
-

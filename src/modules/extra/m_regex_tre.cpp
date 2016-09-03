@@ -19,27 +19,15 @@
 
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include <sys/types.h>
 #include <tre/regex.h>
 
-/* $ModDesc: Regex Provider Module for TRE Regular Expressions */
 /* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
 /* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
-/* $ModDep: m_regex.h */
-
-class TRERegexException : public ModuleException
-{
-public:
-	TRERegexException(const std::string& rx, const std::string& error)
-		: ModuleException("Error in regex " + rx + ": " + error)
-	{
-	}
-};
 
 class TRERegex : public Regex
 {
-private:
 	regex_t regbuf;
 
 public:
@@ -60,30 +48,26 @@ public:
 			error = errbuf;
 			delete[] errbuf;
 			regfree(&regbuf);
-			throw TRERegexException(rx, error);
+			throw RegexException(rx, error);
 		}
 	}
 
-	virtual ~TRERegex()
+	~TRERegex()
 	{
 		regfree(&regbuf);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)  CXX11_OVERRIDE
 	{
-		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
 };
 
-class TREFactory : public RegexFactory {
+class TREFactory : public RegexFactory
+{
  public:
 	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new TRERegex(expr);
 	}
@@ -92,18 +76,15 @@ class TREFactory : public RegexFactory {
 class ModuleRegexTRE : public Module
 {
 	TREFactory trf;
-public:
-	ModuleRegexTRE() : trf(this) {
-		ServerInstance->Modules->AddService(trf);
+
+ public:
+	ModuleRegexTRE() : trf(this)
+	{
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
-	}
-
-	~ModuleRegexTRE()
-	{
 	}
 };
 

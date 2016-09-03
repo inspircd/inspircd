@@ -18,8 +18,18 @@
  */
 
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
+
+/** Levels at which messages can be logged. */
+enum LogLevel
+{
+	LOG_RAWIO   = 5,
+	LOG_DEBUG   = 10,
+	LOG_VERBOSE = 20,
+	LOG_DEFAULT = 30,
+	LOG_SPARSE  = 40,
+	LOG_NONE    = 50
+};
 
 /** Simple wrapper providing periodic flushing to a disk-backed file.
  */
@@ -77,9 +87,11 @@ class CoreExport FileWriter
 class CoreExport LogStream : public classbase
 {
  protected:
-	int loglvl;
+	LogLevel loglvl;
  public:
-	LogStream(int loglevel) : loglvl(loglevel)
+	static const char LogHeader[];
+
+	LogStream(LogLevel loglevel) : loglvl(loglevel)
 	{
 	}
 
@@ -91,18 +103,18 @@ class CoreExport LogStream : public classbase
 	/** Changes the loglevel for this LogStream on-the-fly.
 	 * This is needed for -nofork. But other LogStreams could use it to change loglevels.
 	 */
-	void ChangeLevel(int lvl) { this->loglvl = lvl; }
+	void ChangeLevel(LogLevel lvl) { this->loglvl = lvl; }
 
 	/** Called when there is stuff to log for this particular logstream. The derived class may take no action with it, or do what it
 	 * wants with the output, basically. loglevel and type are primarily for informational purposes (the level and type of the event triggered)
 	 * and msg is, of course, the actual message to log.
 	 */
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg) = 0;
+	virtual void OnLog(LogLevel loglevel, const std::string &type, const std::string &msg) = 0;
 };
 
 typedef std::map<FileWriter*, int> FileLogMap;
 
-class CoreExport LogManager
+class CoreExport LogManager : public fakederef<LogManager>
 {
  private:
 	/** Lock variable, set to true when a log is in progress, which prevents further loggging from happening and creating a loop.
@@ -127,7 +139,6 @@ class CoreExport LogManager
 	FileLogMap FileLogs;
 
  public:
-
 	LogManager();
 	~LogManager();
 
@@ -199,17 +210,15 @@ class CoreExport LogManager
 
 	/** Logs an event, sending it to all LogStreams registered for the type.
 	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
-	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param loglevel Log message level (LOG_DEBUG, LOG_VERBOSE, LOG_DEFAULT, LOG_SPARSE, LOG_NONE)
 	 * @param msg The message to be logged (literal).
 	 */
-	void Log(const std::string &type, int loglevel, const std::string &msg);
+	void Log(const std::string &type, LogLevel loglevel, const std::string &msg);
 
 	/** Logs an event, sending it to all LogStreams registered for the type.
 	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
-	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param loglevel Log message level (LOG_DEBUG, LOG_VERBOSE, LOG_DEFAULT, LOG_SPARSE, LOG_NONE)
 	 * @param fmt The format of the message to be logged. See your C manual on printf() for details.
 	 */
-	void Log(const std::string &type, int loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
+	void Log(const std::string &type, LogLevel loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
 };
-
-#endif

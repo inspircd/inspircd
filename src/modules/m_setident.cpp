@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the SETIDENT command */
-
 /** Handle /SETIDENT
  */
 class CommandSetident : public Command
@@ -33,30 +31,28 @@ class CommandSetident : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o'; syntax = "<new-ident>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());
+			user->WriteNotice("*** SETIDENT: Ident is too long");
 			return CMD_FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[0].c_str()))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick.c_str());
+			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
 			return CMD_FAILURE;
 		}
 
-		user->ChangeIdent(parameters[0].c_str());
+		user->ChangeIdent(parameters[0]);
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
 		return CMD_SUCCESS;
 	}
 };
-
 
 class ModuleSetIdent : public Module
 {
@@ -67,21 +63,10 @@ class ModuleSetIdent : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSetIdent()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the SETIDENT command", VF_VENDOR);
 	}
-
 };
-
 
 MODULE_INIT(ModuleSetIdent)

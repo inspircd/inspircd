@@ -1,3 +1,5 @@
+%target BSD_MAKE BSDmakefile
+%target GNU_MAKE GNUmakefile
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
@@ -30,33 +32,38 @@
 #
 
 
-CC = @CC@
-SYSTEM = @SYSTEM@
-BUILDPATH = @BUILD_DIR@
+CXX = @CXX@
+COMPILER = @COMPILER_NAME@
+SYSTEM = @SYSTEM_NAME@
+BUILDPATH ?= $(PWD)/build
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -pipe -fPIC -DPIC
-LDLIBS = -pthread -lstdc++
-LDFLAGS = 
+CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
+LDLIBS = -lstdc++
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
+MANPATH = "$(DESTDIR)@MANUAL_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
 LOGPATH = "$(DESTDIR)@LOG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 INSTALL = install
 INSTUID = @UID@
-INSTMODE_DIR = 0755
-INSTMODE_BIN = 0755
-INSTMODE_LIB = 0644
+INSTMODE_DIR = 0750
+INSTMODE_BIN = 0750
+INSTMODE_LIB = 0640
 
-@IFEQ $(CC) icpc
-  CXXFLAGS += -Wshadow
-@ELSE
-  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
+@IFNEQ $(COMPILER) ICC
+  CORECXXFLAGS += -Woverloaded-virtual -Wshadow
+@IFNEQ $(SYSTEM) openbsd
+    CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute
+@ENDIF
 @ENDIF
 
+@IFNEQ $(SYSTEM) darwin
+  LDLIBS += -pthread
+@ENDIF
 
 @IFEQ $(SYSTEM) linux
   LDLIBS += -ldl -lrt
@@ -71,90 +78,72 @@ INSTMODE_LIB = 0644
   LDLIBS += -lsocket -lnsl -lrt -lresolv
   INSTALL = ginstall
 @ENDIF
-@IFEQ $(SYSTEM) sunos
-  LDLIBS += -lsocket -lnsl -lrt -lresolv
-	INSTALL = ginstall
-@ENDIF
 @IFEQ $(SYSTEM) darwin
-  CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
 @ENDIF
-@IFEQ $(SYSTEM) interix
-  CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
-@ENDIF
 
-@IFNDEF D
-  D=0
-@ENDIF
-
-GCC6=@GCC6@
-@IFEQ $(GCC6) true
-  CXXFLAGS += -fno-delete-null-pointer-checks
+@IFNDEF INSPIRCD_DEBUG
+  INSPIRCD_DEBUG=0
 @ENDIF
 
 DBGOK=0
-@IFEQ $(D) 0
-  CXXFLAGS += -O2
-@IFEQ $(CC) g++
-    CXXFLAGS += -g1
+@IFEQ $(INSPIRCD_DEBUG) 0
+  CORECXXFLAGS += -fno-rtti -O2
+@IFEQ $(COMPILER) GCC
+    CORECXXFLAGS += -g1
 @ENDIF
   HEADER = std-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 1
-  CXXFLAGS += -O0 -g3 -Werror
+@IFEQ $(INSPIRCD_DEBUG) 1
+  CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
   HEADER = debug-header
   DBGOK=1
 @ENDIF
-@IFEQ $(D) 2
-  CXXFLAGS += -O2 -g3
+@IFEQ $(INSPIRCD_DEBUG) 2
+  CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
   DBGOK=1
 @ENDIF
 FOOTER = finishmessage
 
-CXXFLAGS += -Iinclude
+@TARGET GNU_MAKE MAKEFLAGS += --no-print-directory
 
-@GNU_ONLY MAKEFLAGS += --no-print-directory
+@TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
+@TARGET BSD_MAKE SOURCEPATH != /bin/pwd
 
-@GNU_ONLY SOURCEPATH = $(shell /bin/pwd)
-@BSD_ONLY SOURCEPATH != /bin/pwd
-
-@IFDEF V
-  RUNCC = $(CC)
-  RUNLD = $(CC)
-  VERBOSE = -v
-@ELSE
-  @GNU_ONLY MAKEFLAGS += --silent
-  @BSD_ONLY MAKE += -s
-  RUNCC = perl "$(SOURCEPATH)/make/run-cc.pl" $(CC)
-  RUNLD = perl "$(SOURCEPATH)/make/run-cc.pl" $(CC)
-  VERBOSE =
+@IFNDEF INSPIRCD_VERBOSE
+  @TARGET GNU_MAKE MAKEFLAGS += --silent
+  @TARGET BSD_MAKE MAKE += -s
 @ENDIF
 
-@IFDEF PURE_STATIC
-  CXXFLAGS += -DPURE_STATIC
+@IFDEF INSPIRCD_STATIC
+  CORECXXFLAGS += -DINSPIRCD_STATIC
 @ENDIF
 
-@DO_EXPORT RUNCC RUNLD CXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC SPLIT_CC
+# Add the users CXXFLAGS to the base ones to allow them to override
+# things like -Wfatal-errors if they wish to.
+CORECXXFLAGS += $(CXXFLAGS)
+
+@DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS INSPIRCD_VERBOSE SOCKETENGINE CORELDFLAGS
+@DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
 
 # Default target
 TARGET = all
 
-@IFDEF M
+@IFDEF INSPIRCD_MODULE
     HEADER = mod-header
     FOOTER = mod-footer
-    @BSD_ONLY TARGET = modules/${M:S/.so$//}.so
-    @GNU_ONLY TARGET = modules/$(M:.so=).so
+    @TARGET BSD_MAKE TARGET = modules/${INSPIRCD_MODULE:S/.so$//}.so
+    @TARGET GNU_MAKE TARGET = modules/$(INSPIRCD_MODULE:.so=).so
 @ENDIF
 
-@IFDEF T
+@IFDEF INSPIRCD_TARGET
     HEADER =
     FOOTER = target
-    TARGET = $(T)
+    TARGET = $(INSPIRCD_TARGET)
 @ENDIF
 
 @IFEQ $(DBGOK) 0
@@ -168,7 +157,7 @@ target: $(HEADER)
 	cd "$(BUILDPATH)"; $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
-	@${MAKE} D=1 all
+	@${MAKE} INSPIRCD_DEBUG=1 all
 
 debug-header:
 	@echo "*************************************"
@@ -185,7 +174,7 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
-@IFDEF PURE_STATIC
+@IFDEF INSPIRCD_STATIC
 	@echo 'Cannot build single modules in pure-static build'
 	@exit 1
 @ENDIF
@@ -231,14 +220,25 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-@IFNDEF PURE_STATIC
+@IFNDEF INSPIRCD_STATIC
 	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 @ENDIF
-	-$(INSTALL) -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
+@IFEQ $(SYSTEM) darwin
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(BASE) 2>/dev/null
+@ENDIF
+@IFEQ $(SYSTEM) linux
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(BASE) 2>/dev/null
+@ENDIF
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
+	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example $(CONPATH)/examples/modules
 	@echo ""
@@ -255,11 +255,9 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
-@GNU_ONLY RCS_FILES = $(wildcard .git/index src/version.sh)
-@BSD_ONLY RCS_FILES = src/version.sh
-GNUmakefile BSDmakefile: make/template/main.mk configure $(RCS_FILES)
-	./configure -update
-@BSD_ONLY .MAKEFILEDEPS: BSDmakefile
+GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
+	./configure --update
+@TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
 
 clean:
 	@echo Cleaning...
@@ -272,21 +270,20 @@ clean:
 deinstall:
 	-rm -f $(BINPATH)/inspircd
 	-rm -rf $(CONPATH)/examples
-	-rm -f $(MODPATH)/cmd_*.so
+	-rm -f $(MANPATH)/inspircd.1
+	-rm -f $(MANPATH)/inspircd-genssl.1
 	-rm -f $(MODPATH)/m_*.so
+	-rm -f $(MODPATH)/core_*.so
 	-rm -f $(BASE)/.gdbargs
+	-rm -f $(BASE)/inspircd.service
 	-rm -f $(BASE)/org.inspircd.plist
 
-squeakyclean: distclean
-
 configureclean:
-	rm -f .config.cache
+	rm -f .gdbargs
 	rm -f BSDmakefile
 	rm -f GNUmakefile
-	rm -f include/inspircd_config.h
-	rm -f include/inspircd_version.h
-	rm -f inspircd
-	-rm -f org.inspircd.plist
+	rm -f include/config.h
+	rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
 	-rm -rf "$(SOURCEPATH)/run"
@@ -298,11 +295,11 @@ help:
 	@echo 'Use: ${MAKE} [flags] [targets]'
 	@echo ''
 	@echo 'Flags:'
-	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
-	@echo ' D=1       Enable debug build, for module development or crash tracing'
-	@echo ' D=2       Enable debug build with optimizations, for detailed backtraces'
-	@echo ' DESTDIR=  Specify a destination root directory (for tarball creation)'
-	@echo ' -j <N>    Run a parallel build using N jobs'
+	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
+	@echo ' INSPIRCD_DEBUG=1    Enable debug build, for module development or crash tracing'
+	@echo ' INSPIRCD_DEBUG=2    Enable debug build with optimizations, for detailed backtraces'
+	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
+	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''
 	@echo 'Targets:'
 	@echo ' all       Complete build of InspIRCd, without installing (default)'
@@ -310,10 +307,10 @@ help:
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
-	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
-	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
-	@echo '           Other targets are specified by their path in the build directory'
-	@echo '           Multiple targets may be separated by a space'
+	@echo ' INSPIRCD_MODULE=m_foo   Builds a single module (core_foo also works here)'
+	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "modules"'
+	@echo '                         Other targets are specified by their path in the build directory'
+	@echo '                         Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
 	@echo ' distclean Cleans all generated files (build, configure, run, etc)'
@@ -322,4 +319,4 @@ help:
 
 .NOTPARALLEL:
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean help

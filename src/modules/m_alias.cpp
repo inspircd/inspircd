@@ -22,15 +22,13 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides aliases of commands. */
-
 /** An alias definition
  */
 class Alias
 {
  public:
 	/** The text of the alias command */
-	irc::string AliasedCommand;
+	std::string AliasedCommand;
 
 	/** Text to replace with */
 	std::string ReplaceFormat;
@@ -59,25 +57,27 @@ class Alias
 
 class ModuleAlias : public Module
 {
- private:
-
-	char fprefix;
+	std::string fprefix;
 
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
-   */
-	std::multimap<irc::string, Alias> Aliases;
+	 */
+	typedef insp::flat_multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
+
+	AliasMap Aliases;
 
 	/* whether or not +B users are allowed to use fantasy commands */
 	bool AllowBots;
+	UserModeReference botmode;
 
-	virtual void ReadAliases()
+ public:
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
-		std::string fpre = fantasy->getString("prefix", "!");
-		fprefix = fpre.empty() ? '!' : fpre[0];
+		std::string fpre = fantasy->getString("prefix");
+		fprefix = fpre.empty() ? "!" : fpre;
 
 		Aliases.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
@@ -85,8 +85,8 @@ class ModuleAlias : public Module
 		{
 			ConfigTag* tag = i->second;
 			Alias a;
-			std::string aliastext = tag->getString("text");
-			a.AliasedCommand = aliastext.c_str();
+			a.AliasedCommand = tag->getString("text");
+			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			tag->readString("replace", a.ReplaceFormat, true);
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
@@ -99,20 +99,12 @@ class ModuleAlias : public Module
 		}
 	}
 
- public:
-
-	void init()
-	{
-		ReadAliases();
-		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash, I_OnUserMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleAlias()
+	ModuleAlias()
+		: botmode(this, "bot")
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides aliases of commands.", VF_VENDOR);
 	}
@@ -142,10 +134,8 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
-		std::multimap<irc::string, Alias>::iterator i, upperbound;
-
 		/* If theyre not registered yet, we dont want
 		 * to know.
 		 */
@@ -153,19 +143,16 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		i = Aliases.find(command.c_str());
-		if (i == Aliases.end())
+		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(command);
+		if (iters.first == iters.second)
 			return MOD_RES_PASSTHRU;
-		/* Avoid iterating on to different aliases if no patterns match. */
-		upperbound = Aliases.upper_bound(command.c_str());
 
-		irc::string c = command.c_str();
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = original_line.substr(command.length());
+		std::string compare(original_line, command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		while (i != upperbound)
+		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
 		{
 			if (i->second.UserCommand)
 			{
@@ -174,29 +161,27 @@ class ModuleAlias : public Module
 					return MOD_RES_DENY;
 				}
 			}
-
-			i++;
 		}
 
 		// If we made it here, no aliases actually matched.
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+	void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_CHANNEL)
+		if ((target_type != TYPE_CHANNEL) || (msgtype != MSG_PRIVMSG))
 		{
 			return;
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		if (!user || !IS_LOCAL(user))
+		if (!IS_LOCAL(user))
 		{
 			return;
 		}
 
 		/* Stop here if the user is +B and allowbot is set to no. */
-		if (!AllowBots && user->IsModeSet('B'))
+		if (!AllowBots && user->IsModeSet(botmode))
 		{
 			return;
 		}
@@ -207,54 +192,44 @@ class ModuleAlias : public Module
 		// text is like "!moo cows bite me", we want "!moo" first
 		irc::spacesepstream ss(text);
 		ss.GetToken(scommand);
-		irc::string fcommand = scommand.c_str();
 
-		if (fcommand.empty())
+		if (scommand.size() <= fprefix.size())
 		{
 			return; // wtfbbq
 		}
 
 		// we don't want to touch non-fantasy stuff
-		if (*fcommand.c_str() != fprefix)
+		if (scommand.compare(0, fprefix.size(), fprefix) != 0)
 		{
 			return;
 		}
 
 		// nor do we give a shit about the prefix
-		fcommand.erase(fcommand.begin());
+		scommand.erase(0, fprefix.size());
 
-		std::multimap<irc::string, Alias>::iterator i = Aliases.find(fcommand);
-
-		if (i == Aliases.end())
+		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(scommand);
+		if (iters.first == iters.second)
 			return;
 
-		/* Avoid iterating on to other aliases if no patterns match */
-		std::multimap<irc::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
-
-
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = text.substr(fcommand.length() + 1);
+		std::string compare(text, scommand.length() + fprefix.size());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		while (i != upperbound)
+		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
 		{
 			if (i->second.ChannelCommand)
 			{
-				// We use substr(1) here to remove the fantasy prefix
-				if (DoAlias(user, c, &(i->second), compare, text.substr(1)))
+				// We use substr here to remove the fantasy prefix
+				if (DoAlias(user, c, &(i->second), compare, text.substr(fprefix.size())))
 					return;
 			}
-
-			i++;
 		}
 	}
 
 
 	int DoAlias(User *user, Channel *c, Alias *a, const std::string& compare, const std::string& safe)
 	{
-		User *u = NULL;
-
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
@@ -270,24 +245,22 @@ class ModuleAlias : public Module
 			}
 		}
 
-		if ((a->OperOnly) && (!IS_OPER(user)))
+		if ((a->OperOnly) && (!user->IsOper()))
 			return 0;
 
 		if (!a->RequiredNick.empty())
 		{
-			u = ServerInstance->FindNick(a->RequiredNick);
+			User* u = ServerInstance->FindNick(a->RequiredNick);
 			if (!u)
 			{
-				user->WriteNumeric(401, ""+user->nick+" "+a->RequiredNick+" :is currently unavailable. Please try again later.");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is currently unavailable. Please try again later.");
 				return 1;
 			}
-		}
-		if ((u != NULL) && (!a->RequiredNick.empty()) && (a->ULineOnly))
-		{
-			if (!ServerInstance->ULine(u->server))
+
+			if ((a->ULineOnly) && (!u->server->IsULine()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(401, ""+user->nick+" "+a->RequiredNick+" :is an imposter! Please inform an IRC operator as soon as possible.");
+				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is an imposter! Please inform an IRC operator as soon as possible.");
 				return 1;
 			}
 		}
@@ -316,7 +289,7 @@ class ModuleAlias : public Module
 	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
 	{
 		std::string result;
-		result.reserve(MAXBUF);
+		result.reserve(newline.length());
 		for (unsigned int i = 0; i < newline.length(); i++)
 		{
 			char c = newline[i];
@@ -329,28 +302,28 @@ class ModuleAlias : public Module
 					result.append(GetVar(var, original_line));
 					i += len - 1;
 				}
-				else if (newline.substr(i, 5) == "$nick")
+				else if (!newline.compare(i, 5, "$nick", 5))
 				{
 					result.append(user->nick);
 					i += 4;
 				}
-				else if (newline.substr(i, 5) == "$host")
+				else if (!newline.compare(i, 5, "$host", 5))
 				{
 					result.append(user->host);
 					i += 4;
 				}
-				else if (newline.substr(i, 5) == "$chan")
+				else if (!newline.compare(i, 5, "$chan", 5))
 				{
 					if (chan)
 						result.append(chan->name);
 					i += 4;
 				}
-				else if (newline.substr(i, 6) == "$ident")
+				else if (!newline.compare(i, 6, "$ident", 6))
 				{
 					result.append(user->ident);
 					i += 5;
 				}
-				else if (newline.substr(i, 6) == "$vhost")
+				else if (!newline.compare(i, 6, "$vhost", 6))
 				{
 					result.append(user->dhost);
 					i += 5;
@@ -367,23 +340,18 @@ class ModuleAlias : public Module
 		std::string command, token;
 
 		ss.GetToken(command);
-		while (ss.GetToken(token) && (pars.size() <= MAXPARAMETERS))
+		while (ss.GetToken(token))
 		{
 			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(command, pars, user);
+		ServerInstance->Parser.CallHandler(command, pars, user);
 	}
 
-	virtual void OnRehash(User* user)
-	{
-		ReadAliases();
- 	}
-
-	virtual void Prioritize()
+	void Prioritize()
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
 		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserMessage, PRIORITY_AFTER, &linkmod);
+		ServerInstance->Modules->SetPriority(this, I_OnUserMessage, PRIORITY_AFTER, linkmod);
 	}
 };
 

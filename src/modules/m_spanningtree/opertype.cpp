@@ -26,15 +26,17 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *u)
+CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>& params)
 {
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
-	std::string opertype = params[0];
-	if (!IS_OPER(u))
+	const std::string& opertype = params[0];
+	if (!u->IsOper())
 		ServerInstance->Users->all_opers.push_back(u);
-	u->modes[UM_OPERATOR] = 1;
-	OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + opertype);
-	if (iter != ServerInstance->Config->oper_blocks.end())
+
+	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	u->SetMode(opermh, true);
+
+	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
+	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else
 	{
@@ -48,12 +50,17 @@ CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *
 		 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
 		 * then do nothing. -- w00t
 		 */
-		TreeServer* remoteserver = Utils->FindServer(u->server);
-		if (remoteserver->bursting || ServerInstance->SilentULine(u->server))
+		TreeServer* remoteserver = TreeServer::Get(u);
+		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine())
 			return CMD_SUCCESS;
 	}
 
-	ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server.c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), irc::Spacify(opertype.c_str()));
+	ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), opertype.c_str());
 	return CMD_SUCCESS;
 }
 
+CommandOpertype::Builder::Builder(User* user)
+	: CmdBuilder(user, "OPERTYPE")
+{
+	push_last(user->oper->name);
+}

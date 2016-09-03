@@ -20,11 +20,7 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
-#include "hashcomp.h"
-#include "hash_map.h"
 
 /******************************************************
  *
@@ -35,7 +31,7 @@
  * scene spend a lot of time debating (arguing) about
  * the best way to write hash functions to hash irc
  * nicknames, channels etc.
- * We are lucky as C++ developers as hash_map does
+ * We are lucky as C++ developers as unordered_map does
  * a lot of this for us. It does intellegent memory
  * requests, bucketing, search functions, insertion
  * and deletion etc. All we have to do is write some
@@ -51,88 +47,140 @@
  *
  ******************************************************/
 
-/** A mapping of uppercase to lowercase, including scandinavian
- * 'oddities' as specified by RFC1459, e.g. { -> [, and | -> \
- */
-unsigned const char rfc_case_insensitive_map[256] = {
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,					/* 0-19 */
-	20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,				/* 20-39 */
-	40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,				/* 40-59 */
-	60, 61, 62, 63, 64, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,		/* 60-79 */
-	112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 94, 95, 96, 97, 98, 99,		/* 80-99 */
-	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,	/* 100-119 */
-	120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,	/* 120-139 */
-	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,	/* 140-159 */
-	160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179,	/* 160-179 */
-	180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,	/* 180-199 */
-	200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219,	/* 200-219 */
-	220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,	/* 220-239 */
-	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255				/* 240-255 */
-};
 
-/** Case insensitive map, ASCII rules.
- * That is;
- * [ != {, but A == a.
+/**
+ * A case insensitive mapping of characters from upper case to lower case for
+ * the ASCII character set.
  */
 unsigned const char ascii_case_insensitive_map[256] = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,                                   /* 0-19 */
-        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,                         /* 20-39 */
-        40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,                         /* 40-59 */
-        60, 61, 62, 63, 64, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,             /* 60-79 */
-        112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 91, 92, 93, 94, 95, 96, 97, 98, 99,              /* 80-99 */
-        100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,     /* 100-119 */
-        120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,     /* 120-139 */
-        140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,     /* 140-159 */
-        160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179,     /* 160-179 */
-        180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,     /* 180-199 */
-        200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219,     /* 200-219 */
-        220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,     /* 220-239 */
-        240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255                          /* 240-255 */
+	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   // 0-9
+	10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  // 10-19
+	20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  // 20-29
+	30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  // 30-39
+	40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  // 40-49
+	50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  // 50-59
+	60,  61,  62,  63,  64,  97,  98,  99,  100, 101, // 60-69
+	102, 103, 104, 105, 106, 107, 108, 109, 110, 111, // 70-79
+	112, 113, 114, 115, 116, 117, 118, 119, 120, 121, // 80-89
+	122, 91,  92,  93,  94,  95,  96,  97,  98,  99,  // 90-99
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, // 100-109
+	110, 111, 112, 113, 114, 115, 116, 117, 118, 119, // 110-119
+	120, 121, 122, 123, 124, 125, 126, 127, 128, 129, // 120-129
+	130, 131, 132, 133, 134, 135, 136, 137, 138, 139, // 130-139
+	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, // 140-149
+	150, 151, 152, 153, 154, 155, 156, 157, 158, 159, // 150-159
+	160, 161, 162, 163, 164, 165, 166, 167, 168, 169, // 160-169
+	170, 171, 172, 173, 174, 175, 176, 177, 178, 179, // 170-179
+	180, 181, 182, 183, 184, 185, 186, 187, 188, 189, // 180-189
+	190, 191, 192, 193, 194, 195, 196, 197, 198, 199, // 190-199
+	200, 201, 202, 203, 204, 205, 206, 207, 208, 209, // 200-209
+	210, 211, 212, 213, 214, 215, 216, 217, 218, 219, // 210-219
+	220, 221, 222, 223, 224, 225, 226, 227, 228, 229, // 220-229
+	230, 231, 232, 233, 234, 235, 236, 237, 238, 239, // 230-249
+	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, // 240-249
+	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-/** Case sensitive map.
- * Can technically also be used for ASCII case sensitive comparisons, as [ != {, etc.
+
+
+/**
+ * A case insensitive mapping of characters from upper case to lower case for
+ * the character set of RFC 1459. This is identical to ASCII with the small
+ * exception of {}| being considered to be the lower case equivalents of the
+ * characters []\ respectively.
+ */
+unsigned const char rfc_case_insensitive_map[256] = {
+	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   // 0-9
+	10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  // 10-19
+	20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  // 20-29
+	30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  // 30-39
+	40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  // 40-49
+	50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  // 50-59
+	60,  61,  62,  63,  64,  97,  98,  99,  100, 101, // 60-69
+	102, 103, 104, 105, 106, 107, 108, 109, 110, 111, // 70-79
+	112, 113, 114, 115, 116, 117, 118, 119, 120, 121, // 80-89
+	122, 123, 124, 125, 94,  95,  96,  97,  98,  99,  // 90-99
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, // 100-109
+	110, 111, 112, 113, 114, 115, 116, 117, 118, 119, // 110-119
+	120, 121, 122, 123, 124, 125, 126, 127, 128, 129, // 120-129
+	130, 131, 132, 133, 134, 135, 136, 137, 138, 139, // 130-139
+	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, // 140-149
+	150, 151, 152, 153, 154, 155, 156, 157, 158, 159, // 150-159
+	160, 161, 162, 163, 164, 165, 166, 167, 168, 169, // 160-169
+	170, 171, 172, 173, 174, 175, 176, 177, 178, 179, // 170-179
+	180, 181, 182, 183, 184, 185, 186, 187, 188, 189, // 180-189
+	190, 191, 192, 193, 194, 195, 196, 197, 198, 199, // 190-199
+	200, 201, 202, 203, 204, 205, 206, 207, 208, 209, // 200-209
+	210, 211, 212, 213, 214, 215, 216, 217, 218, 219, // 210-219
+	220, 221, 222, 223, 224, 225, 226, 227, 228, 229, // 220-229
+	230, 231, 232, 233, 234, 235, 236, 237, 238, 239, // 230-239
+	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, // 240-249
+	250, 251, 252, 253, 254, 255,                     // 250-255
+};
+
+/**
+ * A case sensitive mapping of characters from upper case to lower case for the
+ * character set of RFC 1459. This is identical to ASCII.
  */
 unsigned const char rfc_case_sensitive_map[256] = {
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-        61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-        81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
-        101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
-        121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
-        141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160,
-        161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180,
-        181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200,
-        201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
-        221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240,
-        241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255
+	0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   // 0-9
+	10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  // 10-19
+	20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  // 20-29
+	30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  // 30-39
+	40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  // 40-49
+	50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  // 50-59
+	60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  // 60-69
+	70,  71,  72,  73,  74,  75,  76,  77,  78,  79,  // 70-79
+	80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  // 80-89
+	90,  91,  92,  93,  94,  95,  96,  97,  98,  99,  // 90-99
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, // 100-109
+	110, 111, 112, 113, 114, 115, 116, 117, 118, 119, // 110-119
+	120, 121, 122, 123, 124, 125, 126, 127, 128, 129, // 120-129
+	130, 131, 132, 133, 134, 135, 136, 137, 138, 139, // 130-139
+	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, // 140-149
+	150, 151, 152, 153, 154, 155, 156, 157, 158, 159, // 150-159
+	160, 161, 162, 163, 164, 165, 166, 167, 168, 169, // 160-169
+	170, 171, 172, 173, 174, 175, 176, 177, 178, 179, // 170-179
+	180, 181, 182, 183, 184, 185, 186, 187, 188, 189, // 180-189
+	190, 191, 192, 193, 194, 195, 196, 197, 198, 199, // 190-199
+	200, 201, 202, 203, 204, 205, 206, 207, 208, 209, // 200-209
+	210, 211, 212, 213, 214, 215, 216, 217, 218, 219, // 210-219
+	220, 221, 222, 223, 224, 225, 226, 227, 228, 229, // 220-229
+	230, 231, 232, 233, 234, 235, 236, 237, 238, 239, // 230-239
+	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, // 240-249
+	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-/* convert a string to lowercase. Note following special circumstances
- * taken from RFC 1459. Many "official" server branches still hold to this
- * rule so i will too;
- *
- *  Because of IRC's scandanavian origin, the characters {}| are
- *  considered to be the lower case equivalents of the characters []\,
- *  respectively. This is a critical issue when determining the
- *  equivalence of two nicknames.
- */
-void nspace::strlower(char *n)
+bool irc::equals(const std::string& s1, const std::string& s2)
 {
-	if (n)
-	{
-		for (char* t = n; *t; t++)
-			*t = national_case_insensitive_map[(unsigned char)*t];
-	}
+	const unsigned char* n1 = (const unsigned char*)s1.c_str();
+	const unsigned char* n2 = (const unsigned char*)s2.c_str();
+	for (; *n1 && *n2; n1++, n2++)
+		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
+			return false;
+	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
 }
 
-#ifdef HASHMAP_DEPRECATED
-	size_t CoreExport nspace::insensitive::operator()(const std::string &s) const
-#else
-	size_t nspace::hash<std::string>::operator()(const std::string &s) const
-#endif
+bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
+{
+	const unsigned char* charmap = national_case_insensitive_map;
+	std::string::size_type asize = a.size();
+	std::string::size_type bsize = b.size();
+	std::string::size_type maxsize = std::min(asize, bsize);
 
+	for (std::string::size_type i = 0; i < maxsize; i++)
+	{
+		unsigned char A = charmap[(unsigned char)a[i]];
+		unsigned char B = charmap[(unsigned char)b[i]];
+		if (A > B)
+			return false;
+		else if (A < B)
+			return true;
+	}
+	return (asize < bsize);
+}
+
+size_t irc::insensitive::operator()(const std::string &s) const
 {
 	/* XXX: NO DATA COPIES! :)
 	 * The hash function here is practically
@@ -144,25 +192,6 @@ void nspace::strlower(char *n)
 	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
-}
-
-
-size_t CoreExport irc::hash::operator()(const irc::string &s) const
-{
-	size_t t = 0;
-	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
-	return t;
-}
-
-bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
-{
-	const unsigned char* n1 = (const unsigned char*)s1.c_str();
-	const unsigned char* n2 = (const unsigned char*)s2.c_str();
-	for (; *n1 && *n2; n1++, n2++)
-		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
-			return false;
-	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
 }
 
 /******************************************************
@@ -217,68 +246,30 @@ const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 	return (n >= 0) ? s1 : NULL;
 }
 
-irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)
-{
-	/* Record starting position and current position */
-	last_starting_position = tokens.begin();
-	n = tokens.begin();
-}
-
-irc::tokenstream::~tokenstream()
+irc::tokenstream::tokenstream(const std::string &source) : spacesepstream(source)
 {
 }
 
 bool irc::tokenstream::GetToken(std::string &token)
 {
-	std::string::iterator lsp = last_starting_position;
+	bool first = !pos;
 
-	while (n != tokens.end())
+	if (!spacesepstream::GetToken(token))
+		return false;
+
+	/* This is the last parameter */
+	if (token[0] == ':' && !first)
 	{
-		/** Skip multi space, converting "  " into " "
-		 */
-		while ((n+1 != tokens.end()) && (*n == ' ') && (*(n+1) == ' '))
-			n++;
-
-		if ((last_pushed) && (*n == ':'))
+		token.erase(token.begin());
+		if (!StreamEnd())
 		{
-			/* If we find a token thats not the first and starts with :,
-			 * this is the last token on the line
-			 */
-			std::string::iterator curr = ++n;
-			n = tokens.end();
-			token = std::string(curr, tokens.end());
-			return true;
+			token += ' ';
+			token += GetRemaining();
 		}
-
-		last_pushed = false;
-
-		if ((*n == ' ') || (n+1 == tokens.end()))
-		{
-			/* If we find a space, or end of string, this is the end of a token.
-			 */
-			last_starting_position = n+1;
-			last_pushed = *n == ' ';
-
-			std::string strip(lsp, n+1 == tokens.end() ? n+1  : n++);
-			while ((strip.length()) && (strip.find_last_of(' ') == strip.length() - 1))
-				strip.erase(strip.end() - 1);
-
-			token = strip;
-			return !token.empty();
-		}
-
-		n++;
+		pos = tokens.length() + 1;
 	}
-	token.clear();
-	return false;
-}
 
-bool irc::tokenstream::GetToken(irc::string &token)
-{
-	std::string stdstring;
-	bool returnval = GetToken(stdstring);
-	token = assign(stdstring);
-	return returnval;
+	return true;
 }
 
 bool irc::tokenstream::GetToken(int &token)
@@ -297,182 +288,59 @@ bool irc::tokenstream::GetToken(long &token)
 	return returnval;
 }
 
-irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)
+irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
+	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
 {
-	last_starting_position = tokens.begin();
-	n = tokens.begin();
 }
 
 bool irc::sepstream::GetToken(std::string &token)
 {
-	std::string::iterator lsp = last_starting_position;
-
-	while (n != tokens.end())
+	if (this->StreamEnd())
 	{
-		if ((*n == sep) || (n+1 == tokens.end()))
-		{
-			last_starting_position = n+1;
-			token = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
-
-			while ((token.length()) && (token.find_last_of(sep) == token.length() - 1))
-				token.erase(token.end() - 1);
-
-			if (token.empty())
-				n++;
-
-			return n == tokens.end() ? false : true;
-		}
-
-		n++;
+		token.clear();
+		return false;
 	}
 
-	token.clear();
-	return false;
+	if (!this->allow_empty)
+	{
+		this->pos = this->tokens.find_first_not_of(this->sep, this->pos);
+		if (this->pos == std::string::npos)
+		{
+			this->pos = this->tokens.length() + 1;
+			token.clear();
+			return false;
+		}
+	}
+
+	size_t p = this->tokens.find(this->sep, this->pos);
+	if (p == std::string::npos)
+		p = this->tokens.length();
+
+	token.assign(tokens, this->pos, p - this->pos);
+	this->pos = p + 1;
+
+	return true;
 }
 
 const std::string irc::sepstream::GetRemaining()
 {
-	return std::string(n, tokens.end());
+	return !this->StreamEnd() ? this->tokens.substr(this->pos) : "";
 }
 
 bool irc::sepstream::StreamEnd()
 {
-	return ((n + 1) == tokens.end());
+	return this->pos > this->tokens.length();
 }
 
-irc::sepstream::~sepstream()
+std::string irc::stringjoiner(const std::vector<std::string>& sequence, char separator)
 {
-}
-
-std::string irc::hex(const unsigned char *raw, size_t rawsz)
-{
-	if (!rawsz)
-		return "";
-
-	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
-
-	const char *hex = "0123456789abcdef";
-	static char hexbuf[MAXBUF];
-
-	size_t i, j;
-	for (i = 0, j = 0; j < rawsz; ++j)
-	{
-		hexbuf[i++] = hex[raw[j] / 16];
-		hexbuf[i++] = hex[raw[j] % 16];
-	}
-	hexbuf[i] = 0;
-
-	return hexbuf;
-}
-
-CoreExport const char* irc::Spacify(const char* n)
-{
-	static char x[MAXBUF];
-	strlcpy(x,n,MAXBUF);
-	for (char* y = x; *y; y++)
-		if (*y == '_')
-			*y = ' ';
-	return x;
-}
-
-
-irc::modestacker::modestacker(bool add) : adding(add)
-{
-	sequence.clear();
-	sequence.push_back("");
-}
-
-void irc::modestacker::Push(char modeletter, const std::string &parameter)
-{
-	*(sequence.begin()) += modeletter;
-	sequence.push_back(parameter);
-}
-
-void irc::modestacker::Push(char modeletter)
-{
-	this->Push(modeletter,"");
-}
-
-void irc::modestacker::PushPlus()
-{
-	this->Push('+',"");
-}
-
-void irc::modestacker::PushMinus()
-{
-	this->Push('-',"");
-}
-
-int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_line_size)
-{
+	std::string joined;
 	if (sequence.empty())
-	{
-		return 0;
-	}
+		return joined; // nothing to do here
 
-	unsigned int n = 0;
-	int size = 1; /* Account for initial +/- char */
-	int nextsize = 0;
-	int start = result.size();
-	std::string modeline = adding ? "+" : "-";
-	result.push_back(modeline);
-
-	if (sequence.size() > 1)
-		nextsize = sequence[1].length() + 2;
-
-	while (!sequence[0].empty() && (sequence.size() > 1) && (n < ServerInstance->Config->Limits.MaxModes) && ((size + nextsize) < max_line_size))
-	{
-		modeline += *(sequence[0].begin());
-		if (!sequence[1].empty())
-		{
-			result.push_back(sequence[1]);
-			size += nextsize; /* Account for mode character and whitespace */
-		}
-		sequence[0].erase(sequence[0].begin());
-		sequence.erase(sequence.begin() + 1);
-
-		if (sequence.size() > 1)
-			nextsize = sequence[1].length() + 2;
-
-		n++;
-	}
-	result[start] = modeline;
-
-	return n;
-}
-
-irc::stringjoiner::stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end)
-{
-	if (end < begin)
-		return; // nothing to do here
-
-	for (int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
-	joined.append(sequence[end]);
-}
-
-irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end)
-{
-	if (end < begin)
-		return; // nothing to do here
-
-	for (int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
-	joined.append(sequence[end]);
-}
-
-irc::stringjoiner::stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end)
-{
-	if (end < begin)
-		return; // nothing to do here
-
-	for (int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
-	joined.append(sequence[end]);
-}
-
-std::string& irc::stringjoiner::GetJoined()
-{
+	for (std::vector<std::string>::const_iterator i = sequence.begin(); i != sequence.end(); ++i)
+		joined.append(*i).push_back(separator);
+	joined.erase(joined.end()-1);
 	return joined;
 }
 
@@ -528,10 +396,9 @@ long irc::portparser::GetToken()
 	std::string::size_type dash = x.rfind('-');
 	if (dash != std::string::npos)
 	{
-		std::string sbegin = x.substr(0, dash);
-		std::string send = x.substr(dash+1, x.length());
+		std::string sbegin(x, 0, dash);
 		range_begin = atoi(sbegin.c_str());
-		range_end = atoi(send.c_str());
+		range_end = atoi(x.c_str()+dash+1);
 
 		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
 		{
@@ -549,25 +416,3 @@ long irc::portparser::GetToken()
 		return atoi(x.c_str());
 	}
 }
-
-/*const std::basic_string& SearchAndReplace(std::string& text, const std::string& pattern, const std::string& replace)
-{
-	std::string replacement;
-	if ((!pattern.empty()) && (!text.empty()))
-	{
-		for (std::string::size_type n = 0; n != text.length(); ++n)
-		{
-			if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
-			{
-				replacement.append(replace);
-				n = n + pattern.length() - 1;
-			}
-			else
-			{
-				replacement += text[n];
-			}
-		}
-	}
-	text = replacement;
-	return text;
-}*/

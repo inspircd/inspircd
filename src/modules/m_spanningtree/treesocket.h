@@ -20,12 +20,9 @@
  */
 
 
-#ifndef M_SPANNINGTREE_TREESOCKET_H
-#define M_SPANNINGTREE_TREESOCKET_H
+#pragma once
 
-#include "socket.h"
 #include "inspircd.h"
-#include "xline.h"
 
 #include "utils.h"
 
@@ -76,7 +73,7 @@ struct CapabData
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase;			/* Have sent CAPAB already */
-	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
+	bool auth_fingerprint;			/* Did we auth using SSL certificate fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
 
 	// Data saved from incoming SERVER command, for later use when our credentials have been accepted by the other party
@@ -92,39 +89,92 @@ struct CapabData
  */
 class TreeSocket : public BufferedSocket
 {
-	SpanningTreeUtilities* Utils;		/* Utility class */
+	struct BurstState;
+
 	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */
 	CapabData* capab;			/* Link setup data (held until burst is sent) */
 	TreeServer* MyRoot;			/* The server we are talking to */
 	int proto_version;			/* Remote protocol version */
-	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
 
-	static const unsigned int FMODE_MAX_LENGTH = 350;
+	/** True if we've sent our burst.
+	 * This only changes the behavior of message translation for 1202 protocol servers and it can be
+	 * removed once 1202 support is dropped.
+	 */
+	bool burstsent;
 
 	/** Checks if the given servername and sid are both free
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
 
+	/** Send all ListModeBase modes set on the channel
+	 */
+	void SendListModes(Channel* chan);
+
+	/** Send all known information about a channel */
+	void SyncChannel(Channel* chan, BurstState& bs);
+
+	/** Send all users and their oper state, away state and metadata */
+	void SendUsers(BurstState& bs);
+
+	/** Send all additional info about the given server to this server */
+	void SendServerInfo(TreeServer* from);
+
+	/** Find the User source of a command given a prefix and a command string.
+	 * This connection must be fully up when calling this function.
+	 * @param prefix Prefix string to find the source User object for. Can be a sid, a uuid or a server name.
+	 * @param command The command whose source to find. This is required because certain commands (like mode
+	 * changes and kills) must be processed even if their claimed source doesn't exist. If the given command is
+	 * such a command and the source does not exist, the function returns a valid FakeUser that can be used to
+	 * to process the command with.
+	 * @return The command source to use when processing the command or NULL if the source wasn't found.
+	 * Note that the direction of the returned source is not verified.
+	 */
+	User* FindSource(const std::string& prefix, const std::string& command);
+
+	/** Finish the authentication phase of this connection.
+	 * Change the state of the connection to CONNECTED, create a TreeServer object for the server on the
+	 * other end of the connection using the details provided in the parameters, and finally send a burst.
+	 * @param remotename Name of the remote server
+	 * @param remotesid SID of the remote server
+	 * @param remotedesc Description of the remote server
+	 * @param hidden True if the remote server is hidden according to the configuration
+	 */
+	void FinishAuth(const std::string& remotename, const std::string& remotesid, const std::string& remotedesc, bool hidden);
+
+	/** Authenticate the remote server.
+	 * Validate the parameters and find the link block that matches the remote server. In case of an error,
+	 * an appropriate snotice is generated, an ERROR message is sent and the connection is closed.
+	 * Failing to find a matching link block counts as an error.
+	 * @param params Parameters they sent in the SERVER command
+	 * @return Link block for the remote server, or NULL if an error occurred
+	 */
+	Link* AuthRemote(const parameterlist& params);
+
+	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
+	 * @param line Line to write without a new line character at the end
+	 */
+	void WriteLineNoCompat(const std::string& line);
+
  public:
-	time_t age;
+	const time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr);
+	TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Get link state
 	 */
-	ServerState GetLinkState();
+	ServerState GetLinkState() const { return LinkState; }
 
 	/** Get challenge set in our CAPAB for challenge/response
 	 */
@@ -166,11 +216,11 @@ class TreeSocket : public BufferedSocket
 	 * to server docs on the inspircd.org site, the other side
 	 * will then send back its own server string.
 	 */
-	virtual void OnConnected();
+	void OnConnected();
 
 	/** Handle socket error event
 	 */
-	virtual void OnError(BufferedSocketError e);
+	void OnError(BufferedSocketError e) CXX11_OVERRIDE;
 
 	/** Sends an error to the remote server, and displays it locally to show
 	 * that it was sent.
@@ -180,13 +230,8 @@ class TreeSocket : public BufferedSocket
 	/** Recursively send the server tree with distances as hops.
 	 * This is used during network burst to inform the other server
 	 * (and any of ITS servers too) of what servers we know about.
-	 * If at any point any of these servers already exist on the other
-	 * end, our connection may be terminated. The hopcounts given
-	 * by this function are relative, this doesn't matter so long as
-	 * they are all >1, as all the remote servers re-calculate them
-	 * to be relative too, with themselves as hop 0.
 	 */
-	void SendServers(TreeServer* Current, TreeServer* s, int hops);
+	void SendServers(TreeServer* Current, TreeServer* s);
 
 	/** Returns module list as a string, filtered by filter
 	 * @param filter a module version bitmask, such as VF_COMMON or VF_OPTCOMMON
@@ -197,31 +242,11 @@ class TreeSocket : public BufferedSocket
 	 */
 	void SendCapabilities(int phase);
 
-	/** Add modules to VF_COMMON list for backwards compatability */
-	void CompatAddModules(std::vector<std::string>& modlist);
-
 	/* Isolate and return the elements that are different between two lists */
 	void ListDifference(const std::string &one, const std::string &two, char sep,
 		std::string& mleft, std::string& mright);
 
 	bool Capab(const parameterlist &params);
-
-	/** This function forces this server to quit, removing this server
-	 * and any users on it (and servers and users below that, etc etc).
-	 * It's very slow and pretty clunky, but luckily unless your network
-	 * is having a REAL bad hair day, this function shouldnt be called
-	 * too many times a month ;-)
-	 */
-	void SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users);
-
-	/** This is a wrapper function for SquitServer above, which
-	 * does some validation first and passes on the SQUIT to all
-	 * other remaining servers.
-	 */
-	void Squit(TreeServer* Current, const std::string &reason);
-
-	/* Used on nick collision ... XXX ugly function HACK */
-	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
@@ -232,11 +257,8 @@ class TreeSocket : public BufferedSocket
 	/** Send G, Q, Z and E lines */
 	void SendXLines();
 
-	/** Send channel modes and topics */
-	void SendChannelModes();
-
-	/** send all users and their oper state/modes */
-	void SendUsers();
+	/** Send all known information about a channel */
+	void SyncChannel(Channel* chan);
 
 	/** This function is called when we want to send a netburst to a local
 	 * server. There is a set order we must do this, because for example
@@ -252,56 +274,10 @@ class TreeSocket : public BufferedSocket
 
 	/** Send one or more complete lines down the socket
 	 */
-	void WriteLine(std::string line);
+	void WriteLine(const std::string& line);
 
 	/** Handle ERROR command */
 	void Error(parameterlist &params);
-
-	/** Remote AWAY */
-	bool Away(const std::string &prefix, parameterlist &params);
-
-	/** SAVE to resolve nick collisions without killing */
-	bool ForceNick(const std::string &prefix, parameterlist &params);
-
-	/** ENCAP command
-	 */
-	void Encap(User* who, parameterlist &params);
-
-	/** OPERQUIT command
-	 */
-	bool OperQuit(const std::string &prefix, parameterlist &params);
-
-	/** PONG
-	 */
-	bool LocalPong(const std::string &prefix, parameterlist &params);
-
-	/** VERSION
-	 */
-	bool ServerVersion(const std::string &prefix, parameterlist &params);
-
-	/** ADDLINE
-	 */
-	bool AddLine(const std::string &prefix, parameterlist &params);
-
-	/** DELLINE
-	 */
-	bool DelLine(const std::string &prefix, parameterlist &params);
-
-	/** WHOIS
-	 */
-	bool Whois(const std::string &prefix, parameterlist &params);
-
-	/** PUSH
-	 */
-	bool Push(const std::string &prefix, parameterlist &params);
-
-	/** PING
-	 */
-	bool LocalPing(const std::string &prefix, parameterlist &params);
-
-	/** <- (remote) <- SERVER
-	 */
-	bool RemoteServer(const std::string &prefix, parameterlist &params);
 
 	/** (local) -> SERVER
 	 */
@@ -323,15 +299,12 @@ class TreeSocket : public BufferedSocket
 
 	/** Handle socket timeout from connect()
 	 */
-	virtual void OnTimeout();
+	void OnTimeout();
 	/** Handle server quit on close
 	 */
-	virtual void Close();
+	void Close();
 
-	/** Returns true if this server was introduced to the rest of the network
+	/** Fixes messages coming from old servers so the new command handlers understand them
 	 */
-	bool Introduced();
+	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params);
 };
-
-#endif
-

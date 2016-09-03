@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for SANICK command */
-
 /** Handle /SANICK
  */
 class CommandSanick : public Command
@@ -32,7 +30,7 @@ class CommandSanick : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <new-nick>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -42,21 +40,21 @@ class CommandSanick : public Command
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (target && ServerInstance->ULine(target->server))
+			if (target && target->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;
 			}
 
 			if ((!target) || (target->registered != REG_ALL))
 			{
-				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
 				return CMD_FAILURE;
 			}
 
-			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			if (!ServerInstance->IsNick(parameters[1]))
 			{
-				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
+				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
 				return CMD_FAILURE;
 			}
 		}
@@ -66,7 +64,7 @@ class CommandSanick : public Command
 		{
 			std::string oldnick = user->nick;
 			std::string newnick = target->nick;
-			if (target->ChangeNick(parameters[1], true))
+			if (target->ChangeNick(parameters[1]))
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 			}
@@ -81,10 +79,7 @@ class CommandSanick : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -98,20 +93,10 @@ class ModuleSanick : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSanick()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for SANICK command", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSanick)

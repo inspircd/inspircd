@@ -20,10 +20,8 @@
 
 #include "inspircd.h"
 #include <pcre.h>
-#include "m_regex.h"
+#include "modules/regex.h"
 
-/* $ModDesc: Regex Provider Module for PCRE */
-/* $ModDep: m_regex.h */
 /* $CompileFlags: exec("pcre-config --cflags") */
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
 
@@ -31,21 +29,11 @@
 # pragma comment(lib, "libpcre.lib")
 #endif
 
-class PCREException : public ModuleException
-{
-public:
-	PCREException(const std::string& rx, const std::string& error, int erroffset)
-		: ModuleException("Error in regex " + rx + " at offset " + ConvToStr(erroffset) + ": " + error)
-	{
-	}
-};
-
 class PCRERegex : public Regex
 {
-private:
 	pcre* regex;
 
-public:
+ public:
 	PCRERegex(const std::string& rx) : Regex(rx)
 	{
 		const char* error;
@@ -53,24 +41,19 @@ public:
 		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
 		if (!regex)
 		{
-			ServerInstance->Logs->Log("REGEX", DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
-			throw PCREException(rx, error, erroffset);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
+			throw RegexException(rx, error, erroffset);
 		}
 	}
 
-	virtual ~PCRERegex()
+	~PCRERegex()
 	{
 		pcre_free(regex);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-		if (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0);
 	}
 };
 
@@ -78,7 +61,7 @@ class PCREFactory : public RegexFactory
 {
  public:
 	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new PCRERegex(expr);
 	}
@@ -86,13 +69,13 @@ class PCREFactory : public RegexFactory
 
 class ModuleRegexPCRE : public Module
 {
-public:
+ public:
 	PCREFactory ref;
-	ModuleRegexPCRE() : ref(this) {
-		ServerInstance->Modules->AddService(ref);
+	ModuleRegexPCRE() : ref(this)
+	{
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for PCRE", VF_VENDOR);
 	}

@@ -56,17 +56,8 @@
  * SUCH DAMAGE.
  */
 
-/* $ModDesc: Allows for SHA-256 encrypted oper passwords */
-
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
-#include "hash.h"
-
-#ifndef HAS_STDINT
-typedef unsigned int uint32_t;
-#endif
+#include "modules/hash.h"
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
@@ -256,19 +247,14 @@ class HashSHA256 : public HashProvider
 	}
 
  public:
-	std::string sum(const std::string& data)
+	std::string GenerateRaw(const std::string& data)
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
 		SHA256(data.data(), bytes, data.length());
 		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
-	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
+	HashSHA256(Module* parent) : HashProvider(parent, "sha256", 32, 64) {}
 };
 
 class ModuleSHA256 : public Module
@@ -277,10 +263,9 @@ class ModuleSHA256 : public Module
  public:
 	ModuleSHA256() : sha(this)
 	{
-		ServerInstance->Modules->AddService(sha);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements SHA-256 hashing", VF_VENDOR);
 	}

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for oper-only chans via the +O channel mode */
-
 class OperChans : public SimpleChannelModeHandler
 {
  public:
@@ -42,44 +40,32 @@ class ModuleOperChans : public Module
 	{
 	}
 
-	void init()
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(oc);
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
-	{
-		if (chan && chan->IsModeSet('O') && !IS_OPER(user))
+		if (chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
-				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, InspIRCd::Format("Only IRC operators may join %s (+O is set)", chan->name.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'O') && (mask[1] == ':'))
 		{
-			if (IS_OPER(user) && InspIRCd::Match(user->oper->name, mask.substr(2)))
+			if (user->IsOper() && InspIRCd::Match(user->oper->name, mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('O');
+		tokens["EXTBAN"].push_back('O');
 	}
 
-	~ModuleOperChans()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR);
 	}

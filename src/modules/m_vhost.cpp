@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
-
 /** Handle /VHOST
  */
 class CommandVhost : public Command
@@ -45,25 +43,24 @@ class CommandVhost : public Command
 			std::string pass = tag->getString("pass");
 			std::string hash = tag->getString("hash");
 
-			if (parameters[0] == username && !ServerInstance->PassCompare(user, pass, parameters[1], hash))
+			if (parameters[0] == username && ServerInstance->PassCompare(user, pass, parameters[1], hash))
 			{
 				if (!mask.empty())
 				{
-					user->WriteServ("NOTICE "+user->nick+" :Setting your VHost: " + mask);
-					user->ChangeDisplayedHost(mask.c_str());
+					user->WriteNotice("Setting your VHost: " + mask);
+					user->ChangeDisplayedHost(mask);
 					return CMD_SUCCESS;
 				}
 			}
 		}
 
-		user->WriteServ("NOTICE "+user->nick+" :Invalid username or password.");
+		user->WriteNotice("Invalid username or password.");
 		return CMD_FAILURE;
 	}
 };
 
 class ModuleVHost : public Module
 {
- private:
 	CommandVhost cmd;
 
  public:
@@ -71,22 +68,10 @@ class ModuleVHost : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleVHost()
-	{
-	}
-
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleVHost)
-

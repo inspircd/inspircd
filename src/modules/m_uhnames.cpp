@@ -20,40 +20,28 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
-
-/* $ModDesc: Provides the UHNAMES facility. */
+#include "modules/cap.h"
 
 class ModuleUHNames : public Module
 {
- public:
-	GenericCap cap;
+	Cap::Capability cap;
 
+ public:
 	ModuleUHNames() : cap(this, "userhost-in-names")
 	{
 	}
 
-	void init()
-	{
-		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleUHNames()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the UHNAMES facility.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		output.append(" UHNAMES");
+		tokens["UHNAMES"];
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* We don't actually create a proper command handler class for PROTOCTL,
 		 * because other modules might want to have PROTOCTL hooks too.
@@ -64,27 +52,19 @@ class ModuleUHNames : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"UHNAMES")))
 			{
-				cap.ext.set(user, 1);
+				cap.set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (!cap.ext.get(issuer))
-			return;
+		if (cap.get(issuer))
+			nick = memb->user->GetFullHost();
 
-		if (nick.empty())
-			return;
-
-		nick = memb->user->GetFullHost();
-	}
-
-	void OnEvent(Event& ev)
-	{
-		cap.HandleEvent(ev);
+		return MOD_RES_PASSTHRU;
 	}
 };
 

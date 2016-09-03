@@ -21,11 +21,8 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Connection throttle */
-
 class ModuleConnFlood : public Module
 {
-private:
 	int seconds, timeout, boot_wait;
 	unsigned int conns;
 	unsigned int maxconns;
@@ -39,19 +36,12 @@ public:
 	{
 	}
 
-	void init()
-	{
-		InitConf();
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Connection throttle", VF_VENDOR);
 	}
 
-	void InitConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
@@ -67,7 +57,7 @@ public:
 		first = ServerInstance->Time();
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (user->exempt)
 			return MOD_RES_PASSTHRU;
@@ -114,12 +104,6 @@ public:
 		}
 		return MOD_RES_PASSTHRU;
 	}
-
-	virtual void OnRehash(User* user)
-	{
-		InitConf();
-	}
-
 };
 
 MODULE_INIT(ModuleConnFlood)

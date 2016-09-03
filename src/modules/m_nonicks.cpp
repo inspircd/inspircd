@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +N & extban +b N: which prevents nick changes on channel */
-
 class NoNicks : public SimpleChannelModeHandler
 {
  public:
@@ -38,54 +36,34 @@ class ModuleNoNickChange : public Module
 	{
 	}
 
-	void init()
-	{
-		OnRehash(NULL);
-		ServerInstance->Modules->AddService(nn);
-		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleNoNickChange()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
-
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('N');
+		tokens["EXTBAN"].push_back('N');
 	}
 
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
-		// Allow forced nick changes.
-		if (ServerInstance->NICKForced.get(user))
-			return MOD_RES_PASSTHRU;
-
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel* curr = *i;
+			Channel* curr = (*i)->chan;
 
 			ModResult res = ServerInstance->OnCheckExemption(user,curr,"nonick");
 
 			if (res == MOD_RES_ALLOW)
 				continue;
 
-			if (override && IS_OPER(user))
+			if (override && user->IsOper())
 				continue;
 
-			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))
+			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(nn)))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)",
-					user->nick.c_str(), curr->name.c_str());
+				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (+N is set)",
+					curr->name.c_str()));
 				return MOD_RES_DENY;
 			}
 		}
@@ -93,7 +71,7 @@ class ModuleNoNickChange : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		override = ServerInstance->Config->ConfValue("nonicks")->getBool("operoverride", false);
 	}

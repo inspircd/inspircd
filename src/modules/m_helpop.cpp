@@ -21,11 +21,10 @@
  */
 
 
-/* $ModDesc: Provides the /HELPOP command for useful information */
-
 #include "inspircd.h"
 
-static std::map<irc::string, std::string> helpop_map;
+typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
+static HelpopMap helpop_map;
 
 /** Handles user mode +h
  */
@@ -42,41 +41,40 @@ class Helpop : public SimpleUserModeHandler
  */
 class CommandHelpop : public Command
 {
+	const std::string startkey;
  public:
-	CommandHelpop(Module* Creator) : Command(Creator, "HELPOP", 0)
+	CommandHelpop(Module* Creator)
+		: Command(Creator, "HELPOP", 0)
+		, startkey("start")
 	{
 		syntax = "<any-text>";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		irc::string parameter("start");
-		if (parameters.size() > 0)
-			parameter = parameters[0].c_str();
+		const std::string& parameter = (!parameters.empty() ? parameters[0] : startkey);
 
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteServ("290 %s :HELPOP topic index", user->nick.c_str());
-			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-			{
-				user->WriteServ("292 %s :  %s", user->nick.c_str(), iter->first.c_str());
-			}
-			user->WriteServ("292 %s :*** End of HELPOP topic index", user->nick.c_str());
+			user->WriteNumeric(290, "HELPOP topic index");
+			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
+				user->WriteNumeric(292, InspIRCd::Format("  %s", iter->first.c_str()));
+			user->WriteNumeric(292, "*** End of HELPOP topic index");
 		}
 		else
 		{
-			user->WriteServ("290 %s :*** HELPOP for %s", user->nick.c_str(), parameter.c_str());
-			user->WriteServ("292 %s : -", user->nick.c_str());
+			user->WriteNumeric(290, InspIRCd::Format("*** HELPOP for %s", parameter.c_str()));
+			user->WriteNumeric(292, " -");
 
-			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
+			HelpopMap::const_iterator iter = helpop_map.find(parameter);
 
 			if (iter == helpop_map.end())
 			{
 				iter = helpop_map.find("nohelp");
 			}
 
-			std::string value = iter->second;
+			const std::string& value = iter->second;
 			irc::sepstream stream(value, '\n');
 			std::string token = "*";
 
@@ -84,48 +82,40 @@ class CommandHelpop : public Command
 			{
 				// Writing a blank line will not work with some clients
 				if (token.empty())
-					user->WriteServ("292 %s : ", user->nick.c_str());
+					user->WriteNumeric(292, ' ');
 				else
-					user->WriteServ("292 %s :%s", user->nick.c_str(), token.c_str());
+					user->WriteNumeric(292, token);
 			}
 
-			user->WriteServ("292 %s : -", user->nick.c_str());
-			user->WriteServ("292 %s :*** End of HELPOP", user->nick.c_str());
+			user->WriteNumeric(292, " -");
+			user->WriteNumeric(292, "*** End of HELPOP");
 		}
 		return CMD_SUCCESS;
 	}
 };
 
-class ModuleHelpop : public Module
+class ModuleHelpop : public Module, public Whois::EventListener
 {
-	private:
 		CommandHelpop cmd;
 		Helpop ho;
 
 	public:
 		ModuleHelpop()
-			: cmd(this), ho(this)
+			: Whois::EventListener(this)
+			, cmd(this)
+			, ho(this)
 		{
 		}
 
-		void init()
+		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 		{
-			ReadConfig();
-			ServerInstance->Modules->AddService(ho);
-			ServerInstance->Modules->AddService(cmd);
-			Implementation eventlist[] = { I_OnRehash, I_OnWhois };
-			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		}
-
-		void ReadConfig()
-		{
-			std::map<irc::string, std::string> help;
+			HelpopMap help;
 
 			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;
-				irc::string key = assign(tag->getString("key"));
+				std::string key = tag->getString("key");
 				std::string value;
 				tag->readString("value", value, true); /* Linefeeds allowed */
 
@@ -151,20 +141,15 @@ class ModuleHelpop : public Module
 			helpop_map.swap(help);
 		}
 
-		void OnRehash(User* user)
+		void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 		{
-			ReadConfig();
-		}
-
-		void OnWhois(User* src, User* dst)
-		{
-			if (dst->IsModeSet('h'))
+			if (whois.GetTarget()->IsModeSet(ho))
 			{
-				ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is available for help.");
+				whois.SendLine(310, "is available for help.");
 			}
 		}
 
-		Version GetVersion()
+		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Provides the /HELPOP command for useful information", VF_VENDOR);
 		}

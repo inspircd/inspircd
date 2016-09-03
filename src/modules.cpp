@@ -24,26 +24,22 @@
  */
 
 
+#include <iostream>
 #include "inspircd.h"
-#include "xline.h"
-#include "socket.h"
-#include "socketengine.h"
-#include "command_parse.h"
-#include "dns.h"
 #include "exitcodes.h"
 
 #ifndef _WIN32
 	#include <dirent.h>
 #endif
 
-static std::vector<dynamic_reference_base*>* dynrefs = NULL;
+static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 
 void dynamic_reference_base::reset_all()
 {
 	if (!dynrefs)
 		return;
-	for(unsigned int i = 0; i < dynrefs->size(); i++)
-		(*dynrefs)[i]->ClearCache();
+	for (insp::intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
+		(*i)->resolve();
 }
 
 // Version is a simple class for holding a modules version number
@@ -54,24 +50,6 @@ Version::Version(const std::string &desc, int flags) : description(desc), Flags(
 Version::Version(const std::string &desc, int flags, const std::string& linkdata)
 : description(desc), Flags(flags), link_data(linkdata)
 {
-}
-
-Request::Request(Module* src, Module* dst, const char* idstr)
-: id(idstr), source(src), dest(dst)
-{
-}
-
-void Request::Send()
-{
-	if (dest)
-		dest->OnRequest(*this);
-}
-
-Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid) { }
-
-void Event::Send()
-{
-	FOREACH_MOD(I_OnEvent,OnEvent(*this));
 }
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
@@ -85,100 +63,101 @@ Module::~Module()
 {
 }
 
-ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserConnect(LocalUser*) { }
-void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
-void		Module::OnUserDisconnect(LocalUser*) { }
-void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
-void		Module::OnPostJoin(Membership*) { }
-void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
-void		Module::OnPreRehash(User*, const std::string&) { }
-void		Module::OnModuleRehash(User*, const std::string&) { }
-void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnOper(User*, const std::string&) { }
-void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
-void		Module::OnInfo(User*) { }
-void		Module::OnWhois(User*, User*) { }
-ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserPostNick(User*, const std::string&) { }
-ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::string&) { }
-ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(Module*) { }
-void		Module::OnUnloadModule(Module*) { }
-void		Module::OnBackgroundTimer(time_t) { }
-ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { }
-void		Module::OnUserInit(LocalUser*) { }
-ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
-ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckChannelBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event&) { }
-void		Module::OnRequest(Request&) { }
-ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
-void		Module::OnGlobalOper(User*) { }
-void		Module::OnPostConnect(User*) { }
-ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
-int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
-void		Module::OnStreamSocketClose(StreamSocket*) { }
-void		Module::OnStreamSocketConnect(StreamSocket*) { }
-int		Module::OnStreamSocketRead(StreamSocket*, std::string&) { return -1; }
-void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
-void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
-void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
-void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
-void		Module::OnGetServerDescription(const std::string&, std::string&) { }
-void		Module::OnSyncUser(User*, Module*, void*) { }
-void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::OnSyncNetwork(Module*, void*) { }
-void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
-void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
-void		Module::OnWallops(User*, const std::string&) { }
-void		Module::OnChangeHost(User*, const std::string&) { }
-void		Module::OnChangeName(User*, const std::string&) { }
-void		Module::OnChangeIdent(User*, const std::string&) { }
-void		Module::OnAddLine(User*, XLine*) { }
-void		Module::OnDelLine(User*, XLine*) { }
-void		Module::OnExpireLine(XLine*) { }
-void 		Module::OnCleanup(int, void*) { }
-ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
-void		Module::OnChannelDelete(Channel*) { }
-ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
-void		Module::OnGarbageCollect() { }
-ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
-void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
-void		Module::OnRunTestSuite() { }
-void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
-ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
-ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
-void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
-void		Module::OnSetUserIP(LocalUser*) { }
+void Module::DetachEvent(Implementation i)
+{
+	ServerInstance->Modules->Detach(i, this);
+}
 
-ModuleManager::ModuleManager() : ModCount(0)
+void		Module::ReadConfig(ConfigStatus& status) { }
+ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
+void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
+void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
+void		Module::OnUserDisconnect(LocalUser*) { DetachEvent(I_OnUserDisconnect); }
+void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { DetachEvent(I_OnUserJoin); }
+void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }
+void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnUserPart); }
+void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
+void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
+ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
+void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag, const std::string&) { DetachEvent(I_OnMode); }
+void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }
+void		Module::OnPostOper(User*, const std::string&, const std::string &) { DetachEvent(I_OnPostOper); }
+void		Module::OnInfo(User*) { DetachEvent(I_OnInfo); }
+ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
+void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
+ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
+void		Module::On005Numeric(std::map<std::string, std::string>&) { DetachEvent(I_On005Numeric); }
+ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
+void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
+void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
+void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
+ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
+void		Module::OnPostCommand(Command*, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { DetachEvent(I_OnPostCommand); }
+void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
+ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
+void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { DetachEvent(I_OnUserKick); }
+ModResult	Module::OnRawMode(User*, Channel*, ModeHandler*, const std::string&, bool) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckChannelBan(User*, Channel*) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnExtBanCheck(User*, Channel*, char) { DetachEvent(I_OnExtBanCheck); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnStats(Stats::Context&) { DetachEvent(I_OnStats); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserHost); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserGECOS); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
+void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
+void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t, unsigned int, CUList&) { DetachEvent(I_OnUserInvite); }
+void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
+void		Module::OnSyncUser(User*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncUser); }
+void		Module::OnSyncChannel(Channel*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncChannel); }
+void		Module::OnSyncNetwork(ProtocolInterface::Server&) { DetachEvent(I_OnSyncNetwork); }
+void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
+void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
+void		Module::OnChangeName(User*, const std::string&) { DetachEvent(I_OnChangeName); }
+void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
+void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
+void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
+void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
+void 		Module::OnCleanup(int, void*) { }
+ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
+void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
+ModResult	Module::OnSetAway(User*, const std::string &) { DetachEvent(I_OnSetAway); return MOD_RES_PASSTHRU; }
+void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
+void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
+ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
+void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { DetachEvent(I_OnText); }
+ModResult	Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
+ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Membership*, Numeric::Numeric&) { DetachEvent(I_OnSendWhoLine); return MOD_RES_PASSTHRU; }
+void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
+
+#ifdef INSPIRCD_ENABLE_TESTSUITE
+void		Module::OnRunTestSuite() { }
+#endif
+
+ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
+	: creator(Creator), name(Name), service(Type)
+{
+	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
+		ServerInstance->Modules->NewServices->push_back(this);
+}
+
+void ServiceProvider::DisableAutoRegister()
+{
+	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
+		stdalgo::erase(*ServerInstance->Modules->NewServices, this);
+}
+
+ModuleManager::ModuleManager()
 {
 }
 
@@ -188,7 +167,7 @@ ModuleManager::~ModuleManager()
 
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
-	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
+	if (stdalgo::isin(EventHandlers[i], mod))
 		return false;
 
 	EventHandlers[i].push_back(mod);
@@ -197,13 +176,7 @@ bool ModuleManager::Attach(Implementation i, Module* mod)
 
 bool ModuleManager::Detach(Implementation i, Module* mod)
 {
-	EventHandlerIter x = std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod);
-
-	if (x == EventHandlers[i].end())
-		return false;
-
-	EventHandlers[i].erase(x);
-	return true;
+	return stdalgo::erase(EventHandlers[i], mod);
 }
 
 void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
@@ -212,18 +185,22 @@ void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
 		Attach(i[n], mod);
 }
 
+void ModuleManager::AttachAll(Module* mod)
+{
+	for (size_t i = 0; i != I_END; ++i)
+		Attach((Implementation)i, mod);
+}
+
 void ModuleManager::DetachAll(Module* mod)
 {
-	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+	for (size_t n = 0; n != I_END; ++n)
 		Detach((Implementation)n, mod);
 }
 
-bool ModuleManager::SetPriority(Module* mod, Priority s)
+void ModuleManager::SetPriority(Module* mod, Priority s)
 {
-	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+	for (size_t n = 0; n != I_END; ++n)
 		SetPriority(mod, (Implementation)n, s);
-
-	return true;
 }
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
@@ -254,22 +231,25 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	return false;
 
 found_src:
+	// The modules registered for a hook are called in reverse order (to allow for easier removal
+	// of list entries while looping), meaning that the Priority given to us has the exact opposite effect
+	// on the list, e.g.: PRIORITY_BEFORE will actually put 'mod' after 'which', etc.
 	size_t swap_pos = my_pos;
 	switch (s)
 	{
-		case PRIORITY_FIRST:
+		case PRIORITY_LAST:
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
 			else
 				swap_pos = 0;
 			break;
-		case PRIORITY_LAST:
+		case PRIORITY_FIRST:
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
 			break;
-		case PRIORITY_AFTER:
+		case PRIORITY_BEFORE:
 		{
 			/* Find the latest possible position, only searching AFTER our position */
 			for (size_t x = EventHandlers[i].size() - 1; x > my_pos; --x)
@@ -284,7 +264,7 @@ found_src:
 			return true;
 		}
 		/* Place this module before a set of other modules */
-		case PRIORITY_BEFORE:
+		case PRIORITY_AFTER:
 		{
 			for (size_t x = 0; x < my_pos; ++x)
 			{
@@ -324,6 +304,29 @@ swap_now:
 	return true;
 }
 
+bool ModuleManager::PrioritizeHooks()
+{
+	/* We give every module a chance to re-prioritize when we introduce a new one,
+	 * not just the one thats loading, as the new module could affect the preference
+	 * of others
+	 */
+	for (int tries = 0; tries < 20; tries++)
+	{
+		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
+		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second->Prioritize();
+
+		if (prioritizationState == PRIO_STATE_LAST)
+			break;
+		if (tries == 19)
+		{
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected");
+			return false;
+		}
+	}
+	return true;
+}
+
 bool ModuleManager::CanUnload(Module* mod)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
@@ -331,13 +334,7 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-		return false;
-	}
-	if (mod->GetVersion().Flags & VF_STATIC)
-	{
-		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -345,24 +342,48 @@ bool ModuleManager::CanUnload(Module* mod)
 	return true;
 }
 
+void ModuleManager::UnregisterModes(Module* mod, ModeType modetype)
+{
+	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
+	for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); )
+	{
+		ModeHandler* const mh = i->second;
+		++i;
+		if (mh->creator == mod)
+			this->DelService(*mh);
+	}
+}
+
 void ModuleManager::DoSafeUnload(Module* mod)
 {
+	// First, notify all modules that a module is about to be unloaded, so in case
+	// they pass execution to the soon to be unloaded module, it will happen now,
+	// i.e. before we unregister the services of the module being unloaded
+	FOREACH_MOD(OnUnloadModule, (mod));
+
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
+
+	// Unregister modes before extensions because modes may require their extension to show the mode being unset
+	UnregisterModes(mod, MODETYPE_USER);
+	UnregisterModes(mod, MODETYPE_CHANNEL);
 
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); )
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator c = chans.begin(); c != chans.end(); )
 	{
 		Channel* chan = c->second;
 		++c;
 		mod->OnCleanup(TYPE_CHANNEL, chan);
 		chan->doUnhookExtensions(items);
-		const UserMembList* users = chan->GetUsers();
-		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+		const Channel::MemberMap& users = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator mi = users.begin(); mi != users.end(); ++mi)
 			mi->second->doUnhookExtensions(items);
 	}
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); )
+
+	const user_hash& users = ServerInstance->Users->GetUsers();
+	for (user_hash::const_iterator u = users.begin(); u != users.end(); )
 	{
 		User* user = u->second;
 		// The module may quit the user (e.g. SSL mod unloading) and that will remove it from the container
@@ -370,16 +391,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER, user);
 		user->doUnhookExtensions(items);
 	}
-	for(char m='A'; m <= 'z'; m++)
-	{
-		ModeHandler* mh;
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
-		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
-		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
-	}
+
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
 		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
@@ -389,19 +401,13 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	dynamic_reference_base::reset_all();
 
-	/* Tidy up any dangling resolvers */
-	ServerInstance->Res->CleanResolvers(mod);
-
-	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
-
 	DetachAll(mod);
 
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
-	this->ModCount--;
-	ServerInstance->BuildISupport();
+	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
+	ServerInstance->ISupport.Build();
 }
 
 void ModuleManager::UnloadAll()
@@ -427,40 +433,105 @@ void ModuleManager::UnloadAll()
 	}
 }
 
+namespace
+{
+	struct UnloadAction : public HandlerBase0<void>
+	{
+		Module* const mod;
+		UnloadAction(Module* m) : mod(m) {}
+		void Call()
+		{
+			DLLManager* dll = mod->ModuleDLLManager;
+			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->GlobalCulls.Apply();
+			// In pure static mode this is always NULL
+			delete dll;
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
+	};
+}
+
+bool ModuleManager::Unload(Module* mod)
+{
+	if (!CanUnload(mod))
+		return false;
+	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
+	return true;
+}
+
+void ModuleManager::LoadAll()
+{
+	std::map<std::string, ServiceList> servicemap;
+	LoadCoreModules(servicemap);
+
+	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
+	{
+		ConfigTag* tag = i->second;
+		std::string name = tag->getString("name");
+		this->NewServices = &servicemap[ExpandModName(name)];
+		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
+
+		if (!this->Load(name, true))
+		{
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	ConfigStatus confstatus;
+
+	for (ModuleMap::const_iterator i = Modules.begin(); i != Modules.end(); ++i)
+	{
+		Module* mod = i->second;
+		try
+		{
+			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
+			AttachAll(mod);
+			AddServices(servicemap[i->first]);
+			mod->init();
+			mod->ReadConfig(confstatus);
+		}
+		catch (CoreException& modexcept)
+		{
+			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	this->NewServices = NULL;
+
+	if (!PrioritizeHooks())
+		ServerInstance->Exit(EXIT_STATUS_MODULE);
+}
+
 std::string& ModuleManager::LastError()
 {
 	return LastModuleError;
 }
 
-CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)
+void ModuleManager::AddServices(const ServiceList& list)
 {
-	return this->Parser->CallHandler(commandname, parameters, user);
-}
-
-bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, User* user)
-{
-	return this->Parser->IsValidCommand(commandname, pcnt, user);
+	for (ServiceList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		ServiceProvider& s = **i;
+		AddService(s);
+	}
 }
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
-		case SERVICE_COMMAND:
-			if (!ServerInstance->Parser->AddCommand(static_cast<Command*>(&item)))
-				throw ModuleException("Command "+std::string(item.name)+" already exists.");
-			return;
-		case SERVICE_MODE:
-			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
-				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
-			return;
-		case SERVICE_METADATA:
-			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
-				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
-			return;
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
+			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
+				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
+
 			DataProviders.insert(std::make_pair(item.name, &item));
 			std::string::size_type slash = item.name.find('/');
 			if (slash != std::string::npos)
@@ -468,10 +539,11 @@ void ModuleManager::AddService(ServiceProvider& item)
 				DataProviders.insert(std::make_pair(item.name.substr(0, slash), &item));
 				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
 			}
+			dynamic_reference_base::reset_all();
 			return;
 		}
 		default:
-			throw ModuleException("Cannot add unknown service type");
+			item.RegisterService();
 	}
 }
 
@@ -482,17 +554,11 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes->DelMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
-			return;
+			// Fall through
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
-			{
-				std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
-				if (curr->second == &item)
-					DataProviders.erase(curr);
-			}
-			dynamic_reference_base::reset_all();
+			DelReferent(&item);
 			return;
 		}
 		default:
@@ -518,85 +584,66 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 	}
 }
 
+std::string ModuleManager::ExpandModName(const std::string& modname)
+{
+	// Transform "callerid" -> "m_callerid.so" unless it already has a ".so" extension,
+	// so coremods in the "core_*.so" form aren't changed
+	std::string ret = modname;
+	if ((modname.length() < 3) || (modname.compare(modname.size() - 3, 3, ".so")))
+		ret.insert(0, "m_").append(".so");
+	return ret;
+}
+
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name), value(NULL), creator(Creator)
+	: name(Name), hook(NULL), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
-		dynrefs = new std::vector<dynamic_reference_base*>;
-	dynrefs->push_back(this);
+		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
+	dynrefs->push_front(this);
+
+	// Resolve unless there is no ModuleManager (part of class InspIRCd)
+	if (ServerInstance)
+		resolve();
 }
 
 dynamic_reference_base::~dynamic_reference_base()
 {
-	for(unsigned int i = 0; i < dynrefs->size(); i++)
+	dynrefs->erase(this);
+	if (dynrefs->empty())
 	{
-		if (dynrefs->at(i) == this)
-		{
-			unsigned int last = dynrefs->size() - 1;
-			if (i != last)
-				dynrefs->at(i) = dynrefs->at(last);
-			dynrefs->erase(dynrefs->begin() + last);
-			if (dynrefs->empty())
-			{
-				delete dynrefs;
-				dynrefs = NULL;
-			}
-			return;
-		}
+		delete dynrefs;
+		dynrefs = NULL;
 	}
 }
 
 void dynamic_reference_base::SetProvider(const std::string& newname)
 {
 	name = newname;
-	ClearCache();
+	resolve();
 }
 
-void dynamic_reference_base::lookup()
+void dynamic_reference_base::resolve()
 {
-	if (!*this)
-		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
-}
-
-dynamic_reference_base::operator bool()
-{
-	if (!value)
+	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
+	// to ensure a dynref with the same name as another one resolves to the same object
+	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
+	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
 	{
-		std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
-		if (i != ServerInstance->Modules->DataProviders.end())
-			value = static_cast<DataProvider*>(i->second);
+		ServiceProvider* newvalue = i->second;
+		if (value != newvalue)
+		{
+			value = newvalue;
+			if (hook)
+				hook->OnCapture();
+		}
 	}
-	return (value != NULL);
-}
-
-void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
-{
-	this->Modes->Process(parameters, user);
-}
-
-
-void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
-{
-	Modes->Process(parameters, user);
-	if (!Modes->GetLastParse().empty())
-		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
-}
-
-bool InspIRCd::AddResolver(Resolver* r, bool cached)
-{
-	if (!cached)
-		return this->Res->AddResolverClass(r);
 	else
-	{
-		r->TriggerCachedResult();
-		delete r;
-		return true;
-	}
+		value = NULL;
 }
 
 Module* ModuleManager::Find(const std::string &name)
 {
-	std::map<std::string, Module*>::iterator modfind = Modules.find(name);
+	std::map<std::string, Module*>::const_iterator modfind = Modules.find(ExpandModName(name));
 
 	if (modfind == Modules.end())
 		return NULL;
@@ -604,178 +651,21 @@ Module* ModuleManager::Find(const std::string &name)
 		return modfind->second;
 }
 
-const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
+void ModuleManager::AddReferent(const std::string& name, ServiceProvider* service)
 {
-	std::vector<std::string> retval;
-	for (std::map<std::string, Module*>::iterator x = Modules.begin(); x != Modules.end(); ++x)
-		if (!filter || (x->second->GetVersion().Flags & filter))
-			retval.push_back(x->first);
-	return retval;
+	DataProviders.insert(std::make_pair(name, service));
+	dynamic_reference_base::reset_all();
 }
 
-ConfigReader::ConfigReader()
+void ModuleManager::DelReferent(ServiceProvider* service)
 {
-	this->error = 0;
-	ServerInstance->Logs->Log("MODULE", DEBUG, "ConfigReader is deprecated in 2.0; "
-		"use ServerInstance->Config->ConfValue(\"key\") or ->ConfTags(\"key\") instead");
-}
-
-
-ConfigReader::~ConfigReader()
-{
-}
-
-static ConfigTag* SlowGetTag(const std::string &tag, int index)
-{
-	ConfigTagList tags = ServerInstance->Config->ConfTags(tag);
-	while (tags.first != tags.second)
+	for (std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
-		if (!index)
-			return tags.first->second;
-		tags.first++;
-		index--;
+		ServiceProvider* curr = i->second;
+		if (curr == service)
+			DataProviders.erase(i++);
+		else
+			++i;
 	}
-	return NULL;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
-{
-	std::string result = default_value;
-	if (!SlowGetTag(tag, index)->readString(name, result, allow_linefeeds))
-	{
-		this->error = CONF_VALUE_NOT_FOUND;
-	}
-	return result;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
-{
-	return ReadValue(tag, name, "", index, allow_linefeeds);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
-{
-	bool def = (default_value == "yes");
-	return SlowGetTag(tag, index)->getBool(name, def);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
-{
-	return ReadFlag(tag, name, "", index);
-}
-
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
-{
-	int v = atoi(default_value.c_str());
-	int result = SlowGetTag(tag, index)->getInt(name, v);
-
-	if ((need_positive) && (result < 0))
-	{
-		this->error = CONF_INT_NEGATIVE;
-		return 0;
-	}
-
-	return result;
-}
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive)
-{
-	return ReadInteger(tag, name, "", index, need_positive);
-}
-
-long ConfigReader::GetError()
-{
-	long olderr = this->error;
-	this->error = 0;
-	return olderr;
-}
-
-int ConfigReader::Enumerate(const std::string &tag)
-{
-	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
-		tag.c_str());
-	int i=0;
-	while (SlowGetTag(tag, i)) i++;
-	return i;
-}
-
-FileReader::FileReader(const std::string &filename)
-{
-	LoadFile(filename);
-}
-
-FileReader::FileReader()
-{
-}
-
-std::string FileReader::Contents()
-{
-	std::string x;
-	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
-	{
-		x.append(*a);
-		x.append("\r\n");
-	}
-	return x;
-}
-
-unsigned long FileReader::ContentSize()
-{
-	return this->contentsize;
-}
-
-void FileReader::CalcSize()
-{
-	unsigned long n = 0;
-	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
-		n += (a->length() + 2);
-	this->contentsize = n;
-}
-
-void FileReader::LoadFile(const std::string &filename)
-{
-	std::map<std::string, file_cache>::iterator file = ServerInstance->Config->Files.find(filename);
-	if (file != ServerInstance->Config->Files.end())
-	{
-		this->fc = file->second;
-	}
-	else
-	{
-		fc.clear();
-		FILE* f = fopen(filename.c_str(), "r");
-		if (!f)
-			return;
-		char linebuf[MAXBUF*10];
-		while (fgets(linebuf, sizeof(linebuf), f))
-		{
-			int len = strlen(linebuf);
-			if (len)
-				fc.push_back(std::string(linebuf, len - 1));
-		}
-		fclose(f);
-	}
-	CalcSize();
-}
-
-
-FileReader::~FileReader()
-{
-}
-
-bool FileReader::Exists()
-{
-	return (!(fc.size() == 0));
-}
-
-std::string FileReader::GetLine(int x)
-{
-	if ((x<0) || ((unsigned)x>=fc.size()))
-		return "";
-	return fc[x];
-}
-
-int FileReader::FileSize()
-{
-	return fc.size();
+	dynamic_reference_base::reset_all();
 }

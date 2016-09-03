@@ -21,12 +21,7 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
-#include <signal.h>
 #include <fcntl.h>
-
-ThreadEngine::ThreadEngine()
-{
-}
 
 static void* entry_point(void* parameter)
 {
@@ -44,25 +39,14 @@ static void* entry_point(void* parameter)
 
 void ThreadEngine::Start(Thread* thread)
 {
-	ThreadData* data = new ThreadData;
-	thread->state = data;
-
-	if (pthread_create(&data->pthread_id, NULL, entry_point, thread) != 0)
-	{
-		thread->state = NULL;
-		delete data;
+	if (pthread_create(&thread->state.pthread_id, NULL, entry_point, thread) != 0)
 		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
-	}
 }
 
-ThreadEngine::~ThreadEngine()
-{
-}
-
-void ThreadData::FreeThread(Thread* thread)
+void ThreadEngine::Stop(Thread* thread)
 {
 	thread->SetExitFlag();
-	pthread_join(pthread_id, NULL);
+	pthread_join(thread->state.pthread_id, NULL);
 }
 
 #ifdef HAS_EVENTFD
@@ -75,13 +59,12 @@ class ThreadSignalSocket : public EventHandler
 	ThreadSignalSocket(SocketThread* p, int newfd) : parent(p)
 	{
 		SetFd(newfd);
-		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
+		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
 	}
 
 	~ThreadSignalSocket()
 	{
-		ServerInstance->SE->DelFd(this);
-		ServerInstance->SE->Close(GetFd());
+		SocketEngine::Close(this);
 	}
 
 	void Notify()
@@ -89,18 +72,21 @@ class ThreadSignalSocket : public EventHandler
 		eventfd_write(fd, 1);
 	}
 
-	void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		if (et == EVENT_READ)
-		{
-			eventfd_t dummy;
-			eventfd_read(fd, &dummy);
-			parent->OnNotify();
-		}
-		else
-		{
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
+		eventfd_t dummy;
+		eventfd_read(fd, &dummy);
+		parent->OnNotify();
+	}
+
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE
+	{
+		ThreadSignalSocket::OnEventHandlerWrite();
 	}
 };
 
@@ -123,15 +109,14 @@ class ThreadSignalSocket : public EventHandler
 		parent(p), send_fd(sendfd)
 	{
 		SetFd(recvfd);
-		ServerInstance->SE->NonBlocking(fd);
-		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
+		SocketEngine::NonBlocking(fd);
+		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
 	}
 
 	~ThreadSignalSocket()
 	{
 		close(send_fd);
-		ServerInstance->SE->DelFd(this);
-		ServerInstance->SE->Close(GetFd());
+		SocketEngine::Close(this);
 	}
 
 	void Notify()
@@ -140,18 +125,21 @@ class ThreadSignalSocket : public EventHandler
 		write(send_fd, &dummy, 1);
 	}
 
-	void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		if (et == EVENT_READ)
-		{
-			char dummy[128];
-			read(fd, dummy, 128);
-			parent->OnNotify();
-		}
-		else
-		{
-			ServerInstance->GlobalCulls.AddItem(this);
-		}
+		char dummy[128];
+		read(fd, dummy, 128);
+		parent->OnNotify();
+	}
+
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE
+	{
+		ThreadSignalSocket::OnEventHandlerWrite();
 	}
 };
 

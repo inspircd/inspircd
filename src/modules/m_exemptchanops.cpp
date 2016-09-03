@@ -18,9 +18,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
-
-/* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
+#include "listmode.h"
 
 /** Handles channel mode +X
  */
@@ -31,30 +29,42 @@ class ExemptChanOps : public ListModeBase
 
 	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
-		// TODO actually make sure there's a prop for this
-		if ((word.length() > 35) || (word.empty()))
+		std::string::size_type p = word.find(':');
+		if (p == std::string::npos)
 		{
-			user->WriteNumeric(955, "%s %s %s :word is too %s for exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
+			user->WriteNumeric(955, chan->name, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>");
+			return false;
+		}
+
+		std::string restriction(word, 0, p);
+		// If there is a '-' in the restriction string ignore it and everything after it
+		// to support "auditorium-vis" and "auditorium-see" in m_auditorium
+		p = restriction.find('-');
+		if (p != std::string::npos)
+			restriction.erase(p);
+
+		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
+		{
+			user->WriteNumeric(955, chan->name, restriction, "Unknown restriction");
 			return false;
 		}
 
 		return true;
 	}
 
-	bool TellListTooLong(User* user, Channel* chan, std::string &word)
+	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(959, "%s %s %s :Channel exemptchanops list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
-		return true;
+		user->WriteNumeric(959, chan->name, word, "Channel exemptchanops list is full");
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(957, "%s %s :The word %s is already on the exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str());
+		user->WriteNumeric(957, chan->name, InspIRCd::Format("The word %s is already on the exemptchanops list", word.c_str()));
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(958, "%s %s :No such exemptchanops word is set",user->nick.c_str(), chan->name.c_str());
+		user->WriteNumeric(958, chan->name, "No such exemptchanops word is set");
 	}
 };
 
@@ -63,18 +73,14 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
  public:
 	ExemptChanOps ec;
 	ExemptHandler(Module* me) : ec(me) {}
-	
-	ModeHandler* FindMode(const std::string& mid)
+
+	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
-		for(char c='A'; c <= 'z'; c++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-			if (mh && mh->name == mid)
-				return mh;
-		}
-		return NULL;
+			return ServerInstance->Modes->FindPrefixMode(mid[0]);
+
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
 	ModResult Call(User* user, Channel* chan, const std::string& restriction)
@@ -82,21 +88,21 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		std::string minmode;
 
-		modelist* list = ec.extItem.get(chan);
+		ListModeBase::ModeList* list = ec.GetList(chan);
 
 		if (list)
 		{
-			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
+			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); ++i)
 			{
 				std::string::size_type pos = (*i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if ((*i).mask.substr(0,pos) == restriction)
-					minmode = (*i).mask.substr(pos + 1);
+				if (!i->mask.compare(0, pos, restriction))
+					minmode.assign(i->mask, pos + 1, std::string::npos);
 			}
 		}
 
-		ModeHandler* mh = FindMode(minmode);
+		PrefixMode* mh = FindMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
 		if (mh || minmode == "*")
@@ -108,23 +114,16 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 
 class ModuleExemptChanOps : public Module
 {
-	std::string defaults;
 	ExemptHandler eh;
 
  public:
-
 	ModuleExemptChanOps() : eh(this)
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(eh.ec);
-		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->OnCheckExemption = &eh;
-
-		OnRehash(NULL);
 	}
 
 	~ModuleExemptChanOps()
@@ -132,19 +131,14 @@ class ModuleExemptChanOps : public Module
 		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		eh.ec.DoRehash();
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		eh.ec.DoSyncChannel(chan, proto, opaque);
 	}
 };
 

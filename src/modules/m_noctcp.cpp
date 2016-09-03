@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +C to block CTCPs */
-
 class NoCTCP : public SimpleChannelModeHandler
 {
  public:
@@ -31,38 +29,20 @@ class NoCTCP : public SimpleChannelModeHandler
 
 class ModuleNoCTCP : public Module
 {
-
 	NoCTCP nc;
 
  public:
-
 	ModuleNoCTCP()
 		: nc(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(nc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleNoCTCP()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
-	}
-
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
@@ -74,18 +54,18 @@ class ModuleNoCTCP : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
+			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
 			{
-				user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
+				user->WriteNumeric(ERR_NOCTCPALLOWED, c->name, "Can't send CTCP to channel (+C set)");
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('C');
+		tokens["EXTBAN"].push_back('C');
 	}
 };
 

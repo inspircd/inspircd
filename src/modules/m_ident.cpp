@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for RFC1413 ident lookups */
-
 /* --------------------------------------------------------------
  * Note that this is the third incarnation of m_ident. The first
  * two attempts were pretty crashy, mainly due to the fact we tried
@@ -119,33 +117,32 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
-		if (ServerInstance->SE->Bind(GetFd(), bindaddr) < 0)
+		if (SocketEngine::Bind(GetFd(), bindaddr) < 0)
 		{
 			this->Close();
 			throw ModuleException("failed to bind()");
 		}
 
-		ServerInstance->SE->NonBlocking(GetFd());
+		SocketEngine::NonBlocking(GetFd());
 
 		/* Attempt connection (nonblocking) */
-		if (ServerInstance->SE->Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
+		if (SocketEngine::Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			throw ModuleException("connect() failed");
 		}
 
 		/* Add fd to socket engine */
-		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
+		if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
 			throw ModuleException("out of fds");
 		}
 	}
 
-	virtual void OnConnected()
+	void OnEventHandlerWrite() CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log("m_ident",DEBUG,"OnConnected()");
-		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
 
@@ -161,32 +158,8 @@ class IdentRequestSocket : public EventHandler
 		/* Send failed if we didnt write the whole ident request --
 		 * might as well give up if this happens!
 		 */
-		if (ServerInstance->SE->Send(this, req, req_size, 0) < req_size)
+		if (SocketEngine::Send(this, req, req_size, 0) < req_size)
 			done = true;
-	}
-
-	virtual void HandleEvent(EventType et, int errornum = 0)
-	{
-		switch (et)
-		{
-			case EVENT_READ:
-				/* fd readable event, received ident response */
-				ReadResponse();
-			break;
-			case EVENT_WRITE:
-				/* fd writeable event, successfully connected! */
-				OnConnected();
-			break;
-			case EVENT_ERROR:
-				/* fd error event, ohshi- */
-				ServerInstance->Logs->Log("m_ident",DEBUG,"EVENT_ERROR");
-				/* We *must* Close() here immediately or we get a
-				 * huge storm of EVENT_ERROR events!
-				 */
-				Close();
-				done = true;
-			break;
-		}
 	}
 
 	void Close()
@@ -196,10 +169,8 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG,"Close ident socket %d", GetFd());
-			ServerInstance->SE->DelFd(this);
-			ServerInstance->SE->Close(GetFd());
-			this->SetFd(-1);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
+			SocketEngine::Close(this);
 		}
 	}
 
@@ -208,13 +179,13 @@ class IdentRequestSocket : public EventHandler
 		return done;
 	}
 
-	void ReadResponse()
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
 		 */
-		char ibuf[MAXBUF];
-		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
+		char ibuf[256];
+		int recvresult = SocketEngine::Recv(this, ibuf, sizeof(ibuf)-1, 0);
 
 		/* Close (but don't delete from memory) our socket
 		 * and flag as done since the ident lookup has finished
@@ -228,7 +199,7 @@ class IdentRequestSocket : public EventHandler
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "ReadResponse()");
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -260,67 +231,66 @@ class IdentRequestSocket : public EventHandler
 			 * we're done.
 			 */
 			result += *i;
-			if (!ServerInstance->IsIdent(result.c_str()))
+			if (!ServerInstance->IsIdent(result))
 			{
 				result.erase(result.end()-1);
 				break;
 			}
 		}
 	}
+
+	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	{
+		Close();
+		done = true;
+	}
+
+	CullResult cull() CXX11_OVERRIDE
+	{
+		Close();
+		return EventHandler::cull();
+	}
 };
 
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
-	SimpleExtItem<IdentRequestSocket> ext;
+	bool NoLookupPrefix;
+	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
  public:
-	ModuleIdent() : ext("ident_socket", this)
+	ModuleIdent()
+		: ext("ident_socket", ExtensionItem::EXT_USER, this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(ext);
-		OnRehash(NULL);
-		Implementation eventlist[] = {
-			I_OnRehash, I_OnUserInit, I_OnCheckReady,
-			I_OnUserDisconnect, I_OnSetConnectClass
-		};
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleIdent()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
-		if (!RequestTimeout)
-			RequestTimeout = 5;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
+		RequestTimeout = tag->getInt("timeout", 5, 1);
+		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
-	void OnUserInit(LocalUser *user)
+	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
 			return;
 
-		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
+		user->WriteNotice("*** Looking up your ident...");
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(IS_LOCAL(user));
+			IdentRequestSocket *isock = new IdentRequestSocket(user);
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
 		}
 	}
 
@@ -328,17 +298,16 @@ class ModuleIdent : public Module
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	virtual ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
+			if ((NoLookupPrefix) && (user->ident[0] != '~'))
+				user->ident.insert(user->ident.begin(), 1, '~');
 			return MOD_RES_PASSTHRU;
 		}
-
-		ServerInstance->Logs->Log("m_ident",DEBUG, "Has ident_socket");
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;
@@ -347,28 +316,24 @@ class ModuleIdent : public Module
 		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
-			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
-			ServerInstance->Logs->Log("m_ident",DEBUG, "Timeout");
+			user->WriteNotice("*** Ident request timed out.");
 		}
 		else if (!isock->HasResult())
 		{
 			// time still good, no result yet... hold the registration
-			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
 			return MOD_RES_DENY;
 		}
-
-		ServerInstance->Logs->Log("m_ident",DEBUG, "Yay, result!");
 
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())
 		{
 			user->ident.insert(user->ident.begin(), 1, '~');
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
+			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else
 		{
 			user->ident = isock->result;
-			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", user->ident.c_str());
+			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
 		}
 
 		user->InvalidateCache();
@@ -377,35 +342,12 @@ class ModuleIdent : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
-
-	virtual void OnCleanup(int target_type, void *item)
-	{
-		/* Module unloading, tidy up users */
-		if (target_type == TYPE_USER)
-		{
-			LocalUser* user = IS_LOCAL((User*) item);
-			if (user)
-				OnUserDisconnect(user);
-		}
-	}
-
-	virtual void OnUserDisconnect(LocalUser *user)
-	{
-		/* User disconnect (generic socket detatch event) */
-		IdentRequestSocket *isock = ext.get(user);
-		if (isock)
-		{
-			isock->Close();
-			ext.unset(user);
-		}
-	}
 };
 
 MODULE_INIT(ModuleIdent)
-

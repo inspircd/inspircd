@@ -21,8 +21,7 @@
  */
 
 
-#ifndef INSPIRCD_CONFIGREADER
-#define INSPIRCD_CONFIGREADER
+#pragma once
 
 #include <sstream>
 #include <string>
@@ -45,11 +44,21 @@ class CoreExport ConfigTag : public refcountbase
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "");
 	/** Get the value of an option, using def if it does not exist */
-	long getInt(const std::string& key, long def = 0);
+	long getInt(const std::string& key, long def = 0, long min = LONG_MIN, long max = LONG_MAX);
 	/** Get the value of an option, using def if it does not exist */
 	double getFloat(const std::string& key, double def = 0);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
+
+	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
+	 * using a default value if it does not exist or is out of bounds.
+	 * @param key The config key name
+	 * @param def Default value (optional)
+	 * @param min Minimum acceptable value (optional)
+	 * @param max Maximum acceptable value (optional)
+	 * @return The duration in seconds
+	 */
+	long getDuration(const std::string& key, long def = 0, long min = LONG_MIN, long max = LONG_MAX);
 
 	/** Get the value of an option
 	 * @param key The option to get
@@ -58,6 +67,16 @@ class CoreExport ConfigTag : public refcountbase
 	 * @return true if the option exists
 	 */
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
+
+	/** Check for an out of range value. If the value falls outside the boundaries a warning is
+	 * logged and the value is corrected (set to def).
+	 * @param key The key name, used in the warning message
+	 * @param res The value to verify and modify if needed
+	 * @param def The default value, res will be set to this if (min <= res <= max) doesn't hold true
+	 * @param min Minimum accepted value for res
+	 * @param max Maximum accepted value for res
+	 */
+	void CheckRange(const std::string& key, long& res, long def, long min, long max);
 
 	std::string getTagLocation();
 
@@ -93,14 +112,18 @@ class ServerLimits
 	size_t MaxGecos;
 	/** Maximum away message length */
 	size_t MaxAway;
+	/** Maximum line length */
+	size_t MaxLine;
+	/** Maximum hostname length */
+	size_t MaxHost;
 
-	/** Creating the class initialises it to the defaults
-	 * as in 1.1's ./configure script. Reading other values
-	 * from the config will change these values.
+	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
+	 * @param tag Configuration tag to read the limits from
 	 */
-	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
-	{
-	}
+	ServerLimits(ConfigTag* tag);
+
+	/** Maximum length of a n!u@h mask */
+	size_t GetMaxMask() const { return NickMax + 1 + IdentMax + 1 + MaxHost; }
 };
 
 struct CommandLineConf
@@ -130,11 +153,6 @@ struct CommandLineConf
 	 */
 	bool writelog;
 
-	/** True if we have been told to run the testsuite from the commandline,
-	 * rather than entering the mainloop.
-	 */
-	bool TestSuite;
-
 	/** Saved argc from startup
 	 */
 	int argc;
@@ -142,15 +160,14 @@ struct CommandLineConf
 	/** Saved argv from startup
 	 */
 	char** argv;
-
-	std::string startup_log;
 };
 
 class CoreExport OperInfo : public refcountbase
 {
  public:
-	std::set<std::string> AllowedOperCommands;
-	std::set<std::string> AllowedPrivs;
+	typedef insp::flat_set<std::string> PrivSet;
+	PrivSet AllowedOperCommands;
+	PrivSet AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
 	std::bitset<64> AllowedUserModes;
@@ -170,11 +187,6 @@ class CoreExport OperInfo : public refcountbase
 	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
 	std::string getConfig(const std::string& key);
 	void init();
-
-	inline const char* NameStr()
-	{
-		return irc::Spacify(name.c_str());
-	}
 };
 
 /** This class holds the bulk of the runtime configuration for the ircd.
@@ -189,6 +201,40 @@ class CoreExport ServerConfig
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
+	class ServerPaths
+	{
+	 public:
+		/** Config path */
+		std::string Config;
+
+		/** Data path */
+		std::string Data;
+
+		/** Log path */
+		std::string Log;
+
+		/** Module path */
+		std::string Module;
+
+		ServerPaths()
+			: Config(INSPIRCD_CONFIG_PATH)
+			, Data(INSPIRCD_DATA_PATH)
+			, Log(INSPIRCD_LOG_PATH)
+			, Module(INSPIRCD_MODULE_PATH) { }
+
+		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
+		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
+		std::string PrependLog(const std::string& fn) const { return FileSystem::ExpandPath(Log, fn); }
+		std::string PrependModule(const std::string& fn) const { return FileSystem::ExpandPath(Module, fn); }
+	};
+
+	/** Holds a complete list of all connect blocks
+	 */
+	typedef std::vector<reference<ConnectClass> > ClassVector;
+
+	/** Index of valid oper blocks and types
+	 */
+	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
@@ -228,6 +274,9 @@ class CoreExport ServerConfig
 	 */
 	ServerLimits Limits;
 
+	/** Locations of various types of file (config, module, etc). */
+	ServerPaths Paths;
+
 	/** Configuration parsed from the command line.
 	 */
 	CommandLineConf cmdline;
@@ -242,27 +291,14 @@ class CoreExport ServerConfig
 	 */
 	int c_ipv6_range;
 
-	/** Max number of WhoWas entries per user.
-	 */
-	int WhoWasGroupSize;
-
-	/** Max number of cumulative user-entries in WhoWas.
-	 *  When max reached and added to, push out oldest entry FIFO style.
-	 */
-	int WhoWasMaxGroups;
-
-	/** Max seconds a user is kept in WhoWas before being pruned.
-	 */
-	int WhoWasMaxKeep;
-
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
 	 */
 	std::string ServerName;
 
-	/** Notice to give to users when they are Xlined
+	/** Notice to give to users when they are banned by an XLine
 	 */
-	std::string MoronBanner;
+	std::string XLineMessage;
 
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined
@@ -274,71 +310,6 @@ class CoreExport ServerConfig
 	 * as defined by the administrator.
 	 */
 	std::string ServerDesc;
-
-	/** Holds the admin's name, for output in
-	 * the /ADMIN command.
-	 */
-	std::string AdminName;
-
-	/** Holds the email address of the admin,
-	 * for output in the /ADMIN command.
-	 */
-	std::string AdminEmail;
-
-	/** Holds the admin's nickname, for output
-	 * in the /ADMIN command
-	 */
-	std::string AdminNick;
-
-	/** The admin-configured /DIE password
-	 */
-	std::string diepass;
-
-	/** The admin-configured /RESTART password
-	 */
-	std::string restartpass;
-
-	/** The hash method for *BOTH* the die and restart passwords.
-	 */
-	std::string powerhash;
-
-	/** The pathname and filename of the message of the
-	 * day file, as defined by the administrator.
-	 */
-	std::string motd;
-
-	/** The pathname and filename of the rules file,
-	 * as defined by the administrator.
-	 */
-	std::string rules;
-
-	/** The quit prefix in use, or an empty string
-	 */
-	std::string PrefixQuit;
-
-	/** The quit suffix in use, or an empty string
-	 */
-	std::string SuffixQuit;
-
-	/** The fixed quit message in use, or an empty string
-	 */
-	std::string FixedQuit;
-
-	/** The part prefix in use, or an empty string
-	 */
-	std::string PrefixPart;
-
-	/** The part suffix in use, or an empty string
-	 */
-	std::string SuffixPart;
-
-	/** The fixed part message in use, or an empty string
-	 */
-	std::string FixedPart;
-
-	/** The DNS server to use for DNS queries
-	 */
-	std::string DNSServer;
 
 	/** Pretend disabled commands don't exist.
 	 */
@@ -358,13 +329,6 @@ class CoreExport ServerConfig
 	 */
 	char DisabledCModes[64];
 
-	/** The full path to the modules directory.
-	 * This is either set at compile time, or
-	 * overridden in the configuration file via
-	 * the \<path> tag.
-	 */
-	std::string ModPath;
-
 	/** If set to true, then all opers on this server are
 	 * shown with a generic 'is an IRC operator' line rather
 	 * than the oper type. Oper types are still used internally.
@@ -375,12 +339,6 @@ class CoreExport ServerConfig
 	 * if banned on any channel, nor to message them.
 	 */
 	bool RestrictBannedUsers;
-
-	/** If this is set to true, then mode lists (e.g
-	 * MODE \#chan b) are hidden from unprivileged
-	 * users.
-	 */
-	bool HideModeLists[256];
 
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
@@ -397,6 +355,13 @@ class CoreExport ServerConfig
 	 * as default.
 	 */
 	int MaxConn;
+
+	/** If we should check for clones during CheckClass() in AddUser()
+	 * Setting this to false allows to not trigger on maxclones for users
+	 * that may belong to another class after DNS-lookup is complete.
+	 * It does, however, make the server spend more time on users we may potentially not want.
+	 */
+	bool CCOnConnect;
 
 	/** The soft limit value assigned to the irc server.
 	 * The IRC server will not allow more than this
@@ -451,16 +416,6 @@ class CoreExport ServerConfig
 	 */
 	ClassVector Classes;
 
-	/** The 005 tokens of this server (ISUPPORT)
-	 * populated/repopulated upon loading or unloading
-	 * modules.
-	 */
-	std::string data005;
-
-	/** isupport strings
-	 */
-	std::vector<std::string> isupport;
-
 	/** STATS characters in this list are available
 	 * only to operators.
 	 */
@@ -474,52 +429,33 @@ class CoreExport ServerConfig
 	 */
 	std::string CustomVersion;
 
-	/** List of u-lined servers
-	 */
-	std::map<irc::string, bool> ulines;
-
-	/** Max banlist sizes for channels (the std::string is a glob)
-	 */
-	std::map<std::string, int> maxbans;
-
-	/** If set to true, no user DNS lookups are to be performed
-	 */
-	bool NoUserDns;
-
 	/** If set to true, provide syntax hints for unknown commands
 	 */
 	bool SyntaxHints;
-
-	/** If set to true, users appear to quit then rejoin when their hosts change.
-	 * This keeps clients synchronized properly.
-	 */
-	bool CycleHosts;
 
 	/** If set to true, the CycleHosts mode change will be sourced from the user,
 	 * rather than the server
 	 */
 	bool CycleHostsFromUser;
 
-	/** If set to true, prefixed channel NOTICEs and PRIVMSGs will have the prefix
-	 *  added to the outgoing text for undernet style msg prefixing.
-	 */
-	bool UndernetMsgPrefix;
-
 	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
 	 * for who set the topic last. If false, only the nick is shown.
 	 */
 	bool FullHostInTopic;
 
-	/** Oper block and type index.
-	 * For anonymous oper blocks (type only), prefix with a space.
+	/** Oper blocks keyed by their name
 	 */
 	OperIndex oper_blocks;
 
-	/** Max channels per user
+	/** Oper types keyed by their name
+	 */
+	OperIndex OperTypes;
+
+	/** Default value for <connect:maxchans>, deprecated in 3.0
 	 */
 	unsigned int MaxChans;
 
-	/** Oper max channels per user
+	/** Default value for <oper:maxchans>, deprecated in 3.0
 	 */
 	unsigned int OperMaxChans;
 
@@ -538,15 +474,7 @@ class CoreExport ServerConfig
 
 	/** Get server ID as string with required leading zeroes
 	 */
-	const std::string& GetSID();
-
-	/** Update the 005 vector
-	 */
-	void Update005();
-
-	/** Send the 005 numerics (ISUPPORT) to a user
-	 */
-	void Send005(User* user);
+	const std::string& GetSID() const { return sid; }
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
@@ -561,36 +489,17 @@ class CoreExport ServerConfig
 
 	void Fill();
 
-	/** Returns true if the given string starts with a windows drive letter
-	 */
-	bool StartsWithWindowsDriveLetter(const std::string &path);
-
 	bool ApplyDisabledCommands(const std::string& data);
 
-	/** Clean a filename, stripping the directories (and drives) from string.
-	 * @param name Directory to tidy
-	 * @return The cleaned filename
+	/** Escapes a value for storage in a configuration key.
+	 * @param str The string to escape.
+	 * @param xml Are we using the XML config format?
 	 */
-	static const char* CleanFilename(const char* name);
-
-	/** Check if a file exists.
-	 * @param file The full path to a file
-	 * @return True if the file exists and is readable.
-	 */
-	static bool FileExists(const char* file);
-
-	/** If this value is true, invites will bypass more than just +i
-	 */
-	bool InvBypassModes;
+	static std::string Escape(const std::string& str, bool xml = true);
 
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */
 	bool NoSnoticeStack;
-
-	/** If true, a "Welcome to <networkname>!" NOTICE will be sent to
-	 * connecting users
-	 */
-	bool WelcomeNotice;
 };
 
 /** The background thread for config reading, so that reading from executable includes
@@ -618,4 +527,13 @@ class CoreExport ConfigReaderThread : public Thread
 	bool IsDone() { return done; }
 };
 
-#endif
+class CoreExport ConfigStatus
+{
+ public:
+	User* const srcuser;
+
+	ConfigStatus(User* user = NULL)
+		: srcuser(user)
+	{
+	}
+};

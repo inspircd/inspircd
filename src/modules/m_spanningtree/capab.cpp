@@ -20,38 +20,60 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 
-#include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
 #include "link.h"
 #include "main.h"
-#include "../hash.h"
+
+struct CompatMod
+{
+	const char* name;
+	ModuleFlags listflag;
+};
+
+static CompatMod compatmods[] =
+{
+	{ "m_watch.so", VF_OPTCOMMON }
+};
 
 std::string TreeSocket::MyModules(int filter)
 {
-	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
-
-	if (filter == VF_COMMON && proto_version != ProtocolVersion)
-		CompatAddModules(modlist);
+	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules->GetModules();
 
 	std::string capabilities;
-	sort(modlist.begin(),modlist.end());
-	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
-		if (i != modlist.begin())
-			capabilities.push_back(proto_version > 1201 ? ' ' : ',');
-		capabilities.append(*i);
-		Module* m = ServerInstance->Modules->Find(*i);
-		if (m && proto_version > 1201)
+		Module* const mod = i->second;
+		// 3.0 advertises its settings for the benefit of services
+		// 2.0 would bork on this
+		if (proto_version < 1205 && i->second->ModuleSourceFile == "m_kicknorejoin.so")
+			continue;
+
+		bool do_compat_include = false;
+		if (proto_version < 1205)
 		{
-			Version v = m->GetVersion();
-			if (!v.link_data.empty())
+			for (size_t j = 0; j < sizeof(compatmods)/sizeof(compatmods[0]); j++)
 			{
-				capabilities.push_back('=');
-				capabilities.append(v.link_data);
+				if ((compatmods[j].listflag & filter) && (mod->ModuleSourceFile == compatmods[j].name))
+				{
+					do_compat_include = true;
+					break;
+				}
 			}
+		}
+
+		Version v = i->second->GetVersion();
+		if ((!do_compat_include) && (!(v.Flags & filter)))
+			continue;
+
+		if (i != modlist.begin())
+			capabilities.push_back(' ');
+		capabilities.append(i->first);
+		if (!v.link_data.empty())
+		{
+			capabilities.push_back('=');
+			capabilities.append(v.link_data);
 		}
 	}
 	return capabilities;
@@ -60,23 +82,23 @@ std::string TreeSocket::MyModules(int filter)
 static std::string BuildModeList(ModeType type)
 {
 	std::vector<std::string> modes;
-	for(char c='A'; c <= 'z'; c++)
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(type);
+	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type);
-		if (mh)
+		const ModeHandler* const mh = i->second;
+		std::string mdesc = mh->name;
+		mdesc.push_back('=');
+		const PrefixMode* const pm = mh->IsPrefixMode();
+		if (pm)
 		{
-			std::string mdesc = mh->name;
-			mdesc.push_back('=');
-			if (mh->GetPrefix())
-				mdesc.push_back(mh->GetPrefix());
-			if (mh->GetModeChar())
-				mdesc.push_back(mh->GetModeChar());
-			modes.push_back(mdesc);
+			if (pm->GetPrefix())
+				mdesc.push_back(pm->GetPrefix());
 		}
+		mdesc.push_back(mh->GetModeChar());
+		modes.push_back(mdesc);
 	}
-	sort(modes.begin(), modes.end());
-	irc::stringjoiner line(" ", modes, 0, modes.size() - 1);
-	return line.GetJoined();
+	std::sort(modes.begin(), modes.end());
+	return irc::stringjoiner(modes);
 }
 
 void TreeSocket::SendCapabilities(int phase)
@@ -91,7 +113,7 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	char sep = proto_version > 1201 ? ' ' : ',';
+	const char sep = ' ';
 	irc::sepstream modulelist(MyModules(VF_COMMON), sep);
 	irc::sepstream optmodulelist(MyModules(VF_OPTCOMMON), sep);
 	/* Send module names, split at 509 length */
@@ -135,13 +157,15 @@ void TreeSocket::SendCapabilities(int phase)
 
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
-	if (Utils->ChallengeResponse && (ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256")))
+	if (ServerInstance->Modules->FindService(SERVICE_DATA, "hash/sha256"))
 	{
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
-	if (proto_version < 1202)
-		extra += ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL) ? " HALFOP=1" : " HALFOP=0";
+
+	// 2.0 needs this key
+	if (proto_version == 1202)
+		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion));
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
@@ -153,18 +177,18 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
-			" IP6SUPPORT=1"+
-			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
+			" MAXHOST="+ConvToStr(ServerInstance->Config->Limits.MaxHost)+
+			extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
-			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
-			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)+
+			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
 			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
 			// Services want to know about it, and since m_globops was not marked as VF_(OPT)COMMON
 			// in 2.0, we advertise it here to not break linking to previous versions.
 			// Protocol version 1201 (1.2) does not have this issue because we advertise m_globops
 			// to 1201 protocol servers irrespectively of its module flags.
-			(ServerInstance->Modules->Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")+
-			" SVSPART=1");
+			(ServerInstance->Modules->Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
+			);
 
 	this->WriteLine("CAPAB END");
 }
@@ -209,7 +233,23 @@ bool TreeSocket::Capab(const parameterlist &params)
 		capab->OptModuleList.clear();
 		capab->CapKeys.clear();
 		if (params.size() > 1)
-			proto_version = atoi(params[1].c_str());
+			proto_version = ConvToInt(params[1]);
+
+		if (proto_version < MinCompatProtocol)
+		{
+			SendError("CAPAB negotiation failed: Server is using protocol version " + (proto_version ? ConvToStr(proto_version) : "1201 or older")
+				+ " which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
+				+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")"));
+			return false;
+		}
+
+		// Special case, may be removed in the future
+		if (proto_version == 1203 || proto_version == 1204)
+		{
+			SendError("CAPAB negotiation failed: InspIRCd 2.1 beta is not supported");
+			return false;
+		}
+
 		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
@@ -219,7 +259,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
 		{
 			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), proto_version > 1201 ? ' ' : ',', diffIneed, diffUneed);
+			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), ' ', diffIneed, diffUneed);
 			if (diffIneed.length() || diffUneed.length())
 			{
 				reason = "Modules incorrectly matched on these servers.";
@@ -257,21 +297,6 @@ bool TreeSocket::Capab(const parameterlist &params)
 			}
 		}
 
-		if (this->capab->CapKeys.find("PROTOCOL") == this->capab->CapKeys.end())
-		{
-			reason = "Protocol version not specified";
-		}
-		else
-		{
-			proto_version = atoi(capab->CapKeys.find("PROTOCOL")->second.c_str());
-			if (proto_version < MinCompatProtocol)
-			{
-				reason = "Server is using protocol version " + ConvToStr(proto_version) +
-					" which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
-					+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")");
-			}
-		}
-
 		if(this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end() && this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";
 
@@ -293,7 +318,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MASK_CHANNEL))
+			if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
 				reason = "One or more of the channel modes on the remote server are invalid on this server.";
 		}
 
@@ -315,13 +340,13 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else if (this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MASK_USER))
+			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_USER))
 				reason = "One or more of the user modes on the remote server are invalid on this server.";
 		}
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
-		if (Utils->ChallengeResponse && (n != this->capab->CapKeys.end()) && (ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256")))
+		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules->FindService(SERVICE_DATA, "hash/sha256")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
@@ -333,7 +358,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			/* They didnt specify a challenge or we don't have m_sha256.so, we use plaintext */
+			// They didn't specify a challenge or we don't have sha256, we use plaintext
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
@@ -355,7 +380,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			capab->ModuleList.push_back(proto_version > 1201 ? ' ' : ',');
+			capab->ModuleList.push_back(' ');
 			capab->ModuleList.append(params[1]);
 		}
 	}
@@ -389,12 +414,11 @@ bool TreeSocket::Capab(const parameterlist &params)
 			std::string::size_type equals = item.find('=');
 			if (equals != std::string::npos)
 			{
-				std::string var = item.substr(0, equals);
-				std::string value = item.substr(equals+1, item.length());
+				std::string var(item, 0, equals);
+				std::string value(item, equals+1);
 				capab->CapKeys[var] = value;
 			}
 		}
 	}
 	return true;
 }
-

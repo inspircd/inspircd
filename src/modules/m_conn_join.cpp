@@ -22,45 +22,94 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Forces users to join the specified channel(s) on connect */
+static void JoinChannels(LocalUser* u, const std::string& chanlist)
+{
+	irc::commasepstream chans(chanlist);
+	std::string chan;
+
+	while (chans.GetToken(chan))
+	{
+		if (ServerInstance->IsChannel(chan))
+			Channel::JoinUser(u, chan);
+	}
+}
+
+class JoinTimer : public Timer
+{
+ private:
+	LocalUser* const user;
+	const std::string channels;
+	SimpleExtItem<JoinTimer>& ext;
+
+ public:
+	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, unsigned int delay)
+		: Timer(delay, false)
+		, user(u), channels(chans), ext(ex)
+	{
+		ServerInstance->Timers.AddTimer(this);
+	}
+
+	bool Tick(time_t time) CXX11_OVERRIDE
+	{
+		if (user->chans.empty())
+			JoinChannels(user, channels);
+
+		ext.unset(user);
+		return false;
+	}
+};
 
 class ModuleConnJoin : public Module
 {
-	public:
-		void init()
-		{
-			Implementation eventlist[] = { I_OnPostConnect };
-			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		}
+	SimpleExtItem<JoinTimer> ext;
+	std::string defchans;
+	unsigned int defdelay;
 
-		void Prioritize()
-		{
-			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
-		}
+ public:
+	ModuleConnJoin()
+		: ext("join_timer", ExtensionItem::EXT_USER, this)
+	{
+	}
 
-		Version GetVersion()
-		{
-			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
-		}
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+		defchans = tag->getString("channel");
+		defdelay = tag->getInt("delay", 0, 0, 60);
+	}
 
-		void OnPostConnect(User* user)
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
+	}
+
+	void OnPostConnect(User* user) CXX11_OVERRIDE
+	{
+		LocalUser* localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		std::string chanlist = localuser->GetClass()->config->getString("autojoin");
+		unsigned int chandelay = localuser->GetClass()->config->getInt("autojoindelay", 0, 0, 60);
+
+		if (chanlist.empty())
 		{
-			if (!IS_LOCAL(user))
+			if (defchans.empty())
 				return;
-
-			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-			chanlist = user->GetClass()->config->getString("autojoin", chanlist);
-
-			irc::commasepstream chans(chanlist);
-			std::string chan;
-
-			while (chans.GetToken(chan))
-			{
-				if (ServerInstance->IsChannel(chan.c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(user, chan.c_str(), false, "", false, ServerInstance->Time());
-			}
+			chanlist = defchans;
+			chandelay = defdelay;
 		}
-};
 
+		if (!chandelay)
+			JoinChannels(localuser, chanlist);
+		else
+			ext.set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
+	}
+};
 
 MODULE_INIT(ModuleConnJoin)

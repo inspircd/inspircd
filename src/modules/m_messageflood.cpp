@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +f (message flood protection) */
-
 /** Holds flood settings and state for mode +f
  */
 class floodsettings
@@ -36,7 +34,7 @@ class floodsettings
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
-	std::map<User*, unsigned int> counters;
+	insp::flat_map<User*, unsigned int> counters;
 
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
@@ -56,64 +54,50 @@ class floodsettings
 
 	void clear(User* who)
 	{
-		std::map<User*, unsigned int>::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			counters.erase(iter);
-		}
+		counters.erase(who);
 	}
 };
 
 /** Handles channel mode +f
  */
-class MsgFlood : public ModeHandler
+class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 {
  public:
-	SimpleExtItem<floodsettings> ext;
-	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("messageflood", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	MsgFlood(Module* Creator)
+		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			std::string::size_type colon = parameter.find(':');
-			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			/* Set up the flood parameters for this channel */
-			bool ban = (parameter[0] == '*');
-			unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
-
-			if ((nlines<2) || (nsecs<1))
-			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			floodsettings* f = ext.get(channel);
-			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
-				// mode params match
-				return MODEACTION_DENY;
-
-			ext.set(channel, new floodsettings(ban, nsecs, nlines));
-			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
-			channel->SetModeParam('f', parameter);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			return MODEACTION_DENY;
 		}
-		else
+
+		/* Set up the flood parameters for this channel */
+		bool ban = (parameter[0] == '*');
+		unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+		if ((nlines<2) || (nsecs<1))
 		{
-			if (!channel->IsModeSet('f'))
-				return MODEACTION_DENY;
-
-			ext.unset(channel);
-			channel->SetModeParam('f', "");
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			return MODEACTION_DENY;
 		}
+
+		ext.set(channel, new floodsettings(ban, nsecs, nlines));
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out)
+	{
+		if (fs->ban)
+			out.push_back('*');
+		out.append(ConvToStr(fs->lines)).push_back(':');
+		out.append(ConvToStr(fs->secs));
 	}
 };
 
@@ -128,17 +112,13 @@ class ModuleMsgFlood : public Module
 	{
 	}
 
-	void init()
+	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(mf);
-		ServerInstance->Modules->AddService(mf.ext);
-		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
+		if (target_type != TYPE_CHANNEL)
+			return MOD_RES_PASSTHRU;
 
-	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
-	{
-		if ((!IS_LOCAL(user)) || !dest->IsModeSet('f'))
+		Channel* dest = static_cast<Channel*>(voiddest);
+		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
 		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)
@@ -153,17 +133,15 @@ class ModuleMsgFlood : public Module
 				f->clear(user);
 				if (f->ban)
 				{
-					std::vector<std::string> parameters;
-					parameters.push_back(dest->name);
-					parameters.push_back("+b");
-					parameters.push_back(user->MakeWildHost());
-					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
+					Modes::ChangeList changelist;
+					changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->dhost);
+					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
 				}
 
-				char kickmessage[MAXBUF];
-				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
+				const std::string kickMessage = "Channel flood triggered (trigger is " + ConvToStr(f->lines) +
+					" lines in " + ConvToStr(f->secs) + " secs)";
 
-				dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
+				dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
 
 				return MOD_RES_DENY;
 			}
@@ -172,30 +150,13 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(Channel*)dest,text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(Channel*)dest,text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
 	void Prioritize()
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreNotice, PRIORITY_LAST);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +f (message flood protection)", VF_VENDOR);
 	}

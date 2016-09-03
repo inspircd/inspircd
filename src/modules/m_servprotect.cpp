@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides usermode +k to protect services from kicks, kills and mode changes. */
-
 /** Handles user mode +k
  */
 class ServProtectMode : public ModeHandler
@@ -44,47 +42,41 @@ class ServProtectMode : public ModeHandler
 	}
 };
 
-class ModuleServProtectMode : public Module
+class ModuleServProtectMode : public Module, public Whois::EventListener, public Whois::LineEventListener
 {
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode()
-		: bm(this)
+		: Whois::EventListener(this)
+		, Whois::LineEventListener(this)
+		, bm(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(bm);
-		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-
-	~ModuleServProtectMode()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
-	void OnWhois(User* src, User* dst)
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (dst->IsModeSet('k'))
+		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is an "+ServerInstance->Config->Network+" Service");
+			whois.SendLine(310, "is a Network Service on " + ServerInstance->Config->Network);
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
 		 */
-		if (!adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
+		if (!adding && chan && IS_LOCAL(user) && !param.empty())
 		{
+			const PrefixMode* const pm = mh->IsPrefixMode();
+			if (!pm)
+				return MOD_RES_PASSTHRU;
+
 			/* Check if the parameter is a valid nick/uuid
 			 */
 			User *u = ServerInstance->FindNick(param);
@@ -95,10 +87,10 @@ class ModuleServProtectMode : public Module
 				 * This includes any prefix permission mode, even those registered in other modules, e.g. +qaohv. Using ::ModeString()
 				 * here means that the number of modes is restricted to only modes the user has, limiting it to as short a loop as possible.
 				 */
-				if (u->IsModeSet('k') && memb && memb->modes.find(mode) != std::string::npos)
+				if ((u->IsModeSet(bm)) && (memb) && (memb->HasMode(pm)))
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(482, "%s %s :You are not permitted to remove privileges from %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network.c_str());
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));
 					return MOD_RES_DENY;
 				}
 			}
@@ -107,37 +99,35 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnKill(User* src, User* dst, const std::string &reason)
+	ModResult OnKill(User* src, User* dst, const std::string &reason) CXX11_OVERRIDE
 	{
 		if (src == NULL)
 			return MOD_RES_PASSTHRU;
 
-		if (dst->IsModeSet('k'))
+		if (dst->IsModeSet(bm))
 		{
-			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network.c_str());
+			src->WriteNumeric(485, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason)
+	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
-		if (memb->user->IsModeSet('k'))
+		if (memb->user->IsModeSet(bm))
 		{
-			src->WriteNumeric(484, "%s %s :You are not permitted to kick services",
-				src->nick.c_str(), memb->chan->name.c_str());
+			src->WriteNumeric(ERR_RESTRICTED, memb->chan->name, "You are not permitted to kick services");
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k')) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric.GetNumeric() == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
-
 
 MODULE_INIT(ModuleServProtectMode)

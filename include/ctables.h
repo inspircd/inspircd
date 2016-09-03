@@ -21,8 +21,7 @@
  */
 
 
-#ifndef CTABLES_H
-#define CTABLES_H
+#pragma once
 
 /** Used to indicate command success codes
  */
@@ -44,7 +43,6 @@ const char FLAG_SERVERONLY = 7; // technically anything nonzero below 'A' works
  */
 enum TranslateType
 {
-	TR_END,			/* End of known parameters, everything after this is TR_TEXT */
 	TR_TEXT,		/* Raw text, leave as-is */
 	TR_NICK,		/* Nickname, translate to UUID for server->server */
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
@@ -77,10 +75,17 @@ struct RouteDescriptor
 	 */
 	std::string serverdest;
 
+	/** For unicast, the destination Server
+	 */
+	Server* server;
+
 	/** Create a RouteDescriptor
 	 */
 	RouteDescriptor(RouteType t, const std::string &d)
-		: type(t), serverdest(d) { }
+		: type(t), serverdest(d), server(NULL) { }
+
+	RouteDescriptor(RouteType t, Server* srv)
+		: type(t), server(srv) { }
 };
 
 /** Do not route this command */
@@ -99,7 +104,7 @@ struct RouteDescriptor
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport Command : public ServiceProvider
+class CoreExport CommandBase : public ServiceProvider
 {
  public:
 	/** User flags needed to execute the command or 0
@@ -119,10 +124,6 @@ class CoreExport Command : public ServiceProvider
 	/** used by /stats m
 	 */
 	unsigned long use_count;
-
-	/** used by /stats m
-	 */
-	unsigned long total_bytes;
 
 	/** True if the command is disabled to non-opers
 	 */
@@ -162,43 +163,16 @@ class CoreExport Command : public ServiceProvider
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-seperated param.
 	 */
-	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
-		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
-		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
-		Penalty(1)
-	{
-	}
+	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
-	/** Handle the command from a user.
-	 * @param parameters The parameters for the command.
-	 * @param user The user who issued the command.
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 */
-	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
-
-	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_LOCALONLY;
-	}
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 
 	/** Encode a parameter for server->server transmission.
 	 * Used for parameters for which the translation type is TR_CUSTOM.
 	 * @param parameter The parameter to encode. Can be modified in place.
 	 * @param index The parameter index (0 == first parameter).
 	 */
-	virtual void EncodeParameter(std::string& parameter, int index)
-	{
-	}
-
-	/** Decode a parameter from server->server transmission.
-	 * Not currently used in this version of InspIRCd.
-	 * Used for parameters for which the translation type is TR_CUSTOM.
-	 * @param parameter The parameter to decode. Can be modified in place.
-	 * @param index The parameter index (0 == first parameter).
-	 */
-	virtual void DecodeParameter(std::string& parameter, int index)
-	{
-	}
+	virtual void EncodeParameter(std::string& parameter, int index);
 
 	/** Disable or enable this command.
 	 * @param setting True to disable the command.
@@ -224,7 +198,34 @@ class CoreExport Command : public ServiceProvider
 		return works_before_reg;
 	}
 
-	virtual ~Command();
+	virtual ~CommandBase();
+};
+
+class CoreExport Command : public CommandBase
+{
+ public:
+	/** If true, the command will not be forwarded by the linking module even if it comes via ENCAP.
+	 * Can be used to forward commands before their effects.
+	 */
+	bool force_manual_route;
+
+	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+
+	/** Handle the command from a user.
+	 * @param parameters The parameters for the command.
+	 * @param user The user who issued the command.
+	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
+	 */
+	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
+
+	/** Register this object in the CommandParser
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
+	/** Destructor
+	 * Removes this command from the command parser
+	 */
+	~Command();
 };
 
 class CoreExport SplitCommand : public Command
@@ -252,5 +253,3 @@ class CoreExport SplitCommand : public Command
 	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);
 #define TRANSLATE8(x1,x2,x3,x4,x5,x6,x7,x8)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
 	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);translation.push_back(x8);
-
-#endif

@@ -23,94 +23,53 @@
 
 
 #include "inspircd.h"
-#include <fstream>
 #include "xline.h"
+#include "listmode.h"
 #include "exitcodes.h"
-#include "commands/cmd_whowas.h"
 #include "configparser.h"
 #include <iostream>
-#ifdef _WIN32
-#include <Iphlpapi.h>
-#pragma comment(lib, "Iphlpapi.lib")
-#endif
+
+ServerLimits::ServerLimits(ConfigTag* tag)
+	: NickMax(tag->getInt("maxnick", 32))
+	, ChanMax(tag->getInt("maxchan", 64))
+	, MaxModes(tag->getInt("maxmodes", 20))
+	, IdentMax(tag->getInt("maxident", 11))
+	, MaxQuit(tag->getInt("maxquit", 255))
+	, MaxTopic(tag->getInt("maxtopic", 307))
+	, MaxKick(tag->getInt("maxkick", 255))
+	, MaxGecos(tag->getInt("maxgecos", 128))
+	, MaxAway(tag->getInt("maxaway", 200))
+	, MaxLine(tag->getInt("maxline", 512))
+	, MaxHost(tag->getInt("maxhost", 64))
+{
+}
+
+static ConfigTag* CreateEmptyTag()
+{
+	std::vector<KeyVal>* items;
+	return ConfigTag::create("empty", "<auto>", 0, items);
+}
 
 ServerConfig::ServerConfig()
-	: NoSnoticeStack(false)
+	: EmptyTag(CreateEmptyTag())
+	, Limits(EmptyTag)
+	, NoSnoticeStack(false)
 {
-	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
-	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = false;
-	WildcardIPv6 = CycleHosts = InvBypassModes = true;
+	RawLog = HideBans = HideSplits = false;
+	WildcardIPv6 = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = ServerInstance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxChans = 20;
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
-
-	std::vector<KeyVal>* items;
-	EmptyTag = ConfigTag::create("empty", "<auto>", 0, items);
 }
 
 ServerConfig::~ServerConfig()
 {
 	delete EmptyTag;
-}
-
-void ServerConfig::Update005()
-{
-	std::stringstream out(data005);
-	std::vector<std::string> data;
-	std::string token;
-	while (out >> token)
-		data.push_back(token);
-	sort(data.begin(), data.end());
-
-	std::string line5;
-	isupport.clear();
-	for(unsigned int i=0; i < data.size(); i++)
-	{
-		token = data[i];
-		line5 = line5 + token + " ";
-		if (i % 13 == 12)
-		{
-			line5.append(":are supported by this server");
-			isupport.push_back(line5);
-			line5.clear();
-		}
-	}
-	if (!line5.empty())
-	{
-		line5.append(":are supported by this server");
-		isupport.push_back(line5);
-	}
-}
-
-void ServerConfig::Send005(User* user)
-{
-	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
-		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
-}
-
-template<typename T, typename V>
-static void range(T& value, V min, V max, V def, const char* msg)
-{
-	if (value >= (T)min && value <= (T)max)
-		return;
-	ServerInstance->Logs->Log("CONFIG", DEFAULT,
-		"WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
-		msg, (long)value, (long)min, (long)max, (long)def);
-	value = def;
-}
-
-
-static void ValidIP(const std::string& ip, const std::string& key)
-{
-	irc::sockets::sockaddrs dummy;
-	if (!irc::sockets::aptosa(ip, 0, dummy))
-		throw CoreException("The value of "+key+" is not an IP address");
 }
 
 static void ValidHost(const std::string& p, const std::string& msg)
@@ -139,77 +98,18 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 	std::string thiscmd;
 
 	/* Enable everything first */
-	for (Commandtable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+	for (CommandParser::CommandMap::const_iterator x = commands.begin(); x != commands.end(); ++x)
 		x->second->Disable(false);
 
 	/* Now disable all the ones which the user wants disabled */
 	while (dcmds >> thiscmd)
 	{
-		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
-		if (cm != ServerInstance->Parser->cmdlist.end())
-		{
-			cm->second->Disable(true);
-		}
+		Command* handler = ServerInstance->Parser.GetHandler(thiscmd);
+		if (handler)
+			handler->Disable(true);
 	}
 	return true;
-}
-
-static void FindDNS(std::string& server)
-{
-	if (!server.empty())
-		return;
-#ifdef _WIN32
-	// attempt to look up their nameserver from the system
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
-
-	PFIXED_INFO pFixedInfo;
-	DWORD dwBufferSize = sizeof(FIXED_INFO);
-	pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, sizeof(FIXED_INFO));
-
-	if(pFixedInfo)
-	{
-		if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW) {
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-			pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
-		}
-
-		if(pFixedInfo) {
-			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == NO_ERROR)
-				server = pFixedInfo->DnsServerList.IpAddress.String;
-
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-		}
-
-		if(!server.empty())
-		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in the system settings.", server.c_str());
-			return;
-		}
-	}
-
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
-#else
-	// attempt to look up their nameserver from /etc/resolv.conf
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
-
-	std::ifstream resolv("/etc/resolv.conf");
-
-	while (resolv >> server)
-	{
-		if (server == "nameserver")
-		{
-			resolv >> server;
-			if (server.find_first_not_of("0123456789.") == std::string::npos)
-			{
-				ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
-				return;
-			}
-		}
-	}
-
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
-#endif
-	server = "127.0.0.1";
 }
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
@@ -250,13 +150,11 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
-		if (!ServerInstance->IsNick(name.c_str(), Limits.NickMax))
-			throw CoreException("<type:name> is invalid (value '" + name + "')");
-		if (oper_blocks.find(" " + name) != oper_blocks.end())
+		if (OperTypes.find(name) != OperTypes.end())
 			throw CoreException("Duplicate type block with name " + name + " at " + tag->getTagLocation());
 
 		OperInfo* ifo = new OperInfo;
-		oper_blocks[" " + name] = ifo;
+		OperTypes[name] = ifo;
 		ifo->name = name;
 		ifo->type_block = tag;
 
@@ -281,8 +179,8 @@ void ServerConfig::CrossCheckOperClassType()
 			throw CoreException("<oper:name> missing from tag at " + tag->getTagLocation());
 
 		std::string type = tag->getString("type");
-		OperIndex::iterator tblk = oper_blocks.find(" " + type);
-		if (tblk == oper_blocks.end())
+		OperIndex::iterator tblk = OperTypes.find(type);
+		if (tblk == OperTypes.end())
 			throw CoreException("Oper block " + name + " has missing type " + type);
 		if (oper_blocks.find(name) != oper_blocks.end())
 			throw CoreException("Duplicate oper block with name " + name + " at " + tag->getTagLocation());
@@ -305,7 +203,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			if (c->name.substr(0, 8) != "unnamed-")
+			if (c->name.compare(0, 8, "unnamed-", 8))
 			{
 				oldBlocksByMask["n" + c->name] = c;
 			}
@@ -428,6 +326,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
+			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
@@ -445,42 +344,31 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 /** Represents a deprecated configuration tag.
  */
-struct Deprecated
+struct DeprecatedConfig
 {
-	/** Tag name
-	 */
-	const char* tag;
-	/** Tag value
-	 */
-	const char* value;
-	/** Reason for deprecation
-	 */
-	const char* reason;
+	/** Tag name. */
+	std::string tag;
+
+	/** Attribute key. */
+	std::string key;
+
+	/** Attribute value. */
+	std::string value;
+
+	/** Reason for deprecation. */
+	std::string reason;
 };
 
-static const Deprecated ChangedConfig[] = {
-	{"options", "hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
-	{"options", "hidewhois",		"has been moved to <security:hidewhois> as of 1.2a3"},
-	{"options", "userstats",		"has been moved to <security:userstats> as of 1.2a3"},
-	{"options", "customversion",	"has been moved to <security:customversion> as of 1.2a3"},
-	{"options", "hidesplits",		"has been moved to <security:hidesplits> as of 1.2a3"},
-	{"options", "hidebans",		"has been moved to <security:hidebans> as of 1.2a3"},
-	{"options", "hidekills",		"has been moved to <security:hidekills> as of 1.2a3"},
-	{"options", "operspywhois",		"has been moved to <security:operspywhois> as of 1.2a3"},
-	{"options", "announceinvites",	"has been moved to <security:announceinvites> as of 1.2a3"},
-	{"options", "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
-	{"options", "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
-	{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
-	{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-	{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
-	{"options", "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
-	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
-	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-	{"options",	"loglevel",		"1.2+ does not use the loglevel value. Please define <log> tags instead."},
-	{"die",     "value",            "you need to reread your config"},
-	{"bind",    "transport",		"has been moved to <bind:ssl> as of 2.0a1"},
-	{"link",    "transport",		"has been moved to <link:ssl> as of 2.0a1"},
-	{"link",	"autoconnect",		"2.0+ does not use the autoconnect value. Please define <autoconnect> tags instead."},
+static const DeprecatedConfig ChangedConfig[] = {
+	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
+	{ "die",         "value",       "",                 "you need to reread your config" },
+	{ "gnutls",      "starttls",    "",                 "has been replaced with m_starttls as of 3.0" },
+	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
+	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
+	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 3.0" },
+	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 3.0" },
+	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 3.0" },
+	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 3.0" }
 };
 
 void ServerConfig::Fill()
@@ -489,44 +377,34 @@ void ServerConfig::Fill()
 	ConfigTag* security = ConfValue("security");
 	if (sid.empty())
 	{
-		ServerName = ConfValue("server")->getString("name");
-		sid = ConfValue("server")->getString("id");
+		ServerName = ConfValue("server")->getString("name", "irc.example.com");
 		ValidHost(ServerName, "<server:name>");
-		if (!sid.empty() && !ServerInstance->IsSID(sid))
+
+		sid = ConfValue("server")->getString("id");
+		if (!sid.empty() && !InspIRCd::IsSID(sid))
 			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
 	else
 	{
 		if (ServerName != ConfValue("server")->getString("name"))
-			throw CoreException("You must restart to change the server name or SID");
+			throw CoreException("You must restart to change the server name");
+
 		std::string nsid = ConfValue("server")->getString("id");
 		if (!nsid.empty() && nsid != sid)
-			throw CoreException("You must restart to change the server name or SID");
+			throw CoreException("You must restart to change the server id");
 	}
-	diepass = ConfValue("power")->getString("diepass");
-	restartpass = ConfValue("power")->getString("restartpass");
-	powerhash = ConfValue("power")->getString("hash");
-	PrefixQuit = options->getString("prefixquit");
-	SuffixQuit = options->getString("suffixquit");
-	FixedQuit = options->getString("fixedquit");
-	PrefixPart = options->getString("prefixpart");
-	SuffixPart = options->getString("suffixpart");
-	FixedPart = options->getString("fixedpart");
-	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
+	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
-	MoronBanner = options->getString("moronbanner", "You're banned!");
+	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
-	AdminName = ConfValue("admin")->getString("name", "");
-	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
-	AdminNick = ConfValue("admin")->getString("nick", "admin");
-	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
-	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
+	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
-	CustomVersion = security->getString("customversion", Network + " IRCd");
+	CustomVersion = security->getString("customversion");
 	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
 	HideWhoisServer = security->getString("hidewhois");
@@ -534,52 +412,32 @@ void ServerConfig::Fill()
 	HideULineKills = security->getBool("hideulinekills");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
-	NoUserDns = ConfValue("performance")->getBool("nouserdns");
 	SyntaxHints = options->getBool("syntaxhints");
-	CycleHosts = options->getBool("cyclehosts");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
-	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getInt("maxtargets", 20);
-	DefaultModes = options->getString("defaultmodes", "nt");
+	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
+	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
-	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
-	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
-	WhoWasMaxKeep = ServerInstance->Duration(ConfValue("whowas")->getString("maxkeep"));
 	MaxChans = ConfValue("channels")->getInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
+	OperMaxChans = ConfValue("channels")->getInt("opers");
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
-	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
-	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
-	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
-	Limits.IdentMax = ConfValue("limits")->getInt("maxident", 11);
-	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit", 255);
-	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic", 307);
-	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);
-	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
-	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
-	InvBypassModes = options->getBool("invitebypassmodes", true);
+	Limits = ServerLimits(ConfValue("limits"));
+	Paths.Config = ConfValue("path")->getString("configdir", INSPIRCD_CONFIG_PATH);
+	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
+	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
+	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
-	WelcomeNotice = options->getBool("welcomenotice", true);
 
-	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
-	if (ConfValue("performance")->getBool("limitsomaxconn", true))
-		range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
-	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
-	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
-	range(WhoWasGroupSize, 0, 10000, 10, "<whowas:groupsize>");
-	range(WhoWasMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
-	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
-
-	ValidIP(DNSServer, "<dns:server>");
+	if (Network.find(' ') != std::string::npos)
+		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
 
 	std::string defbind = options->getString("defaultbind");
-	if (assign(defbind) == "ipv4")
+	if (stdalgo::string::equalsci(defbind, "ipv4"))
 	{
 		WildcardIPv6 = false;
 	}
-	else if (assign(defbind) == "ipv6")
+	else if (stdalgo::string::equalsci(defbind, "ipv6"))
 	{
 		WildcardIPv6 = true;
 	}
@@ -590,26 +448,7 @@ void ServerConfig::Fill()
 		if (socktest < 0)
 			WildcardIPv6 = false;
 		else
-			ServerInstance->SE->Close(socktest);
-	}
-	ConfigTagList tags = ConfTags("uline");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		std::string server;
-		if (!tag->readString("server", server))
-			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
-		ulines[assign(server)] = tag->getBool("silent");
-	}
-
-	tags = ConfTags("banlist");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		std::string chan;
-		if (!tag->readString("chan", chan))
-			throw CoreException("<banlist> tag missing chan at " + tag->getTagLocation());
-		maxbans[chan] = tag->getInt("limit");
+			SocketEngine::Close(socktest);
 	}
 
 	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));
@@ -635,11 +474,6 @@ void ServerConfig::Fill()
 			throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
 		DisabledCModes[*p - 'A'] = 1;
 	}
-
-	memset(HideModeLists, 0, sizeof(HideModeLists));
-	modes = ConfValue("security")->getString("hidemodes");
-	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
-		HideModeLists[(unsigned char) *p] = true;
 
 	std::string v = security->getString("announceinvites");
 
@@ -675,12 +509,7 @@ void ServerConfig::Read()
 	catch (CoreException& err)
 	{
 		valid = false;
-		errstr << err.GetReason();
-	}
-	if (valid)
-	{
-		DNSServer = ConfValue("dns")->getString("server");
-		FindDNS(DNSServer);
+		errstr << err.GetReason() << std::endl;
 	}
 }
 
@@ -700,16 +529,26 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
+		for (int index = 0; index * sizeof(DeprecatedConfig) < sizeof(ChangedConfig); index++)
 		{
-			std::string dummy;
-			ConfigTagList tags = ConfTags(ChangedConfig[Index].tag);
+			std::string value;
+			ConfigTagList tags = ConfTags(ChangedConfig[index].tag);
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
-				if (i->second->readString(ChangedConfig[Index].value, dummy, true))
-					errstr << "Your configuration contains a deprecated value: <"
-						<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
-						<< " (at " << i->second->getTagLocation() << ")\n";
+				if (i->second->readString(ChangedConfig[index].key, value, true)
+					&& (ChangedConfig[index].value.empty() || value == ChangedConfig[index].value))
+				{
+					errstr << "Your configuration contains a deprecated value: <"  << ChangedConfig[index].tag;
+					if (ChangedConfig[index].value.empty())
+					{
+						errstr << ':' << ChangedConfig[index].key;
+					}
+					else
+					{
+						errstr << ' ' << ChangedConfig[index].key << "=\"" << ChangedConfig[index].value << "\"";
+					}
+					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")" << std::endl;
+				}
 			}
 		}
 
@@ -731,6 +570,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (valid)
 		ServerInstance->WritePID(this->PID, !old);
 
+	ConfigTagList binds = ConfTags("bind");
+	if (binds.first == binds.second)
+		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
+			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
+
 	if (old && valid)
 	{
 		// On first run, ports are bound later on
@@ -738,14 +582,14 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
 		{
-			errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
+			errstr << "Not all your client ports could be bound." << std::endl
+				<< "The following port(s) failed to bind:" << std::endl;
 
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				char buf[MAXBUF];
-				snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
-				errstr << buf;
+				errstr << j << ".\tAddress: " << (i->first.empty() ? "<all>" : i->first.c_str()) << "\tReason: "
+					<< i->second << std::endl;
 			}
 		}
 	}
@@ -754,7 +598,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	if (!valid)
 	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
 		Classes.clear();
 	}
 
@@ -769,7 +613,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			std::cout << line << std::endl;
 		// If a user is rehashing, tell them directly
 		if (user)
-			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
+			user->WriteRemoteNotice(InspIRCd::Format("*** %s", line.c_str()));
 		// Also tell opers
 		ServerInstance->SNO->WriteGlobalSno('a', line);
 	}
@@ -783,15 +627,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ConfigTag *tag = (*it)->config;
 		// Make sure our connection class allows motd colors
 		if(!tag->getBool("allowmotdcolors"))
-		      continue;
+			continue;
 
 		ConfigFileCache::iterator file = this->Files.find(tag->getString("motd", "motd"));
 		if (file != this->Files.end())
-		      InspIRCd::ProcessColors(file->second);
-
-		file = this->Files.find(tag->getString("rules", "rules"));
-		if (file != this->Files.end())
-		      InspIRCd::ProcessColors(file->second);
+			InspIRCd::ProcessColors(file->second);
 	}
 
 	/* No old configuration -> initial boot, nothing more to do here */
@@ -813,20 +653,14 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	ApplyModules(user);
 
 	if (user)
-		user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
-			ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+		user->WriteRemoteNotice("*** Successfully rehashed server.");
 	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 
 void ServerConfig::ApplyModules(User* user)
 {
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
-
-	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
 	std::vector<std::string> added_modules;
-	std::set<std::string> removed_modules(v.begin(), v.end());
+	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules->GetModules();
 
 	ConfigTagList tags = ConfTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -835,6 +669,7 @@ void ServerConfig::ApplyModules(User* user)
 		std::string name;
 		if (tag->readString("name", name))
 		{
+			name = ModuleManager::ExpandModName(name);
 			// if this module is already loaded, the erase will succeed, so we need do nothing
 			// otherwise, we need to add the module (which will be done later)
 			if (removed_modules.erase(name) == 0)
@@ -842,56 +677,48 @@ void ServerConfig::ApplyModules(User* user)
 		}
 	}
 
-	if (ConfValue("options")->getBool("allowhalfop") && removed_modules.erase("m_halfop.so") == 0)
-		added_modules.push_back("m_halfop.so");
-
-	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
 	{
-		// Don't remove cmd_*.so, just remove m_*.so
-		if (removing->c_str()[0] == 'c')
+		const std::string& modname = i->first;
+		// Don't remove core_*.so, just remove m_*.so
+		if (modname.c_str()[0] == 'c')
 			continue;
-		Module* m = ServerInstance->Modules->Find(*removing);
-		if (m && ServerInstance->Modules->Unload(m))
+		if (ServerInstance->Modules->Unload(i->second))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
-				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, InspIRCd::Format("Module %s successfully unloaded.", modname.c_str()));
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", removing->c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str()));
 			else
-				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 
 	for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 	{
-		if (ServerInstance->Modules->Load(adding->c_str()))
+		if (ServerInstance->Modules->Load(*adding))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, *adding, InspIRCd::Format("Module %s successfully loaded.", adding->c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, *adding, InspIRCd::Format("Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str()));
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
-}
-
-bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
-{
-	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
 ConfigTag* ServerConfig::ConfValue(const std::string &tag)
@@ -902,7 +729,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
-		ServerInstance->Logs->Log("CONFIG",DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
 			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
 	return rv;
 }
@@ -912,35 +739,28 @@ ConfigTagList ServerConfig::ConfTags(const std::string& tag)
 	return config_data.equal_range(tag);
 }
 
-bool ServerConfig::FileExists(const char* file)
+std::string ServerConfig::Escape(const std::string& str, bool xml)
 {
-	struct stat sb;
-	if (stat(file, &sb) == -1)
-		return false;
-
-	if ((sb.st_mode & S_IFDIR) > 0)
-		return false;
-
-	FILE *input = fopen(file, "r");
-	if (input == NULL)
-		return false;
-	else
+	std::string escaped;
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
 	{
-		fclose(input);
-		return true;
+		switch (*it)
+		{
+			case '"':
+				escaped += xml ? "&quot;" : "\"";
+				break;
+			case '&':
+				escaped += xml ? "&amp;" : "&";
+				break;
+			case '\\':
+				escaped += xml ? "\\" : "\\\\";
+				break;
+			default:
+				escaped += *it;
+				break;
+		}
 	}
-}
-
-const char* ServerConfig::CleanFilename(const char* name)
-{
-	const char* p = name + strlen(name);
-	while ((p != name) && (*p != '/') && (*p != '\\')) p--;
-	return (p != name ? ++p : p);
-}
-
-const std::string& ServerConfig::GetSID()
-{
-	return sid;
+	return escaped;
 }
 
 void ConfigReaderThread::Run()
@@ -952,7 +772,7 @@ void ConfigReaderThread::Run()
 void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs->Log("CONFIG",DEBUG,"Switching to new configuration...");
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, TheUserUID);
 
@@ -964,15 +784,23 @@ void ConfigReaderThread::Finish()
 		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 		 * thoroughly!!!
 		 */
-		ServerInstance->Users->RehashCloneCounts();
+		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		ServerInstance->Res->Rehash();
-		ServerInstance->ResetMaxBans();
+		ChanModeReference ban(NULL, "ban");
+		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);
-		FOREACH_MOD(I_OnRehash, OnRehash(user));
-		ServerInstance->BuildISupport();
+
+		ConfigStatus status(user);
+		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+			i->second->ReadConfig(status);
+
+		// The description of this server may have changed - update it for WHOIS etc.
+		ServerInstance->FakeClient->server->description = Config->ServerDesc;
+
+		ServerInstance->ISupport.Build();
 
 		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Logs->OpenFileLogs();

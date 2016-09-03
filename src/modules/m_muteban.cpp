@@ -20,28 +20,15 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b m: - mute bans */
-
 class ModuleQuietBan : public Module
 {
- private:
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleQuietBan()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	virtual ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user) || target_type != TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -49,24 +36,17 @@ class ModuleQuietBan : public Module
 		Channel* chan = static_cast<Channel*>(dest);
 		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)", user->nick.c_str(), chan->name.c_str());
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're muted)");
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('m');
+		tokens["EXTBAN"].push_back('m');
 	}
 };
 
-
 MODULE_INIT(ModuleQuietBan)
-

@@ -19,8 +19,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 
 /* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
@@ -55,8 +53,8 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		}
 		else
 		{
-			address_copy = address.substr(username_addr_pos + 1);
-			cidr_copy = cidr_mask.substr(username_mask_pos + 1);
+			address_copy.assign(address, username_addr_pos + 1, std::string::npos);
+			cidr_copy.assign(cidr_mask, username_mask_pos + 1, std::string::npos);
 		}
 	}
 	else
@@ -82,5 +80,3 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 
 	return mask == mask2;
 }
-
-

@@ -22,18 +22,17 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements config tags which allow blocking of joins to channels */
-
 class ModuleDenyChannels : public Module
 {
+	ChanModeReference redirectmode;
+
  public:
-	void init()
+	ModuleDenyChannels()
+		: redirectmode(this, "redirect")
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/* check for redirect validity and loops/chains */
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
@@ -45,10 +44,10 @@ class ModuleDenyChannels : public Module
 			if (!redirect.empty())
 			{
 
-				if (!ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(redirect))
 				{
-					if (user)
-						user->WriteServ("NOTICE %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
+					if (status.srcuser)
+						status.srcuser->WriteNotice("Invalid badchan redirect '" + redirect + "'");
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
 
@@ -67,8 +66,8 @@ class ModuleDenyChannels : public Module
 						if (!goodchan)
 						{
 							/* <badchan:redirect> is a badchan */
-							if (user)
-								user->WriteServ("NOTICE %s :Badchan %s redirects to badchan %s", user->nick.c_str(), name.c_str(), redirect.c_str());
+							if (status.srcuser)
+								status.srcuser->WriteNotice("Badchan " + name + " redirects to badchan " + redirect);
 							throw ModuleException("Badchan redirect loop");
 						}
 					}
@@ -77,24 +76,20 @@ class ModuleDenyChannels : public Module
 		}
 	}
 
-	virtual ~ModuleDenyChannels()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);
 	}
 
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
 		for (ConfigIter j = tags.first; j != tags.second; ++j)
 		{
 			if (InspIRCd::Match(cname, j->second->getString("name")))
 			{
-				if (IS_OPER(user) && j->second->getBool("allowopers"))
+				if (user->IsOper() && j->second->getBool("allowopers"))
 				{
 					return MOD_RES_PASSTHRU;
 				}
@@ -112,19 +107,19 @@ class ModuleDenyChannels : public Module
 						}
 					}
 
-					if (ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
+					if (ServerInstance->IsChannel(redirect))
 					{
 						/* simple way to avoid potential loops: don't redirect to +L channels */
 						Channel *newchan = ServerInstance->FindChan(redirect);
-						if ((!newchan) || (!(newchan->IsModeSet('L'))))
+						if ((!newchan) || (!newchan->IsModeSet(redirectmode)))
 						{
-							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname,cname,redirect.c_str(), reason.c_str());
-							Channel::JoinUser(user,redirect.c_str(),false,"",false,ServerInstance->Time());
+							user->WriteNumeric(926, cname, InspIRCd::Format("Channel %s is forbidden, redirecting to %s: %s", cname.c_str(), redirect.c_str(), reason.c_str()));
+							Channel::JoinUser(user, redirect);
 							return MOD_RES_DENY;
 						}
 					}
 
-					user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname,cname,reason.c_str());
+					user->WriteNumeric(926, cname, InspIRCd::Format("Channel %s is forbidden: %s", cname.c_str(), reason.c_str()));
 					return MOD_RES_DENY;
 				}
 			}

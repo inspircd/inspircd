@@ -21,51 +21,39 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: A module which logs all oper commands to the ircd log at default loglevel. */
-
 class ModuleOperLog : public Module
 {
 	bool tosnomask;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
-		OnRehash(NULL);
 	}
 
-	virtual ~ModuleOperLog()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
+		if ((user->IsOper()) && (user->HasPermission(command)))
 		{
-			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
+			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
-				std::string line;
-				if (!parameters.empty())
-					line = irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined();
-				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + line;
-				ServerInstance->Logs->Log("m_operlog", DEFAULT, "OPERLOG: " + msg);
+				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + irc::stringjoiner(parameters);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO->WriteGlobalSno('r', msg);
 			}
@@ -74,12 +62,11 @@ class ModuleOperLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		output.append(" OPERLOG");
+		tokens["OPERLOG"];
 	}
 
 };
-
 
 MODULE_INIT(ModuleOperLog)

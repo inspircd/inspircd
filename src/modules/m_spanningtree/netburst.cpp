@@ -21,11 +21,79 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "listmode.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
-#include "utils.h"
 #include "main.h"
+#include "commands.h"
+
+/**
+ * Creates FMODE messages, used only when syncing channels
+ */
+class FModeBuilder : public CmdBuilder
+{
+	static const size_t maxline = 480;
+	std::string params;
+	unsigned int modes;
+	std::string::size_type startpos;
+
+ public:
+	FModeBuilder(Channel* chan)
+		: CmdBuilder("FMODE"), modes(0)
+	{
+		push(chan->name).push_int(chan->age).push_raw(" +");
+		startpos = str().size();
+	}
+
+	/** Add a mode to the message
+	 */
+	void push_mode(const char modeletter, const std::string& mask)
+	{
+		push_raw(modeletter);
+		params.push_back(' ');
+		params.append(mask);
+		modes++;
+	}
+
+	/** Remove all modes from the message
+	 */
+	void clear()
+	{
+		content.erase(startpos);
+		params.clear();
+		modes = 0;
+	}
+
+	/** Prepare the message for sending, next mode can only be added after clear()
+	 */
+	const std::string& finalize()
+	{
+		return push_raw(params);
+	}
+
+	/** Returns true if the given mask can be added to the message, false if the message
+	 * has no room for the mask
+	 */
+	bool has_room(const std::string& mask) const
+	{
+		return ((str().size() + params.size() + mask.size() + 2 <= maxline) &&
+				(modes < ServerInstance->Config->Limits.MaxModes));
+	}
+
+	/** Returns true if this message is empty (has no modes)
+	 */
+	bool empty() const
+	{
+		return (modes == 0);
+	}
+};
+
+struct TreeSocket::BurstState
+{
+	SpanningTreeProtocolInterface::Server server;
+	BurstState(TreeSocket* sock) : server(sock) { }
+};
 
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
@@ -34,157 +102,98 @@
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	std::string servername = s->GetName();
 	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
-		servername.c_str(),
-		capab->auth_fingerprint ? "SSL Fingerprint and " : "",
+		s->GetName().c_str(),
+		capab->auth_fingerprint ? "SSL certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
-	/* send our version string */
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
-	/* Send server tree */
-	this->SendServers(Utils->TreeRoot,s,1);
-	/* Send users and their oper status */
-	this->SendUsers();
-	/* Send everything else (channel modes, xlines etc) */
-	this->SendChannelModes();
+	this->WriteLine(CmdBuilder("BURST").push_int(ServerInstance->Time()));
+	// Introduce all servers behind us
+	this->SendServers(Utils->TreeRoot, s);
+
+	BurstState bs(this);
+	// Introduce all users
+	this->SendUsers(bs);
+
+	// Sync all channels
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+		SyncChannel(i->second, bs);
+
+	// Send all xlines
 	this->SendXLines();
-	FOREACH_MOD(I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
+	FOREACH_MOD(OnSyncNetwork, (bs.server));
+	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
+
+	this->burstsent = true;
 }
 
-/** Recursively send the server tree with distances as hops.
+void TreeSocket::SendServerInfo(TreeServer* from)
+{
+	// Send public version string
+	this->WriteLine(CommandSInfo::Builder(from, "version", from->GetVersion()));
+
+	// Send full version string that contains more information and is shown to opers
+	this->WriteLine(CommandSInfo::Builder(from, "fullversion", from->GetFullVersion()));
+}
+
+/** Recursively send the server tree.
  * This is used during network burst to inform the other server
  * (and any of ITS servers too) of what servers we know about.
  * If at any point any of these servers already exist on the other
- * end, our connection may be terminated. The hopcounts given
- * by this function are relative, this doesn't matter so long as
- * they are all >1, as all the remote servers re-calculate them
- * to be relative too, with themselves as hop 0.
+ * end, our connection may be terminated.
  */
-void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
+void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
-	char command[MAXBUF];
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	SendServerInfo(Current);
+
+	const TreeServer::ChildServers& children = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		TreeServer* recursive_server = Current->GetChild(q);
+		TreeServer* recursive_server = *i;
 		if (recursive_server != s)
 		{
-			std::string recursive_servername = recursive_server->GetName();
-			snprintf(command, MAXBUF, ":%s SERVER %s * %d %s :%s", Current->GetID().c_str(), recursive_servername.c_str(), hops,
-					recursive_server->GetID().c_str(),
-					recursive_server->GetDesc().c_str());
-			this->WriteLine(command);
-			this->WriteLine(":"+recursive_server->GetID()+" VERSION :"+recursive_server->GetVersion());
+			this->WriteLine(CommandServer::Builder(recursive_server));
 			/* down to next level */
-			this->SendServers(recursive_server, s, hops+1);
+			this->SendServers(recursive_server, s);
 		}
 	}
 }
 
 /** Send one or more FJOINs for a channel of users.
- * If the length of a single line is more than 480-NICKMAX
- * in length, it is split over multiple lines.
+ * If the length of a single line is too long, it is split over multiple lines.
  */
 void TreeSocket::SendFJoins(Channel* c)
 {
-	std::string buffer;
-	char list[MAXBUF];
+	CommandFJoin::Builder fjoin(c);
 
-	size_t curlen, headlen;
-	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :",
-		ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
-	int numusers = 0;
-	char* ptr = list + curlen;
-	bool looped_once = false;
-
-	const UserMembList *ulist = c->GetUsers();
-	std::string modes;
-	std::string params;
-
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+	const Channel::MemberMap& ulist = c->GetUsers();
+	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 	{
-		size_t ptrlen = 0;
-		std::string modestr = i->second->modes;
-
-		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
+		Membership* memb = i->second;
+		if (!fjoin.has_room(memb))
 		{
-			// remove the final space
-			if (ptr[-1] == ' ')
-				ptr[-1] = '\0';
-			buffer.append(list).append("\r\n");
-			curlen = headlen;
-			ptr = list + headlen;
-			numusers = 0;
+			// No room for this user, send the line and prepare a new one
+			this->WriteLine(fjoin.finalize());
+			fjoin.clear();
 		}
-
-		ptrlen = snprintf(ptr, MAXBUF-curlen, "%s,%s ", modestr.c_str(), i->first->uuid.c_str());
-
-		looped_once = true;
-
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
+		fjoin.add(memb);
 	}
-
-	// Okay, permanent channels will (of course) need this \r\n anyway, numusers check is if there
-	// actually were people in the channel (looped_once == true)
-	if (!looped_once || numusers > 0)
-	{
-		// remove the final space
-		if (ptr[-1] == ' ')
-			ptr[-1] = '\0';
-		buffer.append(list).append("\r\n");
-	}
-
-	unsigned int linesize = 1;
-	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
-	{
-		unsigned int size = b->data.length() + 2; // "b" and " "
-		unsigned int nextsize = linesize + size;
-
-		if ((modes.length() >= ServerInstance->Config->Limits.MaxModes) || (nextsize > FMODE_MAX_LENGTH))
-		{
-			/* Wrap */
-			buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
-
-			modes.clear();
-			params.clear();
-			linesize = 1;
-		}
-
-		modes.push_back('b');
-
-		params.push_back(' ');
-		params.append(b->data);
-
-		linesize += size;
-	}
-
-	/* Only send these if there are any */
-	if (!modes.empty())
-		buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
-
-	this->WriteLine(buffer);
+	this->WriteLine(fjoin.finalize());
 }
 
 /** Send all XLines we know about */
 void TreeSocket::SendXLines()
 {
-	char data[MAXBUF];
-	std::string n = ServerInstance->Config->GetSID();
-	const char* sn = n.c_str();
-
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
-	time_t current = ServerInstance->Time();
 
-	for (std::vector<std::string>::iterator it = types.begin(); it != types.end(); ++it)
+	for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
 	{
+		/* Expired lines are removed in XLineManager::GetAll() */
 		XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
 
+		/* lookup cannot be NULL in this case but a check won't hurt */
 		if (lookup)
 		{
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
@@ -195,96 +204,101 @@ void TreeSocket::SendXLines()
 				if (!i->second->IsBurstable())
 					break;
 
-				/* If it's expired, don't bother to burst it
-				 */
-				if (i->second->duration && current > i->second->expiry)
-					continue;
-
-				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
-						i->second->source.c_str(),
-						(unsigned long)i->second->set_time,
-						(unsigned long)i->second->duration,
-						i->second->reason.c_str());
-				this->WriteLine(data);
+				this->WriteLine(CommandAddLine::Builder(i->second));
 			}
 		}
 	}
 }
 
-/** Send channel topic, modes and metadata */
-void TreeSocket::SendChannelModes()
+void TreeSocket::SendListModes(Channel* chan)
 {
-	char data[MAXBUF];
-	std::string n = ServerInstance->Config->GetSID();
-	const char* sn = n.c_str();
-
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	FModeBuilder fmode(chan);
+	const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+	for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
 	{
-		SendFJoins(c->second);
-		if (!c->second->topic.empty())
-		{
-			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
-			this->WriteLine(data);
-		}
+		ListModeBase* mh = *i;
+		ListModeBase::ModeList* list = mh->GetList(chan);
+		if (!list)
+			continue;
 
-		for(Extensible::ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
+		// Add all items on the list to the FMODE, send it whenever it becomes too long
+		const char modeletter = mh->GetModeChar();
+		for (ListModeBase::ModeList::const_iterator j = list->begin(); j != list->end(); ++j)
+		{
+			const std::string& mask = j->mask;
+			if (!fmode.has_room(mask))
+			{
+				// No room for this mask, send the current line as-is then add the mask to a
+				// new, empty FMODE message
+				this->WriteLine(fmode.finalize());
+				fmode.clear();
+			}
+			fmode.push_mode(modeletter, mask);
+		}
+	}
+
+	if (!fmode.empty())
+		this->WriteLine(fmode.finalize());
+}
+
+/** Send channel users, topic, modes and global metadata */
+void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
+{
+	SendFJoins(chan);
+
+	// If the topic was ever set, send it, even if it's empty now
+	// because a new empty topic should override an old non-empty topic
+	if (chan->topicset != 0)
+		this->WriteLine(CommandFTopic::Builder(chan));
+
+	SendListModes(chan);
+
+	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
+	{
+		ExtensionItem* item = i->first;
+		std::string value = item->serialize(FORMAT_NETWORK, chan, i->second);
+		if (!value.empty())
+			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
+	}
+
+	FOREACH_MOD(OnSyncChannel, (chan, bs.server));
+}
+
+void TreeSocket::SyncChannel(Channel* chan)
+{
+	BurstState bs(this);
+	SyncChannel(chan, bs);
+}
+
+/** Send all users and their state, including oper and away status and global metadata */
+void TreeSocket::SendUsers(BurstState& bs)
+{
+	ProtocolInterface::Server& piserver = bs.server;
+
+	const user_hash& users = ServerInstance->Users->GetUsers();
+	for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
+	{
+		User* user = u->second;
+		if (user->registered != REG_ALL)
+			continue;
+
+		this->WriteLine(CommandUID::Builder(user));
+
+		if (user->IsOper())
+			this->WriteLine(CommandOpertype::Builder(user));
+
+		if (user->IsAway())
+			this->WriteLine(CommandAway::Builder(user));
+
+		const Extensible::ExtensibleStore& exts = user->GetExtList();
+		for (Extensible::ExtensibleStore::const_iterator i = exts.begin(); i != exts.end(); ++i)
 		{
 			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
+			std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
 			if (!value.empty())
-				Utils->Creator->ProtoSendMetaData(this, c->second, item->name, value);
+				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
+		FOREACH_MOD(OnSyncUser, (user, piserver));
 	}
 }
-
-/** send all users and their oper state/modes */
-void TreeSocket::SendUsers()
-{
-	char data[MAXBUF];
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
-	{
-		if (u->second->registered == REG_ALL)
-		{
-			TreeServer* theirserver = Utils->FindServer(u->second->server);
-			if (theirserver)
-			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s %s %lu +%s :%s",
-						theirserver->GetID().c_str(),	/* Prefix: SID */
-						u->second->uuid.c_str(),	/* 0: UUID */
-						(unsigned long)u->second->age,	/* 1: TS */
-						u->second->nick.c_str(),	/* 2: Nick */
-						u->second->host.c_str(),	/* 3: Displayed Host */
-						u->second->dhost.c_str(),	/* 4: Real host */
-						u->second->ident.c_str(),	/* 5: Ident */
-						u->second->GetIPString(),	/* 6: IP string */
-						(unsigned long)u->second->signon, /* 7: Signon time for WHOWAS */
-						u->second->FormatModes(true),	/* 8...n: Modes and params */
-						u->second->fullname.c_str());	/* size-1: GECOS */
-				this->WriteLine(data);
-				if (IS_OPER(u->second))
-				{
-					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid.c_str(), u->second->oper->name.c_str());
-					this->WriteLine(data);
-				}
-				if (IS_AWAY(u->second))
-				{
-					snprintf(data,MAXBUF,":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime, u->second->awaymsg.c_str());
-					this->WriteLine(data);
-				}
-			}
-
-			for(Extensible::ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
-			{
-				ExtensionItem* item = i->first;
-				std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
-				if (!value.empty())
-					Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
-			}
-
-			FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));
-		}
-	}
-}
-

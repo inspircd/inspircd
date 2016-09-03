@@ -20,10 +20,8 @@
  */
 
 
-/* $ModDesc: RLINE: Regexp user banning. */
-
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
@@ -60,7 +58,8 @@ class RLine : public XLine
 
 	bool Matches(User *u)
 	{
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
@@ -79,7 +78,7 @@ class RLine : public XLine
 			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString());
 			if (ServerInstance->XLines->AddLine(zl, NULL))
 			{
-				std::string timestr = ServerInstance->TimeString(zl->expiry);
+				std::string timestr = InspIRCd::TimeString(zl->expiry);
 				ServerInstance->SNO->WriteToSnoMask('x', "Z-line added due to R-line match on *@%s%s%s: %s",
 					zl->ipaddr.c_str(), zl->duration ? " to expire on " : "", zl->duration ? timestr.c_str() : "", zl->reason.c_str());
 				added_zline = true;
@@ -90,15 +89,9 @@ class RLine : public XLine
 		DefaultApply(u, "R", false);
 	}
 
-	void DisplayExpiry()
+	const std::string& Displayable()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-line %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-	}
-
-	const char* Displayable()
-	{
-		return matchtext.c_str();
+		return matchtext;
 	}
 
 	std::string matchtext;
@@ -116,7 +109,7 @@ class RLineFactory : public XLineFactory
 	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
 	{
 	}
-	
+
 	/** Generate a RLine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
@@ -128,10 +121,6 @@ class RLineFactory : public XLineFactory
 		}
 
 		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
-	}
-
-	~RLineFactory()
-	{
 	}
 };
 
@@ -156,7 +145,7 @@ class CommandRLine : public Command
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
-			long duration = ServerInstance->Duration(parameters[1]);
+			unsigned long duration = InspIRCd::Duration(parameters[1]);
 			XLine *r = NULL;
 
 			try
@@ -165,7 +154,7 @@ class CommandRLine : public Command
 			}
 			catch (ModuleException &e)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a',"Could not add RLINE: %s", e.GetReason());
+				ServerInstance->SNO->WriteToSnoMask('a',"Could not add RLINE: " + e.GetReason());
 			}
 
 			if (r)
@@ -179,7 +168,7 @@ class CommandRLine : public Command
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						std::string timestr = ServerInstance->TimeString(c_requires_crap);
+						std::string timestr = InspIRCd::TimeString(c_requires_crap);
 						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-line for %s to expire on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), parameters[2].c_str());
 					}
 
@@ -188,7 +177,7 @@ class CommandRLine : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick.c_str(), parameters[0].c_str());
+					user->WriteNotice("*** R-Line for " + parameters[0] + " already exists");
 				}
 			}
 		}
@@ -200,7 +189,7 @@ class CommandRLine : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats R.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** R-Line " + parameters[0] + " not found in list, try /stats R.");
 			}
 		}
 
@@ -218,7 +207,6 @@ class CommandRLine : public Command
 
 class ModuleRLine : public Module
 {
- private:
 	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
 	CommandRLine r;
@@ -233,29 +221,23 @@ class ModuleRLine : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-
-		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
-
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer, I_OnUnloadModule };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleRLine()
+	~ModuleRLine()
 	{
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
@@ -269,7 +251,7 @@ class ModuleRLine : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 
@@ -302,16 +284,16 @@ class ModuleRLine : public Module
 		initing = false;
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'R')
+		if (stats.GetSymbol() != 'R')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("R", 223, user, results);
+		ServerInstance->XLines->InvokeStats("R", 223, stats);
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnUserPostNick(User *user, const std::string &oldnick)
+	void OnUserPostNick(User *user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -328,7 +310,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	virtual void OnBackgroundTimer(time_t curtime)
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
 		if (added_zline)
 		{
@@ -337,7 +319,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		// If the regex engine became unavailable or has changed, remove all rlines
 		if (!rxfactory)

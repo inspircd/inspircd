@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
-
 /** Holds information on a host set by m_hostchange
  */
 class Host
@@ -47,21 +45,13 @@ typedef std::vector<std::pair<std::string, Host> > hostchanges_t;
 
 class ModuleHostChange : public Module
 {
- private:
 	hostchanges_t hostchanges;
 	std::string MySuffix;
 	std::string MyPrefix;
 	std::string MySeparator;
 
  public:
-	void init()
-	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* host = ServerInstance->Config->ConfValue("host");
 		MySuffix = host->getString("suffix");
@@ -97,14 +87,14 @@ class ModuleHostChange : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
 		return Version("Provides masking of user hostnames in a different way to m_cloaking", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
@@ -160,9 +150,9 @@ class ModuleHostChange : public Module
 				}
 				if (!newhost.empty())
 				{
-					user->WriteServ("NOTICE "+user->nick+" :Setting your virtual host: " + newhost);
-					if (!user->ChangeDisplayedHost(newhost.c_str()))
-						user->WriteServ("NOTICE "+user->nick+" :Could not set your virtual host: " + newhost);
+					user->WriteNotice("Setting your virtual host: " + newhost);
+					if (!user->ChangeDisplayedHost(newhost))
+						user->WriteNotice("Could not set your virtual host: " + newhost);
 					return;
 				}
 			}

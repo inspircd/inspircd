@@ -19,44 +19,30 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Hide /MAP and /LINKS in the same form as ircu (mostly useless) */
-
 class ModuleMapHide : public Module
 {
 	std::string url;
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
-		if (validated && !IS_OPER(user) && !url.empty() && (command == "MAP" || command == "LINKS"))
+		if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{
-			user->WriteServ("NOTICE %s :/%s has been disabled; visit %s", user->nick.c_str(), command.c_str(), url.c_str());
+			user->WriteNotice("/" + command + " has been disabled; visit " + url);
 			return MOD_RES_DENY;
 		}
 		else
 			return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleMapHide()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Hide /MAP and /LINKS in the same form as ircu (mostly useless)", VF_VENDOR);
 	}
 };
 
 MODULE_INIT(ModuleMapHide)
-

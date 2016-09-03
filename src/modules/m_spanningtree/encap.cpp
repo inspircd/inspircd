@@ -18,32 +18,39 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
+#include "commands.h"
+#include "main.h"
 
 /** ENCAP */
-void TreeSocket::Encap(User* who, parameterlist &params)
+CmdResult CommandEncap::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() > 1)
+	if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 	{
-		if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
-		{
-			parameterlist plist(params.begin() + 2, params.end());
-			ServerInstance->Parser->CallHandler(params[1], plist, who);
-			// discard return value, ENCAP shall succeed even if the command does not exist
-		}
-		
-		params[params.size() - 1] = ":" + params[params.size() - 1];
+		parameterlist plist(params.begin() + 2, params.end());
 
-		if (params[0].find_first_of("*?") != std::string::npos)
+		// XXX: Workaround for SVS* commands provided by spanningtree not being registered in the core
+		if ((params[1] == "SVSNICK") || (params[1] == "SVSJOIN") || (params[1] == "SVSPART"))
 		{
-			Utils->DoOneToAllButSender(who->uuid, "ENCAP", params, who->server);
+			ServerCommand* const scmd = Utils->Creator->CmdManager.GetHandler(params[1]);
+			if (scmd)
+				scmd->Handle(user, plist);
+			return CMD_SUCCESS;
 		}
-		else
-			Utils->DoOneToOne(who->uuid, "ENCAP", params, params[0]);
+
+		Command* cmd = NULL;
+		ServerInstance->Parser.CallHandler(params[1], plist, user, &cmd);
+		// Discard return value, ENCAP shall succeed even if the command does not exist
+
+		if ((cmd) && (cmd->force_manual_route))
+			return CMD_FAILURE;
 	}
+	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandEncap::GetRouting(User* user, const std::vector<std::string>& params)
+{
+	if (params[0].find_first_of("*?") != std::string::npos)
+		return ROUTE_BROADCAST;
+	return ROUTE_UNICAST(params[0]);
+}

@@ -21,80 +21,37 @@
  */
 
 
-/* $ModDesc: Provides random quotes on connect. */
-
 #include "inspircd.h"
-
-static FileReader *quotes = NULL;
-
-std::string prefix;
-std::string suffix;
-
-/** Handle /RANDQUOTE
- */
-class CommandRandquote : public Command
-{
- public:
-	CommandRandquote(Module* Creator) : Command(Creator,"RANDQUOTE", 0)
-	{
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		int fsize = quotes->FileSize();
-		if (fsize)
-		{
-			std::string str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
-			if (!str.empty())
-				user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
-		}
-
-		return CMD_SUCCESS;
-	}
-};
 
 class ModuleRandQuote : public Module
 {
  private:
-	CommandRandquote cmd;
- public:
-	ModuleRandQuote()
-		: cmd(this)
-	{
-	}
+	std::string prefix;
+	std::string suffix;
+	std::vector<std::string> quotes;
 
-	void init()
+ public:
+	void init() CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
-
-		std::string q_file = conf->getString("file","quotes");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
+		FileReader reader(conf->getString("file", "quotes"));
+		quotes = reader.GetVector();
+	}
 
-		quotes = new FileReader(q_file);
-		if (!quotes->Exists())
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (!quotes.empty())
 		{
-			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
+			unsigned long random = ServerInstance->GenRandomInt(quotes.size());
+			user->WriteNotice(prefix + quotes[random] + suffix);
 		}
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	virtual ~ModuleRandQuote()
+	Version GetVersion() CXX11_OVERRIDE
 	{
-		delete quotes;
-	}
-
-	virtual Version GetVersion()
-	{
-		return Version("Provides random quotes on connect.",VF_VENDOR);
-	}
-
-	virtual void OnUserConnect(LocalUser* user)
-	{
-		cmd.Handle(std::vector<std::string>(), user);
+		return Version("Provides random quotes on connect.", VF_VENDOR);
 	}
 };
 

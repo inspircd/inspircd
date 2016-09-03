@@ -24,39 +24,27 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include "socketengine.h"
 #include <iostream>
+#include <sys/sysctl.h>
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().
  */
-class KQueueEngine : public SocketEngine
+namespace
 {
-private:
 	int EngineHandle;
+	unsigned int ChangePos = 0;
 	/** These are used by kqueue() to hold socket events
 	 */
-	struct kevent* ke_list;
-	/** This is a specialised time value used by kqueue()
-	 */
-	struct timespec ts;
-public:
-	/** Create a new KQueueEngine
-	 */
-	KQueueEngine();
-	/** Delete a KQueueEngine
-	 */
-	virtual ~KQueueEngine();
-	bool AddFd(EventHandler* eh, int event_mask);
-	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-	virtual std::string GetName();
-	virtual void RecoverFromFork();
-};
+	std::vector<struct kevent> ke_list(16);
 
-#include <sys/sysctl.h>
+	/** Pending changes
+	 */
+	std::vector<struct kevent> changelist(8);
+}
 
-KQueueEngine::KQueueEngine()
+/** Initialize the kqueue engine
+ */
+void SocketEngine::Init()
 {
 	MAX_DESCRIPTORS = 0;
 	int mib[2];
@@ -69,21 +57,13 @@ KQueueEngine::KQueueEngine()
 	mib[1] = KERN_MAXFILES;
 #endif
 	len = sizeof(MAX_DESCRIPTORS);
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if the sysctl() below fails
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
-	if (MAX_DESCRIPTORS <= 0)
-	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
 
-	this->RecoverFromFork();
-	ke_list = new struct kevent[GetMaxFds()];
-	ref = new EventHandler* [GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
+	RecoverFromFork();
 }
 
-void KQueueEngine::RecoverFromFork()
+void SocketEngine::RecoverFromFork()
 {
 	/*
 	 * The only bad thing about kqueue is that its fd cant survive a fork and is not inherited.
@@ -93,176 +73,148 @@ void KQueueEngine::RecoverFromFork()
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features." << std::endl;
 		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-	CurrentSetSize = 0;
 }
 
-KQueueEngine::~KQueueEngine()
+/** Shutdown the kqueue engine
+ */
+void SocketEngine::Deinit()
 {
-	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] ke_list;
+	Close(EngineHandle);
 }
 
-bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
+static struct kevent* GetChangeKE()
+{
+	if (ChangePos >= changelist.size())
+		changelist.resize(changelist.size() * 2);
+	return &changelist[ChangePos++];
+}
+
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
 	// We always want to read from the socket...
-	struct kevent ke;
-	EV_SET(&ke, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	struct kevent* ke = GetChangeKE();
+	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, static_cast<void*>(eh));
 
-	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-	if (i == -1)
-	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to add fd: %d %s",
-					  fd, strerror(errno));
-		return false;
-	}
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	ref[fd] = eh;
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	OnSetEvent(eh, 0, event_mask);
-	CurrentSetSize++;
+	ResizeDouble(ke_list);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
-void KQueueEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"DelFd() on invalid fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "DelFd() on invalid fd: %d", fd);
 		return;
 	}
 
-	struct kevent ke;
-
 	// First remove the write filter ignoring errors, since we can't be
 	// sure if there are actually any write filters registered.
-	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	struct kevent* ke = GetChangeKE();
+	EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 
 	// Then remove the read filter.
-	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
-	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	ke = GetChangeKE();
+	EV_SET(ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 
-	if (j < 0)
-	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to remove fd: %d %s",
-					  fd, strerror(errno));
-	}
+	SocketEngine::DelFdRef(eh);
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
-
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE))
 	{
 		// new poll-style write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
-		}
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, static_cast<void*>(eh));
 	}
 	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
 	{
 		// removing poll-style write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
-		}
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 	}
 	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
-		// new one-shot write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
-		}
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, static_cast<void*>(eh));
 	}
 }
 
-int KQueueEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
+	struct timespec ts;
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], GetMaxFds(), &ts);
+	int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(), ke_list.size(), &ts);
+	ChangePos = 0;
 	ServerInstance->UpdateTime();
 
-	TotalEvents += i;
+	if (i < 0)
+		return i;
+
+	stats.TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
-		EventHandler* eh = ref[ke_list[j].ident];
+		struct kevent& kev = ke_list[j];
+		EventHandler* eh = static_cast<EventHandler*>(kev.udata);
 		if (!eh)
 			continue;
-		if (ke_list[j].flags & EV_EOF)
+
+		// Copy these in case the vector gets resized and kev invalidated
+		const int fd = eh->GetFd();
+		const short filter = kev.filter;
+		if (fd < 0)
+			continue;
+
+		if (kev.flags & EV_EOF)
 		{
-			ErrorEvents++;
-			eh->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
+			stats.ErrorEvents++;
+			eh->OnEventHandlerError(kev.fflags);
 			continue;
 		}
-		if (ke_list[j].filter == EVFILT_WRITE)
+		if (filter == EVFILT_WRITE)
 		{
-			WriteEvents++;
+			stats.WriteEvents++;
 			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
 			 * we set a one-shot write, so we need to clear that bit
 			 * to detect when it set again.
 			 */
 			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
-			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
-			eh->HandleEvent(EVENT_WRITE);
-
-			if (eh != ref[ke_list[j].ident])
-				// whoops, deleted out from under us
-				continue;
+			eh->SetEventMask(eh->GetEventMask() & ~bits_to_clr);
+			eh->OnEventHandlerWrite();
 		}
-		if (ke_list[j].filter == EVFILT_READ)
+		else if (filter == EVFILT_READ)
 		{
-			ReadEvents++;
-			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
-			eh->HandleEvent(EVENT_READ);
+			stats.ReadEvents++;
+			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			eh->OnEventHandlerRead();
 		}
 	}
 
 	return i;
-}
-
-std::string KQueueEngine::GetName()
-{
-	return "kqueue";
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new KQueueEngine;
 }

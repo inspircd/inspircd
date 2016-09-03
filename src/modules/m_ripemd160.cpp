@@ -56,25 +56,15 @@
  */
 
 
-/* $ModDesc: Allows for RIPEMD-160 encrypted oper passwords */
-
 /* macro definitions */
 
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
-#include "hash.h"
+#include "modules/hash.h"
 
 #define RMDsize 160
 
-#ifndef HAS_STDINT
-typedef		unsigned char		byte;
-typedef		unsigned int		dword;
-#else
-typedef		uint8_t			byte;
-typedef		uint32_t		dword;
-#endif
+typedef uint8_t byte;
+typedef uint32_t dword;
 
 /* collect four bytes into one word: */
 #define BYTES_TO_DWORD(strptr)                    \
@@ -167,7 +157,6 @@ class RIProv : public HashProvider
 	{
 		if (key)
 		{
-			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with custom mdbuf");
 			MDbuf[0] = key[0];
 			MDbuf[1] = key[1];
 			MDbuf[2] = key[2];
@@ -176,7 +165,6 @@ class RIProv : public HashProvider
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with default mdbuf");
 			MDbuf[0] = 0x67452301UL;
 			MDbuf[1] = 0xefcdab89UL;
 			MDbuf[2] = 0x98badcfeUL;
@@ -417,7 +405,6 @@ class RIProv : public HashProvider
 
 	byte *RMD(byte *message, dword length, unsigned int* key)
 	{
-		ServerInstance->Logs->Log("m_ripemd160", DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
 		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(E))   */
 		dword         X[16];               /* current 16-word chunk        */
 		unsigned int  i;                   /* counter                      */
@@ -447,18 +434,13 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string sum(const std::string& data)
+	std::string GenerateRaw(const std::string& data)
 	{
 		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
 		return std::string(rv, RMDsize / 8);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
-	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
+	RIProv(Module* m) : HashProvider(m, "ripemd160", 20, 64) {}
 };
 
 class ModuleRIPEMD160 : public Module
@@ -467,15 +449,12 @@ class ModuleRIPEMD160 : public Module
 	RIProv mr;
 	ModuleRIPEMD160() : mr(this)
 	{
-		ServerInstance->Modules->AddService(mr);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides RIPEMD-160 hashing", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleRIPEMD160)
-

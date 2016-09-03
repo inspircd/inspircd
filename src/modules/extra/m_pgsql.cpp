@@ -24,11 +24,9 @@
 
 #include "inspircd.h"
 #include <cstdlib>
-#include <sstream>
 #include <libpq-fe.h>
-#include "sql.h"
+#include "modules/sql.h"
 
-/* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */
 /* $CompileFlags: -Iexec("pg_config --includedir") eval("my $s = `pg_config --version`;$s =~ /^.*?(\d+)\.(\d+)\.(\d+).*?$/;my $v = hex(sprintf("0x%02x%02x%02x", $1, $2, $3));print "-DPGSQL_HAS_ESCAPECONN" if(($v >= 0x080104) || ($v >= 0x07030F && $v < 0x070400) || ($v >= 0x07040D && $v < 0x080000) || ($v >= 0x080008 && $v < 0x080100));") */
 /* $LinkerFlags: -Lexec("pg_config --libdir") -lpq */
 
@@ -43,7 +41,7 @@
 class SQLConn;
 class ModulePgSQL;
 
-typedef std::map<std::string, SQLConn*> ConnMap;
+typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
 /* CREAD,	Connecting and wants read event
  * CWRITE,	Connecting and wants write event
@@ -59,10 +57,10 @@ class ReconnectTimer : public Timer
  private:
 	ModulePgSQL* mod;
  public:
-	ReconnectTimer(ModulePgSQL* m) : Timer(5, ServerInstance->Time(), false), mod(m)
+	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
-	virtual void Tick(time_t TIME);
+	bool Tick(time_t TIME);
 };
 
 struct QueueItem
@@ -97,12 +95,12 @@ class PgSQLresult : public SQLResult
 		PQclear(res);
 	}
 
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.resize(PQnfields(res));
 		for(unsigned int i=0; i < result.size(); i++)
@@ -111,7 +109,7 @@ class PgSQLresult : public SQLResult
 		}
 	}
 
-	virtual SQLEntry GetValue(int row, int column)
+	SQLEntry GetValue(int row, int column)
 	{
 		char* v = PQgetvalue(res, row, column);
 		if (!v || PQgetisnull(res, row, column))
@@ -120,7 +118,7 @@ class PgSQLresult : public SQLResult
 		return SQLEntry(std::string(v, PQgetlength(res, row, column)));
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow >= PQntuples(res))
 			return false;
@@ -152,7 +150,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	{
 		if (!DoConnect())
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
 		}
 	}
@@ -180,18 +178,19 @@ class SQLConn : public SQLProvider, public EventHandler
 		}
 	}
 
-	virtual void HandleEvent(EventType et, int errornum)
+	void OnEventHandlerRead() CXX11_OVERRIDE
 	{
-		switch (et)
-		{
-			case EVENT_READ:
-			case EVENT_WRITE:
-				DoEvent();
-			break;
+		DoEvent();
+	}
 
-			case EVENT_ERROR:
-				DelayReconnect();
-		}
+	void OnEventHandlerWrite() CXX11_OVERRIDE
+	{
+		DoEvent();
+	}
+
+	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	{
+		DelayReconnect();
 	}
 
 	std::string GetDSN()
@@ -242,9 +241,9 @@ class SQLConn : public SQLProvider, public EventHandler
 		if(this->fd <= -1)
 			return false;
 
-		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
+		if (!SocketEngine::AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -257,17 +256,17 @@ class SQLConn : public SQLProvider, public EventHandler
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return true;
 			case PGRES_POLLING_READING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
 			default:
@@ -350,17 +349,17 @@ restart:
 		switch(PQresetPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
 			default:
@@ -417,7 +416,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
 					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
 #endif
@@ -452,7 +451,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
 					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
 #endif
@@ -488,7 +487,7 @@ restart:
 
 	void Close()
 	{
-		ServerInstance->SE->DelFd(this);
+		SocketEngine::DelFd(this);
 
 		if(sql)
 		{
@@ -505,25 +504,17 @@ class ModulePgSQL : public Module
 	ReconnectTimer* retimer;
 
 	ModulePgSQL()
+		: retimer(NULL)
 	{
 	}
 
-	void init()
+	~ModulePgSQL()
 	{
-		ReadConf();
-
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModulePgSQL()
-	{
-		if (retimer)
-			ServerInstance->Timers->DelTimer(retimer);
+		delete retimer;
 		ClearAllConnections();
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ReadConf();
 	}
@@ -564,7 +555,7 @@ class ModulePgSQL : public Module
 		connections.clear();
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		SQLerror err(SQL_BAD_DBID);
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
@@ -592,16 +583,18 @@ class ModulePgSQL : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
 	}
 };
 
-void ReconnectTimer::Tick(time_t time)
+bool ReconnectTimer::Tick(time_t time)
 {
 	mod->retimer = NULL;
 	mod->ReadConf();
+	delete this;
+	return false;
 }
 
 void SQLConn::DelayReconnect()
@@ -615,7 +608,7 @@ void SQLConn::DelayReconnect()
 		if (!mod->retimer)
 		{
 			mod->retimer = new ReconnectTimer(mod);
-			ServerInstance->Timers->AddTimer(mod->retimer);
+			ServerInstance->Timers.AddTimer(mod->retimer);
 		}
 	}
 }

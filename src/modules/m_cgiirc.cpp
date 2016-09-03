@@ -25,11 +25,17 @@
 
 #include "inspircd.h"
 #include "xline.h"
-
-/* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
+#include "modules/dns.h"
 
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
+// We need this method up here so that it can be accessed from anywhere
+static void ChangeIP(User* user, const std::string& newip)
+{
+	ServerInstance->Users->RemoveCloneCounts(user);
+	user->SetClientIP(newip.c_str());
+	ServerInstance->Users->AddClone(user);
+}
 
 /** Holds a CGI site's details
  */
@@ -64,14 +70,12 @@ class CommandWebirc : public Command
 	bool notify;
 	StringExtItem realhost;
 	StringExtItem realip;
-	LocalStringExt webirc_hostname;
-	LocalStringExt webirc_ip;
 
 	CGIHostlist Hosts;
 	CommandWebirc(Module* Creator)
 		: Command(Creator, "WEBIRC", 4),
-		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
-		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
+		  realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
+		  , realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
 		{
 			works_before_reg = true;
 			this->syntax = "password client hostname ip";
@@ -90,25 +94,25 @@ class CommandWebirc : public Command
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
 
-						bool host_ok = (parameters[2].length() < 64);
+						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
+						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost);
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
-							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
+							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
 
-						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
-						if (host_ok)
-							webirc_hostname.set(user, parameters[2]);
-						else
-							webirc_hostname.unset(user);
+						// Where the magic happens - change their IP
+						ChangeIP(user, parameters[3]);
+						// And follow this up by changing their host
+						user->host = user->dhost = newhost;
+						user->InvalidateCache();
 
-						webirc_ip.set(user, parameters[3]);
 						return CMD_SUCCESS;
 					}
 				}
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
+			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
 };
@@ -116,39 +120,44 @@ class CommandWebirc : public Command
 
 /** Resolver for CGI:IRC hostnames encoded in ident/GECOS
  */
-class CGIResolver : public Resolver
+class CGIResolver : public DNS::Request
 {
 	std::string typ;
 	std::string theiruid;
 	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
-			const std::string &type, bool &cached, LocalIntExt& ext)
-		: Resolver(source, DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid),
+	CGIResolver(DNS::Manager *mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
+			const std::string &ttype, LocalIntExt& ext)
+		: DNS::Request(mgr, me, source, DNS::QUERY_PTR), typ(ttype), theiruid(u->uuid),
 		waiting(ext), notify(NotifyOpers)
 	{
 	}
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		/* Check the user still exists */
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
-
-			if (result.length() > 64)
+			LocalUser* lu = IS_LOCAL(them);
+			if (!lu)
 				return;
-			them->host = result;
-			them->dhost = result;
+
+			const DNS::ResourceRecord &ans_record = r->answers[0];
+			if (ans_record.rdata.empty() || ans_record.rdata.length() > ServerInstance->Config->Limits.MaxHost)
+				return;
+
+			if (notify)
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
+
+			them->host = them->dhost = ans_record.rdata;
 			them->InvalidateCache();
-			them->CheckLines(true);
+			lu->CheckLines(true);
 		}
 	}
 
-	virtual void OnError(ResolverError e, const std::string &errormessage)
+	void OnError(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		if (!notify)
 			return;
@@ -156,11 +165,11 @@ class CGIResolver : public Resolver
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
+			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
 		}
 	}
 
-	virtual ~CGIResolver()
+	~CGIResolver()
 	{
 		User* them = ServerInstance->FindUUID(theiruid);
 		if (!them)
@@ -175,20 +184,13 @@ class ModuleCgiIRC : public Module
 {
 	CommandWebirc cmd;
 	LocalIntExt waiting;
+	dynamic_reference<DNS::Manager> DNS;
 
 	static void RecheckClass(LocalUser* user)
 	{
 		user->MyClass = NULL;
 		user->SetClass();
 		user->CheckClass();
-	}
-
-	static void ChangeIP(LocalUser* user, const std::string& newip)
-	{
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(newip.c_str());
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
 	}
 
 	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)
@@ -199,40 +201,42 @@ class ModuleCgiIRC : public Module
 		user->host = user->dhost = user->GetIPString();
 		user->InvalidateCache();
 		RecheckClass(user);
+
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
-		if (user->quitting || ServerInstance->Config->NoUserDns)
+		if (user->quitting || !DNS || !user->MyClass->resolvehostnames)
 			return;
 
+		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
 		try
 		{
-			bool cached;
-			CGIResolver* r = new CGIResolver(this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), cached, waiting);
 			waiting.set(user, waiting.get(user) + 1);
-			ServerInstance->AddResolver(r, cached);
+			this->DNS->Process(r);
 		}
-		catch (...)
+		catch (DNS::Exception &ex)
 		{
+			int count = waiting.get(user);
+			if (count)
+				waiting.set(user, count - 1);
+			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
+				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
 		}
 	}
 
 public:
-	ModuleCgiIRC() : cmd(this), waiting("cgiirc-delay", this)
+	ModuleCgiIRC()
+		: cmd(this)
+		, waiting("cgiirc-delay", ExtensionItem::EXT_USER, this)
+		, DNS(this, "DNS")
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-		ServiceProvider* providerlist[] = { &cmd, &cmd.realhost, &cmd.realip, &cmd.webirc_hostname, &cmd.webirc_ip, &waiting };
-		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		cmd.Hosts.clear();
 
@@ -251,7 +255,7 @@ public:
 			{
 				if (type == "webirc" && password.empty())
 				{
-					ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+					ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
 				}
 				else
 				{
@@ -267,7 +271,7 @@ public:
 					else
 					{
 						cgitype = PASS;
-						ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc.so: Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
+						ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
 					}
 
 					cmd.Hosts.push_back(CGIhost(hostmask, cgitype, password));
@@ -275,26 +279,19 @@ public:
 			}
 			else
 			{
-				ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
+				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
 				continue;
 			}
 		}
 	}
 
-	ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		if (waiting.get(user))
 			return MOD_RES_DENY;
 
-		std::string *webirc_ip = cmd.webirc_ip.get(user);
-		if (!webirc_ip)
+		if (!cmd.realip.get(user))
 			return MOD_RES_PASSTHRU;
-
-		ChangeIP(user, *webirc_ip);
-
-		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
-		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
-		user->InvalidateCache();
 
 		RecheckClass(user);
 		if (user->quitting)
@@ -304,13 +301,10 @@ public:
 		if (user->quitting)
 			return MOD_RES_DENY;
 
-		cmd.webirc_hostname.unset(user);
-		cmd.webirc_ip.unset(user);
-
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
@@ -388,7 +382,7 @@ public:
 
 	bool IsValidHost(const std::string &host)
 	{
-		if(!host.size() || host.size() > 64)
+		if(!host.size() || host.size() > ServerInstance->Config->Limits.MaxHost)
 			return false;
 
 		for(unsigned int i = 0; i < host.size(); i++)
@@ -407,11 +401,10 @@ public:
 		return true;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleCgiIRC)

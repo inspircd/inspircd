@@ -18,10 +18,8 @@
  */
 
 
-/* $ModDesc: Allows for hashed oper passwords */
-
 #include "inspircd.h"
-#include "hash.h"
+#include "modules/hash.h"
 
 /* Handle /MKPASSWD
  */
@@ -36,34 +34,39 @@ class CommandMkpasswd : public Command
 
 	void MakeHash(User* user, const std::string& algo, const std::string& stuff)
 	{
-		if (algo.substr(0,5) == "hmac-")
+		if (!algo.compare(0, 5, "hmac-", 5))
 		{
-			std::string type = algo.substr(5);
+			std::string type(algo, 5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 			{
-				user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
+				user->WriteNotice("Unknown hash type");
 				return;
 			}
-			std::string salt = ServerInstance->GenRandomStr(6, false);
+
+			if (hp->IsKDF())
+			{
+				user->WriteNotice(type + " does not support HMAC");
+				return;
+			}
+
+			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
 			std::string target = hp->hmac(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo.c_str(), stuff.c_str(), str.c_str());
+			user->WriteNotice(algo + " hashed password for " + stuff + " is " + str);
 			return;
 		}
 		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + algo);
 		if (hp)
 		{
 			/* Now attempt to generate a hash */
-			std::string hexsum = hp->hexsum(stuff);
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo.c_str(), stuff.c_str(), hexsum.c_str());
+			std::string hexsum = hp->Generate(stuff);
+			user->WriteNotice(algo + " hashed password for " + stuff + " is " + hexsum);
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
+			user->WriteNotice("Unknown hash type");
 		}
 	}
 
@@ -84,24 +87,21 @@ class ModuleOperHash : public Module
 	{
 	}
 
-	void init()
+	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE
 	{
-		/* Read the config file first */
-		OnRehash(NULL);
-
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
-	{
-		if (hashtype.substr(0,5) == "hmac-")
+		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{
-			std::string type = hashtype.substr(5);
+			std::string type(hashtype, 5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 				return MOD_RES_PASSTHRU;
+
+			if (hp->IsKDF())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Tried to use HMAC with %s, which does not support HMAC", type.c_str());
+				return MOD_RES_DENY;
+			}
+
 			// this is a valid hash, from here on we either accept or deny
 			std::string::size_type sep = data.find('$');
 			if (sep == std::string::npos)
@@ -120,19 +120,18 @@ class ModuleOperHash : public Module
 		/* Is this a valid hash name? */
 		if (hp)
 		{
-			/* Compare the hash in the config to the generated hash */
-			if (data == hp->hexsum(input))
+			if (hp->Compare(input, data))
 				return MOD_RES_ALLOW;
 			else
 				/* No match, and must be hashed, forbid */
 				return MOD_RES_DENY;
 		}
 
-		/* Not a hash, fall through to strcmp in core */
+		// We don't handle this type, let other mods or the core decide
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows for hashed oper passwords",VF_VENDOR);
 	}

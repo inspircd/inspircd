@@ -27,7 +27,6 @@
 # pragma comment(lib, "GeoIP.lib")
 #endif
 
-/* $ModDesc: Provides a way to restrict users by country using GeoIP lookup */
 /* $LinkerFlags: -lGeoIP */
 
 class ModuleGeoIP : public Module
@@ -37,7 +36,7 @@ class ModuleGeoIP : public Module
 
 	std::string* SetExt(LocalUser* user)
 	{
-		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
+		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
 		if (!c)
 			c = "UNK";
 
@@ -47,21 +46,20 @@ class ModuleGeoIP : public Module
 	}
 
  public:
-	ModuleGeoIP() : ext("geoip_cc", this), gi(NULL)
+	ModuleGeoIP()
+		: ext("geoip_cc", ExtensionItem::EXT_USER, this)
+		, gi(NULL)
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		gi = GeoIP_new(GEOIP_STANDARD);
 		if (gi == NULL)
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
-		ServerInstance->Modules->AddService(ext);
-		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
-		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
 			if ((user->registered == REG_ALL) && (!ext.get(user)))
@@ -77,12 +75,12 @@ class ModuleGeoIP : public Module
 			GeoIP_delete(gi);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_VENDOR);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		std::string* cc = ext.get(user);
 		if (!cc)
@@ -99,14 +97,16 @@ class ModuleGeoIP : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'G')
+		if (stats.GetSymbol() != 'G')
 			return MOD_RES_PASSTHRU;
 
 		unsigned int unknown = 0;
 		std::map<std::string, unsigned int> results;
-		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			std::string* cc = ext.get(*i);
 			if (cc)
@@ -115,18 +115,16 @@ class ModuleGeoIP : public Module
 				unknown++;
 		}
 
-		std::string p = ServerInstance->Config->ServerName + " 801 " + user->nick + " :GeoIPSTATS ";
 		for (std::map<std::string, unsigned int>::const_iterator i = results.begin(); i != results.end(); ++i)
 		{
-			out.push_back(p + i->first + " " + ConvToStr(i->second));
+			stats.AddRow(801, "GeoIPSTATS " + i->first + " " + ConvToStr(i->second));
 		}
 
 		if (unknown)
-			out.push_back(p + "Unknown " + ConvToStr(unknown));
+			stats.AddRow(801, "GeoIPSTATS Unknown " + ConvToStr(unknown));
 
 		return MOD_RES_DENY;
 	}
 };
 
 MODULE_INIT(ModuleGeoIP)
-

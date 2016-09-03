@@ -20,31 +20,16 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Logs snomask output to channel(s). */
-
 class ModuleChanLog : public Module
 {
- private:
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
-	typedef std::multimap<char, std::string> ChanLogTargets;
+	typedef insp::flat_multimap<char, std::string> ChanLogTargets;
 	ChanLogTargets logstreams;
 
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
-		OnRehash(NULL);
-	}
-
-	virtual ~ModuleChanLog()
-	{
-	}
-
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string snomasks;
 		std::string channel;
@@ -59,100 +44,44 @@ class ModuleChanLog : public Module
 
 			if (channel.empty() || snomasks.empty())
 			{
-				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Malformed chanlog tag, ignoring");
+				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Malformed chanlog tag, ignoring");
 				continue;
 			}
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
 				logstreams.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
 
 	}
 
-	virtual ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
+	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) CXX11_OVERRIDE
 	{
 		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
 		if (itpair.first == itpair.second)
 			return MOD_RES_PASSTHRU;
 
-		char buf[MAXBUF];
-		snprintf(buf, MAXBUF, "\2%s\2: %s", desc.c_str(), msg.c_str());
+		const std::string snotice = "\2" + desc + "\2: " + msg;
 
 		for (ChanLogTargets::const_iterator it = itpair.first; it != itpair.second; ++it)
 		{
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
-				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
-				ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), snotice.c_str());
+				ServerInstance->PI->SendMessage(c, 0, snotice);
 			}
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Logs snomask output to channel(s).", VF_VENDOR);
 	}
 };
 
-
 MODULE_INIT(ModuleChanLog)
-
-
-
-
-
-
-
-
-
-/*
- * This is for the "old" chanlog module which intercepted messages going to the logfile..
- * I don't consider it all that useful, and it's quite dangerous if setup incorrectly, so
- * this is defined out but left intact in case someone wants to develop it further someday.
- *
- * -- w00t (aug 23rd, 2008)
- */
-#define OLD_CHANLOG 0
-
-#if OLD_CHANLOG
-class ChannelLogStream : public LogStream
-{
- private:
-	std::string channel;
-
- public:
-	ChannelLogStream(int loglevel, const std::string &chan) : LogStream(loglevel), channel(chan)
-	{
-	}
-
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg)
-	{
-		Channel *c = ServerInstance->FindChan(channel);
-		static bool Logging = false;
-
-		if (loglevel < this->loglvl)
-			return;
-
-		if (Logging)
-			return;
-
-		if (c)
-		{
-			Logging = true; // this avoids (rare chance) loops with logging server IO on networks
-			char buf[MAXBUF];
-			snprintf(buf, MAXBUF, "\2%s\2: %s", type.c_str(), msg.c_str());
-
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
-			ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
-			Logging = false;
-		}
-	}
-};
-#endif
-

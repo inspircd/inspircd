@@ -15,7 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #pragma once
+
 #ifdef _WIN32
 
 /* Hook for win32service.cpp to exit properly with the service specific error code */

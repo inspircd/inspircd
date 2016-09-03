@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $ModDesc: Implements server-side topic locks and the server-to-server command SVSTOPIC */
-
 #include "inspircd.h"
 
 class CommandSVSTOPIC : public Command
@@ -31,7 +29,7 @@ class CommandSVSTOPIC : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 		{
 			// Ulines only
 			return CMD_FAILURE;
@@ -47,36 +45,17 @@ class CommandSVSTOPIC : public Command
 			time_t topicts = ConvToInt(parameters[1]);
 			if (!topicts)
 			{
-				ServerInstance->Logs->Log("m_topiclock", DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
 				return CMD_INVALID;
 			}
 
-			std::string newtopic;
-			newtopic.assign(parameters[3], 0, ServerInstance->Config->Limits.MaxTopic);
-			bool topics_differ = (chan->topic != newtopic);
-			if ((topics_differ) || (chan->topicset != topicts) || (chan->setby != parameters[2]))
-			{
-				// Update when any parameter differs
-				chan->topicset = topicts;
-				chan->setby.assign(parameters[2], 0, 127);
-				chan->topic = newtopic;
-				// Send TOPIC to clients only if the actual topic has changed, be silent otherwise
-				if (topics_differ)
-					chan->WriteChannel(user, "TOPIC %s :%s", chan->name.c_str(), chan->topic.c_str());
-			}
+			chan->SetTopic(user, parameters[3], topicts, &parameters[2]);
 		}
 		else
 		{
 			// 1 parameter version, nuke the topic
-			bool topic_empty = chan->topic.empty();
-			if (!topic_empty || !chan->setby.empty())
-			{
-				chan->topicset = 0;
-				chan->setby.clear();
-				chan->topic.clear();
-				if (!topic_empty)
-					chan->WriteChannel(user, "TOPIC %s :", chan->name.c_str());
-			}
+			chan->SetTopic(user, std::string(), 0);
+			chan->setby.clear();
 		}
 
 		return CMD_SUCCESS;
@@ -92,11 +71,7 @@ class FlagExtItem : public ExtensionItem
 {
  public:
 	FlagExtItem(const std::string& key, Module* owner)
-		: ExtensionItem(key, owner)
-	{
-	}
-
-	virtual ~FlagExtItem()
+		: ExtensionItem(key, ExtensionItem::EXT_CHANNEL, owner)
 	{
 	}
 
@@ -151,26 +126,19 @@ class ModuleTopicLock : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(topiclock);
-		ServerInstance->Modules->Attach(I_OnPreTopicChange, this);
-	}
-
-	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic)
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE
 	{
 		// Only fired for local users currently, but added a check anyway
 		if ((IS_LOCAL(user)) && (topiclock.get(chan)))
 		{
-			user->WriteNumeric(744, "%s :TOPIC cannot be changed due to topic lock being active on the channel", chan->name.c_str());
+			user->WriteNumeric(744, chan->name, "TOPIC cannot be changed due to topic lock being active on the channel");
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements server-side topic locks and the server-to-server command SVSTOPIC", VF_COMMON | VF_VENDOR);
 	}

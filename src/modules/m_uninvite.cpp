@@ -20,19 +20,21 @@
  */
 
 
-/* $ModDesc: Provides the UNINVITE command which lets users un-invite other users from channels (!) */
-
 #include "inspircd.h"
+#include "modules/invite.h"
 
 /** Handle /UNINVITE
  */
 class CommandUninvite : public Command
 {
+	Invite::API invapi;
  public:
-	CommandUninvite(Module* Creator) : Command(Creator,"UNINVITE", 2)
+	CommandUninvite(Module* Creator)
+		: Command(Creator, "UNINVITE", 2)
+		, invapi(Creator)
 	{
 		syntax = "<nick> <channel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -49,11 +51,11 @@ class CommandUninvite : public Command
 		{
 			if (!c)
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[1].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
 			}
 			else
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			}
 
 			return CMD_FAILURE;
@@ -63,7 +65,7 @@ class CommandUninvite : public Command
 		{
 			if (c->GetPrefixValue(user) < HALFOP_VALUE)
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator", c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-"));
 				return CMD_FAILURE;
 			}
 		}
@@ -75,19 +77,26 @@ class CommandUninvite : public Command
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
 		{
-			irc::string xname(c->name.c_str());
-			if (!lu->IsInvited(xname))
+			// XXX: The source of the numeric we send must be the server of the user doing the /UNINVITE,
+			// so they don't see where the target user is connected to
+			if (!invapi->Remove(lu, c))
 			{
-				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server.c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+				Numeric::Numeric n(505);
+				n.SetServer(user->server);
+				n.push(u->nick).push(c->name).push(InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
+				user->WriteRemoteNumeric(n);
 				return CMD_FAILURE;
 			}
 
-			user->SendText(":%s 494 %s %s %s :Uninvited", user->server.c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
-			lu->RemoveInvite(xname);
-			lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
+			Numeric::Numeric n(494);
+			n.SetServer(user->server);
+			n.push(c->name).push(u->nick).push("Uninvited");
+			user->WriteRemoteNumeric(n);
+
+			lu->WriteNumeric(493, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);
+			c->WriteNotice(msg);
 			ServerInstance->PI->SendChannelNotice(c, 0, msg);
 		}
 
@@ -96,8 +105,7 @@ class CommandUninvite : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* u = ServerInstance->FindNick(parameters[0]);
-		return u ? ROUTE_OPT_UCAST(u->server) : ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -111,20 +119,10 @@ class ModuleUninvite : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleUninvite()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 
 MODULE_INIT(ModuleUninvite)
-

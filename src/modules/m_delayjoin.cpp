@@ -20,14 +20,10 @@
  */
 
 
-/* $ModDesc: Allows for delay-join channels (+D) where users don't appear to join until they speak */
-
 #include "inspircd.h"
-#include <stdarg.h>
 
 class DelayJoinMode : public ModeHandler
 {
- private:
 	CUList empty;
  public:
 	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
@@ -43,33 +39,27 @@ class ModuleDelayJoin : public Module
 	DelayJoinMode djm;
  public:
 	LocalIntExt unjoined;
-	ModuleDelayJoin() : djm(this), unjoined("delayjoin", this)
+	ModuleDelayJoin()
+		: djm(this)
+		, unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(djm);
-		ServerInstance->Modules->AddService(unjoined);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText, I_OnRawMode };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-	~ModuleDelayJoin();
-	Version GetVersion();
-	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick);
-	void OnUserJoin(Membership*, bool, bool, CUList&);
+	Version GetVersion() CXX11_OVERRIDE;
+	ModResult OnNamesListItem(User* issuer, Membership*, std::string& prefixes, std::string& nick) CXX11_OVERRIDE;
+	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;
 	void CleanUser(User* user);
-	void OnUserPart(Membership*, std::string &partmessage, CUList&);
-	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception);
-	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
-	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt);
+	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
+	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
+	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* no change */
-	if (channel->IsModeSet('D') == adding)
+	if (channel->IsModeSet(this) == adding)
 		return MODEACTION_DENY;
 
 	if (!adding)
@@ -78,16 +68,12 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * Make all users visible, as +D is being removed. If we don't do this,
 		 * they remain permanently invisible on this channel!
 		 */
-		const UserMembList* names = channel->GetUsers();
-		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
+		const Channel::MemberMap& users = channel->GetUsers();
+		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
-	channel->SetMode('D', adding);
+	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
-}
-
-ModuleDelayJoin::~ModuleDelayJoin()
-{
 }
 
 Version ModuleDelayJoin::GetVersion()
@@ -95,21 +81,23 @@ Version ModuleDelayJoin::GetVersion()
 	return Version("Allows for delay-join channels (+D) where users don't appear to join until they speak", VF_VENDOR);
 }
 
-void ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+ModResult ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick)
 {
 	/* don't prevent the user from seeing themself */
 	if (issuer == memb->user)
-		return;
+		return MOD_RES_PASSTHRU;
 
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
 	if (unjoined.get(memb))
-		nick.clear();
+		return MOD_RES_DENY;
+
+	return MOD_RES_PASSTHRU;
 }
 
 static void populate(CUList& except, Membership* memb)
 {
-	const UserMembList* users = memb->chan->GetUsers();
-	for(UserMembCIter i = users->begin(); i != users->end(); i++)
+	const Channel::MemberMap& users = memb->chan->GetUsers();
+	for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 	{
 		if (i->first == memb->user || !IS_LOCAL(i->first))
 			continue;
@@ -119,7 +107,7 @@ static void populate(CUList& except, Membership* memb)
 
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
-	if (memb->chan->IsModeSet('D'))
+	if (memb->chan->IsModeSet(djm))
 	{
 		unjoined.set(memb, 1);
 		populate(except, memb);
@@ -138,24 +126,20 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 		populate(except, memb);
 }
 
-void ModuleDelayJoin::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception)
 {
-	UCListIter i = include.begin();
-	while (i != include.end())
+	for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 	{
-		Channel* c = *i++;
-		Membership* memb = c->GetUser(source);
-		if (memb && unjoined.get(memb))
-			include.erase(c);
+		Membership* memb = *i;
+		if (unjoined.get(memb))
+			i = include.erase(i);
+		else
+			++i;
 	}
 }
 
 void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list)
 {
-	/* Server origin */
-	if (!user)
-		return;
-
 	if (target_type != TYPE_CHANNEL)
 		return;
 
@@ -177,14 +161,13 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 }
 
 /* make the user visible if he receives any mode change */
-ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt)
+ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding)
 {
-	if (!user || !channel || param.empty())
+	if (!channel || param.empty())
 		return MOD_RES_PASSTHRU;
 
-	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
 	// If not a prefix mode then we got nothing to do here
-	if (!mh || !mh->GetPrefixRank())
+	if (!mh->IsPrefixMode())
 		return MOD_RES_PASSTHRU;
 
 	User* dest;

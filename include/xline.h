@@ -20,8 +20,7 @@
  */
 
 
-#ifndef XLINE_H
-#define XLINE_H
+#pragma once
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be
@@ -101,16 +100,16 @@ class CoreExport XLine : public classbase
 	 * line. Usually a line in the form 'expiring Xline blah, set by...'
 	 * see the DisplayExpiry methods of GLine, ELine etc.
 	 */
-	virtual void DisplayExpiry() = 0;
+	virtual void DisplayExpiry();
 
 	/** Returns the displayable form of the pattern for this xline,
 	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
 	 * ident and host parts seperately but will still return ident\@host
-	 * for its Displayable() method)
+	 * for its Displayable() method).
 	 */
-	virtual const char* Displayable() = 0;
+	virtual const std::string& Displayable() = 0;
 
 	/** Called when the xline has just been added.
 	 */
@@ -177,9 +176,7 @@ class CoreExport KLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	virtual bool IsBurstable();
 
@@ -225,9 +222,7 @@ class CoreExport GLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Ident mask (ident part only)
 	 */
@@ -269,11 +264,9 @@ class CoreExport ELine : public XLine
 
 	virtual void Unset();
 
-	virtual void DisplayExpiry();
-
 	virtual void OnAdd();
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Ident mask (ident part only)
 	 */
@@ -314,9 +307,7 @@ class CoreExport ZLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** IP mask (no ident part)
 	 */
@@ -351,9 +342,7 @@ class CoreExport QLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Nickname mask
 	 */
@@ -531,10 +520,7 @@ class CoreExport XLineManager
 	 * will be expired and removed before the list is displayed.
 	 * @param type The type of stats to show
 	 * @param numeric The numeric to give to each result line
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
+	 * @param stats Stats context
 	 */
-	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
+	void InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats);
 };
-
-#endif

@@ -16,119 +16,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $ModDesc: Provides support for extended-join, away-notify and account-notify CAP capabilities */
-
 #include "inspircd.h"
-#include "account.h"
-#include "m_cap.h"
+#include "modules/account.h"
+#include "modules/cap.h"
+#include "modules/ircv3.h"
 
-class ModuleIRCv3 : public Module
+class ModuleIRCv3 : public Module, public AccountEventListener
 {
-	GenericCap cap_accountnotify;
-	GenericCap cap_awaynotify;
-	GenericCap cap_extendedjoin;
-	bool accountnotify;
-	bool awaynotify;
-	bool extendedjoin;
+	Cap::Capability cap_accountnotify;
+	Cap::Capability cap_awaynotify;
+	Cap::Capability cap_extendedjoin;
 
 	CUList last_excepts;
 
-	void WriteNeighboursWithExt(User* user, const std::string& line, const LocalIntExt& ext)
-	{
-		UserChanList chans(user->chans);
-
-		std::map<User*, bool> exceptions;
-		FOREACH_MOD(I_OnBuildNeighborList, OnBuildNeighborList(user, chans, exceptions));
-
-		// Send it to all local users who were explicitly marked as neighbours by modules and have the required ext
-		for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if ((u) && (i->second) && (ext.get(u)))
-				u->Write(line);
-		}
-
-		// Now consider sending it to all other users who has at least a common channel with the user
-		std::set<User*> already_sent;
-		for (UCListIter i = chans.begin(); i != chans.end(); ++i)
-		{
-			const UserMembList* userlist = (*i)->GetUsers();
-			for (UserMembList::const_iterator m = userlist->begin(); m != userlist->end(); ++m)
-			{
-				/*
-				 * Send the line if the channel member in question meets all of the following criteria:
-				 * - local
-				 * - not the user who is doing the action (i.e. whose channels we're iterating)
-				 * - has the given extension
-				 * - not on the except list built by modules
-				 * - we haven't sent the line to the member yet
-				 *
-				 */
-				LocalUser* member = IS_LOCAL(m->first);
-				if ((member) && (member != user) && (ext.get(member)) && (exceptions.find(member) == exceptions.end()) && (already_sent.insert(member).second))
-					member->Write(line);
-			}
-		}
-	}
-
  public:
-	ModuleIRCv3() : cap_accountnotify(this, "account-notify"),
+	ModuleIRCv3()
+		: AccountEventListener(this)
+		, cap_accountnotify(this, "account-notify"),
 					cap_awaynotify(this, "away-notify"),
 					cap_extendedjoin(this, "extended-join")
 	{
 	}
 
-	void init()
-	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
-		accountnotify = conf->getBool("accountnotify", conf->getBool("accoutnotify", true));
-		awaynotify = conf->getBool("awaynotify", true);
-		extendedjoin = conf->getBool("extendedjoin", true);
+		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
+		cap_awaynotify.SetActive(conf->getBool("awaynotify", true));
+		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
 	}
 
-	void OnEvent(Event& ev)
+	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
 	{
-		if (awaynotify)
-			cap_awaynotify.HandleEvent(ev);
-		if (extendedjoin)
-			cap_extendedjoin.HandleEvent(ev);
+		// :nick!user@host ACCOUNT account
+		// or
+		// :nick!user@host ACCOUNT *
+		std::string line = ":" + user->GetFullHost() + " ACCOUNT ";
+		if (newaccount.empty())
+			line += "*";
+		else
+			line += newaccount;
 
-		if (accountnotify)
-		{
-			cap_accountnotify.HandleEvent(ev);
-
-			if (ev.id == "account_login")
-			{
-				AccountEvent* ae = static_cast<AccountEvent*>(&ev);
-
-				// :nick!user@host ACCOUNT account
-				// or
-				// :nick!user@host ACCOUNT *
-				std::string line =  ":" + ae->user->GetFullHost() + " ACCOUNT ";
-				if (ae->account.empty())
-					line += "*";
-				else
-					line += std::string(ae->account);
-
-				WriteNeighboursWithExt(ae->user, line, cap_accountnotify.ext);
-			}
-		}
+		IRCv3::WriteNeighborsWithCap(user, line, cap_accountnotify);
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		// Remember who is not going to see the JOIN because of other modules
-		if ((awaynotify) && (IS_AWAY(memb->user)))
+		if ((cap_awaynotify.IsActive()) && (memb->user->IsAway()))
 			last_excepts = excepts;
 
-		if (!extendedjoin)
+		if (!cap_extendedjoin.IsActive())
 			return;
 
 		/*
@@ -143,12 +81,12 @@ class ModuleIRCv3 : public Module
 		std::string line;
 		std::string mode;
 
-		const UserMembList* userlist = memb->chan->GetUsers();
-		for (UserMembCIter it = userlist->begin(); it != userlist->end(); ++it)
+		const Channel::MemberMap& userlist = memb->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
 		{
 			// Send the extended join line if the current member is local, has the extended-join cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_extendedjoin.ext.get(member)) && (excepts.find(member) == excepts.end()))
+			if ((member) && (cap_extendedjoin.get(member)) && (excepts.find(member) == excepts.end()))
 			{
 				// Construct the lines we're going to send if we haven't constructed them already
 				if (line.empty())
@@ -195,9 +133,9 @@ class ModuleIRCv3 : public Module
 		}
 	}
 
-	ModResult OnSetAway(User* user, const std::string &awaymsg)
+	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE
 	{
-		if (awaynotify)
+		if (cap_awaynotify.IsActive())
 		{
 			// Going away: n!u@h AWAY :reason
 			// Back from away: n!u@h AWAY
@@ -205,24 +143,24 @@ class ModuleIRCv3 : public Module
 			if (!awaymsg.empty())
 				line += " :" + awaymsg;
 
-			WriteNeighboursWithExt(user, line, cap_awaynotify.ext);
+			IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostJoin(Membership *memb)
+	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
 	{
-		if ((!awaynotify) || (!IS_AWAY(memb->user)))
+		if ((!cap_awaynotify.IsActive()) || (!memb->user->IsAway()))
 			return;
 
 		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;
 
-		const UserMembList* userlist = memb->chan->GetUsers();
-		for (UserMembCIter it = userlist->begin(); it != userlist->end(); ++it)
+		const Channel::MemberMap& userlist = memb->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
 		{
 			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()) && (it->second != memb))
+			if ((member) && (cap_awaynotify.get(member)) && (last_excepts.find(member) == last_excepts.end()) && (it->second != memb))
 			{
 				member->Write(line);
 			}
@@ -236,7 +174,7 @@ class ModuleIRCv3 : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_LAST);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for extended-join, away-notify and account-notify CAP capabilities", VF_VENDOR);
 	}

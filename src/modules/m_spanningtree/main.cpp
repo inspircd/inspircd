@@ -21,13 +21,12 @@
  */
 
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
+#include "iohook.h"
+#include "modules/spanningtree.h"
 
-#include "cachetimer.h"
 #include "resolvers.h"
 #include "main.h"
 #include "utils.h"
@@ -35,60 +34,67 @@
 #include "link.h"
 #include "treesocket.h"
 #include "commands.h"
-#include "protocolinterface.h"
+#include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: KeepNickTS(false)
+	: rconnect(this), rsquit(this), map(this)
+	, commands(this)
+	, currmembid(0)
+	, eventprov(this, "event/spanningtree")
+	, DNS(this, "DNS")
+	, loopCall(false)
 {
-	Utils = new SpanningTreeUtilities(this);
-	commands = new SpanningTreeCommands(this);
-	RefreshTimer = NULL;
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: rconnect(module, module->Utils), rsquit(module, module->Utils),
-	svsjoin(module), svspart(module), svsnick(module), metadata(module),
-	uid(module), opertype(module), fjoin(module), fmode(module), ftopic(module),
-	fhost(module), fident(module), fname(module)
+	: svsjoin(module), svspart(module), svsnick(module), metadata(module),
+	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
+	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
+	away(module), addline(module), delline(module), encap(module), idle(module),
+	nick(module), ping(module), pong(module), save(module),
+	server(module), squit(module), snonotice(module),
+	endburst(module), sinfo(module), num(module)
 {
+}
+
+namespace
+{
+	void SetLocalUsersServer(Server* newserver)
+	{
+		// Does not change the server of quitting users because those are not in the list
+
+		ServerInstance->FakeClient->server = newserver;
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+			(*i)->server = newserver;
+	}
+
+	void ResetMembershipIds()
+	{
+		// Set all membership ids to 0
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::iterator i = list.begin(); i != list.end(); ++i)
+		{
+			LocalUser* user = *i;
+			for (User::ChanList::iterator j = user->chans.begin(); j != user->chans.end(); ++j)
+				(*j)->id = 0;
+		}
+	}
 }
 
 void ModuleSpanningTree::init()
 {
-	ServerInstance->Modules->AddService(commands->rconnect);
-	ServerInstance->Modules->AddService(commands->rsquit);
-	ServerInstance->Modules->AddService(commands->svsjoin);
-	ServerInstance->Modules->AddService(commands->svspart);
-	ServerInstance->Modules->AddService(commands->svsnick);
-	ServerInstance->Modules->AddService(commands->metadata);
-	ServerInstance->Modules->AddService(commands->uid);
-	ServerInstance->Modules->AddService(commands->opertype);
-	ServerInstance->Modules->AddService(commands->fjoin);
-	ServerInstance->Modules->AddService(commands->fmode);
-	ServerInstance->Modules->AddService(commands->ftopic);
-	ServerInstance->Modules->AddService(commands->fhost);
-	ServerInstance->Modules->AddService(commands->fident);
-	ServerInstance->Modules->AddService(commands->fname);
-	RefreshTimer = new CacheRefreshTimer(Utils);
-	ServerInstance->Timers->AddTimer(RefreshTimer);
+	ServerInstance->SNO->EnableSnomask('l', "LINK");
 
-	Implementation eventlist[] =
-	{
-		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
-		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
-		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
-		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
-	};
-	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+	ResetMembershipIds();
 
-	delete ServerInstance->PI;
-	ServerInstance->PI = new SpanningTreeProtocolInterface(Utils);
-	loopCall = false;
+	Utils = new SpanningTreeUtilities(this);
+	Utils->TreeRoot = new TreeServer;
 
-	// update our local user count
-	Utils->TreeRoot->SetUserCount(ServerInstance->Users->LocalUserCount());
+	ServerInstance->PI = &protocolinterface;
+
+	delete ServerInstance->FakeClient->server;
+	SetLocalUsersServer(Utils->TreeRoot);
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -98,44 +104,39 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	{
 		Parent = Current->GetParent()->GetName();
 	}
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+
+	const TreeServer::ChildServers& children = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName()))))
+		TreeServer* server = *i;
+		if ((server->Hidden) || ((Utils->HideULines) && (server->IsULine())))
 		{
-			if (IS_OPER(user))
+			if (user->IsOper())
 			{
-				 ShowLinks(Current->GetChild(q),user,hops+1);
+				 ShowLinks(server, user, hops+1);
 			}
 		}
 		else
 		{
-			ShowLinks(Current->GetChild(q),user,hops+1);
+			ShowLinks(server, user, hops+1);
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!IS_OPER(user)))
+	if ((Utils->HideULines) && (Current->IsULine()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
-	else if ((Current->Hidden) && (!IS_OPER(user)))
+	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
-	std::string servername = Current->GetName();
-	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), servername.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
-			Current->GetDesc().c_str());
-}
-
-int ModuleSpanningTree::CountServs()
-{
-	return Utils->serverlist.size();
+	user->WriteNumeric(RPL_LINKS, Current->GetName(),
+			(((Utils->FlatLinks) && (!user->IsOper())) ? ServerInstance->Config->ServerName : Parent),
+			InspIRCd::Format("%d %s", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc().c_str()));
 }
 
 void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
-	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
-	return;
+	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
 std::string ModuleSpanningTree::TimeToStr(time_t secs)
@@ -150,79 +151,6 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 			+ (hours_up ? (ConvToStr(hours_up) + "h") : "")
 			+ (mins_up ? (ConvToStr(mins_up) + "m") : "")
 			+ ConvToStr(secs) + "s");
-}
-
-void ModuleSpanningTree::DoPingChecks(time_t curtime)
-{
-	/*
-	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
-	 * This prevents lost REMOTECONNECT notices
-	 */
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-
-restart:
-	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
-	{
-		TreeServer *s = i->second;
-
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
-		{
-			s->GetSocket()->Close();
-			goto restart;
-		}
-
-		// Fix for bug #792, do not ping servers that are not connected yet!
-		// Remote servers have Socket == NULL and local connected servers have
-		// Socket->LinkState == CONNECTED
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() != CONNECTED)
-			continue;
-
-		// Now do PING checks on all servers
-		TreeServer *mts = Utils->BestRouteTo(s->GetID());
-
-		if (mts)
-		{
-			// Only ping if this server needs one
-			if (curtime >= s->NextPingTime())
-			{
-				// And if they answered the last
-				if (s->AnsweredLastPing())
-				{
-					// They did, send a ping to them
-					s->SetNextPingTime(curtime + Utils->PingFreq);
-					TreeSocket *tsock = mts->GetSocket();
-
-					// ... if we can find a proper route to them
-					if (tsock)
-					{
-						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " +
-								ServerInstance->Config->GetSID() + " " + s->GetID());
-						s->LastPingMsec = ts;
-					}
-				}
-				else
-				{
-					// They didn't answer the last ping, if they are locally connected, get rid of them.
-					TreeSocket *sock = s->GetSocket();
-					if (sock)
-					{
-						sock->SendError("Ping timeout");
-						sock->Close();
-						goto restart;
-					}
-				}
-			}
-
-			// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
-			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
-			{
-				/* The server hasnt responded, send a warning to opers */
-				std::string servername = s->GetName();
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", servername.c_str(), Utils->PingWarnTime);
-				s->Warned = true;
-			}
-		}
-	}
 }
 
 void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
@@ -266,13 +194,12 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
 	bool ipvalid = true;
 
-	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name), rfc_case_insensitive_map))
+	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
 	}
 
-	QueryType start_type = DNS_QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
 		in6_addr n;
@@ -289,8 +216,8 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	/* Do we already have an IP? If so, no need to resolve it. */
 	if (ipvalid)
 	{
-		/* Gave a hook, but it wasnt one we know */
-		TreeSocket* newsocket = new TreeSocket(Utils, x, y, x->IPAddr);
+		// Create a TreeServer object that will start connecting immediately in the background
+		TreeSocket* newsocket = new TreeSocket(x, y, x->IPAddr);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -302,17 +229,30 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
+	else if (!DNS)
+	{
+		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and m_dns.so is not loaded, unable to resolve.", x->Name.c_str());
+	}
 	else
 	{
+		// Guess start_type from bindip aftype
+		DNS::QueryType start_type = DNS::QUERY_AAAA;
+		irc::sockets::sockaddrs bind;
+		if ((!x->Bind.empty()) && (irc::sockets::aptosa(x->Bind, 0, bind)))
+		{
+			if (bind.sa.sa_family == AF_INET)
+				start_type = DNS::QUERY_A;
+		}
+
+		ServernameResolver* snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
-			bool cached = false;
-			ServernameResolver* snr = new ServernameResolver(Utils, x->IPAddr, x, cached, start_type, y);
-			ServerInstance->AddResolver(snr, cached);
+			DNS->Process(snr);
 		}
-		catch (ModuleException& e)
+		catch (DNS::Exception& e)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
+			delete snr;
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
 			ConnectServer(y, false);
 		}
 	}
@@ -356,39 +296,29 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 
 ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
 {
-	// we've already checked if pcnt > 0, so this is safe
+	// We've already confirmed that !parameters.empty(), so this is safe
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
 	if (found)
 	{
-		std::string Version = found->GetVersion();
-		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 		if (found == Utils->TreeRoot)
 		{
-			ServerInstance->Config->Send005(user);
+			// Pass to default VERSION handler.
+			return MOD_RES_PASSTHRU;
 		}
+
+		// If an oper wants to see the version then show the full version string instead of the normal,
+		// but only if it is non-empty.
+		// If it's empty it might be that the server is still syncing (full version hasn't arrived yet)
+		// or the server is a 2.0 server and does not send a full version.
+		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
+		const std::string& Version = (showfull ? found->GetFullVersion() : found->GetVersion());
+		user->WriteNumeric(RPL_VERSION, Version);
 	}
 	else
 	{
-		user->WriteNumeric(402, "%s %s :No such server",user->nick.c_str(),parameters[0].c_str());
+		user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
 	}
 	return MOD_RES_DENY;
-}
-
-/* This method will attempt to get a message to a remote user.
- */
-void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
-{
-	char text[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, format);
-	vsnprintf(text, MAXBUF, format, argsPtr);
-	va_end(argsPtr);
-
-	if (IS_LOCAL(user))
-		user->WriteServ("NOTICE %s :%s", user->nick.c_str(), text);
-	else
-		ServerInstance->PI->SendUserNotice(user, text);
 }
 
 ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
@@ -396,52 +326,55 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
 		Link* x = *i;
-		if (InspIRCd::Match(x->Name.c_str(),parameters[0], rfc_case_insensitive_map))
+		if (InspIRCd::Match(x->Name, parameters[0], ascii_case_insensitive_map))
 		{
-			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name), rfc_case_insensitive_map))
+			if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 			{
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 is ME, not connecting.",x->Name.c_str());
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 is ME, not connecting.", x->Name.c_str()));
 				return MOD_RES_DENY;
 			}
 
-			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
+			TreeServer* CheckDupe = Utils->FindServer(x->Name);
 			if (!CheckDupe)
 			{
-				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Connecting to server: \002%s\002 (%s:%d)", x->Name.c_str(), (x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()), x->Port));
 				ConnectServer(x);
 				return MOD_RES_DENY;
 			}
 			else
 			{
-				std::string servername = CheckDupe->GetParent()->GetName();
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), servername.c_str());
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), CheckDupe->GetParent()->GetName().c_str()));
 				return MOD_RES_DENY;
 			}
 		}
 	}
-	RemoteMessage(user, "*** CONNECT: No server matching \002%s\002 could be found in the config file.",parameters[0].c_str());
+	user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: No server matching \002%s\002 could be found in the config file.", parameters[0].c_str()));
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,std::string &description)
-{
-	TreeServer* s = Utils->FindServer(servername);
-	if (s)
-	{
-		description = s->GetDesc();
-	}
-}
-
-void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
+void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts)
 {
 	if (IS_LOCAL(source))
 	{
-		parameterlist params;
+		CmdBuilder params(source, "INVITE");
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
+		params.push_int(channel->age);
 		params.push_back(ConvToStr(expiry));
-		Utils->DoOneToMany(source->uuid,"INVITE",params);
+		params.Broadcast();
 	}
+}
+
+ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const std::string& topic)
+{
+	// XXX: Deny topic changes if the current topic set time is the current time or is in the future because
+	// other servers will drop our FTOPIC. This restriction will be removed when the protocol is updated.
+	if ((chan->topicset >= ServerInstance->Time()) && (Utils->serverlist.size() > 1))
+	{
+		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, "Retry topic change later");
+		return MOD_RES_DENY;
+	}
+	return MOD_RES_PASSTHRU;
 }
 
 void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std::string &topic)
@@ -450,130 +383,43 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	if (!IS_LOCAL(user))
 		return;
 
-	parameterlist params;
-	params.push_back(chan->name);
-	params.push_back(":"+topic);
-	Utils->DoOneToMany(user->uuid,"TOPIC",params);
+	CommandFTopic::Builder(user, chan).Broadcast();
 }
 
-void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
+void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
 {
-	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		params.push_back(":"+text);
-		Utils->DoOneToMany(user->uuid,"WALLOPS",params);
-	}
-}
-
-void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
-{
-	/* Server origin */
-	if (user == NULL)
+	if (!IS_LOCAL(user))
 		return;
 
+	const char* message_type = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	if (target_type == TYPE_USER)
 	{
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && IS_LOCAL(user))
+		User* d = (User*) dest;
+		if (!IS_LOCAL(d))
 		{
-			parameterlist params;
+			CmdBuilder params(user, message_type);
 			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
+			params.push_last(text);
+			params.Unicast(d);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
 	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
-				}
-			}
-		}
+		Utils->SendChannelMessage(user->uuid, (Channel*)dest, text, status, exempt_list, message_type);
 	}
 	else if (target_type == TYPE_SERVER)
 	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"NOTICE",par);
-		}
-	}
-}
-
-void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
-{
-	/* Server origin */
-	if (user == NULL)
-		return;
-
-	if (target_type == TYPE_USER)
-	{
-		// route private messages which are targetted at clients only to the server
-		// which needs to receive them
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && (IS_LOCAL(user)))
-		{
-			parameterlist params;
-			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
-		}
-	}
-	else if (target_type == TYPE_CHANNEL)
-	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
-				}
-			}
-		}
-	}
-	else if (target_type == TYPE_SERVER)
-	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
-		}
+		char* target = (char*) dest;
+		CmdBuilder par(user, message_type);
+		par.push_back(target);
+		par.push_last(text);
+		par.Broadcast();
 	}
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 {
 	AutoConnectServers(curtime);
-	DoPingChecks(curtime);
 	DoConnectTimeout(curtime);
 }
 
@@ -582,25 +428,10 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->quitting)
 		return;
 
-	parameterlist params;
-	params.push_back(user->uuid);
-	params.push_back(ConvToStr(user->age));
-	params.push_back(user->nick);
-	params.push_back(user->host);
-	params.push_back(user->dhost);
-	params.push_back(user->ident);
-	params.push_back(user->GetIPString());
-	params.push_back(ConvToStr(user->signon));
-	params.push_back("+"+std::string(user->FormatModes(true)));
-	params.push_back(":"+user->fullname);
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
+	CommandUID::Builder(user).Broadcast();
 
-	if (IS_OPER(user))
-	{
-		params.clear();
-		params.push_back(user->oper->name);
-		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
-	}
+	if (user->IsOper())
+		CommandOpertype::Builder(user).Broadcast();
 
 	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
 	{
@@ -610,23 +441,36 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
 
-	Utils->TreeRoot->SetUserCount(1); // increment by 1
+	Utils->TreeRoot->UserCount++;
 }
 
-void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
 {
 	// Only do this for local users
-	if (IS_LOCAL(memb->user))
+	if (!IS_LOCAL(memb->user))
+		return;
+
+	// Assign the current membership id to the new Membership and increase it
+	memb->id = currmembid++;
+
+	if (created_by_local)
 	{
-		parameterlist params;
-		// set up their permissions and the channel TS with FJOIN.
-		// All users are FJOINed now, because a module may specify
-		// new joining permissions for the user.
+		CommandFJoin::Builder params(memb->chan);
+		params.add(memb);
+		params.finalize();
+		params.Broadcast();
+	}
+	else
+	{
+		CmdBuilder params(memb->user, "IJOIN");
 		params.push_back(memb->chan->name);
-		params.push_back(ConvToStr(memb->chan->age));
-		params.push_back(std::string("+") + memb->chan->ChanModes(true));
-		params.push_back(memb->modes+","+memb->user->uuid);
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+		params.push_int(memb->id);
+		if (!memb->modes.empty())
+		{
+			params.push_back(ConvToStr(memb->chan->age));
+			params.push_back(memb->modes);
+		}
+		params.Broadcast();
 	}
 }
 
@@ -635,9 +479,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
-	parameterlist params;
-	params.push_back(newhost);
-	Utils->DoOneToMany(user->uuid,"FHOST",params);
+	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
@@ -645,9 +487,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
-	parameterlist params;
-	params.push_back(":" + gecos);
-	Utils->DoOneToMany(user->uuid,"FNAME",params);
+	CmdBuilder(user, "FNAME").push_last(gecos).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
@@ -655,101 +495,77 @@ void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
 	if ((user->registered != REG_ALL) || (!IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
-	params.push_back(ident);
-	Utils->DoOneToMany(user->uuid,"FIDENT",params);
+	CmdBuilder(user, "FIDENT").push(ident).Broadcast();
 }
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 {
 	if (IS_LOCAL(memb->user))
 	{
-		parameterlist params;
+		CmdBuilder params(memb->user, "PART");
 		params.push_back(memb->chan->name);
 		if (!partmessage.empty())
-			params.push_back(":"+partmessage);
-		Utils->DoOneToMany(memb->user->uuid,"PART",params);
+			params.push_last(partmessage);
+		params.Broadcast();
 	}
 }
 
 void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 {
-	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
+	if (IS_LOCAL(user))
 	{
-		parameterlist params;
-
 		if (oper_message != reason)
+			ServerInstance->PI->SendMetaData(user, "operquit", oper_message);
+
+		CmdBuilder(user, "QUIT").push_last(reason).Broadcast();
+	}
+	else
+	{
+		// Hide the message if one of the following is true:
+		// - User is being quit due to a netsplit and quietbursts is on
+		// - Server is a silent uline
+		TreeServer* server = TreeServer::Get(user);
+		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentULine()));
+		if (!hide)
 		{
-			params.push_back(":"+oper_message);
-			Utils->DoOneToMany(user->uuid,"OPERQUIT",params);
+			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
+				user->server->GetName().c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
 		}
-		params.clear();
-		params.push_back(":"+reason);
-		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}
 
-	// Regardless, We need to modify the user Counts..
-	TreeServer* SourceServer = Utils->FindServer(user->server);
-	if (SourceServer)
-	{
-		SourceServer->SetUserCount(-1); // decrement by 1
-	}
+	// Regardless, update the UserCount
+	TreeServer::Get(user)->UserCount--;
 }
 
 void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 {
 	if (IS_LOCAL(user))
 	{
-		parameterlist params;
+		// The nick TS is updated by the core, we don't do it
+		CmdBuilder params(user, "NICK");
 		params.push_back(user->nick);
-
-		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
-		 */
-		if ((irc::string(user->nick.c_str()) != assign(oldnick)) && (!this->KeepNickTS))
-			user->age = ServerInstance->Time();
-
 		params.push_back(ConvToStr(user->age));
-		Utils->DoOneToMany(user->uuid,"NICK",params);
-		this->KeepNickTS = false;
+		params.Broadcast();
 	}
-	else if (!loopCall && user->nick == user->uuid)
+	else if (!loopCall)
 	{
-		parameterlist params;
-		params.push_back(user->uuid);
-		params.push_back(ConvToStr(user->age));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->age);
 	}
 }
 
 void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 {
-	parameterlist params;
+	if ((!IS_LOCAL(source)) && (source != ServerInstance->FakeClient))
+		return;
+
+	CmdBuilder params(source, "KICK");
 	params.push_back(memb->chan->name);
 	params.push_back(memb->user->uuid);
-	params.push_back(":"+reason);
-	if (IS_LOCAL(source))
-	{
-		Utils->DoOneToMany(source->uuid,"KICK",params);
-	}
-	else if (source == ServerInstance->FakeClient)
-	{
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
-	}
-}
-
-void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason)
-{
-	if (!IS_LOCAL(source))
-		return; // Only start routing if we're origin.
-
-	ServerInstance->OperQuit.set(dest, operreason);
-	parameterlist params;
-	params.push_back(":"+operreason);
-	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
-	params.clear();
-	params.push_back(dest->uuid);
-	params.push_back(":"+reason);
-	Utils->DoOneToMany(source->uuid,"KILL",params);
+	// If a remote user is being kicked by us then send the membership id in the kick too
+	if (!IS_LOCAL(memb->user))
+		params.push_int(memb->id);
+	params.push_last(reason);
+	params.Broadcast();
 }
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
@@ -757,19 +573,29 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	if (loopCall)
 		return; // Don't generate a REHASH here if we're in the middle of processing a message that generated this one
 
-	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnPreRehash called with param %s", parameter.c_str());
 
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		parameterlist params;
+		CmdBuilder params((user ? user->uuid : ServerInstance->Config->GetSID()), "REHASH");
 		params.push_back(parameter);
-		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
+		params.Forward(user ? TreeServer::Get(user)->GetRoute() : NULL);
 	}
 }
 
-void ModuleSpanningTree::OnRehash(User* user)
+void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 {
+	// Did this rehash change the description of this server?
+	const std::string& newdesc = ServerInstance->Config->ServerDesc;
+	if (newdesc != Utils->TreeRoot->GetDesc())
+	{
+		// Broadcast a SINFO desc message to let the network know about the new description. This is the description
+		// string that is sent in the SERVER message initially and shown for example in WHOIS.
+		// We don't need to update the field itself in the Server object - the core does that.
+		CommandSInfo::Builder(Utils->TreeRoot, "desc", newdesc).Broadcast();
+	}
+
 	// Re-read config stuff
 	try
 	{
@@ -783,8 +609,8 @@ void ModuleSpanningTree::OnRehash(User* user)
 		std::string msg = "Error in configuration: ";
 		msg.append(e.GetReason());
 		ServerInstance->SNO->WriteToSnoMask('l', msg);
-		if (user && !IS_LOCAL(user))
-			ServerInstance->PI->SendSNONotice("L", msg);
+		if (status.srcuser && !IS_LOCAL(status.srcuser))
+			ServerInstance->PI->SendSNONotice('L', msg);
 	}
 }
 
@@ -799,24 +625,41 @@ void ModuleSpanningTree::OnLoadModule(Module* mod)
 		data.push_back('=');
 		data.append(v.link_data);
 	}
-	ServerInstance->PI->SendMetaData(NULL, "modules", data);
+	ServerInstance->PI->SendMetaData("modules", data);
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
-	ServerInstance->PI->SendMetaData(NULL, "modules", "-" + mod->ModuleSourceFile);
+	if (!Utils)
+		return;
+	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
+
+	if (mod == this)
+	{
+		// We are being unloaded, inform modules about all servers splitting which cannot be done later when the servers are actually disconnected
+		const server_hash& servers = Utils->serverlist;
+		for (server_hash::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		{
+			TreeServer* server = i->second;
+			if (!server->IsRoot())
+				FOREACH_MOD_CUSTOM(GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
+		}
+		return;
+	}
+
+	// Some other module is being unloaded. If it provides an IOHook we use, we must close that server connection now.
 
 restart:
-	unsigned int items = Utils->TreeRoot->ChildCount();
-	for(unsigned int x = 0; x < items; x++)
+	// Close all connections which use an IO hook provided by this module
+	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
-		TreeServer* srv = Utils->TreeRoot->GetChild(x);
-		TreeSocket* sock = srv->GetSocket();
-		if (sock && sock->GetIOHook() == mod)
+		TreeSocket* sock = (*i)->GetSocket();
+		if (sock->GetModHook(mod))
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();
-			// XXX: The list we're iterating is modified by TreeSocket::Squit() which is called by Close()
+			// XXX: The list we're iterating is modified by TreeServer::SQuit() which is called by Close()
 			goto restart;
 		}
 	}
@@ -824,169 +667,96 @@ restart:
 	for (SpanningTreeUtilities::TimeoutList::const_iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); ++i)
 	{
 		TreeSocket* sock = i->first;
-		if (sock->GetIOHook() == mod)
+		if (sock->GetModHook(mod))
 			sock->Close();
 	}
 }
 
-// note: the protocol does not allow direct umode +o except
-// via NICK with 8 params. sending OPERTYPE infers +o modechange
-// locally.
 void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
-	parameterlist params;
-	params.push_back(opertype);
-	Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
+
+	// Note: The protocol does not allow direct umode +o;
+	// sending OPERTYPE infers +o modechange locally.
+	CommandOpertype::Builder(user).Broadcast();
 }
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 {
-	if (!x->IsBurstable() || loopCall)
+	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
-	params.push_back(x->type);
-	params.push_back(x->Displayable());
-	params.push_back(ServerInstance->Config->ServerName);
-	params.push_back(ConvToStr(x->set_time));
-	params.push_back(ConvToStr(x->duration));
-	params.push_back(":" + x->reason);
-
 	if (!user)
-	{
-		/* Server-set lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-set lines */
-		Utils->DoOneToMany(user->uuid, "ADDLINE", params);
-	}
+		user = ServerInstance->FakeClient;
+
+	CommandAddLine::Builder(x, user).Broadcast();
 }
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 {
-	if (!x->IsBurstable() || loopCall)
+	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
+	if (!user)
+		user = ServerInstance->FakeClient;
+
+	CmdBuilder params(user, "DELLINE");
 	params.push_back(x->type);
 	params.push_back(x->Displayable());
-
-	if (!user)
-	{
-		/* Server-unset lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "DELLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-unset lines */
-		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
-}
-
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const parameterlist &text, const std::vector<TranslateType> &translate)
-{
-	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
-	{
-		parameterlist params;
-		std::string output_text;
-
-		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
-
-		if (target_type == TYPE_USER)
-		{
-			User* u = (User*)dest;
-			params.push_back(u->uuid);
-			params.push_back(output_text);
-			Utils->DoOneToMany(user->uuid, "MODE", params);
-		}
-		else
-		{
-			Channel* c = (Channel*)dest;
-			params.push_back(c->name);
-			params.push_back(ConvToStr(c->age));
-			params.push_back(output_text);
-			Utils->DoOneToMany(user->uuid, "FMODE", params);
-		}
-	}
+	params.Broadcast();
 }
 
 ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		if (!awaymsg.empty())
-		{
-			params.push_back(ConvToStr(ServerInstance->Time()));
-			params.push_back(":" + awaymsg);
-		}
-		Utils->DoOneToMany(user->uuid, "AWAY", params);
-	}
+		CommandAway::Builder(user, awaymsg).Broadcast();
 
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleSpanningTree::OnRequest(Request& request)
+void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags, const std::string& output_mode)
 {
-	if (!strcmp(request.id, "rehash"))
-		Utils->Rehash();
-}
+	if (processflags & ModeParser::MODE_LOCALONLY)
+		return;
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const parameterlist &modeline, const std::vector<TranslateType> &translate)
-{
-	TreeSocket* s = (TreeSocket*)opaque;
-	std::string output_text;
-
-	ServerInstance->Parser->TranslateUIDs(translate, modeline, output_text);
-
-	if (target)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* u = (User*)target;
-			s->WriteLine(":"+ServerInstance->Config->GetSID()+" MODE "+u->uuid+" "+output_text);
-		}
-		else if (target_type == TYPE_CHANNEL)
-		{
-			Channel* c = (Channel*)target;
-			s->WriteLine(":"+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
-		}
-	}
-}
-
-void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata)
-{
-	TreeSocket* s = static_cast<TreeSocket*>(opaque);
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
 	if (u)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
-	else if (c)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
-	else if (!target)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
+	{
+		if (u->registered != REG_ALL)
+			return;
+
+		CmdBuilder params(source, "MODE");
+		params.push(u->uuid);
+		params.push(output_mode);
+		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
+		params.Broadcast();
+	}
+	else
+	{
+		CmdBuilder params(source, "FMODE");
+		params.push(c->name);
+		params.push_int(c->age);
+		params.push(output_mode);
+		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
+		params.Broadcast();
+	}
 }
 
 CullResult ModuleSpanningTree::cull()
 {
-	Utils->cull();
-	ServerInstance->Timers->DelTimer(RefreshTimer);
+	if (Utils)
+		Utils->cull();
 	return this->Module::cull();
 }
 
 ModuleSpanningTree::~ModuleSpanningTree()
 {
-	delete ServerInstance->PI;
-	ServerInstance->PI = new ProtocolInterface;
+	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	/* This will also free the listeners */
+	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	SetLocalUsersServer(newsrv);
+
 	delete Utils;
-
-	delete commands;
 }
 
 Version ModuleSpanningTree::GetVersion()
@@ -998,12 +768,13 @@ Version ModuleSpanningTree::GetVersion()
  * so that any activity it sees is FINAL, e.g. we arent going to send out
  * a NICK message before m_cloaking has finished putting the +x on the user,
  * etc etc.
- * Therefore, we return PRIORITY_LAST to make sure we end up at the END of
+ * Therefore, we set our priority to PRIORITY_LAST to make sure we end up at the END of
  * the module call queue.
  */
 void ModuleSpanningTree::Prioritize()
 {
 	ServerInstance->Modules->SetPriority(this, PRIORITY_LAST);
+	ServerInstance->Modules.SetPriority(this, I_OnPreTopicChange, PRIORITY_FIRST);
 }
 
 MODULE_INIT(ModuleSpanningTree)

@@ -19,11 +19,10 @@
  */
 
 
-/* $Core */
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 
 #include "inspircd.h"
 #include "testsuite.h"
-#include "threadengine.h"
 #include <iostream>
 
 class TestSuiteThread : public Thread
@@ -76,8 +75,12 @@ TestSuite::TestSuite()
 		switch (choice)
 		{
 			case '1':
-				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
+			{
+				const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+				for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+					i->second->OnRunTestSuite();
 				break;
+			}
 			case '2':
 				std::cout << "Enter module filename to load: ";
 				std::cin >> modname;
@@ -331,36 +334,25 @@ bool TestSuite::DoThreadTests()
 
 bool TestSuite::DoGenerateUIDTests()
 {
-	bool success = RealGenerateUIDTests();
+	const unsigned int UUID_LENGTH = UIDGenerator::UUID_LENGTH;
+	UIDGenerator uidgen;
+	uidgen.init(ServerInstance->Config->GetSID());
+	std::string first_uid = uidgen.GetUID();
 
-	// Reset the UID generation state so running the tests multiple times won't mess things up
-	for (unsigned int i = 0; i < 3; i++)
-		ServerInstance->current_uid[i] = ServerInstance->Config->sid[i];
-	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
-
-	ServerInstance->current_uid[UUID_LENGTH-1] = '\0';
-
-	return success;
-}
-
-bool TestSuite::RealGenerateUIDTests()
-{
-	std::string first_uid = ServerInstance->GetUID();
-	if (first_uid.length() != UUID_LENGTH-1)
+	if (first_uid.length() != UUID_LENGTH)
 	{
 		std::cout << "GENERATEUID: Generated UID is " << first_uid.length() << " characters long instead of " << UUID_LENGTH-1 << std::endl;
 		return false;
 	}
 
-	if (ServerInstance->current_uid[UUID_LENGTH-1] != '\0')
+	if (uidgen.current_uid.c_str()[UUID_LENGTH] != '\0')
 	{
 		std::cout << "GENERATEUID: The null terminator is missing from the end of current_uid" << std::endl;
 		return false;
 	}
 
 	// The correct UID when generating one for the first time is ...AAAAAA
-	std::string correct_uid = ServerInstance->Config->sid + std::string(UUID_LENGTH - 4, 'A');
+	std::string correct_uid = ServerInstance->Config->sid + std::string(UUID_LENGTH - 3, 'A');
 	if (first_uid != correct_uid)
 	{
 		std::cout << "GENERATEUID: Generated an invalid first UID: " << first_uid << " instead of " << correct_uid << std::endl;
@@ -368,16 +360,16 @@ bool TestSuite::RealGenerateUIDTests()
 	}
 
 	// Set current_uid to be ...Z99999
-	ServerInstance->current_uid[3] = 'Z';
-	for (unsigned int i = 4; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
+	uidgen.current_uid[3] = 'Z';
+	for (unsigned int i = 4; i < UUID_LENGTH; i++)
+		uidgen.current_uid[i] = '9';
 
 	// Store the UID we'll be incrementing so we can display what's wrong later if necessary
-	std::string before_increment(ServerInstance->current_uid);
-	std::string generated_uid = ServerInstance->GetUID();
+	std::string before_increment(uidgen.current_uid);
+	std::string generated_uid = uidgen.GetUID();
 
 	// Correct UID after incrementing ...Z99999 is ...0AAAAA
-	correct_uid = ServerInstance->Config->sid + "0" + std::string(UUID_LENGTH - 5, 'A');
+	correct_uid = ServerInstance->Config->sid + "0" + std::string(UUID_LENGTH - 4, 'A');
 
 	if (generated_uid != correct_uid)
 	{
@@ -386,11 +378,11 @@ bool TestSuite::RealGenerateUIDTests()
 	}
 
 	// Set current_uid to be ...999999 to see if it rolls over correctly
-	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
+	for (unsigned int i = 3; i < UUID_LENGTH; i++)
+		uidgen.current_uid[i] = '9';
 
-	before_increment.assign(ServerInstance->current_uid);
-	generated_uid = ServerInstance->GetUID();
+	before_increment.assign(uidgen.current_uid);
+	generated_uid = uidgen.GetUID();
 
 	// Correct UID after rolling over is the first UID we've generated (...AAAAAA)
 	if (generated_uid != first_uid)
@@ -407,3 +399,4 @@ TestSuite::~TestSuite()
 	std::cout << "\n\n*** END OF TEST SUITE ***\n";
 }
 
+#endif

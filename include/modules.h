@@ -23,8 +23,7 @@
  */
 
 
-#ifndef MODULES_H
-#define MODULES_H
+#pragma once
 
 #include "dynamic.h"
 #include "base.h"
@@ -35,13 +34,11 @@
 #include <sstream>
 #include "timer.h"
 #include "mode.h"
-#include "dns.h"
 
 /** Used to define a set of behavior bits for a module
  */
 enum ModuleFlags {
 	VF_NONE = 0,		// module is not special at all
-	VF_STATIC = 1,		// module is static, cannot be /unloadmodule'd
 	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
 	VF_COMMON = 4,		// module needs to be common on all servers in a network to link
 	VF_OPTCOMMON = 8,	// module should be common on all servers for unsurprising behavior
@@ -109,35 +106,33 @@ struct ModResult {
 /** InspIRCd major version.
  * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
  */
-#define INSPIRCD_VERSION_MAJ 200
+#define INSPIRCD_VERSION_MAJ 202
 /** InspIRCd API version.
  * If you change any API elements, increment this value. This counter should be
  * reset whenever the major version is changed. Modules can use these two values
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 10
+#define INSPIRCD_VERSION_API 1
 
 /**
  * This #define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:
- * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
+ * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
-	EventHandlerIter safei; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
+	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
-		safei = _i; \
-		++safei; \
+		_next = _i+1; \
 		try \
 		{ \
-			(*_i)->x ; \
+			(*_i)->y x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + modexcept.GetReason()); \
 		} \
-		_i = safei; \
 	} \
 } while (0);
 
@@ -149,21 +144,19 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
-	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
+	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
-		Module* mod_ ## n = *iter_ ## n; \
-		iter_ ## n ++; \
+		_next = _i+1; \
 		try \
 		{ \
-			v = (mod_ ## n)->n args;
+			v = (*_i)->n args;
 
 #define WHILE_EACH_HOOK(n) \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
-			(void) mod_ ## n; /* catch mismatched pairs */ \
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + (except_ ## n).GetReason()); \
 		} \
 	} \
 } while(0)
@@ -208,71 +201,6 @@ class CoreExport Version
 
 	/** Complex version information, including linking compatability data */
 	Version(const std::string &desc, int flags, const std::string& linkdata);
-
-	virtual ~Version() {}
-};
-
-/** The Request class is a unicast message directed at a given module.
- * When this class is properly instantiated it may be sent to a module
- * using the Send() method, which will call the given module's OnRequest
- * method with this class as its parameter.
- */
-class CoreExport Request : public classbase
-{
- public:
-	/** This should be a null-terminated string identifying the type of request,
-	 * all modules should define this and use it to determine the nature of the
-	 * request before they attempt to cast the Request in any way.
-	 */
-	const char* const id;
-	/** This is a pointer to the sender of the message, which can be used to
-	 * directly trigger events, or to create a reply.
-	 */
-	ModuleRef source;
-	/** The single destination of the Request
-	 */
-	ModuleRef dest;
-
-	/** Create a new Request
-	 * This is for the 'new' way of defining a subclass
-	 * of Request and defining it in a common header,
-	 * passing an object of your Request subclass through
-	 * as a Request* and using the ID string to determine
-	 * what to cast it back to and the other end.
-	 */
-	Request(Module* src, Module* dst, const char* idstr);
-	/** Send the Request.
-	 */
-	void Send();
-};
-
-
-/** The Event class is a unicast message directed at all modules.
- * When the class is properly instantiated it may be sent to all modules
- * using the Send() method, which will trigger the OnEvent method in
- * all modules passing the object as its parameter.
- */
-class CoreExport Event : public classbase
-{
- public:
-	/** This is a pointer to the sender of the message, which can be used to
-	 * directly trigger events, or to create a reply.
-	 */
-	ModuleRef source;
-	/** The event identifier.
-	 * This is arbitary text which should be used to distinguish
-	 * one type of event from another.
-	 */
-	const std::string id;
-
-	/** Create a new Event
-	 */
-	Event(Module* src, const std::string &eventid);
-	/** Send the Event.
-	 * The return result of an Event::Send() will always be NULL as
-	 * no replies are expected.
-	 */
-	void Send();
 };
 
 class CoreExport DataProvider : public ServiceProvider
@@ -280,38 +208,6 @@ class CoreExport DataProvider : public ServiceProvider
  public:
 	DataProvider(Module* Creator, const std::string& Name)
 		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
-};
-
-class CoreExport dynamic_reference_base : public interfacebase
-{
- private:
-	std::string name;
- protected:
-	DataProvider* value;
- public:
-	ModuleRef creator;
-	dynamic_reference_base(Module* Creator, const std::string& Name);
-	~dynamic_reference_base();
-	inline void ClearCache() { value = NULL; }
-	inline const std::string& GetProvider() { return name; }
-	void SetProvider(const std::string& newname);
-	void lookup();
-	operator bool();
-	static void reset_all();
-};
-
-template<typename T>
-class dynamic_reference : public dynamic_reference_base
-{
- public:
-	dynamic_reference(Module* Creator, const std::string& Name)
-		: dynamic_reference_base(Creator, Name) {}
-	inline T* operator->()
-	{
-		if (!value)
-			lookup();
-		return static_cast<T*>(value);
-	}
 };
 
 /** Priority types which can be used by Module::Prioritize()
@@ -322,22 +218,21 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
  */
 enum Implementation
 {
-	I_BEGIN,
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
-	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
-	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
-	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection, I_OnUserInit,
+	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
+	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
+	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
+	I_OnUserMessage, I_OnMode, I_OnSyncUser,
+	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
-	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
+	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnPostTopicChange, I_OnPostConnect,
+	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
+	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
+	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
 };
@@ -349,6 +244,11 @@ enum Implementation
  */
 class CoreExport Module : public classbase, public usecountbase
 {
+	/** Detach an event from this module
+	 * @param i Event type to detach
+	 */
+	void DetachEvent(Implementation i);
+
  public:
 	/** File that this module was loaded from
 	 */
@@ -386,6 +286,13 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void Prioritize()
 	{
 	}
+
+	/** This method is called when you should reload module specific configuration:
+	 * on boot, on a /REHASH and on module load.
+	 * @param status The current status, can be inspected for more information;
+	 * also used for reporting configuration errors and warnings.
+	 */
+	virtual void ReadConfig(ConfigStatus& status);
 
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via
@@ -477,14 +384,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnModuleRehash(User* user, const std::string &parameter);
 
-	/** Called on rehash.
-	 * This method is called after a rehash has completed. You should use it to reload any module
-	 * configuration from the main configuration file.
-	 * @param user The user that performed the rehash, if it was initiated by a user and that user
-	 * is still connected.
-	 */
-	virtual void OnRehash(User* user);
-
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
 	 * @param snomask The snomask the message is going to (e.g. 'A')
@@ -514,7 +413,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
+	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -567,14 +466,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnInfo(User* user);
 
-	/** Called whenever a /WHOIS is performed on a local user.
-	 * The source parameter contains the details of the user who issued the WHOIS command, and
-	 * the dest parameter contains the information of the user they are whoising.
-	 * @param source The user issuing the WHOIS command
-	 * @param dest The user who is being WHOISed
-	 */
-	virtual void OnWhois(User* source, User* dest);
-
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
@@ -594,8 +485,10 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
 	 * @param timeout The time the invite will expire (0 == never)
+	 * @param notifyrank Rank required to get an invite announcement (if enabled)
+	 * @param notifyexcepts List of users to not send the default NOTICE invite announcement to
 	 */
-	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t timeout);
+	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts);
 
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -611,30 +504,10 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
 	 * It will be ignored for private messages.
+	 * @param msgtype The message type, MSG_PRIVMSG for PRIVMSGs, MSG_NOTICE for NOTICEs
 	 * @return 1 to deny the message, 0 to allow it
 	 */
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
-
-	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
-	 * Returning any nonzero value from this function stops the process immediately, causing no
-	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc. This is useful for modules which may want to filter or redirect messages.
-	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
-	 * you must cast dest to a User* otherwise you must cast it to a Channel*, this is the details
-	 * of where the message is destined to be sent.
-	 * You may alter the message text as you wish before relinquishing control to the next module
-	 * in the chain, and if no other modules block the text this altered form of the text will be sent out
-	 * to the user and possibly to other servers.
-	 * @param user The user sending the message
-	 * @param dest The target of the message (Channel* or User*)
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text Changeable text being sent by the user
-	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
-	 * @param exempt_list A list of users not to send to. For channel notices, this will usually contain just the sender.
-	 * It will be ignored for private notices.
-	 * @return 1 to deny the NOTICE, 0 to allow it
-	 */
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list, MessageType msgtype);
 
 	/** Called when sending a message to all "neighbors" of a given user -
 	 * that is, all users that share a common channel. This is used in
@@ -645,19 +518,16 @@ class CoreExport Module : public classbase, public usecountbase
 	 *
 	 * Set exceptions[user] = true to include, exceptions[user] = false to exclude
 	 */
-	virtual void OnBuildNeighborList(User* source, UserChanList &include_c, std::map<User*,bool> &exceptions);
+	virtual void OnBuildNeighborList(User* source, IncludeChanList& include_c, std::map<User*, bool>& exceptions);
 
-	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
-	 * Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
-	 * check user->server before taking any action (including returning nonzero from the method).
+	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
 	 * @param user The username changing their nick
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick);
+	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick);
 
 	/** Called after any PRIVMSG sent from a user.
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
@@ -668,25 +538,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @param exempt_list A list of users to not send to.
+	 * @param msgtype The message type, MSG_PRIVMSG for PRIVMSGs, MSG_NOTICE for NOTICEs
 	 */
-	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
-
-	/** Called after any NOTICE sent from a user.
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL.
-	 * @param user The user sending the message
-	 * @param dest The target of the message
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text the text being sent by the user
-	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
-	 * @param exempt_list A list of users to not send to.
-	 */
-	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, MessageType msgtype);
 
 	/** Called immediately before any NOTICE or PRIVMSG sent from a user, local or remote.
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
 	 * if target_type is TYPE_CHANNEL.
-	 * The difference between this event and OnUserPreNotice/OnUserPreMessage is that delivery is gauranteed,
+	 * The difference between this event and OnUserPreMessage is that delivery is gauranteed,
 	 * the message has already been vetted. In the case of the other two methods, a later module may stop your
 	 * message. This also differs from OnUserMessage which occurs AFTER the message has been sent.
 	 * @param user The user sending the message
@@ -699,68 +558,47 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL. The text variable contains the remainder of the
-	 * mode string after the target, e.g. "+wsi" or "+ooo nick1 nick2 nick3".
+	 * Either the usertarget or the chantarget variable contains the target of the modes,
+	 * the actual target will have a non-NULL pointer.
+	 * All changed modes are available in the changelist object.
 	 * @param user The user sending the MODEs
-	 * @param dest The target of the modes (User* or Channel*)
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text The actual modes and their parameters if any
-	 * @param translate The translation types of the mode parameters
+	 * @param usertarget The target user of the modes, NULL if the target is a channel
+	 * @param chantarget The target channel of the modes, NULL if the target is a user
+	 * @param changelist The changed modes.
+	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
+	 * for the possible flags.
+	 * @param output_mode Changed modes, including '+' and '-' characters, not including any parameters
 	 */
-	virtual void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
-
-	/** Allows modules to alter or create server descriptions
-	 * Whenever a module requires a server description, for example for display in
-	 * WHOIS, this function is called in all modules. You may change or define the
-	 * description given in std::string &description. If you do, this description
-	 * will be shown in the WHOIS fields.
-	 * @param servername The servername being searched for
-	 * @param description Alterable server description for this server
-	 */
-	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
 
 	/** Allows modules to synchronize data which relates to users during a netburst.
 	 * When this function is called, it will be called from the module which implements
-	 * the linking protocol. This currently is m_spanningtree.so. A pointer to this module
-	 * is given in Module* proto, so that you may call its methods such as ProtoSendMode
-	 * (see below). This function will be called for every user visible on your side
-	 * of the burst, allowing you to for example set modes, etc. Do not use this call to
-	 * synchronize data which you have stored using class Extensible -- There is a specialist
-	 * function OnSyncUserMetaData and OnSyncChannelMetaData for this!
+	 * the linking protocol. This currently is m_spanningtree.so.
+	 * This function will be called for every user visible on your side
+	 * of the burst, allowing you to for example set modes, etc.
 	 * @param user The user being syncronized
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 * @param server The target of the burst
 	 */
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque);
+	virtual void OnSyncUser(User* user, ProtocolServer& server);
 
 	/** Allows modules to synchronize data which relates to channels during a netburst.
 	 * When this function is called, it will be called from the module which implements
-	 * the linking protocol. This currently is m_spanningtree.so. A pointer to this module
-	 * is given in Module* proto, so that you may call its methods such as ProtoSendMode
-	 * (see below). This function will be called for every user visible on your side
-	 * of the burst, allowing you to for example set modes, etc.
-	 *
-	 * For a good example of how to use this function, please see src/modules/m_chanprotect.cpp
+	 * the linking protocol. This currently is m_spanningtree.so.
+	 * This function will be called for every channel visible on your side of the burst,
+	 * allowing you to for example set modes, etc.
 	 *
 	 * @param chan The channel being syncronized
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 * @param server The target of the burst
 	 */
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque);
+	virtual void OnSyncChannel(Channel* chan, ProtocolServer& server);
 
-	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
-	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
-	 * this method is called. You should use the ProtoSendMetaData function after you've
-	 * correctly decided how the data should be represented, to send the metadata on its way if
-	 * if it belongs to your module.
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param displayable If this value is true, the data is going to be displayed to a user,
-	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
+	/** Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
+	 * When the linking module has finished sending all data it wanted to send during a netburst, then
+	 * this method is called. You should use the SendMetaData() function after you've
+	 * correctly decided how the data should be represented, to send the data.
+	 * @param server The target of the burst
 	 */
-	virtual void OnSyncNetwork(Module* proto, void* opaque);
+	virtual void OnSyncNetwork(ProtocolServer& server);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -769,43 +607,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-
-	/** Implemented by modules which provide the ability to link servers.
-	 * These modules will implement this method, which allows transparent sending of servermodes
-	 * down the network link as a broadcast, without a module calling it having to know the format
-	 * of the MODE command before the actual mode string.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_chanprotect.cpp for examples
-	 * of how to use this function.
-	 *
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The Channel* or User* that modes should be sent for
-	 * @param modeline The modes and parameters to be sent
-	 * @param translate The translation types of the mode parameters
-	 */
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
-
-	/** Implemented by modules which provide the ability to link servers.
-	 * These modules will implement this method, which allows metadata (extra data added to
-	 * user and channel records using class Extensible, Extensible::Extend, etc) to be sent
-	 * to other servers on a netburst and decoded at the other end by the same module on a
-	 * different server.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_swhois.cpp for example of
-	 * how to use this function.
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target The Channel* or User* that metadata should be sent for
-	 * @param extname The extension name to send metadata for
-	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
-	 */
-	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
-
-	/** Called after every WALLOPS command.
-	 * @param user The user sending the WALLOPS
-	 * @param text The content of the WALLOPS message
-	 */
-	virtual void OnWallops(User* user, const std::string &text);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
@@ -870,7 +671,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 
-	/** Called before any mode change, to allow a single access check for
+	/** Called before a mode change via the MODE command, to allow a single access check for
 	 * a full mode change (use OnRawMode to check individual modes)
 	 *
 	 * Returning MOD_RES_ALLOW will skip prefix level checks, but can be overridden by
@@ -879,15 +680,15 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param source the user making the mode change
 	 * @param dest the user destination of the umode change (NULL if a channel mode)
 	 * @param channel the channel destination of the mode change
-	 * @param parameters raw mode parameters; parameters[0] is the user/channel being changed
+	 * @param modes Modes being changed, can be edited
 	 */
-	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters);
+	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
-	 * @param output The 005 string to be modified if neccessary.
-	 */
-	virtual void On005Numeric(std::string &output);
+	* @param tokens The 005 map to be modified if neccessary.
+	*/
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens);
 
 	/** Called when a client is disconnected by KILL.
 	 * If a client is killed by a server, e.g. a nickname collision or protocol error,
@@ -903,14 +704,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
 	virtual ModResult OnKill(User* source, User* dest, const std::string &reason);
-
-	/** Called when an oper wants to disconnect a remote user via KILL
-	 * @param source The user sending the KILL
-	 * @param dest The user being killed
-	 * @param reason The kill reason
-	 * @param operreason The oper kill reason
-	 */
-	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -976,7 +769,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line);
+	virtual void OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line);
 
 	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
 	 * connect class, or accepting any commands.
@@ -1020,15 +813,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * Return 1 from this function to block the mode character from being processed entirely.
 	 * @param user The user who is sending the mode
 	 * @param chan The channel the mode is being sent to (or NULL if a usermode)
-	 * @param mode The mode character being set
+	 * @param mh The mode handler for the mode being changed
 	 * @param param The parameter for the mode or an empty string
 	 * @param adding true of the mode is being added, false if it is being removed
-	 * @param pcnt The parameter count for the mode (0 or 1)
 	 * @return ACR_DENY to deny the mode, ACR_DEFAULT to do standard mode checking, and ACR_ALLOW
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
+	virtual ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and
@@ -1079,14 +871,10 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
-	 * @param symbol the symbol provided to /STATS
-	 * @param user the user issuing the /STATS command
-	 * @param results A string_list to append results into. You should put all your results
-	 * into this string_list, rather than displaying them directly, so that your handler will
-	 * work when remote STATS queries are received.
+	 * @param stats Context of the /STATS request, contains requesting user, list of answer rows etc.
 	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
-	virtual ModResult OnStats(char symbol, User* user, string_list &results);
+	virtual ModResult OnStats(Stats::Context& stats);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
@@ -1122,18 +910,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
 
-	/** Called whenever an Event class is sent to all modules by another module.
-	 * You should *always* check the value of Event::id to determine the event type.
-	 * @param event The Event class being received
-	 */
-	virtual void OnEvent(Event& event);
-
-	/** Called whenever a Request class is sent to your module by another module.
-	 * The value of Request::id should be used to determine the type of request.
-	 * @param request The Request class being received
-	 */
-	virtual void OnRequest(Request& request);
-
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against
 	 * 'input'. This method allows for encryption of passwords (oper, connect:allow, die/restart, etc).
@@ -1146,14 +922,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
 
-	/** Called whenever a user is given usermode +o, anywhere on the network.
-	 * You cannot override this and prevent it from happening as it is already happened and
-	 * such a task must be performed by another server. You can however bounce modes by sending
-	 * servermodes out to reverse mode changes.
-	 * @param user The user who is opering
-	 */
-	virtual void OnGlobalOper(User* user);
-
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
 	 * event. To do so, use the OnUserConnect method to change the state of local users.
@@ -1161,30 +929,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who is connecting
 	 */
 	virtual void OnPostConnect(User* user);
-
-	/** Called whenever a ban is added to a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
-	 * @param source The user adding the ban
-	 * @param channel The channel the ban is being added to
-	 * @param banmask The ban mask being added
-	 * @return 1 to block the ban, 0 to continue as normal
-	 */
-	virtual ModResult OnAddBan(User* source, Channel* channel,const std::string &banmask);
-
-	/** Called whenever a ban is removed from a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
-	 * @param source The user deleting the ban
-	 * @param channel The channel the ban is being deleted from
-	 * @param banmask The ban mask being deleted
-	 * @return 1 to block the unban, 0 to continue as normal
-	 */
-	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
-
-	/** Called to install an I/O hook on an event handler
-	 * @param user The socket to possibly install the I/O hook on
-	 * @param via The port that the user connected on
-	 */
-	virtual void OnHookIO(StreamSocket* user, ListenSocket* via);
 
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
@@ -1195,48 +939,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Called immediately after any connection is accepted. This is intended for raw socket
-	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
-	 * no information relating to a user record as the connection has not been assigned yet.
-	 * There are no return values from this call as all modules get an opportunity if required to
-	 * process the connection.
-	 * @param sock The socket in question
-	 * @param client The client IP address and port
-	 * @param server The server IP address and port
-	 */
-	virtual void OnStreamSocketAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-
-	/**
-	 * Called when a hooked stream has data to write, or when the socket
-	 * engine returns it as writable
-	 * @param sock The socket in question
-	 * @param sendq Data to send to the socket
-	 * @return 1 if the sendq has been completely emptied, 0 if there is
-	 *  still data to send, and -1 if there was an error
-	 */
-	virtual int OnStreamSocketWrite(StreamSocket* sock, std::string& sendq);
-
-	/** Called immediately before any socket is closed. When this event is called, shutdown()
-	 * has not yet been called on the socket.
-	 * @param sock The socket in question
-	 */
-	virtual void OnStreamSocketClose(StreamSocket* sock);
-
-	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
-	 * by a module.
-	 * @param sock The socket in question
-	 */
-	virtual void OnStreamSocketConnect(StreamSocket* sock);
-
-	/**
-	 * Called when the stream socket has data to read
-	 * @param sock The socket that is ready
-	 * @param recvq The receive queue that new data should be appended to
-	 * @return 1 if new data has been read, 0 if no new data is ready (but the
-	 *  socket is still connected), -1 if there was an error or close
-	 */
-	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq);
-
 	/** Called whenever a user sets away or returns from being away.
 	 * The away message is available as a parameter, but should not be modified.
 	 * At this stage, it has already been copied into the user record.
@@ -1246,19 +948,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
 	 */
 	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
-
-	/** Called whenever a line of WHOIS output is sent to a user.
-	 * You may change the numeric and the text of the output by changing
-	 * the values numeric and text, but you cannot change the user the
-	 * numeric is sent to. You may however change the user's User values.
-	 * @param user The user the numeric is being sent to
-	 * @param dest The user being WHOISed
-	 * @param numeric The numeric of the line being sent
-	 * @param text The text of the numeric, including any parameters
-	 * @return nonzero to drop the line completely so that the user does not
-	 * receive it, or zero to allow the line to be sent.
-	 */
-	virtual ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be
@@ -1273,26 +962,36 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	/** Add test suite hooks here. These are used for testing functionality of a module
 	 * via the --testsuite debugging parameter.
 	 */
 	virtual void OnRunTestSuite();
+#endif
 
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
-	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any
-	 * module, then this will cause the nickname not to be displayed at all.
+	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
+	 * @param issuer The user who is going to receive the NAMES list being built
+	 * @param item The channel member being considered for inclusion
+	 * @param prefixes The prefix character(s) to display, initially set to the prefix char of the most powerful
+	 * prefix mode the member has, can be changed
+	 * @param nick The nick to display, initially set to the member's nick, can be changed
+	 * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
+	 * excluded from this NAMES list
 	 */
-	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
+	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
-	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
+	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
 	/** Called whenever a result from /WHO is about to be returned
 	 * @param source The user running the /WHO query
 	 * @param params The parameters to the /WHO query
 	 * @param user The user that this line of the query is about
-	 * @param line The raw line to send; modifiable, if empty no line will be returned.
+	 * @param memb The member shown in this line, NULL if no channel is in this line
+	 * @param numeric Numeric to send; modifiable.
+	 * @param Return MOD_RES_PASSTHRU to allow the line to be displayed, MOD_RES_DENY to hide it
 	 */
-	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
+	virtual ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric);
 
 	/** Called whenever a local user's IP is set for the first time, or when a local user's IP changes due to
 	 * a module like m_cgiirc changing it.
@@ -1301,194 +1000,22 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnSetUserIP(LocalUser* user);
 };
 
-
-#define CONF_NO_ERROR		0x000000
-#define CONF_NOT_A_NUMBER	0x000010
-#define CONF_INT_NEGATIVE	0x000080
-#define CONF_VALUE_NOT_FOUND	0x000100
-#define CONF_FILE_NOT_FOUND	0x000200
-
-
-/** Allows reading of values from configuration files
- * This class allows a module to read from either the main configuration file (inspircd.conf) or from
- * a module-specified configuration file. It may either be instantiated with one parameter or none.
- * Constructing the class using one parameter allows you to specify a path to your own configuration
- * file, otherwise, inspircd.conf is read.
- */
-class CoreExport ConfigReader : public interfacebase
-{
-  protected:
-	/** Error code
-	 */
-	long error;
-
-  public:
-	/** Default constructor.
-	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
-	 * as specified when running ./configure.
-	 */
-	ConfigReader();
-	/** Default destructor.
-	 * This method destroys the ConfigReader class.
-	 */
-	~ConfigReader();
-
-	/** Retrieves a value from the config file.
-	 * This method retrieves a value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve.
-	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds = false);
-	/** Retrieves a value from the config file.
-	 * This method retrieves a value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. If the
-	 * tag is not found the default value is returned instead.
-	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds = false);
-
-	/** Retrieves a boolean value from the config file.
-	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
-	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
-	 */
-	bool ReadFlag(const std::string &tag, const std::string &name, int index);
-	/** Retrieves a boolean value from the config file.
-	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
-	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
-	 * If the tag is not found, the default value is used instead.
-	 */
-	bool ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index);
-
-	/** Retrieves an integer value from the config file.
-	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
-	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
-	 * return CONF_INVALID_NUMBER to be returned. need_positive is set if the number must be non-negative.
-	 * If a negative number is placed into a tag which is specified positive, 0 will be returned and GetError()
-	 * will return CONF_INT_NEGATIVE. Note that need_positive is not suitable to get an unsigned int - you
-	 * should cast the result to achieve that effect.
-	 */
-	int ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive);
-	/** Retrieves an integer value from the config file.
-	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
-	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
-	 * return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned.
-	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
-	 * will return CONF_NOT_UNSIGNED. If the tag is not found, the default value is used instead.
-	 */
-	int ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive);
-
-	/** Returns the last error to occur.
-	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
-	 * A call to GetError() resets the error flag back to 0.
-	 */
-	long GetError();
-
-	/** Counts the number of times a given tag appears in the config file.
-	 * This method counts the number of times a tag appears in a config file, for use where
-	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
-	 * used with the index value of ConfigReader::ReadValue to loop through all copies of a
-	 * multiple instance tag.
-	 */
-	int Enumerate(const std::string &tag);
-};
-
-
-
-/** Caches a text file into memory and can be used to retrieve lines from it.
- * This class contains methods for read-only manipulation of a text file in memory.
- * Either use the constructor type with one parameter to load a file into memory
- * at construction, or use the LoadFile method to load a file.
- */
-class CoreExport FileReader : public classbase
-{
-	/** The file contents
-	 */
-	std::vector<std::string> fc;
-
-	/** Content size in bytes
-	 */
-	unsigned long contentsize;
-
-	/** Calculate content size in bytes
-	 */
-	void CalcSize();
-
- public:
-	/** Default constructor.
-	 * This method does not load any file into memory, you must use the LoadFile method
-	 * after constructing the class this way.
-	 */
-	FileReader();
-
-	/** Secondary constructor.
-	 * This method initialises the class with a file loaded into it ready for GetLine and
-	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	 * returns 0.
-	 */
-	FileReader(const std::string &filename);
-
-	/** Default destructor.
-	 * This deletes the memory allocated to the file.
-	 */
-	~FileReader();
-
-	/** Used to load a file.
-	 * This method loads a file into the class ready for GetLine and
-	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	 * returns 0.
-	 */
-	void LoadFile(const std::string &filename);
-
-	/** Returns the whole content of the file as std::string
-	 */
-	std::string Contents();
-
-	/** Returns the entire size of the file as std::string
-	 */
-	unsigned long ContentSize();
-
-	/** Returns true if the file exists
-	 * This function will return false if the file could not be opened.
-	 */
-	bool Exists();
-
-	/** Retrieve one line from the file.
-	 * This method retrieves one line from the text file. If an empty non-NULL string is returned,
-	 * the index was out of bounds, or the line had no data on it.
-	 */
-	std::string GetLine(int x);
-
-	/** Returns the size of the file in lines.
-	 * This method returns the number of lines in the read file. If it is 0, no lines have been
-	 * read into memory, either because the file is empty or it does not exist, or cannot be
-	 * opened due to permission problems.
-	 */
-	int FileSize();
-};
-
 /** A list of modules
  */
 typedef std::vector<Module*> IntModuleList;
 
-/** An event handler iterator
- */
-typedef IntModuleList::iterator EventHandlerIter;
-
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager
+class CoreExport ModuleManager : public fakederef<ModuleManager>
 {
+ public:
+	typedef std::vector<ServiceProvider*> ServiceList;
+
  private:
 	/** Holds a string describing the last module error to occur
 	 */
 	std::string LastModuleError;
-
-	/** Total number of modules loaded into the ircd
-	 */
-	int ModCount;
 
 	/** List of loaded modules and shared object/dll handles
 	 * keyed by module name
@@ -1501,9 +1028,23 @@ class CoreExport ModuleManager
 		PRIO_STATE_LAST
 	} prioritizationState;
 
-	/** Internal unload module hook */
-	bool CanUnload(Module*);
+	/** Loads all core modules (cmd_*)
+	 */
+	void LoadCoreModules(std::map<std::string, ServiceList>& servicemap);
+
+	/** Calls the Prioritize() method in all loaded modules
+	 * @return True if all went well, false if a dependency loop was detected
+	 */
+	bool PrioritizeHooks();
+
+	/** Unregister all user modes or all channel modes owned by a module
+	 * @param mod Module whose modes to unregister
+	 * @param modetype MODETYPE_USER to unregister user modes, MODETYPE_CHANNEL to unregister channel modes
+	 */
+	void UnregisterModes(Module* mod, ModeType modetype);
+
  public:
+	typedef std::map<std::string, Module*> ModuleMap;
 
 	/** Event handler hooks.
 	 * This needs to be public to be used by FOREACH_MOD and friends.
@@ -1512,6 +1053,23 @@ class CoreExport ModuleManager
 
 	/** List of data services keyed by name */
 	std::multimap<std::string, ServiceProvider*> DataProviders;
+
+	/** A list of ServiceProviders waiting to be registered.
+	 * Non-NULL when constructing a Module, NULL otherwise.
+	 * When non-NULL ServiceProviders add themselves to this list on creation and the core
+	 * automatically registers them (that is, call AddService()) after the Module is constructed,
+	 * and before Module::init() is called.
+	 * If a service is created after the construction of the Module (for example in init()) it
+	 * has to be registered manually.
+	 */
+	ServiceList* NewServices;
+
+	/** Expands the name of a module by prepending "m_" and appending ".so".
+	 * No-op if the name already has the ".so" extension.
+	 * @param modname Module name to expand
+	 * @return Module name starting with "m_" and ending with ".so"
+	 */
+	static std::string ExpandModName(const std::string& modname);
 
 	/** Simple, bog-standard, boring constructor.
 	 */
@@ -1539,12 +1097,6 @@ class CoreExport ModuleManager
 	 */
 	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = NULL);
 
-	/** Backwards compat interface */
-	inline bool SetPriority(Module* mod, Implementation i, Priority s, Module** dptr)
-	{
-		return SetPriority(mod, i, s, *dptr);
-	}
-
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
 	 * @param s The priority of all events in the module.
@@ -1553,7 +1105,7 @@ class CoreExport ModuleManager
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
-	bool SetPriority(Module* mod, Priority s);
+	void SetPriority(Module* mod, Priority s);
 
 	/** Attach an event to a module.
 	 * You may later detatch the event with ModuleManager::Detach().
@@ -1585,6 +1137,11 @@ class CoreExport ModuleManager
 	 */
 	void DetachAll(Module* mod);
 
+	/** Attach all events to a module (used on module load)
+	 * @param mod Module to attach to all events
+	 */
+	void AttachAll(Module* mod);
+
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
 	 */
@@ -1604,25 +1161,18 @@ class CoreExport ModuleManager
 	 */
 	bool Unload(Module* module);
 
-	/** Run an asynchronous reload of the given module. When the reload is
-	 * complete, the callback will be run with true if the reload succeeded
-	 * and false if it did not.
-	 */
-	void Reload(Module* module, HandlerBase1<void, bool>* callback);
-
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */
 	void LoadAll();
 	void UnloadAll();
 	void DoSafeUnload(Module*);
 
-	/** Get the total number of currently loaded modules
-	 * @return The number of loaded modules
+	/** Check if a module can be unloaded and if yes, prepare it for unload
+	 * @param mod Module to be unloaded
+	 * @return True if the module is unloadable, false otherwise.
+	 * If true the module must be unloaded in the current main loop iteration.
 	 */
-	int GetCount()
-	{
-		return this->ModCount;
-	}
+	bool CanUnload(Module* mod);
 
 	/** Find a module by name, and return a Module* to it.
 	 * This is preferred over iterating the module lists yourself.
@@ -1636,6 +1186,11 @@ class CoreExport ModuleManager
 
 	/** Unregister a service provided by a module */
 	void DelService(ServiceProvider&);
+
+	/** Register all services in a given ServiceList
+	 * @param list The list containing the services to register
+	 */
+	void AddServices(const ServiceList& list);
 
 	inline void AddServices(ServiceProvider** list, int count)
 	{
@@ -1653,13 +1208,21 @@ class CoreExport ModuleManager
 		return static_cast<T*>(FindService(SERVICE_DATA, name));
 	}
 
-	/** Return a list of all modules matching the given filter
-	 * @param filter This int is a bitmask of flags set in Module::Flags,
-	 * such as VF_VENDOR or VF_STATIC. If you wish to receive a list of
-	 * all modules with no filtering, set this to 0.
-	 * @return The list of module names
+	/** Get a map of all loaded modules keyed by their name
+	 * @return A ModuleMap containing all loaded modules
 	 */
-	const std::vector<std::string> GetAllModuleNames(int filter);
+	const ModuleMap& GetModules() const { return Modules; }
+
+	/** Make a service referenceable by dynamic_references
+	 * @param name Name that will be used by dynamic_references to find the object
+	 * @param service Service to make referenceable by dynamic_references
+	 */
+	void AddReferent(const std::string& name, ServiceProvider* service);
+
+	/** Make a service no longer referenceable by dynamic_references
+	 * @param service Service to make no longer referenceable by dynamic_references
+	 */
+	void DelReferent(ServiceProvider* service);
 };
 
 /** Do not mess with these functions unless you know the C preprocessor
@@ -1672,7 +1235,7 @@ class CoreExport ModuleManager
 #define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
 #define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
 
-#ifdef PURE_STATIC
+#ifdef INSPIRCD_STATIC
 
 struct AllCommandList {
 	typedef Command* (*fn)(Module*);
@@ -1689,11 +1252,7 @@ struct AllModuleList {
 };
 
 #define MODULE_INIT(x) static Module* MK_ ## x() { return new x; } \
-	static const AllModuleList PREP_ ## x(&MK_ ## x, MODNAMESTR);
-
-#define MODNAMESTR MODNAMESTR_FN_2(MODNAME)
-#define MODNAMESTR_FN_2(x) MODNAMESTR_FN_1(x)
-#define MODNAMESTR_FN_1(x) #x
+	static const AllModuleList PREP_ ## x(&MK_ ## x, MODNAME ".so");
 
 #else
 
@@ -1718,7 +1277,7 @@ struct AllModuleList {
 		} \
 		return TRUE; \
 	} \
-	extern "C" DllExport const char inspircd_src_version[] = VERSION " r" REVISION;
+	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;
 
 #else
 
@@ -1727,11 +1286,9 @@ struct AllModuleList {
 	{ \
 		return new y; \
 	} \
-	extern "C" const char inspircd_src_version[] = VERSION " r" REVISION;
+	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
-
-#endif
 
 #endif

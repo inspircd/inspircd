@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
-
 class ModuleWaitPong : public Module
 {
 	bool sendsnotice;
@@ -34,39 +32,31 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong()
-	 : ext("waitpong_pingstr", this)
+		: ext("waitpong_pingstr", ExtensionItem::EXT_USER, this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(ext);
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
 		sendsnotice = tag->getBool("sendsnotice", true);
 		killonbadreply = tag->getBool("killonbadreply", true);
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		std::string pingrpl = ServerInstance->GenRandomStr(10);
 
 		user->Write("PING :%s", pingrpl.c_str());
 
 		if(sendsnotice)
-			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl.c_str(), pingrpl.c_str());
+			user->WriteNotice("*** If you are having problems connecting due to ping timeouts, please type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
 
 		ext.set(user, pingrpl);
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (command == "PONG")
 		{
@@ -90,20 +80,15 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	~ModuleWaitPong()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Require pong prior to registration", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleWaitPong)

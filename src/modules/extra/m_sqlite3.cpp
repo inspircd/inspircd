@@ -21,20 +21,26 @@
 
 
 #include "inspircd.h"
+#include "modules/sql.h"
+
+// Fix warnings about the use of `long long` on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-long-long"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+#endif
+
 #include <sqlite3.h>
-#include "sql.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
 #endif
 
-/* $ModDesc: sqlite3 provider */
 /* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
-/* $NoPedantic */
 
 class SQLConn;
-typedef std::map<std::string, SQLConn*> ConnMap;
+typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
 class SQLite3Result : public SQLResult
 {
@@ -48,16 +54,12 @@ class SQLite3Result : public SQLResult
 	{
 	}
 
-	~SQLite3Result()
-	{
-	}
-
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
 		{
@@ -72,7 +74,7 @@ class SQLite3Result : public SQLResult
 		}
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.assign(columns.begin(), columns.end());
 	}
@@ -80,7 +82,6 @@ class SQLite3Result : public SQLResult
 
 class SQLConn : public SQLProvider
 {
- private:
 	sqlite3* conn;
 	reference<ConfigTag> config;
 
@@ -93,7 +94,7 @@ class SQLConn : public SQLProvider
 			// Even in case of an error conn must be closed
 			sqlite3_close(conn);
 			conn = NULL;
-			ServerInstance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
 		}
 	}
 
@@ -154,13 +155,13 @@ class SQLConn : public SQLProvider
 		sqlite3_finalize(stmt);
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q)
+	void submit(SQLQuery* query, const std::string& q)
 	{
 		Query(query, q);
 		delete query;
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q, const ParamL& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamL& p)
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -181,7 +182,7 @@ class SQLConn : public SQLProvider
 		submit(query, res);
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q, const ParamM& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamM& p)
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -211,23 +212,10 @@ class SQLConn : public SQLProvider
 
 class ModuleSQLite3 : public Module
 {
- private:
 	ConnMap conns;
 
  public:
-	ModuleSQLite3()
-	{
-	}
-
-	void init()
-	{
-		ReadConf();
-
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleSQLite3()
+	~ModuleSQLite3()
 	{
 		ClearConns();
 	}
@@ -243,7 +231,7 @@ class ModuleSQLite3 : public Module
 		conns.clear();
 	}
 
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ClearConns();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
@@ -257,12 +245,7 @@ class ModuleSQLite3 : public Module
 		}
 	}
 
-	void OnRehash(User* user)
-	{
-		ReadConf();
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("sqlite3 provider", VF_VENDOR);
 	}

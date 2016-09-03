@@ -20,12 +20,10 @@
 
 
 #include "inspircd.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
-#include "modes/cmode_l.h"
+#include "builtinmodes.h"
 
-ModeChannelLimit::ModeChannelLimit() : ParamChannelModeHandler(NULL, "limit", 'l')
+ModeChannelLimit::ModeChannelLimit()
+	: ParamMode<ModeChannelLimit, LocalIntExt>(NULL, "limit", 'l')
 {
 }
 
@@ -35,13 +33,17 @@ bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 }
 
-bool ModeChannelLimit::ParamValidate(std::string &parameter)
+ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 {
-	int limit = atoi(parameter.c_str());
-
+	int limit = ConvToInt(parameter);
 	if (limit < 0)
-		return false;
+		return MODEACTION_DENY;
 
-	parameter = ConvToStr(limit);
-	return true;
+	ext.set(chan, limit);
+	return MODEACTION_ALLOW;
+}
+
+void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t n, std::string& out)
+{
+	out += ConvToStr(n);
 }

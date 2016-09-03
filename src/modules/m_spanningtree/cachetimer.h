@@ -17,25 +17,13 @@
  */
 
 
-#ifndef M_SPANNINGTREE_CACHETIMER_H
-#define M_SPANNINGTREE_CACHETIMER_H
+#pragma once
 
-#include "timer.h"
-
-class ModuleSpanningTree;
-class SpanningTreeUtilities;
-
-/** Create a timer which recurs every second, we inherit from Timer.
- * Timer is only one-shot however, so at the end of each Tick() we simply
- * insert another of ourselves into the pending queue :)
+/** Timer that fires when we need to refresh the IP cache of servers
  */
 class CacheRefreshTimer : public Timer
 {
- private:
-	SpanningTreeUtilities *Utils;
  public:
-	CacheRefreshTimer(SpanningTreeUtilities* Util);
-	virtual void Tick(time_t TIME);
+	CacheRefreshTimer();
+	bool Tick(time_t TIME);
 };
-
-#endif

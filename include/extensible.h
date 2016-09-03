@@ -17,10 +17,7 @@
  */
 
 
-#ifndef EXTENSIBLE_H
-#define EXTENSIBLE_H
-
-#include <stdint.h>
+#pragma once
 
 enum SerializeFormat
 {
@@ -39,7 +36,20 @@ enum SerializeFormat
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
-	ExtensionItem(const std::string& key, Module* owner);
+	/** Extensible subclasses
+	 */
+	enum ExtensibleType
+	{
+		EXT_USER,
+		EXT_CHANNEL,
+		EXT_MEMBERSHIP
+	};
+
+	/** Type (subclass) of Extensible that this ExtensionItem is valid for
+	 */
+	const ExtensibleType type;
+
+	ExtensionItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~ExtensionItem();
 	/** Serialize this item into a string
 	 *
@@ -56,6 +66,10 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value) = 0;
 	/** Free the item */
 	virtual void free(void* item) = 0;
+
+	/** Register this object in the ExtensionManager
+	 */
+	void RegisterService() CXX11_OVERRIDE;
 
  protected:
 	/** Get the item from the internal map */
@@ -76,7 +90,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 class CoreExport Extensible : public classbase
 {
  public:
-	typedef std::map<reference<ExtensionItem>,void*> ExtensibleStore;
+	typedef insp::flat_map<reference<ExtensionItem>, void*> ExtensibleStore;
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
@@ -85,6 +99,11 @@ class CoreExport Extensible : public classbase
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore extensions;
+
+	/** True if this Extensible has been culled.
+	 * A warning is generated if false on destruction.
+	 */
+	unsigned int culled:1;
  public:
 	/**
 	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)
@@ -95,33 +114,48 @@ class CoreExport Extensible : public classbase
 	virtual CullResult cull();
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
+
+	/**
+	 * Free all extension items attached to this Extensible
+	 */
+	void FreeAllExtItems();
 };
 
 class CoreExport ExtensionManager
 {
-	std::map<std::string, reference<ExtensionItem> > types;
  public:
+	typedef std::map<std::string, reference<ExtensionItem> > ExtMap;
+
 	bool Register(ExtensionItem* item);
 	void BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list);
 	ExtensionItem* GetItem(const std::string& name);
+
+	/** Get all registered extensions keyed by their names
+	 * @return Const map of ExtensionItem pointers keyed by their names
+	 */
+	const ExtMap& GetExts() const { return types; }
+
+ private:
+	ExtMap types;
 };
 
 /** Base class for items that are NOT synchronized between servers */
 class CoreExport LocalExtItem : public ExtensionItem
 {
  public:
-	LocalExtItem(const std::string& key, Module* owner);
+	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalExtItem();
 	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	virtual void free(void* item) = 0;
 };
 
-template<typename T>
+template <typename T, typename Del = stdalgo::defaultdeleter<T> >
 class SimpleExtItem : public LocalExtItem
 {
  public:
-	SimpleExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
+	SimpleExtItem(const std::string& Key, ExtensibleType exttype, Module* parent)
+		: LocalExtItem(Key, exttype, parent)
 	{
 	}
 
@@ -138,50 +172,57 @@ class SimpleExtItem : public LocalExtItem
 	{
 		T* ptr = new T(value);
 		T* old = static_cast<T*>(set_raw(container, ptr));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	inline void set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(set_raw(container, value));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	inline void unset(Extensible* container)
 	{
 		T* old = static_cast<T*>(unset_raw(container));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	virtual void free(void* item)
 	{
-		delete static_cast<T*>(item);
+		Del del;
+		del(static_cast<T*>(item));
 	}
 };
 
 class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 {
  public:
-	LocalStringExt(const std::string& key, Module* owner);
+	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalStringExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
 {
  public:
-	LocalIntExt(const std::string& key, Module* owner);
+	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalIntExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
+	void unset(Extensible* container) { set(container, 0); }
 	void free(void* item);
 };
 
 class CoreExport StringExtItem : public ExtensionItem
 {
  public:
-	StringExtItem(const std::string& key, Module* owner);
+	StringExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
@@ -190,5 +231,3 @@ class CoreExport StringExtItem : public ExtensionItem
 	void unset(Extensible* container);
 	void free(void* item);
 };
-
-#endif

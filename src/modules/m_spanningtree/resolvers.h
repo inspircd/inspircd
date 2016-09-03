@@ -18,30 +18,27 @@
  */
 
 
-#ifndef M_SPANNINGTREE_RESOLVERS_H
-#define M_SPANNINGTREE_RESOLVERS_H
+#pragma once
 
-#include "socket.h"
 #include "inspircd.h"
-#include "xline.h"
+#include "modules/dns.h"
 
 #include "utils.h"
 #include "link.h"
 
 /** Handle resolving of server IPs for the cache
  */
-class SecurityIPResolver : public Resolver
+class SecurityIPResolver : public DNS::Request
 {
  private:
 	reference<Link> MyLink;
-	SpanningTreeUtilities* Utils;
 	Module* mine;
 	std::string host;
-	QueryType query;
+	DNS::QueryType query;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link* x, bool &cached, QueryType qt);
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-	void OnError(ResolverError e, const std::string &errormessage);
+	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
+	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
@@ -50,18 +47,15 @@ class SecurityIPResolver : public Resolver
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-class ServernameResolver : public Resolver
+class ServernameResolver : public DNS::Request
 {
  private:
-	SpanningTreeUtilities* Utils;
-	QueryType query;
+	DNS::QueryType query;
 	std::string host;
 	reference<Link> MyLink;
 	reference<Autoconnect> myautoconnect;
  public:
-	ServernameResolver(SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac);
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-	void OnError(ResolverError e, const std::string &errormessage);
+	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
+	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };
-
-#endif

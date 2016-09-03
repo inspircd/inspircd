@@ -20,8 +20,7 @@
  */
 
 
-#ifndef BASE_H
-#define BASE_H
+#pragma once
 
 #include <map>
 #include <deque>
@@ -180,21 +179,23 @@ class reference
  */
 class CoreExport CoreException : public std::exception
 {
- public:
+ protected:
 	/** Holds the error message to be displayed
 	 */
 	const std::string err;
 	/** Source of the exception
 	 */
 	const std::string source;
-	/** Default constructor, just uses the error mesage 'Core threw an exception'.
-	 */
-	CoreException() : err("Core threw an exception"), source("The core") {}
+
+ public:
 	/** This constructor can be used to specify an error message before throwing.
+	 * @param message Human readable error message
 	 */
 	CoreException(const std::string &message) : err(message), source("The core") {}
 	/** This constructor can be used to specify an error message before throwing,
 	 * and to specify the source of the exception.
+	 * @param message Human readable error message
+	 * @param src Source of the exception
 	 */
 	CoreException(const std::string &message, const std::string &src) : err(message), source(src) {}
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
@@ -203,17 +204,14 @@ class CoreExport CoreException : public std::exception
 	 */
 	virtual ~CoreException() throw() {};
 	/** Returns the reason for the exception.
-	 * The module should probably put something informative here as the user will see this upon failure.
+	 * @return Human readable description of the error
 	 */
-	virtual const char* GetReason()
-	{
-		return err.c_str();
-	}
+	const std::string& GetReason() const { return err; }
 
-	virtual const char* GetSource()
-	{
-		return source.c_str();
-	}
+	/** Returns the source of the exception
+	 * @return Source of the exception
+	 */
+	const std::string& GetSource() const { return source; }
 };
 
 class Module;
@@ -237,7 +235,9 @@ enum ServiceType {
 	/** is a data processing provider (MD5, SQL) */
 	SERVICE_DATA,
 	/** is an I/O hook provider (SSL) */
-	SERVICE_IOHOOK
+	SERVICE_IOHOOK,
+	/** Service managed by a module */
+	SERVICE_CUSTOM
 };
 
 /** A structure defining something that a module can provide */
@@ -250,10 +250,14 @@ class CoreExport ServiceProvider : public classbase
 	const std::string name;
 	/** Type of service (must match object type) */
 	const ServiceType service;
-	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
-		: creator(Creator), name(Name), service(Type) {}
+	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
 	virtual ~ServiceProvider();
+
+	/** Register this service in the appropriate registrar
+	 */
+	virtual void RegisterService();
+
+	/** If called, this ServiceProvider won't be registered automatically
+	 */
+	void DisableAutoRegister();
 };
-
-
-#endif

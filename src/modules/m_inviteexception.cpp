@@ -22,10 +22,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
-
-/* $ModDesc: Provides support for the +I channel mode */
-/* $ModDep: ../../include/u_listmode.h */
+#include "listmode.h"
 
 /*
  * Written by Om <om@inspircd.org>, April 2005.
@@ -54,27 +51,17 @@ public:
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(ie);
-
-		OnRehash(NULL);
-		ie.DoImplements(this);
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnCheckKey, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["INVEX"] = "I";
 	}
 
-	void On005Numeric(std::string &output)
+	ModResult OnCheckInvite(User* user, Channel* chan) CXX11_OVERRIDE
 	{
-		output.append(" INVEX=I");
-	}
-
-	ModResult OnCheckInvite(User* user, Channel* chan)
-	{
-		modelist* list = ie.extItem.get(chan);
+		ListModeBase::ModeList* list = ie.GetList(chan);
 		if (list)
 		{
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (chan->CheckBan(user, it->mask))
 				{
@@ -86,25 +73,20 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key) CXX11_OVERRIDE
 	{
 		if (invite_bypass_key)
 			return OnCheckInvite(user, chan);
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		ie.DoSyncChannel(chan, proto, opaque);
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 		ie.DoRehash();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the +I channel mode", VF_VENDOR);
 	}

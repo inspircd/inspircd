@@ -17,7 +17,7 @@
  */
 
 
-#include "inspircd_config.h"
+#include "config.h"
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <windows.h>
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			return EXIT_STATUS_INTERNAL;
+			return EXIT_STATUS_SERVICE;
 		}
 	}
 	return 0;

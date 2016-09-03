@@ -23,117 +23,93 @@
 
 #include "inspircd.h"
 
-int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype)
 {
 	ModResult res;
 	FIRST_MOD_RESULT(OnPassCompare, res, (ex, data, input, hashtype));
 
 	/* Module matched */
 	if (res == MOD_RES_ALLOW)
-		return 0;
+		return true;
 
 	/* Module explicitly didnt match */
 	if (res == MOD_RES_DENY)
-		return 1;
+		return false;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
 	if (!hashtype.empty() && hashtype != "plaintext")
-		/* See below. 1 because they dont match */
-		return 1;
+		return false;
 
-	return (data != input); // this seems back to front, but returns 0 if they *match*, 1 else
+	return TimingSafeCompare(data, input);
 }
 
-/* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
- * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
- * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
- * the channel names and their keys as follows:
- * JOIN #chan1,#chan2,#chan3 key1,,key3
- * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
- * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
- * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
- * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
- */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
+bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
-		return 0;
+		return false;
 
-	if (extra >= (signed)parameters.size())
-		extra = -1;
-
-	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
+	/* First check if we have more than one item in the list, if we don't we return false here and the handler
 	 * which called us just carries on as it was.
 	 */
 	if (parameters[splithere].find(',') == std::string::npos)
-		return 0;
+		return false;
 
 	/** Some lame ircds will weed out dupes using some shitty O(n^2) algorithm.
 	 * By using std::set (thanks for the idea w00t) we can cut this down a ton.
 	 * ...VOOODOOOO!
+	 *
+	 * Only check for duplicates if there is one list (allow them in JOIN).
 	 */
-	std::set<irc::string> dupes;
+	insp::flat_set<std::string, irc::insensitive_swo> dupes;
+	bool check_dupes = (extra < 0);
 
-	/* Create two lists, one for channel names, one for keys
+	/* Create two sepstreams, if we have only one list, then initialize the second sepstream with
+	 * an empty string. The second parameter of the constructor of the sepstream tells whether
+	 * or not to allow empty tokens.
+	 * We allow empty keys, so "JOIN #a,#b ,bkey" will be interpreted as "JOIN #a", "JOIN #b bkey"
 	 */
 	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "");
-	std::string extrastuff;
+	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", true);
 	std::string item;
 	unsigned int max = 0;
+	LocalUser* localuser = IS_LOCAL(user);
 
-	/* Attempt to iterate these lists and call the command objech
-	 * which called us, for every parameter pair until there are
-	 * no more left to parse.
+	/* Attempt to iterate these lists and call the command handler
+	 * for every parameter or parameter pair until there are no more
+	 * left to parse.
 	 */
 	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
-		if (dupes.find(item.c_str()) == dupes.end())
+		if ((!check_dupes) || (dupes.insert(item).second))
 		{
 			std::vector<std::string> new_parameters(parameters);
-
-			if (!items2.GetToken(extrastuff))
-				extrastuff.clear();
-
 			new_parameters[splithere] = item;
+
 			if (extra >= 0)
-				new_parameters[extra] = extrastuff;
-
-			CommandObj->Handle(new_parameters, user);
-
-			dupes.insert(item.c_str());
-		}
-	}
-	return 1;
-}
-
-bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user)
-{
-	Commandtable::iterator n = cmdlist.find(commandname);
-
-	if (n != cmdlist.end())
-	{
-		if ((pcnt >= n->second->min_params))
-		{
-			if (IS_LOCAL(user) && n->second->flags_needed)
 			{
-				if (user->IsModeSet(n->second->flags_needed))
-				{
-					return (user->HasPermission(commandname));
-				}
+				// If we have two lists then get the next item from the second list.
+				// In case it runs out of elements then 'item' will be an empty string.
+				items2.GetToken(item);
+				new_parameters[extra] = item;
 			}
-			else
+
+			CmdResult result = handler->Handle(new_parameters, user);
+			if (localuser)
 			{
-				return true;
+				// Run the OnPostCommand hook with the last parameter (original line) being empty
+				// to indicate that the command had more targets in its original form.
+				item.clear();
+				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, item));
 			}
 		}
 	}
-	return false;
+
+	return true;
 }
 
 Command* CommandParser::GetHandler(const std::string &commandname)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -142,9 +118,9 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user)
+CmdResult CommandParser::CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -174,6 +150,8 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 
 			if (bOkay)
 			{
+				if (cmd)
+					*cmd = n->second;
 				return n->second->Handle(parameters,user);
 			}
 		}
@@ -181,7 +159,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 	return CMD_INVALID;
 }
 
-bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
+void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 {
 	std::vector<std::string> command_p;
 	irc::tokenstream tokens(cmd);
@@ -196,23 +174,22 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if (command[0] == ':')
 		tokens.GetToken(command);
 
-	while (tokens.GetToken(token) && (command_p.size() <= MAXPARAMETERS))
+	while (tokens.GetToken(token))
 		command_p.push_back(token);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
 	/* find the command, check it exists */
-	Commandtable::iterator cm = cmdlist.find(command);
+	Command* handler = GetHandler(command);
 
 	// Penalty to give if the command fails before the handler is executed
 	unsigned int failpenalty = 0;
 
 	/* Modify the user's penalty regardless of whether or not the command exists */
-	bool do_more = true;
 	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		unsigned int penalty = (cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000);
+		unsigned int penalty = (handler ? handler->Penalty * 1000 : 2000);
 		user->CommandFloodPenalty += penalty;
 
 		// Increase their penalty later if we fail and the command has 0 penalty by default (i.e. in Command::Penalty) to
@@ -222,13 +199,12 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 			failpenalty = 1000;
 	}
 
-
-	if (cm == cmdlist.end())
+	if (!handler)
 	{
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
-			return true;
+			return;
 
 		/*
 		 * This double lookup is in case a module (abbreviation) wishes to change a command.
@@ -237,17 +213,19 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 * Thanks dz for making me actually understand why this is necessary!
 		 * -- w00t
 		 */
-		cm = cmdlist.find(command);
-		if (cm == cmdlist.end())
+		handler = GetHandler(command);
+		if (!handler)
 		{
 			if (user->registered == REG_ALL)
-				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
-			ServerInstance->stats->statsUnknown++;
-			return true;
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
+			ServerInstance->stats.Unknown++;
+			return;
 		}
 	}
 
-	if (cm->second->max_params && command_p.size() > cm->second->max_params)
+	// If we were given more parameters than max_params then append the excess parameter(s)
+	// to command_p[maxparams-1], i.e. to the last param that is still allowed
+	if (handler->max_params && command_p.size() > handler->max_params)
 	{
 		/*
 		 * command_p input (assuming max_params 1):
@@ -256,32 +234,21 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 *	a
 		 *	test
 		 */
-		std::string lparam;
 
-		/*
-		 * The '-1' here is a clever trick, we'll go backwards throwing everything into a temporary param
-		 * and then just toss that into the array.
-		 * -- w00t
-		 */
-		while (command_p.size() > (cm->second->max_params - 1))
+		// Iterator to the last parameter that will be kept
+		const std::vector<std::string>::iterator lastkeep = command_p.begin() + (handler->max_params - 1);
+		// Iterator to the first excess parameter
+		const std::vector<std::string>::iterator firstexcess = lastkeep + 1;
+
+		// Append all excess parameter(s) to the last parameter, seperated by spaces
+		for (std::vector<std::string>::const_iterator i = firstexcess; i != command_p.end(); ++i)
 		{
-			// BE CAREFUL: .end() returns past the end of the vector, hence decrement.
-			std::vector<std::string>::iterator it = command_p.end() - 1;
-
-			lparam.insert(0, " " + *(it));
-			command_p.erase(it); // remove last element
+			lastkeep->push_back(' ');
+			lastkeep->append(*i);
 		}
 
-		/* we now have (each iteration):
-		 *	' test'
-		 *	' a test'
-		 *	' is a test' <-- final string
-		 * ...now remove the ' ' at the start...
-		 */
-		lparam.erase(lparam.begin());
-
-		/* param is now 'is a test', which is exactly what we wanted! */
-		command_p.push_back(lparam);
+		// Erase the excess parameter(s)
+		command_p.erase(firstexcess, command_p.end());
 	}
 
 	/*
@@ -291,104 +258,140 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 	if (MOD_RESULT == MOD_RES_DENY)
-		return true;
+		return;
 
 	/* activity resets the ping pending timer */
 	user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
 
-	if (cm->second->flags_needed)
+	if (handler->flags_needed)
 	{
-		if (!user->IsModeSet(cm->second->flags_needed))
+		if (!user->IsModeSet(handler->flags_needed))
 		{
 			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
-			return do_more;
+			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
+			return;
 		}
+
 		if (!user->HasPermission(command))
 		{
 			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to command %s",
-				user->nick.c_str(), user->oper->NameStr(), command.c_str());
-			return do_more;
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
+				user->oper->name.c_str(), command.c_str()));
+			return;
 		}
 	}
-	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
+
+	if ((user->registered == REG_ALL) && (!user->IsOper()) && (handler->IsDisabled()))
 	{
 		/* command is disabled! */
 		user->CommandFloodPenalty += failpenalty;
 		if (ServerInstance->Config->DisabledDontExist)
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 		}
 		else
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :This command has been disabled.",
-										user->nick.c_str(), command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "This command has been disabled.");
 		}
 
 		ServerInstance->SNO->WriteToSnoMask('a', "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		return do_more;
+		return;
 	}
 
-	if ((!command_p.empty()) && (command_p.back().empty()) && (!cm->second->allow_empty_last_param))
+	if ((!command_p.empty()) && (command_p.back().empty()) && (!handler->allow_empty_last_param))
 		command_p.pop_back();
 
-	if (command_p.size() < cm->second->min_params)
+	if (command_p.size() < handler->min_params)
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
-		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->name.c_str(), cm->second->syntax.c_str());
-		return do_more;
+		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
+		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
+			user->WriteNumeric(RPL_SYNTAX, InspIRCd::Format("SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str()));
+		return;
 	}
-	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
+
+	if ((user->registered != REG_ALL) && (!handler->WorksBeforeReg()))
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NOTREGISTERED, "%s %s :You have not registered", user->nick.c_str(), command.c_str());
-		return do_more;
+		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
 	}
 	else
 	{
 		/* passed all checks.. first, do the (ugly) stats counters. */
-		cm->second->use_count++;
-		cm->second->total_bytes += cmd.length();
+		handler->use_count++;
 
 		/* module calls too */
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
-			return do_more;
+			return;
 
 		/*
 		 * WARNING: be careful, the user may be deleted soon
 		 */
-		CmdResult result = cm->second->Handle(command_p, user);
+		CmdResult result = handler->Handle(command_p, user);
 
-		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, user, result,cmd));
-		return do_more;
+		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result, cmd));
 	}
 }
 
 void CommandParser::RemoveCommand(Command* x)
 {
-	Commandtable::iterator n = cmdlist.find(x->name);
+	CommandMap::iterator n = cmdlist.find(x->name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
 }
 
-Command::~Command()
+CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
+	, flags_needed(0)
+	, min_params(minpara)
+	, max_params(maxpara)
+	, use_count(0)
+	, disabled(false)
+	, works_before_reg(false)
+	, allow_empty_last_param(true)
+	, Penalty(1)
 {
-	ServerInstance->Parser->RemoveCommand(this);
 }
 
-bool CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
+CommandBase::~CommandBase()
 {
-	if (!user || buffer.empty())
-		return true;
+}
 
-	ServerInstance->Logs->Log("USERINPUT", RAWIO, "C[%s] I :%s %s",
-		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
-	return ProcessCommand(user,buffer);
+void CommandBase::EncodeParameter(std::string& parameter, int index)
+{
+}
+
+RouteDescriptor CommandBase::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return ROUTE_LOCALONLY;
+}
+
+Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: CommandBase(mod, cmd, minpara, maxpara)
+	, force_manual_route(false)
+{
+}
+
+Command::~Command()
+{
+	ServerInstance->Parser.RemoveCommand(this);
+}
+
+void Command::RegisterService()
+{
+	if (!ServerInstance->Parser.AddCommand(this))
+		throw ModuleException("Command already exists: " + name);
+}
+
+void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
+{
+	if (buffer.empty())
+		return;
+
+	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), buffer.c_str());
+	ProcessCommand(user,buffer);
 }
 
 bool CommandParser::AddCommand(Command *f)
@@ -406,88 +409,64 @@ CommandParser::CommandParser()
 {
 }
 
-int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final, Command* custom_translator)
+std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final, CommandBase* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();
-	User* user = NULL;
-	unsigned int i;
-	int translations = 0;
-	dest.clear();
+	std::string dest;
 
-	for(i=0; i < source.size(); i++)
+	for (unsigned int i = 0; i < source.size(); i++)
 	{
-		TranslateType t;
-		std::string item = source[i];
-
-		if (types == to.end())
-			t = TR_TEXT;
-		else
+		TranslateType t = TR_TEXT;
+		// They might supply less translation types than parameters,
+		// in that case pretend that all remaining types are TR_TEXT
+		if (types != to.end())
 		{
 			t = *types;
 			types++;
 		}
 
-		if (prefix_final && i == source.size() - 1)
-			dest.append(":");
+		bool last = (i == (source.size() - 1));
+		if (prefix_final && last)
+			dest.push_back(':');
 
-		switch (t)
-		{
-			case TR_NICK:
-				/* Translate single nickname */
-				user = ServerInstance->FindNick(item);
-				if (user)
-				{
-					dest.append(user->uuid);
-					translations++;
-				}
-				else
-					dest.append(item);
-			break;
-			case TR_CUSTOM:
-				if (custom_translator)
-					custom_translator->EncodeParameter(item, i);
-				dest.append(item);
-			break;
-			case TR_END:
-			case TR_TEXT:
-			default:
-				/* Do nothing */
-				dest.append(item);
-			break;
-		}
-		if (i != source.size() - 1)
-			dest.append(" ");
+		TranslateSingleParam(t, source[i], dest, custom_translator, i);
+
+		if (!last)
+			dest.push_back(' ');
 	}
 
-	return translations;
+	return dest;
 }
 
-int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
+void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator, unsigned int paramnumber)
 {
-	User* user = NULL;
-	int translations = 0;
-	dest.clear();
-
 	switch (to)
 	{
 		case TR_NICK:
+		{
 			/* Translate single nickname */
-			user = ServerInstance->FindNick(source);
+			User* user = ServerInstance->FindNick(item);
 			if (user)
-			{
-				dest = user->uuid;
-				translations++;
-			}
+				dest.append(user->uuid);
 			else
-				dest = source;
-		break;
-		case TR_END:
+				dest.append(item);
+			break;
+		}
+		case TR_CUSTOM:
+		{
+			if (custom_translator)
+			{
+				std::string translated = item;
+				custom_translator->EncodeParameter(translated, paramnumber);
+				dest.append(translated);
+				break;
+			}
+			// If no custom translator was given, fall through
+		}
 		case TR_TEXT:
 		default:
 			/* Do nothing */
-			dest = source;
+			dest.append(item);
 		break;
 	}
-
-	return translations;
 }

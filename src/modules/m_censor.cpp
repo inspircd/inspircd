@@ -20,15 +20,9 @@
  */
 
 
-/* $ModDesc: Provides user and channel +G mode */
-
-#define _CRT_SECURE_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
-
 #include "inspircd.h"
-#include <iostream>
 
-typedef std::map<irc::string,irc::string> censor_t;
+typedef insp::flat_map<irc::string, irc::string> censor_t;
 
 /** Handles usermode +G
  */
@@ -55,24 +49,8 @@ class ModuleCensor : public Module
  public:
 	ModuleCensor() : cu(this), cc(this) { }
 
-	void init()
-	{
-		/* Read the configuration file on startup.
-		 */
-		OnRehash(NULL);
-		ServerInstance->Modules->AddService(cu);
-		ServerInstance->Modules->AddService(cc);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-
-	virtual ~ModuleCensor()
-	{
-	}
-
 	// format of a config entry is <badword text="shit" replace="poo">
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -80,11 +58,11 @@ class ModuleCensor : public Module
 		bool active = false;
 
 		if (target_type == TYPE_USER)
-			active = ((User*)dest)->IsModeSet('G');
+			active = ((User*)dest)->IsModeSet(cu);
 		else if (target_type == TYPE_CHANNEL)
 		{
-			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
+			active = c->IsModeSet(cc);
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"censor");
 
 			if (res == MOD_RES_ALLOW)
@@ -101,23 +79,18 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(ERR_WORDFILTERED, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name.c_str() : ((User*)dest)->nick.c_str()), index->first.c_str());
+					user->WriteNumeric(ERR_WORDFILTERED, ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name : ((User*)dest)->nick), index->first.c_str(), "Your message contained a censored word, and was blocked");
 					return MOD_RES_DENY;
 				}
 
-				SearchAndReplace(text2, index->first, index->second);
+				stdalgo::string::replace_all(text2, index->first, index->second);
 			}
 		}
 		text = text2.c_str();
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
-	}
-
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
@@ -136,7 +109,7 @@ class ModuleCensor : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides user and channel +G mode",VF_VENDOR);
 	}

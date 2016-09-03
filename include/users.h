@@ -22,12 +22,10 @@
  */
 
 
-#ifndef USERS_H
-#define USERS_H
+#pragma once
 
 #include "socket.h"
 #include "inspsocket.h"
-#include "dns.h"
 #include "mode.h"
 #include "membership.h"
 
@@ -40,19 +38,6 @@ enum ClassTypes {
 	CC_DENY  = 1,
 	/** named connect block (for opers, etc) */
 	CC_NAMED = 2
-};
-
-/** RFC1459 channel modes
- */
-enum UserModes {
-	/** +s: Server notice mask */
-	UM_SNOMASK = 's' - 65,
-	/** +w: WALLOPS */
-	UM_WALLOPS = 'w' - 65,
-	/** +i: Invisible */
-	UM_INVISIBLE = 'i' - 65,
-	/** +o: Operator */
-	UM_OPERATOR = 'o' - 65
 };
 
 /** Registration state of a user, e.g.
@@ -145,6 +130,10 @@ struct CoreExport ConnectClass : public refcountbase
 	 * (0 = no limit = default)
 	 */
 	unsigned long limit;
+
+	/** If set to true, no user DNS lookups are to be performed
+	 */
+	bool resolvehostnames;
 
 	/** Create a new connect class with no settings.
 	 */
@@ -250,7 +239,31 @@ class CoreExport User : public Extensible
 	 */
 	std::string cachedip;
 
+	/** The user's mode list.
+	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
+	 * if (modes[modeid]) is set, then the mode is set.
+	 * For example, to work out if mode +i is set, we check the field
+	 * User::modes[invisiblemode->modeid] == true.
+	 */
+	std::bitset<ModeParser::MODEID_MAX> modes;
+
  public:
+	/** To execute a function for each local neighbor of a user, inherit from this class and
+	 * pass an instance of it to User::ForEachNeighbor().
+	 */
+	class ForEachNeighborHandler
+	{
+	 public:
+		/** Method to execute for each local neighbor of a user.
+		 * Derived classes must implement this.
+		 * @param user Current neighbor
+		 */
+		virtual void Execute(LocalUser* user) = 0;
+	};
+
+	/** List of Memberships for this user
+	 */
+	typedef insp::intrusive_list<Membership> ChanList;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
@@ -266,10 +279,6 @@ class CoreExport User : public Extensible
 	 * created.
 	 */
 	time_t signon;
-
-	/** Time that the connection last sent a message, used to calculate idle time
-	 */
-	time_t idle_lastmsg;
 
 	/** Client address that the user is connected from.
 	 * Do not modify this value directly, use SetClientIP() to change it.
@@ -302,18 +311,6 @@ class CoreExport User : public Extensible
 	 */
 	std::string fullname;
 
-	/** The user's mode list.
-	 * NOT a null terminated string.
-	 * Also NOT an array.
-	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
-	 * if (modes[modeletter-65]) is set, then the mode is
-	 * set, for example, to work out if mode +s is set, we  check the field
-	 * User::modes['s'-65] != 0.
-	 * The following RFC characters o, w, s, i have constants defined via an
-	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
-	 */
-	std::bitset<64> modes;
-
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.
 	 */
@@ -321,11 +318,11 @@ class CoreExport User : public Extensible
 
 	/** Channels this user is on
 	 */
-	UserChanList chans;
+	ChanList chans;
 
 	/** The server the user is connected to.
 	 */
-	const std::string server;
+	Server* server;
 
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
@@ -333,7 +330,7 @@ class CoreExport User : public Extensible
 	std::string awaymsg;
 
 	/** Time the user last went away.
-	 * This is ONLY RELIABLE if user IS_AWAY()!
+	 * This is ONLY RELIABLE if user IsAway()!
 	 */
 	time_t awaytime;
 
@@ -347,16 +344,6 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int registered:3;
 
-	/** True when DNS lookups are completed.
-	 * The UserResolver classes res_forward and res_reverse will
-	 * set this value once they complete.
-	 */
-	unsigned int dns_done:1;
-
-	/** Whether or not to send an snotice about this user's quitting
-	 */
-	unsigned int quietquit:1;
-
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
 	 * This value is set by QuitUser, and is not needed seperately from that call.
@@ -364,27 +351,13 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int quitting:1;
 
-	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
-	 * This can't be handled normally because QuitUser itself calls Write on other
-	 * users, which could trigger their SendQ to overrun.
-	 */
-	unsigned int quitting_sendq:1;
-
-	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
-	 */
-	unsigned int exempt:1;
-
-	/** has the user responded to their previous ping?
-	 */
-	unsigned int lastping:1;
-
 	/** What type of user is this? */
 	const unsigned int usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
-	const char* GetIPString();
+	const std::string& GetIPString();
 
 	/** Get CIDR mask, using default range, for this user
 	 */
@@ -400,13 +373,7 @@ class CoreExport User : public Extensible
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
-	User(const std::string &uid, const std::string& srv, int objtype);
-
-	/** Check if the user matches a G or K line, and disconnect them if they do.
-	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
-	 * Returns true if the user matched a ban, false else.
-	 */
-	bool CheckLines(bool doZline = false);
+	User(const std::string& uid, Server* srv, int objtype);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -428,30 +395,23 @@ class CoreExport User : public Extensible
 	 */
 	void InvalidateCache();
 
-	/** Create a displayable mode string for this users snomasks
-	 * @return The notice mask character sequence
+	/** Returns whether this user is currently away or not. If true,
+	 * further information can be found in User::awaymsg and User::awaytime
+	 * @return True if the user is away, false otherwise
 	 */
-	const char* FormatNoticeMasks();
+	bool IsAway() const { return (!awaymsg.empty()); }
 
-	/** Process a snomask modifier string, e.g. +abc-de
-	 * @param sm A sequence of notice mask characters
-	 * @return The cleaned mode sequence which can be output,
-	 * e.g. in the above example if masks c and e are not
-	 * valid, this function will return +ab-d
+	/** Returns whether this user is an oper or not. If true,
+	 * oper information can be obtained from User::oper
+	 * @return True if the user is an oper, false otherwise
 	 */
-	std::string ProcessNoticeMasks(const char *sm);
+	bool IsOper() const { return oper; }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
 	 * @return True if the notice mask is set
 	 */
 	bool IsNoticeMaskSet(unsigned char sm);
-
-	/** Changed a specific notice mask value
-	 * @param sm The server notice mask to change
-	 * @param value An on/off value for this mask
-	 */
-	void SetNoticeMask(unsigned char sm, bool value);
 
 	/** Create a displayable mode string for this users umodes
 	 * @param showparameters The mode string
@@ -463,12 +423,16 @@ class CoreExport User : public Extensible
 	 * @return True if the mode is set
 	 */
 	bool IsModeSet(unsigned char m);
+	bool IsModeSet(ModeHandler* mh);
+	bool IsModeSet(ModeHandler& mh) { return IsModeSet(&mh); }
+	bool IsModeSet(UserModeReference& moderef);
 
 	/** Set a specific usermode to on or off
 	 * @param m The user mode
 	 * @param value On or off setting of the mode
 	 */
-	void SetMode(unsigned char m, bool value);
+	void SetMode(ModeHandler* mh, bool value);
+	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -491,17 +455,10 @@ class CoreExport User : public Extensible
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes, and checking the modes they can set.
-	 * @param mode The mode the check
-	 * @param type ModeType (MODETYPE_CHANNEL or MODETYPE_USER).
+	 * @param mh Mode to check
 	 * @return True if the user can set or unset this mode.
 	 */
-	virtual bool HasModePermission(unsigned char mode, ModeType type);
-
-	/** Creates a wildcard host.
-	 * Takes a buffer to use and fills the given buffer with the host in the format *!*\@hostname
-	 * @return The wildcarded hostname in *!*\@host form
-	 */
-	char* MakeWildHost();
+	virtual bool HasModePermission(const ModeHandler* mh) const;
 
 	/** Creates a usermask with real host.
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
@@ -515,23 +472,10 @@ class CoreExport User : public Extensible
 	 */
 	const std::string& MakeHostIP();
 
-	/** Add the user to WHOWAS system
-	 */
-	void AddToWhoWas();
-
 	/** Oper up the user using the given opertype.
 	 * This will also give the +o usermode.
 	 */
 	void Oper(OperInfo* info);
-
-	/** Force a nickname change.
-	 * If the nickname change fails (for example, because the nick in question
-	 * already exists) this function will return false, and you must then either
-	 * output an error message, or quit the user for nickname collision.
-	 * @param newnick The nickname to change to
-	 * @return True if the nickchange was successful.
-	 */
-	inline bool ForceNickChange(const char* newnick) { return ChangeNick(newnick, true); }
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type
@@ -563,9 +507,125 @@ class CoreExport User : public Extensible
 	 */
 	void WriteServ(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	void WriteNumeric(unsigned int numeric, const char* text, ...) CUSTOM_PRINTF(3, 4);
+	/** Sends a command to this user.
+	 * @param command The command to be sent.
+	 * @param text The message to send.
+	 */
+	void WriteCommand(const char* command, const std::string& text);
 
-	void WriteNumeric(unsigned int numeric, const std::string &text);
+	/** Sends a server notice to this user.
+	 * @param text The contents of the message to send.
+	 */
+	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
+
+	/** Send a NOTICE message from the local server to the user.
+	 * @param text Text to send
+	 */
+	virtual void WriteRemoteNotice(const std::string& text);
+
+	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
+
+	template <typename T1>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		WriteRemoteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	void WriteRemoteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		n.push(p5);
+		WriteRemoteNumeric(n);
+	}
+
+	void WriteNumeric(const Numeric::Numeric& numeric);
+
+	template <typename T1>
+	void WriteNumeric(unsigned int numeric, T1 p1)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		WriteNumeric(n);
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	void WriteNumeric(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(p1);
+		n.push(p2);
+		n.push(p3);
+		n.push(p4);
+		n.push(p5);
+		WriteNumeric(n);
+	}
 
 	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
 	 * @param user The user to prepend the :nick!user\@host of
@@ -580,19 +640,6 @@ class CoreExport User : public Extensible
 	 */
 	void WriteFrom(User *user, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
-	 * @param dest The user to route the message to
-	 * @param data A std::string to send to the user
-	 */
-	void WriteTo(User *dest, const std::string &data);
-
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
-	 * @param dest The user to route the message to
-	 * @param data The format string for text to send to the user
-	 * @param ... POD-type format arguments
-	 */
-	void WriteTo(User *dest, const char *data, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
 	 * @param line A std::string to send to the users
 	 * @param include_self Should the message be sent back to the author?
@@ -605,32 +652,15 @@ class CoreExport User : public Extensible
 	 */
 	void WriteCommon(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
-	 * @param text The format string for text to send to the users
-	 * @param ... POD-type format arguments
+	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
+	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
+	 * This function is used for example to send something conditionally to neighbors, or to send different messages
+	 * to different users depending on their oper status.
+	 * @param handler Function object to call, inherited from ForEachNeighborHandler.
+	 * @param include_self True to include this user in the set of neighbors, false otherwise.
+	 * Modules may override this. Has no effect if this user is not local.
 	 */
-	void WriteCommonExcept(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Write a quit message to all common users, as in User::WriteCommonExcept but with a specific
-	 * quit message for opers only.
-	 * @param normal_text Normal user quit message
-	 * @param oper_text Oper only quit message
-	 */
-	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
-
-	/** Dump text to a user target, splitting it appropriately to fit
-	 * @param LinePrefix text to prefix each complete line with
-	 * @param TextStream the text to send to the user
-	 */
-	void SendText(const std::string &LinePrefix, std::stringstream &TextStream);
-
-	/** Write to the user, routing the line if the user is remote.
-	 */
-	virtual void SendText(const std::string& line) = 0;
-
-	/** Write to the user, routing the line if the user is remote.
-	 */
-	void SendText(const char* text, ...) CUSTOM_PRINTF(2, 3);
+	void ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
 
 	/** Return true if the user shares at least one channel with another user
 	 * @param other The other user to compare the channel list against
@@ -638,32 +668,24 @@ class CoreExport User : public Extensible
 	 */
 	bool SharesChannelWith(User *other);
 
-	/** Send fake quit/join messages for host or ident cycle.
-	 * Run this after the item in question has changed.
-	 * You should not need to use this function, call ChangeDisplayedHost instead
-	 *
-	 * @param quitline The entire QUIT line, including the source using the old value
-	 */
-	void DoHostCycle(const std::string &quitline);
-
 	/** Change the displayed host of a user.
 	 * ALWAYS use this function, rather than writing User::dhost directly,
 	 * as this triggers module events allowing the change to be syncronized to
-	 * remote servers. This will also emulate a QUIT and rejoin (where configured)
-	 * before setting their host field.
+	 * remote servers.
 	 * @param host The new hostname to set
 	 * @return True if the change succeeded, false if it didn't
+	 * (a module vetoed the change).
 	 */
-	bool ChangeDisplayedHost(const char* host);
+	bool ChangeDisplayedHost(const std::string& host);
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,
-	 * as this correctly causes the user to seem to quit (where configured)
-	 * before setting their ident field.
+	 * as this triggers module events allowing the change to be syncronized to
+	 * remote servers.
 	 * @param newident The new ident to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
-	bool ChangeIdent(const char* newident);
+	bool ChangeIdent(const std::string& newident);
 
 	/** Change a users realname field.
 	 * ALWAYS use this function, rather than writing User::fullname directly,
@@ -672,48 +694,18 @@ class CoreExport User : public Extensible
 	 * @param gecos The user's new realname
 	 * @return True if the change succeeded, false if otherwise
 	 */
-	bool ChangeName(const char* gecos);
+	bool ChangeName(const std::string& gecos);
 
 	/** Change a user's nick
-	 * @param newnick The new nick
-	 * @param force True if the change is being forced (should not be blocked by modes like +N)
+	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.
 	 * @return True if the change succeeded
 	 */
-	bool ChangeNick(const std::string& newnick, bool force = false);
-
-	/** Send a command to all local users from this user
-	 * The command given must be able to send text with the
-	 * first parameter as a servermask (e.g. $*), so basically
-	 * you should use PRIVMSG or NOTICE.
-	 * @param command the command to send
-	 * @param text The text format string to send
-	 * @param ... Format arguments
-	 */
-	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
-	/** Compile a channel list for this user.  Used internally by WHOIS
-	 * @param source The user to prepare the channel list for
-	 * @param spy Whether to return the spy channel list rather than the normal one
-	 * @return This user's channel list
-	 */
-	std::string ChannelList(User* source, bool spy);
-
-	/** Split the channel list in cl which came from dest, and spool it to this user
-	 * Used internally by WHOIS
-	 * @param dest The user the original channel list came from
-	 * @param cl The  channel list as a string obtained from User::ChannelList()
-	 */
-	void SplitChanList(User* dest, const std::string &cl);
+	bool ChangeNick(const std::string& newnick, time_t newts = 0);
 
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!
 	 */
 	void PurgeEmptyChannels();
-
-	/** Get the connect class which this user belongs to. NULL for remote users.
-	 * @return A pointer to this user's connect class.
-	 */
-	virtual ConnectClass* GetClass();
 
 	/** Default destructor
 	 */
@@ -739,17 +731,13 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User, public InviteBase
+class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 
 	UserIOHandler eh;
-
-	/** Position in UserManager::local_users
-	 */
-	LocalUserList::iterator localuseriter;
 
 	/** Stats counter for bytes inbound
 	 */
@@ -777,11 +765,14 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	reference<ConnectClass> MyClass;
 
-	ConnectClass* GetClass();
+	/** Get the connect class which this user belongs to.
+	 * @return A pointer to this user's connect class.
+	 */
+	ConnectClass* GetClass() const { return MyClass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */
-	void CheckClass();
+	void CheckClass(bool clone_count = true);
 
 	/** Server address and port that this user is connected to.
 	 */
@@ -792,27 +783,40 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	int GetServerPort();
 
+	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
+	 * This can't be handled normally because QuitUser itself calls Write on other
+	 * users, which could trigger their SendQ to overrun.
+	 */
+	unsigned int quitting_sendq:1;
+
+	/** has the user responded to their previous ping?
+	 */
+	unsigned int lastping:1;
+
+	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
+	 */
+	unsigned int exempt:1;
+
 	/** Used by PING checking code
 	 */
 	time_t nping;
+
+	/** Time that the connection last sent a message, used to calculate idle time
+	 */
+	time_t idle_lastmsg;
 
 	/** This value contains how far into the penalty threshold the user is.
 	 * This is used either to enable fake lag or for excess flood quits
 	 */
 	unsigned int CommandFloodPenalty;
 
-	static already_sent_t already_sent_id;
 	already_sent_t already_sent;
 
-	/** Stored reverse lookup from res_forward. Should not be used after resolution.
+	/** Check if the user matches a G or K line, and disconnect them if they do.
+	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
+	 * Returns true if the user matched a ban, false else.
 	 */
-	std::string stored_host;
-
-	/** Starts a DNS lookup of the user's IP.
-	 * This will cause two UserResolver classes to be instantiated.
-	 * When complete, these objects set User::dns_done to true.
-	 */
-	void StartDNSLookup();
+	bool CheckLines(bool doZline = false);
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
@@ -829,35 +833,14 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
 
-	void SendText(const std::string& line);
 	void Write(const std::string& text);
 	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
 
-	/** Returns the list of channels this user has been invited to but has not yet joined.
-	 * @return A list of channels the user is invited to
+	/** Send a NOTICE message from the local server to the user.
+	 * The message will be sent even if the user is connected to a remote server.
+	 * @param text Text to send
 	 */
-	InviteList& GetInviteList();
-
-	/** Returns true if a user is invited to a channel.
-	 * @param channel A channel name to look up
-	 * @return True if the user is invited to the given channel
-	 */
-	bool IsInvited(const irc::string &channel);
-
-	/** Adds a channel to a users invite list (invites them to a channel)
-	 * @param channel A channel name to add
-	 * @param timeout When the invite should expire (0 == never)
-	 */
-	void InviteTo(const irc::string &channel, time_t timeout);
-
-	/** Removes a channel from a users invite list.
-	 * This member function is called on successfully joining an invite only channel
-	 * to which the user has previously been invited, to clear the invitation.
-	 * @param channel The channel to remove the invite to
-	 */
-	void RemoveInvite(const irc::string &channel);
-
-	void RemoveExpiredInvites();
+	void WriteRemoteNotice(const std::string& text) CXX11_OVERRIDE;
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -880,32 +863,35 @@ class CoreExport LocalUser : public User, public InviteBase
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes, and checking the modes they can set.
-	 * @param mode The mode the check
-	 * @param type ModeType (MODETYPE_CHANNEL or MODETYPE_USER).
+	 * @param mh Mode to check
 	 * @return True if the user can set or unset this mode.
 	 */
-	bool HasModePermission(unsigned char mode, ModeType type);
+	bool HasModePermission(const ModeHandler* mh) const;
 };
 
-class CoreExport RemoteUser : public User
+class RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv, USERTYPE_REMOTE)
+	RemoteUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_REMOTE)
 	{
 	}
-	virtual void SendText(const std::string& line);
 };
 
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string &uid, const std::string& srv) : User(uid, srv, USERTYPE_SERVER)
+	FakeUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_SERVER)
 	{
-		nick = srv;
+		nick = srv->GetName();
+	}
+
+	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
+		: User(uid, new Server(sname, sdesc), USERTYPE_SERVER)
+	{
+		nick = sname;
 	}
 
 	virtual CullResult cull();
-	virtual void SendText(const std::string& line);
 	virtual const std::string& GetFullHost();
 	virtual const std::string& GetFullRealHost();
 };
@@ -926,42 +912,20 @@ inline FakeUser* IS_SERVER(User* u)
 {
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
-/** Is an oper */
-#define IS_OPER(x) (x->oper)
-/** Is away */
-#define IS_AWAY(x) (!x->awaymsg.empty())
 
-/** Derived from Resolver, and performs user forward/reverse lookups.
- */
-class CoreExport UserResolver : public Resolver
+inline bool User::IsModeSet(ModeHandler* mh)
 {
- private:
-	/** UUID we are looking up */
-	std::string uuid;
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	bool fwd;
- public:
-	/** Create a resolver.
-	 * @param user The user to begin lookup on
-	 * @param to_resolve The IP or host to resolve
-	 * @param qt The query type
-	 * @param cache Modified by the constructor if the result was cached
-	 */
-	UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache);
+	return (modes[mh->GetId()]);
+}
 
-	/** Called on successful lookup
-	 * @param result Result string
-	 * @param ttl Time to live for result
-	 * @param cached True if the result was found in the cache
-	 */
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
+inline bool User::IsModeSet(UserModeReference& moderef)
+{
+	if (!moderef)
+		return false;
+	return IsModeSet(*moderef);
+}
 
-	/** Called on failed lookup
-	 * @param e Error code
-	 * @param errormessage Error message string
-	 */
-	void OnError(ResolverError e, const std::string &errormessage);
-};
-
-#endif
+inline void User::SetMode(ModeHandler* mh, bool value)
+{
+	modes[mh->GetId()] = value;
+}

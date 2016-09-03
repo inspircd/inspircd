@@ -21,20 +21,23 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for /KNOCK and channel mode +K */
-
 /** Handles the /KNOCK command
  */
 class CommandKnock : public Command
 {
+	SimpleChannelModeHandler& noknockmode;
+	ChanModeReference inviteonlymode;
+
  public:
 	bool sendnotice;
 	bool sendnumeric;
-	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2, 2)
+	CommandKnock(Module* Creator, SimpleChannelModeHandler& Noknockmode)
+		: Command(Creator,"KNOCK", 2, 2)
+		, noknockmode(Noknockmode)
+		, inviteonlymode(Creator, "inviteonly")
 	{
 		syntax = "<channel> <reason>";
 		Penalty = 5;
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -42,35 +45,35 @@ class CommandKnock : public Command
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (!c)
 		{
-			user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 
 		if (c->HasUser(user))
 		{
-			user->WriteNumeric(480, "%s :Can't KNOCK on %s, you are already on that channel.", user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_KNOCKONCHAN, c->name, InspIRCd::Format("Can't KNOCK on %s, you are already on that channel.", c->name.c_str()));
 			return CMD_FAILURE;
 		}
 
-		if (c->IsModeSet('K'))
+		if (c->IsModeSet(noknockmode))
 		{
-			user->WriteNumeric(480, "%s :Can't KNOCK on %s, +K is set.",user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(480, InspIRCd::Format("Can't KNOCK on %s, +K is set.", c->name.c_str()));
 			return CMD_FAILURE;
 		}
 
-		if (!c->IsModeSet('i'))
+		if (!c->IsModeSet(inviteonlymode))
 		{
-			user->WriteNumeric(480, "%s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_CHANOPEN, c->name, InspIRCd::Format("Can't KNOCK on %s, channel is not invite only so knocking is pointless!", c->name.c_str()));
 			return CMD_FAILURE;
 		}
 
 		if (sendnotice)
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), parameters[1].c_str());
+			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
 
 		if (sendnumeric)
 			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "710 %s %s %s :is KNOCKing: %s", c->name.c_str(), c->name.c_str(), user->GetFullHost().c_str(), parameters[1].c_str());
 
-		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
+		user->WriteNotice("KNOCKing on " + c->name);
 		return CMD_SUCCESS;
 	}
 
@@ -80,43 +83,27 @@ class CommandKnock : public Command
 	}
 };
 
-/** Handles channel mode +K
- */
-class Knock : public SimpleChannelModeHandler
-{
- public:
-	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, "noknock", 'K') { }
-};
-
 class ModuleKnock : public Module
 {
+	SimpleChannelModeHandler kn;
 	CommandKnock cmd;
-	Knock kn;
+
  public:
-	ModuleKnock() : cmd(this), kn(this)
+	ModuleKnock()
+		: kn(this, "noknock", 'K')
+		, cmd(this, kn)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(kn);
-		ServerInstance->Modules->AddService(cmd);
-
-		ServerInstance->Modules->Attach(I_OnRehash, this);
-		OnRehash(NULL);
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
-		irc::string notify(knocknotify.c_str());
-
-		if (notify == "numeric")
+		if (stdalgo::string::equalsci(knocknotify, "numeric"))
 		{
 			cmd.sendnotice = false;
 			cmd.sendnumeric = true;
 		}
-		else if (notify == "both")
+		else if (stdalgo::string::equalsci(knocknotify, "both"))
 		{
 			cmd.sendnotice = true;
 			cmd.sendnumeric = true;
@@ -128,7 +115,7 @@ class ModuleKnock : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for /KNOCK and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}

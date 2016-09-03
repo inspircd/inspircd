@@ -18,78 +18,50 @@
  */
 
 
-#include <vector>
-#include <string>
-#include <map>
 #include "inspircd.h"
 #include "exitcodes.h"
-#include "socketengine.h"
+
 #include <sys/epoll.h>
 #include <ulimit.h>
 #include <iostream>
-#define EP_DELAY 5
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
  */
-class EPollEngine : public SocketEngine
+namespace
 {
-private:
+	int EngineHandle;
+
 	/** These are used by epoll() to hold socket events
 	 */
-	struct epoll_event* events;
-	int EngineHandle;
-public:
-	/** Create a new EPollEngine
-	 */
-	EPollEngine();
-	/** Delete an EPollEngine
-	 */
-	virtual ~EPollEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-	virtual std::string GetName();
-};
+	std::vector<struct epoll_event> events(1);
+}
 
-EPollEngine::EPollEngine()
+void SocketEngine::Init()
 {
-	CurrentSetSize = 0;
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
+	MAX_DESCRIPTORS = ulimit(4, 0);
 
-	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
-	EngineHandle = epoll_create(GetMaxFds() / 4);
+	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
+	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.
+	EngineHandle = epoll_create(128);
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize epoll socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-
-	ref = new EventHandler* [GetMaxFds()];
-	events = new struct epoll_event[GetMaxFds()];
-
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
-EPollEngine::~EPollEngine()
+void SocketEngine::RecoverFromFork()
 {
-	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] events;
+}
+
+void SocketEngine::Deinit()
+{
+	Close(EngineHandle);
 }
 
 static unsigned mask_to_epoll(int event_mask)
@@ -115,41 +87,41 @@ static unsigned mask_to_epoll(int event_mask)
 	return rv;
 }
 
-bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "AddFd out of range: (fd: %d)", fd);
 		return false;
 	}
 
-	if (ref[fd])
+	if (!SocketEngine::AddFdRef(eh))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(ev));
+	memset(&ev, 0, sizeof(ev));
 	ev.events = mask_to_epoll(event_mask);
-	ev.data.fd = fd;
+	ev.data.ptr = static_cast<void*>(eh);
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Error adding fd: %d to socketengine: %s", fd, strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Error adding fd: %d to socketengine: %s", fd, strerror(errno));
 		return false;
 	}
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	ref[fd] = eh;
-	SocketEngine::SetEventMask(eh, event_mask);
-	CurrentSetSize++;
+	eh->SetEventMask(event_mask);
+	ResizeDouble(events);
+
 	return true;
 }
 
-void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	unsigned old_events = mask_to_epoll(old_mask);
 	unsigned new_events = mask_to_epoll(new_mask);
@@ -157,75 +129,78 @@ void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	{
 		// ok, we actually have something to tell the kernel about
 		struct epoll_event ev;
-		memset(&ev,0,sizeof(ev));
+		memset(&ev, 0, sizeof(ev));
 		ev.events = new_events;
-		ev.data.fd = eh->GetFd();
+		ev.data.ptr = static_cast<void*>(eh);
 		epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 	}
 }
 
-void EPollEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd out of range: (fd: %d)", fd);
 		return;
 	}
 
+	// Do not initialize epoll_event because for EPOLL_CTL_DEL operations the event is ignored and can be NULL.
+	// In kernel versions before 2.6.9, the EPOLL_CTL_DEL operation required a non-NULL pointer in event,
+	// even though this argument is ignored. Since Linux 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(ev));
-	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
 	if (i < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"epoll_ctl can't remove socket: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "epoll_ctl can't remove socket: %s", strerror(errno));
 	}
 
-	ref[fd] = NULL;
+	SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
-	CurrentSetSize--;
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-int EPollEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
-	socklen_t codesize = sizeof(int);
-	int errcode;
-	int i = epoll_wait(EngineHandle, events, GetMaxFds() - 1, 1000);
+	int i = epoll_wait(EngineHandle, &events[0], events.size(), 1000);
 	ServerInstance->UpdateTime();
 
-	TotalEvents += i;
+	stats.TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
-		EventHandler* eh = ref[events[j].data.fd];
-		if (!eh)
+		// Copy these in case the vector gets resized and ev invalidated
+		const epoll_event ev = events[j];
+
+		EventHandler* const eh = static_cast<EventHandler*>(ev.data.ptr);
+		const int fd = eh->GetFd();
+		if (fd < 0)
+			continue;
+
+		if (ev.events & EPOLLHUP)
 		{
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"Got event on unknown fd: %d", events[j].data.fd);
-			epoll_ctl(EngineHandle, EPOLL_CTL_DEL, events[j].data.fd, &events[j]);
+			stats.ErrorEvents++;
+			eh->OnEventHandlerError(0);
 			continue;
 		}
-		if (events[j].events & EPOLLHUP)
+
+		if (ev.events & EPOLLERR)
 		{
-			ErrorEvents++;
-			eh->HandleEvent(EVENT_ERROR, 0);
-			continue;
-		}
-		if (events[j].events & EPOLLERR)
-		{
-			ErrorEvents++;
+			stats.ErrorEvents++;
 			/* Get error number */
-			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+			socklen_t codesize = sizeof(int);
+			int errcode;
+			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
-			eh->HandleEvent(EVENT_ERROR, errcode);
+			eh->OnEventHandlerError(errcode);
 			continue;
 		}
+
 		int mask = eh->GetEventMask();
-		if (events[j].events & EPOLLIN)
+		if (ev.events & EPOLLIN)
 			mask &= ~FD_READ_WILL_BLOCK;
-		if (events[j].events & EPOLLOUT)
+		if (ev.events & EPOLLOUT)
 		{
 			mask &= ~FD_WRITE_WILL_BLOCK;
 			if (mask & FD_WANT_SINGLE_WRITE)
@@ -235,31 +210,21 @@ int EPollEngine::DispatchEvents()
 				mask = nm;
 			}
 		}
-		SetEventMask(eh, mask);
-		if (events[j].events & EPOLLIN)
+		eh->SetEventMask(mask);
+		if (ev.events & EPOLLIN)
 		{
-			ReadEvents++;
-			eh->HandleEvent(EVENT_READ);
-			if (eh != ref[events[j].data.fd])
+			stats.ReadEvents++;
+			eh->OnEventHandlerRead();
+			if (eh != GetRef(fd))
 				// whoa! we got deleted, better not give out the write event
 				continue;
 		}
-		if (events[j].events & EPOLLOUT)
+		if (ev.events & EPOLLOUT)
 		{
-			WriteEvents++;
-			eh->HandleEvent(EVENT_WRITE);
+			stats.WriteEvents++;
+			eh->OnEventHandlerWrite();
 		}
 	}
 
 	return i;
-}
-
-std::string EPollEngine::GetName()
-{
-	return "epoll";
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new EPollEngine;
 }

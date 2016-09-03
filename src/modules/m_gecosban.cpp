@@ -19,27 +19,15 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b r: - realname (gecos) bans */
-
 class ModuleGecosBan : public Module
 {
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleGecosBan()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Extban 'r' - realname (gecos) ban", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'r') && (mask[1] == ':'))
 		{
@@ -49,9 +37,9 @@ class ModuleGecosBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('r');
+		tokens["EXTBAN"].push_back('r');
 	}
 };
 

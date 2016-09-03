@@ -20,50 +20,31 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b j: - matching channel bans */
-
 class ModuleBadChannelExtban : public Module
 {
- private:
  public:
-	void init()
-	{
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleBadChannelExtban()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Extban 'j' - channel status/join ban", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':'))
 		{
-			std::string rm = mask.substr(2);
+			std::string rm(mask, 2);
 			char status = 0;
-			ModeHandler* mh = ServerInstance->Modes->FindPrefix(rm[0]);
+			const PrefixMode* const mh = ServerInstance->Modes->FindPrefix(rm[0]);
 			if (mh)
 			{
-				rm = mask.substr(3);
+				rm.assign(mask, 3, std::string::npos);
 				status = mh->GetModeChar();
 			}
-			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 			{
-				if (InspIRCd::Match((**i).name, rm))
+				if (InspIRCd::Match((*i)->chan->name, rm))
 				{
-					if (status)
-					{
-						Membership* memb = (**i).GetUser(user);
-						if (memb && memb->hasMode(status))
-							return MOD_RES_DENY;
-					}
-					else
+					if ((!status) || ((*i)->HasMode(mh)))
 						return MOD_RES_DENY;
 				}
 			}
@@ -71,12 +52,10 @@ class ModuleBadChannelExtban : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->AddExtBanChar('j');
+		tokens["EXTBAN"].push_back('j');
 	}
 };
 
-
 MODULE_INIT(ModuleBadChannelExtban)
-

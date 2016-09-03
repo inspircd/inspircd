@@ -20,87 +20,54 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <port.h>
-
-#ifndef SOCKETENGINE_PORTS
-#define SOCKETENGINE_PORTS
 
 #ifndef __sun
 # error You need Solaris 10 or later to make use of this code.
 #endif
 
-#include <vector>
-#include <string>
-#include <map>
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include "socketengine.h"
 #include <port.h>
 #include <iostream>
+#include <ulimit.h>
 
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
-class PortsEngine : public SocketEngine
+namespace
 {
-private:
-	/** These are used by epoll() to hold socket events
+	/** These are used by ports to hold socket events
 	 */
-	port_event_t* events;
+	std::vector<port_event_t> events(16);
 	int EngineHandle;
-public:
-	/** Create a new PortsEngine
-	 */
-	PortsEngine();
-	/** Delete a PortsEngine
-	 */
-	virtual ~PortsEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-	virtual std::string GetName();
-};
+}
 
-#endif
-
-
-#include <ulimit.h>
-
-PortsEngine::PortsEngine()
+/** Initialize ports engine
+ */
+void SocketEngine::Init()
 {
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
+	MAX_DESCRIPTORS = ulimit(4, 0);
+
 	EngineHandle = port_create();
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET", LOG_SPARSE, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_SPARSE, "ERROR: This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-	CurrentSetSize = 0;
-
-	ref = new EventHandler* [GetMaxFds()];
-	events = new port_event_t[GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
-PortsEngine::~PortsEngine()
+/** Shutdown the ports engine
+ */
+void SocketEngine::Deinit()
 {
-	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] events;
+	SocketEngine::Close(EngineHandle);
+}
+
+void SocketEngine::RecoverFromFork()
+{
 }
 
 static int mask_to_events(int event_mask)
@@ -113,45 +80,44 @@ static int mask_to_events(int event_mask)
 	return rv;
 }
 
-bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
-	ref[fd] = eh;
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
-	CurrentSetSize++;
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
+	ResizeDouble(events);
+
 	return true;
 }
 
-void PortsEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if (mask_to_events(new_mask) != mask_to_events(old_mask))
 		port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), mask_to_events(new_mask), eh);
 }
 
-void PortsEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return;
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
+	SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-int PortsEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	struct timespec poll_time;
 
@@ -159,62 +125,51 @@ int PortsEngine::DispatchEvents()
 	poll_time.tv_nsec = 0;
 
 	unsigned int nget = 1; // used to denote a retrieve request.
-	int ret = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
+	int ret = port_getn(EngineHandle, &events[0], events.size(), &nget, &poll_time);
 	ServerInstance->UpdateTime();
 
 	// first handle an error condition
 	if (ret == -1)
 		return -1;
 
-	TotalEvents += nget;
+	stats.TotalEvents += nget;
 
 	unsigned int i;
 	for (i = 0; i < nget; i++)
 	{
-		switch (this->events[i].portev_source)
+		port_event_t& ev = events[i];
+
+		if (ev.portev_source != PORT_SOURCE_FD)
+			continue;
+
+		// Copy these in case the vector gets resized and ev invalidated
+		const int fd = ev.portev_object;
+		const int portev_events = ev.portev_events;
+		EventHandler* eh = static_cast<EventHandler*>(ev.portev_user);
+		if (eh->GetFd() < 0)
+			continue;
+
+		int mask = eh->GetEventMask();
+		if (portev_events & POLLWRNORM)
+			mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
+		if (portev_events & POLLRDNORM)
+			mask &= ~FD_READ_WILL_BLOCK;
+		// reinsert port for next time around, pretending to be one-shot for writes
+		eh->SetEventMask(mask);
+		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
+		if (portev_events & POLLRDNORM)
 		{
-			case PORT_SOURCE_FD:
-			{
-				int fd = this->events[i].portev_object;
-				EventHandler* eh = ref[fd];
-				if (eh)
-				{
-					int mask = eh->GetEventMask();
-					if (events[i].portev_events & POLLWRNORM)
-						mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
-					if (events[i].portev_events & POLLRDNORM)
-						mask &= ~FD_READ_WILL_BLOCK;
-					// reinsert port for next time around, pretending to be one-shot for writes
-					SetEventMask(eh, mask);
-					port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
-					if (events[i].portev_events & POLLRDNORM)
-					{
-						ReadEvents++;
-						eh->HandleEvent(EVENT_READ);
-						if (eh != ref[fd])
-							continue;
-					}
-					if (events[i].portev_events & POLLWRNORM)
-					{
-						WriteEvents++;
-						eh->HandleEvent(EVENT_WRITE);
-					}
-				}
-			}
-			default:
-			break;
+			stats.ReadEvents++;
+			eh->OnEventHandlerRead();
+			if (eh != GetRef(fd))
+				continue;
+		}
+		if (portev_events & POLLWRNORM)
+		{
+			stats.WriteEvents++;
+			eh->OnEventHandlerWrite();
 		}
 	}
 
 	return (int)i;
-}
-
-std::string PortsEngine::GetName()
-{
-	return "ports";
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new PortsEngine;
 }

@@ -21,40 +21,27 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
-
-/* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
+#include "modules/cap.h"
 
 class ModuleNamesX : public Module
 {
+	Cap::Capability cap;
  public:
-	GenericCap cap;
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
 	}
 
-	void init()
-	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-
-	~ModuleNamesX()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		output.append(" NAMESX");
+		tokens["NAMESX"];
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* We don't actually create a proper command handler class for PROTOCTL,
 		 * because other modules might want to have PROTOCTL hooks too.
@@ -65,66 +52,37 @@ class ModuleNamesX : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"NAMESX")))
 			{
-				cap.ext.set(user, 1);
+				cap.set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (!cap.ext.get(issuer))
-			return;
+		if (cap.get(issuer))
+			prefixes = memb->GetAllPrefixChars();
 
-		/* Some module hid this from being displayed, dont bother */
-		if (nick.empty())
-			return;
-
-		prefixes = memb->chan->GetAllPrefixChars(memb->user);
+		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		if (!cap.ext.get(source))
-			return;
-
-		// Channel names can contain ":", and ":" as a 'start-of-token' delimiter is
-		// only ever valid after whitespace, so... find the actual delimiter first!
-		// Thanks to FxChiP for pointing this out.
-		std::string::size_type pos = line.find(" :");
-		if (pos == std::string::npos || pos == 0)
-			return;
-		pos--;
-		// Don't do anything if the user has no prefixes
-		if ((line[pos] == 'H') || (line[pos] == 'G') || (line[pos] == '*'))
-			return;
-
-		// 352 21DAAAAAB #chan ident localhost insp21.test 21DAAAAAB H@ :0 a
-		//              a     b                                       pos
-		std::string::size_type a = 4 + source->nick.length() + 1;
-		std::string::size_type b = line.find(' ', a);
-		if (b == std::string::npos)
-			return;
-
-		// Try to find this channel
-		std::string channame = line.substr(a, b-a);
-		Channel* chan = ServerInstance->FindChan(channame);
-		if (!chan)
-			return;
+		if ((!memb) || (!cap.get(source)))
+			return MOD_RES_PASSTHRU;
 
 		// Don't do anything if the user has only one prefix
-		std::string prefixes = chan->GetAllPrefixChars(user);
+		std::string prefixes = memb->GetAllPrefixChars();
 		if (prefixes.length() <= 1)
-			return;
+			return MOD_RES_PASSTHRU;
 
-		line.erase(pos, 1);
-		line.insert(pos, prefixes);
-	}
+		// #chan ident localhost insp22.test nick H@ :0 Attila
+		if (numeric.GetParams().size() < 6)
+			return MOD_RES_PASSTHRU;
 
-	void OnEvent(Event& ev)
-	{
-		cap.HandleEvent(ev);
+		numeric.GetParams()[5].append(prefixes, 1, std::string::npos);
+		return MOD_RES_PASSTHRU;
 	}
 };
 

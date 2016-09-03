@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel +S mode (strip ansi color) */
-
 /** Handles channel mode +S
  */
 class ChannelStripColor : public SimpleChannelModeHandler
@@ -50,24 +48,12 @@ class ModuleStripColor : public Module
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(usc);
-		ServerInstance->Modules->AddService(csc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('S');
 	}
 
-	virtual ~ModuleStripColor()
-	{
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('S');
-	}
-
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -76,7 +62,7 @@ class ModuleStripColor : public Module
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
-			active = t->IsModeSet('S');
+			active = t->IsModeSet(usc);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
@@ -86,7 +72,7 @@ class ModuleStripColor : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet('S'));
+			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
 		}
 
 		if (active)
@@ -97,12 +83,24 @@ class ModuleStripColor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) CXX11_OVERRIDE
 	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
+		User* user = memb->user;
+		Channel* channel = memb->chan;
+
+		if (!IS_LOCAL(user))
+			return;
+
+		bool active = channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc))
+			&& ServerInstance->OnCheckExemption(user, channel, "stripcolor") != MOD_RES_ALLOW;
+
+		if (active)
+		{
+			InspIRCd::StripColor(partmessage);
+		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel +S mode (strip ansi color)", VF_VENDOR);
 	}

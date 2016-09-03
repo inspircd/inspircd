@@ -17,30 +17,24 @@
  */
 
 
-/* $ModDesc: Implements the ability to have server-side MLOCK enforcement. */
-
 #include "inspircd.h"
 
 class ModuleMLock : public Module
 {
-private:
 	StringExtItem mlock;
 
-public:
-	ModuleMLock() : mlock("mlock", this) {};
-
-	void init()
+ public:
+	ModuleMLock()
+		: mlock("mlock", ExtensionItem::EXT_CHANNEL, this)
 	{
-		ServerInstance->Modules->Attach(I_OnRawMode, this);
-		ServerInstance->Modules->AddService(this->mlock);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements the ability to have server-side MLOCK enforcement.", VF_VENDOR);
 	}
 
-	ModResult OnRawMode(User* source, Channel* channel, const char mode, const std::string& parameter, bool adding, int pcnt)
+	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding)
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
@@ -52,17 +46,16 @@ public:
 		if (!mlock_str)
 			return MOD_RES_PASSTHRU;
 
+		const char mode = mh->GetModeChar();
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{
-			source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
-					     channel->name.c_str(), mode, mlock_str->c_str());
+			source->WriteNumeric(742, channel->name, mode, *mlock_str, "MODE cannot be set due to channel having an active MLOCK restriction policy");
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
-
 };
 
 MODULE_INIT(ModuleMLock)

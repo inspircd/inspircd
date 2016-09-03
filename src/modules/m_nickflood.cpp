@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +F (nick flood protection) */
-
 /** Holds settings and state associated with channel mode +F
  */
 class nickfloodsettings
@@ -80,53 +78,41 @@ class nickfloodsettings
 
 /** Handles channel mode +F
  */
-class NickFlood : public ModeHandler
+class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 {
  public:
-	SimpleExtItem<nickfloodsettings> ext;
-	NickFlood(Module* Creator) : ModeHandler(Creator, "nickflood", 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("nickflood", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	NickFlood(Module* Creator)
+		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >(Creator, "nickflood", 'F')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			std::string::size_type colon = parameter.find(':');
-			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			/* Set up the flood parameters for this channel */
-			unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
-			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
-
-			if ((nnicks<1) || (nsecs<1))
-			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			nickfloodsettings* f = ext.get(channel);
-			if ((f) && (nnicks == f->nicks) && (nsecs == f->secs))
-				// mode params match
-				return MODEACTION_DENY;
-
-			ext.set(channel, new nickfloodsettings(nsecs, nnicks));
-			parameter = ConvToStr(nnicks) + ":" + ConvToStr(nsecs);
-			channel->SetModeParam('F', parameter);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			return MODEACTION_DENY;
 		}
-		else
+
+		/* Set up the flood parameters for this channel */
+		unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
+		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+		if ((nnicks<1) || (nsecs<1))
 		{
-			if (!channel->IsModeSet('F'))
-				return MODEACTION_DENY;
-
-			ext.unset(channel);
-			channel->SetModeParam('F', "");
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			return MODEACTION_DENY;
 		}
+
+		ext.set(channel, new nickfloodsettings(nsecs, nnicks));
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const nickfloodsettings* nfs, std::string& out)
+	{
+		out.append(ConvToStr(nfs->nicks)).push_back(':');
+		out.append(ConvToStr(nfs->secs));
 	}
 };
 
@@ -135,28 +121,16 @@ class ModuleNickFlood : public Module
 	NickFlood nf;
 
  public:
-
 	ModuleNickFlood()
 		: nf(this)
 	{
 	}
 
-	void init()
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(nf);
-		ServerInstance->Modules->AddService(nf.ext);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	ModResult OnUserPreNick(User* user, const std::string &newnick)
-	{
-		if (ServerInstance->NICKForced.get(user)) /* Allow forced nick changes */
-			return MOD_RES_PASSTHRU;
-
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel *channel = *i;
+			Channel* channel = (*i)->chan;
 			ModResult res;
 
 			nickfloodsettings *f = nf.ext.get(channel);
@@ -168,7 +142,7 @@ class ModuleNickFlood : public Module
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", user->nick.c_str(), channel->name.c_str(), f->nicks, f->secs);
+					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", channel->name.c_str(), f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 
@@ -176,7 +150,7 @@ class ModuleNickFlood : public Module
 				{
 					f->clear();
 					f->lock();
-					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %u nick changes in %u seconds.", channel->name.c_str(), f->nicks, f->secs);
+					channel->WriteNotice(InspIRCd::Format("No nick changes are allowed for 60 seconds because there have been more than %u nick changes in %u seconds.", f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 			}
@@ -188,14 +162,14 @@ class ModuleNickFlood : public Module
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
 
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
-			Channel *channel = *i;
+			Channel* channel = (*i)->chan;
 			ModResult res;
 
 			nickfloodsettings *f = nf.ext.get(channel);
@@ -214,11 +188,7 @@ class ModuleNickFlood : public Module
 		}
 	}
 
-	~ModuleNickFlood()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Channel mode F - nick flood protection", VF_VENDOR);
 	}

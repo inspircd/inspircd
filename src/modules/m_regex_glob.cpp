@@ -18,10 +18,8 @@
  */
 
 
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "inspircd.h"
-
-/* $ModDesc: Regex module using plain wildcard matching. */
 
 class GlobRegex : public Regex
 {
@@ -30,11 +28,7 @@ public:
 	{
 	}
 
-	virtual ~GlobRegex()
-	{
-	}
-
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
 		return InspIRCd::Match(text, this->regex_string);
 	}
@@ -43,7 +37,7 @@ public:
 class GlobFactory : public RegexFactory
 {
  public:
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new GlobRegex(expr);
 	}
@@ -55,11 +49,12 @@ class ModuleRegexGlob : public Module
 {
 	GlobFactory gf;
 public:
-	ModuleRegexGlob() : gf(this) {
-		ServerInstance->Modules->AddService(gf);
+	ModuleRegexGlob()
+		: gf(this)
+	{
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
 	}

@@ -25,27 +25,27 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the SWHOIS command which allows setting of arbitrary WHOIS lines */
-
 /** Handle /SWHOIS
  */
 class CommandSwhois : public Command
 {
  public:
 	StringExtItem swhois;
-	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
+	CommandSwhois(Module* Creator)
+		: Command(Creator, "SWHOIS", 2, 2)
+		, swhois("swhois", ExtensionItem::EXT_USER, Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if ((!dest) || (IS_SERVER(dest))) // allow setting swhois using SWHOIS before reg
+		if (!dest) // allow setting swhois using SWHOIS before reg
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 
@@ -53,11 +53,11 @@ class CommandSwhois : public Command
 		if (text)
 		{
 			// We already had it set...
-			if (!ServerInstance->ULine(user->server))
+			if (!user->server->IsULine())
 				// Ulines set SWHOISes silently
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[1].c_str());
 		}
-		else if (!ServerInstance->ULine(user->server))
+		else if (!user->server->IsULine())
 		{
 			// Ulines set SWHOISes silently
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
@@ -81,34 +81,28 @@ class CommandSwhois : public Command
 
 };
 
-class ModuleSWhois : public Module
+class ModuleSWhois : public Module, public Whois::LineEventListener
 {
 	CommandSwhois cmd;
 
  public:
-	ModuleSWhois() : cmd(this)
+	ModuleSWhois()
+		: Whois::LineEventListener(this)
+		, cmd(this)
 	{
-	}
-
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.swhois);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostOper };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
-		if (numeric == 312)
+		if (numeric.GetNumeric() == 312)
 		{
 			/* Insert our numeric before 312 */
-			std::string* swhois = cmd.swhois.get(dest);
+			std::string* swhois = cmd.swhois.get(whois.GetTarget());
 			if (swhois)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), swhois->c_str());
+				whois.SendLine(320, *swhois);
 			}
 		}
 
@@ -116,7 +110,7 @@ class ModuleSWhois : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
+	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -130,11 +124,7 @@ class ModuleSWhois : public Module
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
 	}
 
-	~ModuleSWhois()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
 	}

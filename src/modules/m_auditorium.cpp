@@ -22,55 +22,28 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list */
-
-class AuditoriumMode : public ModeHandler
+class AuditoriumMode : public SimpleChannelModeHandler
 {
  public:
-	AuditoriumMode(Module* Creator) : ModeHandler(Creator, "auditorium", 'u', PARAM_NONE, MODETYPE_CHANNEL)
+	AuditoriumMode(Module* Creator) : SimpleChannelModeHandler(Creator, "auditorium", 'u')
 	{
 		levelrequired = OP_VALUE;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (channel->IsModeSet(this) == adding)
-			return MODEACTION_DENY;
-		channel->SetMode(this, adding);
-		return MODEACTION_ALLOW;
 	}
 };
 
 class ModuleAuditorium : public Module
 {
- private:
 	AuditoriumMode aum;
 	bool OpsVisible;
 	bool OpsCanSee;
 	bool OperCanSee;
+
  public:
 	ModuleAuditorium() : aum(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(aum);
-
-		OnRehash(NULL);
-
-		Implementation eventlist[] = {
-			I_OnUserJoin, I_OnUserPart, I_OnUserKick,
-			I_OnBuildNeighborList, I_OnNamesListItem, I_OnSendWhoLine,
-			I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleAuditorium()
-	{
-	}
-
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");
@@ -78,7 +51,7 @@ class ModuleAuditorium : public Module
 		OperCanSee = tag->getBool("opercansee", true);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list", VF_VENDOR);
 	}
@@ -112,19 +85,16 @@ class ModuleAuditorium : public Module
 		return false;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		// Some module already hid this from being displayed, don't bother
-		if (nick.empty())
-			return;
-
 		if (IsVisible(memb))
-			return;
+			return MOD_RES_PASSTHRU;
 
 		if (CanSee(issuer, memb))
-			return;
+			return MOD_RES_PASSTHRU;
 
-		nick.clear();
+		// Don't display this user in the NAMES list
+		return MOD_RES_DENY;
 	}
 
 	/** Build CUList for showing this join/part/kick */
@@ -133,43 +103,45 @@ class ModuleAuditorium : public Module
 		if (IsVisible(memb))
 			return;
 
-		const UserMembList* users = memb->chan->GetUsers();
-		for(UserMembCIter i = users->begin(); i != users->end(); i++)
+		const Channel::MemberMap& users = memb->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			if (IS_LOCAL(i->first) && !CanSee(i->first, memb))
 				excepts.insert(i->first);
 		}
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE
 	{
-		UCListIter i = include.begin();
-		while (i != include.end())
+		for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 		{
-			Channel* c = *i++;
-			Membership* memb = c->GetUser(source);
-			if (!memb || IsVisible(memb))
+			Membership* memb = *i;
+			if (IsVisible(memb))
+			{
+				++i;
 				continue;
+			}
+
 			// this channel should not be considered when listing my neighbors
-			include.erase(c);
+			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
-			const UserMembList* users = c->GetUsers();
-			for(UserMembCIter j = users->begin(); j != users->end(); j++)
+			const Channel::MemberMap& users = memb->chan->GetUsers();
+			for(Channel::MemberMap::const_iterator j = users.begin(); j != users.end(); ++j)
 			{
 				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
 					exception[j->first] = true;
@@ -177,17 +149,15 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		Channel* channel = ServerInstance->FindChan(params[0]);
-		if (!channel)
-			return;
-		Membership* memb = channel->GetUser(user);
-		if ((!memb) || (IsVisible(memb)))
-			return;
+		if (!memb)
+			return MOD_RES_PASSTHRU;
+		if (IsVisible(memb))
+			return MOD_RES_PASSTHRU;
 		if (CanSee(source, memb))
-			return;
-		line.clear();
+			return MOD_RES_PASSTHRU;
+		return MOD_RES_DENY;
 	}
 };
 

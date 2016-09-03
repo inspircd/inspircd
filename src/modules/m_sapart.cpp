@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command SAPART to force-part users from a channel. */
-
 /** Handle /SAPART
  */
 class CommandSapart : public Command
@@ -30,12 +28,15 @@ class CommandSapart : public Command
  public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
-		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel> [reason]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel>[,<channel>] [reason]";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		if (CommandParser::LoopCall(user, this, parameters, 1))
+			return CMD_FAILURE;
+
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
 		std::string reason;
@@ -45,9 +46,15 @@ class CommandSapart : public Command
 			if (parameters.size() > 2)
 				reason = parameters[2];
 
-			if (ServerInstance->ULine(dest->server))
+			if (dest->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				return CMD_FAILURE;
+			}
+
+			if (!channel->HasUser(dest))
+			{
+				user->WriteNotice("*** " + dest->nick + " is not on " + channel->name);
 				return CMD_FAILURE;
 			}
 
@@ -58,33 +65,14 @@ class CommandSapart : public Command
 			if (IS_LOCAL(dest))
 			{
 				channel->PartUser(dest, reason);
-
-				Channel* n = ServerInstance->FindChan(parameters[1]);
-				if (!n)
-				{
-					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
-					return CMD_SUCCESS;
-				}
-				else
-				{
-					if (!n->HasUser(dest))
-					{
-						ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
-						return CMD_SUCCESS;
-					}
-					else
-					{
-						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
-						return CMD_FAILURE;
-					}
-				}
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+channel->name);
 			}
 
 			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick.c_str());
+			user->WriteNotice("*** Invalid nickname or channel");
 		}
 
 		return CMD_FAILURE;
@@ -92,10 +80,7 @@ class CommandSapart : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -109,21 +94,10 @@ class ModuleSapart : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSapart()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAPART to force-part users from a channel.", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSapart)
-

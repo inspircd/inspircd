@@ -20,23 +20,21 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel. */
-
 /** Handle /CYCLE
  */
-class CommandCycle : public Command
+class CommandCycle : public SplitCommand
 {
  public:
-	CommandCycle(Module* Creator) : Command(Creator,"CYCLE", 1)
+	CommandCycle(Module* Creator)
+		: SplitCommand(Creator, "CYCLE", 1)
 	{
 		Penalty = 3; syntax = "<channel> :[reason]";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser* user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
-		std::string reason = ConvToStr("Cycling");
+		std::string reason = "Cycling";
 
 		if (parameters.size() > 1)
 		{
@@ -46,34 +44,27 @@ class CommandCycle : public Command
 
 		if (!channel)
 		{
-			user->WriteNumeric(403, "%s %s :No such channel", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHCHANNEL, parameters[0], "No such channel");
 			return CMD_FAILURE;
 		}
 
 		if (channel->HasUser(user))
 		{
-			/*
-			 * technically, this is only ever sent locally, but pays to be safe ;p
-			 */
-			if (IS_LOCAL(user))
+			if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
 			{
-				if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
-				{
-					/* banned, boned. drop the message. */
-					user->WriteServ("NOTICE "+user->nick+" :*** You may not cycle, as you are banned on channel " + channel->name);
-					return CMD_FAILURE;
-				}
-
-				channel->PartUser(user, reason);
-
-				Channel::JoinUser(user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
+				// User is banned, send an error and don't cycle them
+				user->WriteNotice("*** You may not cycle, as you are banned on channel " + channel->name);
+				return CMD_FAILURE;
 			}
+
+			channel->PartUser(user, reason);
+			Channel::JoinUser(user, parameters[0], true);
 
 			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteNumeric(442, "%s %s :You're not on that channel", user->nick.c_str(), channel->name.c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, channel->name, "You're not on that channel");
 		}
 
 		return CMD_FAILURE;
@@ -84,26 +75,17 @@ class CommandCycle : public Command
 class ModuleCycle : public Module
 {
 	CommandCycle cmd;
+
  public:
 	ModuleCycle()
 		: cmd(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleCycle()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel.", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleCycle)

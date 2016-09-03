@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the /SILENCE command */
-
 /* Improved drop-in replacement for the /SILENCE command
  * syntax: /SILENCE [+|-]<mask> <p|c|i|n|t|a|x> as in <privatemessage|channelmessage|invites|privatenotice|channelnotice|all|exclude>
  *
@@ -47,8 +45,8 @@
 // pair of hostmask and flags
 typedef std::pair<std::string, int> silenceset;
 
-// deque list of pairs
-typedef std::deque<silenceset> silencelist;
+// list of pairs
+typedef std::vector<silenceset> silencelist;
 
 // intmasks for flags
 static int SILENCE_PRIVATE	= 0x0001; /* p  private messages      */
@@ -66,7 +64,7 @@ class CommandSVSSilence : public Command
 	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -78,7 +76,7 @@ class CommandSVSSilence : public Command
 		 * style command so services can modify lots of entries at once.
 		 * leaving it backwards compatible for now as it's late. -- w
 		 */
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 			return CMD_FAILURE;
 
 		User *u = ServerInstance->FindNick(parameters[0]);
@@ -87,7 +85,7 @@ class CommandSVSSilence : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
+			ServerInstance->Parser.CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
 		}
 
 		return CMD_SUCCESS;
@@ -95,10 +93,7 @@ class CommandSVSSilence : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
-		if (target)
-			return ROUTE_OPT_UCAST(target->server);
-		return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -108,11 +103,11 @@ class CommandSilence : public Command
  public:
 	SimpleExtItem<silencelist> ext;
 	CommandSilence(Module* Creator, unsigned int &max) : Command(Creator, "SILENCE", 0),
-		maxsilence(max), ext("silence_list", Creator)
+		maxsilence(max)
+		, ext("silence_list", ExtensionItem::EXT_USER, Creator)
 	{
 		allow_empty_last_param = false;
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -127,17 +122,17 @@ class CommandSilence : public Command
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
 					std::string decomppattern = DecompPattern(c->second);
-					user->WriteNumeric(271, "%s %s %s %s",user->nick.c_str(), user->nick.c_str(),c->first.c_str(), decomppattern.c_str());
+					user->WriteNumeric(271, user->nick, c->first, decomppattern);
 				}
 			}
-			user->WriteNumeric(272, "%s :End of Silence List",user->nick.c_str());
+			user->WriteNumeric(272, "End of Silence List");
 
 			return CMD_SUCCESS;
 		}
 		else if (parameters.size() > 0)
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			std::string mask = parameters[0].substr(1);
+			std::string mask(parameters[0], 1);
 			char action = parameters[0][0];
 			// Default is private and notice so clients do not break
 			int pattern = CompilePattern("pn");
@@ -149,7 +144,7 @@ class CommandSilence : public Command
 
 			if (pattern == 0)
 			{
-				user->WriteServ("NOTICE %s :Bad SILENCE pattern",user->nick.c_str());
+				user->WriteNotice("Bad SILENCE pattern");
 				return CMD_INVALID;
 			}
 
@@ -172,11 +167,11 @@ class CommandSilence : public Command
 					for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
 					{
 						// search through for the item
-						irc::string listitem = i->first.c_str();
-						if (listitem == mask && i->second == pattern)
+						const std::string& listitem = i->first;
+						if ((irc::equals(listitem, mask)) && (i->second == pattern))
 						{
 							sl->erase(i);
-							user->WriteNumeric(950, "%s %s :Removed %s %s from silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+							user->WriteNumeric(950, user->nick, InspIRCd::Format("Removed %s %s from silence list", mask.c_str(), decomppattern.c_str()));
 							if (!sl->size())
 							{
 								ext.unset(user);
@@ -185,7 +180,7 @@ class CommandSilence : public Command
 						}
 					}
 				}
-				user->WriteNumeric(952, "%s %s :%s %s does not exist on your silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+				user->WriteNumeric(952, user->nick, InspIRCd::Format("%s %s does not exist on your silence list", mask.c_str(), decomppattern.c_str()));
 			}
 			else if (action == '+')
 			{
@@ -198,29 +193,29 @@ class CommandSilence : public Command
 				}
 				if (sl->size() > maxsilence)
 				{
-					user->WriteNumeric(952, "%s %s :Your silence list is full",user->nick.c_str(), user->nick.c_str());
+					user->WriteNumeric(952, user->nick, "Your silence list is full");
 					return CMD_FAILURE;
 				}
 
 				std::string decomppattern = DecompPattern(pattern);
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
-					irc::string listitem = n->first.c_str();
-					if (listitem == mask && n->second == pattern)
+					const std::string& listitem = n->first;
+					if ((irc::equals(listitem, mask)) && (n->second == pattern))
 					{
-						user->WriteNumeric(952, "%s %s :%s %s is already on your silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+						user->WriteNumeric(952, user->nick, InspIRCd::Format("%s %s is already on your silence list", mask.c_str(), decomppattern.c_str()));
 						return CMD_FAILURE;
 					}
 				}
 				if (((pattern & SILENCE_EXCLUDE) > 0))
 				{
-					sl->push_front(silenceset(mask,pattern));
+					sl->insert(sl->begin(), silenceset(mask, pattern));
 				}
 				else
 				{
 					sl->push_back(silenceset(mask,pattern));
 				}
-				user->WriteNumeric(951, "%s %s :Added %s %s to silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+				user->WriteNumeric(951, user->nick, InspIRCd::Format("Added %s %s to silence list", mask.c_str(), decomppattern.c_str()));
 				return CMD_SUCCESS;
 			}
 		}
@@ -293,6 +288,7 @@ class CommandSilence : public Command
 class ModuleSilence : public Module
 {
 	unsigned int maxsilence;
+	bool ExemptULine;
 	CommandSilence cmdsilence;
 	CommandSVSSilence cmdsvssilence;
  public:
@@ -302,36 +298,29 @@ class ModuleSilence : public Module
 	{
 	}
 
-	void init()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-		ServerInstance->Modules->AddService(cmdsilence);
-		ServerInstance->Modules->AddService(cmdsvssilence);
-		ServerInstance->Modules->AddService(cmdsilence.ext);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
 
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnUserPreInvite };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
-	{
-		maxsilence = ServerInstance->Config->ConfValue("silence")->getInt("maxentries", 32);
+		maxsilence = tag->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
+
+		ExemptULine = tag->getBool("exemptuline", true);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		// we don't really have a limit...
-		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
+		tokens["ESILENCE"];
+		tokens["SILENCE"] = ConvToStr(maxsilence);
 	}
 
-	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
+	void BuildExemptList(MessageType message_type, Channel* chan, User* sender, CUList& exempt_list)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
-		const UserMembList *ulist = chan->GetUsers();
 
-		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+		const Channel::MemberMap& ulist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			if (IS_LOCAL(i->first))
 			{
@@ -343,43 +332,29 @@ class ModuleSilence : public Module
 		}
 	}
 
-	ModResult PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_USER && IS_LOCAL(((User*)dest)))
 		{
-			return MatchPattern((User*)dest, user, silence_type);
+			return MatchPattern((User*)dest, user, ((msgtype == MSG_PRIVMSG) ? SILENCE_PRIVATE : SILENCE_NOTICE));
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = (Channel*)dest;
-			if (chan)
-			{
-				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
-			}
+			BuildExemptList(msgtype, chan, user, exempt_list);
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
-	}
-
-	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout)
+	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE
 	{
 		return MatchPattern(dest, source, SILENCE_INVITE);
 	}
 
 	ModResult MatchPattern(User* dest, User* source, int pattern)
 	{
-		/* Server source */
-		if (!source || !dest)
-			return MOD_RES_ALLOW;
+		if (ExemptULine && source->server->IsULine())
+			return MOD_RES_PASSTHRU;
 
 		silencelist* sl = cmdsilence.ext.get(dest);
 		if (sl)
@@ -393,11 +368,7 @@ class ModuleSilence : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSilence()
-	{
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}

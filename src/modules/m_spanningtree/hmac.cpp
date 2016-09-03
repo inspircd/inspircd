@@ -19,18 +19,12 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "../hash.h"
-#include "../ssl.h"
-#include "socketengine.h"
+#include "modules/hash.h"
+#include "modules/ssl.h"
 
 #include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "resolvers.h"
 
 const std::string& TreeSocket::GetOurChallenge()
 {
@@ -57,44 +51,15 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	/* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
 	 * suggesting the use of HMAC to secure the password against various attacks.
 	 *
-	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
+	 * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
 	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
-	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
-	{
-		if (proto_version < 1202)
-		{
-			/* This is how HMAC is done in InspIRCd 1.2:
-			 *
-			 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
-			 *
-			 * 5c and 36 were chosen as part of the HMAC standard, because they
-			 * flip the bits in a way likely to strengthen the function.
-			 */
-			std::string hmac1, hmac2;
+	if (sha256 && !challenge.empty())
+		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 
-			for (size_t n = 0; n < password.length(); n++)
-			{
-				hmac1.push_back(static_cast<char>(password[n] ^ 0x5C));
-				hmac2.push_back(static_cast<char>(password[n] ^ 0x36));
-			}
-
-			hmac2.append(challenge);
-			hmac2 = sha256->hexsum(hmac2);
-		
-			std::string hmac = hmac1 + hmac2;
-			hmac = sha256->hexsum(hmac);
-
-			return "HMAC-SHA256:"+ hmac;
-		}
-		else
-		{
-			return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
-		}
-	}
-	else if (!challenge.empty() && !sha256)
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
+	if (!challenge.empty() && !sha256)
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
 
 	return password;
 }
@@ -104,13 +69,16 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	std::string fp;
-	if (GetIOHook())
+	std::string fp = SSLClientCert::GetFingerprint(this);
+	if (capab->auth_fingerprint)
 	{
-		SocketCertificateRequest req(this, Utils->Creator);
-		if (req.cert)
+		/* Require fingerprint to exist and match */
+		if (link.Fingerprint != fp)
 		{
-			fp = req.cert->GetFingerprint();
+			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
+				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
+			SendError("Invalid SSL certificate fingerprint " + fp + " - expected " + link.Fingerprint);
+			return false;
 		}
 	}
 
@@ -118,32 +86,24 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	{
 		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
 
-		/* Straight string compare of hashes */
-		if (our_hmac != theirs)
+		// Use the timing-safe compare function to compare the hashes
+		if (!InspIRCd::TimingSafeCompare(our_hmac, theirs))
 			return false;
 	}
 	else
 	{
-		/* Straight string compare of plaintext */
-		if (link.RecvPass != theirs)
+		// Use the timing-safe compare function to compare the passwords
+		if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs))
 			return false;
 	}
 
-	if (capab->auth_fingerprint)
+	// Tell opers to set up fingerprint verification if it's not already set up and the SSL mod gave us a fingerprint
+	// this time
+	if ((!capab->auth_fingerprint) && (!fp.empty()))
 	{
-		/* Require fingerprint to exist and match */
-		if (link.Fingerprint != fp)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need \"%s\" got \"%s\"",
-				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
-			SendError("Provided invalid SSL fingerprint " + fp + " - expected " + link.Fingerprint);
-			return false;
-		}
-	}
-	else if (!fp.empty())
-	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
+		ServerInstance->SNO->WriteToSnoMask('l', "SSL certificate fingerprint for link %s is \"%s\". "
 			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
 	}
+
 	return true;
 }

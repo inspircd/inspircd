@@ -20,18 +20,16 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows locking of the server to stop all incoming connections till unlocked again */
-
 /** Adds numerics
  * 988 <nick> <servername> :Closed for new connections
  * 989 <nick> <servername> :Open for new connections
-*/
-
+ */
 
 class CommandLockserv : public Command
 {
 	bool& locked;
-public:
+
+ public:
 	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
 	{
 		flags_needed = 'o';
@@ -41,12 +39,12 @@ public:
 	{
 		if (locked)
 		{
-			user->WriteServ("NOTICE %s :The server is already locked.", user->nick.c_str());
+			user->WriteNotice("The server is already locked.");
 			return CMD_FAILURE;
 		}
 
 		locked = true;
-		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server.c_str());
+		user->WriteNumeric(988, user->server->GetName(), "Closed for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
@@ -54,10 +52,9 @@ public:
 
 class CommandUnlockserv : public Command
 {
-private:
 	bool& locked;
 
-public:
+ public:
 	CommandUnlockserv(Module* Creator, bool &lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
 		flags_needed = 'o';
@@ -67,12 +64,12 @@ public:
 	{
 		if (!locked)
 		{
-			user->WriteServ("NOTICE %s :The server isn't locked.", user->nick.c_str());
+			user->WriteNotice("The server isn't locked.");
 			return CMD_FAILURE;
 		}
 
 		locked = false;
-		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server.c_str());
+		user->WriteNumeric(989, user->server->GetName(), "Open for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
@@ -80,37 +77,28 @@ public:
 
 class ModuleLockserv : public Module
 {
-private:
 	bool locked;
 	CommandLockserv lockcommand;
 	CommandUnlockserv unlockcommand;
 
-public:
+ public:
 	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		locked = false;
-		ServerInstance->Modules->AddService(lockcommand);
-		ServerInstance->Modules->AddService(unlockcommand);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleLockserv()
-	{
-	}
-
-
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
-		if (!user) locked = false;
+		if (!status.srcuser)
+			locked = false;
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (locked)
 		{
@@ -120,12 +108,12 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
 	}

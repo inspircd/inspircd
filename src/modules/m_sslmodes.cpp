@@ -22,38 +22,44 @@
 
 
 #include "inspircd.h"
-#include "ssl.h"
-
-/* $ModDesc: Provides channel mode +z to allow for Secure/SSL only channels */
+#include "modules/ssl.h"
 
 /** Handle channel mode +z
  */
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(Module* Creator) : ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
+	UserCertificateAPI API;
+
+	SSLMode(Module* Creator)
+		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
+		, API(Creator)
+	{
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('z'))
+			if (!channel->IsModeSet(this))
 			{
 				if (IS_LOCAL(source))
 				{
-					const UserMembList* userlist = channel->GetUsers();
-					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
+					if (!API)
+						return MODEACTION_DENY;
+
+					const Channel::MemberMap& userlist = channel->GetUsers();
+					for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 					{
-						UserCertificateRequest req(i->first, creator);
-						req.Send();
-						if(!req.cert && !ServerInstance->ULine(i->first->server))
+						ssl_cert* cert = API->GetCertificate(i->first);
+						if (!cert && !i->first->server->IsULine())
 						{
-							source->WriteNumeric(ERR_ALLMUSTSSL, "%s %s :all members of the channel must be connected via SSL", source->nick.c_str(), channel->name.c_str());
+							source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "all members of the channel must be connected via SSL");
 							return MODEACTION_DENY;
 						}
 					}
 				}
-				channel->SetMode('z',true);
+				channel->SetMode(this, true);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -63,9 +69,9 @@ class SSLMode : public ModeHandler
 		}
 		else
 		{
-			if (channel->IsModeSet('z'))
+			if (channel->IsModeSet(this))
 			{
-				channel->SetMode('z',false);
+				channel->SetMode(this, false);
 				return MODEACTION_ALLOW;
 			}
 
@@ -85,20 +91,15 @@ class ModuleSSLModes : public Module
 	{
 	}
 
-	void init()
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(sslm);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
-	{
-		if(chan && chan->IsModeSet('z'))
+		if(chan && chan->IsModeSet(sslm))
 		{
-			UserCertificateRequest req(user, this);
-			req.Send();
-			if (req.cert)
+			if (!sslm.API)
+				return MOD_RES_DENY;
+
+			ssl_cert* cert = sslm.API->GetCertificate(user);
+			if (cert)
 			{
 				// Let them in
 				return MOD_RES_PASSTHRU;
@@ -106,7 +107,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname);
+				user->WriteNumeric(489, cname, "Cannot join channel; SSL users only (+z)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -114,33 +115,29 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
 		{
-			UserCertificateRequest req(user, this);
-			req.Send();
-			if (req.cert && InspIRCd::Match(req.cert->GetFingerprint(), mask.substr(2)))
+			if (!sslm.API)
+				return MOD_RES_DENY;
+
+			ssl_cert* cert = sslm.API->GetCertificate(user);
+			if (cert && InspIRCd::Match(cert->GetFingerprint(), mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSSLModes()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
+		tokens["EXTBAN"].push_back('z');
 	}
 
-	void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('z');
-	}
-
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +z to allow for Secure/SSL only channels", VF_VENDOR);
 	}
 };
 
-
 MODULE_INIT(ModuleSSLModes)
-

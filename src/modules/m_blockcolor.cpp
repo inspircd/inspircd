@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +c to block color */
-
 /** Handles the +c channel mode
  */
 class BlockColor : public SimpleChannelModeHandler
@@ -42,19 +40,12 @@ class ModuleBlockColor : public Module
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('c');
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('c');
-	}
-
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
@@ -64,7 +55,7 @@ class ModuleBlockColor : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet('c')))
+			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(bc)))
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
@@ -76,7 +67,7 @@ class ModuleBlockColor : public Module
 						case 21:
 						case 22:
 						case 31:
-							user->WriteNumeric(404, "%s %s :Can't send colors to channel (+c set)",user->nick.c_str(), c->name.c_str());
+							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c set)");
 							return MOD_RES_DENY;
 						break;
 					}
@@ -86,16 +77,7 @@ class ModuleBlockColor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
-	}
-
-	virtual ~ModuleBlockColor()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +c to block color",VF_VENDOR);
 	}

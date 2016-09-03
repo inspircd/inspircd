@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the /CLONES command to retrieve information on clones. */
-
 /** Handle /CLONES
  */
 class CommandClones : public Command
@@ -36,7 +34,7 @@ class CommandClones : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 
-		std::string clonesstr = "304 " + user->nick + " :CLONES";
+		std::string clonesstr = "CLONES ";
 
 		unsigned long limit = atoi(parameters[0].c_str());
 
@@ -47,47 +45,35 @@ class CommandClones : public Command
 		 *  :server.name 304 target :CLONES END
 		 */
 
-		user->WriteServ(clonesstr + " START");
+		user->WriteNumeric(304, clonesstr + "START");
 
 		/* hostname or other */
-		// XXX I really don't like marking global_clones public for this. at all. -- w00t
-		for (clonemap::iterator x = ServerInstance->Users->global_clones.begin(); x != ServerInstance->Users->global_clones.end(); x++)
+		const UserManager::CloneMap& clonemap = ServerInstance->Users->GetCloneMap();
+		for (UserManager::CloneMap::const_iterator i = clonemap.begin(); i != clonemap.end(); ++i)
 		{
-			if (x->second >= limit)
-				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + x->first.str());
+			const UserManager::CloneCounts& counts = i->second;
+			if (counts.global >= limit)
+				user->WriteNumeric(304, clonesstr + ConvToStr(counts.global) + " " + i->first.str());
 		}
 
-		user->WriteServ(clonesstr + " END");
+		user->WriteNumeric(304, clonesstr + "END");
 
 		return CMD_SUCCESS;
 	}
 };
 
-
 class ModuleClones : public Module
 {
- private:
 	CommandClones cmd;
  public:
 	ModuleClones() : cmd(this)
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleClones()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);
 	}
-
-
 };
 
 MODULE_INIT(ModuleClones)

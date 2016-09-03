@@ -21,26 +21,20 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides snomasks 'j' and 'J', to which notices about newly created channels are sent */
-
 class ModuleChanCreate : public Module
 {
- private:
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
-		Implementation eventlist[] = { I_OnUserJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent",VF_VENDOR);
 	}
 
-
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
 	{
 		if ((created) && (IS_LOCAL(memb->user)))
 		{

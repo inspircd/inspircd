@@ -18,38 +18,24 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "treesocket.h"
-
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
+#include "commands.h"
 
 /**
  * SAVE command - force nick change to UID on timestamp match
  */
-bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
+CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 2)
-		return true;
+	User* u = ServerInstance->FindUUID(params[0]);
+	if (!u)
+		return CMD_FAILURE;
 
-	User* u = ServerInstance->FindNick(params[0]);
 	time_t ts = atol(params[1].c_str());
 
-	if ((u) && (!IS_SERVER(u)) && (u->age == ts))
-	{
-		Utils->DoOneToAllButSender(prefix,"SAVE",params,prefix);
+	if (u->age == ts)
+		u->ChangeNick(u->uuid, SavedTimestamp);
 
-		if (!u->ForceNickChange(u->uuid.c_str()))
-		{
-			ServerInstance->Users->QuitUser(u, "Nickname collision");
-		}
-	}
-
-	return true;
+	return CMD_SUCCESS;
 }
-

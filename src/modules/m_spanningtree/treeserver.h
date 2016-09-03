@@ -19,10 +19,10 @@
  */
 
 
-#ifndef M_SPANNINGTREE_TREESERVER_H
-#define M_SPANNINGTREE_TREESERVER_H
+#pragma once
 
 #include "treesocket.h"
+#include "pingtimer.h"
 
 /** Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
@@ -38,90 +38,111 @@
  * TreeServer items, deleting and inserting them as they
  * are created and destroyed.
  */
-class TreeServer : public classbase
+class TreeServer : public Server
 {
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	irc::string ServerName;			/* Server's name */
-	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
-	unsigned int ServerUserCount;		/* How many users are on this server? [note: doesn't care about +i] */
-	unsigned int ServerOperCount;		/* How many opers are on this server? */
-	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
-	time_t NextPing;			/* After this time, the server should be PINGed*/
-	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
-	SpanningTreeUtilities* Utils;		/* Utility class */
+
+	/** Full version string including patch version and other info
+	 */
+	std::string fullversion;
+
+	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	std::string sid;			/* Server ID */
 
-	/** Set server ID
-	 * @param id Server ID
-	 * @throws CoreException on duplicate ID
+	/** Counter counting how many servers are bursting in front of this server, including
+	 * this server. Set to parents' value on construction then it is increased if the
+	 * server itself starts bursting. Decreased when a server on the path to this server
+	 * finishes burst.
 	 */
-	void SetID(const std::string &id);
+	unsigned int behind_bursting;
+
+	/** True if this server has been lost in a split and is awaiting destruction
+	 */
+	bool isdead;
+
+	/** Timer handling PINGing the server and killing it on timeout
+	 */
+	PingTimer pingtimer;
+
+	/** This method is used to add this TreeServer to the
+	 * hash maps. It is only called by the constructors.
+	 */
+	void AddHashEntry();
+
+	/** Used by SQuit logic to recursively remove servers
+	 */
+	void SQuitInternal(unsigned int& num_lost_servers);
+
+	/** Remove the reference to this server from the hash maps
+	 */
+	void RemoveHash();
 
  public:
+	typedef std::vector<TreeServer*> ChildServers;
 	FakeUser* const ServerUser;		/* User representing this server */
-	time_t age;
+	const time_t age;
 
-	bool Warned;				/* True if we've warned opers about high latency on this server */
-	bool bursting;				/* whether or not this server is bursting */
+	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
+	unsigned int OperCount;			/* How many opers are on this server? */
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id);
+	TreeServer();
 
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
-	int QuitUsers(const std::string &reason);
-
-	/** This method is used to add the structure to the
-	 * hash_map for linear searches. It is only called
-	 * by the constructors.
+	/** SQuit a server connected to this server, removing the given server and all servers behind it
+	 * @param server Server to squit, must be directly below this server
+	 * @param reason Reason for quitting the server, sent to opers and other servers
 	 */
-	void AddHashEntry();
+	void SQuitChild(TreeServer* server, const std::string& reason);
 
-	/** This method removes the reference to this object
-	 * from the hash_map which is used for linear searches.
-	 * It is only called by the default destructor.
+	/** SQuit this server, removing this server and all servers behind it
+	 * @param reason Reason for quitting the server, sent to opers and other servers
 	 */
-	void DelHashEntry();
+	void SQuit(const std::string& reason)
+	{
+		GetParent()->SQuitChild(this, reason);
+	}
+
+	static unsigned int QuitUsers(const std::string& reason);
 
 	/** Get route.
 	 * The 'route' is defined as the locally-
 	 * connected server which can be used to reach this server.
 	 */
-	TreeServer* GetRoute();
+	TreeServer* GetRoute() const { return Route; }
 
-	/** Get server name
+	/** Returns true if this server is the tree root (i.e.: us)
 	 */
-	std::string GetName();
+	bool IsRoot() const { return (this->Parent == NULL); }
 
-	/** Get server description (GECOS)
+	/** Returns true if this server is locally connected
 	 */
-	const std::string& GetDesc();
+	bool IsLocal() const { return (this->Route == this); }
+
+	/** Returns true if the server is awaiting destruction
+	 * @return True if the server is waiting to be culled and deleted, false otherwise
+	 */
+	bool IsDead() const { return isdead; }
 
 	/** Get server version string
 	 */
-	const std::string& GetVersion();
+	const std::string& GetVersion() const { return VersionString; }
 
-	/** Set time we are next due to ping this server
+	/** Get the full version string of this server
+	 * @return The full version string of this server, including patch version and other info
 	 */
-	void SetNextPingTime(time_t t);
-
-	/** Get the time we are next due to ping this server
-	 */
-	time_t NextPingTime();
-
-	/** Last ping time in milliseconds, used to calculate round trip time
-	 */
-	unsigned long LastPingMsec;
+	const std::string& GetFullVersion() const { return fullversion; }
 
 	/** Round trip time of last ping
 	 */
@@ -129,75 +150,44 @@ class TreeServer : public classbase
 
 	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
 	 */
-	unsigned long StartBurst;
+	uint64_t StartBurst;
 
 	/** True if this server is hidden
 	 */
 	bool Hidden;
 
-	/** True if the server answered their last ping
-	 */
-	bool AnsweredLastPing();
-
-	/** Set the server as responding to its last ping
-	 */
-	void SetPingFlag();
-
-	/** Get the number of users on this server.
-	 */
-	unsigned int GetUserCount();
-
-	/** Increment or decrement the user count by diff.
-	 */
-	void SetUserCount(int diff);
-
-	/** Gets the numbers of opers on this server.
-	 */
-	unsigned int GetOperCount();
-
-	/** Increment or decrement the oper count by diff.
-	 */
-	void SetOperCount(int diff);
-
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.
 	 */
-	TreeSocket* GetSocket();
+	TreeSocket* GetSocket() const { return Socket; }
 
 	/** Get the parent server.
 	 * For the root node, this returns NULL.
 	 */
-	TreeServer* GetParent();
+	TreeServer* GetParent() const { return Parent; }
 
 	/** Set the server version string
 	 */
-	void SetVersion(const std::string &Version);
+	void SetVersion(const std::string& verstr) { VersionString = verstr; }
 
-	/** Return number of child servers
+	/** Set the full version string
+	 * @param verstr The version string to set
 	 */
-	unsigned int ChildCount();
+	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
 
-	/** Return a child server indexed 0..n
+	/** Sets the description of this server. Called when the description of a remote server changes
+	 * and we are notified about it.
+	 * @param descstr The description to set
 	 */
-	TreeServer* GetChild(unsigned int n);
+	void SetDesc(const std::string& descstr) { description = descstr; }
 
-	/** Add a child server
+	/** Return all child servers
 	 */
-	void AddChild(TreeServer* Child);
-
-	/** Delete a child server, return false if it didn't exist.
-	 */
-	bool DelChild(TreeServer* Child);
-
-	/** Removes child nodes of this node, and of that node, etc etc.
-	 * This is used during netsplits to automatically tidy up the
-	 * server tree. It is slow, we don't use it for much else.
-	 */
-	bool Tidy();
+	const ChildServers& GetChildren() const { return Children; }
 
 	/** Get server ID
 	 */
-	const std::string& GetID();
+	const std::string& GetID() const { return sid; }
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */
@@ -205,10 +195,42 @@ class TreeServer : public classbase
 	/** Recursive call for child servers */
 	void FinishBurstInternal();
 
+	/** (Re)check the uline state of this server
+	 */
+	void CheckULine();
+
+	/** Get the bursting state of this server
+	 * @return True if this server is bursting, false if it isn't
+	 */
+	bool IsBursting() const { return (StartBurst != 0); }
+
+	/** Check whether this server is behind a bursting server or is itself bursting.
+	 * This can tell whether a user is on a part of the network that is still bursting.
+	 * @return True if this server is bursting or is behind a server that is bursting, false if it isn't
+	 */
+	bool IsBehindBursting() const { return (behind_bursting != 0); }
+
+	/** Set the bursting state of the server
+	 * @param startms Time the server started bursting, if 0 or omitted, use current time
+	 */
+	void BeginBurst(uint64_t startms = 0);
+
+	/** Register a PONG from the server
+	 */
+	void OnPong() { pingtimer.OnPong(); }
+
 	CullResult cull();
-	/** Destructor
+
+	/** Destructor, deletes ServerUser unless IsRoot()
 	 */
 	~TreeServer();
-};
 
-#endif
+	/** Returns the TreeServer the given user is connected to
+	 * @param user The user whose server to return
+	 * @return The TreeServer this user is connected to.
+	 */
+	static TreeServer* Get(User* user)
+	{
+		return static_cast<TreeServer*>(user->server);
+	}
+};

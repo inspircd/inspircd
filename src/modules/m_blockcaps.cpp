@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support to block all-CAPS channel messages and notices */
-
 
 /** Handles the +B channel mode
  */
@@ -36,34 +34,21 @@ class BlockCaps : public SimpleChannelModeHandler
 class ModuleBlockCAPS : public Module
 {
 	BlockCaps bc;
-	int percent;
+	unsigned int percent;
 	unsigned int minlen;
 	char capsmap[256];
-public:
 
+public:
 	ModuleBlockCAPS() : bc(this)
 	{
 	}
 
-	void init()
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		tokens["EXTBAN"].push_back('B');
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('B');
-	}
-
-	virtual void OnRehash(User* user)
-	{
-		ReadConf();
-	}
-
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -76,28 +61,20 @@ public:
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet('B')))
+			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet(bc)))
 			{
-				int caps = 0;
-				const char* actstr = "\1ACTION ";
-				int act = 0;
+				std::string::size_type caps = 0;
+				unsigned int offset = 0;
+				// Ignore the beginning of the text if it's a CTCP ACTION (/me)
+				if (!text.compare(0, 8, "\1ACTION ", 8))
+					offset = 8;
 
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
-				{
-					/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
-					if (*actstr && *i == *actstr++ && act != -1)
-					{
-						act++;
-						continue;
-					}
-					else
-						act = -1;
-
+				for (std::string::const_iterator i = text.begin() + offset; i != text.end(); ++i)
 					caps += capsmap[(unsigned char)*i];
-				}
-				if ( ((caps*100)/(int)text.length()) >= percent )
+
+				if (((caps * 100) / text.length()) >= percent)
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), c->name.c_str(), percent, minlen);
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %d characters", percent, minlen));
 					return MOD_RES_DENY;
 				}
 			}
@@ -105,37 +82,18 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
-	}
-
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
-		percent = tag->getInt("percent", 100);
-		minlen = tag->getInt("minlen", 1);
+		percent = tag->getInt("percent", 100, 1, 100);
+		minlen = tag->getInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
 		std::string hmap = tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 		memset(capsmap, 0, sizeof(capsmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;
-		if (percent < 1 || percent > 100)
-		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
-			percent = 100;
-		}
-		if (minlen < 1 || minlen > MAXBUF-1)
-		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
-			minlen = 1;
-		}
 	}
 
-	virtual ~ModuleBlockCAPS()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support to block all-CAPS channel messages and notices", VF_VENDOR);
 	}

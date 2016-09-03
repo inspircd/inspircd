@@ -20,10 +20,10 @@
  */
 
 
-#ifndef MODE_H
-#define MODE_H
+#pragma once
 
 #include "ctables.h"
+#include "modechange.h"
 
 /**
  * Holds the values for different type of modes
@@ -44,17 +44,6 @@ enum ModeAction
 {
 	MODEACTION_DENY = 0, /* Drop the mode change, AND a parameter if its a parameterized mode */
 	MODEACTION_ALLOW = 1 /* Allow the mode */
-};
-
-/**
- * Used to mask off the mode types in the mode handler
- * array. Used in a simple two instruction hashing function
- * "(modeletter - 65) OR mask"
- */
-enum ModeMasks
-{
-	MASK_USER = 128,	/* A user mode */
-	MASK_CHANNEL = 0	/* A channel mode */
 };
 
 /**
@@ -85,6 +74,10 @@ enum ParamSpec
 	PARAM_ALWAYS
 };
 
+class PrefixMode;
+class ListModeBase;
+class ParamModeBase;
+
 /** Each mode is implemented by ONE ModeHandler class.
  * You must derive ModeHandler and add the child class to
  * the list of modes handled by the ircd, using
@@ -101,12 +94,23 @@ enum ParamSpec
  */
 class CoreExport ModeHandler : public ServiceProvider
 {
- protected:
-	/**
-	 * The mode parameter translation type
-	 */
-	TranslateType m_paramtype;
+ public:
+  	typedef size_t Id;
 
+	enum Class
+	{
+		MC_PREFIX,
+		MC_LIST,
+		MC_PARAM,
+		MC_OTHER
+	};
+
+ private:
+	/** The opaque id of this mode assigned by the mode parser
+	 */
+	Id modeid;
+
+ protected:
 	/** What kind of parameters does the mode take?
 	 */
 	ParamSpec parameters_taken;
@@ -115,10 +119,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * The mode letter you're implementing.
 	 */
 	char mode;
-
-	/** Mode prefix, or 0
-	 */
-	char prefix;
 
 	/**
 	 * True if the mode requires oper status
@@ -144,6 +144,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	ModeType m_type;
 
+	/** The object type of this mode handler
+	 */
+	const Class type_id;
+
 	/** The prefix char needed on channel to use this mode,
 	 * only checked for channel modes
 	 */
@@ -159,52 +163,81 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param modeletter The mode letter you wish to handle
 	 * @param params Parameters taken by the mode
 	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
+	 * @param mclass The object type of this mode handler, one of ModeHandler::Class
 	 */
-	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type);
+	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	virtual CullResult cull();
 	virtual ~ModeHandler();
+
+	/** Register this object in the ModeParser
+	 */
+	void RegisterService() CXX11_OVERRIDE;
+
 	/**
 	 * Returns true if the mode is a list mode
 	 */
-	bool IsListMode();
+	bool IsListMode() const { return list; }
+
 	/**
-	 * Mode prefix or 0. If this is defined, you should
-	 * also implement GetPrefixRank() to return an integer
-	 * value for this mode prefix.
+	 * Check whether this mode is a prefix mode
+	 * @return non-NULL if this mode is a prefix mode, NULL otherwise
 	 */
-	inline char GetPrefix() const { return prefix; }
+	PrefixMode* IsPrefixMode();
+
 	/**
-	 * Get the 'value' of this modes prefix.
-	 * determines which to display when there are multiple.
-	 * The mode with the highest value is ranked first. See the
-	 * PrefixModeValue enum and Channel::GetPrefixValue() for
-	 * more information.
+	 * Check whether this mode is a prefix mode
+	 * @return non-NULL if this mode is a prefix mode, NULL otherwise
 	 */
-	virtual unsigned int GetPrefixRank();
+	const PrefixMode* IsPrefixMode() const;
+
+	/**
+	 * Check whether this mode handler inherits from ListModeBase
+	 * @return non-NULL if this mode handler inherits from ListModeBase, NULL otherwise
+	 */
+	ListModeBase* IsListModeBase();
+
+	/**
+	 * Check whether this mode handler inherits from ListModeBase
+	 * @return non-NULL if this mode handler inherits from ListModeBase, NULL otherwise
+	 */
+	const ListModeBase* IsListModeBase() const;
+
+	/**
+	 * Check whether this mode handler inherits from ParamModeBase
+	 * @return non-NULL if this mode handler inherits from ParamModeBase, NULL otherwise
+	 */
+	ParamModeBase* IsParameterMode();
+
+	/**
+	 * Check whether this mode handler inherits from ParamModeBase
+	 * @return non-NULL if this mode handler inherits from ParamModeBase, NULL otherwise
+	 */
+	const ParamModeBase* IsParameterMode() const;
+
 	/**
 	 * Returns the mode's type
 	 */
 	inline ModeType GetModeType() const { return m_type; }
 	/**
-	 * Returns the mode's parameter translation type
-	 */
-	inline TranslateType GetTranslateType() const { return m_paramtype; }
-	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */
 	inline bool NeedsOper() const { return oper; }
 	/**
-	 * Returns the number of parameters for the mode. Any non-zero
-	 * value should be considered to be equivalent to one.
-	 * @param adding If this is true, the number of parameters required to set the mode should be returned, otherwise the number of parameters required to unset the mode shall be returned.
-	 * @return The number of parameters the mode expects
+	 * Check if the mode needs a parameter for adding or removing
+	 * @param adding True to check if the mode needs a parameter when setting, false to check if the mode needs a parameter when unsetting
+	 * @return True if the mode needs a parameter for the specified action, false if it doesn't
 	 */
-	int GetNumParams(bool adding);
+	bool NeedsParam(bool adding) const;
 	/**
 	 * Returns the mode character this handler handles.
 	 * @return The mode character
 	 */
-	inline char GetModeChar() { return mode; }
+	char GetModeChar() const { return mode; }
+
+	/** Return the id of this mode which is used in User::modes and
+	 * Channel::modes as the index to determine whether a mode is set.
+	 */
+	Id GetId() const { return modeid; }
 
 	/** For user modes, return the current parameter, if any
 	 */
@@ -269,28 +302,104 @@ class CoreExport ModeHandler : public ServiceProvider
 	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
 
 	/**
-	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.
-	 * Your mode handler should remove its user mode from the user by sending the appropriate server modes using
-	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
-	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
-	 * your mode properly from each user.
+	 * When a MODETYPE_USER mode handler is being removed, the core will call this method for every user on the server.
+	 * The usermode will be removed using the appropiate server mode using InspIRCd::SendMode().
 	 * @param user The user which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
 	 */
-	virtual void RemoveMode(User* user, irc::modestacker* stack = NULL);
+	void RemoveMode(User* user);
 
 	/**
 	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.
-	 * Your mode handler should remove its user mode from the channel by sending the appropriate server modes using
-	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
-	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
-	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
+	 * The mode handler has to populate the given modestacker with mode changes that remove the mode from the channel.
+	 * The default implementation of this method can remove all kinds of channel modes except listmodes.
+	 * In the case of listmodes, the entire list of items must be added to the modestacker (which is handled by ListModeBase,
+	 * so if you inherit from it or your mode can be removed by the default implementation then you do not have to implement
+	 * this function).
 	 * @param channel The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
+	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
+
+	friend class ModeParser;
+};
+
+/**
+ * Prefix modes are channel modes that grant a specific rank to members having prefix mode set.
+ * They require a parameter when setting and unsetting; the parameter is always a member of the channel.
+ * A prefix mode may be set on any number of members on a channel, but for a given member a given prefix
+ * mode is either set or not set, in other words members cannot have the same prefix mode set more than once.
+ *
+ * A rank of a member is defined as the rank given by the 'strongest' prefix mode that member has.
+ * Other parts of the IRCd use this rank to determine whether a channel action is allowable for a user or not.
+ * The rank of a prefix mode is constant, i.e. the same rank value is given to all users having that prefix mode set.
+ *
+ * Note that it is possible that the same action requires a different rank on a different channel;
+ * for example changing the topic on a channel having +t set requires a rank that is >= than the rank of a halfop,
+ * but there is no such restriction when +t isn't set.
+ */
+class CoreExport PrefixMode : public ModeHandler
+{
+ protected:
+	/** The prefix character granted by this mode. '@' for op, '+' for voice, etc.
+	 * If 0, this mode does not have a visible prefix character.
+	 */
+	char prefix;
+
+	/** The prefix rank of this mode, used to compare prefix
+	 * modes
+	 */
+	unsigned int prefixrank;
+
+ public:
+	/**
+	 * Constructor
+	 * @param Creator The module creating this mode
+	 * @param Name The user-friendly one word name of the prefix mode, e.g.: "op", "voice"
+	 * @param ModeLetter The mode letter of this mode
+	 * @param Rank Rank given by this prefix mode, see explanation above
+	 * @param PrefixChar Prefix character, or 0 if the mode has no prefix character
+	 */
+	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank = 0, char PrefixChar = 0);
+
+	/**
+	 * Handles setting and unsetting the prefix mode.
+	 * Finds the given member of the given channel, if it's not found an error message is sent to 'source'
+	 * and MODEACTION_DENY is returned. Otherwise the mode change is attempted.
+	 * @param source Source of the mode change, an error message is sent to this user if the target is not found
+	 * @param dest Unused
+	 * @param channel The channel the mode change is happening on
+	 * @param param The nickname or uuid of the target user
+	 * @param adding True when the mode is being set, false when it is being unset
+	 * @return MODEACTION_ALLOW if the change happened, MODEACTION_DENY if no change happened
+	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
+	 * (when setting) or doesn't have this prefix set (when unsetting).
+	 */
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding);
+
+	/**
+	 * Removes this prefix mode from all users on the given channel
+	 * @param chan The channel which the server wants to remove your mode from
+	 * @param changelist Mode change list to populate with the removal of this mode
+	 */
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
+
+	/**
+	 * Mode prefix or 0. If this is defined, you should
+	 * also implement GetPrefixRank() to return an integer
+	 * value for this mode prefix.
+	 */
+	char GetPrefix() const { return prefix; }
+
+	/**
+	 * Get the 'value' of this modes prefix.
+	 * determines which to display when there are multiple.
+	 * The mode with the highest value is ranked first. See the
+	 * PrefixModeValue enum and Channel::GetPrefixValue() for
+	 * more information.
+	 */
+	unsigned int GetPrefixRank() const { return prefixrank; }
 };
 
 /** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra
@@ -303,7 +412,6 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
  public:
 	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER) {}
-	virtual ~SimpleUserModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
@@ -317,18 +425,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
  public:
 	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
-	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-};
-
-class CoreExport ParamChannelModeHandler : public ModeHandler
-{
- public:
-	ParamChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
-		: ModeHandler(Creator, Name, modeletter, PARAM_SETONLY, MODETYPE_CHANNEL) {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	/** Validate the parameter - you may change the value to normalize it. Return true if it is valid. */
-	virtual bool ParamValidate(std::string& parameter);
 };
 
 /**
@@ -339,11 +436,12 @@ class CoreExport ParamChannelModeHandler : public ModeHandler
  */
 class CoreExport ModeWatcher : public classbase
 {
- protected:
+ private:
 	/**
-	 * The mode letter this class is watching
+	 * The mode name this class is watching
 	 */
-	char mode;
+	const std::string mode;
+
 	/**
 	 * The mode type being watched (user or channel)
 	 */
@@ -354,22 +452,23 @@ class CoreExport ModeWatcher : public classbase
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(Module* creator, char modeletter, ModeType type);
+	ModeWatcher(Module* creator, const std::string& modename, ModeType type);
 	/**
 	 * The default destructor does nothing.
 	 */
 	virtual ~ModeWatcher();
 
 	/**
-	 * Get the mode character being watched
-	 * @return The mode character being watched
+	 * Get the mode name being watched
+	 * @return The mode name being watched
 	 */
-	char GetModeChar();
+	const std::string& GetModeName() const { return mode; }
+
 	/**
 	 * Get the mode type being watched
 	 * @return The mode type being watched (user or channel)
 	 */
-	ModeType GetModeType();
+	ModeType GetModeType() const { return m_type; }
 
 	/**
 	 * Before the mode character is processed by its handler, this method will be called.
@@ -380,11 +479,10 @@ class CoreExport ModeWatcher : public classbase
 	 * If you alter the parameter you are given, the mode handler will see your atered version
 	 * when it handles the mode.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string& parameter, bool adding);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -393,68 +491,145 @@ class CoreExport ModeWatcher : public classbase
 	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
 	 * You cannot alter the parameter here, as the mode handler has already processed it.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
-	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
 };
-
-typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 
 /** The mode parser handles routing of modes and handling of mode strings.
  * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class CoreExport ModeParser
+class CoreExport ModeParser : public fakederef<ModeParser>
 {
+ public:
+	static const ModeHandler::Id MODEID_MAX = 64;
+
+	/** Type of the container that maps mode names to ModeHandlers
+	 */
+	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
+
  private:
+	/** Type of the container that maps mode names to ModeWatchers
+	 */
+ 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
+
+	/** Last item in the ModeType enum
+	 */
+	static const unsigned int MODETYPE_LAST = 2;
+
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
-	ModeHandler* modehandlers[256];
-	/** Mode watcher classes arranged in the same way as the
-	 * mode handlers, except for instead of having 256 of them
-	 * we have 256 lists of them.
+	ModeHandler* modehandlers[MODETYPE_LAST][128];
+
+	/** An array of mode handlers indexed by the mode id
 	 */
-	std::vector<ModeWatcher*> modewatchers[256];
-	/** Displays the current modes of a channel or user.
-	 * Used by ModeParser::Process.
+	ModeHandler* modehandlersbyid[MODETYPE_LAST][MODEID_MAX];
+
+	/** A map of mode handlers keyed by their name
 	 */
-	void DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text);
-	/** Displays the value of a list mode
-	 * Used by ModeParser::Process.
+	ModeHandlerMap modehandlersbyname[MODETYPE_LAST];
+
+	/** Lists of mode handlers by type
 	 */
-	void DisplayListModes(User* user, Channel* chan, std::string &mode_sequence);
+	struct
+	{
+		/** List of mode handlers that inherit from ListModeBase
+		 */
+		std::vector<ListModeBase*> list;
+
+		/** List of mode handlers that inherit from PrefixMode
+		 */
+		std::vector<PrefixMode*> prefix;
+	} mhlist;
+
+	/** Mode watcher classes
+	 */
+	ModeWatcherMap modewatchermap;
+
+	/** Last processed mode change
+	 */
+	Modes::ChangeList LastChangeList;
 
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
+	ModeAction TryMode(User* user, User* targu, Channel* targc, Modes::Change& mcitem, bool SkipACL);
+
+	/** Returns a list of user or channel mode characters.
+	 * Used for constructing the parts of the mode list in the 004 numeric.
+	 * @param mt Controls whether to list user modes or channel modes
+	 * @param needparam Return modes only if they require a parameter to be set
+	 * @return The available mode letters that satisfy the given conditions
+	 */
+	std::string CreateModeList(ModeType mt, bool needparam = false);
+
+	/** Recreate the cached mode list that is displayed in the 004 numeric
+	 * in Cached004ModeList.
+	 * Called when a mode handler is added or removed.
+	 */
+	void RecreateModeListFor004Numeric();
+
+	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
+	 * @param mt The type of the mode to allocate the id for
+	 * @return The id
+	 */
+	ModeHandler::Id AllocateModeId(ModeType mt);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
 	std::string LastParse;
-	std::vector<std::string> LastParseParams;
-	std::vector<TranslateType> LastParseTranslate;
 
-	unsigned int sent[256];
-
-	unsigned int seq;
+	/** Cached mode list for use in 004 numeric
+	 */
+	std::string Cached004ModeList;
 
  public:
+	typedef std::vector<ListModeBase*> ListModeList;
+	typedef std::vector<PrefixMode*> PrefixModeList;
 
-	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
-	 */
+	typedef unsigned int ModeProcessFlag;
+	enum ModeProcessFlags
+	{
+		/** If only this flag is specified, the mode change will be global
+		 * and parameter modes will have their parameters explicitly set
+		 * (not merged). This is the default.
+		 */
+		MODE_NONE = 0,
+
+		/** If this flag is set then the parameters of non-listmodes will be
+		 * merged according to their conflict resolution rules.
+		 * Does not affect user modes, channel modes without a parameter and
+		 * listmodes.
+		 */
+		MODE_MERGE = 1,
+
+		/** If this flag is set then the linking module will ignore the mode change
+		 * and not send it to other servers. The mode change will be processed
+		 * locally and sent to local user(s) as usual.
+		 */
+		MODE_LOCALONLY = 2,
+
+		/** If this flag is set then the mode change will be subject to access checks.
+		 * For more information see the documentation of the PrefixMode class,
+		 * ModeHandler::levelrequired and ModeHandler::AccessCheck().
+		 * Modules may explicitly allow a mode change regardless of this flag by returning
+		 * MOD_RES_ALLOW from the OnPreMode hook. Only affects channel mode changes.
+		 */
+		MODE_CHECKACCESS = 4
+	};
+
 	ModeParser();
 	~ModeParser();
 
-	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
-	 * for example, should 'user A' be able to 'op' on 'channel B'.
+	/** Initialize all built-in modes
 	 */
-	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
+	static void InitBuiltinModes();
+
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *
@@ -474,13 +649,13 @@ class CoreExport ModeParser
 	 * may be different to what you sent after it has been 'cleaned up' by the parser.
 	 * @return Last parsed string, as seen by users.
 	 */
-	const std::string& GetLastParse();
-	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
-	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
+	const std::string& GetLastParse() const { return LastParse; }
+
 	/** Add a mode to the mode parser.
-	 * @return True if the mode was successfully added.
+	 * Throws a ModuleException if the mode cannot be added.
 	 */
-	bool AddMode(ModeHandler* mh);
+	void AddMode(ModeHandler* mh);
+
 	/** Delete a mode from the mode parser.
 	 * When a mode is deleted, the mode handler will be called
 	 * for every user (if it is a user mode) or for every  channel
@@ -496,9 +671,9 @@ class CoreExport ModeParser
 	 * triggered. See the documentation of class ModeWatcher for more
 	 * information.
 	 * @param mw The ModeWatcher you want to add
-	 * @return True if the ModeWatcher was added correctly
 	 */
-	bool AddModeWatcher(ModeWatcher* mw);
+	void AddModeWatcher(ModeWatcher* mw);
+
 	/** Delete a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more
@@ -507,15 +682,56 @@ class CoreExport ModeParser
 	 * @return True if the ModeWatcher was deleted correctly
 	 */
 	bool DelModeWatcher(ModeWatcher* mw);
-	/** Process a set of mode changes from a server or user.
-	 * @param parameters The parameters of the mode change, in the format
-	 * they would be from a MODE command.
-	 * @param user The user setting or removing the modes. When the modes are set
-	 * by a server, an 'uninitialized' User is used, where *user\::nick == NULL
-	 * and *user->server == NULL.
-	 * @param merge Should the mode parameters be merged?
+
+	/** Process a list of mode changes entirely. If the mode changes do not fit into one MODE line
+	 * then multiple MODE lines are generated.
+	 * @param user The source of the mode change, can be a server user.
+	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
+	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
+	 * @param changelist Modes to change in form of a Modes::ChangeList.
+	 * @param flags Optional flags controlling how the mode change is processed,
+	 * defaults to MODE_NONE.
 	 */
-	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
+	void Process(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE);
+
+	/** Process a single MODE line's worth of mode changes, taking max modes and line length limits
+	 * into consideration. Return value indicates how many modes were processed.
+	 * @param user The source of the mode change, can be a server user.
+	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
+	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
+ 	 * @param changelist Modes to change in form of a Modes::ChangeList. May not process
+	 * the entire list due to MODE line length and max modes limitations.
+	 * @param flags Optional flags controlling how the mode change is processed,
+	 * defaults to MODE_NONE.
+	 * @param beginindex Index of the first element in changelist to process. Mode changes before
+	 * the element with this index are ignored.
+	 * @return Number of mode changes processed from changelist.
+	 */
+	unsigned int ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE, unsigned int beginindex = 0);
+
+	/** Turn a list of parameters compatible with the format of the MODE command into
+	 * Modes::ChangeList form. All modes are processed, regardless of max modes. Unknown modes
+	 * are skipped.
+	 * @param user The source of the mode change, can be a server user. Error numerics are sent to
+	 * this user.
+	 * @param type MODETYPE_USER if this is a user mode change or MODETYPE_CHANNEL if this
+	 * is a channel mode change.
+	 * @param parameters List of strings describing the mode change to convert to a ChangeList.
+	 * Must be using the same format as the parameters of a MODE command.
+ 	 * @param changelist ChangeList object to populate.
+ 	 * @param beginindex Index of the first element that is part of the MODE list in the parameters
+ 	 * container. Defaults to 1.
+ 	 * @param endindex Index of the first element that is not part of the MODE list. By default,
+ 	 * the entire container is considered part of the MODE list.
+	 */
+	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex = 1, unsigned int endindex = UINT_MAX);
+
+	/** Find the mode handler for a given mode name and type.
+	 * @param modename The mode name to search for.
+	 * @param mt Type of mode to search for, user or channel.
+	 * @return A pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode name.
+	 */
+	ModeHandler* FindMode(const std::string& modename, ModeType mt);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
@@ -524,27 +740,26 @@ class CoreExport ModeParser
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
+	/** Find the mode handler for the given prefix mode
+	 * @param modeletter The mode letter to search for
+	 * @return A pointer to the PrefixMode or NULL if the mode wasn't found or it isn't a prefix mode
+	 */
+	PrefixMode* FindPrefixMode(unsigned char modeletter);
+
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.
 	 * @param pfxletter The prefix to find, e.g. '@'
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
-	ModeHandler* FindPrefix(unsigned const char pfxletter);
+	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
-	/** Returns a list of mode characters which are usermodes.
-	 * This is used in the 004 numeric when users connect.
+	/** Returns a list of modes, space seperated by type:
+	 * 1. User modes
+	 * 2. Channel modes
+	 * 3. Channel modes that require a parameter when set
+	 * This is sent to users as the last part of the 004 numeric
 	 */
-	std::string UserModeList();
-
-	/** Returns a list of channel mode characters which are listmodes.
-	 * This is used in the 004 numeric when users connect.
-	 */
-	std::string ChannelModeList();
-
-	/** Returns a list of channel mode characters which take parameters.
-	 * This is used in the 004 numeric when users connect.
-	 */
-	std::string ParaModeList();
+	const std::string& GetModeListFor004Numeric();
 
 	/** Generates a list of modes, comma seperated by type:
 	 *  1; Listmodes EXCEPT those with a prefix
@@ -552,14 +767,68 @@ class CoreExport ModeParser
 	 *  3; Modes that only take a param when adding
 	 *  4; Modes that dont take a param
 	 */
-	std::string GiveModeList(ModeMasks m);
-
-	static bool PrefixComparison(ModeHandler* one, ModeHandler* two);
+	std::string GiveModeList(ModeType mt);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
 	 * just the "@%+" part if the parameter false
 	 */
 	std::string BuildPrefixes(bool lettersAndModes = true);
+
+	/** Get a list of all mode handlers that inherit from ListModeBase
+	 * @return A list containing ListModeBase modes
+	 */
+	const ListModeList& GetListModes() const { return mhlist.list; }
+
+	/** Get a list of all prefix modes
+	 * @return A list containing all prefix modes
+	 */
+	const PrefixModeList& GetPrefixModes() const { return mhlist.prefix; }
+
+	/** Get a mode name -> ModeHandler* map containing all modes of the given type
+	 * @param mt Type of modes to return, MODETYPE_USER or MODETYPE_CHANNEL
+	 * @return A map of mode handlers of the given type
+	 */
+	const ModeHandlerMap& GetModes(ModeType mt) const { return modehandlersbyname[mt]; }
+
+	/** Show the list of a list mode to a user. Modules can deny the listing.
+	 * @param user User to show the list to.
+	 * @param chan Channel to show the list of.
+	 * @param mh List mode to show the list of.
+	 */
+	void ShowListModeList(User* user, Channel* chan, ModeHandler* mh);
 };
 
-#endif
+inline const std::string& ModeParser::GetModeListFor004Numeric()
+{
+	return Cached004ModeList;
+}
+
+inline PrefixMode* ModeHandler::IsPrefixMode()
+{
+	return (this->type_id == MC_PREFIX ? static_cast<PrefixMode*>(this) : NULL);
+}
+
+inline const PrefixMode* ModeHandler::IsPrefixMode() const
+{
+	return (this->type_id == MC_PREFIX ? static_cast<const PrefixMode*>(this) : NULL);
+}
+
+inline ListModeBase* ModeHandler::IsListModeBase()
+{
+	return (this->type_id == MC_LIST ? reinterpret_cast<ListModeBase*>(this) : NULL);
+}
+
+inline const ListModeBase* ModeHandler::IsListModeBase() const
+{
+	return (this->type_id == MC_LIST ? reinterpret_cast<const ListModeBase*>(this) : NULL);
+}
+
+inline ParamModeBase* ModeHandler::IsParameterMode()
+{
+	return (this->type_id == MC_PARAM ? reinterpret_cast<ParamModeBase*>(this) : NULL);
+}
+
+inline const ParamModeBase* ModeHandler::IsParameterMode() const
+{
+	return (this->type_id == MC_PARAM ? reinterpret_cast<const ParamModeBase*>(this) : NULL);
+}

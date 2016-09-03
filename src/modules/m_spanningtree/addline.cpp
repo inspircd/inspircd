@@ -20,60 +20,37 @@
 #include "inspircd.h"
 #include "xline.h"
 
-#include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
+#include "commands.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
+CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
 {
-	if (params.size() < 6)
-	{
-		std::string servername = MyRoot->GetName();
-		ServerInstance->SNO->WriteToSnoMask('d', "%s sent me a malformed ADDLINE", servername.c_str());
-		return true;
-	}
-
 	XLineFactory* xlf = ServerInstance->XLines->GetFactory(params[0]);
-
-	std::string setter = "<unknown>";
-	User* usr = ServerInstance->FindNick(prefix);
-	if (usr)
-		setter = usr->nick;
-	else
-	{
-		TreeServer* t = Utils->FindServer(prefix);
-		if (t)
-			setter = t->GetName();
-	}
+	const std::string& setter = usr->nick;
 
 	if (!xlf)
 	{
 		ServerInstance->SNO->WriteToSnoMask('d',"%s sent me an unknown ADDLINE type (%s).",setter.c_str(),params[0].c_str());
-		return true;
+		return CMD_FAILURE;
 	}
-
-	long created = atol(params[3].c_str()), expires = atol(params[4].c_str());
-	if (created < 0 || expires < 0)
-		return true;
 
 	XLine* xl = NULL;
 	try
 	{
-		xl = xlf->Generate(ServerInstance->Time(), expires, params[2], params[5], params[1]);
+		xl = xlf->Generate(ServerInstance->Time(), ConvToInt(params[4]), params[2], params[5], params[1]);
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason());
-		return true;
+		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
+		return CMD_FAILURE;
 	}
-	xl->SetCreateTime(created);
+	xl->SetCreateTime(ConvToInt(params[3]));
 	if (ServerInstance->XLines->AddLine(xl, NULL))
 	{
 		if (xl->duration)
 		{
-			std::string timestr = ServerInstance->TimeString(xl->expiry);
+			std::string timestr = InspIRCd::TimeString(xl->expiry);
 			ServerInstance->SNO->WriteToSnoMask('X',"%s added %s%s on %s to expire on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
 					params[1].c_str(), timestr.c_str(), params[5].c_str());
 		}
@@ -82,20 +59,29 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 			ServerInstance->SNO->WriteToSnoMask('X',"%s added permanent %s%s on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
 					params[1].c_str(),params[5].c_str());
 		}
-		params[5] = ":" + params[5];
 
-		User* u = ServerInstance->FindNick(prefix);
-		Utils->DoOneToAllButSender(prefix, "ADDLINE", params, u ? u->server : prefix);
-		TreeServer *remoteserver = Utils->FindServer(u ? u->server : prefix);
+		TreeServer* remoteserver = TreeServer::Get(usr);
 
-		if (!remoteserver->bursting)
+		if (!remoteserver->IsBursting())
 		{
 			ServerInstance->XLines->ApplyLines();
 		}
+		return CMD_SUCCESS;
 	}
 	else
+	{
 		delete xl;
-
-	return true;
+		return CMD_FAILURE;
+	}
 }
 
+CommandAddLine::Builder::Builder(XLine* xline, User* user)
+	: CmdBuilder(user, "ADDLINE")
+{
+	push(xline->type);
+	push(xline->Displayable());
+	push(xline->source);
+	push_int(xline->set_time);
+	push_int(xline->duration);
+	push_last(xline->reason);
+}

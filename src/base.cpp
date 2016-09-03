@@ -23,26 +23,32 @@
 #include "inspircd.h"
 #include "base.h"
 #include <time.h>
+#ifdef INSPIRCD_ENABLE_RTTI
 #include <typeinfo>
+#endif
 
 classbase::classbase()
 {
-	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+ @%p", (void*)this);
+	if (ServerInstance)
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::+ @%p", (void*)this);
 }
 
 CullResult classbase::cull()
 {
-	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::-%s @%p",
+	if (ServerInstance)
+#ifdef INSPIRCD_ENABLE_RTTI
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
 			typeid(*this).name(), (void*)this);
+#else
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::- @%p", (void*)this);
+#endif
 	return CullResult();
 }
 
 classbase::~classbase()
 {
-	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~ @%p", (void*)this);
+	if (ServerInstance)
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::~ @%p", (void*)this);
 }
 
 CullResult::CullResult()
@@ -73,15 +79,15 @@ refcountbase::refcountbase() : refcount(0)
 
 refcountbase::~refcountbase()
 {
-	if (refcount && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
+	if (refcount && ServerInstance)
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "refcountbase::~ @%p with refcount %d",
 			(void*)this, refcount);
 }
 
 usecountbase::~usecountbase()
 {
-	if (usecount && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "usecountbase::~ @%p with refcount %d",
+	if (usecount && ServerInstance)
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
 			(void*)this, usecount);
 }
 
@@ -89,7 +95,13 @@ ServiceProvider::~ServiceProvider()
 {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : ServiceProvider(mod, Key, SERVICE_METADATA)
+void ServiceProvider::RegisterService()
+{
+}
+
+ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ServiceProvider(mod, Key, SERVICE_METADATA)
+	, type(exttype)
 {
 }
 
@@ -132,6 +144,12 @@ void* ExtensionItem::unset_raw(Extensible* container)
 	return rv;
 }
 
+void ExtensionItem::RegisterService()
+{
+	if (!ServerInstance->Extensions.Register(this))
+		throw ModuleException("Extension already exists: " + name);
+}
+
 bool ExtensionManager::Register(ExtensionItem* item)
 {
 	return types.insert(std::make_pair(item->name, item)).second;
@@ -139,10 +157,10 @@ bool ExtensionManager::Register(ExtensionItem* item)
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.begin();
+	ExtMap::iterator i = types.begin();
 	while (i != types.end())
 	{
-		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
+		ExtMap::iterator me = i++;
 		ExtensionItem* item = me->second;
 		if (item->creator == module)
 		{
@@ -154,7 +172,7 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<Ext
 
 ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 {
-	std::map<std::string, reference<ExtensionItem> >::iterator i = types.find(name);
+	ExtMap::iterator i = types.find(name);
 	if (i == types.end())
 		return NULL;
 	return i->second;
@@ -174,35 +192,35 @@ void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >
 	}
 }
 
-static struct DummyExtensionItem : LocalExtItem
-{
-	DummyExtensionItem() : LocalExtItem("", NULL) {}
-	void free(void*) {}
-} dummy;
-
 Extensible::Extensible()
+	: culled(false)
 {
-	extensions[&dummy] = NULL;
 }
 
 CullResult Extensible::cull()
+{
+	FreeAllExtItems();
+	culled = true;
+	return classbase::cull();
+}
+
+void Extensible::FreeAllExtItems()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
 		i->first->free(i->second);
 	}
 	extensions.clear();
-	return classbase::cull();
 }
 
 Extensible::~Extensible()
 {
-	if (!extensions.empty() && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG,
-			"Extensible destructor called without cull @%p", (void*)this);
+	if ((!extensions.empty() || !culled) && ServerInstance)
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
-LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+LocalExtItem::LocalExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 
@@ -219,8 +237,10 @@ void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, co
 {
 }
 
-LocalStringExt::LocalStringExt(const std::string& Key, Module* Owner)
-	: SimpleExtItem<std::string>(Key, Owner) { }
+LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
+	: SimpleExtItem<std::string>(Key, exttype, Owner)
+{
+}
 
 LocalStringExt::~LocalStringExt()
 {
@@ -228,12 +248,19 @@ LocalStringExt::~LocalStringExt()
 
 std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (item && format == FORMAT_USER)
+	if ((item) && (format != FORMAT_NETWORK))
 		return *static_cast<std::string*>(item);
 	return "";
 }
 
-LocalIntExt::LocalIntExt(const std::string& Key, Module* mod) : LocalExtItem(Key, mod)
+void LocalStringExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, value);
+}
+
+LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: LocalExtItem(Key, exttype, mod)
 {
 }
 
@@ -243,9 +270,15 @@ LocalIntExt::~LocalIntExt()
 
 std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
-	if (format != FORMAT_USER)
+	if (format == FORMAT_NETWORK)
 		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
+}
+
+void LocalIntExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	if (format != FORMAT_NETWORK)
+		set(container, ConvToInt(value));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container) const
@@ -265,7 +298,8 @@ void LocalIntExt::free(void*)
 {
 }
 
-StringExtItem::StringExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+StringExtItem::StringExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 
@@ -312,4 +346,3 @@ ModuleException::ModuleException(const std::string &message, Module* who)
 	: CoreException(message, who ? who->ModuleSourceFile : "A Module")
 {
 }
-

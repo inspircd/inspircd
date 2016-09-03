@@ -1,6 +1,6 @@
-<module name="m_md5.so">
-<module name="m_sha256.so">
-<module name="m_alias.so">
+<module name="md5">
+<module name="sha256">
+<module name="alias">
 <alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 <alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 <alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
@@ -15,26 +15,26 @@
 <alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 <alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $2" requires="NickServ" uline="yes">
 
-<module name="m_banexception.so">
-<module name="m_banredirect.so">
-<module name="m_blockcolor.so">
-<module name="m_callerid.so">
+<module name="banexception">
+<module name="banredirect">
+<module name="blockcolor">
+<module name="callerid">
 <callerid maxaccepts="16"
           operoverride="no"
           tracknick="no"
           cooldown="60">
 
-<module name="m_cap.so">
-<module name="m_cban.so">
+<module name="cap">
+<module name="cban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
 # (http://cgiirc.sourceforge.net).
-#<module name="m_cgiirc.so">
+#<module name="cgiirc">
 #
 #-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# Optional - If you specify to use m_cgiirc, then you must specify one
+# Optional - If you specify to use cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
 # For more information see: http://wiki.inspircd.org/Modules/cgiirc
@@ -68,13 +68,13 @@
 # sessions maximum.
 #
 
-<module name="m_chancreate.so">
+<module name="chancreate">
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel names module: Allows disabling channels which have certain
 # characters in the channel name such as bold, colorcodes, etc. which
 # can be quite annoying and allow users to on occasion have a channel
 # that looks like the name of another channel on the network.
-<module name="m_channames.so">
+<module name="channames">
 
 <channames
 	# denyrange: characters or range of characters to deny in channel
@@ -85,16 +85,16 @@
 	# in channel names.
 	allowrange="">
 
-<module name="m_channelban.so">
-<module name="m_chghost.so">
+<module name="channelban">
+<module name="chghost">
 <hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
-<module name="m_chgident.so">
-<module name="m_chgname.so">
-<module name="m_cloaking.so">
+<module name="chgident">
+<module name="chgname">
+<module name="cloaking">
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you specify the m_cloaking.so module as above, you must define   #
+# If you specify the cloaking module as above, you must define        #
 # cloak keys, and optionally a cloak prefix as shown below. The cloak #
 # keys must be shared across the network for correct cloaking.        #
 #                                                                     #
@@ -126,8 +126,8 @@
        key="secret"
        prefix="net-">
 
-<module name="m_close.so">
-<module name="m_conn_umodes.so">
+<module name="close">
+<module name="conn_umodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connectban: Provides IP connection throttling. Any IP range that connects
@@ -141,11 +141,11 @@
 #<connectban threshold="10" duration="10m" ipv4cidr="32" ipv6cidr="128">
 # This allows for 10 connections in an hour with a 10 minute ban if that is exceeded.
 #
-#<module name="m_connectban.so">
+#<module name="connectban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module.
-#<module name="m_connflood.so">
+#<module name="connflood">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #  seconds, maxconns -  Amount of connections per <seconds>.
@@ -163,46 +163,46 @@
 #<connflood seconds="30" maxconns="3" timeout="30"
 #   quitmsg="Throttled" bootwait="10">
 
-<module name="m_deaf.so">
-<module name="m_dnsbl.so">
-<module name="m_gecosban.so">
-<module name="m_globalload.so">
-<module name="m_ident.so">
+<module name="deaf">
+<module name="dnsbl">
+<module name="gecosban">
+<module name="globalload">
+<module name="ident">
 <ident timeout="1">
-<module name="m_inviteexception.so">
-<module name="m_joinflood.so">
-<module name="m_knock.so">
-<module name="m_namesx.so">
-<module name="m_operchans.so">
-<module name="m_operlog.so">
-<module name="m_opermodes.so">
-<module name="m_password_hash.so">
-<module name="m_permchannels.so">
-<module name="m_muteban.so">
-<module name="m_redirect.so">
+<module name="inviteexception">
+<module name="joinflood">
+<module name="knock">
+<module name="namesx">
+<module name="operchans">
+<module name="operlog">
+<module name="opermodes">
+<module name="password_hash">
+<module name="permchannels">
+<module name="muteban">
+<module name="redirect">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for glob or wildcard (?/*) matching.
-# You must have at least 1 provider loaded to use m_filter or m_rline
-# modules. This module has no additional requirements, as it uses the
-# matching already present in InspIRCd core.
-#<module name="m_regex_glob.so">
+# You must have at least 1 provider loaded to use the filter or the
+# rline modules. This module has no additional requirements, as it uses
+# the matching already present in InspIRCd core.
+#<module name="regex_glob">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for PCRE (Perl-Compatible Regular
 # Expressions). You need libpcre installed to compile and load this
-# module. You must have at least 1 provider loaded to use m_filter or
-# m_rline.
-#<module name="m_regex_pcre.so">
+# module. You must have at least 1 provider loaded to use the filter or
+# the rline module.
+#<module name="regex_pcre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for POSIX regular expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (ie: any Linux, BSD, but not Windows). You must have at least
-# 1 provider loaded to use m_filter or m_rline.
+# 1 provider loaded to use the filter or the rline module.
 # On POSIX-compliant systems, regex syntax can be found by using the
 # command: 'man 7 regex'.
-#<module name="m_regex_posix.so">
+#<module name="regex_posix">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Registered users only channel creation
@@ -210,11 +210,11 @@
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
-#<module name="m_regonlycreate.so">
+#<module name="regonlycreate">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban users through regular expression patterns
-#<module name="m_rline.so">
+#<module name="rline">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- RLINE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -224,7 +224,7 @@
 # Also, this is where you set what Regular Expression engine is to be
 # used. If you ever change it while running, all of your R-Lines will be
 # wiped. This is the regex engine used by all R-Lines set, and
-# m_regex_<engine>.so must be loaded, or rline will be nonfunctional
+# regex_<engine> must be loaded, or rline will be nonfunctional
 # until you load it or change the engine to one that is loaded.
 #
 #<rline matchonnickchange="yes" engine="pcre">
@@ -237,12 +237,12 @@
 # use glob. For this reason, is recommended to use a real regex engine
 # so that at least \s or [[:space:]] is available.
 
-<module name="m_sasl.so">
-<module name="m_servprotect.so">
-<module name="m_services_account.so">
-<module name="m_sethost.so">
-<module name="m_serverban.so">
-<module name="m_showwhois.so">
+<module name="sasl">
+<module name="servprotect">
+<module name="services_account">
+<module name="sethost">
+<module name="serverban">
+<module name="showwhois">
 <showwhois opersonly="yes" showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -250,53 +250,53 @@
 # channel mode +z and the 'z' extban which matches SSL client
 # certificate fingerprints.
 # Does not do anything useful without a working SSL module (see below).
-#<module name="m_sslmodes.so">
+#<module name="sslmodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or
 # manually symlink the source for this module from the directory
 # src/modules/extra, if you want to enable this, or it will not load.
-#<module name="m_ssl_gnutls.so">
+#<module name="ssl_gnutls">
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
+# ssl_gnutls is too complex to describe here, see the wiki:           #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
-# scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. This module also adds the
+# scripts to validate users. For this to work, one of ssl_gnutls
+# or ssl_openssl must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
-# opers to use SSL fingerprints to verify their identity and the ability
-# to force opers to use SSL connections in order to oper up.
+# opers to use SSL cert fingerprints to verify their identity and the
+# ability to force opers to use SSL connections in order to oper up.
 # It is highly recommended to load this module especially if
 # you use SSL on your network.
 # For how to use the oper features, please see the first example <oper> tag
 # in opers.conf.example.
 #
-#<module name="m_sslinfo.so">
+#<module name="sslinfo">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # OpenSSL SSL module: Adds support for SSL connections using OpenSSL,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
 # you want to enable this, or it will not load.
-#<module name="m_ssl_openssl.so">
+#<module name="ssl_openssl">
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
+# ssl_openssl is too complex to describe here, see the wiki:          #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
-<module name="m_stripcolor.so">
-<module name="m_svshold.so">
-<module name="m_tline.so">
-<module name="m_uhnames.so">
-<module name="m_watch.so">
+<module name="stripcolor">
+<module name="svshold">
+<module name="tline">
+<module name="uhnames">
+<module name="watch">
 <watch maxentries="32">
-<module name="m_xline_db.so">
+<module name="xline_db">
 
-<module name="m_spanningtree.so">
+<module name="spanningtree">

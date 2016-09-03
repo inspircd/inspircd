@@ -18,26 +18,9 @@
  */
 
 
-#ifndef FILELOGGER_H
-#define FILELOGGER_H
+#pragma once
 
 #include "logger.h"
-
-/** Debug levels for use with InspIRCd::Log()
- *  */
-enum DebugLevel
-{
-    RAWIO       =   5,
-    DEBUG       =   10,
-    VERBOSE     =   20,
-    DEFAULT     =   30,
-    SPARSE      =   40,
-    NONE        =   50
-};
-
-
-/* Forward declaration -- required */
-class InspIRCd;
 
 /** A logging class which logs to a streamed file.
  */
@@ -46,12 +29,9 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileWriter *f;
  public:
-	FileLogStream(int loglevel, FileWriter *fw);
+	FileLogStream(LogLevel loglevel, FileWriter *fw);
 
 	virtual ~FileLogStream();
 
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg);
+	virtual void OnLog(LogLevel loglevel, const std::string &type, const std::string &msg);
 };
-
-#endif
-

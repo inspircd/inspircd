@@ -21,31 +21,69 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
 /** FTOPIC command */
-CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
+CmdResult CommandFTopic::Handle(User* user, std::vector<std::string>& params)
 {
-	time_t ts = atoi(params[1].c_str());
 	Channel* c = ServerInstance->FindChan(params[0]);
-	if (c)
-	{
-		if ((ts >= c->topicset) || (c->topic.empty()))
-		{
-			if (c->topic != params[3])
-			{
-				// Update topic only when it differs from current topic
-				c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
-				c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-			}
+	if (!c)
+		return CMD_FAILURE;
 
-			// Always update setter and settime.
-			c->setby.assign(params[2], 0, 127);
-			c->topicset = ts;
-		}
+	if (c->age < ServerCommand::ExtractTS(params[1]))
+		// Our channel TS is older, nothing to do
+		return CMD_FAILURE;
+
+	// Channel::topicset is initialized to 0 on channel creation, so their ts will always win if we never had a topic
+	time_t ts = ServerCommand::ExtractTS(params[2]);
+	if (ts < c->topicset)
+		return CMD_FAILURE;
+
+	// The topic text is always the last parameter
+	const std::string& newtopic = params.back();
+
+	// If there is a setter in the message use that, otherwise use the message source
+	const std::string& setter = ((params.size() > 4) ? params[3] : (ServerInstance->Config->FullHostInTopic ? user->GetFullHost() : user->nick));
+
+	/*
+	 * If the topics were updated at the exact same second, accept
+	 * the remote only when it's "bigger" than ours as defined by
+	 * string comparision, so non-empty topics always overridde
+	 * empty topics if their timestamps are equal
+	 *
+	 * Similarly, if the topic texts are equal too, keep one topic
+	 * setter and discard the other
+	 */
+	if (ts == c->topicset)
+	{
+		// Discard if their topic text is "smaller"
+		if (c->topic > newtopic)
+			return CMD_FAILURE;
+
+		// If the texts are equal in addition to the timestamps, decide which setter to keep
+		if ((c->topic == newtopic) && (c->setby >= setter))
+			return CMD_FAILURE;
 	}
+
+	c->SetTopic(user, newtopic, ts, &setter);
 	return CMD_SUCCESS;
 }
 
+// Used when bursting and in reply to RESYNC, contains topic setter as the 4th parameter
+CommandFTopic::Builder::Builder(Channel* chan)
+	: CmdBuilder("FTOPIC")
+{
+	push(chan->name);
+	push_int(chan->age);
+	push_int(chan->topicset);
+	push(chan->setby);
+	push_last(chan->topic);
+}
+
+// Used when changing the topic, the setter is the message source
+CommandFTopic::Builder::Builder(User* user, Channel* chan)
+	: CmdBuilder(user, "FTOPIC")
+{
+	push(chan->name);
+	push_int(chan->age);
+	push_int(chan->topicset);
+	push_last(chan->topic);
+}

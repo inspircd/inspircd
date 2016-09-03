@@ -20,10 +20,7 @@
 
 
 #include "inspircd.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
-#include "modes/umode_s.h"
+#include "builtinmodes.h"
 
 ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
@@ -32,41 +29,116 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomas
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
 {
-	/* Set the array fields */
 	if (adding)
 	{
-		/* Fix for bug #310 reported by Smartys */
-		if (!dest->modes[UM_SNOMASK])
-			dest->snomasks.reset();
-
-		dest->modes[UM_SNOMASK] = true;
-		parameter = dest->ProcessNoticeMasks(parameter.c_str());
+		dest->SetMode(this, true);
+		// Process the parameter (remove chars we don't understand, remove redundant chars, etc.)
+		parameter = ProcessNoticeMasks(dest, parameter);
 		return MODEACTION_ALLOW;
 	}
 	else
 	{
-		if (dest->modes[UM_SNOMASK] != false)
+		if (dest->IsModeSet(this))
 		{
-			dest->modes[UM_SNOMASK] = false;
+			dest->SetMode(this, false);
+			dest->snomasks.reset();
 			return MODEACTION_ALLOW;
 		}
 	}
 
-	/* Allow the change */
+	// Mode not set and trying to unset, deny
 	return MODEACTION_DENY;
 }
 
 std::string ModeUserServerNoticeMask::GetUserParameter(User* user)
 {
-	std::string masks = user->FormatNoticeMasks();
-	if (masks.length())
-		masks = "+" + masks;
-	return masks;
+	std::string ret;
+	if (!user->IsModeSet(this))
+		return ret;
+
+	ret.push_back('+');
+	for (unsigned char n = 0; n < 64; n++)
+	{
+		if (user->snomasks[n])
+			ret.push_back(n + 'A');
+	}
+	return ret;
 }
 
 void ModeUserServerNoticeMask::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
-	user->WriteServ("NOTICE %s :*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.",
-			user->nick.c_str());
+	user->WriteNotice("*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.");
 }
 
+std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input)
+{
+	bool adding = true;
+	std::bitset<64> curr = user->snomasks;
+
+	for (std::string::const_iterator i = input.begin(); i != input.end(); ++i)
+	{
+		switch (*i)
+		{
+			case '+':
+				adding = true;
+			break;
+			case '-':
+				adding = false;
+			break;
+			case '*':
+				for (size_t j = 0; j < 64; j++)
+				{
+					if (ServerInstance->SNO->IsSnomaskUsable(j+'A'))
+						curr[j] = adding;
+				}
+			break;
+			default:
+				// For local users check whether the given snomask is valid and enabled - IsSnomaskUsable() tests both.
+				// For remote users accept what we were told, unless the snomask char is not a letter.
+				if (IS_LOCAL(user))
+				{
+					if (!ServerInstance->SNO->IsSnomaskUsable(*i))
+					{
+						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is unknown snomask char to me");
+						continue;
+					}
+				}
+				else if (!(((*i >= 'a') && (*i <= 'z')) || ((*i >= 'A') && (*i <= 'Z'))))
+					continue;
+
+				size_t index = ((*i) - 'A');
+				curr[index] = adding;
+			break;
+		}
+	}
+
+	std::string plus = "+";
+	std::string minus = "-";
+
+	// Apply changes and construct two strings consisting of the newly added and the removed snomask chars
+	for (size_t i = 0; i < 64; i++)
+	{
+		bool isset = curr[i];
+		if (user->snomasks[i] != isset)
+		{
+			user->snomasks[i] = isset;
+			std::string& appendhere = (isset ? plus : minus);
+			appendhere.push_back(i+'A');
+		}
+	}
+
+	// Create the final string that will be shown to the user and sent to servers
+	// Form: "+ABc-de"
+	std::string output;
+	if (plus.length() > 1)
+		output = plus;
+
+	if (minus.length() > 1)
+		output += minus;
+
+	// Unset the snomask usermode itself if every snomask was unset
+	if (user->snomasks.none())
+		user->SetMode(this, false);
+
+	return output;
+}

@@ -17,8 +17,6 @@
  */
 
 
-/* $ModDesc: Provides a SATOPIC command */
-
 #include "inspircd.h"
 
 /** Handle /SATOPIC
@@ -40,17 +38,21 @@ class CommandSATopic : public Command
 
 		if(target)
 		{
-			std::string newTopic = parameters[1];
+			const std::string newTopic(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
+			if (target->topic == newTopic)
+			{
+				user->WriteNotice(InspIRCd::Format("The topic on %s is already what you are trying to change it to.", target->name.c_str()));
+				return CMD_SUCCESS;
+			}
 
-			// 3rd parameter overrides access checks
-			target->SetTopic(user, newTopic, true);
+			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 	}
@@ -65,16 +67,7 @@ class ModuleSATopic : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleSATopic()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a SATOPIC command", VF_VENDOR);
 	}

@@ -21,13 +21,8 @@
  */
 
 
-/* $ModDesc: Allows for MD5 encrypted oper passwords */
-
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
-#include "hash.h"
+#include "modules/hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
@@ -38,10 +33,6 @@
 /* This is the central step in the MD5 algorithm. */
 #define MD5STEP(f,w,x,y,z,in,s) \
 	(w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
-
-#ifndef HAS_STDINT
-typedef unsigned int uint32_t;
-#endif
 
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
@@ -253,36 +244,15 @@ class MD5Provider : public HashProvider
 		MD5Final((unsigned char*)dest, &context);
 	}
 
-
-	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey, size_t srclen)
-	{
-		unsigned char bytes[16];
-
-		MyMD5((char*)bytes, (void*)src, srclen, ikey);
-
-		for (int i = 0; i < 16; i++)
-		{
-			*dest++ = xtab[bytes[i] / 16];
-			*dest++ = xtab[bytes[i] % 16];
-		}
-		*dest++ = 0;
-	}
  public:
-	std::string sum(const std::string& data)
+	std::string GenerateRaw(const std::string& data)
 	{
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length(), NULL);
 		return std::string(res, 16);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		char res[33];
-		GenHash(sdata.data(), res, HexMap, IV, sdata.length());
-		return res;
-	}
-
-	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}
+	MD5Provider(Module* parent) : HashProvider(parent, "md5", 16, 64) {}
 };
 
 class ModuleMD5 : public Module
@@ -291,10 +261,9 @@ class ModuleMD5 : public Module
  public:
 	ModuleMD5() : md5(this)
 	{
-		ServerInstance->Modules->AddService(md5);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements MD5 hashing",VF_VENDOR);
 	}

@@ -18,16 +18,13 @@
  */
 
 
-#ifndef THREADENGINE_H
-#define THREADENGINE_H
+#pragma once
 
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
+#include "config.h"
 #include "base.h"
-
-class ThreadData;
 
 /** Derive from this class to implement your own threaded sections of
  * code. Be sure to keep your code thread-safe and not prone to deadlocks
@@ -39,6 +36,15 @@ class CoreExport Thread
 	/** Set to true when the thread is to exit
 	 */
 	bool ExitFlag;
+
+	/** Opaque thread state managed by the ThreadEngine
+	 */
+	ThreadEngine::ThreadState state;
+
+	/** ThreadEngine manages Thread::state
+	 */
+	friend class ThreadEngine;
+
  protected:
 	/** Get thread's current exit status.
 	 * (are we being asked to exit?)
@@ -48,18 +54,11 @@ class CoreExport Thread
 		return ExitFlag;
 	}
  public:
-	/** Opaque thread state managed by threading engine
-	 */
-	ThreadData* state;
-
 	/** Set Creator to NULL at this point
 	 */
-	Thread() : ExitFlag(false), state(NULL)
+	Thread() : ExitFlag(false)
 	{
 	}
-
-	/* If the thread is running, you MUST join BEFORE deletion */
-	virtual ~Thread();
 
 	/** Override this method to put your actual
 	 * threaded code here.
@@ -172,6 +171,3 @@ class CoreExport SocketThread : public Thread
 	 */
 	virtual void OnNotify() = 0;
 };
-
-#endif
-

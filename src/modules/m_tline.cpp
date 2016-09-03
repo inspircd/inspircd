@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides /tline command used to test who a mask matches */
-
 /** Handle /TLINE
  */
 class CommandTline : public Command
@@ -34,14 +32,13 @@ class CommandTline : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		float n_counted = 0;
-		float n_matched = 0;
-		float n_match_host = 0;
-		float n_match_ip = 0;
+		unsigned int n_matched = 0;
+		unsigned int n_match_host = 0;
+		unsigned int n_match_ip = 0;
 
-		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+		const user_hash& users = ServerInstance->Users->GetUsers();
+		for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 		{
-			n_counted++;
 			if (InspIRCd::Match(u->second->GetFullRealHost(),parameters[0]))
 			{
 				n_matched++;
@@ -57,10 +54,15 @@ class CommandTline : public Command
 				}
 			}
 		}
+
+		unsigned long n_counted = users.size();
 		if (n_matched)
-			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick.c_str(), n_counted, parameters[0].c_str(), n_matched, (n_matched/n_counted)*100, n_match_host, n_match_ip);
+		{
+			float p = (n_matched / (float)n_counted) * 100;
+			user->WriteNotice(InspIRCd::Format("*** TLINE: Counted %lu user(s). Matched '%s' against %u user(s) (%0.2f%% of the userbase). %u by hostname and %u by IP address.", n_counted, parameters[0].c_str(), n_matched, p, n_match_host, n_match_ip));
+		}
 		else
-			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick.c_str(), n_counted, parameters[0].c_str());
+			user->WriteNotice(InspIRCd::Format("*** TLINE: Counted %lu user(s). Matched '%s' against no user(s).", n_counted, parameters[0].c_str()));
 
 		return CMD_SUCCESS;
 	}
@@ -75,20 +77,10 @@ class ModuleTLine : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleTLine()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR);
 	}
 };
 
 MODULE_INIT(ModuleTLine)
-

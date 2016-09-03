@@ -18,18 +18,9 @@
  */
 
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
 #include "main.h"
-#include "utils.h"
-#include "treeserver.h"
-#include "treesocket.h"
-
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
@@ -44,10 +35,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	else if (command == "SQUIT")
 	{
 		return this->HandleSquit(parameters,user);
-	}
-	else if (command == "MAP")
-	{
-		return this->HandleMap(parameters,user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 	else if (command == "LINKS")
 	{
@@ -64,9 +51,7 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	}
 	else if ((command == "VERSION") && (parameters.size() > 0))
 	{
-		this->HandleVersion(parameters,user);
-		return MOD_RES_DENY;
+		return this->HandleVersion(parameters,user);
 	}
 	return MOD_RES_PASSTHRU;
 }
-

@@ -21,7 +21,9 @@
 
 
 #include "inspircd.h"
+#ifdef INSPIRCD_ENABLE_RTTI
 #include <typeinfo>
+#endif
 
 void CullList::Apply()
 {
@@ -46,14 +48,18 @@ void CullList::Apply()
 		classbase* c = list[i];
 		if (gone.insert(c).second)
 		{
-			ServerInstance->Logs->Log("CULLLIST", DEBUG, "Deleting %s @%p", typeid(*c).name(),
+#ifdef INSPIRCD_ENABLE_RTTI
+			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting %s @%p", typeid(*c).name(),
 				(void*)c);
+#else
+			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting @%p", (void*)c);
+#endif
 			c->cull();
 			queue.push_back(c);
 		}
 		else
 		{
-			ServerInstance->Logs->Log("CULLLIST",DEBUG, "WARNING: Object @%p culled twice!",
+			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Object @%p culled twice!",
 				(void*)c);
 		}
 	}
@@ -65,7 +71,7 @@ void CullList::Apply()
 	}
 	if (list.size())
 	{
-		ServerInstance->Logs->Log("CULLLIST",DEBUG, "WARNING: Objects added to cull list in a destructor");
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
 		Apply();
 	}
 }

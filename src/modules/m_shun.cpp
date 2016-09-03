@@ -23,8 +23,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Provides the /SHUN command, which stops a user from executing all except configured commands. */
-
 class Shun : public XLine
 {
 public:
@@ -36,14 +34,11 @@ public:
 	{
 	}
 
-	~Shun()
-	{
-	}
-
 	bool Matches(User *u)
 	{
 		// E: overrides shun
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
@@ -59,15 +54,9 @@ public:
 		return false;
 	}
 
-	void DisplayExpiry()
+	const std::string& Displayable()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-	}
-
-	const char* Displayable()
-	{
-		return matchtext.c_str();
+		return matchtext;
 	}
 };
 
@@ -107,7 +96,7 @@ class CommandShun : public Command
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
 		std::string target = parameters[0];
-		
+
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
 			target = std::string("*!*@") + find->GetIPString();
@@ -120,18 +109,18 @@ class CommandShun : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
+				user->WriteNotice("*** Shun " + target + " not found in list, try /stats H.");
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration;
+			unsigned long duration;
 			std::string expr;
 			if (parameters.size() > 2)
 			{
-				duration = ServerInstance->Duration(parameters[1]);
+				duration = InspIRCd::Duration(parameters[1]);
 				expr = parameters[2];
 			}
 			else
@@ -151,7 +140,7 @@ class CommandShun : public Command
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = ServerInstance->TimeString(c_requires_crap);
+					std::string timestr = InspIRCd::TimeString(c_requires_crap);
 					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
 						user->nick.c_str(), target.c_str(), timestr.c_str(), expr.c_str());
 				}
@@ -159,7 +148,7 @@ class CommandShun : public Command
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), target.c_str());
+				user->WriteNotice("*** Shun for " + target + " already exists");
 				return CMD_FAILURE;
 			}
 		}
@@ -179,7 +168,7 @@ class ModuleShun : public Module
 {
 	CommandShun cmd;
 	ShunFactory f;
-	std::set<std::string> ShunEnabledCommands;
+	insp::flat_set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
 	bool affectopers;
 
@@ -188,17 +177,12 @@ class ModuleShun : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
-		ServerInstance->Modules->AddService(cmd);
-
-		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
 	}
 
-	virtual ~ModuleShun()
+	~ModuleShun()
 	{
 		ServerInstance->XLines->DelAll("SHUN");
 		ServerInstance->XLines->UnregisterFactory(&f);
@@ -207,19 +191,19 @@ class ModuleShun : public Module
 	void Prioritize()
 	{
 		Module* alias = ServerInstance->Modules->Find("m_alias.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &alias);
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list& out)
+	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
-		if (symbol != 'H')
+		if (stats.GetSymbol() != 'H')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
+		ServerInstance->XLines->InvokeStats("SHUN", 223, stats);
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 		std::string cmds = tag->getString("enabledcommands");
@@ -242,7 +226,7 @@ class ModuleShun : public Module
 		affectopers = tag->getBool("affectopers", false);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (validated)
 			return MOD_RES_PASSTHRU;
@@ -253,18 +237,16 @@ class ModuleShun : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		if (!affectopers && IS_OPER(user))
+		if (!affectopers && user->IsOper())
 		{
 			/* Don't do anything if the user is an operator and affectopers isn't set */
 			return MOD_RES_PASSTHRU;
 		}
 
-		std::set<std::string>::iterator i = ShunEnabledCommands.find(command);
-
-		if (i == ShunEnabledCommands.end())
+		if (!ShunEnabledCommands.count(command))
 		{
 			if (NotifyOfShun)
-				user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
+				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
 			return MOD_RES_DENY;
 		}
 
@@ -283,11 +265,10 @@ class ModuleShun : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the /SHUN command, which stops a user from executing all except configured commands.",VF_VENDOR|VF_COMMON);
 	}
 };
 
 MODULE_INIT(ModuleShun)
-

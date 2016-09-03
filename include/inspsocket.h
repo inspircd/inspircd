@@ -21,10 +21,11 @@
  */
 
 
-#ifndef INSPSOCKET_H
-#define INSPSOCKET_H
+#pragma once
 
 #include "timer.h"
+
+class IOHook;
 
 /**
  * States which a socket may be in
@@ -89,11 +90,11 @@ class CoreExport SocketTimeout : public Timer
 	 * @param secs_from_now Seconds from now to time out
 	 * @param now The current time
 	 */
-	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), sfd(fd) { }
+	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now) : Timer(secs_from_now), sock(thesock), sfd(fd) { }
 
 	/** Handle tick event
 	 */
-	virtual void Tick(time_t now);
+	virtual bool Tick(time_t now);
 };
 
 /**
@@ -102,30 +103,184 @@ class CoreExport SocketTimeout : public Timer
  */
 class CoreExport StreamSocket : public EventHandler
 {
-	/** Module that handles raw I/O for this socket, or NULL */
-	reference<Module> IOHook;
-	/** Private send queue. Note that individual strings may be shared
+ public:
+	/** Socket send queue
 	 */
-	std::deque<std::string> sendq;
-	/** Length, in bytes, of the sendq */
-	size_t sendq_len;
+	class SendQueue
+	{
+	 public:
+		/** One element of the queue, a continuous buffer
+		 */
+		typedef std::string Element;
+
+		/** Sequence container of buffers in the queue
+		 */
+		typedef std::deque<Element> Container;
+
+		/** Container iterator
+		 */
+		typedef Container::const_iterator const_iterator;
+
+		SendQueue() : nbytes(0) { }
+
+		/** Return whether the queue is empty
+		 * @return True if the queue is empty, false otherwise
+		 */
+		bool empty() const { return (nbytes == 0); }
+
+		/** Get the number of individual buffers in the queue
+		 * @return Number of individual buffers in the queue
+		 */
+		Container::size_type size() const { return data.size(); }
+
+		/** Get the number of queued bytes
+		 * @return Size in bytes of the data in the queue
+		 */
+		size_t bytes() const { return nbytes; }
+
+		/** Get the first buffer of the queue
+		 * @return A reference to the first buffer in the queue
+		 */
+		const Element& front() const { return data.front(); }
+
+		/** Get an iterator to the first buffer in the queue.
+		 * The returned iterator cannot be used to make modifications to the queue,
+		 * for that purpose the member functions push_*(), pop_front(), erase_front() and clear() can be used.
+		 * @return Iterator referring to the first buffer in the queue, or end() if there are no elements.
+		 */
+		const_iterator begin() const { return data.begin(); }
+
+		/** Get an iterator to the (theoretical) buffer one past the end of the queue.
+		 * @return Iterator referring to one element past the end of the container
+		 */
+		const_iterator end() const { return data.end(); }
+
+		/** Remove the first buffer in the queue
+		 */
+		void pop_front()
+		{
+			nbytes -= data.front().length();
+			data.pop_front();
+		}
+
+		/** Remove bytes from the beginning of the first buffer
+		 * @param n Number of bytes to remove
+		 */
+		void erase_front(Element::size_type n)
+		{
+			nbytes -= n;
+			data.front().erase(0, n);
+		}
+
+		/** Insert a new buffer at the beginning of the queue
+		 * @param newdata Data to add
+		 */
+		void push_front(const Element& newdata)
+		{
+			data.push_front(newdata);
+			nbytes += newdata.length();
+		}
+
+		/** Insert a new buffer at the end of the queue
+		 * @param newdata Data to add
+		 */
+		void push_back(const Element& newdata)
+		{
+			data.push_back(newdata);
+			nbytes += newdata.length();
+		}
+
+		/** Clear the queue
+		 */
+		void clear()
+		{
+			data.clear();
+			nbytes = 0;
+		}
+
+		void moveall(SendQueue& other)
+		{
+			nbytes += other.bytes();
+			data.insert(data.end(), other.data.begin(), other.data.end());
+			other.clear();
+		}
+
+	 private:
+	 	/** Private send queue. Note that individual strings may be shared.
+		 */
+		Container data;
+
+		/** Length, in bytes, of the sendq
+		 */
+		size_t nbytes;
+	};
+
+ private:
+	/** The IOHook that handles raw I/O for this socket, or NULL */
+	IOHook* iohook;
+
+	/** Send queue of the socket
+	 */
+	SendQueue sendq;
+
 	/** Error - if nonempty, the socket is dead, and this is the reason. */
 	std::string error;
+
+	/** Check if the socket has an error set, if yes, call OnError
+	 * @param err Error to pass to OnError()
+	 */
+	void CheckError(BufferedSocketError err);
+
+	/** Read data from the socket into the recvq, if successful call OnDataReady()
+	 */
+	void DoRead();
+
+	/** Send as much data contained in a SendQueue object as possible.
+	 * All data which successfully sent will be removed from the SendQueue.
+	 * @param sq SendQueue to flush
+	 */
+	void FlushSendQ(SendQueue& sq);
+
+	/** Read incoming data into a receive queue.
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from the socket and put into the recvq
+	 */
+	int ReadToRecvQ(std::string& rq);
+
+	/** Read data from a hook chain recursively, starting at 'hook'.
+	 * If 'hook' is NULL, the recvq is filled with data from SocketEngine::Recv(), otherwise it is filled with data from the
+	 * next hook in the chain.
+	 * @param hook Next IOHook in the chain, can be NULL
+	 * @param rq Receive queue to put incoming data into
+	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
+	 the socket and put into the recvq
+	 */
+	int HookChainRead(IOHook* hook, std::string& rq);
+
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : sendq_len(0) {}
-	inline Module* GetIOHook();
-	inline void AddIOHook(Module* m);
-	inline void DelIOHook();
-	/** Handle event from socket engine.
-	 * This will call OnDataReady if there is *new* data in recvq
+	StreamSocket() : iohook(NULL) { }
+	IOHook* GetIOHook() const;
+	void AddIOHook(IOHook* hook);
+	void DelIOHook();
+
+	/** Flush the send queue
 	 */
-	virtual void HandleEvent(EventType et, int errornum = 0);
-	/** Dispatched from HandleEvent */
-	virtual void DoRead();
-	/** Dispatched from HandleEvent */
-	virtual void DoWrite();
+	void DoWrite();
+
+	/** Called by the socket engine on a read event
+	 */
+	void OnEventHandlerRead() CXX11_OVERRIDE;
+
+	/** Called by the socket engine on a write event
+	 */
+	void OnEventHandlerWrite() CXX11_OVERRIDE;
+
+	/** Called by the socket engine on error
+	 * @param errcode Error
+	 */
+	void OnEventHandlerError(int errcode) CXX11_OVERRIDE;
 
 	/** Sets the error message for this socket. Once set, the socket is dead. */
 	void SetError(const std::string& err) { if (error.empty()) error = err; }
@@ -148,7 +303,9 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 	/** Useful for implementing sendq exceeded */
-	inline size_t getSendQSize() const { return sendq_len; }
+	size_t getSendQSize() const;
+
+	SendQueue& GetSendQ() { return sendq; }
 
 	/**
 	 * Close the socket, remove from socket engine, etc
@@ -156,6 +313,12 @@ class CoreExport StreamSocket : public EventHandler
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
 	virtual CullResult cull();
+
+	/** Get the IOHook of a module attached to this socket
+	 * @param mod Module whose IOHook to return
+	 * @return IOHook belonging to the module or NULL if the module haven't attached an IOHook to this socket
+	 */
+	IOHook* GetModHook(Module* mod) const;
 };
 /**
  * BufferedSocket is an extendable socket class which modules
@@ -224,14 +387,10 @@ class CoreExport BufferedSocket : public StreamSocket
 
 	virtual ~BufferedSocket();
  protected:
-	virtual void DoWrite();
+	void OnEventHandlerWrite() CXX11_OVERRIDE;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };
 
-#include "modules.h"
-
-inline Module* StreamSocket::GetIOHook() { return IOHook; }
-inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
-inline void StreamSocket::DelIOHook() { IOHook = NULL; }
-#endif
+inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
+inline void StreamSocket::DelIOHook() { iohook = NULL; }

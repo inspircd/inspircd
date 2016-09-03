@@ -1,3 +1,4 @@
+%mode 0750
 #!/usr/bin/env perl
 
 #
@@ -29,17 +30,35 @@ use strict;
 use POSIX;
 use Fcntl;
 
+# From http://refspecs.linuxbase.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/iniscrptact.html
+use constant {
+    STATUS_EXIT_SUCCESS => 0,
+    STATUS_EXIT_DEAD_WITH_PIDFILE => 1,
+    STATUS_EXIT_DEAD_WITH_LOCKFILE => 2,
+    STATUS_EXIT_NOT_RUNNING => 3,
+    STATUS_EXIT_UNKNOWN => 4,
+
+    GENERIC_EXIT_SUCCESS => 0,
+    GENERIC_EXIT_UNSPECIFIED => 1,
+    GENERIC_EXIT_INVALID_ARGUMENTS => 2,
+    GENERIC_EXIT_UNIMPLEMENTED => 3,
+    GENERIC_EXIT_INSUFFICIENT_PRIVILEGE => 4,
+    GENERIC_EXIT_NOT_INSTALLED => 5,
+    GENERIC_EXIT_NOT_CONFIGURED => 6,
+    GENERIC_EXIT_NOT_RUNNING => 7
+};
+
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
 my $runpath	=	"@BASE_DIR@";
 my $datadir	=       "@DATA_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
-my $executable	=	"@EXECUTABLE@";
-my $version	=	"@VERSION@";
+my $executable	=	"inspircd";
+my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
 
-if ($< == 0 || $> == 0) {
+if (!("--runasroot" ~~ @ARGV) && ($< == 0 || $> == 0)) {
 	if ($uid !~ /^\d+$/) {
 		# Named UID, look it up
 		$uid = getpwnam $uid;
@@ -87,12 +106,11 @@ if (!defined($sub))
 {
 	print STDERR "Invalid command or none given.\n";
 	cmd_help();
-	exit 1;
+	exit GENERIC_EXIT_UNIMPLEMENTED;
 }
 else
 {
-	$sub->(@ARGV);
-	exit 0;
+	exit $sub->(@ARGV); # Error code passed through return value
 }
 
 sub cmd_help()
@@ -105,7 +123,7 @@ sub cmd_help()
 	$_ =~ s/_/-/g foreach (@cmds, @devs);
 	print STDERR "Usage: ./inspircd (" . join("|", @cmds) . ")\n";
 	print STDERR "Developer arguments: (" . join("|", @devs) . ")\n";
-	exit 0;
+	exit GENERIC_EXIT_SUCCESS;
 }
 
 sub cmd_status()
@@ -113,10 +131,10 @@ sub cmd_status()
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
 		print "InspIRCd is running (PID: $pid)\n";
-		exit();
+		exit STATUS_EXIT_SUCCESS;
 	} else {
 		print "InspIRCd is not running. (Or PID File not found)\n";
-		exit();
+		exit STATUS_EXIT_NOT_RUNNING;
 	}
 }
 
@@ -126,23 +144,23 @@ sub cmd_rehash()
 		my $pid = getprocessid();
 		system("kill -HUP $pid >/dev/null 2>&1");
 		print "InspIRCd rehashed (pid: $pid).\n";
-		exit();
+		exit GENERIC_EXIT_SUCCESS;
 	} else {
 		print "InspIRCd is not running. (Or PID File not found)\n";
-		exit();
+		exit GENERIC_EXIT_NOT_RUNNING;
 	}
 }
 
 sub cmd_cron()
 {
 	if (getstatus() == 0) { goto &cmd_start(@_); }
-	exit();
+	exit GENERIC_EXIT_UNSPECIFIED;
 }
 
 sub cmd_version()
 {
 	print "InspIRCd version: $version\n";
-	exit();
+	exit GENERIC_EXIT_SUCCESS;
 }
 
 sub cmd_restart(@)
@@ -156,13 +174,13 @@ sub hid_cheese_sandwich()
 {
 	print "Creating Cheese Sandwich..\n";
 	print "Done.\n";
-	exit();
+	exit GENERIC_EXIT_SUCCESS;
 }
 
 sub cmd_start(@)
 {
 	# Check to see its not 'running' already.
-	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
+	if (getstatus() == 1) { print "InspIRCd is already running.\n"; exit GENERIC_EXIT_SUCCESS; }
 	# If we are still alive here.. Try starting the IRCd..
 	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
@@ -224,7 +242,7 @@ sub dev_valdebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-	exec qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
+	exec qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=30), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
 	die "Failed to start valgrind: $!\n";
 }
 
@@ -258,7 +276,7 @@ sub dev_valdebug_unattended(@)
 		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-		exec qw(valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=15 --track-fds=yes),
+		exec qw(valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=30 --track-fds=yes),
 			"--suppressions=$binpath/valgrind.sup", qw(--gen-suppressions=all),
 			qw(--leak-resolution=med --time-stamp=yes --log-fd=2 --),
 			"$binpath/$executable", qw(--nofork --debug --nolog), @_;
@@ -283,13 +301,13 @@ sub dev_screenvaldebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
+	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=30), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
 	die "Failed to start screen: $!\n";
 }
 
 sub cmd_stop()
 {
-	if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
+	if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return GENERIC_EXIT_SUCCESS; }
 	# Get to here, we have something to kill.
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
@@ -299,12 +317,12 @@ sub cmd_stop()
 		sleep 1;
 		if (getstatus() == 0) {
 			print "InspIRCd Stopped.\n";
-			return;
+			return GENERIC_EXIT_SUCCESS;
 		}
 	}
 	print "InspIRCd not dying quietly -- forcing kill\n";
 	kill KILL => $pid;
-	return 0;
+	return GENERIC_EXIT_SUCCESS;
 }
 
 ###
@@ -415,7 +433,7 @@ sub checkvalgrind
 	unless(`valgrind --version`)
 	{
 		print "Couldn't start valgrind: $!\n";
-		exit;
+		exit GENERIC_EXIT_UNSPECIFIED;
 	}
 }
 
@@ -424,7 +442,7 @@ sub checkgdb
 	unless(`gdb --version`)
 	{
 		print "Couldn't start gdb: $!\n";
-		exit;
+		exit GENERIC_EXIT_UNSPECIFIED;
 	}
 }
 
@@ -433,6 +451,6 @@ sub checkscreen
 	unless(`screen --version`)
 	{
 		print "Couldn't start screen: $!\n";
-		exit;
+		exit GENERIC_EXIT_UNSPECIFIED;
 	}
 }

@@ -1,8 +1,8 @@
-<module name="m_md5.so">
-<module name="m_sha256.so">
+<module name="md5">
+<module name="sha256">
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases.
-<module name="m_alias.so">
+<module name="alias">
 <fantasy prefix="!" allowbots="no">
 # Aliases
 <alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
@@ -35,28 +35,28 @@
 #<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
 #  requires="NickServ" uline="yes">
 
-<module name="m_allowinvite.so">
-<module name="m_alltime.so">
-<module name="m_auditorium.so">
+<module name="allowinvite">
+<module name="alltime">
+<module name="auditorium">
 <auditorium showops="yes" operoverride="yes">
-<module name="m_banexception.so">
-<module name="m_blockcaps.so">
+<module name="banexception">
+<module name="blockcaps">
 <blockcaps percent="50"
            minlen="5"
            capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
-<module name="m_blockcolor.so">
-<module name="m_botmode.so">
-<module name="m_censor.so">
+<module name="blockcolor">
+<module name="botmode">
+<module name="censor">
 <include file="inspircd.censor.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
 # (http://cgiirc.sourceforge.net).
-#<module name="m_cgiirc.so">
+#<module name="cgiirc">
 #
 #-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# Optional - If you specify to use m_cgiirc, then you must specify one
+# Optional - If you specify to use cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
 # For more information see: http://wiki.inspircd.org/Modules/cgiirc
@@ -90,51 +90,41 @@
 # sessions maximum.
 #
 
-<module name="m_chanfilter.so">
+<module name="chanfilter">
 <chanfilter hidemask="yes">
 
-<module name="m_chanprotect.so">
-
-<chanprotect
-	noservices="no"
-	qprefix="~"
-	aprefix="&amp;"
-	deprotectself="yes"
-	deprotectothers="yes">
-
-<module name="m_check.so">
-<module name="m_chghost.so">
+<module name="check">
+<module name="chghost">
 <hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
 
-<module name="m_chgident.so">
-<module name="m_chgname.so">
-<module name="m_cloaking.so">
+<module name="chgident">
+<module name="chgname">
+<module name="cloaking">
 <cloak mode="half"
        key="secret"
        prefix="net-">
 
-<module name="m_close.so">
-<module name="m_clones.so">
-<module name="m_commonchans.so">
+<module name="close">
+<module name="clones">
+<module name="commonchans">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Auto join on connect module: Allows you to force users to join one
 # or more channels automatically upon connecting to the server.
-#<module name="m_conn_join.so">
+#<module name="conn_join">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #
-# If you have m_conn_join.so loaded, you can configure it using the
-# follow values:
+# If you have the conn_join module loaded, you can configure it below:
 #
 #<autojoin channel="#one,#two,#three">
 
-<module name="m_conn_umodes.so">
-<module name="m_cycle.so">
+<module name="conn_umodes">
+<module name="cycle">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module.
-#<module name="m_connflood.so">
+#<module name="connflood">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #  seconds, maxconns -  Amount of connections per <seconds>.
@@ -154,7 +144,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command.
-<module name="m_dccallow.so">
+<module name="dccallow">
 #
 #-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #  blockchat         - Whether to block DCC CHAT as well as DCC SEND
@@ -173,81 +163,83 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-<module name="m_deaf.so">
-<module name="m_denychans.so"> 
+<module name="deaf">
+<module name="denychans"> 
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
 #<badchan name="#heaven" redirect="#hell" reason="Nice try!">         #
 
-<module name="m_devoice.so">
+<module name="devoice">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides message filtering, similar to SPAMFILTER.
-<module name="m_filter.so">
+<module name="filter">
 #                                                                     #
-# This module depends upon a regex provider such as m_regex_pcre or   #
-# m_regex_glob to function. You must specify which of these you want  #
-# m_filter to use via the tag below.                                  #
+# This module depends upon a regex provider such as regex_pcre or     #
+# regex_glob to function. You must specify which of these you want    #
+# the filter module to use via the tag below.                         #
 #                                                                     #
 # Valid engines are:                                                  #
 #                                                                     #
-# glob   - Glob patterns, provided via m_regex_glob.                  #
-# pcre   - PCRE regexps, provided via m_regex_pcre, needs libpcre.    #
-# tre    - TRE regexps, provided via m_regex_tre, requires libtre.    #
-# posix  - POSIX regexps, provided via m_regex_posix, not available   #
+# glob   - Glob patterns, provided via regex_glob.                    #
+# pcre   - PCRE regexps, provided via regex_pcre, needs libpcre.      #
+# tre    - TRE regexps, provided via regex_tre, requires libtre.      #
+# posix  - POSIX regexps, provided via regex_posix, not available     #
 #          on Windows, no dependencies on other operating systems.    #
-# stdlib - stdlib regexps, provided via m_regex_stdlib, see comment   #
+# stdlib - stdlib regexps, provided via regex_stdlib, see comment     #
 #          at the <module> tag for info on availability.              #
 #                                                                     #
 <filteropts engine="glob">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
 #
-# You may specify specific channels that are exempt from being filtered:
-#<exemptfromfilter channel="#blah">
+# To learn more about the configuration of this module, read          #
+# examples/filter.conf.example, which covers the various types of     #
+# filters and shows how to add exemptions.                            #
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the m_filter module, then          #
+# Optional - If you specify to use the filter module, then            #
 # specfiy below the path to the filter.conf file, or define some      #
 # <filter> tags.                                                      #
 #                                                                     #
 #<include file="filter.conf">
 
-<module name="m_gecosban.so">
-<module name="m_globops.so">
-<module name="m_globalload.so">
-<module name="m_halfop.so">
-<module name="m_helpop.so">
+<module name="gecosban">
+<module name="globops">
+<module name="globalload">
+<module name="halfop">
+<module name="helpop">
 <include file="inspircd.helpop-full.example">
 
-<module name="m_hidechans.so">
+<module name="hidechans">
 <hidechans affectsopers="false">
 
-<module name="m_hideoper.so">
-<module name="m_ident.so">
+<module name="hideoper">
+<module name="ident">
 <ident timeout="1">
-<module name="m_inviteexception.so">
-<module name="m_joinflood.so">
-<module name="m_jumpserver.so">
-<module name="m_knock.so">
-<module name="m_messageflood.so">
-<module name="m_namesx.so">
-<module name="m_nickflood.so">
-<module name="m_noctcp.so">
-<module name="m_nokicks.so">
-<module name="m_nonicks.so">
-<module name="m_nopartmsg.so">
-<module name="m_nonotice.so">
-<module name="m_operchans.so">
+<module name="inviteexception">
+<module name="joinflood">
+<module name="jumpserver">
+<module name="knock">
+<module name="messageflood">
+<module name="namesx">
+<module name="nickflood">
+<module name="noctcp">
+<module name="nokicks">
+<module name="nonicks">
+<module name="nopartmsg">
+<module name="nonotice">
+<module name="operchans">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper join module: Auto-joins opers to a channel upon oper-up.
-# This module is oper-only. For the user equivalent, see m_conn_join.
-<module name="m_operjoin.so">
+# This module is oper-only. For the user equivalent, see the conn_join
+# module.
+<module name="operjoin">
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERJOIN CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the m_operjoin.so module, specify options here:    #
+# If you are using the operjoin module, specify options here:         #
 #                                                                     #
 # channel     -      The channel name to join, can also be a comma    #
 #                    separated list eg. "#channel1,#channel2".        #
@@ -262,52 +254,52 @@
 #
 #<type name="Helper" autojoin="#help" classes="...">
 
-<module name="m_operlog.so">
+<module name="operlog">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for separate message of the day
 # on oper-up.
 # This module is oper-only.
-#<module name="m_opermotd.so">
+#<module name="opermotd">
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the m_opermotd.so module, specify the motd here    #
+# If you are using the opermotd module, specify the motd here         #
 #                                                                     #
 # onoper        - If on, the message is sent on /OPER, otherwise it's #
 #                 only sent when /OPERMOTD is used.                   #
 #                                                                     #
 #<opermotd file="oper.motd" onoper="yes">
 
-<module name="m_override.so">
+<module name="override">
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_override.so is too complex to describe here, see the wiki:        #
+# The override module is too complex to describe here, see the wiki:  #
 # http://wiki.inspircd.org/Modules/override                           #
 
-<module name="m_operlevels.so">
-<module name="m_opermodes.so">
-<module name="m_password_hash.so">
-<module name="m_muteban.so">
+<module name="operlevels">
+<module name="opermodes">
+<module name="password_hash">
+<module name="muteban">
 
-<module name="m_redirect.so">
-<module name="m_regex_glob.so">
+<module name="redirect">
+<module name="regex_glob">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for PCRE (Perl-Compatible Regular
 # Expressions). You need libpcre installed to compile and load this
-# module. You must have at least 1 provider loaded to use m_filter or
-# m_rline.
-#<module name="m_regex_pcre.so">
+# module. You must have at least 1 provider loaded to use the filter
+# or the rline module.
+#<module name="regex_pcre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for POSIX Regular Expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (ie: any Linux, BSD, but not Windows). You must have at least
-# 1 provider loaded to use m_filter or m_rline.
+# 1 provider loaded to use the filter or rline module.
 # On POSIX-compliant systems, regex syntax can be found by using the
 # command: 'man 7 regex'.
-#<module name="m_regex_posix.so">
+#<module name="regex_posix">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for TRE Regular Expressions.
@@ -315,7 +307,7 @@
 # if you are most familiar with the syntax of /spamfilter from there,
 # this is the provider you want. You need libtre installed in order
 # to compile and load this module.
-#<module name="m_regex_tre.so">
+#<module name="regex_tre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Registered users only channel creation module. If enabled, only
@@ -323,77 +315,77 @@
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
-#<module name="m_regonlycreate.so">
+#<module name="regonlycreate">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restricted channels module: Allows only opers to create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
-#<module name="m_restrictchans.so">
+#<module name="restrictchans">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restrict message module: Allows users to only message opers.
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
-#<module name="m_restrictmsg.so">
+#<module name="restrictmsg">
 
-<module name="m_sajoin.so">
-<module name="m_sakick.so">
-<module name="m_samode.so">
-<module name="m_sanick.so">
-<module name="m_sapart.so">
-<module name="m_saquit.so">
-<module name="m_satopic.so">
-<module name="m_servprotect.so">
-<module name="m_seenicks.so">
-<module name="m_setidle.so">
-<module name="m_services_account.so">
-<module name="m_sethost.so">
-<module name="m_setident.so">
-<module name="m_setname.so">
-<module name="m_showwhois.so">
+<module name="sajoin">
+<module name="sakick">
+<module name="samode">
+<module name="sanick">
+<module name="sapart">
+<module name="saquit">
+<module name="satopic">
+<module name="servprotect">
+<module name="seenicks">
+<module name="setidle">
+<module name="services_account">
+<module name="sethost">
+<module name="setident">
+<module name="setname">
+<module name="showwhois">
 <showwhois opersonly="yes" showfromopers="yes">
 
-<module name="m_shun.so">
+<module name="shun">
 <shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="no" affectopers="no">
 
-<module name="m_sslmodes.so">
+<module name="sslmodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
 # you want to enable this, or it will not load.
-#<module name="m_ssl_gnutls.so">
+#<module name="ssl_gnutls">
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
+# ssl_gnutls is too complex to describe here, see the wiki:           #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 
-<module name="m_sslinfo.so">
+<module name="sslinfo">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # OpenSSL SSL module: Adds support for SSL connections using OpenSSL,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
 # you want to enable this, or it will not load.
-#<module name="m_ssl_openssl.so">
+#<module name="ssl_openssl">
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
+# ssl_openssl is too complex to describe here, see the wiki:          #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
-<module name="m_stripcolor.so">
-<module name="m_svshold.so">
-<module name="m_swhois.so">
-<module name="m_tline.so">
-<module name="m_uhnames.so">
-<module name="m_userip.so">
-<module name="m_watch.so">
+<module name="stripcolor">
+<module name="svshold">
+<module name="swhois">
+<module name="tline">
+<module name="uhnames">
+<module name="userip">
+<module name="watch">
 <watch maxentries="32">
 
-<module name="m_spanningtree.so">
+<module name="spanningtree">
