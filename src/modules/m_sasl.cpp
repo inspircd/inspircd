@@ -189,6 +189,7 @@ class CommandAuthenticate : public Command
 		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
 	{
 		works_before_reg = true;
+		allow_empty_last_param = false;
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -197,6 +198,9 @@ class CommandAuthenticate : public Command
 		if (user->registered != REG_ALL)
 		{
 			if (!cap.ext.get(user))
+				return CMD_FAILURE;
+
+			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
 				return CMD_FAILURE;
 
 			SaslAuthenticator *sasl = authExt.get(user);
