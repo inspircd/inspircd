@@ -201,7 +201,10 @@ class CommandAuthenticate : public Command
 				return CMD_FAILURE;
 
 			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
+			{
+				ServerInstance->Users->QuitUser(user, "Malformed AUTHENTICATE");
 				return CMD_FAILURE;
+			}
 
 			SaslAuthenticator *sasl = authExt.get(user);
 			if (!sasl)
