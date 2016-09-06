@@ -268,7 +268,7 @@ class ModuleSASL : public Module
 	void init()
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
+		Implementation eventlist[] = { I_OnEvent, I_OnUserConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
@@ -283,7 +283,7 @@ class ModuleSASL : public Module
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 	}
 
-	ModResult OnUserRegister(LocalUser *user)
+	void OnUserConnect(LocalUser *user)
 	{
 		SaslAuthenticator *sasl_ = authExt.get(user);
 		if (sasl_)
@@ -291,8 +291,6 @@ class ModuleSASL : public Module
 			sasl_->Abort();
 			authExt.unset(user);
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion()
