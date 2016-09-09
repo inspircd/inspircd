@@ -173,7 +173,7 @@ struct Parser
 			}
 			else if (ch == '"')
 				break;
-			else
+			else if (ch != '\r')
 				value.push_back(ch);
 		}
 
