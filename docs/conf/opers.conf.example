@@ -141,13 +141,14 @@
       # Remember: This is case sensitive.
       name="Adam"
 
-      # hash: What hash this password is hashed with.
-      # Requires the module for selected hash (md5, sha256 or ripemd160)
-      # be loaded and the password hashing module (password_hash) loaded.
-      # Options here are: "md5", "sha256" and "ripemd160", or one of
-      # these prefixed with "hmac-", e.g.: "hmac-sha256".
+      # hash: the hash function this password is hashed with. Requires the
+      # module for the selected function (bcrypt, md5, sha1, sha256, or
+      # ripemd160) and the password hashing module (password_hash) to be
+      # loaded.
+      # You may also use any of the above other than bcrypt prefixed with
+      # either "hmac-" or "pbkdf2-hmac-" (requires the pbkdf2 module).
       # Create hashed passwords with: /mkpasswd <hash> <password>
-      hash="hmac-sha256"
+      hash="bcrypt"
 
       # password: A hash of the password (see above option) hashed
       # with /mkpasswd <hash> <password>. See the password_hash module
