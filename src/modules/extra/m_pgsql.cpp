@@ -21,14 +21,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: -Iexecute("pg_config --includedir" "POSTGRESQL_INCLUDE_DIR")
+/// $LinkerFlags: -Lexecute("pg_config --libdir" "POSTGRESQL_LIBRARY_DIR") -lpq
+
+/// $PackageInfo: require_system("darwin") postgresql
+/// $PackageInfo: require_system("ubuntu") libpq-dev
+
 
 #include "inspircd.h"
 #include <cstdlib>
 #include <libpq-fe.h>
 #include "modules/sql.h"
-
-/* $CompileFlags: -Iexec("pg_config --includedir") eval("my $s = `pg_config --version`;$s =~ /^.*?(\d+)\.(\d+)\.(\d+).*?$/;my $v = hex(sprintf("0x%02x%02x%02x", $1, $2, $3));print "-DPGSQL_HAS_ESCAPECONN" if(($v >= 0x080104) || ($v >= 0x07030F && $v < 0x070400) || ($v >= 0x07040D && $v < 0x080000) || ($v >= 0x080008 && $v < 0x080100));") */
-/* $LinkerFlags: -Lexec("pg_config --libdir") -lpq */
 
 /* SQLConn rewritten by peavey to
  * use EventHandler instead of
@@ -412,14 +415,10 @@ restart:
 				{
 					std::string parm = p[param++];
 					std::vector<char> buffer(parm.length() * 2 + 1);
-#ifdef PGSQL_HAS_ESCAPECONN
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
-#else
-					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
-#endif
 					res.append(&buffer[0], escapedsize);
 				}
 			}
@@ -447,14 +446,10 @@ restart:
 				{
 					std::string parm = it->second;
 					std::vector<char> buffer(parm.length() * 2 + 1);
-#ifdef PGSQL_HAS_ESCAPECONN
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
-#else
-					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
-#endif
 					res.append(&buffer[0], escapedsize);
 				}
 			}

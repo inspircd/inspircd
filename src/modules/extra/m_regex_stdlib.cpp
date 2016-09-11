@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: -std=c++11
+
+
 #include "inspircd.h"
 #include "modules/regex.h"
 #include <regex>
-
-/* $CompileFlags: -std=c++11 */
 
 class StdRegex : public Regex
 {

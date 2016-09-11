@@ -43,6 +43,7 @@ use POSIX                 qw(getgid getuid);
 use make::common;
 use make::configure;
 use make::console;
+use make::directive;
 
 my ($opt_binary_dir,
     $opt_config_dir,
@@ -409,7 +410,7 @@ EXTRA:	for my $extra (@extras) {
 	for my $extra (keys(%extras)) {
 		next unless $extras{$extra} =~ m/enabled/; # only process enabled extras.
 		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
-		my @deps = split /\s+/, get_property($abs_extra, 'ModDep');
+		my @deps = split /\s+/, get_directive($abs_extra, 'ModDep', '');
 		for my $dep (@deps) {
 			if (exists($extras{$dep})) {
 				my $ref = \$extras{$dep}; # Take reference.
@@ -456,7 +457,7 @@ sub enable_extras (@) {
 			next;
 		}
 		# Get dependencies, and add them to be processed.
-		my @deps = split /\s+/, get_property($extrapath, 'ModDep');
+		my @deps = split /\s+/, get_directive($extrapath, 'ModDep', '');
 		for my $dep (@deps) {
 			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
 			if (!-e "src/modules/$dep" && !-e "include/$dep") {
@@ -492,7 +493,7 @@ EXTRA:	for my $extra (@extras) {
 		}
 		# Check if anything needs this.
 		for my $file (@files) {
-			my @deps = split /\s+/, get_property("src/modules/extra/$file", 'ModDep');
+			my @deps = split /\s+/, get_directive("src/modules/extra/$file", 'ModDep', '');
 			# File depends on this extra...
 			if (scalar(grep { $_ eq $extra } @deps) > 0) {
 				# And is both enabled and not about to be disabled.

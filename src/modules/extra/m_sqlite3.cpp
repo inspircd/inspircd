@@ -19,6 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("sqlite3")
+/// $LinkerFlags: find_linker_flags("sqlite3" "-lsqlite3")
+
+/// $PackageInfo: require_system("darwin") pkg-config sqlite3
+/// $PackageInfo: require_system("ubuntu") libsqlite3-dev pkg-config
 
 #include "inspircd.h"
 #include "modules/sql.h"
@@ -35,9 +40,6 @@
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
 #endif
-
-/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
-/* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
 
 class SQLConn;
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;

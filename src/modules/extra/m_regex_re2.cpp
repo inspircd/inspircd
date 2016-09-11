@@ -17,6 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("re2" "")
+/// $LinkerFlags: find_linker_flags("re2" "-lre2")
+
+/// $PackageInfo: require_system("darwin") pkg-config re2
+/// $PackageInfo: require_system("ubuntu" "15.10") libre2-dev pkg-config
+
 
 #include "inspircd.h"
 #include "modules/regex.h"
@@ -31,8 +37,6 @@
 #endif
 
 #include <re2/re2.h>
-
-/* $LinkerFlags: -lre2 */
 
 class RE2Regex : public Regex
 {
