@@ -27,7 +27,7 @@ namespace DieRestart
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
 		// The hash method for *BOTH* the die and restart passwords
 		const std::string hash = tag->getString("hash");
-		const std::string correctpass = tag->getString(confentry);
+		const std::string correctpass = tag->getString(confentry,  ServerInstance->Config->ServerName);
 		return ServerInstance->PassCompare(user, correctpass, inputpass, hash);
 	}
 }

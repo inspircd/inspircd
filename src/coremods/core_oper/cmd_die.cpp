@@ -26,7 +26,7 @@ CommandDie::CommandDie(Module* parent)
 	: Command(parent, "DIE", 1)
 {
 	flags_needed = 'o';
-	syntax = "<password>";
+	syntax = "<server>";
 }
 
 static void QuitAll()
