@@ -44,7 +44,7 @@ class ModuleChanLog : public Module
 
 			if (channel.empty() || snomasks.empty())
 			{
-				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Malformed chanlog tag, ignoring");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Malformed chanlog tag, ignoring");
 				continue;
 			}
 
