@@ -44,6 +44,9 @@ public:
 		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
 			return true;
 
+		if (InspIRCd::MatchCIDR(u->GetIPString(), matchtext, ascii_case_insensitive_map))
+			return true;
+
 		return false;
 	}
 
