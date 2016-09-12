@@ -653,7 +653,7 @@
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
 #<title name="bar" password="foo" host="ident@test.org" title="Official Chat Helper" vhost="helper.test.org">
-#<title name="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" title="Official Chat Helper">
+#<title name="foo" password="$2a$10$UYZ4OcO8NNTCCGyCdY9SK.2GHiqGgxZfHFPOPmWuxEVWVQTtoDC7C" hash="bcrypt" title="Official Chat Helper">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command.
@@ -1385,7 +1385,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
-# To be useful, a hashing module like sha256 also needs to be loaded.
+# To be useful, a hashing module like bcrypt also needs to be loaded.
 #<module name="password_hash">
 #
 #-#-#-#-#-#-#-#-#-# PASSWORD HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
@@ -1395,12 +1395,14 @@
 #
 #     <oper name="Brain"
 #           host="ident@dialup15.isp.test.com"
-#           hash="sha256"
-#           password="01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+#           hash="bcrypt"
+#           password="$2a$10$Mss9AtHHslZTLBrXqM0FB.JBwD.UTSu8A48SfrY9exrpxbsRiRTbO"
 #           type="NetAdmin">
 #
-# Starting from 2.0, you can use a more secure salted hash that prevents simply
-# looking up the hash's value in a rainbow table built for the hash.
+# If you are using a hash algorithm which does not perform salting you can use
+# HMAC to salt your passwords in order to prevent them from being looked up in
+# a rainbow table.
+#
 #    hash="hmac-sha256" password="lkS1Nbtp$CyLd/WPQXizsbxFUTqFRoMvaC+zhOULEeZaQkUJj+Gg"
 #
 # Generate hashes using the /MKPASSWD command on the server.
@@ -1939,7 +1941,7 @@
 #                                                                     #
 # See also: http://wiki.inspircd.org/Modules/sqloper                  #
 #                                                                     #
-#<sqloper dbid="1" hash="md5">
+#<sqloper dbid="1" hash="bcrypt">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # StartTLS module: Implements STARTTLS, which allows clients          #
@@ -2014,7 +2016,7 @@
 # host       - Vhost to set.                                          #
 #
 #<vhost user="some_username" pass="some_password" host="some.host.test.cc">
-#<vhost user="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" host="some.other.host.example.com">
+#<vhost user="foo" password="$2a$10$iTuYLT6BRhRlOgzfsW9oPe62etW.oXwSpyKw5rJit64SGZanLXghO" hash="bcrypt" host="some.other.host.example.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Watch module: Adds the WATCH command, which is used by clients to

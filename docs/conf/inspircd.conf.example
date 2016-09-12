@@ -255,12 +255,14 @@
          # allow: What IP addresses/hosts to allow for this block.
          allow="203.0.113.*"
 
-         # hash: what hash this password is hashed with. requires the module
-         # for selected hash (md5, sha256 or ripemd160) be loaded and the
-         # password hashing module (password_hash) loaded.
-         # Optional, but recommended. Create hashed passwords with:
-         # /mkpasswd <hash> <password>
-         #hash="sha256"
+         # hash: the hash function this password is hashed with. Requires the
+         # module for the selected function (bcrypt, md5, sha1, sha256, or
+         # ripemd160) and the password hashing module (password_hash) to be
+         # loaded.
+         # You may also use any of the above other than bcrypt prefixed with
+         # either "hmac-" or "pbkdf2-hmac-" (requires the pbkdf2 module).
+         # Create hashed passwords with: /mkpasswd <hash> <password>
+         #hash="bcrypt"
 
          # password: Password to use for this block/user(s)
          password="secret"
