@@ -187,33 +187,6 @@
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
 
 
-#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
-#                                                                     #
-#   You can configure the passwords here which you wish to use for    #
-#   the /DIE and /RESTART commands. Only trusted ircops who will      #
-#   need this ability should know the die and restart password.       #
-#                                                                     #
-
-<power
-       # hash: what hash these passwords are hashed with.
-       # Requires the module for selected hash (md5, sha256, or
-       # ripemd160) be loaded and the password hashing module
-       # (password_hash) loaded.
-       # Options here are: "md5", "sha256" and "ripemd160", or one of
-       # these prefixed with "hmac-", e.g.: "hmac-sha256".
-       # Optional, but recommended. Create hashed passwords with:
-       # /mkpasswd <hash> <password>
-       #hash="sha256"
-
-       # diepass: Password for opers to use if they need to shutdown (die)
-       # a server.
-       diepass=""
-
-       # restartpass: Password for opers to use if they need to restart
-       # a server.
-       restartpass="">
-
-
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   This is where you can configure which connections are allowed     #

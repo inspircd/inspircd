@@ -621,17 +621,15 @@ The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
 
-<helpop key="die" value="/DIE <password>
+<helpop key="die" value="/DIE <server>
 
 This command shuts down the local server. A single parameter is
-required, which must match the password in the configuration for the
-command to function.">
+required, which must match the name of the local server.">
 
-<helpop key="restart" value="/RESTART <password>
+<helpop key="restart" value="/RESTART <server>
 
 This command restarts the local server. A single parameter is
-required, which must match the password in the configuration for the
-command to function.">
+required, which must match the name of the local server.">
 
 <helpop key="commands" value="/COMMANDS
 
