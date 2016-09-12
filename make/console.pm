@@ -57,7 +57,7 @@ sub __console_format($$) {
 sub print_format($;$) {
 	my $message = shift;
 	my $stream = shift // *STDOUT;
-	while ($message =~ /(<\|(\S+)\s(.+?)\|>)/) {
+	while ($message =~ /(<\|(\S+)\s(.*?)\|>)/) {
 		my $formatted = __console_format $2, $3;
 		$message =~ s/\Q$1\E/$formatted/;
 	}
