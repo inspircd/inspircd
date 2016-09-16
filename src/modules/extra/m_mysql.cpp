@@ -19,6 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: execute("mysql_config --include" "MYSQL_CXXFLAGS")
+/// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
+
+/// $PackageInfo: require_system("darwin") mysql-connector-c
+/// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
+
 
 // Fix warnings about the use of `long long` on C++03.
 #if defined __clang__
@@ -36,9 +42,6 @@
 #endif
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
-
-/* $CompileFlags: exec("mysql_config --include") */
-/* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 
 /* THE NONBLOCKING MYSQL API!
  *

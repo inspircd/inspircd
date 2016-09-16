@@ -31,7 +31,7 @@ use warnings FATAL => qw(all);
 use File::Temp();
 
 # IMPORTANT: This script has to be able to run by itself so that it can be used
-#            by binary distributions where the make/utilities.pm module will not
+#            by binary distributions where the make/console.pm module will not
 #            be available!
 
 sub prompt($$) {

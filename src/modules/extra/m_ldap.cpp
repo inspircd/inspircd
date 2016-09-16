@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $LinkerFlags: -llber -lldap_r
+/// $PackageInfo: require_system("ubuntu") libldap2-dev
+
 #include "inspircd.h"
 #include "modules/ldap.h"
 
@@ -26,8 +29,6 @@
 # pragma comment(lib, "libldap_r.lib")
 # pragma comment(lib, "liblber.lib")
 #endif
-
-/* $LinkerFlags: -lldap_r -llber */
 
 class LDAPService;
 

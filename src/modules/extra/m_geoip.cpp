@@ -17,6 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("geoip" "")
+/// $LinkerFlags: find_linker_flags("geoip" "-lGeoIP")
+
+/// $PackageInfo: require_system("darwin") geoip pkg-config
+/// $PackageInfo: require_system("ubuntu") libgeoip-dev pkg-config
 
 #include "inspircd.h"
 #include "xline.h"
@@ -26,8 +31,6 @@
 #ifdef _WIN32
 # pragma comment(lib, "GeoIP.lib")
 #endif
-
-/* $LinkerFlags: -lGeoIP */
 
 class ModuleGeoIP : public Module
 {

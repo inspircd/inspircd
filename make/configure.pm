@@ -38,7 +38,6 @@ use File::Spec::Functions qw(catfile);
 
 use make::common;
 use make::console;
-use make::utilities;
 
 use constant CONFIGURE_DIRECTORY     => '.configure';
 use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
@@ -56,7 +55,6 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  write_configure_cache
                  get_compiler_info
                  find_compiler
-                 get_property
                  parse_templates);
 
 sub __get_socketengines {
@@ -266,21 +264,6 @@ sub find_compiler {
 		return $compiler if __test_compiler $compiler;
 		return "xcrun $compiler" if $^O eq 'darwin' && __test_compiler "xcrun $compiler";
 	}
-}
-
-sub get_property($$;$)
-{
-	my ($file, $property, $default) = @_;
-	open(MODULE, $file) or return $default;
-	while (<MODULE>) {
-		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/) {
-			next unless $1 eq $property;
-			close(MODULE);
-			return translate_functions($2, $file);
-		}
-	}
-	close(MODULE);
-	return $default // '';
 }
 
 sub parse_templates($$$) {

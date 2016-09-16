@@ -20,6 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("gnutls")
+/// $CompilerFlags: require_version("gnutls" "1.0" "2.12") execute("libgcrypt-config --cflags" "LIBGCRYPT_CXXFLAGS")
+
+/// $LinkerFlags: find_linker_flags("gnutls" "-lgnutls")
+/// $LinkerFlags: require_version("gnutls" "1.0" "2.12") execute("libgcrypt-config --libs" "LIBGCRYPT_LDFLAGS")
+
+/// $PackageInfo: require_system("darwin") gnutls pkg-config
+/// $PackageInfo: require_system("ubuntu" "1.0" "13.10") libgcrypt11-dev
+/// $PackageInfo: require_system("ubuntu" "14.04") gnutls-bin libgnutls-dev pkg-config
 
 #include "inspircd.h"
 #include "modules/ssl.h"
@@ -61,9 +70,6 @@
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls-30.lib")
 #endif
-
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
-/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 
 // These don't exist in older GnuTLS versions
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 1, 7)

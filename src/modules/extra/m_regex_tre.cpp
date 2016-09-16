@@ -17,14 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("tre")
+/// $LinkerFlags: find_linker_flags("tre" "-ltre")
+
+/// $PackageInfo: require_system("darwin") pkg-config tre
+/// $PackageInfo: require_system("ubuntu") libtre-dev pkg-config
 
 #include "inspircd.h"
 #include "modules/regex.h"
 #include <sys/types.h>
 #include <tre/regex.h>
-
-/* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
-/* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
 
 class TRERegex : public Regex
 {

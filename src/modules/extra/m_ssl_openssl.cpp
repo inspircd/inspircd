@@ -21,6 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: find_compiler_flags("openssl")
+/// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
+
+/// $PackageInfo: require_system("darwin") openssl pkg-config
+/// $PackageInfo: require_system("ubuntu" "16.04") libssl-dev openssl pkg-config
+
 
 #include "inspircd.h"
 #include "iohook.h"
@@ -45,9 +51,6 @@
 # pragma comment(lib, "ssleay32.lib")
 # pragma comment(lib, "libeay32.lib")
 #endif
-
-/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
-/* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 
 #if ((OPENSSL_VERSION_NUMBER >= 0x10000000L) && (!(defined(OPENSSL_NO_ECDH))))
 // OpenSSL 0.9.8 includes some ECC support, but it's unfinished. Enable only for 1.0.0 and later.

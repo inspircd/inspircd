@@ -16,8 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $LinkerFlags: -lmbedtls
 
-/* $LinkerFlags: -lmbedtls */
+/// $PackageInfo: require_system("darwin") mbedtls
+/// $PackageInfo: require_system("ubuntu" "16.04") libmbedtls-dev
+
 
 #include "inspircd.h"
 #include "modules/ssl.h"
