@@ -80,6 +80,13 @@ sub execute_functions($$$) {
 	return $line;
 }
 
+sub __environment {
+	my ($prefix, $suffix) = @_;
+	$suffix =~ s/[-.]/_/g;
+	$suffix =~ s/[^A-Za-z0-9_]//g;
+	return $prefix . uc $suffix;
+}
+
 sub __error {
 	my ($file, @message) = @_;
 	push @message, '';
@@ -142,7 +149,7 @@ sub __function_execute {
 
 	# If looking up with pkg-config fails then check the environment...
 	if (defined $environment && $environment ne '') {
-		$environment = sprintf('INSPIRCD_%s', uc $environment);
+		$environment = __environment 'INSPIRCD_', $environment;
 		if (defined $ENV{$environment}) {
 			print_format "Execution of `<|GREEN $command|>` failed; using the environment: <|BOLD $ENV{$environment}|>\n";
 			return $ENV{$environment};
@@ -170,7 +177,7 @@ sub __function_find_compiler_flags {
 	}
 
 	# If looking up with pkg-config fails then check the environment...
-	my $key = sprintf('INSPIRCD_CXXFLAGS_%s', uc $name);
+	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
 		print_format "Found the compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
@@ -197,7 +204,7 @@ sub __function_find_linker_flags {
 	}
 
 	# If looking up with pkg-config fails then check the environment...
-	my $key = sprintf('INSPIRCD_LDFLAGS_%s', uc $name);
+	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
 		print_format "Found the linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
