@@ -82,9 +82,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 	// Pad with spaces until its at max len, max_len must always be >= my names length
 	buffer.append(max_len - current->GetName().length(), ' ');
 
-	char buf[16];
-	snprintf(buf, sizeof(buf), "%5d [%5.2f%%]", current->UserCount, percent);
-	buffer += buf;
+	buffer += InspIRCd::Format("%5d [%5.2f%%]", current->UserCount, percent);
 
 	if (user->IsOper())
 	{
