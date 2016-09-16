@@ -24,6 +24,7 @@
 /// $CompilerFlags: -Iexecute("pg_config --includedir" "POSTGRESQL_INCLUDE_DIR")
 /// $LinkerFlags: -Lexecute("pg_config --libdir" "POSTGRESQL_LIBRARY_DIR") -lpq
 
+/// $PackageInfo: require_system("centos") postgresql-devel
 /// $PackageInfo: require_system("darwin") postgresql
 /// $PackageInfo: require_system("ubuntu") libpq-dev
 

@@ -18,6 +18,8 @@
  */
 
 /// $LinkerFlags: -llber -lldap_r
+
+/// $PackageInfo: require_system("centos") openldap-devel
 /// $PackageInfo: require_system("ubuntu") libldap2-dev
 
 #include "inspircd.h"

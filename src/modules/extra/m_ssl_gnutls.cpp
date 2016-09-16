@@ -26,6 +26,7 @@
 /// $LinkerFlags: find_linker_flags("gnutls" "-lgnutls")
 /// $LinkerFlags: require_version("gnutls" "1.0" "2.12") execute("libgcrypt-config --libs" "LIBGCRYPT_LDFLAGS")
 
+/// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
 /// $PackageInfo: require_system("ubuntu" "1.0" "13.10") libgcrypt11-dev
 /// $PackageInfo: require_system("ubuntu" "14.04") gnutls-bin libgnutls-dev pkg-config
