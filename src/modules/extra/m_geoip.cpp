@@ -26,6 +26,13 @@
 #include "inspircd.h"
 #include "xline.h"
 
+// Fix warnings about the use of commas at end of enumerator lists on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-extensions"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-pedantic"
+#endif
+
 #include <GeoIP.h>
 
 #ifdef _WIN32
