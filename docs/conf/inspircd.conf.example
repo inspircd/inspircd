@@ -537,6 +537,10 @@
          # to this value.
          #fixedpart=""
 
+         # legacymode: If enabled then new features which might conflict when linking to
+         # older servers are disabled by default.
+         legacymode="no"
+
          # syntaxhints: If enabled, if a user fails to send the correct parameters
          # for a command, the ircd will give back some help text of what
          # the correct parameters are.

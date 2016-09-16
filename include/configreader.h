@@ -438,6 +438,9 @@ class CoreExport ServerConfig
 	 */
 	bool CycleHostsFromUser;
 
+	/** Whether we need to maintain feature compatibility with 2.0 */
+	bool LegacyMode;
+
 	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
 	 * for who set the topic last. If false, only the nick is shown.
 	 */

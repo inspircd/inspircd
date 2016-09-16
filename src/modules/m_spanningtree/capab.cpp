@@ -235,6 +235,12 @@ bool TreeSocket::Capab(const parameterlist &params)
 		if (params.size() > 1)
 			proto_version = ConvToInt(params[1]);
 
+		if (!ServerInstance->Config->LegacyMode && proto_version < 1205)
+		{
+			SendError("CAPAB negotiation failed: <options:legacymode> is disabled on this server!");
+			return false;
+		}
+
 		if (proto_version < MinCompatProtocol)
 		{
 			SendError("CAPAB negotiation failed: Server is using protocol version " + (proto_version ? ConvToStr(proto_version) : "1201 or older")
