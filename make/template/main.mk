@@ -123,9 +123,9 @@ FOOTER = finishmessage
   CORECXXFLAGS += -DINSPIRCD_STATIC
 @ENDIF
 
-# Add the users CXXFLAGS to the base ones to allow them to override
-# things like -Wfatal-errors if they wish to.
-CORECXXFLAGS += $(CXXFLAGS)
+# Add the users CPPFLAGS/CXXFLAGS to the base ones to allow them to
+# override things like -Wfatal-errors if they wish to.
+CORECXXFLAGS += $(CPPFLAGS) $(CXXFLAGS)
 
 @DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS INSPIRCD_VERBOSE SOCKETENGINE CORELDFLAGS
 @DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
