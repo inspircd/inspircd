@@ -2035,7 +2035,7 @@
 #<module name="xline_db">
 
 # Specify the filename for the xline database here.
-#<xlinedb filename="data/xline.db">
+#<xlinedb filename="xline.db">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
