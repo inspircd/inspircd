@@ -20,7 +20,7 @@
 /// $LinkerFlags: find_linker_flags("icu-uc" "-licuuc -licudata")
 
 /// $PackageInfo: require_system("darwin") icu4c pkg-config
-/// $PackageInfo: require_system("ubuntu") libicu-dev pkg-config 
+/// $PackageInfo: require_system("ubuntu") libicu-dev pkg-config
 
 #include "inspircd.h"
 #include "caller.h"
@@ -37,12 +37,16 @@
 class ModuleUTF8 : public Module, public HandlerBase1<bool, const std::string&>
 {
     caller1<bool, const std::string&> rememberer;
-    USet *validCharacters = NULL;
+	USet* validCharacters;
     std::vector<UChar> unicodeStringBuf;
 
 public:
     ModuleUTF8()
-            : rememberer(ServerInstance->IsNick) { }
+		: rememberer(ServerInstance->IsNick)
+		, validCharacters(NULL)
+	{
+	}
+
     //Check if Nick is valid using the current codepage
     bool Call(const std::string& nick)
     {
