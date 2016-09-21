@@ -50,10 +50,10 @@ public:
     //Check if Nick is valid using the current codepage
     bool Call(const std::string& nick)
     {
-        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Checking nick %s validity",nick.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Checking nick \"%s\" validity", nick.c_str());
 
         //Nick length should be handled as per standard ASCII ? Not sure if this should be done pre or post conversion
-        if(nick.length() > ServerInstance->Config->Limits.NickMax)
+		if ((nick.empty()) || (nick.length() > ServerInstance->Config->Limits.NickMax))
         {
             return false;
         }
