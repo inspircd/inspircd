@@ -311,6 +311,13 @@ class ModuleIdent : public Module
 		if (!tag->getBool("useident", true))
 			return;
 
+		std::string forcedident = tag->getString("forceident");
+		if (!forcedident.empty())
+		{
+			user->ident = forcedident;
+			return;
+		}
+
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 
 		try

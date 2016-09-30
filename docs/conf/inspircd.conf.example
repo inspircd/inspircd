@@ -272,6 +272,9 @@
          # useident: Defines if users in this class MUST respond to a ident query or not.
          useident="no"
 
+         # forceident: Defines the ident which all users in this class will get
+         forceident=""
+
          # limit: How many users are allowed in this class
          limit="5000"
 
