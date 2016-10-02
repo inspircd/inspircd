@@ -90,41 +90,33 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
 	}
 
-	if (!IS_LOCAL(target))
+	if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 	{
-		// remote kill
-		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
+		if (IS_LOCAL(user) && IS_LOCAL(target))
+			ServerInstance->SNO->WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+		else
 			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
-		this->lastuuid = target->uuid;
-
-		if (IS_LOCAL(user))
-			ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "REMOTE KILL: %s :%s!%s!%s (%s)",
-					target->nick.c_str(),
-					ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(),
-					parameters[1].c_str());
 	}
-	else
-	{
-		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
-		{
-			if (IS_LOCAL(user))
-				ServerInstance->SNO->WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
-			else
-				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
-		}
 
+	if (IS_LOCAL(user) || IS_LOCAL(target))
 		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "%s KILL: %s :%s!%s!%s (%s)",
-				IS_LOCAL(user) ? "LOCAL" : "REMOTE",
+				IS_LOCAL(user) && IS_LOCAL(target) ? "LOCAL" : "REMOTE",
 				target->nick.c_str(),
 				ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(),
 				parameters[1].c_str());
 
+	if (IS_LOCAL(target))
+	{
 		target->Write(":%s KILL %s :%s",
 				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 				target->nick.c_str(),
 				parameters[1].c_str());
 
 		this->lastuuid.clear();
+	}
+	else
+	{
+		this->lastuuid = target->uuid;
 	}
 
 	// send the quit out
