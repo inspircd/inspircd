@@ -43,8 +43,8 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	User *u = ServerInstance->FindNick(parameters[0]);
-	if (!u)
+	User* target = ServerInstance->FindNick(parameters[0]);
+	if (!target)
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 		return CMD_FAILURE;
@@ -65,7 +65,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		 * and the other half not. This would be a bad thing. ;p -- w00t
 		 */
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, u, parameters[1]));
+		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, target, parameters[1]));
 
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
@@ -94,12 +94,12 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	 * Now we need to decide whether or not to send a local or remote snotice. Currently this checking is a little flawed.
 	 * No time to fix it right now, so left a note. -- w00t
 	 */
-	if (!IS_LOCAL(u))
+	if (!IS_LOCAL(target))
 	{
 		// remote kill
 		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
-			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-		this->lastuuid = u->uuid;
+			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+		this->lastuuid = target->uuid;
 	}
 	else
 	{
@@ -111,23 +111,23 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 		{
 			if (IS_LOCAL(user))
-				ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+				ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+				ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 		}
 
-		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
+		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", target->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
 
-		u->Write(":%s KILL %s :%s",
+		target->Write(":%s KILL %s :%s",
 				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-				u->nick.c_str(),
+				target->nick.c_str(),
 				parameters[1].c_str());
 
 		this->lastuuid.clear();
 	}
 
 	// send the quit out
-	ServerInstance->Users->QuitUser(u, killreason);
+	ServerInstance->Users->QuitUser(target, killreason);
 
 	return CMD_SUCCESS;
 }
