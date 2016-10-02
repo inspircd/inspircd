@@ -118,11 +118,9 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 
 		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
 
-		u->Write(":%s KILL %s :%s!%s!%s (%s)", ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
+		u->Write(":%s KILL %s :%s",
+				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 				u->nick.c_str(),
-				ServerInstance->Config->ServerName.c_str(),
-				ServerInstance->Config->HideKillsServer.empty() ? user->dhost.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-				ServerInstance->Config->HideKillsServer.empty() ? user->nick.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 				parameters[1].c_str());
 
 		this->lastuuid.clear();
