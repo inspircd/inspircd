@@ -90,10 +90,6 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
 	}
 
-	/*
-	 * Now we need to decide whether or not to send a local or remote snotice. Currently this checking is a little flawed.
-	 * No time to fix it right now, so left a note. -- w00t
-	 */
 	if (!IS_LOCAL(target))
 	{
 		// remote kill
@@ -103,17 +99,12 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		// local kill
-		/*
-		 * XXX - this isn't entirely correct, servers A - B - C, oper on A, client on C. Oper kills client, A and B will get remote kill
-		 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
-		 */
 		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 		{
 			if (IS_LOCAL(user))
-				ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+				ServerInstance->SNO->WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 		}
 
 		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", target->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
