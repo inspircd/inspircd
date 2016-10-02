@@ -96,6 +96,12 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
 			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 		this->lastuuid = target->uuid;
+
+		if (IS_LOCAL(user))
+			ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "REMOTE KILL: %s :%s!%s!%s (%s)",
+					target->nick.c_str(),
+					ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(),
+					parameters[1].c_str());
 	}
 	else
 	{
@@ -107,7 +113,11 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 		}
 
-		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", target->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
+		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "%s KILL: %s :%s!%s!%s (%s)",
+				IS_LOCAL(user) ? "LOCAL" : "REMOTE",
+				target->nick.c_str(),
+				ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(),
+				parameters[1].c_str());
 
 		target->Write(":%s KILL %s :%s",
 				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
