@@ -213,7 +213,7 @@ class ModuleHttpStats : public Module
 					data << "<server>";
 					data << "<servername>" << b->servername << "</servername>";
 					data << "<parentname>" << b->parentname << "</parentname>";
-					data << "<gecos>" << b->gecos << "</gecos>";
+					data << "<gecos>" << Sanitize(b->gecos) << "</gecos>";
 					data << "<usercount>" << b->usercount << "</usercount>";
 // This is currently not implemented, so, commented out.
 //					data << "<opercount>" << b->opercount << "</opercount>";
