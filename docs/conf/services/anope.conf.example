@@ -1,0 +1,9 @@
+# This file contains aliases and nickname reservations which are used
+# by Anope. See https://www.anope.org/ for more information on Anope.
+
+# This file inherits from the generic config to avoid repetition.
+<include file="examples/services/generic.conf.example">
+
+# /GLOBAL <message>
+# Sends a global notice.
+<alias text="GLOBAL" format="*" replace="PRIVMSG $requirement :GLOBAL $2-" requires="Global" uline="yes" operonly="yes">

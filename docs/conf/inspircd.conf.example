@@ -867,11 +867,7 @@
          nick="ChanServ"
 
          # reason: Reason to display on /nick.
-         reason="Reserved For Services">
-
-<badnick nick="NickServ" reason="Reserved For Services">
-<badnick nick="OperServ" reason="Reserved For Services">
-<badnick nick="MemoServ" reason="Reserved For Services">
+         reason="Reserved for a network service">
 
 <badhost
          # host: ident@hostname to ban.
@@ -959,6 +955,20 @@
 # Settings similar to Charybdis IRCd defaults.
 #<include file="examples/modules/charybdis.conf.example">
 
+#-#-#-#-#-#-#-#-#-#-#-# SERVICES CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you use services you will probably want to include one of the    #
+# following files which set up aliases, nick reservations and filter  #
+# exemptions for services pseudoclients:                              #
+#
+# Anope users should uncomment this:
+#<include file="examples/services/anope.conf.example">
+#
+# Atheme users should uncomment this:
+#<include file="examples/services/atheme.conf.example">
+#
+# Users of other services should uncomment this:
+#<include file="examples/services/generic.conf.example">
 
 #########################################################################
 #                                                                       #

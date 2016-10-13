@@ -1,0 +1,52 @@
+# This file contains aliases and nickname reservations which are used
+# by Atheme. See http://atheme.net for more information on Atheme.
+
+# This file inherits from the generic config to avoid repetition.
+<include file="examples/services/generic.conf.example">
+
+# Long hand aliases for services pseudoclients.
+<alias text="ALIS"      replace="PRIVMSG $requirement :$2-" requires="ALIS"      uline="yes">
+<alias text="CHANFIX"   replace="PRIVMSG $requirement :$2-" requires="ChanFix"   uline="yes">
+<alias text="GAMESERV"  replace="PRIVMSG $requirement :$2-" requires="GameServ"  uline="yes">
+<alias text="GLOBAL"    replace="PRIVMSG $requirement :$2-" requires="Global"    uline="yes" operonly="yes">
+<alias text="GROUPSERV" replace="PRIVMSG $requirement :$2-" requires="GroupServ" uline="yes">
+<alias text="HELPSERV"  replace="PRIVMSG $requirement :$2-" requires="HelpServ"  uline="yes">
+<alias text="INFOSERV"  replace="PRIVMSG $requirement :$2-" requires="GroupServ" uline="yes">
+<alias text="PROXYSCAN" replace="PRIVMSG $requirement :$2-" requires="Proxyscan" uline="yes" operonly="yes">
+<alias text="RPGSERV"   replace="PRIVMSG $requirement :$2-" requires="RPGServ"   uline="yes">
+
+# Short hand aliases for services pseudoclients.
+<alias text="CF" replace="PRIVMSG $requirement :$2-" requires="ChanFix"   uline="yes">
+<alias text="GL" replace="PRIVMSG $requirement :$2-" requires="Global"    uline="yes" operonly="yes">
+<alias text="GS" replace="PRIVMSG $requirement :$2-" requires="GroupServ" uline="yes">
+<alias text="IS" replace="PRIVMSG $requirement :$2-" requires="InfoServ"  uline="yes">
+<alias text="LS" replace="PRIVMSG $requirement :$2-" requires="ALIS"      uline="yes">
+<alias text="PS" replace="PRIVMSG $requirement :$2-" requires="Proxyscan" uline="yes" operonly="yes">
+<alias text="RS" replace="PRIVMSG $requirement :$2-" requires="RPGServ"   uline="yes">
+
+# These short hand aliases conflict with other pseudoclients. You can enable
+# them but you will need to comment out the uncommented ones above first,
+#<alias text="GS" replace="PRIVMSG $requirement :$2-" requires="GameServ" uline="yes">
+#<alias text="HS" replace="PRIVMSG $requirement :$2-" requires="HelpServ" uline="yes">
+
+# Prevent clients from using the nicknames of services pseudoclients.
+<badnick nick="ALIS"      reason="Reserved for a network service">
+<badnick nick="ChanFix"   reason="Reserved for a network service">
+<badnick nick="GameServ"  reason="Reserved for a network service">
+<badnick nick="GroupServ" reason="Reserved for a network service">
+<badnick nick="HelpServ"  reason="Reserved for a network service">
+<badnick nick="InfoServ"  reason="Reserved for a network service">
+<badnick nick="Proxyscan" reason="Reserved for a network service">
+<badnick nick="RPGServ"   reason="Reserved for a network service">
+<badnick nick="SaslServ"  reason="Reserved for a network service">
+
+# Exempt services pseudoclients from filters.
+<exemptfromfilter target="ALIS">
+<exemptfromfilter target="ChanFix">
+<exemptfromfilter target="GameServ">
+<exemptfromfilter target="GroupServ">
+<exemptfromfilter target="HelpServ">
+<exemptfromfilter target="InfoServ">
+<exemptfromfilter target="Proxyscan">
+<exemptfromfilter target="RPGServ">
+<exemptfromfilter target="SaslServ">

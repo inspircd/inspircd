@@ -1,0 +1,45 @@
+# This file contains aliases and nickname reservations which are used
+# by all common services implementations.
+
+# Long hand aliases for services pseudoclients.
+<alias text="BOTSERV"  replace="PRIVMSG $requirement :$2-" requires="BotServ"  uline="yes">
+<alias text="CHANSERV" replace="PRIVMSG $requirement :$2-" requires="ChanServ" uline="yes">
+<alias text="HOSTSERV" replace="PRIVMSG $requirement :$2-" requires="HostServ" uline="yes">
+<alias text="MEMOSERV" replace="PRIVMSG $requirement :$2-" requires="MemoServ" uline="yes">
+<alias text="NICKSERV" replace="PRIVMSG $requirement :$2-" requires="NickServ" uline="yes">
+<alias text="OPERSERV" replace="PRIVMSG $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
+<alias text="STATSERV" replace="PRIVMSG $requirement :$2-" requires="StatServ" uline="yes">
+
+# Short hand aliases for services pseudoclients.
+<alias text="BS" replace="PRIVMSG $requirement :$2-" requires="BotServ"  uline="yes">
+<alias text="CS" replace="PRIVMSG $requirement :$2-" requires="ChanServ" uline="yes">
+<alias text="HS" replace="PRIVMSG $requirement :$2-" requires="HostServ" uline="yes">
+<alias text="MS" replace="PRIVMSG $requirement :$2-" requires="MemoServ" uline="yes">
+<alias text="NS" replace="PRIVMSG $requirement :$2-" requires="NickServ" uline="yes">
+<alias text="OS" replace="PRIVMSG $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
+<alias text="SS" replace="PRIVMSG $requirement :$2-" requires="StatServ" uline="yes">
+
+# /ID [account] <password>
+# Identifies to a services account.
+<alias text="ID"       format="*" replace="PRIVMSG $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+<alias text="IDENTIFY" format="*" replace="PRIVMSG $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+
+# Prevent clients from using the nicknames of services pseudoclients.
+<badnick nick="BotServ"  reason="Reserved for a network service">
+<badnick nick="ChanServ" reason="Reserved for a network service">
+<badnick nick="Global"   reason="Reserved for a network service">
+<badnick nick="HostServ" reason="Reserved for a network service">
+<badnick nick="MemoServ" reason="Reserved for a network service">
+<badnick nick="NickServ" reason="Reserved for a network service">
+<badnick nick="OperServ" reason="Reserved for a network service">
+<badnick nick="StatServ" reason="Reserved for a network service">
+
+# Exempt services pseudoclients from filters.
+<exemptfromfilter target="BotServ">
+<exemptfromfilter target="ChanServ">
+<exemptfromfilter target="Global">
+<exemptfromfilter target="HostServ">
+<exemptfromfilter target="MemoServ">
+<exemptfromfilter target="NickServ">
+<exemptfromfilter target="OperServ">
+<exemptfromfilter target="StatServ">
