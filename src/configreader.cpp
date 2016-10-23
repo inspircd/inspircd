@@ -328,6 +328,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->limit = tag->getInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 
+			std::string ports = tag->getString("port");
+			if (!ports.empty())
+			{
+				irc::portparser portrange(ports, false);
+				while (int port = portrange.GetToken())
+					me->ports.insert(port);
+			}
+
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
 			{

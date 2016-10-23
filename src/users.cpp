@@ -1096,14 +1096,14 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			}
 
 			/* if it requires a port ... */
-			int port = c->config->getInt("port");
-			if (port)
+			if (!c->ports.empty())
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires port (%d)", port);
-
 				/* and our port doesn't match, fail. */
-				if (this->GetServerPort() != port)
+				if (!c->ports.count(this->GetServerPort()))
+				{
+					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
 					continue;
+				}
 			}
 
 			if (regdone && !c->config->getString("password").empty())
@@ -1171,7 +1171,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
 	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
 	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxconnwarn(parent.maxconnwarn), maxchans(parent.maxchans),
-	limit(parent.limit), resolvehostnames(parent.resolvehostnames)
+	limit(parent.limit), resolvehostnames(parent.resolvehostnames), ports(parent.ports)
 {
 }
 
@@ -1195,4 +1195,5 @@ void ConnectClass::Update(const ConnectClass* src)
 	maxchans = src->maxchans;
 	limit = src->limit;
 	resolvehostnames = src->resolvehostnames;
+	ports = src->ports;
 }
