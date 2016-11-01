@@ -135,6 +135,11 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	bool resolvehostnames;
 
+	/**
+	 * If non-empty the server ports which this user has to be using
+	 */
+	insp::flat_set<int> ports;
+
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
