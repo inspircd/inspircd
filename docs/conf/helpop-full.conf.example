@@ -410,7 +410,7 @@ This command returns the number of local and global clients matched,
 and the percentage of clients matched, plus how they were matched
 (by IP address or by hostname).">
 
-<helpop key="lockserv" value="/LOCKSERV
+<helpop key="lockserv" value="/LOCKSERV :[<message>]
 
 Locks out all new connections notifying connecting users that the
 service is temporarily closed and to try again later.">
