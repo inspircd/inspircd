@@ -1007,8 +1007,11 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
-# Closes the channel for 60 seconds if X users join in Y seconds.
+# Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
+#
+# The number of seconds to close the channel for:
+#<joinflood duration="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Jump server module: Adds support for the RPL_REDIR numeric.
@@ -1215,6 +1218,9 @@
 # Nickchange flood protection module: Provides channel mode +F X:Y
 # which allows up to X nick changes in Y seconds.
 #<module name="nickflood">
+#
+# The number of seconds to prevent nick changes for:
+#<nickflood duration="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
