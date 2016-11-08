@@ -28,6 +28,7 @@
 
 BEGIN {
 	require 5.8.0;
+	push @INC, '.';
 }
 
 use strict;
