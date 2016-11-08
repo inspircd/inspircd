@@ -37,9 +37,11 @@ use warnings FATAL => qw(all);
 use File::Basename        qw(basename);
 use File::Copy            ();
 use File::Spec::Functions qw(rel2abs);
+use FindBin               qw($RealDir);
 use Getopt::Long          qw(GetOptions);
 use POSIX                 qw(getgid getuid);
 
+use lib $RealDir;
 use make::common;
 use make::configure;
 use make::console;
