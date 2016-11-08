@@ -25,6 +25,7 @@ use warnings FATAL => qw(all);
 use make::configure;
 
 BEGIN {
+	push @INC, '.';
 	unless (module_installed("LWP::Simple")) {
 		die "Your system is missing the LWP::Simple Perl module!";
 	}
