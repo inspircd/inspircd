@@ -301,9 +301,9 @@
          #   \017 or \x = Stop all color sequences
          allowmotdcolors="false"
 
-         # port: What port this user is allowed to connect on. (optional)
-         # The port MUST be set to listen in the bind blocks above.
-         port="6697">
+         # port: What port range this user is allowed to connect on. (optional)
+         # The ports MUST be set to listen in the bind blocks above.
+         port="6697,9999">
 
 <connect
          # name: Name to use for this connect block. Mainly used for
