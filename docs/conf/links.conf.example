@@ -36,13 +36,15 @@
       # failover (see above).
       timeout="300"
 
-      # ssl: If defined, this states the SSL module that will be used when
-      # making an outbound connection to the server. Options are: "openssl"
-      # and "gnutls" (they are compatible with each other).
+      # ssl: If defined, this states the SSL profile that will be used when
+      # making an outbound connection to the server. Options are the name of an
+      # <sslprofile> tag that you have defined or one of "openssl", "gnutls",
+      # "mbedtls" if you have not defined any. See the wiki page for the SSL
+      # module you are using for more details.
       #
-      # You will need to load the ssl_openssl module for OpenSSL,
-      # or ssl_gnutls for GnuTLS. The server port that you connect to
-      # must be capable of accepting this type of connection.
+      # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
+      # for GnuTLS and ssl_mbedtls for mbedTLS. The server port that you
+      # connect to must be capable of accepting this type of connection.
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be

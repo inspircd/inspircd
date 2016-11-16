@@ -152,10 +152,13 @@
       # to this bind section.
       type="clients"
 
-      # ssl: If you want the port(s) in this bind tag to use SSL, set this
-      # to either "gnutls" or "openssl". The appropriate SSL module must be
-      # loaded for SSL to work. If you do not want the port(s) in this bind
-      # tag to support SSL, just remove or comment out this option.
+      # ssl: If you want the port(s) in this bind tag to use SSL, set this to
+      # the name of a custom <sslprofile> tag that you have defined or one
+      # of "openssl", "gnutls", "mbedtls" if you have not defined any. See the
+      # wiki page for the SSL module you are using for more details.
+      #
+      # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
+      # for GnuTLS and ssl_mbedtls for mbedTLS.
       ssl="gnutls"
 
       # defer: When this is non-zero, connections will not be handed over to
@@ -177,11 +180,19 @@
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
 
-# When linking servers, the OpenSSL and GnuTLS implementations are completely
-# link-compatible and can be used alongside each other
-# on each end of the link without any significant issues.
-# Supported SSL types are: "openssl" and "gnutls".
-# You must load the ssl_openssl module for OpenSSL or ssl_gnutls for GnuTLS.
+# You can define a custom <sslprofile> tag which defines the SSL configuration
+# for this listener. See the wiki page for the SSL module you are using for
+# more details.
+#
+# Alternatively, you can use one of the default SSL profiles which are created
+# when you have not defined any:
+#   "openssl" (requires the ssl_openssl module)
+#   "gnutls" (requires the ssl_gnutls module)
+#   "mbedtls" (requires the ssl_mbedtls module)
+#
+# When linking servers, the OpenSSL, GnuTLS, and mbedTLS implementations are
+# completely link-compatible and can be used alongside each other on each end
+# of the link without any significant issues.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
