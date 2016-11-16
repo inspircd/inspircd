@@ -54,6 +54,20 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	}
 #endif
 
+	if (tag->getBool("free"))
+	{
+		socklen_t enable = 1;
+#if defined IP_FREEBIND // Linux 2.4+
+		setsockopt(fd, SOL_IP, IP_FREEBIND, &enable, sizeof(enable));
+#elif defined IP_BINDANY // FreeBSD
+		setsockopt(fd, IPPROTO_IP, IP_BINDANY, &enable, sizeof(enable));
+#elif defined SO_BINDANY // NetBSD/OpenBSD
+		setsockopt(fd, SOL_SOCKET, SO_BINDANY, &enable, sizeof(enable));
+#else
+		(void)enable;
+#endif
+	}
+
 	SocketEngine::SetReuse(fd);
 	int rv = SocketEngine::Bind(this->fd, bind_to);
 	if (rv >= 0)

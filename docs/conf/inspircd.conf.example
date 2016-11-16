@@ -171,6 +171,12 @@
       # To change it on a running bind, you'll have to comment it out,
       # rehash, comment it in and rehash again.
       defer="0"
+
+      # free: When this is enabled the listener will be created regardless of
+      # whether the interface that provides the bind address is available. This
+      # is useful for if you are starting InspIRCd on boot when the server may
+      # not have brought the network interfaces up yet.
+      free="no"
 >
 
 <bind address="" port="6660-6669" type="clients">
