@@ -271,7 +271,7 @@ class ModuleAlias : public Module
 
 		if (crlf == std::string::npos)
 		{
-			DoCommand(a->ReplaceFormat, user, c, safe);
+			DoCommand(a->ReplaceFormat, user, c, safe, a);
 			return 1;
 		}
 		else
@@ -280,13 +280,13 @@ class ModuleAlias : public Module
 			std::string scommand;
 			while (commands.GetToken(scommand))
 			{
-				DoCommand(scommand, user, c, safe);
+				DoCommand(scommand, user, c, safe, a);
 			}
 			return 1;
 		}
 	}
 
-	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
+	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line, Alias* a)
 	{
 		std::string result;
 		result.reserve(newline.length());
@@ -327,6 +327,11 @@ class ModuleAlias : public Module
 				{
 					result.append(user->dhost);
 					i += 5;
+				}
+				else if (!newline.compare(i, 12, "$requirement", 12))
+				{
+					result.append(a->RequiredNick);
+					i += 11;
 				}
 				else
 					result.push_back(c);

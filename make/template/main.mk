@@ -218,8 +218,8 @@ install: target
 	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(DATPATH)
 	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/services
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
@@ -238,9 +238,9 @@ install: target
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example $(CONPATH)/examples/modules
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/services/*.example $(CONPATH)/examples/services
+	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"

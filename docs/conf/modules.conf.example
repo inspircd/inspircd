@@ -135,18 +135,6 @@
 #                    If a non-oper attempts to use the alias, it will #
 #                    appear to not exist.                             #
 #                                                                     #
-#<alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
-#<alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
-#<alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
-#<alias text="BOTSERV" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
-#<alias text="HOSTSERV" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
-#<alias text="MEMOSERV" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
-#<alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
-#<alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
-#<alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
-#<alias text="BS" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
-#<alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
-#<alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 #
 # An example of using the format value to create an alias with two
 # different behaviours depending on the format of the parameters.
@@ -159,8 +147,7 @@
 #
 # This alias fixes a glitch in xchat 2.6.x and above and the way it
 # assumes IDENTIFY must be prefixed by a colon (:) character. It should
-# be placed ABOVE the default NICKSERV alias (the first example) listed
-# above.
+# be placed ABOVE the default NICKSERV alias.
 #
 #<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
 #  requires="NickServ" uline="yes">
