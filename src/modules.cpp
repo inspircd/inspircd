@@ -139,6 +139,8 @@ ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNu
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Membership*, Numeric::Numeric&) { DetachEvent(I_OnSendWhoLine); return MOD_RES_PASSTHRU; }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
+void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
+void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
 
 #ifdef INSPIRCD_ENABLE_TESTSUITE
 void		Module::OnRunTestSuite() { }
@@ -547,11 +549,13 @@ void ModuleManager::AddService(ServiceProvider& item)
 				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
 			}
 			dynamic_reference_base::reset_all();
-			return;
+			break;
 		}
 		default:
 			item.RegisterService();
 	}
+
+	FOREACH_MOD(OnServiceAdd, (item));
 }
 
 void ModuleManager::DelService(ServiceProvider& item)
@@ -571,6 +575,8 @@ void ModuleManager::DelService(ServiceProvider& item)
 		default:
 			throw ModuleException("Cannot delete unknown service type");
 	}
+
+	FOREACH_MOD(OnServiceDel, (item));
 }
 
 ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string& name)

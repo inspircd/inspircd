@@ -180,71 +180,35 @@ class ModulePBKDF2 : public Module
 		stdalgo::delete_all(providers);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void OnServiceAdd(ServiceProvider& provider) CXX11_OVERRIDE
 	{
-		OnLoadModule(NULL);
+		// Check if it's a hash provider
+		if (provider.name.compare(0, 5, "hash/"))
+			return;
+
+		HashProvider* hp = static_cast<HashProvider*>(&provider);
+		if (hp->IsKDF())
+			return;
+
+		PBKDF2Provider* prov = new PBKDF2Provider(this, hp);
+		providers.push_back(prov);
+		ServerInstance->Modules.AddService(*prov);
+
+		GetConfig();
 	}
 
-	void OnLoadModule(Module* mod) CXX11_OVERRIDE
+	void OnServiceDel(ServiceProvider& prov) CXX11_OVERRIDE
 	{
-		bool newProv = false;
-		// As the module doesn't tell us what ServiceProviders it has, let's iterate all (yay ...) the ServiceProviders
-		// Good thing people don't run loading and unloading those all the time
-		for (std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.begin(); i != ServerInstance->Modules->DataProviders.end(); ++i)
-		{
-			ServiceProvider* provider = i->second;
-
-			// Does the service belong to the new mod?
-			// In the case this is our first run (mod == NULL, continue anyway)
-			if (mod && provider->creator != mod)
-				continue;
-
-			// Check if it's a hash provider
-			if (provider->name.compare(0, 5, "hash/"))
-				continue;
-
-			HashProvider* hp = static_cast<HashProvider*>(provider);
-
-			if (hp->IsKDF())
-				continue;
-
-			bool has_prov = false;
-			for (std::vector<PBKDF2Provider*>::const_iterator j = providers.begin(); j != providers.end(); ++j)
-			{
-				if ((*j)->provider == hp)
-				{
-					has_prov = true;
-					break;
-				}
-			}
-			if (has_prov)
-				continue;
-
-			newProv = true;
-
-			PBKDF2Provider* prov = new PBKDF2Provider(this, hp);
-			providers.push_back(prov);
-			ServerInstance->Modules->AddService(*prov);
-		}
-
-		if (newProv)
-			GetConfig();
-	}
-
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
-	{
-		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); )
+		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
 		{
 			PBKDF2Provider* item = *i;
-			if (item->provider->creator != mod)
-			{
-				++i;
+			if (item->provider != &prov)
 				continue;
-			}
 
 			ServerInstance->Modules->DelService(*item);
 			delete item;
-			i = providers.erase(i);
+			providers.erase(i);
+			break;
 		}
 	}
 
