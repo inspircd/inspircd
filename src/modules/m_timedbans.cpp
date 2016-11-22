@@ -117,11 +117,13 @@ class CommandTban : public Command
 		T.chan = channel;
 		TimedBanList.push_back(T);
 
+		const std::string addban = user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.";
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 		ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		channel->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
+		channel->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, tmp, "NOTICE %s :%s", channel->name.c_str(), addban.c_str());
+		ServerInstance->PI->SendChannelNotice(channel, pfxchar, addban);
 		return CMD_SUCCESS;
 	}
 
@@ -207,9 +209,13 @@ class ModuleTimedBans : public Module
 				setban.push_back(mask);
 
 				CUList empty;
-				std::string expiry = "*** Timed ban on " + chan + " expired.";
-				cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
-				ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
+				const std::string expiry = "*** Timed ban on " + chan + " expired.";
+				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+				ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+
+				cr->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+				ServerInstance->PI->SendChannelNotice(cr, pfxchar, expiry);
 
 				ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
 			}
