@@ -25,7 +25,7 @@
 #include "exitcodes.h"
 #include "socketengine.h"
 #include <sys/epoll.h>
-#include <ulimit.h>
+#include <sys/resource.h>
 #include <iostream>
 #define EP_DELAY 5
 
@@ -55,10 +55,11 @@ public:
 EPollEngine::EPollEngine()
 {
 	CurrentSetSize = 0;
-	int max = ulimit(4, 0);
-	if (max > 0)
+
+	struct rlimit limit;
+	if (!getrlimit(RLIMIT_NOFILE, &limit))
 	{
-		MAX_DESCRIPTORS = max;
+		MAX_DESCRIPTORS = limit.rlim_cur;
 	}
 	else
 	{
