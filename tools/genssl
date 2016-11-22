@@ -45,7 +45,7 @@ sub prompt($$) {
 }
 
 if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
-	say 'Syntax: genssl <auto|gnutls|openssl>';
+	say STDERR "Usage: $0 <auto|gnutls|openssl>";
 	exit 1;
 }
 
