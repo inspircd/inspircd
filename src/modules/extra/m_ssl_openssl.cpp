@@ -59,7 +59,7 @@
 #endif
 
 // BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0 and older.
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
 # define BIO_get_data(BIO) BIO->ptr
 # define BIO_set_data(BIO, VALUE) BIO->ptr = VALUE;
 # define BIO_set_init(BIO, VALUE) BIO->init = VALUE;
