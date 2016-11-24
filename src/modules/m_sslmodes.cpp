@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +z */
+/* $ModDesc: Provides support for unreal-style channel mode +z and usermode +z for ssl-only queries and notices. */
 
 static char* dummy;
 
@@ -72,10 +72,40 @@ class SSLMode : public ModeHandler
 	}
 };
 
+class SSLModeUser : public ModeHandler
+{
+public:
+	SSLModeUser(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_USER, false) { }
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	{
+		bool isSet = dest->IsModeSet('z');
+
+		if (adding)
+		{
+			if (isSet)
+			{
+				dest->SetMode('z', true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (!isSet)
+			{
+				dest->SetMode('z', false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleSSLModes : public Module
 {
 
 	SSLMode* sslm;
+	SSLModeUser* sslpm;
 
  public:
 	ModuleSSLModes(InspIRCd* Me)
@@ -84,10 +114,11 @@ class ModuleSSLModes : public Module
 
 
 		sslm = new SSLMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(sslm))
+		sslpm = new SSLModeUser(ServerInstance);
+		if (!ServerInstance->Modes->AddMode(sslm) || !ServerInstance->Modes->AddMode(sslpm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 
@@ -110,11 +141,62 @@ class ModuleSSLModes : public Module
 
 		return 0;
 	}
+	
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_USER)
+		{
+			User* t = (User*)dest;
+			if (t->IsModeSet('z') && !ServerInstance->ULine(user->server))
+			{
+				if (!user->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
+			{
+				if (t->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
+	
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_USER)
+		{
+			User* t = (User*)dest;
+			if (t->IsModeSet('z') && !ServerInstance->ULine(user->server))
+			{
+				if (!user->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
+			{
+				if (t->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
 
 	virtual ~ModuleSSLModes()
 	{
 		ServerInstance->Modes->DelMode(sslm);
 		delete sslm;
+		delete sslpm;
 	}
 
 	virtual Version GetVersion()
