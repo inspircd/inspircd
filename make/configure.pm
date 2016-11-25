@@ -159,7 +159,8 @@ MISC OPTIONS
   --socketengine=[name]         Sets the socket engine to be used. Possible
                                 values are $SELIST.
   --uid=[id|name]               Sets the user to run InspIRCd as.
-  --update                      Updates the build environment.
+  --update                      Updates the build environment with the settings
+                                from the cache.
 
 
 FLAGS
@@ -180,7 +181,7 @@ sub cmd_update {
 	say 'Updating...';
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
-	my %version = get_version();
+	my %version = get_version $config{DISTRIBUTION};
 	parse_templates(\%config, \%compiler, \%version);
 	say 'Update complete!';
 	exit 0;

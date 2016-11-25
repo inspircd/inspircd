@@ -126,7 +126,7 @@ our $interactive = !(
 	defined $opt_uid
 );
 
-my %version = get_version();
+my %version = get_version $opt_distribution_label;
 print_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>\n";
 
 our %config;
@@ -186,12 +186,6 @@ if (defined $opt_socketengine) {
 		print "\n";	
 		exit 1;
 	}
-}
-
-# If the user has specified a distribution label then we use it in
-# place of the label from src/version.sh or Git.
-if (defined $opt_distribution_label) {
-	$version{LABEL} = $opt_distribution_label;
 }
 
 if (defined $opt_system) {
@@ -309,6 +303,9 @@ if (prompt_bool $interactive, $question, 0) {
 if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, 'Would you like to generate SSL certificates now?', $interactive) {
 	system './tools/genssl', 'auto';
 }
+
+# Cache the distribution label so that its not lost when --update is run.
+$config{DISTRIBUTION} = $opt_distribution_label if $opt_distribution_label;
 
 write_configure_cache %config;
 parse_templates \%config, \%compiler, \%version;

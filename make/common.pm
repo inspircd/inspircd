@@ -63,6 +63,10 @@ sub get_version {
 		$version{LABEL} = $4 if defined $4;
 	}
 
+	# If the user has specified a distribution label then we use it in
+	# place of the label from src/version.sh or Git.
+	$version{LABEL} = shift // $version{LABEL};
+
 	# If any of these fields are missing then the user has deleted the
 	# version file and is not running from Git. Fill in the fields with
 	# dummy data so we don't get into trouble with undef values later.
