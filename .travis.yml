@@ -1,12 +1,13 @@
 compiler:
-  - "clang"
-  - "gcc"
-language: "cpp"
+  - clang
+  - gcc
+dist: trusty
+env:
+  - PURE_STATIC=1
+  -
+language: cpp
 notifications:
   email: false
-os:
-  - "linux"
-  - "osx"
 script:
-  - "sh ./tools/travis-ci.sh"
+  - sh ./tools/travis-ci.sh
 sudo: required
