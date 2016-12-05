@@ -4,11 +4,6 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]
 then
 	sudo apt-get update --assume-yes
 	sudo apt-get install --assume-yes libgeoip-dev libgnutls-dev libldap2-dev libmysqlclient-dev libpcre3-dev libpq-dev libsqlite3-dev libssl-dev libtre-dev
-elif [ "$TRAVIS_OS_NAME" = "osx" ]
-then
-	brew update
-	brew install geoip gnutls mysql-connector-c openssl pcre postgresql sqlite3 tre
-	brew link sqlite3 --force
 else
 	>&2 echo "'$TRAVIS_OS_NAME' is an unknown Travis CI environment!"
 	exit 1
