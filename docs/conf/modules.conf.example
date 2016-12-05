@@ -421,6 +421,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Chanprotect module: Gives +q and +a channel modes.
+#
+# IMPORTANT: This module has been removed in the next major version of
+# InspIRCd. You should use m_customprefix instead.
 #<module name="m_chanprotect.so">
 
 <chanprotect
@@ -519,6 +522,10 @@
 # key3, key4; the values must be less than 0x80000000 and should be   #
 # picked at random. Prefix is mandatory, will default to network name #
 # if not specified, and will always have a "-" appended.              #
+#                                                                     #
+# IMPORTANT: The compat-host and compat-ip modes have been removed in #
+# the next major version of InspIRCd. You should ONLY use them if you #
+# need backwards compatibility with InspIRCd 1.2.                     #
 #
 #<cloak mode="half"
 #       key="secret"
@@ -824,6 +831,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Halfop module: Provides the +h (halfops) channel status mode.
+#
+# IMPORTANT: This module has been removed in the next major version of
+# InspIRCd. You should use m_customprefix instead.
 #<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
