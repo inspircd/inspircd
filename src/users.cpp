@@ -1398,6 +1398,8 @@ void User::DoHostCycle(const std::string &quitline)
 
 	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
 
+	// Users shouldn't see themselves quitting when host cycling
+	exceptions.erase(this);
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
 		LocalUser* u = IS_LOCAL(i->first);
