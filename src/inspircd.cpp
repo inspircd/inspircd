@@ -49,6 +49,11 @@
 	HANDLE g_hStdout;
 #endif
 
+#ifdef __MACH__
+# include <mach/clock.h>
+# include <mach/mach.h>
+#endif
+
 #include <fstream>
 #include <iostream>
 #include "xline.h"
@@ -570,21 +575,29 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 void InspIRCd::UpdateTime()
 {
-#ifdef _WIN32
+#if defined __MACH__
+	clock_serv_t cs;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cs);
+	mach_timespec_t mts;
+	clock_get_time(cs, &mts);
+	mach_port_deallocate(mach_task_self(), cs);
+
+	TIME.tv_sec = mts.tv_sec;
+	TIME.tv_nsec = mts.tv_nsec;
+#elif _POSIX_TIMERS > 0
+	clock_gettime(CLOCK_REALTIME, &TIME);
+#elif defined _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
 	TIME.tv_sec = time(NULL);
 	TIME.tv_nsec = st.wMilliseconds;
 #else
-	#ifdef HAS_CLOCK_GETTIME
-		clock_gettime(CLOCK_REALTIME, &TIME);
-	#else
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		TIME.tv_sec = tv.tv_sec;
-		TIME.tv_nsec = tv.tv_usec * 1000;
-	#endif
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+
+	TIME.tv_sec = tv.tv_sec;
+	TIME.tv_nsec = tv.tv_usec * 1000;
 #endif
 }
 
