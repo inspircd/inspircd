@@ -33,7 +33,7 @@ class CommandSwhois : public Command
 {
  public:
 	StringExtItem swhois;
-	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
+	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 1, 2), swhois("swhois", Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
@@ -49,24 +49,28 @@ class CommandSwhois : public Command
 			return CMD_FAILURE;
 		}
 
+		// This is used in multiple places so we get it here to avoid duplicate code.
 		std::string* text = swhois.get(dest);
-		if (text)
-		{
-			// We already had it set...
-			if (!ServerInstance->ULine(user->server))
-				// Ulines set SWHOISes silently
-				ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[1].c_str());
-		}
-		else if (!ServerInstance->ULine(user->server))
-		{
-			// Ulines set SWHOISes silently
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
-		}
 
-		if (parameters[1].empty())
-			swhois.unset(dest);
-		else
+		if (parameters.size() == 2)
+		{
+			// Ulines set SWHOISes silently.
+			if (!ServerInstance->ULine(user->server))
+			{
+				if (text)
+					ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[1].c_str());
+				else
+					ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
+			}
 			swhois.set(dest, parameters[1]);
+		}
+		else
+		{
+			// Ulines unset SWHOISes silently.
+			if (!ServerInstance->ULine(user->server) && text)
+				ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to unset %s's extra whois '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str());
+			swhois.unset(dest);
+		}
 
 		/* Bug #376 - feature request -
 		 * To cut down on the amount of commands services etc have to recognise, this only sends METADATA across the network now
@@ -74,7 +78,7 @@ class CommandSwhois : public Command
 		 * Sorry w00t i know this was your fix, but i got bored and wanted to clear down the tracker :)
 		 * -- Brain
 		 */
-		ServerInstance->PI->SendMetaData(dest, "swhois", parameters[1]);
+		ServerInstance->PI->SendMetaData(dest, "swhois", parameters.size() == 2 ? parameters[1] : "");
 
 		return CMD_SUCCESS;
 	}
