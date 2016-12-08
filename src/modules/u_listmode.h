@@ -111,7 +111,7 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if(parameter == it->mask)
+				if (!strcasecmp(parameter.c_str(), it->mask.c_str()))
 				{
 					return std::make_pair(true, parameter);
 				}
@@ -247,7 +247,7 @@ class ListModeBase : public ModeHandler
 			// Check if the item already exists in the list
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if (parameter == it->mask)
+				if (!strcasecmp(parameter.c_str(), it->mask.c_str()))
 				{
 					/* Give a subclass a chance to error about this */
 					TellAlreadyOnList(source, channel, parameter);
@@ -315,7 +315,7 @@ class ListModeBase : public ModeHandler
 			{
 				for (modelist::iterator it = el->begin(); it != el->end(); it++)
 				{
-					if (parameter == it->mask)
+					if (!strcasecmp(parameter.c_str(), it->mask.c_str()))
 					{
 						el->erase(it);
 						if (el->empty())
