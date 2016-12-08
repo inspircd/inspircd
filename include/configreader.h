@@ -35,7 +35,7 @@
 /** Structure representing a single \<tag> in config */
 class CoreExport ConfigTag : public refcountbase
 {
-	std::vector<KeyVal> items;
+	ConfigItems items;
  public:
 	const std::string tag;
 	const std::string src_name;
@@ -80,10 +80,10 @@ class CoreExport ConfigTag : public refcountbase
 
 	std::string getTagLocation();
 
-	inline const std::vector<KeyVal>& getItems() const { return items; }
+	inline const ConfigItems& getItems() const { return items; }
 
-	/** Create a new ConfigTag, giving access to the private KeyVal item list */
-	static ConfigTag* create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*& Items);
+	/** Create a new ConfigTag, giving access to the private ConfigItems item list */
+	static ConfigTag* create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items);
  private:
 	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };

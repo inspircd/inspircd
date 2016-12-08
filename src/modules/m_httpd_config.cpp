@@ -81,8 +81,8 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 				for (ConfigDataHash::iterator x = ServerInstance->Config->config_data.begin(); x != ServerInstance->Config->config_data.end(); ++x)
 				{
 					data << "&lt;" << x->first << " ";
-					ConfigTag* tag = x->second;
-					for (std::vector<KeyVal>::const_iterator j = tag->getItems().begin(); j != tag->getItems().end(); j++)
+					const ConfigItems& items = x->second->getItems();
+					for (ConfigItems::const_iterator j = items.begin(); j != items.end(); j++)
 					{
 						data << Sanitize(j->first) << "=&quot;" << Sanitize(j->second) << "&quot; ";
 					}

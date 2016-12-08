@@ -46,7 +46,7 @@ ServerLimits::ServerLimits(ConfigTag* tag)
 
 static ConfigTag* CreateEmptyTag()
 {
-	std::vector<KeyVal>* items;
+	ConfigItems* items;
 	return ConfigTag::create("empty", "<auto>", 0, items);
 }
 
@@ -220,9 +220,9 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	if (blk_count == 0)
 	{
 		// No connect blocks found; make a trivial default block
-		std::vector<KeyVal>* items;
+		ConfigItems* items;
 		ConfigTag* tag = ConfigTag::create("connect", "<auto>", 0, items);
-		items->push_back(std::make_pair("allow", "*"));
+		(*items)["allow"] = "*";
 		config_data.insert(std::make_pair("connect", tag));
 		blk_count = 1;
 	}

@@ -91,7 +91,7 @@ struct Parser
 		unget(ch);
 	}
 
-	bool kv(std::vector<KeyVal>* items, std::set<std::string>& seen)
+	bool kv(ConfigItems* items)
 	{
 		std::string key;
 		nextword(key);
@@ -177,10 +177,10 @@ struct Parser
 				value.push_back(ch);
 		}
 
-		if (!seen.insert(key).second)
+		if (items->find(key) != items->end())
 			throw CoreException("Duplicate key '" + key + "' found");
 
-		items->push_back(KeyVal(key, value));
+		(*items)[key] = value;
 		return true;
 	}
 
@@ -199,11 +199,10 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		std::vector<KeyVal>* items;
-		std::set<std::string> seen;
+		ConfigItems* items;
 		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv(items, seen))
+		while (kv(items))
 		{
 			// Do nothing here (silences a GCC warning).
 		}
@@ -220,14 +219,14 @@ struct Parser
 		}
 		else if (name == "files")
 		{
-			for(std::vector<KeyVal>::iterator i = items->begin(); i != items->end(); i++)
+			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, false);
 			}
 		}
 		else if (name == "execfiles")
 		{
-			for(std::vector<KeyVal>::iterator i = items->begin(); i != items->end(); i++)
+			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, true);
 			}
@@ -385,7 +384,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)
 {
-	for(std::vector<KeyVal>::iterator j = items.begin(); j != items.end(); ++j)
+	for(ConfigItems::iterator j = items.begin(); j != items.end(); ++j)
 	{
 		if(j->first != key)
 			continue;
@@ -488,7 +487,7 @@ std::string ConfigTag::getTagLocation()
 	return src_name + ":" + ConvToStr(src_line);
 }
 
-ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*& Items)
+ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items)
 {
 	ConfigTag* rv = new ConfigTag(Tag, file, line);
 	Items = &rv->items;

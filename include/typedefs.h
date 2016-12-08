@@ -66,9 +66,9 @@ typedef std::vector<Membership*> IncludeChanList;
  */
 typedef std::vector<std::string> file_cache;
 
-/** A configuration key and value pair
+/** A mapping of configuration keys to their assigned values.
  */
-typedef std::pair<std::string, std::string> KeyVal;
+typedef insp::flat_map<std::string, std::string> ConfigItems;
 
 /** The entire configuration
  */
