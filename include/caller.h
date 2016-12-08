@@ -32,15 +32,26 @@ template<typename ReturnType, typename... Args> class CoreExport Handler : publi
 
 template<typename ReturnType, typename... Args> class CoreExport Caller
 {
- public:
-	Handler<ReturnType, Args...>* target;
+ protected:
+ 	std::vector<Handler<ReturnType, Args...>*> handlers;
 
-	Caller(Handler<ReturnType, Args...>* initial) : target(initial) { }
+ public:
+	Caller(Handler<ReturnType, Args...>* initial) { Add(initial); }
 	virtual ~Caller() { }
+
+	void Add(Handler<ReturnType, Args...>* handler)
+	{
+		handlers.push_back(handler);
+	}
+
+	void Remove(Handler<ReturnType, Args...>* handler)
+	{
+		stdalgo::erase(handlers, handler);
+	}
 
 	virtual ReturnType operator()(const Args&... params)
 	{
-		return this->target->Call(params...);
+		return this->handlers.back()->Call(params...);
 	}
 };
 
@@ -191,12 +202,22 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 template <typename HandlerType> class caller
 {
+ protected:
+	std::vector<HandlerType*> handlers;
  public:
-	HandlerType* target;
-
 	caller(HandlerType* initial)
-	: target(initial)
-	{ }
+	{
+		Add(initial);
+	}
+	void Add(HandlerType* handler)
+	{
+		handlers.push_back(handler);
+	}
+
+	void Remove(HandlerType* handler)
+	{
+		stdalgo::erase(handlers, handler);
+	}
 
 	virtual ~caller() { }
 };
@@ -210,7 +231,7 @@ template <typename ReturnType> class caller0 : public caller< HandlerBase0<Retur
 
 	ReturnType operator() ()
 	{
-		return this->target->Call();
+		return this->handlers.back()->Call();
 	}
 };
 
@@ -223,7 +244,7 @@ template <typename ReturnType, typename Param1> class caller1 : public caller< H
 
 	ReturnType operator() (Param1 param1)
 	{
-		return this->target->Call(param1);
+		return this->handlers.back()->Call(param1);
 	}
 };
 
@@ -236,7 +257,7 @@ template <typename ReturnType, typename Param1, typename Param2> class caller2 :
 
 	ReturnType operator() (Param1 param1, Param2 param2)
 	{
-		return this->target->Call(param1, param2);
+		return this->handlers.back()->Call(param1, param2);
 	}
 };
 
@@ -249,7 +270,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3)
 	{
-		return this->target->Call(param1, param2, param3);
+		return this->handlers.back()->Call(param1, param2, param3);
 	}
 };
 
@@ -262,7 +283,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4)
 	{
-		return this->target->Call(param1, param2, param3, param4);
+		return this->handlers.back()->Call(param1, param2, param3, param4);
 	}
 };
 
@@ -275,7 +296,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5)
 	{
-		return this->target->Call(param1, param2, param3, param4, param5);
+		return this->handlers.back()->Call(param1, param2, param3, param4, param5);
 	}
 };
 
@@ -288,7 +309,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6)
 	{
-		return this->target->Call(param1, param2, param3, param4, param5, param6);
+		return this->handlers.back()->Call(param1, param2, param3, param4, param5, param6);
 	}
 };
 
@@ -301,7 +322,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7)
 	{
-		return this->target->Call(param1, param2, param3, param4, param5, param6, param7);
+		return this->handlers.back()->Call(param1, param2, param3, param4, param5, param6, param7);
 	}
 };
 
@@ -314,7 +335,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7, Param8 param8)
 	{
-		return this->target->Call(param1, param2, param3, param4, param5, param6, param7, param8);
+		return this->handlers.back()->Call(param1, param2, param3, param4, param5, param6, param7, param8);
 	}
 };
 

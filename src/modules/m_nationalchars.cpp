@@ -220,7 +220,6 @@ class ModuleNationalChars : public Module
 	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller1<bool, const std::string&> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 	unsigned char prev_map[256];
@@ -249,7 +248,7 @@ class ModuleNationalChars : public Module
 
  public:
 	ModuleNationalChars()
-		: rememberer(ServerInstance->IsNick), lowermap_rememberer(national_case_insensitive_map)
+		: lowermap_rememberer(national_case_insensitive_map)
 	{
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 	}
@@ -308,7 +307,7 @@ class ModuleNationalChars : public Module
 
 	~ModuleNationalChars()
 	{
-		ServerInstance->IsNick = rememberer;
+		ServerInstance->IsNick.Remove(&myhandler);
 		national_case_insensitive_map = lowermap_rememberer;
 		CheckForceQuit("National characters module unloaded");
 		CheckRehash();

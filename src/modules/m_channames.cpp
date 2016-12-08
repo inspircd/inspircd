@@ -45,21 +45,19 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 class ModuleChannelNames : public Module
 {
 	NewIsChannelHandler myhandler;
-	caller1<bool, const std::string&> rememberer;
 	bool badchan;
 	ChanModeReference permchannelmode;
 
  public:
 	ModuleChannelNames()
-		: rememberer(ServerInstance->IsChannel)
-		, badchan(false)
+		: badchan(false)
 		, permchannelmode(this, "permanent")
 	{
 	}
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->IsChannel = &myhandler;
+		ServerInstance->IsChannel.Add(&myhandler);
 	}
 
 	void ValidateChans()
@@ -142,7 +140,7 @@ class ModuleChannelNames : public Module
 
 	CullResult cull() CXX11_OVERRIDE
 	{
-		ServerInstance->IsChannel = rememberer;
+		ServerInstance->IsChannel.Remove(&myhandler);
 		ValidateChans();
 		return Module::cull();
 	}
