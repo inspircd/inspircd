@@ -11,3 +11,21 @@ notifications:
 script:
   - sh ./tools/travis-ci.sh
 sudo: required
+
+# Remember, Travis needs to be able to connect to the server so if the IRC server's dead, UPDATE the server address!
+notifications:
+  irc:
+  - "irc.heimkoma.com#irc"
+
+# blacklist
+branches:
+    - insp10
+    - insp11
+    - insp12
+    - obsolete/insp21
+
+# whitelist
+branches:
+  only:
+    - master
+    - insp20
