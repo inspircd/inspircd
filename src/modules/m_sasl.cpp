@@ -51,10 +51,26 @@ class SaslAuthenticator
 	SaslResult result;
 	bool state_announced;
 
+	void SendHostIP()
+	{
+		parameterlist params;
+		params.push_back(sasl_target);
+		params.push_back("SASL");
+		params.push_back(user->uuid);
+		params.push_back("*");
+		params.push_back("H");
+		params.push_back(user->host);
+		params.push_back(user->GetIPString());
+
+		SendSASL(params);
+	}
+
  public:
 	SaslAuthenticator(User* user_, const std::string& method)
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
+		SendHostIP();
+
 		parameterlist params;
 		params.push_back(sasl_target);
 		params.push_back("SASL");
