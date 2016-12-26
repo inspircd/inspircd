@@ -149,7 +149,7 @@ unless ($config{CXX}) {
 }
 my %compiler = get_compiler_info($config{CXX});
 
-$config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', '-lrt');
+$config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', $^O eq 'darwin' ? undef : '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
 
 if ($config{HAS_EPOLL} = run_test 'epoll', test_header($config{CXX}, 'sys/epoll.h')) {
