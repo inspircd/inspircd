@@ -42,6 +42,7 @@ use make::console;
 use constant CONFIGURE_DIRECTORY     => '.configure';
 use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
 use constant CONFIGURE_CACHE_VERSION => '1';
+use constant CONFIGURE_ERROR_PIPE    => $ENV{INSPIRCD_VERBOSE} ? '' : '1>/dev/null 2>/dev/null';
 
 our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  CONFIGURE_CACHE_VERSION
@@ -97,7 +98,7 @@ sub __get_template_settings($$$) {
 
 sub __test_compiler($) {
 	my $compiler = shift;
-	return 0 unless run_test("`$compiler`", !system "$compiler -v >/dev/null 2>&1");
+	return 0 unless run_test("`$compiler`", !system "$compiler -v ${\CONFIGURE_ERROR_PIPE}");
 	return 0 unless run_test("`$compiler`", test_file($compiler, 'compiler.cpp', '-fno-rtti'), 'compatible');
 	return 1;
 }
@@ -199,8 +200,8 @@ sub test_file($$;$) {
 	my ($compiler, $file, $args) = @_;
 	my $status = 0;
 	$args //= '';
-	$status ||= system "$compiler -o __test_$file make/test/$file $args >/dev/null 2>&1";
-	$status ||= system "./__test_$file >/dev/null 2>&1";
+	$status ||= system "$compiler -o __test_$file make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
+	$status ||= system "./__test_$file ${\CONFIGURE_ERROR_PIPE}";
 	unlink "./__test_$file";
 	return !$status;
 }
@@ -208,7 +209,7 @@ sub test_file($$;$) {
 sub test_header($$;$) {
 	my ($compiler, $header, $args) = @_;
 	$args //= '';
-	open(COMPILER, "| $compiler -E - $args >/dev/null 2>&1") or return 0;
+	open(COMPILER, "| $compiler -E - $args ${\CONFIGURE_ERROR_PIPE}") or return 0;
 	print COMPILER "#include <$header>";
 	close(COMPILER);
 	return !$?;
