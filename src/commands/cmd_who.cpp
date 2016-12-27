@@ -58,13 +58,20 @@ class CommandWho : public Command
 };
 
 
-static Channel* get_first_visible_channel(User *u)
+static Channel* get_first_visible_channel(User *source, User *u)
 {
 	UCListIter i = u->chans.begin();
 	while (i != u->chans.end())
 	{
 		Channel* c = *i++;
-		if (!c->IsModeSet('s'))
+
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnCheckMembershipVisible, MOD_RESULT, (source, u, c));
+
+		if (MOD_RESULT == MOD_RES_DENY)
+			continue;
+
+		if (MOD_RESULT == MOD_RES_ALLOW || source == u || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source))
 			return c;
 	}
 	return NULL;
@@ -189,7 +196,7 @@ bool CommandWho::CanView(Channel* chan, User* user)
 void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
 	if (!ch)
-		ch = get_first_visible_channel(u);
+		ch = get_first_visible_channel(user, u);
 
 	std::string wholine = initial + (ch ? ch->name : "*") + " " + u->ident + " " +
 		(opt_showrealhost ? u->host : u->dhost) + " ";
