@@ -143,9 +143,15 @@ if ($interactive) {
 
 $config{CXX} = find_compiler($config{CXX} // $ENV{CXX});
 unless ($config{CXX}) {
-	print "A suitable C++ compiler could not be detected on your system!\n";
-	print "Set the CXX environment variable to the compiler binary path if this is incorrect.\n";
-	exit 1;	
+	say 'A suitable C++ compiler could not be detected on your system!';
+	unless ($interactive) {
+		say 'Set the CXX environment variable to the path to a C++ compiler binary if this is incorrect.';
+		exit 1;
+	}
+	until ($config{CXX}) {
+		my $compiler_path = prompt_string 1, 'Please enter the path to a C++ compiler binary:', 'c++';
+		$config{CXX} = find_compiler $compiler_path;
+	}
 }
 my %compiler = get_compiler_info($config{CXX});
 
