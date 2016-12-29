@@ -877,6 +877,10 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		}
 		if ($config{OSNAME} !~ /DARWIN/i) {
 			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
+		} else {
+			print FILEHANDLE "#ifdef MAC_OS_X_VERSION_10_12\n";
+			print FILEHANDLE "# define HAS_CLOCK_GETTIME\n";
+			print FILEHANDLE "#endif\n";
 		}
 		my $use_hiperf = 0;
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
