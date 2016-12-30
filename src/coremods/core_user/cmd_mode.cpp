@@ -130,6 +130,17 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 	}
 }
 
+static std::string GetSnomasks(const User* user)
+{
+	ModeHandler* const snomask = ServerInstance->Modes.FindMode('s', MODETYPE_USER);
+	std::string snomaskstr = snomask->GetUserParameter(user);
+	// snomaskstr is empty if the snomask mode isn't set, otherwise it begins with a '+'.
+	// In the former case output a "+", not an empty string.
+	if (snomaskstr.empty())
+		snomaskstr.push_back('+');
+	return snomaskstr;
+}
+
 void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel)
 {
 	if (targetchannel)
@@ -140,20 +151,20 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 	}
 	else
 	{
-		if (targetuser == user || user->HasPrivPermission("users/auspex"))
+		if (targetuser == user)
 		{
 			// Display user's current mode string
-			// XXX: Use WriteServ() because WriteNumeric() assumes the target (i.e. next word after the number)
-			// is 'user' and puts his nick there which is not what we want
-			user->WriteServ("%03d %s :%s", RPL_UMODEIS, targetuser->nick.c_str(), targetuser->GetModeLetters().c_str());
+			user->WriteNumeric(RPL_UMODEIS, targetuser->GetModeLetters());
 			if (targetuser->IsOper())
-			{
-				ModeHandler* snomask = ServerInstance->Modes->FindMode('s', MODETYPE_USER);
-				std::string snomaskstr = snomask->GetUserParameter(user);
-				// snomaskstr is empty if the snomask mode isn't set, otherwise it begins with a '+'.
-				// In the former case output a "+", not an empty string.
-				user->WriteServ("%03d %s %s%s :Server notice mask", RPL_SNOMASKIS, targetuser->nick.c_str(), (snomaskstr.empty() ? "+" : ""), snomaskstr.c_str());
-			}
+				user->WriteNumeric(RPL_SNOMASKIS, GetSnomasks(targetuser), "Server notice mask");
+		}
+		else if (user->HasPrivPermission("users/auspex"))
+		{
+			// Querying the modes of another user.
+			// We cannot use RPL_UMODEIS because that's only for showing the user's own modes.
+			user->WriteNumeric(RPL_OTHERUMODEIS, targetuser->nick, targetuser->GetModeLetters());
+			if (targetuser->IsOper())
+				user->WriteNumeric(RPL_OTHERSNOMASKIS, targetuser->nick, GetSnomasks(targetuser), "Server notice mask");
 		}
 		else
 		{

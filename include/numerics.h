@@ -195,6 +195,9 @@ enum
 	ERR_CHANOPEN                    = 713,
 	ERR_KNOCKONCHAN                 = 714,
 
+	RPL_OTHERUMODEIS                = 803, // insp-specific
+	RPL_OTHERSNOMASKIS              = 804, // insp-specific
+
 	ERR_WORDFILTERED                = 936, // insp-specific, would be nice if we could get rid of this..
 	ERR_CANTUNLOADMODULE            = 972, // insp-specific
 	RPL_UNLOADEDMODULE              = 973, // insp-specific
