@@ -145,7 +145,7 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 			// Display user's current mode string
 			// XXX: Use WriteServ() because WriteNumeric() assumes the target (i.e. next word after the number)
 			// is 'user' and puts his nick there which is not what we want
-			user->WriteServ("%03d %s :+%s", RPL_UMODEIS, targetuser->nick.c_str(), targetuser->FormatModes());
+			user->WriteServ("%03d %s :%s", RPL_UMODEIS, targetuser->nick.c_str(), targetuser->GetModeLetters().c_str());
 			if (targetuser->IsOper())
 			{
 				ModeHandler* snomask = ServerInstance->Modes->FindMode('s', MODETYPE_USER);

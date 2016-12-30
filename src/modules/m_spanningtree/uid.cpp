@@ -162,6 +162,6 @@ CommandUID::Builder::Builder(User* user)
 	push(user->ident);
 	push(user->GetIPString());
 	push_int(user->signon);
-	push('+').push_raw(user->FormatModes(true));
+	push(user->GetModeLetters(true));
 	push_last(user->fullname);
 }

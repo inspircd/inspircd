@@ -39,28 +39,28 @@ bool User::IsModeSet(unsigned char m) const
 	return (mh && modes[mh->GetId()]);
 }
 
-const char* User::FormatModes(bool showparameters)
+std::string User::GetModeLetters(bool includeparams) const
 {
-	static std::string data;
+	std::string ret(1, '+');
 	std::string params;
-	data.clear();
 
-	for (unsigned char n = 0; n < 64; n++)
+	for (unsigned char i = 'A'; i < 'z'; i++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_USER);
-		if (mh && IsModeSet(mh))
+		const ModeHandler* const mh = ServerInstance->Modes.FindMode(i, MODETYPE_USER);
+		if ((!mh) || (!IsModeSet(mh)))
+			continue;
+
+		ret.push_back(mh->GetModeChar());
+		if ((includeparams) && (mh->NeedsParam(true)))
 		{
-			data.push_back(n + 65);
-			if (showparameters && mh->NeedsParam(true))
-			{
-				std::string p = mh->GetUserParameter(this);
-				if (p.length())
-					params.append(" ").append(p);
-			}
+			const std::string val = mh->GetUserParameter(this);
+			if (!val.empty())
+				params.append(1, ' ').append(val);
 		}
 	}
-	data += params;
-	return data.c_str();
+
+	ret += params;
+	return ret;
 }
 
 User::User(const std::string& uid, Server* srv, int type)

@@ -169,7 +169,7 @@ class CommandCheck : public Command
 			context.Write("nuh", targuser->GetFullHost());
 			context.Write("realnuh", targuser->GetFullRealHost());
 			context.Write("realname", targuser->fullname);
-			context.Write("modes", std::string("+") + targuser->FormatModes());
+			context.Write("modes", targuser->GetModeLetters());
 			context.Write("snomasks", GetSnomasks(targuser));
 			context.Write("server", targuser->server->GetName());
 			context.Write("uid", targuser->uuid);

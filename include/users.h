@@ -418,10 +418,12 @@ class CoreExport User : public Extensible
 	 */
 	bool IsNoticeMaskSet(unsigned char sm);
 
-	/** Create a displayable mode string for this users umodes
-	 * @param showparameters The mode string
+	/** Get the mode letters of modes set on the user as a string.
+	 * @param includeparams True to get the parameters of the modes as well. Defaults to false.
+	 * @return Mode letters of modes set on the user and optionally the parameters of those modes, if any.
+	 * The returned string always begins with a '+' character. If the user has no modes set, "+" is returned.
 	 */
-	const char* FormatModes(bool showparameters = false);
+	std::string GetModeLetters(bool includeparams = false) const;
 
 	/** Returns true if a specific mode is set
 	 * @param m The user mode

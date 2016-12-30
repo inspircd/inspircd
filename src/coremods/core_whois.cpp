@@ -211,11 +211,11 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, unsigned long signon, un
 	{
 		if (dest->IsModeSet(snomaskmode))
 		{
-			whois.SendLine(379, InspIRCd::Format("is using modes +%s %s", dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str()));
+			whois.SendLine(379, InspIRCd::Format("is using modes %s %s", dest->GetModeLetters().c_str(), snomaskmode->GetUserParameter(dest).c_str()));
 		}
 		else
 		{
-			whois.SendLine(379, InspIRCd::Format("is using modes +%s", dest->FormatModes()));
+			whois.SendLine(379, InspIRCd::Format("is using modes %s", dest->GetModeLetters().c_str()));
 		}
 	}
 
