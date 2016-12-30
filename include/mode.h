@@ -241,7 +241,7 @@ class CoreExport ModeHandler : public ServiceProvider
 
 	/** For user modes, return the current parameter, if any
 	 */
-	virtual std::string GetUserParameter(User* useor);
+	virtual std::string GetUserParameter(const User* user) const;
 
 	/**
 	 * Called when a channel mode change access check for your mode occurs.

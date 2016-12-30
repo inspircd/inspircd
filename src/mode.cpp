@@ -58,7 +58,7 @@ bool ModeHandler::NeedsParam(bool adding) const
 	return false;
 }
 
-std::string ModeHandler::GetUserParameter(User* user)
+std::string ModeHandler::GetUserParameter(const User* user) const
 {
 	return "";
 }

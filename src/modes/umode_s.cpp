@@ -50,7 +50,7 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 	return MODEACTION_DENY;
 }
 
-std::string ModeUserServerNoticeMask::GetUserParameter(User* user)
+std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const
 {
 	std::string ret;
 	if (!user->IsModeSet(this))

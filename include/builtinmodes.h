@@ -104,7 +104,7 @@ class ModeUserServerNoticeMask : public ModeHandler
 	 * @param user The user whose notice masks to format
 	 * @return The notice mask character sequence
 	 */
-	std::string GetUserParameter(User* user);
+	std::string GetUserParameter(const User* user) const CXX11_OVERRIDE;
 };
 
 /** User mode +o
