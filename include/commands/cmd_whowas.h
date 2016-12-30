@@ -200,7 +200,6 @@ class CommandWhowas : public Command
 	CommandWhowas(Module* parent);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
