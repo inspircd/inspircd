@@ -872,6 +872,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(const ModeHandler* mh) const;
+
+	/** Change nick to uuid, unset REG_NICK and send a nickname overruled numeric.
+	 * This is called when another user (either local or remote) needs the nick of this user and this user
+	 * isn't registered.
+	 */
+	void OverruleNick();
 };
 
 class RemoteUser : public User

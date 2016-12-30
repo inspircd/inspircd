@@ -627,11 +627,8 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 			if (InUse->registered != REG_ALL)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
-				InUse->WriteFrom(InUse, "NICK %s", InUse->uuid.c_str());
-				InUse->WriteNumeric(ERR_NICKNAMEINUSE, InUse->nick, "Nickname overruled.");
-
-				InUse->registered &= ~REG_NICK;
-				InUse->ChangeNick(InUse->uuid);
+				LocalUser* const localuser = static_cast<LocalUser*>(InUse);
+				localuser->OverruleNick();
 			}
 			else
 			{
@@ -657,6 +654,16 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		FOREACH_MOD(OnUserPostNick, (this,oldnick));
 
 	return true;
+}
+
+void LocalUser::OverruleNick()
+{
+	this->WriteFrom(this, "NICK %s", this->uuid.c_str());
+	this->WriteNumeric(ERR_NICKNAMEINUSE, this->nick, "Nickname overruled.");
+
+	// Clear the bit before calling ChangeNick() to make it NOT run the OnUserPostNick() hook
+	this->registered &= ~REG_NICK;
+	this->ChangeNick(this->uuid);
 }
 
 int LocalUser::GetServerPort()
