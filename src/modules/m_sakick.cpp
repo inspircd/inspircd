@@ -27,7 +27,7 @@ class CommandSakick : public Command
  public:
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
-		flags_needed = 'o'; Penalty = 0; syntax = "<channel> <nick> [reason]";
+		flags_needed = 'o'; syntax = "<channel> <nick> [reason]";
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 

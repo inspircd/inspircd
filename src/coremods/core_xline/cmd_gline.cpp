@@ -26,7 +26,6 @@ CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 3)
 {
 	flags_needed = 'o';
-	Penalty = 0;
 	syntax = "<ident@host> [<duration> :<reason>]";
 }
 

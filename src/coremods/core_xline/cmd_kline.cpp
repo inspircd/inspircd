@@ -26,7 +26,6 @@ CommandKline::CommandKline(Module* parent)
 	: Command(parent, "KLINE", 1, 3)
 {
 	flags_needed = 'o';
-	Penalty = 0;
 	syntax = "<ident@host> [<duration> :<reason>]";
 }
 

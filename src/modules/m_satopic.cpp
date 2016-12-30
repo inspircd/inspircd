@@ -26,7 +26,7 @@ class CommandSATopic : public Command
  public:
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
-		flags_needed = 'o'; Penalty = 0; syntax = "<target> <topic>";
+		flags_needed = 'o'; syntax = "<target> <topic>";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

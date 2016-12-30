@@ -29,7 +29,7 @@ class CommandSanick : public Command
 	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <new-nick>";
+		flags_needed = 'o'; syntax = "<nick> <new-nick>";
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 

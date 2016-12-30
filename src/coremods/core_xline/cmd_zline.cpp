@@ -27,7 +27,6 @@ CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 3)
 {
 	flags_needed = 'o';
-	Penalty = 0;
 	syntax = "<ipmask> [<duration> :<reason>]";
 }
 
