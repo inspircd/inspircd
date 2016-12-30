@@ -427,10 +427,10 @@ class CoreExport User : public Extensible
 	 * @param m The user mode
 	 * @return True if the mode is set
 	 */
-	bool IsModeSet(unsigned char m);
-	bool IsModeSet(ModeHandler* mh);
-	bool IsModeSet(ModeHandler& mh) { return IsModeSet(&mh); }
-	bool IsModeSet(UserModeReference& moderef);
+	bool IsModeSet(unsigned char m) const;
+	bool IsModeSet(const ModeHandler* mh) const;
+	bool IsModeSet(const ModeHandler& mh) const { return IsModeSet(&mh); }
+	bool IsModeSet(UserModeReference& moderef) const;
 
 	/** Set a specific usermode to on or off
 	 * @param m The user mode
@@ -924,12 +924,12 @@ inline FakeUser* IS_SERVER(User* u)
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
 
-inline bool User::IsModeSet(ModeHandler* mh)
+inline bool User::IsModeSet(const ModeHandler* mh) const
 {
 	return (modes[mh->GetId()]);
 }
 
-inline bool User::IsModeSet(UserModeReference& moderef)
+inline bool User::IsModeSet(UserModeReference& moderef) const
 {
 	if (!moderef)
 		return false;

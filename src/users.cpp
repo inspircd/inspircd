@@ -33,7 +33,7 @@ bool User::IsNoticeMaskSet(unsigned char sm)
 	return (snomasks[sm-65]);
 }
 
-bool User::IsModeSet(unsigned char m)
+bool User::IsModeSet(unsigned char m) const
 {
 	ModeHandler* mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
 	return (mh && modes[mh->GetId()]);
