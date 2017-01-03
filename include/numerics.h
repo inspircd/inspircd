@@ -70,8 +70,6 @@ enum
 	RPL_LOCALUSERS                  = 265,
 	RPL_GLOBALUSERS                 = 266,
 
-	RPL_MAPUSERS                    = 270, // insp-specific
-
 	RPL_AWAY                        = 301,
 	RPL_USERHOST                    = 302,
 	RPL_ISON                        = 303,
@@ -194,6 +192,8 @@ enum
 
 	ERR_CHANOPEN                    = 713,
 	ERR_KNOCKONCHAN                 = 714,
+
+	RPL_MAPUSERS                    = 745, // insp-specific
 
 	ERR_WORDFILTERED                = 936, // insp-specific, would be nice if we could get rid of this..
 	ERR_CANTUNLOADMODULE            = 972, // insp-specific
