@@ -1001,6 +1001,12 @@
 #<joinflood duration="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Join on invite module: Forces user to join specific channel on invite
+# Should be used with caution, as it allows potential abuse by users
+# Perfect when INVITE command is banned and reserved only to net admins
+#<module name="m_joinoninvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Jump server module: Adds support for the RPL_REDIR numeric.
 # This module is oper-only.
 # To use, JUMPSERVER must be in one of your oper class blocks.
