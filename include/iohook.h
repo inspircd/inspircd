@@ -21,7 +21,7 @@
 
 class StreamSocket;
 
-class IOHookProvider : public ServiceProvider
+class IOHookProvider : public refcountbase, public ServiceProvider
 {
  	const bool middlehook;
 
@@ -69,7 +69,7 @@ class IOHook : public classbase
 	/** The IOHookProvider for this hook, contains information about the hook,
 	 * such as the module providing it and the hook type.
 	 */
-	IOHookProvider* const prov;
+	reference<IOHookProvider> prov;
 
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object

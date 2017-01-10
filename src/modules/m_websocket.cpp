@@ -376,12 +376,12 @@ void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs
 class ModuleWebSocket : public Module
 {
 	dynamic_reference_nocheck<HashProvider> hash;
-	WebSocketHookProvider hookprov;
+	reference<WebSocketHookProvider> hookprov;
 
  public:
 	ModuleWebSocket()
 		: hash(this, "hash/sha1")
-		, hookprov(this)
+		, hookprov(new WebSocketHookProvider(this))
 	{
 		sha1 = &hash;
 	}

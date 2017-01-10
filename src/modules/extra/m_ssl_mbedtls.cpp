@@ -345,7 +345,7 @@ namespace mbedTLS
 		}
 	};
 
-	class Profile : public refcountbase
+	class Profile
 	{
 		/** Name of this profile
 		 */
@@ -378,29 +378,71 @@ namespace mbedTLS
 		 */
 		const unsigned int outrecsize;
 
-		Profile(const std::string& profilename, const std::string& certstr, const std::string& keystr,
-				const std::string& dhstr, unsigned int mindh, const std::string& hashstr,
-				const std::string& ciphersuitestr, const std::string& curvestr,
-				const std::string& castr, const std::string& crlstr,
-				unsigned int recsize,
-				CTRDRBG& ctrdrbg,
-				int minver, int maxver,
-				bool requestclientcert
-				)
-			: name(profilename)
-			, x509cred(certstr, keystr)
-			, ciphersuites(ciphersuitestr)
-			, curves(curvestr)
-			, serverctx(ctrdrbg, MBEDTLS_SSL_IS_SERVER)
-			, clientctx(ctrdrbg, MBEDTLS_SSL_IS_CLIENT)
-			, cacerts(castr, true)
-			, crl(crlstr)
-			, hash(hashstr)
-			, outrecsize(recsize)
+	 public:
+		struct Config
+		{
+			const std::string name;
+
+			CTRDRBG& ctrdrbg;
+
+			const std::string certstr;
+			const std::string keystr;
+			const std::string dhstr;
+
+			const std::string ciphersuitestr;
+			const std::string curvestr;
+			const unsigned int mindh;
+			const std::string hashstr;
+
+			std::string crlstr;
+			std::string castr;
+
+			const int minver;
+			const int maxver;
+			const unsigned int outrecsize;
+			const bool requestclientcert;
+
+			Config(const std::string& profilename, ConfigTag* tag, CTRDRBG& ctr_drbg)
+				: name(profilename)
+				, ctrdrbg(ctr_drbg)
+				, certstr(ReadFile(tag->getString("certfile", "cert.pem")))
+				, keystr(ReadFile(tag->getString("keyfile", "key.pem")))
+				, dhstr(ReadFile(tag->getString("dhfile", "dhparams.pem")))
+				, ciphersuitestr(tag->getString("ciphersuites"))
+				, curvestr(tag->getString("curves"))
+				, mindh(tag->getInt("mindhbits", 2048))
+				, hashstr(tag->getString("hash", "sha256"))
+				, castr(tag->getString("cafile"))
+				, minver(tag->getInt("minver"))
+				, maxver(tag->getInt("maxver"))
+				, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
+				, requestclientcert(tag->getBool("requestclientcert", true))
+			{
+				if (!castr.empty())
+				{
+					castr = ReadFile(castr);
+					crlstr = tag->getString("crlfile");
+					if (!crlstr.empty())
+						crlstr = ReadFile(crlstr);
+				}
+			}
+		};
+
+		Profile(Config& config)
+			: name(config.name)
+			, x509cred(config.certstr, config.keystr)
+			, ciphersuites(config.ciphersuitestr)
+			, curves(config.curvestr)
+			, serverctx(config.ctrdrbg, MBEDTLS_SSL_IS_SERVER)
+			, clientctx(config.ctrdrbg, MBEDTLS_SSL_IS_CLIENT)
+			, cacerts(config.castr, true)
+			, crl(config.crlstr)
+			, hash(config.hashstr)
+			, outrecsize(config.outrecsize)
 		{
 			serverctx.SetX509CertAndKey(x509cred);
 			clientctx.SetX509CertAndKey(x509cred);
-			clientctx.SetMinDHBits(mindh);
+			clientctx.SetMinDHBits(config.mindh);
 
 			if (!ciphersuites.empty())
 			{
@@ -414,19 +456,19 @@ namespace mbedTLS
 				clientctx.SetCurves(curves);
 			}
 
-			serverctx.SetVersion(minver, maxver);
-			clientctx.SetVersion(minver, maxver);
+			serverctx.SetVersion(config.minver, config.maxver);
+			clientctx.SetVersion(config.minver, config.maxver);
 
-			if (!dhstr.empty())
+			if (!config.dhstr.empty())
 			{
-				dhparams.set(dhstr);
+				dhparams.set(config.dhstr);
 				serverctx.SetDHParams(dhparams);
 			}
 
 			clientctx.SetOptionalVerifyCert();
 			clientctx.SetCA(cacerts, crl);
 			// The default for servers is to not request a client certificate from the peer
-			if (requestclientcert)
+			if (config.requestclientcert)
 			{
 				serverctx.SetOptionalVerifyCert();
 				serverctx.SetCA(cacerts, crl);
@@ -440,35 +482,6 @@ namespace mbedTLS
 			if (ret.empty())
 				throw Exception("Cannot read file " + filename);
 			return ret;
-		}
-
-	 public:
-		static reference<Profile> Create(const std::string& profilename, ConfigTag* tag, CTRDRBG& ctr_drbg)
-		{
-			const std::string certstr = ReadFile(tag->getString("certfile", "cert.pem"));
-			const std::string keystr = ReadFile(tag->getString("keyfile", "key.pem"));
-			const std::string dhstr = ReadFile(tag->getString("dhfile", "dhparams.pem"));
-
-			const std::string ciphersuitestr = tag->getString("ciphersuites");
-			const std::string curvestr = tag->getString("curves");
-			unsigned int mindh = tag->getInt("mindhbits", 2048);
-			std::string hashstr = tag->getString("hash", "sha256");
-
-			std::string crlstr;
-			std::string castr = tag->getString("cafile");
-			if (!castr.empty())
-			{
-				castr = ReadFile(castr);
-				crlstr = tag->getString("crlfile");
-				if (!crlstr.empty())
-					crlstr = ReadFile(crlstr);
-			}
-
-			int minver = tag->getInt("minver");
-			int maxver = tag->getInt("maxver");
-			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
-			const bool requestclientcert = tag->getBool("requestclientcert", true);
-			return new Profile(profilename, certstr, keystr, dhstr, mindh, hashstr, ciphersuitestr, curvestr, castr, crlstr, outrecsize, ctr_drbg, minver, maxver, requestclientcert);
 		}
 
 		/** Set up the given session with the settings in this profile
@@ -501,7 +514,6 @@ class mbedTLSIOHook : public SSLIOHook
 
 	mbedtls_ssl_context sess;
 	Status status;
-	reference<mbedTLS::Profile> profile;
 
 	void CloseSession()
 	{
@@ -575,7 +587,7 @@ class mbedTLSIOHook : public SSLIOHook
 		}
 
 		// If there is a certificate we can always generate a fingerprint
-		certificate->fingerprint = profile->GetHash().hash(cert->raw.p, cert->raw.len);
+		certificate->fingerprint = GetProfile().GetHash().hash(cert->raw.p, cert->raw.len);
 
 		// At this point mbedTLS verified the cert already, we just need to check the results
 		const uint32_t flags = mbedtls_ssl_get_verify_result(&sess);
@@ -649,16 +661,15 @@ class mbedTLSIOHook : public SSLIOHook
 	}
 
  public:
-	mbedTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool isserver, mbedTLS::Profile* sslprofile)
+	mbedTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
 		, status(ISSL_NONE)
-		, profile(sslprofile)
 	{
 		mbedtls_ssl_init(&sess);
 		if (isserver)
-			profile->SetupServerSession(&sess);
+			GetProfile().SetupServerSession(&sess);
 		else
-			profile->SetupClientSession(&sess);
+			GetProfile().SetupClientSession(&sess);
 
 		mbedtls_ssl_set_bio(&sess, reinterpret_cast<void*>(sock), Push, Pull, NULL);
 
@@ -725,7 +736,7 @@ class mbedTLSIOHook : public SSLIOHook
 		// Session is ready for transferring application data
 		while (!sendq.empty())
 		{
-			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
+			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = mbedtls_ssl_write(&sess, reinterpret_cast<const unsigned char*>(buffer.data()), buffer.length());
 			if (ret == (int)buffer.length())
@@ -788,17 +799,18 @@ class mbedTLSIOHook : public SSLIOHook
 		return false;
 	}
 
+	mbedTLS::Profile& GetProfile();
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
-class mbedTLSIOHookProvider : public refcountbase, public IOHookProvider
+class mbedTLSIOHookProvider : public IOHookProvider
 {
-	reference<mbedTLS::Profile> profile;
+	mbedTLS::Profile profile;
 
  public:
- 	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile* prof)
-		: IOHookProvider(mod, "ssl/" + prof->GetName(), IOHookProvider::IOH_SSL)
-		, profile(prof)
+ 	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile::Config& config)
+		: IOHookProvider(mod, "ssl/" + config.name, IOHookProvider::IOH_SSL)
+		, profile(config)
 	{
 		ServerInstance->Modules->AddService(*this);
 	}
@@ -810,14 +822,22 @@ class mbedTLSIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new mbedTLSIOHook(this, sock, true, profile);
+		new mbedTLSIOHook(this, sock, true);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new mbedTLSIOHook(this, sock, false, profile);
+		new mbedTLSIOHook(this, sock, false);
 	}
+
+	mbedTLS::Profile& GetProfile() { return profile; }
 };
+
+mbedTLS::Profile& mbedTLSIOHook::GetProfile()
+{
+	IOHookProvider* hookprov = prov;
+	return static_cast<mbedTLSIOHookProvider*>(hookprov)->GetProfile();
+}
 
 class ModuleSSLmbedTLS : public Module
 {
@@ -844,8 +864,8 @@ class ModuleSSLmbedTLS : public Module
 
 			try
 			{
-				reference<mbedTLS::Profile> profile(mbedTLS::Profile::Create(defname, tag, ctr_drbg));
-				newprofiles.push_back(new mbedTLSIOHookProvider(this, profile));
+				mbedTLS::Profile::Config profileconfig(defname, tag, ctr_drbg);
+				newprofiles.push_back(new mbedTLSIOHookProvider(this, profileconfig));
 			}
 			catch (CoreException& ex)
 			{
@@ -866,21 +886,28 @@ class ModuleSSLmbedTLS : public Module
 				continue;
 			}
 
-			reference<mbedTLS::Profile> profile;
+			reference<mbedTLSIOHookProvider> prov;
 			try
 			{
-				profile = mbedTLS::Profile::Create(name, tag, ctr_drbg);
+				mbedTLS::Profile::Config profileconfig(name, tag, ctr_drbg);
+				prov = new mbedTLSIOHookProvider(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{
 				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
-			newprofiles.push_back(new mbedTLSIOHookProvider(this, profile));
+			newprofiles.push_back(prov);
 		}
 
 		// New profiles are ok, begin using them
 		// Old profiles are deleted when their refcount drops to zero
+		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
+		{
+			mbedTLSIOHookProvider& prov = **i;
+			ServerInstance->Modules.DelService(prov);
+		}
+
 		profiles.swap(newprofiles);
 	}
 

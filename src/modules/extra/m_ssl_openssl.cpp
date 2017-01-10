@@ -240,7 +240,7 @@ namespace OpenSSL
 		}
 	};
 
-	class Profile : public refcountbase
+	class Profile
 	{
 		/** Name of this profile
 		 */
@@ -459,7 +459,6 @@ class OpenSSLIOHook : public SSLIOHook
 	SSL* sess;
 	issl_status status;
 	bool data_to_write;
-	reference<OpenSSL::Profile> profile;
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
 	int Handshake(StreamSocket* user)
@@ -559,7 +558,7 @@ class OpenSSLIOHook : public SSLIOHook
 		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
 			certinfo->issuer.clear();
 
-		if (!X509_digest(cert, profile->GetDigest(), md, &n))
+		if (!X509_digest(cert, GetProfile().GetDigest(), md, &n))
 		{
 			certinfo->error = "Out of memory generating fingerprint";
 		}
@@ -580,7 +579,7 @@ class OpenSSLIOHook : public SSLIOHook
 	{
 		if ((where & SSL_CB_HANDSHAKE_START) && (status == ISSL_OPEN))
 		{
-			if (profile->AllowRenegotiation())
+			if (GetProfile().AllowRenegotiation())
 				return;
 
 			// The other side is trying to renegotiate, kill the connection and change status
@@ -622,12 +621,11 @@ class OpenSSLIOHook : public SSLIOHook
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
  public:
-	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
+	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
 		, status(ISSL_NONE)
 		, data_to_write(false)
-		, profile(sslprofile)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
 #ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
@@ -721,7 +719,7 @@ class OpenSSLIOHook : public SSLIOHook
 		while (!sendq.empty())
 		{
 			ERR_clear_error();
-			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
+			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			int ret = SSL_write(sess, buffer.data(), buffer.size());
 
@@ -790,6 +788,7 @@ class OpenSSLIOHook : public SSLIOHook
 	}
 
 	bool IsHandshakeDone() const { return (status == ISSL_OPEN); }
+	OpenSSL::Profile& GetProfile();
 };
 
 static void StaticSSLInfoCallback(const SSL* ssl, int where, int rc)
@@ -844,14 +843,14 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 	return ret;
 }
 
-class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
+class OpenSSLIOHookProvider : public IOHookProvider
 {
-	reference<OpenSSL::Profile> profile;
+	OpenSSL::Profile profile;
 
  public:
-	OpenSSLIOHookProvider(Module* mod, reference<OpenSSL::Profile>& prof)
-		: IOHookProvider(mod, "ssl/" + prof->GetName(), IOHookProvider::IOH_SSL)
-		, profile(prof)
+	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, ConfigTag* tag)
+		: IOHookProvider(mod, "ssl/" + profilename, IOHookProvider::IOH_SSL)
+		, profile(profilename, tag)
 	{
 		ServerInstance->Modules->AddService(*this);
 	}
@@ -863,14 +862,22 @@ class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, profile->CreateServerSession(), profile);
+		new OpenSSLIOHook(this, sock, profile.CreateServerSession());
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, profile->CreateClientSession(), profile);
+		new OpenSSLIOHook(this, sock, profile.CreateClientSession());
 	}
+
+	OpenSSL::Profile& GetProfile() { return profile; }
 };
+
+OpenSSL::Profile& OpenSSLIOHook::GetProfile()
+{
+	IOHookProvider* hookprov = prov;
+	return static_cast<OpenSSLIOHookProvider*>(hookprov)->GetProfile();
+}
 
 class ModuleSSLOpenSSL : public Module
 {
@@ -891,8 +898,7 @@ class ModuleSSLOpenSSL : public Module
 
 			try
 			{
-				reference<OpenSSL::Profile> profile(new OpenSSL::Profile(defname, tag));
-				newprofiles.push_back(new OpenSSLIOHookProvider(this, profile));
+				newprofiles.push_back(new OpenSSLIOHookProvider(this, defname, tag));
 			}
 			catch (OpenSSL::Exception& ex)
 			{
@@ -913,17 +919,23 @@ class ModuleSSLOpenSSL : public Module
 				continue;
 			}
 
-			reference<OpenSSL::Profile> profile;
+			reference<OpenSSLIOHookProvider> prov;
 			try
 			{
-				profile = new OpenSSL::Profile(name, tag);
+				prov = new OpenSSLIOHookProvider(this, name, tag);
 			}
 			catch (CoreException& ex)
 			{
 				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
-			newprofiles.push_back(new OpenSSLIOHookProvider(this, profile));
+			newprofiles.push_back(prov);
+		}
+
+		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
+		{
+			OpenSSLIOHookProvider& prov = **i;
+			ServerInstance->Modules.DelService(prov);
 		}
 
 		profiles.swap(newprofiles);

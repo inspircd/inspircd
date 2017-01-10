@@ -566,7 +566,7 @@ namespace GnuTLS
 		int ret() const { return retval; }
 	};
 
-	class Profile : public refcountbase
+	class Profile
 	{
 		/** Name of this profile
 		 */
@@ -595,22 +595,6 @@ namespace GnuTLS
 		/** True to request a client certificate as a server
 		 */
 		const bool requestclientcert;
-
-		Profile(const std::string& profilename, const std::string& certstr, const std::string& keystr,
-				std::auto_ptr<DHParams>& DH, unsigned int mindh, const std::string& hashstr,
-				const std::string& priostr, std::auto_ptr<X509CertList>& CA, std::auto_ptr<X509CRL>& CRL,
-				unsigned int recsize, bool Requestclientcert)
-			: name(profilename)
-			, x509cred(certstr, keystr)
-			, min_dh_bits(mindh)
-			, hash(hashstr)
-			, priority(priostr)
-			, outrecsize(recsize)
-			, requestclientcert(Requestclientcert)
-		{
-			x509cred.SetDH(DH);
-			x509cred.SetCA(CA, CRL);
-		}
 
 		static std::string ReadFile(const std::string& filename)
 		{
@@ -647,42 +631,66 @@ namespace GnuTLS
 		}
 
 	 public:
-		static reference<Profile> Create(const std::string& profilename, ConfigTag* tag)
+		struct Config
 		{
-			std::string certstr = ReadFile(tag->getString("certfile", "cert.pem"));
-			std::string keystr = ReadFile(tag->getString("keyfile", "key.pem"));
+			std::string name;
 
-			std::auto_ptr<DHParams> dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
-
-			std::string priostr = GetPrioStr(profilename, tag);
-			unsigned int mindh = tag->getInt("mindhbits", 1024);
-			std::string hashstr = tag->getString("hash", "md5");
-
-			// Load trusted CA and revocation list, if set
 			std::auto_ptr<X509CertList> ca;
 			std::auto_ptr<X509CRL> crl;
-			std::string filename = tag->getString("cafile");
-			if (!filename.empty())
-			{
-				ca.reset(new X509CertList(ReadFile(filename)));
 
-				filename = tag->getString("crlfile");
+			std::string certstr;
+			std::string keystr;
+			std::auto_ptr<DHParams> dh;
+
+			std::string priostr;
+			unsigned int mindh;
+			std::string hashstr;
+
+			unsigned int outrecsize;
+			bool requestclientcert;
+
+			Config(const std::string& profilename, ConfigTag* tag)
+				: name(profilename)
+				, certstr(ReadFile(tag->getString("certfile", "cert.pem")))
+				, keystr(ReadFile(tag->getString("keyfile", "key.pem")))
+				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem"))))
+				, priostr(GetPrioStr(profilename, tag))
+				, mindh(tag->getInt("mindhbits", 1024))
+				, hashstr(tag->getString("hash", "md5"))
+				, requestclientcert(tag->getBool("requestclientcert", true))
+			{
+				// Load trusted CA and revocation list, if set
+				std::string filename = tag->getString("cafile");
 				if (!filename.empty())
-					crl.reset(new X509CRL(ReadFile(filename)));
-			}
+				{
+					ca.reset(new X509CertList(ReadFile(filename)));
+
+					filename = tag->getString("crlfile");
+					if (!filename.empty())
+						crl.reset(new X509CRL(ReadFile(filename)));
+				}
 
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
-			// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
-			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512);
+				// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
+				outrecsize = tag->getInt("outrecsize", 2048, 512);
 #else
-			unsigned int outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
+				outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
 #endif
+			}
+		};
 
-			const bool requestclientcert = tag->getBool("requestclientcert", true);
-
-			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl, outrecsize, requestclientcert);
+		Profile(Config& config)
+			: name(config.name)
+			, x509cred(config.certstr, config.keystr)
+			, min_dh_bits(config.mindh)
+			, hash(config.hashstr)
+			, priority(config.priostr)
+			, outrecsize(config.outrecsize)
+			, requestclientcert(config.requestclientcert)
+		{
+			x509cred.SetDH(config.dh);
+			x509cred.SetCA(config.ca, config.crl);
 		}
-
 		/** Set up the given session with the settings in this profile
 		 */
 		void SetupSession(gnutls_session_t sess)
@@ -708,7 +716,6 @@ class GnuTLSIOHook : public SSLIOHook
  private:
 	gnutls_session_t sess;
 	issl_status status;
-	reference<GnuTLS::Profile> profile;
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 	size_t gbuffersize;
 #endif
@@ -855,7 +862,7 @@ class GnuTLSIOHook : public SSLIOHook
 				issuer.clear();
 		}
 
-		if ((ret = gnutls_x509_crt_get_fingerprint(cert, profile->GetHash(), digest, &digest_size)) < 0)
+		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), digest, &digest_size)) < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
 		}
@@ -1043,11 +1050,10 @@ info_done_dealloc:
 #endif // INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 
  public:
-	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags, const reference<GnuTLS::Profile>& sslprofile)
+	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
 		, status(ISSL_NONE)
-		, profile(sslprofile)
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 		, gbuffersize(0)
 #endif
@@ -1060,7 +1066,7 @@ info_done_dealloc:
 		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
 #endif
 		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
-		profile->SetupSession(sess);
+		GetProfile().SetupSession(sess);
 
 		sock->AddIOHook(this);
 		Handshake(sock);
@@ -1132,7 +1138,7 @@ info_done_dealloc:
 
 			// GnuTLS buffer is empty but sendq is not, begin sending data from the sendq
 			gnutls_record_cork(this->sess);
-			while ((!sendq.empty()) && (gbuffersize < profile->GetOutgoingRecordSize()))
+			while ((!sendq.empty()) && (gbuffersize < GetProfile().GetOutgoingRecordSize()))
 			{
 				const StreamSocket::SendQueue::Element& elem = sendq.front();
 				gbuffersize += elem.length();
@@ -1150,7 +1156,7 @@ info_done_dealloc:
 
 		while (!sendq.empty())
 		{
-			FlattenSendQueue(sendq, profile->GetOutgoingRecordSize());
+			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
 			ret = HandleWriteRet(user, gnutls_record_send(this->sess, buffer.data(), buffer.length()));
 
@@ -1201,7 +1207,7 @@ info_done_dealloc:
 		return true;
 	}
 
-	GnuTLS::Profile* GetProfile() { return profile; }
+	GnuTLS::Profile& GetProfile();
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
@@ -1214,7 +1220,7 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	st->key_type = GNUTLS_PRIVKEY_X509;
 #endif
 	StreamSocket* sock = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(sess));
-	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile()->GetX509Credentials();
+	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile().GetX509Credentials();
 
 	st->ncerts = cred.certs.size();
 	st->cert.x509 = cred.certs.raw();
@@ -1224,14 +1230,14 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	return 0;
 }
 
-class GnuTLSIOHookProvider : public refcountbase, public IOHookProvider
+class GnuTLSIOHookProvider : public IOHookProvider
 {
-	reference<GnuTLS::Profile> profile;
+	GnuTLS::Profile profile;
 
  public:
- 	GnuTLSIOHookProvider(Module* mod, reference<GnuTLS::Profile>& prof)
-		: IOHookProvider(mod, "ssl/" + prof->GetName(), IOHookProvider::IOH_SSL)
-		, profile(prof)
+ 	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
+		: IOHookProvider(mod, "ssl/" + config.name, IOHookProvider::IOH_SSL)
+		, profile(config)
 	{
 		ServerInstance->Modules->AddService(*this);
 	}
@@ -1243,14 +1249,22 @@ class GnuTLSIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, GNUTLS_SERVER, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_SERVER);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT, profile);
+		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT);
 	}
+
+	GnuTLS::Profile& GetProfile() { return profile; }
 };
+
+GnuTLS::Profile& GnuTLSIOHook::GetProfile()
+{
+	IOHookProvider* hookprov = prov;
+	return static_cast<GnuTLSIOHookProvider*>(hookprov)->GetProfile();
+}
 
 class ModuleSSLGnuTLS : public Module
 {
@@ -1278,8 +1292,8 @@ class ModuleSSLGnuTLS : public Module
 
 			try
 			{
-				reference<GnuTLS::Profile> profile(GnuTLS::Profile::Create(defname, tag));
-				newprofiles.push_back(new GnuTLSIOHookProvider(this, profile));
+				GnuTLS::Profile::Config profileconfig(defname, tag);
+				newprofiles.push_back(new GnuTLSIOHookProvider(this, profileconfig));
 			}
 			catch (CoreException& ex)
 			{
@@ -1300,21 +1314,28 @@ class ModuleSSLGnuTLS : public Module
 				continue;
 			}
 
-			reference<GnuTLS::Profile> profile;
+			reference<GnuTLSIOHookProvider> prov;
 			try
 			{
-				profile = GnuTLS::Profile::Create(name, tag);
+				GnuTLS::Profile::Config profileconfig(name, tag);
+				prov = new GnuTLSIOHookProvider(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{
 				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
-			newprofiles.push_back(new GnuTLSIOHookProvider(this, profile));
+			newprofiles.push_back(prov);
 		}
 
 		// New profiles are ok, begin using them
 		// Old profiles are deleted when their refcount drops to zero
+		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
+		{
+			GnuTLSIOHookProvider& prov = **i;
+			ServerInstance->Modules.DelService(prov);
+		}
+
 		profiles.swap(newprofiles);
 	}
 
