@@ -24,7 +24,7 @@
 .BR
 
 .SH "SYNOPSIS"
-\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--runasroot] [--version] 
+\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--runasroot] [--version] [--checkconf] 
 
 .SH "OPTIONS"
 .TP
@@ -39,6 +39,10 @@ Log verbosely to the standard output stream.
 .B "--nofork"
 .br
 Don't fork into the background after starting up.
+.TP
+.B "--checkconf"
+.br
+Check the configuration for errors. Die successfully with honor if the configuration is good.
 .TP
 .B "--nolog"
 .br

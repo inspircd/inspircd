@@ -238,9 +238,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;
-	// Flag variables passed to getopt_long() later
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0;
+	    do_nolog = 0, do_root = 0, do_checkconf = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Config = 0;
@@ -291,6 +290,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #ifdef INSPIRCD_ENABLE_TESTSUITE
 		{ "testsuite",	no_argument,		&do_testsuite,	1	},
 #endif
+		{ "checkconf",	no_argument,		&do_checkconf,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -323,6 +323,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (do_testsuite)
 		do_nofork = do_debug = true;
 #endif
+
+        if (do_checkconf) {
+            std::cout << "do_checkconf!" << std::endl;
+        do_nofork = true;
+    }
 
 	if (do_version)
 	{
@@ -428,6 +433,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	std::cout << std::endl;
 
 	this->Modules->LoadAll();
+
+	// If there were errors, we would have died in ConfigReader. If we get here,
+	// the configuration was OK, but we don't want to do any more.
+	if (do_checkconf)
+	{
+		exit(0);
+	}
 
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
