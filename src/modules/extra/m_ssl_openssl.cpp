@@ -129,8 +129,8 @@ class ModuleSSLOpenSSL : public Module
 	std::string keyfile;
 	std::string certfile;
 	std::string cafile;
-	// std::string crlfile;
 	std::string dhfile;
+	std::string ciphers;
 	std::string sslports;
 
 	int clientactive;
@@ -256,6 +256,7 @@ class ModuleSSLOpenSSL : public Module
 		certfile = Conf.ReadValue("openssl", "certfile", 0);
 		keyfile	 = Conf.ReadValue("openssl", "keyfile", 0);
 		dhfile	 = Conf.ReadValue("openssl", "dhfile", 0);
+		ciphers  = Conf.ReadValue("openssl", "ciphers", 0);
 
 		// Set all the default values needed.
 		if (cafile.empty())
@@ -269,6 +270,9 @@ class ModuleSSLOpenSSL : public Module
 
 		if (dhfile.empty())
 			dhfile = "dhparams.pem";
+
+		if (ciphers.empty())
+			ciphers = "ALL";
 
 		// Prepend relative paths with the path to the config directory.
 		if ((cafile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(cafile)))
@@ -324,6 +328,12 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		fclose(dhpfile);
+
+		if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
+			ERR_print_errors_cb(error_callback, this);
+		}
 	}
 
 	virtual void On005Numeric(std::string &output)
