@@ -33,6 +33,7 @@
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509.h>
 #include "ssl.h"
 
 #ifdef _WIN32
@@ -218,6 +219,7 @@ class ModuleSSLOpenSSL : public Module
 		/* Global SSL library initialization*/
 		SSL_library_init();
 		SSL_load_error_strings();
+		ERR_load_X509_strings();
 
 		/* Build our SSL contexts:
 		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
@@ -719,7 +721,9 @@ class ModuleSSLOpenSSL : public Module
 
 	bool Handshake(StreamSocket* user, issl_session* session)
 	{
+		int errerr;
 		int ret;
+		LocalUser* luser = ((UserIOHandler*)user)->user;
 
 		ERR_clear_error();
 		if (session->outbound)
@@ -729,26 +733,21 @@ class ModuleSSLOpenSSL : public Module
 
 		if (ret < 0)
 		{
-			int err = SSL_get_error(session->sess, ret);
+			// Protocol/connection error.
+			int sslerr = SSL_get_error(session->sess, ret);
 
-			if (err == SSL_ERROR_WANT_READ)
+			if (sslerr == SSL_ERROR_WANT_READ)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				session->status = ISSL_HANDSHAKING;
 				return true;
 			}
-			else if (err == SSL_ERROR_WANT_WRITE)
+			else if (sslerr == SSL_ERROR_WANT_WRITE)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				session->status = ISSL_HANDSHAKING;
 				return true;
 			}
-			else
-			{
-				CloseSession(session);
-			}
-
-			return false;
 		}
 		else if (ret > 0)
 		{
@@ -761,10 +760,12 @@ class ModuleSSLOpenSSL : public Module
 
 			return true;
 		}
-		else if (ret == 0)
-		{
-			CloseSession(session);
-		}
+		errerr = ERR_get_error();
+		ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "OpenSSL handshake %s '%s' for '%s' port '%d'",
+			ret ? "error" : "failure", // Error in protocol/connection vs handshake failure.
+			errerr ? ERR_error_string(errerr, NULL) : "unknown",
+			luser->GetIPString(), luser->GetServerPort());
+		CloseSession(session);
 		return false;
 	}
 
@@ -779,6 +780,7 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = NULL;
 		session->status = ISSL_NONE;
 		session->cert = NULL;
+
 	}
 
 	void VerifyCertificate(issl_session* session, StreamSocket* user)
@@ -792,16 +794,21 @@ class ModuleSSLOpenSSL : public Module
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
 		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
+		long x509_ret;
 
 		cert = SSL_get_peer_certificate((SSL*)session->sess);
 
 		if (!cert)
 		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
+			certinfo->error = "Could not get peer certificate";
 			return;
 		}
 
-		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
+		x509_ret = SSL_get_verify_result(session->sess);
+		certinfo->invalid = (x509_ret != X509_V_OK);
+		if (certinfo->invalid) {
+			certinfo->error = X509_verify_cert_error_string(x509_ret);
+		}
 
 		if (!SelfSigned)
 		{

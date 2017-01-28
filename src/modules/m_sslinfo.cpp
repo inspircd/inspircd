@@ -239,6 +239,19 @@ class ModuleSSLInfo : public Module
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
 			ok = (req.cert && req.cert->IsCAVerified());
+			if (!ok) {
+				ServerInstance->Logs->Log("m_sslinfo", DEFAULT,
+					"Invalid client certificate from '%s' port '%d': '%s'",
+					user->GetIPString(), user->GetServerPort(),
+					req.cert ? req.cert->GetError().c_str() : "No SSL in use");
+			} else {
+				ServerInstance->Logs->Log("m_sslinfo", DEFAULT,
+					"Accepted client certificate from '%s' port '%d' with DN '%s', Issuer '%s', and FP '%s'",
+					user->GetIPString(), user->GetServerPort(),
+					req.cert->GetDN().c_str(),
+					req.cert->GetIssuer().c_str(),
+					req.cert->GetFingerprint().c_str());
+			}
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
