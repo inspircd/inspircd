@@ -6,7 +6,7 @@
 #               reason="reason for filtering"
 #               action="action to take"
 #               flags="filter flags"
-#		duration="optional length of gline">
+#               duration="optional length of gline">
 #
 # Valid actions for 'action' are:
 #
@@ -40,11 +40,6 @@
 # c: Strip color codes from text before trying to match
 # *: Represents all of the above flags
 # -: Does nothing, a no-op for when you do not want to specify any flags
-#
-# IMPORTANT NOTE: Because the InspIRCd config reader places special meaning on the
-# '\' character, you must use '\\' if you wish to specify a '\' character in a regular
-# expression. For example, to indicate numbers, use \\d and not \d. This does not
-# apply when adding a regular expression over irc with the /FILTER command.
 
 # Example filters:
 #
