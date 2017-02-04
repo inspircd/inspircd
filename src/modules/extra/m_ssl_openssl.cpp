@@ -517,37 +517,88 @@ class OpenSSLIOHook : public SSLIOHook
 	issl_status status;
 	bool data_to_write;
 
+	void PrintCertificate(ssl_cert* cert, int i)
+	{
+		if (!cert->exists)
+			return;
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+			"%2d s:%s", i, cert->GetDN().c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+			"   i:%s", cert->GetIssuer().c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+			"   fp:%s", cert->GetFingerprint().c_str());
+	}
+
+	void PrintChain()
+	{
+		PrintCertificate(certificate, 0);
+		for (unsigned i = 0; i < chain.size(); i++)
+		{
+			PrintCertificate(chain.at(i), i + 1);
+		}
+	}
+
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
 	int Handshake(StreamSocket* user)
 	{
+		irc::sockets::sockaddrs peersockaddr;
+		socklen_t socklen = sizeof(peersockaddr);
+		std::string addrstr;
+		if (getpeername(user->GetFd(), &peersockaddr.sa, &socklen) == -1)
+			addrstr = "unknown";
+		else
+			addrstr = peersockaddr.addr();
+		irc::sockets::sockaddrs localsockaddr;
+		int port;
+		socklen = sizeof(localsockaddr);
+		if (getsockname(user->GetFd(), &localsockaddr.sa, &socklen) == -1)
+			port = -1;
+		else
+			port = localsockaddr.port();
+
 		ERR_clear_error();
 		int ret = SSL_do_handshake(sess);
 		if (ret < 0)
 		{
-			int err = SSL_get_error(sess, ret);
+			// Protocol/connection error.
+			int sslerr = SSL_get_error(sess, ret);
 
-			if (err == SSL_ERROR_WANT_READ)
+			if (sslerr == SSL_ERROR_WANT_READ)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return 0;
 			}
-			else if (err == SSL_ERROR_WANT_WRITE)
+			else if (sslerr == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return 0;
 			}
-			else
-			{
-				CloseSession();
-				return -1;
-			}
 		}
 		else if (ret > 0)
 		{
 			// Handshake complete.
-			VerifyCertificate();
+			VerifyChain();
+
+			if (this->certificate && this->certificate->IsInvalid())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+					"Invalid peer certificate chain from "
+					"'%s' port '%d' ('%s')%s",
+					addrstr.c_str(), port,
+					this->certificate->GetError().c_str(),
+					this->certificate->exists ? ":" : "");
+				PrintChain();
+			}
+			else if (this->certificate && (!this->certificate->IsInvalid()))
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+					"Valid peer certificate chain from "
+					"'%s' port '%d':",
+					addrstr.c_str(), port);
+				PrintChain();
+			}
 
 			status = ISSL_OPEN;
 
@@ -555,10 +606,13 @@ class OpenSSLIOHook : public SSLIOHook
 
 			return 1;
 		}
-		else if (ret == 0)
-		{
-			CloseSession();
-		}
+		int errerr = ERR_get_error();
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+			"OpenSSL handshake %s '%s' for '%s' port '%d'",
+			ret ? "error" : "failure",
+			errerr ? ERR_error_string(errerr, NULL) : "unknown",
+			addrstr.c_str(), port);
+		CloseSession();
 		return -1;
 	}
 
@@ -572,25 +626,13 @@ class OpenSSLIOHook : public SSLIOHook
 		sess = NULL;
 		certificate = NULL;
 		status = ISSL_NONE;
+		chain.clear();
 	}
 
-	void VerifyCertificate()
+	void VerifyCertificate(ssl_cert* certinfo, X509* cert)
 	{
-		X509* cert;
-		ssl_cert* certinfo = new ssl_cert;
-		this->certificate = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
-
-		cert = SSL_get_peer_certificate(sess);
-
-		if (!cert)
-		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			return;
-		}
-
-		certinfo->invalid = (SSL_get_verify_result(sess) != X509_V_OK);
 
 		if (!SelfSigned)
 		{
@@ -628,8 +670,54 @@ class OpenSSLIOHook : public SSLIOHook
 		{
 			certinfo->error = "Not activated, or expired certificate";
 		}
+	}
 
+	void VerifyChain()
+	{
+		// Verify leaf peer cert.
+		X509* cert;
+		long x509_ret;
+		ssl_cert* certinfo = new ssl_cert;
+		this->certificate = certinfo;
+
+		cert = SSL_get_peer_certificate(sess);
+		if (!cert)
+		{
+			certinfo->error = "Could not get peer certificate";
+			return;
+		}
+		certinfo->exists = true;
+
+		// Unintuitive, but the result only really applies to the whole
+		// chain, so call it once here rather than once per cert.
+		x509_ret = SSL_get_verify_result(sess);
+		certinfo->invalid = (x509_ret != X509_V_OK);
+		if (certinfo->invalid)
+		{
+			certinfo->error = X509_verify_cert_error_string(x509_ret);
+		}
+		VerifyCertificate(certinfo, cert);
 		X509_free(cert);
+
+		// Verify peer chain.
+		STACK_OF(X509)* lchain;
+		lchain = SSL_get_peer_cert_chain(sess);
+		if (!lchain)
+			return;
+		for (int i = 0; i < sk_X509_num(lchain); i++)
+		{
+			ssl_cert* chaininfo = new ssl_cert;
+			chaininfo->exists = true;
+			chain.push_back(chaininfo);
+			VerifyCertificate(chaininfo, sk_X509_value(lchain, i));
+			if (chaininfo->error.empty())
+				continue;
+			// Append errors in the chain onto the main cert.
+			if (!certinfo->error.empty())
+				certinfo->error += ", ";
+			certinfo->error += "Cert chain #" +
+				std::to_string(i + 1) + ": " + chaininfo->error;
+		}
 	}
 
 	void SSLInfoCallback(int where, int rc)
@@ -1002,7 +1090,9 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL()
 	{
 		// Initialize OpenSSL
-		OPENSSL_init_ssl(0, NULL);
+		if (!(OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL))) {
+			throw ModuleException("Unable to initialize OpenSSL");
+		}
 #ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		biomethods = OpenSSL::BIOMethod::alloc();
 	}

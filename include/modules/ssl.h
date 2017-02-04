@@ -38,9 +38,9 @@ class ssl_cert : public refcountbase
 	std::string issuer;
 	std::string error;
 	std::string fingerprint;
-	bool trusted, invalid, unknownsigner, revoked;
+	bool trusted, invalid, unknownsigner, revoked, exists;
 
-	ssl_cert() : trusted(false), invalid(true), unknownsigner(true), revoked(false) {}
+	ssl_cert() : trusted(false), invalid(true), unknownsigner(true), revoked(false), exists(false) {}
 
 	/** Get certificate distinguished name
 	 * @return Certificate DN
@@ -149,6 +149,7 @@ class SSLIOHook : public IOHook
 	/** Peer SSL certificate, set by the SSL module
 	 */
 	reference<ssl_cert> certificate;
+	std::vector<reference<ssl_cert>> chain;
 
 	/** Reduce elements in a send queue by appending later elements to the first element until there are no more
 	 * elements to append or a desired length is reached
