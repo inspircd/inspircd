@@ -343,7 +343,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_debug)
 	{
-		FileWriter* fw = new FileWriter(stdout);
+		FileWriter* fw = new FileWriter(stdout, 1);
 		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}

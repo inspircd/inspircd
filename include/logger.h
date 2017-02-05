@@ -41,14 +41,18 @@ class CoreExport FileWriter
 	 */
 	FILE* log;
 
+	/** The number of write operations after which we should flush.
+	 */
+	unsigned int flush;
+
 	/** Number of write operations that have occured
 	 */
-	int writeops;
+	unsigned int writeops;
 
  public:
 	/** The constructor takes an already opened logfile.
 	 */
-	FileWriter(FILE* logfile);
+	FileWriter(FILE* logfile, unsigned int flushcount);
 
 	/** Write one or more preformatted log lines.
 	 * If the data cannot be written immediately,

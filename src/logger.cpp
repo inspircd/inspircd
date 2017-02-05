@@ -120,7 +120,7 @@ void LogManager::OpenFileLogs()
 			struct tm *mytime = gmtime(&time);
 			strftime(realtarget, sizeof(realtarget), target.c_str(), mytime);
 			FILE* f = fopen(realtarget, "a");
-			fw = new FileWriter(f);
+			fw = new FileWriter(f, static_cast<unsigned int>(tag->getInt("flush", 20, 1, INT_MAX)));
 			logmap.insert(std::make_pair(target, fw));
 		}
 		else
@@ -309,8 +309,10 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 }
 
 
-FileWriter::FileWriter(FILE* logfile)
-: log(logfile), writeops(0)
+FileWriter::FileWriter(FILE* logfile, unsigned int flushcount)
+	: log(logfile)
+	, flush(flushcount)
+	, writeops(0)
 {
 }
 
@@ -322,7 +324,7 @@ void FileWriter::WriteLogLine(const std::string &line)
 //		throw CoreException("FileWriter::WriteLogLine called with a closed logfile");
 
 	fputs(line.c_str(), log);
-	if (++writeops % 20 == 0)
+	if (++writeops % flush == 0)
 	{
 		fflush(log);
 	}
