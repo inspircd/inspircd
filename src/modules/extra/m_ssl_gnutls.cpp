@@ -321,6 +321,10 @@ class ModuleSSLGnuTLS : public Module
 
 		ServerInstance->Modules->AddService(iohook);
 		ServerInstance->Modules->AddService(starttls);
+
+		if (starttls.enabled && !ServerInstance->Modules->Find("m_cap.so"))
+			ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "WARNING: m_cap.so is not loaded. The tls capability will not be available to clients without this!");
+
 	}
 
 	void OnRehash(User* user)
