@@ -395,9 +395,9 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
-		cafile = Conf->getString("cafile", CONFIG_PATH "/ca.pem");
 		crlfile	= Conf->getString("crlfile", CONFIG_PATH "/crl.pem");
 		certfile = Conf->getString("certfile", CONFIG_PATH "/cert.pem");
+		cafile = Conf->getString("cafile", certfile);
 		keyfile	= Conf->getString("keyfile", CONFIG_PATH "/key.pem");
 		dh_bits	= Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
