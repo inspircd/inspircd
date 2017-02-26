@@ -213,7 +213,7 @@ class SHA3Provider : public HashProvider
 	 * @param  outputByteLen   The number of output bytes desired.
 	 * @pre    One must have r+c=1600 and the rate a multiple of 8 bits in this implementation.
 	 */
-	void Keccak(unsigned int rate, const unsigned char* input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char* output, unsigned long long int outputByteLen)
+	void Keccak(unsigned int rate, const unsigned char* input, unsigned int inputByteLen, unsigned char delimitedSuffix, unsigned char* output, unsigned int outputByteLen)
 	{
 		uint8_t state[200];
 		unsigned int rateInBytes = rate/8;
