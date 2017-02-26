@@ -41,7 +41,6 @@ class SHA3Provider : public HashProvider
 
 	typedef uint64_t tKeccakLane;
 
-#ifndef LITTLE_ENDIAN
 	/** Function to load a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
@@ -82,7 +81,6 @@ class SHA3Provider : public HashProvider
 			u >>= 8;
 		}
 	}
-#endif
 
 	/*
 	================================================================
@@ -92,16 +90,9 @@ class SHA3Provider : public HashProvider
 
 #define ROL64(a, offset) ((((uint64_t)a) << offset) ^ (((uint64_t)a) >> (64-offset)))
 #define i(x, y) ((x)+5*(y))
-
-#ifdef LITTLE_ENDIAN
-	#define readLane(x, y)          (((tKeccakLane*)state)[i(x, y)])
-	#define writeLane(x, y, lane)   (((tKeccakLane*)state)[i(x, y)]) = (lane)
-	#define XORLane(x, y, lane)     (((tKeccakLane*)state)[i(x, y)]) ^= (lane)
-#else
-	#define readLane(x, y)          load64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y))
-	#define writeLane(x, y, lane)   store64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
-	#define XORLane(x, y, lane)     xor64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
-#endif
+#define readLane(x, y)          load64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y))
+#define writeLane(x, y, lane)   store64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
+#define XORLane(x, y, lane)     xor64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
 
 	/**
 	 * Function that computes the linear feedback shift register (LFSR) used to
