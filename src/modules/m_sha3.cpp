@@ -45,7 +45,7 @@ class SHA3Provider : public HashProvider
 	/** Function to load a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static uint64_t load64(const uint8_t *x)
+	static uint64_t load64(const uint8_t* x)
 	{
 		int i;
 		uint64_t u=0;
@@ -60,7 +60,7 @@ class SHA3Provider : public HashProvider
 	/** Function to store a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static void store64(uint8_t *x, uint64_t u)
+	static void store64(uint8_t* x, uint64_t u)
 	{
 		unsigned int i;
 
@@ -73,7 +73,7 @@ class SHA3Provider : public HashProvider
 	/** Function to XOR into a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static void xor64(uint8_t *x, uint64_t u)
+	static void xor64(uint8_t* x, uint64_t u)
 	{
 		unsigned int i;
 
@@ -107,7 +107,7 @@ class SHA3Provider : public HashProvider
 	 * Function that computes the linear feedback shift register (LFSR) used to
 	 * define the round constants (see [Keccak Reference, Section 1.2]).
 	 */
-	int LFSR86540(uint8_t *LFSR)
+	int LFSR86540(uint8_t* LFSR)
 	{
 		int result = ((*LFSR) & 0x01) != 0;
 		if (((*LFSR) & 0x80) != 0)
@@ -121,7 +121,7 @@ class SHA3Provider : public HashProvider
 	/**
 	 * Function that computes the Keccak-f[1600] permutation on the given state.
 	 */
-	void KeccakF1600_StatePermute(void *state)
+	void KeccakF1600_StatePermute(void* state)
 	{
 		unsigned int round, x, y, j, t;
 		uint8_t LFSRstate = 0x01;
@@ -213,7 +213,7 @@ class SHA3Provider : public HashProvider
 	 * @param  outputByteLen   The number of output bytes desired.
 	 * @pre    One must have r+c=1600 and the rate a multiple of 8 bits in this implementation.
 	 */
-	void Keccak(unsigned int rate, const unsigned char *input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char *output, unsigned long long int outputByteLen)
+	void Keccak(unsigned int rate, const unsigned char* input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char* output, unsigned long long int outputByteLen)
 	{
 		uint8_t state[200];
 		unsigned int rateInBytes = rate/8;
