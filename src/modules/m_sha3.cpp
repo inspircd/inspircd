@@ -189,9 +189,6 @@ class SHA3Provider : public HashProvider
 	================================================================
 	*/
 
-#include <string.h>
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
 	/**
 	 * Function to compute the Keccak[r, c] sponge function over a given input.
 	 * @param  rate            The value of the rate r.
@@ -228,7 +225,7 @@ class SHA3Provider : public HashProvider
 
 		/* === Absorb all the input blocks === */
 		while(inputByteLen > 0) {
-			blockSize = MIN(inputByteLen, rateInBytes);
+			blockSize = std::min(inputByteLen, rateInBytes);
 			for(i=0; i<blockSize; i++)
 				state[i] ^= input[i];
 			input += blockSize;
@@ -253,7 +250,7 @@ class SHA3Provider : public HashProvider
 
 		/* === Squeeze out all the output blocks === */
 		while(outputByteLen > 0) {
-			blockSize = MIN(outputByteLen, rateInBytes);
+			blockSize = std::min(outputByteLen, rateInBytes);
 			memcpy(output, state, blockSize);
 			output += blockSize;
 			outputByteLen -= blockSize;
