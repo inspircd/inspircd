@@ -195,7 +195,6 @@ class SHA3Provider : public HashProvider
 	/**
 	 * Function to compute the Keccak[r, c] sponge function over a given input.
 	 * @param  rate            The value of the rate r.
-	 * @param  capacity        The value of the capacity c.
 	 * @param  input           Pointer to the input message.
 	 * @param  inputByteLen    The number of input bytes provided in the input message.
 	 * @param  delimitedSuffix Bits that will be automatically appended to the end
@@ -214,14 +213,14 @@ class SHA3Provider : public HashProvider
 	 * @param  outputByteLen   The number of output bytes desired.
 	 * @pre    One must have r+c=1600 and the rate a multiple of 8 bits in this implementation.
 	 */
-	void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char *output, unsigned long long int outputByteLen)
+	void Keccak(unsigned int rate, const unsigned char *input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char *output, unsigned long long int outputByteLen)
 	{
 		uint8_t state[200];
 		unsigned int rateInBytes = rate/8;
 		unsigned int blockSize = 0;
 		unsigned int i;
 
-		if (((rate + capacity) != 1600) || ((rate % 8) != 0))
+		if (((rate + this->capacity) != 1600) || ((rate % 8) != 0))
 			return;
 
 		/* === Initialize the state === */
@@ -268,7 +267,7 @@ class SHA3Provider : public HashProvider
 	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
 		std::vector<unsigned char> output(out_size);
-		Keccak(this->block_size * 8, this->capacity, (const unsigned char*)data.c_str(), data.length(), 0x06, &output[0], out_size);
+		Keccak(this->block_size * 8, (const unsigned char*)data.c_str(), data.length(), 0x06, &output[0], out_size);
 		return std::string((char*)&output[0], out_size);
 	}
 
