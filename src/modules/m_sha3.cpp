@@ -39,18 +39,16 @@ class SHA3Provider : public HashProvider
 	================================================================
 	*/
 
-	typedef unsigned char UINT8;
-	typedef unsigned long long int UINT64;
-	typedef UINT64 tKeccakLane;
+	typedef uint64_t tKeccakLane;
 
 #ifndef LITTLE_ENDIAN
 	/** Function to load a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static UINT64 load64(const UINT8 *x)
+	static uint64_t load64(const uint8_t *x)
 	{
 		int i;
-		UINT64 u=0;
+		uint64_t u=0;
 
 		for(i=7; i>=0; --i) {
 			u <<= 8;
@@ -62,7 +60,7 @@ class SHA3Provider : public HashProvider
 	/** Function to store a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static void store64(UINT8 *x, UINT64 u)
+	static void store64(uint8_t *x, uint64_t u)
 	{
 		unsigned int i;
 
@@ -75,7 +73,7 @@ class SHA3Provider : public HashProvider
 	/** Function to XOR into a 64-bit value using the little-endian (LE) convention.
 	 * On a LE platform, this could be greatly simplified using a cast.
 	 */
-	static void xor64(UINT8 *x, UINT64 u)
+	static void xor64(uint8_t *x, uint64_t u)
 	{
 		unsigned int i;
 
@@ -92,7 +90,7 @@ class SHA3Provider : public HashProvider
 	================================================================
 	*/
 
-#define ROL64(a, offset) ((((UINT64)a) << offset) ^ (((UINT64)a) >> (64-offset)))
+#define ROL64(a, offset) ((((uint64_t)a) << offset) ^ (((uint64_t)a) >> (64-offset)))
 #define i(x, y) ((x)+5*(y))
 
 #ifdef LITTLE_ENDIAN
@@ -100,16 +98,16 @@ class SHA3Provider : public HashProvider
 	#define writeLane(x, y, lane)   (((tKeccakLane*)state)[i(x, y)]) = (lane)
 	#define XORLane(x, y, lane)     (((tKeccakLane*)state)[i(x, y)]) ^= (lane)
 #else
-	#define readLane(x, y)          load64((UINT8*)state+sizeof(tKeccakLane)*i(x, y))
-	#define writeLane(x, y, lane)   store64((UINT8*)state+sizeof(tKeccakLane)*i(x, y), lane)
-	#define XORLane(x, y, lane)     xor64((UINT8*)state+sizeof(tKeccakLane)*i(x, y), lane)
+	#define readLane(x, y)          load64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y))
+	#define writeLane(x, y, lane)   store64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
+	#define XORLane(x, y, lane)     xor64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
 #endif
 
 	/**
 	 * Function that computes the linear feedback shift register (LFSR) used to
 	 * define the round constants (see [Keccak Reference, Section 1.2]).
 	 */
-	int LFSR86540(UINT8 *LFSR)
+	int LFSR86540(uint8_t *LFSR)
 	{
 		int result = ((*LFSR) & 0x01) != 0;
 		if (((*LFSR) & 0x80) != 0)
@@ -126,7 +124,7 @@ class SHA3Provider : public HashProvider
 	void KeccakF1600_StatePermute(void *state)
 	{
 		unsigned int round, x, y, j, t;
-		UINT8 LFSRstate = 0x01;
+		uint8_t LFSRstate = 0x01;
 
 		for(round=0; round<24; round++) {
 			{   /* === θ step (see [Keccak Reference, Section 2.3.2]) === */
@@ -218,7 +216,7 @@ class SHA3Provider : public HashProvider
 	 */
 	void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input, unsigned long long int inputByteLen, unsigned char delimitedSuffix, unsigned char *output, unsigned long long int outputByteLen)
 	{
-		UINT8 state[200];
+		uint8_t state[200];
 		unsigned int rateInBytes = rate/8;
 		unsigned int blockSize = 0;
 		unsigned int i;
