@@ -70,8 +70,8 @@ class DNSBLResolver : public Resolver
 			int i = countExt.get(them);
 			if (i)
 				countExt.set(them, i - 1);
-			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
-			if(result.length())
+			// All replies should be in 127.0.0.0/8
+			if (result.compare(0, 4, "127.") == 0)
 			{
 				unsigned int bitmask = 0, record = 0;
 				bool match = false;
@@ -82,6 +82,7 @@ class DNSBLResolver : public Resolver
 				switch (ConfEntry->type)
 				{
 					case DNSBLConfEntry::A_BITMASK:
+						// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 						bitmask = resultip.s_addr >> 24; /* Last octet (network byte order) */
 						bitmask &= ConfEntry->bitmask;
 						match = (bitmask != 0);
@@ -196,7 +197,11 @@ class DNSBLResolver : public Resolver
 					ConfEntry->stats_misses++;
 			}
 			else
+			{
+				if (!result.empty())
+					ServerInstance->SNO->WriteGlobalSno('a', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), result.c_str());
 				ConfEntry->stats_misses++;
+			}
 		}
 	}
 
