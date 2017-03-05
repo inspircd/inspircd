@@ -116,7 +116,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 10
+#define INSPIRCD_VERSION_API 11
 
 /**
  * This #define allows us to call a method in all
@@ -339,6 +339,7 @@ enum Implementation
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
+	I_OnCheckMembershipVisible,
 	I_END
 };
 
@@ -1299,6 +1300,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user whose IP is being set
 	 */
 	virtual void OnSetUserIP(LocalUser* user);
+
+	/** Called to see if user's membership in channel is visible to source
+	 * @param source Source user doing /whois or /who, etc.
+	 * @param user Target user
+	 * @param channel Channel target user is in
+	 * @return MOD_RES_ALLOW to override internal checks like +s/+p, MOD_RES_DENY to never show
+	 */
+	virtual ModResult OnCheckMembershipVisible(User* source, User* user, Channel* channel);
 };
 
 

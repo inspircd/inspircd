@@ -1530,6 +1530,22 @@ std::string User::ChannelList(User* source, bool spy)
 	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
 		Channel* c = *i;
+
+		if (!spy)
+		{
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnCheckMembershipVisible, MOD_RESULT, (source, this, c));
+
+			if (MOD_RESULT == MOD_RES_DENY)
+				continue;
+
+			if (MOD_RESULT == MOD_RES_ALLOW)
+			{
+				list.append(c->GetPrefixChar(this)).append(c->name).append(" ");
+				continue;
+			}
+		}
+
 		/* If the target is the sender, neither +p nor +s is set, or
 		 * the channel contains the user, it is not a spy channel
 		 */

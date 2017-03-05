@@ -42,7 +42,7 @@ class ModuleHideChans : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
+		Implementation eventlist[] = { I_OnCheckMembershipVisible, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
@@ -61,14 +61,10 @@ class ModuleHideChans : public Module
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnCheckMembershipVisible(User* user, User* dest, Channel* channel)
 	{
 		/* always show to self */
 		if (user == dest)
-			return MOD_RES_PASSTHRU;
-
-		/* don't touch anything except 319 */
-		if (numeric != 319)
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */
