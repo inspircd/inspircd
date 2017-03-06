@@ -119,6 +119,7 @@ __GNUTLS_END__
 	close($tmp);
 	$status ||= system "$certtool --generate-privkey $sec_param --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
+	$status ||= system "$certtool --generate-request --load-privkey key.pem --outfile csr.pem --template $tmp";
 	$status ||= system "$certtool --generate-dh-params $sec_param --outfile dhparams.pem";
 	$dercert = `$certtool --certificate-info --infile cert.pem --outder` unless $status;
 } elsif ($tool eq 'openssl') {
@@ -131,9 +132,12 @@ $organization
 $unit
 $common_name
 $email
+.
+$organization
 __OPENSSL_END__
 	close($tmp);
 	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
+	$status ||= system "cat $tmp | openssl req -new -nodes -key key.pem -out csr.pem 2>/dev/null";
 	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
 	$dercert = `openssl x509 -in cert.pem -outform DER` unless $status;
 }
@@ -147,6 +151,6 @@ if (defined $dercert && eval 'use Digest::SHA; 1') {
 	my $hash = Digest::SHA->new(256);
 	$hash->add($dercert);
 	say '';
-	say 'Add this TLSA record to your domain for DANE support:';
+	say 'If you are using the self-signed certificate then add this TLSA record to your domain for DANE support:';
 	say "_6697._tcp." . $common_name . " TLSA 3 0 1 " . $hash->hexdigest;
 }
