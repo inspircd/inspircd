@@ -793,7 +793,6 @@ void LocalUser::FullConnect()
 	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName.c_str(), BRANCH, umlist.c_str(), cmlist.c_str(), pmlist.c_str());
 
 	ServerInstance->Config->Send005(this);
-	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
 
 	/* Now registered */
 	if (ServerInstance->Users->unregistered_count)

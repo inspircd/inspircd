@@ -62,10 +62,12 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if (newnick == "0")
-	{
-		newnick = user->uuid;
-	}
+  
+        if (newnick == "0")
+        {
+		user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),newnick.c_str());
+		return CMD_FAILURE;
+        }
 	else if (!ServerInstance->IsNick(newnick.c_str(), ServerInstance->Config->Limits.NickMax))
 	{
 		user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),newnick.c_str());
