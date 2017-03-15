@@ -83,14 +83,18 @@ Module* DLLManager::CallInit()
 	return (*initfn.fptr)();
 }
 
-std::string DLLManager::GetVersion()
+const std::string DLLManager::GetVersion() const
 {
+	const char* srcver;
+
 	if (!h)
 		return "";
 
-	const char* srcver = (char*)dlsym(h, "inspircd_src_version");
+	srcver = static_cast<char*>(dlsym(h, "inspircd_src_version"));
+
 	if (srcver)
 		return srcver;
+
 	return "Unversioned module";
 }
 

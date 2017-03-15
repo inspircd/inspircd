@@ -63,7 +63,7 @@ class CoreExport DLLManager : public classbase
 	Module* CallInit();
 
 	/** Get detailed version information from the module file */
-	std::string GetVersion();
+	const std::string GetVersion() const;
 };
 
 #endif

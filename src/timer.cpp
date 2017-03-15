@@ -31,8 +31,8 @@ TimerManager::TimerManager()
 
 TimerManager::~TimerManager()
 {
-	for(std::vector<Timer *>::iterator i = Timers.begin(); i != Timers.end(); i++)
-		delete *i;
+    Timers.clear();
+    std::vector<Timer*>().swap(Timers);
 }
 
 void TimerManager::TickTimers(time_t TIME)
