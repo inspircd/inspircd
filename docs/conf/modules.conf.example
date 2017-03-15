@@ -642,6 +642,7 @@
 #            respectively.
 # ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
 # depriv     Can you remove the mode from yourself? Defaults to yes.
+# operonly   Is setting this mode restricted to opers? Defaults to no.
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
 #<customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">
 #<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">

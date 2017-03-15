@@ -39,6 +39,7 @@ class CustomPrefixMode : public ModeHandler
 		rank = tag->getInt("rank");
 		levelrequired = tag->getInt("ranktoset", rank);
 		depriv = tag->getBool("depriv", true);
+		oper = tag->getBool("operonly", false);
 	}
 
 	unsigned int GetPrefixRank()
