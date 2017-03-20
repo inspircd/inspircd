@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 /** Holds flood settings and state for mode +f
  */
@@ -103,12 +104,14 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 
 class ModuleMsgFlood : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
 
  public:
 
 	ModuleMsgFlood()
-		: mf(this)
+		: exemptionprov(this)
+		, mf(this)
 	{
 	}
 
@@ -121,7 +124,9 @@ class ModuleMsgFlood : public Module
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
-		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)
+		ModResult res;
+		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, dest, "flood"));
+		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		floodsettings *f = mf.ext.get(dest);

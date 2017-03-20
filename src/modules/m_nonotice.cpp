@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 class NoNotice : public SimpleChannelModeHandler
 {
@@ -29,11 +30,13 @@ class NoNotice : public SimpleChannelModeHandler
 
 class ModuleNoNotice : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	NoNotice nt;
  public:
 
 	ModuleNoNotice()
-		: nt(this)
+		: exemptionprov(this)
+		, nt(this)
 	{
 	}
 
@@ -50,7 +53,7 @@ class ModuleNoNotice : public Module
 			Channel* c = (Channel*)dest;
 			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
 			{
-				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
+				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "nonotice"));
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 				else

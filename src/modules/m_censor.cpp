@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 typedef insp::flat_map<irc::string, irc::string> censor_t;
 
@@ -42,12 +43,18 @@ class CensorChannel : public SimpleChannelModeHandler
 
 class ModuleCensor : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	censor_t censors;
 	CensorUser cu;
 	CensorChannel cc;
 
  public:
-	ModuleCensor() : cu(this), cc(this) { }
+	ModuleCensor()
+		: exemptionprov(this)
+		, cu(this)
+		, cc(this)
+	{
+	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
@@ -63,7 +70,8 @@ class ModuleCensor : public Module
 		{
 			Channel* c = (Channel*)dest;
 			active = c->IsModeSet(cc);
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"censor");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "censor"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

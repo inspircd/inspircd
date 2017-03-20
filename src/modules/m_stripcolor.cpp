@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 /** Handles channel mode +S
  */
@@ -40,11 +41,15 @@ class UserStripColor : public SimpleUserModeHandler
 
 class ModuleStripColor : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	ChannelStripColor csc;
 	UserStripColor usc;
 
  public:
-	ModuleStripColor() : csc(this), usc(this)
+	ModuleStripColor()
+		: exemptionprov(this)
+		, csc(this)
+		, usc(this)
 	{
 	}
 
@@ -67,7 +72,8 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,t,"stripcolor");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, t, "stripcolor"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
@@ -91,12 +97,13 @@ class ModuleStripColor : public Module
 		if (!IS_LOCAL(user))
 			return;
 
-		bool active = channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc))
-			&& ServerInstance->OnCheckExemption(user, channel, "stripcolor") != MOD_RES_ALLOW;
-
-		if (active)
+		if (channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc)))
 		{
-			InspIRCd::StripColor(partmessage);
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "stripcolor"));
+
+			if (res != MOD_RES_ALLOW)
+				InspIRCd::StripColor(partmessage);
 		}
 	}
 

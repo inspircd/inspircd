@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 class NoCTCP : public SimpleChannelModeHandler
 {
@@ -29,11 +30,13 @@ class NoCTCP : public SimpleChannelModeHandler
 
 class ModuleNoCTCP : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	NoCTCP nc;
 
  public:
 	ModuleNoCTCP()
-		: nc(this)
+		: exemptionprov(this)
+		, nc(this)
 	{
 	}
 
@@ -50,7 +53,8 @@ class ModuleNoCTCP : public Module
 			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ",8)))
 				return MOD_RES_PASSTHRU;
 
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"noctcp");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "noctcp"));
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 

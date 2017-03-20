@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 class ChannelSettings
 {
@@ -339,10 +340,15 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 
 class RepeatModule : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;
 
  public:
-	RepeatModule() : rm(this) {}
+	RepeatModule()
+		: exemptionprov(this)
+		, rm(this)
+	{
+	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
@@ -363,7 +369,9 @@ class RepeatModule : public Module
 		if (!memb)
 			return MOD_RES_PASSTHRU;
 
-		if (ServerInstance->OnCheckExemption(user, chan, "repeat") == MOD_RES_ALLOW)
+		ModResult res;
+		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, chan, "repeat"));
+		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		if (rm.MatchLine(memb, settings, text))

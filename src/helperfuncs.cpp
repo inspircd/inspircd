@@ -430,28 +430,3 @@ void GenRandomHandler::Call(char *output, size_t max)
 		output[i] = random();
 #endif
 }
-
-ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)
-{
-	unsigned int mypfx = chan->GetPrefixValue(user);
-	char minmode = 0;
-	std::string current;
-
-	irc::spacesepstream defaultstream(ServerInstance->Config->ConfValue("options")->getString("exemptchanops"));
-
-	while (defaultstream.GetToken(current))
-	{
-		std::string::size_type pos = current.find(':');
-		if (pos == std::string::npos)
-			continue;
-		if (!current.compare(0, pos, restriction))
-			minmode = current[pos+1];
-	}
-
-	PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(minmode);
-	if (mh && mypfx >= mh->GetPrefixRank())
-		return MOD_RES_ALLOW;
-	if (mh || minmode == '*')
-		return MOD_RES_DENY;
-	return MOD_RES_PASSTHRU;
-}

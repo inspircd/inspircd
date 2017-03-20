@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 class NoNicks : public SimpleChannelModeHandler
 {
@@ -29,10 +30,13 @@ class NoNicks : public SimpleChannelModeHandler
 
 class ModuleNoNickChange : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	NoNicks nn;
 	bool override;
  public:
-	ModuleNoNickChange() : nn(this)
+	ModuleNoNickChange()
+		: exemptionprov(this)
+		, nn(this)
 	{
 	}
 
@@ -52,7 +56,8 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = (*i)->chan;
 
-			ModResult res = ServerInstance->OnCheckExemption(user,curr,"nonick");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, curr, "nonick"));
 
 			if (res == MOD_RES_ALLOW)
 				continue;
