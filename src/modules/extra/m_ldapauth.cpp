@@ -310,36 +310,25 @@ public:
 		}
 
 		RAIILDAPMessage msg;
-		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
+		std::string what;
+		std::string::size_type pos = user->password.find(':');
+		// If a username is provided in PASS, use it, othewrise user their nick or ident
+		if (pos != std::string::npos)
+		{
+			what = (attribute + "=" + user->password.substr(0, pos));
+
+			// Trim the user: prefix, leaving just 'pass' for later password check
+			user->password = user->password.substr(pos + 1);
+		}
+		else
+		{
+			what = (attribute + "=" + (useusername ? user->ident : user->nick));
+		}
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
-			// Do a second search, based on password, if it contains a :
-			// That is, PASS <user>:<password> will work.
-			size_t pos = user->password.find(":");
-			if (pos != std::string::npos)
-			{
-				// manpage says we must deallocate regardless of success or failure
-				// since we're about to do another query (and reset msg), first
-				// free the old one.
-				msg.dealloc();
-
-				std::string cutpassword = user->password.substr(0, pos);
-				res = ldap_search_ext_s(conn, base.c_str(), searchscope, cutpassword.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
-
-				if (res == LDAP_SUCCESS)
-				{
-					// Trim the user: prefix, leaving just 'pass' for later password check
-					user->password = user->password.substr(pos + 1);
-				}
-			}
-
-			// It may have found based on user:pass check above.
-			if (res != LDAP_SUCCESS)
-			{
-				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search failed: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-				return false;
-			}
+			if (verbose)
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search failed: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
+			return false;
 		}
 		if (ldap_count_entries(conn, msg) > 1)
 		{
@@ -404,7 +393,7 @@ public:
 			std::string dnPart;
 			while (stream.GetToken(dnPart))
 			{
-				std::string::size_type pos = dnPart.find('=');
+				pos = dnPart.find('=');
 				if (pos == std::string::npos) // malformed
 					continue;
 
