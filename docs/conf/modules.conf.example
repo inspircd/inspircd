@@ -1009,7 +1009,8 @@
 #           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
 #           bindauth="mysecretpass"                                   #
 #           verbose="yes"                                             #
-#           host="$uid.$ou.inspircd.org">                             #
+#           host="$uid.$ou.inspircd.org"                              #
+#           useusername="no">                                         #
 #                                                                     #
 # <ldapwhitelist cidr="10.42.0.0/16">                                 #
 #                                                                     #
@@ -1020,6 +1021,10 @@
 #                                                                     #
 # The attribute value indicates the attribute which is used to locate #
 # a user account by name. On POSIX systems this is usually 'uid'.     #
+#                                                                     #
+# The useusername setting chooses whether the user's username or      #
+# nickname is used when locating a user account, if a username isn't  #
+# provided in PASS.                                                   #
 #                                                                     #
 # The server parameter indicates the LDAP server to connect to. The   #
 # ldap:// style scheme before the hostname proper is MANDATORY.       #
