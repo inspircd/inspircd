@@ -406,9 +406,22 @@ public:
 			return MOD_RES_DENY;
 		}
 
+		std::string what;
+		std::string::size_type pos = user->password.find(':');
+		if (pos != std::string::npos)
+		{
+			what = attribute + "=" + user->password.substr(0, pos);
+
+			// Trim the user: prefix, leaving just 'pass' for later password check
+			user->password = user->password.substr(pos + 1);
+		}
+		else
+		{
+			what = attribute + "=" + (useusername ? user->ident : user->nick);
+		}
+
 		try
 		{
-			std::string what = attribute + "=" + (useusername ? user->ident : user->nick);
 			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, base, what));
 		}
 		catch (LDAPException &ex)
