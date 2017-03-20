@@ -201,7 +201,7 @@ class CoreExport CoreException : public std::exception
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
 	 */
-	virtual ~CoreException() throw() {};
+	virtual ~CoreException() throw() {}
 	/** Returns the reason for the exception.
 	 * The module should probably put something informative here as the user will see this upon failure.
 	 */
