@@ -227,19 +227,15 @@ sub write_configure_cache(%) {
 
 sub get_compiler_info($) {
 	my $binary = shift;
-	my $version = `$binary -v 2>&1`;
-	if ($version =~ /Apple\sLLVM\sversion\s(\d+\.\d+)/i) {
-		# Apple version their LLVM releases slightly differently to the mainline LLVM.
-		# See https://trac.macports.org/wiki/XcodeVersionInfo for more information.
-		return (NAME => 'AppleClang', VERSION => $1);
-	} elsif ($version =~ /clang\sversion\s(\d+\.\d+)/i) {
-		return (NAME => 'Clang', VERSION => $1);
-	} elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
-		return (NAME => 'GCC', VERSION => $1);
-	} elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
-		return (NAME => 'ICC', VERSION => $1);
+	my %info = (NAME => 'Unknown', VERSION => '0.0');
+	return %info if system "$binary -o __compiler_info make/test/compiler_info.cpp ${\CONFIGURE_ERROR_PIPE}";
+	open(my $fh, '-|', './__compiler_info 2>/dev/null');
+	while (my $line = <$fh>) {
+		$info{$1} = $2 if $line =~ /^([A-Z]+)\s(.+)$/;
 	}
-	return (NAME => $binary, VERSION => '0.0');
+	close $fh;
+	unlink './__compiler_info';
+	return %info;
 }
 
 sub find_compiler {
