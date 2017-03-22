@@ -203,40 +203,35 @@ void SocketEngine::SetReuse(int fd)
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
 	int nbRecvd = recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
-	if (nbRecvd > 0)
-		stats.Update(nbRecvd, 0);
+	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
 int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
 	int nbSent = send(fd->GetFd(), (const char*)buf, len, flags);
-	if (nbSent > 0)
-		stats.Update(0, nbSent);
+	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
 int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
 	int nbRecvd = recv(fd->GetFd(), (char*)buf, len, flags);
-	if (nbRecvd > 0)
-		stats.Update(nbRecvd, 0);
+	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
 int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
 {
 	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
-	if (nbSent > 0)
-		stats.Update(0, nbSent);
+	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
 int SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
 {
 	int sent = writev(fd->GetFd(), iovec, count);
-	if (sent > 0)
-		stats.Update(0, sent);
+	stats.UpdateWriteCounters(sent);
 	return sent;
 }
 
@@ -289,11 +284,26 @@ int SocketEngine::Shutdown(int fd, int how)
 	return shutdown(fd, how);
 }
 
-void SocketEngine::Statistics::Update(size_t len_in, size_t len_out)
+void SocketEngine::Statistics::UpdateReadCounters(int len_in)
 {
 	CheckFlush();
-	indata += len_in;
-	outdata += len_out;
+
+	ReadEvents++;
+	if (len_in > 0)
+		indata += len_in;
+	else if (len_in < 0)
+		ErrorEvents++;
+}
+
+void SocketEngine::Statistics::UpdateWriteCounters(int len_out)
+{
+	CheckFlush();
+
+	WriteEvents++;
+	if (len_out > 0)
+		outdata += len_out;
+	else if (len_out < 0)
+		ErrorEvents++;
 }
 
 void SocketEngine::Statistics::CheckFlush() const

@@ -147,7 +147,6 @@ int SocketEngine::DispatchEvents()
 
 		if (has_read)
 		{
-			stats.ReadEvents++;
 			ev->SetEventMask(ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			ev->OnEventHandlerRead();
 			if (ev != GetRef(i))
@@ -156,7 +155,6 @@ int SocketEngine::DispatchEvents()
 
 		if (has_write)
 		{
-			stats.WriteEvents++;
 			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
 			SocketEngine::OnSetEvent(ev, ev->GetEventMask(), newmask);
 			ev->SetEventMask(newmask);

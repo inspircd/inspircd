@@ -244,11 +244,19 @@ class CoreExport SocketEngine
 		 */
 		Statistics() : lastempty(0), TotalEvents(0), ReadEvents(0), WriteEvents(0), ErrorEvents(0) { }
 
-		/** Increase the counters for bytes sent/received in this second.
-		 * @param len_in Bytes received, 0 if updating number of bytes written.
-		 * @param len_out Bytes sent, 0 if updating number of bytes read.
+		/** Update counters for network data received.
+		 * This should be called after every read-type syscall.
+		 * @param len_in Number of bytes received, or -1 for error, as typically
+		 * returned by a read-style syscall.
 		 */
-		void Update(size_t len_in, size_t len_out);
+		void UpdateReadCounters(int len_in);
+
+		/** Update counters for network data sent.
+		 * This should be called after every write-type syscall.
+		 * @param len_out Number of bytes sent, or -1 for error, as typically
+		 * returned by a read-style syscall.
+		 */
+		void UpdateWriteCounters(int len_out);
 
 		/** Get data transfer statistics.
 		 * @param kbitspersec_in Filled with incoming traffic in this second in kbit/s.

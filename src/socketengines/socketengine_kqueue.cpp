@@ -199,7 +199,6 @@ int SocketEngine::DispatchEvents()
 		}
 		if (filter == EVFILT_WRITE)
 		{
-			stats.WriteEvents++;
 			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
 			 * we set a one-shot write, so we need to clear that bit
 			 * to detect when it set again.
@@ -210,7 +209,6 @@ int SocketEngine::DispatchEvents()
 		}
 		else if (filter == EVFILT_READ)
 		{
-			stats.ReadEvents++;
 			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			eh->OnEventHandlerRead();
 		}

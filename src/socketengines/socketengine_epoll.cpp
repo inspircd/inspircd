@@ -213,7 +213,6 @@ int SocketEngine::DispatchEvents()
 		eh->SetEventMask(mask);
 		if (ev.events & EPOLLIN)
 		{
-			stats.ReadEvents++;
 			eh->OnEventHandlerRead();
 			if (eh != GetRef(fd))
 				// whoa! we got deleted, better not give out the write event
@@ -221,7 +220,6 @@ int SocketEngine::DispatchEvents()
 		}
 		if (ev.events & EPOLLOUT)
 		{
-			stats.WriteEvents++;
 			eh->OnEventHandlerWrite();
 		}
 	}
