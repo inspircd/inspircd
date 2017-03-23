@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "sql.h"
 #include "hash.h"
+#include "ssl.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
 
@@ -39,7 +40,7 @@ class AuthQuery : public SQLQuery
 		: SQLQuery(me), uid(u), pendingExt(e), verbose(v)
 	{
 	}
-	
+
 	void OnResult(SQLResult& res)
 	{
 		User* user = ServerInstance->FindNick(uid);
@@ -138,6 +139,10 @@ class ModuleSQLAuth : public Module
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
 			userinfo["sha256pass"] = sha256->hexsum(user->password);
+
+		SocketCertificateRequest req(&user->eh, this);
+		if (req.cert)
+			userinfo["clientcert"] = req.GetFingerprint();
 
 		SQL->submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
 
