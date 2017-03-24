@@ -37,8 +37,7 @@ our @EXPORT = qw(create_directory
                  get_cpu_count
                  get_version
                  read_config_file
-                 write_config_file
-                 module_installed);
+                 write_config_file);
 
 sub create_directory($$) {
 	my ($location, $permissions) = @_;
@@ -88,12 +87,6 @@ sub get_version {
 	}
 
 	return %version;
-}
-
-sub module_installed($) {
-	my $module = shift;
-	eval("use $module;");
-	return !$@;
 }
 
 sub get_cpu_count {

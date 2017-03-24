@@ -26,10 +26,10 @@ use warnings FATAL => qw(all);
 use make::common;
 
 BEGIN {
-	unless (module_installed("LWP::Simple")) {
+	unless (eval "use LWP::Simple; 1") {
 		die "Your system is missing the LWP::Simple Perl module!";
 	}
-	unless (module_installed("Crypt::SSLeay") || module_installed("IO::Socket::SSL")) {
+	unless (eval "use Crypt::SSLeay; 1" || eval "use IO::Socket::SSL; 1") {
 		die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
 	}
 
