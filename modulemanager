@@ -20,23 +20,25 @@
 #
 
 
-use strict;
-use warnings FATAL => qw(all);
-
-use make::common;
-
 BEGIN {
+	require 5.10.0;
 	unless (eval "use LWP::Simple; 1") {
 		die "Your system is missing the LWP::Simple Perl module!";
 	}
 	unless (eval "use Crypt::SSLeay; 1" || eval "use IO::Socket::SSL; 1") {
 		die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
 	}
-
 }
 
-use File::Basename;
-use LWP::Simple;
+use feature ':5.10';
+use strict;
+use warnings FATAL => qw(all);
+
+use File::Basename qw(basename);
+use FindBin        qw($RealDir);
+
+use lib $RealDir;
+use make::common;
 
 my %installed;
 # $installed{name} = $version
