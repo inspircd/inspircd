@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2012-2014 Peter Powell <petpow@saberuk.com>
+#   Copyright (C) 2012-2017 Peter Powell <petpow@saberuk.com>
 #   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
 #   Copyright (C) 2007-2008 Craig Edwards <craigedwards@brainbox.cc>
 #   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -52,7 +52,6 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  run_test
                  test_file
                  test_header
-                 read_configure_cache
                  write_configure_cache
                  get_compiler_info
                  find_compiler
@@ -180,7 +179,7 @@ EOH
 sub cmd_update {
 	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f CONFIGURE_CACHE_FILE;
 	say 'Updating...';
-	my %config = read_configure_cache();
+	my %config = read_config_file(CONFIGURE_CACHE_FILE);
 	my %compiler = get_compiler_info($config{CXX});
 	my %version = get_version $config{DISTRIBUTION};
 	parse_templates(\%config, \%compiler, \%version);
@@ -213,18 +212,6 @@ sub test_header($$;$) {
 	print COMPILER "#include <$header>";
 	close(COMPILER);
 	return !$?;
-}
-
-sub read_configure_cache {
-	my %config;
-	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
-	while (my $line = <CACHE>) {
-		next if $line =~ /^\s*($|\#)/;
-		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.*))?$/);
-		$config{$key} = $value;
-	}
-	close(CACHE);
-	return %config;
 }
 
 sub write_configure_cache(%) {
