@@ -39,6 +39,7 @@ use FindBin        qw($RealDir);
 
 use lib $RealDir;
 use make::common;
+use make::console;
 
 my %installed;
 # $installed{name} = $version
@@ -252,9 +253,7 @@ sub resolve_deps {
 	}
 }
 
-my $action = $#ARGV >= 0 ? lc shift @ARGV : 'help';
-
-if ($action eq 'install') {
+command 'install', 'Install a third-party module', sub {
 	for my $mod (@ARGV) {
 		my $vers = $mod =~ s/=([-0-9.]+)// ? $1 : undef;
 		$mod = lc $mod;
@@ -269,7 +268,9 @@ if ($action eq 'install') {
 		}
 		$todo{$mod} = $ver;
 	}
-} elsif ($action eq 'upgrade') {
+};
+
+command 'upgrade', 'Upgrade a third-party module', sub {
 	my @installed = sort keys %installed;
 	for my $mod (@installed) {
 		next unless $mod =~ /^m_/;
@@ -279,7 +280,9 @@ if ($action eq 'install') {
 			%todo = %saved;
 		}
 	}
-} elsif ($action eq 'list') {
+};
+
+command 'list', 'List available third-party modules', sub {
 	my @all = sort keys %modules;
 	for my $mod (@all) {
 		my @vers = sort { ver_cmp() } keys %{$modules{$mod}};
@@ -293,25 +296,15 @@ if ($action eq 'install') {
 		my $vers = join ' ', map { $_ eq $instver ? "\e[1m$_\e[m" : $_ } @vers;
 		print "$mod ($vers) - $desc\n";
 	}
-} else {
-	print <<ENDUSAGE
-Use: $0 <action> <args>
-Action is one of the following
- install   install new modules
- upgrade   upgrade installed modules
- list      lists available modules
+};
 
-For installing a package, specify its name or name=version to force the
-installation of a specific version.
-ENDUSAGE
-;exit 1;
-}
+execute_command @ARGV;
 
 resolve_deps(0);
 
 $| = 1; # immediate print of lines without \n
 
-print "Processing changes for $action...\n";
+print "Processing changes...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
 	print "Uninstalling $mod $installed{$mod}\n";
