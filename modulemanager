@@ -3,6 +3,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
+#   Copyright (C) 2012-2017 Peter Powell <petpow@saberuk.com>
 #   Copyright (C) 2008-2009 Robin Burchell <robin+git@viroteck.net>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -102,25 +103,12 @@ sub parse_url {
 }
 
 # hash of installed module versions from our mini-database, key (m_foobar) to version (00abacca..).
-my %mod_versions;
+my %mod_versions = read_config_file '.modulemanager';
 
 # useless helper stub
 sub getmodversion {
 	my ($file) = @_;
 	return $mod_versions{$file};
-}
-
-# read in installed versions
-if (-e '.modulemanager')
-{
-	open SRC, '.modulemanager' or die ".modulemanager exists but i can't read it: $!";
-	while (<SRC>)
-	{
-		s/\n//;
-		(my $mod, my $ver) = split(/ /, $_);
-		$mod_versions{$mod} = $ver;
-	}
-	close SRC;
 }
 
 # read in external URL sources
@@ -359,11 +347,6 @@ for my $mod (sort keys %todo) {
 }
 
 # write database of installed versions
-open SRC, '>.modulemanager' or die "can't write installed versions to .modulemanager, won't be able to track upgrades properly: $!";
-foreach my $key (keys %mod_versions)
-{
-	print SRC "$key $mod_versions{$key}\n";
-}
-close SRC;
+write_config_file '.modulemanager', %mod_versions;
 
 print "Finished!\n";
