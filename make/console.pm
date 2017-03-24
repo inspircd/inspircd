@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2014 Peter Powell <petpow@saberuk.com>
+#   Copyright (C) 2014-2017 Peter Powell <petpow@saberuk.com>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -27,11 +27,14 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
+use Class::Struct         qw(struct);
+use Exporter              qw(import);
 use File::Path            qw(mkpath);
 use File::Spec::Functions qw(rel2abs);
-use Exporter              qw(import);
 
-our @EXPORT = qw(print_format
+our @EXPORT = qw(command
+                 execute_command
+                 print_format
                  print_error
                  print_warning
                  prompt_bool
@@ -39,14 +42,22 @@ our @EXPORT = qw(print_format
                  prompt_string);
 
 my %FORMAT_CODES = (
-	DEFAULT => "\e[0m",
-	BOLD    => "\e[1m",
+	DEFAULT   => "\e[0m",
+	BOLD      => "\e[1m",
+	UNDERLINE => "\e[4m",
 
 	RED    => "\e[1;31m",
 	GREEN  => "\e[1;32m",
 	YELLOW => "\e[1;33m",
 	BLUE   => "\e[1;34m"
 );
+
+my %commands;
+
+struct 'command' => {
+	'callback'    => '$',
+	'description' => '$',
+};
 
 sub __console_format($$) {
 	my ($name, $data) = @_;
@@ -109,6 +120,40 @@ sub prompt_string($$$) {
 	chomp(my $answer = <STDIN>);
 	say '';
 	return $answer ? $answer : $default;
+}
+
+sub command($$$) {
+	my ($name, $description, $callback) = @_;
+	$commands{$name} = command->new;
+	$commands{$name}->callback($callback);
+	$commands{$name}->description($description);
+}
+
+sub command_alias($$) {
+	my ($source, $target) = @_;
+	command $source, undef, sub(@) {
+		execute_command $target, @_;
+	};
+}
+
+sub execute_command(@) {
+	my $command = defined $_[0] ? lc shift : 'help';
+	if ($command eq 'help') {
+		print_format "<|GREEN Usage:|> $0 <<|UNDERLINE COMMAND|>> [<|UNDERLINE OPTIONS...|>]\n\n";
+		print_format "<|GREEN Commands:|>\n";
+		for my $key (sort keys %commands) {
+			next unless defined $commands{$key}->description;
+			my $name = sprintf "%-15s", $key;
+			my $description = $commands{$key}->description;
+			print_format "  <|BOLD $name|> # $description\n";
+		}
+		exit 0;
+	} elsif (!$commands{$command}) {
+		print_error "no command called <|BOLD $command|> exists!",
+			"See <|BOLD $0 help|> for a list of commands.";
+	} else {
+		return $commands{$command}->callback->(@_);
+	}
 }
 
 1;
