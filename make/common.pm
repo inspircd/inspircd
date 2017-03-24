@@ -31,10 +31,13 @@ use Exporter              qw(import);
 use File::Path            qw(mkpath);
 use File::Spec::Functions qw(rel2abs);
 
+use make::console;
+
 our @EXPORT = qw(create_directory
                  get_cpu_count
                  get_version
                  read_config_file
+                 write_config_file
                  module_installed);
 
 sub create_directory($$) {
@@ -119,6 +122,17 @@ sub read_config_file($) {
 	}
 	close $fh;
 	return %config;
+}
+
+sub write_config_file($%) {
+	my $path = shift;
+	my %config = @_;
+	open(my $fh, '>', $path) or print_error "unable to write to $path: $!";
+	while (my ($key, $value) = each %config) {
+		$value //= '';
+		say $fh "$key $value";
+	}
+	close $fh;
 }
 
 1;

@@ -222,12 +222,7 @@ sub write_configure_cache(%) {
 
 	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
 	my %config = @_;
-	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
-	while (my ($key, $value) = each %config) {
-		$value //= '';
-		say CACHE "$key $value";
-	}
-	close(CACHE);
+	write_config_file CONFIGURE_CACHE_FILE, %config;
 }
 
 sub get_compiler_info($) {
