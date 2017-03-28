@@ -153,6 +153,17 @@
       # loaded for SSL to work. If you do not want the port(s) in this bind
       # tag to support SSL, just remove or comment out this option.
       ssl="gnutls"
+
+      # defer: When this is non-zero, connections will not be handed over to
+      # the daemon from the operating system before data is ready.
+      # In Linux, the value indicates the number of seconds we'll wait for a
+      # connection to come up with data. Don't set it too low!
+      # In BSD the value is ignored; only off and on is possible.
+      # Windows ignores this parameter completely.
+      # Note: This does not take effect on rehash.
+      # To activate it on a running bind, you'll have to comment it out,
+      # rehash, comment it in and rehash again.
+      defer="0"
 >
 
 <bind address="" port="6660-6669" type="clients">
