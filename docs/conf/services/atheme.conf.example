@@ -11,7 +11,7 @@
 <alias text="GLOBAL"    replace="PRIVMSG $requirement :$2-" requires="Global"    uline="yes" operonly="yes">
 <alias text="GROUPSERV" replace="PRIVMSG $requirement :$2-" requires="GroupServ" uline="yes">
 <alias text="HELPSERV"  replace="PRIVMSG $requirement :$2-" requires="HelpServ"  uline="yes">
-<alias text="INFOSERV"  replace="PRIVMSG $requirement :$2-" requires="GroupServ" uline="yes">
+<alias text="INFOSERV"  replace="PRIVMSG $requirement :$2-" requires="InfoServ"  uline="yes">
 <alias text="PROXYSCAN" replace="PRIVMSG $requirement :$2-" requires="Proxyscan" uline="yes" operonly="yes">
 <alias text="RPGSERV"   replace="PRIVMSG $requirement :$2-" requires="RPGServ"   uline="yes">
 
