@@ -380,11 +380,18 @@ public:
 
 	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user) || target_type != TYPE_USER)
+		if (!IS_LOCAL(user) || target_type != TYPE_USER || user == voiddest)
 			return MOD_RES_PASSTHRU;
 
 		User* dest = static_cast<User*>(voiddest);
-		if (!dest->IsModeSet(myumode) || (user == dest))
+		callerid_data* userdata = cmd.extInfo.get(user, true);
+		if (user->IsModeSet(myumode) && !userdata->accepting.count(dest))
+		{
+			user->WriteNotice("Automatically adding " + dest->nick + " to your accept list.");
+			cmd.AddAccept(user, dest);
+		}
+
+		if (!dest->IsModeSet(myumode))
 			return MOD_RES_PASSTHRU;
 
 		if (operoverride && user->IsOper())
