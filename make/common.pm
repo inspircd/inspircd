@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2013-2014 Peter Powell <petpow@saberuk.com>
+#   Copyright (C) 2013-2017 Peter Powell <petpow@saberuk.com>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,13 @@ use Exporter              qw(import);
 use File::Path            qw(mkpath);
 use File::Spec::Functions qw(rel2abs);
 
+use make::console;
+
 our @EXPORT = qw(create_directory
                  get_cpu_count
                  get_version
-                 module_installed);
+                 read_config_file
+                 write_config_file);
 
 sub create_directory($$) {
 	my ($location, $permissions) = @_;
@@ -86,12 +89,6 @@ sub get_version {
 	return %version;
 }
 
-sub module_installed($) {
-	my $module = shift;
-	eval("use $module;");
-	return !$@;
-}
-
 sub get_cpu_count {
 	my $count = 1;
 	if ($^O =~ /bsd/) {
@@ -105,6 +102,30 @@ sub get_cpu_count {
 	}
 	chomp($count);
 	return $count;
+}
+
+sub read_config_file($) {
+	my $path = shift;
+	my %config;
+	open(my $fh, $path) or return %config;
+	while (my $line = <$fh>) {
+		next if $line =~ /^\s*($|\#)/;
+		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.*))?$/);
+		$config{$key} = $value;
+	}
+	close $fh;
+	return %config;
+}
+
+sub write_config_file($%) {
+	my $path = shift;
+	my %config = @_;
+	open(my $fh, '>', $path) or print_error "unable to write to $path: $!";
+	while (my ($key, $value) = each %config) {
+		$value //= '';
+		say $fh "$key $value";
+	}
+	close $fh;
 }
 
 1;
