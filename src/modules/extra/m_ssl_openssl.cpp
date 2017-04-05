@@ -463,34 +463,45 @@ class OpenSSLIOHook : public SSLIOHook
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
 	int Handshake(StreamSocket* user)
 	{
+		int errerr;
+		LocalUser* luser = ((UserIOHandler*)user)->user;
 		ERR_clear_error();
 		int ret = SSL_do_handshake(sess);
 		if (ret < 0)
 		{
-			int err = SSL_get_error(sess, ret);
+			// Protocol/connection error.
+			int sslerr = SSL_get_error(sess, ret);
 
-			if (err == SSL_ERROR_WANT_READ)
+			if (sslerr == SSL_ERROR_WANT_READ)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return 0;
 			}
-			else if (err == SSL_ERROR_WANT_WRITE)
+			else if (sslerr == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return 0;
-			}
-			else
-			{
-				CloseSession();
-				return -1;
 			}
 		}
 		else if (ret > 0)
 		{
 			// Handshake complete.
 			VerifyCertificate();
+			if (this->certificate && this->certificate->IsInvalid()) {
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT,
+					"Invalid peer certificate from '%s' port '%d': '%s'",
+					luser->GetIPString().c_str(), luser->GetServerPort(),
+					this->certificate->GetError().c_str());
+			} else if (this->certificate && (!this->certificate->IsInvalid())){
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT,
+					"Valid peer certificate from '%s' port '%d' with DN '%s', Issuer '%s' and FP '%s'",
+					luser->GetIPString().c_str(), luser->GetServerPort(),
+					this->certificate->GetDN().c_str(),
+					this->certificate->GetIssuer().c_str(),
+					this->certificate->GetFingerprint().c_str());
+			}
 
 			status = ISSL_OPEN;
 
@@ -498,10 +509,13 @@ class OpenSSLIOHook : public SSLIOHook
 
 			return 1;
 		}
-		else if (ret == 0)
-		{
-			CloseSession();
-		}
+		errerr = ERR_get_error();
+		ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT,
+			"OpenSSL handshake %s '%s' for '%s' port '%d'",
+			ret ? "error" : "failure",
+			errerr ? ERR_error_string(errerr, NULL) : "unknown",
+			luser->GetIPString().c_str(), luser->GetServerPort());
+		CloseSession();
 		return -1;
 	}
 
@@ -524,16 +538,22 @@ class OpenSSLIOHook : public SSLIOHook
 		this->certificate = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
+		long x509_ret;
 
 		cert = SSL_get_peer_certificate(sess);
 
 		if (!cert)
 		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
+			certinfo->error = "Could not get peer certificate";
 			return;
 		}
 
 		certinfo->invalid = (SSL_get_verify_result(sess) != X509_V_OK);
+		x509_ret = SSL_get_verify_result(sess);
+		certinfo->invalid = (x509_ret != X509_V_OK);
+		if (certinfo->invalid) {
+			certinfo->error = X509_verify_cert_error_string(x509_ret);
+		}
 
 		if (!SelfSigned)
 		{
@@ -924,6 +944,7 @@ class ModuleSSLOpenSSL : public Module
 		// Initialize OpenSSL
 		SSL_library_init();
 		SSL_load_error_strings();
+		ERR_load_X509_strings();
 #ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		biomethods = OpenSSL::BIOMethod::alloc();
 	}
