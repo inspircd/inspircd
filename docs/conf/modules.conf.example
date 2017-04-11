@@ -1702,7 +1702,8 @@
 # SSL channel mode module: Adds support for SSL-only channels via
 # channel mode +z and the 'z' extban which matches SSL client
 # certificate fingerprints.
-# Does not do anything useful without a working SSL module (see below).
+# Does not do anything useful without a working SSL module and the
+# m_sslinfo module (see below).
 #<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
