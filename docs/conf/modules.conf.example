@@ -1599,13 +1599,12 @@
 #
 #-#-#-#-#-#-#-#-#-# SECURELIST CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Securelist can be harmful to some IRC search engines such as        #
-# netsplit.de and searchirc.com. To prevent securelist blocking these #
-# sites from listing, define exception tags as shown below:           #
-#<securehost exception="*@*.searchirc.org">
+# Securelist can be harmful to some IRC search engines. To prevent    #
+# securelist blocking these sites from listing, define exception tags #
+# as shown below:                                                     #
 #<securehost exception="*@*.netsplit.de">
-#<securehost exception="*@echo940.server4you.de">
 #<securehost exception="*@*.ircdriven.com">
+#<securehost exception="*@*.irc-source.com">
 #                                                                     #
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
