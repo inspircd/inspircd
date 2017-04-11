@@ -1434,7 +1434,6 @@
 #<include file="permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
-# Don't forget to set them +P in the modes, or they won't stay permanent.
 #<permchannels channel="#opers" modes="isP" topic="Opers only.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
