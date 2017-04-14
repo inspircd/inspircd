@@ -298,6 +298,12 @@ public:
 
 				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
+				if (modes.find('P') == std::string::npos)
+				{
+					ServerInstance->Logs->Log("m_permchannels", DEFAULT, "%s (%s) does not have +P set in <permchannels:modes>; it will be deleted when empty!",
+						c->name.c_str(), tag->getTagLocation().c_str());
+				}
+
 				if (modes.empty())
 					continue;
 
