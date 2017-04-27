@@ -85,6 +85,7 @@ class CommandWebirc : public Command
 			irc::sockets::sockaddrs ipaddr;
 			if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
 			{
+				IS_LOCAL(user)->CommandFloodPenalty += 5000;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
 				return CMD_FAILURE;
 			}
@@ -116,6 +117,7 @@ class CommandWebirc : public Command
 				}
 			}
 
+			IS_LOCAL(user)->CommandFloodPenalty += 5000;
 			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
