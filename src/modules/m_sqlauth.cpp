@@ -131,6 +131,10 @@ class ModuleSQLAuth : public Module
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
 			userinfo["sha256pass"] = sha256->Generate(user->password);
+			
+		HashProvider* sha512 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha512"); //Requires m_hash_gnutls.so to be loaded
+                if(sha512)
+                        userinfo["sha512pass"] = sha512->hexsum(user->password);
 
 		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
 		userinfo["certfp"] = certfp;
