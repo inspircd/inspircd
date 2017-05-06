@@ -325,7 +325,7 @@ class ModuleServicesAccount : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+		if (user->registered & REG_NICKUSER && myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
