@@ -85,6 +85,7 @@ file(MAKE_DIRECTORY ${LOG_PATH})
 install(DIRECTORY ${LOG_PATH} DESTINATION .)
 
 if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
+	set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".") # place runtime libraries next to InspIRCd binary
 	include(InstallRequiredSystemLibraries)
 
 	set(CPACK_PACKAGE_NAME "InspIRCd IRC Daemon")
