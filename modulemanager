@@ -22,10 +22,15 @@
 use strict;
 use warnings FATAL => qw(all);
 
-use make::configure;
+BEGIN {
+	require 5.8.0;
+	push @INC, '.';
+}
 
 BEGIN {
-	push @INC, '.';
+	# HACK: for some reason this needs to be in a second BEGIN block
+	# or it doesn't receive the updated @INC from above.
+	use make::configure;
 	unless (module_installed("LWP::Simple")) {
 		die "Your system is missing the LWP::Simple Perl module!";
 	}
