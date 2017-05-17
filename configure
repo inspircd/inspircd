@@ -269,10 +269,9 @@ if (defined $opt_cc)
 {
 	$config{CC} = $opt_cc;
 }
-our $exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
-$exec = $config{CC} . " -dumpversion | cut -c 3";
-chomp($config{GCCMINOR}		= `$exec`);
+`$config{CC} -dumpversion` =~ /^(\d+)(?:\.(\d+))?/;
+$config{GCCVER} = defined $1 ? $1 : '';
+$config{GCCMINOR} = defined $2 ? $2 : '0';
 $config{MAXBUF}			= "512";				# Max buffer size
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
@@ -348,10 +347,9 @@ print ($cache_loaded ? "found\n" : "not found\n");
 $config{SYSTEM} = lc $^O;
 print "Checking operating system version... $config{SYSTEM}\n";
 
-$exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
-$exec = $config{CC} . " -dumpversion | cut -c 3";
-chomp($config{GCCMINOR}		= `$exec`);
+`$config{CC} -dumpversion` =~ /^(\d+)(?:\.(\d+))?/;
+$config{GCCVER} = defined $1 ? $1 : '';
+$config{GCCMINOR} = defined $2 ? $2 : '0';
 
 printf "Checking if stdint.h exists... ";
 $config{HAS_STDINT} = test_compile('stdint');
@@ -489,8 +487,9 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 			}
 			chomp(my $foo = `$config{CC} -dumpversion | cut -c 1`);
 			if ($foo ne "") {
-				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
-				chomp($config{GCCMINOR}     = `$config{CC} -dumpversion | cut -c 3`);
+				`$config{CC} -dumpversion` =~ /^(\d+)(?:\.(\d+))?/;
+				$config{GCCVER} = defined $1 ? $1 : '';
+				$config{GCCMINOR} = defined $2 ? $2 : '0';
 				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
 				if ($config{GCCVER} < 3) {
 					print "\e[1;32mGCC 2.x WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
