@@ -63,14 +63,6 @@ class CommandSakick : public Command
 			if (IS_LOCAL(dest))
 			{
 				channel->KickUser(ServerInstance->FakeClient, dest, reason);
-
-				Channel *n = ServerInstance->FindChan(parameters[1]);
-				if (n && n->HasUser(dest))
-				{
-					/* Sort-of-bug: If the command was issued remotely, this message won't be sent */
-					user->WriteServ("NOTICE %s :*** Unable to kick %s from %s", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
-					return CMD_FAILURE;
-				}
 			}
 
 			if (IS_LOCAL(user))
