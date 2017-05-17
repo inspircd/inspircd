@@ -837,6 +837,7 @@ void LocalUser::FullConnect()
 void User::InvalidateCache()
 {
 	/* Invalidate cache */
+	cachedip.clear();
 	cached_fullhost.clear();
 	cached_hostip.clear();
 	cached_makehost.clear();
@@ -1001,8 +1002,7 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 
 bool User::SetClientIP(const char* sip, bool recheck_eline)
 {
-	cachedip.clear();
-	cached_hostip.clear();
+	this->InvalidateCache();
 	return irc::sockets::aptosa(sip, 0, client_sa);
 }
 
