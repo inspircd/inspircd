@@ -102,7 +102,7 @@ class ModuleOverride : public Module
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE) ||
-			    (memb->chan->GetPrefixValue(source) == HALFOP_VALUE) && (memb->getRank() == HALFOP_VALUE))
+			    (memb->chan->GetPrefixValue(source) == HALFOP_VALUE && memb->getRank() == HALFOP_VALUE))
 			{
 				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
 				return MOD_RES_ALLOW;
