@@ -61,23 +61,13 @@ class MD5Provider : public HashProvider
 		} while (--words);
 	}
 
-	void MD5Init(MD5Context *ctx, unsigned int* ikey = NULL)
+	void MD5Init(MD5Context *ctx)
 	{
 		/* These are the defaults for md5 */
-		if (!ikey)
-		{
-			ctx->buf[0] = 0x67452301;
-			ctx->buf[1] = 0xefcdab89;
-			ctx->buf[2] = 0x98badcfe;
-			ctx->buf[3] = 0x10325476;
-		}
-		else
-		{
-			ctx->buf[0] = ikey[0];
-			ctx->buf[1] = ikey[1];
-			ctx->buf[2] = ikey[2];
-			ctx->buf[3] = ikey[3];
-		}
+		ctx->buf[0] = 0x67452301;
+		ctx->buf[1] = 0xefcdab89;
+		ctx->buf[2] = 0x98badcfe;
+		ctx->buf[3] = 0x10325476;
 
 		ctx->bytes[0] = 0;
 		ctx->bytes[1] = 0;
@@ -236,10 +226,10 @@ class MD5Provider : public HashProvider
 	}
 
 
-	void MyMD5(void *dest, void *orig, int len, unsigned int* ikey)
+	void MyMD5(void *dest, void *orig, int len)
 	{
 		MD5Context context;
-		MD5Init(&context, ikey);
+		MD5Init(&context);
 		MD5Update(&context, (const unsigned char*)orig, len);
 		MD5Final((unsigned char*)dest, &context);
 	}
@@ -248,7 +238,7 @@ class MD5Provider : public HashProvider
 	std::string GenerateRaw(const std::string& data)
 	{
 		char res[16];
-		MyMD5(res, (void*)data.data(), data.length(), NULL);
+		MyMD5(res, (void*)data.data(), data.length());
 		return std::string(res, 16);
 	}
 
