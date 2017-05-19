@@ -733,6 +733,14 @@ to a newer 3.x or 4.x (or whatever is available currently) version.
 FOO2
 }
 
+if ($^O eq 'openbsd') {
+	print <<__OPENBSD_WARNING__;
+\e[1;32mWARNING!\e[0m OpenBSD 6.5 changed Make to no longer look for BSDmakefile when
+searching for the makefile. If the version of OpenBSD you are using is 6.5 or
+newer then you will need to run '\e[1;32mmake -f BSDmakefile\e[0m' or '\e[1;32mgmake\e[0m' instead.
+__OPENBSD_WARNING__
+}
+
 ################################################################################
 #			      HELPER FUNCTIONS				#
 ################################################################################
