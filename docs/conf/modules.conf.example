@@ -1159,6 +1159,9 @@
 # NAMESX module: Provides support for the NAMESX extension which allows
 # clients to see all the prefixes set on a user without getting confused.
 # This is supported by mIRC, x-chat, klient, and maybe more.
+#
+# IMPORTANT: you should also load m_cap.so so that clients can enable
+# this via the IRCv3 userhost-in-names capability.
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1845,6 +1848,9 @@
 # each user, saving clients from doing a WHO on the channel.
 # If a client does not support UHNAMES it will not enable it, this will
 # not break incompatible clients.
+#
+# IMPORTANT: you should also load m_cap.so so that clients can enable
+# this via the IRCv3 multi-prefix capability.
 #<module name="m_uhnames.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

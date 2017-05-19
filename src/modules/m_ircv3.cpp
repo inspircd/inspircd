@@ -83,6 +83,10 @@ class ModuleIRCv3 : public Module
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+
+		if (!ServerInstance->Modules->Find("m_cap.so"))
+			ServerInstance->Logs->Log("m_ircv3", DEFAULT, "WARNING: m_cap.so is not loaded. The account-notify, away-notify, and extended-join capabilities will not be available to clients without this!");
+
 	}
 
 	void OnRehash(User* user)

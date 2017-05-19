@@ -37,6 +37,9 @@ class ModuleNamesX : public Module
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+
+		if (!ServerInstance->Modules->Find("m_cap.so"))
+			ServerInstance->Logs->Log("m_namesx", DEFAULT, "WARNING: m_cap.so is not loaded. The multi-prefix capability will not be available to clients without this!");
 	}
 
 
