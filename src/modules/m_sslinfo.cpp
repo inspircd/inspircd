@@ -172,6 +172,20 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
+	bool MatchFingerprint(const std::string &fpList, const std::string &fingerprint)
+	{
+		std::stringstream fl(fpList);
+		std::string fp;
+		while (fl >> fp)
+		{
+			if (fp == fingerprint)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "OPER") && (validated))
@@ -193,7 +207,7 @@ class ModuleSSLInfo : public Module
 				}
 
 				std::string fingerprint;
-				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
+				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || !MatchFingerprint(fingerprint, cert->GetFingerprint())))
 				{
 					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
 					user->CommandFloodPenalty += 10000;
