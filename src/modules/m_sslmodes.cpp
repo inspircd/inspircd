@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -25,6 +26,12 @@
 #include "ssl.h"
 
 /* $ModDesc: Provides channel mode +z to allow for Secure/SSL only channels */
+
+enum HandleInsecure
+{
+	INSECURE_KICK_USER = 1, // This requires a 1 here because it defaults to 0.
+	INSECURE_NOTICE_AND_REMOVE
+};
 
 /** Handle channel mode +z
  */
@@ -72,24 +79,74 @@ class SSLMode : public ModeHandler
 			return MODEACTION_DENY;
 		}
 	}
+
+	/* This was required for ServerInstance->SendGlobalMode to broadcast the modechange (ForceSecureChannel settings) */
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class ModuleSSLModes : public Module
 {
 
 	SSLMode sslm;
+	HandleInsecure ForceSecureChannel;
 
  public:
 	ModuleSSLModes()
-		: sslm(this)
+		: sslm(this), ForceSecureChannel(INSECURE_KICK_USER)
 	{
 	}
 
 	void init()
 	{
+		if (ServerInstance->Config->ConfValue("security")->getString("handleinsecure") == "kick")
+		{
+			ForceSecureChannel = INSECURE_KICK_USER;
+		}
+		else if (ServerInstance->Config->ConfValue("security")->getString("handleinsecure") == "notice")
+		{
+			ForceSecureChannel = INSECURE_NOTICE_AND_REMOVE;
+		}
+
 		ServerInstance->Modules->AddService(sslm);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric, I_OnPostJoin };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+	}
+
+	/* Using OnPostJoin so that we can issue a kick even if other modules
+		are forcing a non-ssl user into an ssl channel for some reason
+		(m_sajoin, I'm looking at you.) */
+	void OnPostJoin(Membership* memb)
+	{
+		/* We check for IS_LOCAL so we don't kb services. */
+		if (IS_LOCAL(memb->user) && memb->chan->IsModeSet('z') && ForceSecureChannel)
+		{
+			UserCertificateRequest req(memb->user, this);
+			req.Send();
+
+			if (!req.cert)
+			{
+				/* If we want to kick the user. */
+				if (ForceSecureChannel == INSECURE_KICK_USER)
+					memb->chan->KickUser(ServerInstance->FakeClient, memb->user, "This is an SSL-only channel and you're not on an SSL connection.");
+
+				/* If we want to notice and remove channel mode 'z' */
+				if (ForceSecureChannel == INSECURE_NOTICE_AND_REMOVE)
+				{
+					memb->chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :User %s was forced-joined and is not on an ssl connection. Removing channel mode 'z'", memb->chan->name.c_str(), memb->user->nick.c_str());
+
+					/* Haven't the foggiest idea why memb->chan->SetMode wouldn't work properly here
+						so we're using ServerInstance->SendGlobalMode instead - Shawn */
+					std::vector<std::string> removemode;
+					removemode.push_back(memb->chan->name);
+					removemode.push_back("-z");
+
+					ServerInstance->SendGlobalMode(removemode, ServerInstance->FakeClient);
+				}
+			}
+		}
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
