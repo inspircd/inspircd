@@ -70,6 +70,7 @@ class ModuleChanFilter : public Module
 {
 	ChanFilter cf;
 	bool hidemask;
+	bool notifyuser;
 
  public:
 
@@ -91,7 +92,9 @@ class ModuleChanFilter : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
+		hidemask = tag->getBool("hidemask");
+		notifyuser = tag->getBool("notifyuser", true);
 		cf.DoRehash();
 	}
 
@@ -110,6 +113,9 @@ class ModuleChanFilter : public Module
 			{
 				if (InspIRCd::Match(text, i->mask))
 				{
+					if (!notifyuser)
+						return MOD_RES_DENY;
+
 					if (hidemask)
 						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
 					else
