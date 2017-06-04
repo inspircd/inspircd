@@ -173,7 +173,7 @@ class DNSBLResolver : public Resolver
 							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
 								std::string timestr = ServerInstance->TimeString(zl->expiry);
-								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
+								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on %s to expire on %s: %s",
 									them->GetIPString(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
