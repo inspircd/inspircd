@@ -286,6 +286,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 		cidr.length = 0;
 		return;
 	}
+
 	cidr.length = range;
 	unsigned int border = range / 8;
 	unsigned int bitmask = (0xFF00 >> (range & 7)) & 0xFF;
