@@ -341,7 +341,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		}
 		if (f->action == FA_BLOCK)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+text+" ["+f->reason+"]");
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 			else
@@ -369,7 +369,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " +text+" ["+f->reason+"]" + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
