@@ -56,8 +56,8 @@ typedef std::vector<CGIhost> CGIHostlist;
 /*
  * WEBIRC
  *  This is used for the webirc method of CGIIRC auth, and is (really) the best way to do these things.
- *  Syntax: WEBIRC password client hostname ip
- *  Where password is a shared key, client is the name of the "client" and version (e.g. cgiirc), hostname
+ *  Syntax: WEBIRC password gateway hostname ip
+ *  Where password is a shared key, gateway is the name of the WebIRC gateway and version (e.g. cgiirc), hostname
  *  is the resolved host of the client issuing the command and IP is the real IP of the client.
  *
  * How it works:
@@ -68,17 +68,19 @@ class CommandWebirc : public Command
 {
  public:
 	bool notify;
+	StringExtItem gateway;
 	StringExtItem realhost;
 	StringExtItem realip;
 
 	CGIHostlist Hosts;
 	CommandWebirc(Module* Creator)
-		: Command(Creator, "WEBIRC", 4),
-		  realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
-		  , realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
+		: Command(Creator, "WEBIRC", 4)
+		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
+		, realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
+		, realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
 		{
 			works_before_reg = true;
-			this->syntax = "password client hostname ip";
+			this->syntax = "password gateway hostname ip";
 		}
 		CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 		{
@@ -91,6 +93,7 @@ class CommandWebirc : public Command
 				{
 					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
+						gateway.set(user, parameters[1]);
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
 
@@ -302,6 +305,24 @@ public:
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	{
+		// If <connect:webirc> is not set then we have nothing to do.
+		const std::string webirc = myclass->config->getString("webirc");
+		if (webirc.empty())
+			return MOD_RES_PASSTHRU;
+
+		// If the user is not connecting via a WebIRC gateway then they
+		// cannot match this connect class.
+		const std::string* gateway = cmd.gateway.get(user);
+		if (!gateway)
+			return MOD_RES_DENY;
+
+		// If the gateway matches the <connect:webirc> constraint then
+		// allow the check to continue. Otherwise, reject it.
+		return InspIRCd::Match(*gateway, webirc) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
