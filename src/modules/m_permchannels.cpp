@@ -244,6 +244,10 @@ public:
 						mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, par, true);
 					}
 				}
+
+				// We always apply the permchannels mode to permanent channels.
+				par.clear();
+				p.OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, par, true);
 			}
 		}
 	}
