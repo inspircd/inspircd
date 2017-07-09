@@ -221,6 +221,15 @@ $config{UID}  = $user[2];
 # Clear the screen.
 system 'tput', 'clear' if $interactive;
 
+# Warn the user about clock drifting when running on OpenVZ.
+if (-e '/proc/user_beancounters' || -e '/proc/vz/vzaquota') {
+	print_warning <<'EOW';
+You are building InspIRCd inside of an an OpenVZ container. If you
+plan to use InspIRCd in this container then you should make sure that NTP is
+configured on the Hardware Node. Failure to do so may result in clock drifting!
+EOW
+}
+
 # Check that the user actually wants this version.
 if ($version{LABEL} ne 'release') {
 	print_warning <<'EOW';
