@@ -130,7 +130,7 @@ our $interactive = !(
 my %version = get_version $opt_distribution_label;
 print_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>\n";
 
-our %config;
+my %config;
 if ($interactive) {
 	%config = read_config_file(CONFIGURE_CACHE_FILE);
 	run_test CONFIGURE_CACHE_FILE, %config;
@@ -159,41 +159,22 @@ my %compiler = get_compiler_info($config{CXX});
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', $^O eq 'darwin' ? undef : '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
 
-if ($config{HAS_EPOLL} = run_test 'epoll', test_header($config{CXX}, 'sys/epoll.h')) {
-	$config{SOCKETENGINE} //= 'epoll';
-}
-
-if ($config{HAS_KQUEUE} = run_test 'kqueue', test_file($config{CXX}, 'kqueue.cpp')) {
-	$config{SOCKETENGINE} //= 'kqueue';
-}
-
-if ($config{HAS_PORTS} = run_test 'Solaris IOCP', test_header($config{CXX}, 'port.h')) {
-	$config{SOCKETENGINE} //= 'ports';
-}
-
-if ($config{HAS_POLL} = run_test 'poll', test_header($config{CXX}, 'poll.h')) {
-	$config{SOCKETENGINE} //= 'poll';
-}
-
-# Select is available on all platforms
-$config{HAS_SELECT} = 1;
-$config{SOCKETENGINE} //= 'select';
+my @socketengines;
+push @socketengines, 'epoll'  if run_test 'epoll', test_header $config{CXX}, 'sys/epoll.h';
+push @socketengines, 'kqueue' if run_test 'kqueue', test_file $config{CXX}, 'kqueue.cpp';
+push @socketengines, 'ports'  if run_test 'Solaris IOCP', test_header $config{CXX}, 'port.h';
+push @socketengines, 'poll'   if run_test 'poll', test_header $config{CXX}, 'poll.h';
+push @socketengines, 'select';
 
 if (defined $opt_socketengine) {
-	my $cfgkey = 'HAS_' . uc $opt_socketengine;
-	if ($config{$cfgkey} && -f "src/socketengines/socketengine_$opt_socketengine.cpp") {
-		$config{SOCKETENGINE} = $opt_socketengine;
-	} else {
-		print "Unable to use a socket engine which is not supported on this platform ($opt_socketengine)!\n";
-		print "Available socket engines are:";
-		foreach (<src/socketengines/socketengine_*.cpp>) {
-			s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
-			print " $1" if $config{'HAS_' . uc $1};
-		}
-		print "\n";	
-		exit 1;
+	unless (grep { $_ eq $opt_socketengine } @socketengines) {
+		my $reason = -f "src/socketengines/socketengine_$opt_socketengine.cpp" ? 'is not available on this platform' : 'does not exist';
+		print_error "The socket engine you requested ($opt_socketengine) $reason!",
+			'Available socket engines are:',
+			map { "  * $_" } @socketengines;
 	}
 }
+$config{SOCKETENGINE} = $opt_socketengine // $socketengines[0];
 
 if (defined $opt_system) {
 	$config{BASE_DIR}   = $opt_prefix     // '/var/lib/inspircd';
