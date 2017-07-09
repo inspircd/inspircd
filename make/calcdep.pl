@@ -166,7 +166,7 @@ END
 obj/ld-extra.cmd: $core_src
 	\@\$(SOURCEPATH)/make/unit-cc.pl gen-ld \$\@ \$^ \$>
 
-bin/inspircd: obj/ld-extra.cmd $core_mk
+bin/inspircd: $core_mk obj/ld-extra.cmd
 	\@\$(SOURCEPATH)/make/unit-cc.pl static-ld \$\@ \$^ \$>
 
 inspircd: bin/inspircd

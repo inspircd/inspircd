@@ -70,6 +70,14 @@ class DNSBLResolver : public DNS::Request
 		if (!ans_record)
 			return;
 
+		// All replies should be in 127.0.0.0/8
+		if (ans_record->rdata.compare(0, 4, "127.") != 0)
+		{
+			ServerInstance->SNO->WriteGlobalSno('a', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
+			ConfEntry->stats_misses++;
+			return;
+		}
+
 		int i = countExt.get(them);
 		if (i)
 			countExt.set(them, i - 1);

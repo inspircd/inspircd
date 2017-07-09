@@ -202,7 +202,7 @@ class CoreExport CoreException : public std::exception
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
 	 */
-	virtual ~CoreException() throw() {};
+	virtual ~CoreException() throw() {}
 	/** Returns the reason for the exception.
 	 * @return Human readable description of the error
 	 */
