@@ -154,7 +154,7 @@ class Packet : public Query
 		record.ttl = (input[pos] << 24) | (input[pos + 1] << 16) | (input[pos + 2] << 8) | input[pos + 3];
 		pos += 4;
 
-		//record.rdlength = input[pos] << 8 | input[pos + 1];
+		uint16_t rdlength = input[pos] << 8 | input[pos + 1];
 		pos += 2;
 
 		switch (record.type)
@@ -197,6 +197,19 @@ class Packet : public Query
 				record.rdata = this->UnpackName(input, input_size, pos);
 				if (!IsValidName(record.rdata))
 					throw Exception("Invalid name"); // XXX: Causes the request to time out
+
+				break;
+			}
+			case QUERY_TXT:
+			{
+				if (pos + rdlength > input_size)
+					throw Exception("Unable to unpack txt resource record");
+
+				record.rdata = std::string(reinterpret_cast<const char *>(input + pos), rdlength);
+				pos += rdlength;
+
+				if (record.rdata.find_first_of("\r\n\0", 0, 3) != std::string::npos)
+					throw Exception("Invalid character in txt record");
 
 				break;
 			}

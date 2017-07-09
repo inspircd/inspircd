@@ -33,6 +33,8 @@ namespace DNS
 		QUERY_CNAME = 5,
 		/* Reverse DNS lookup */
 		QUERY_PTR = 12,
+		/* TXT */
+		QUERY_TXT = 16,
 		/* IPv6 AAAA lookup */
 		QUERY_AAAA = 28
 	};
