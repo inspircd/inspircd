@@ -159,14 +159,12 @@ int SocketEngine::DispatchEvents()
 		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
 		if (portev_events & POLLRDNORM)
 		{
-			stats.ReadEvents++;
 			eh->OnEventHandlerRead();
 			if (eh != GetRef(fd))
 				continue;
 		}
 		if (portev_events & POLLWRNORM)
 		{
-			stats.WriteEvents++;
 			eh->OnEventHandlerWrite();
 		}
 	}
