@@ -41,16 +41,16 @@ our @EXPORT = qw(get_directive
 sub get_directive($$;$)
 {
 	my ($file, $property, $default) = @_;
-	open(MODULE, $file) or return $default;
+	open(my $fh, $file) or return $default;
 
 	my $value = '';
-	while (<MODULE>) {
+	while (<$fh>) {
 		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/ || $_ =~ /^\/\/\/ \$(\S+): (.+)/) {
 			next unless $1 eq $property;
 			$value .= ' ' . execute_functions($file, $1, $2);
 		}
 	}
-	close(MODULE);
+	close $fh;
 
 	# Strip all extraneous whitespace.
 	$value =~ s/^\s+|\s+$//g;

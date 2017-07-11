@@ -208,9 +208,9 @@ sub test_file($$;$) {
 sub test_header($$;$) {
 	my ($compiler, $header, $args) = @_;
 	$args //= '';
-	open(COMPILER, "| $compiler -E - $args ${\CONFIGURE_ERROR_PIPE}") or return 0;
-	print COMPILER "#include <$header>";
-	close(COMPILER);
+	open(my $fh, "| $compiler -E - $args ${\CONFIGURE_ERROR_PIPE}") or return 0;
+	print $fh "#include <$header>";
+	close $fh;
 	return !$?;
 }
 
@@ -257,11 +257,11 @@ sub parse_templates($$$) {
 	# Iterate through files in make/template.
 	foreach (<make/template/*>) {
 		print_format "Parsing <|GREEN $_|> ...\n";
-		open(TEMPLATE, $_) or print_error "unable to read $_: $!";
+		open(my $fh, $_) or print_error "unable to read $_: $!";
 		my (@lines, $mode, @platforms, %targets);
 
 		# First pass: parse template variables and directives.
-		while (my $line = <TEMPLATE>) {
+		while (my $line = <$fh>) {
 			chomp $line;
 
 			# Does this line match a variable?
@@ -301,7 +301,7 @@ sub parse_templates($$$) {
 			}
 			push @lines, $line;
 		}
-		close(TEMPLATE);
+		close $fh;
 
 		# Only proceed if this file should be templated on this platform.
 		if ($#platforms < 0 || grep { $_ eq $^O } @platforms) {
@@ -397,11 +397,11 @@ sub parse_templates($$$) {
 
 				# Write the template file.
 				print_format "Writing <|GREEN $target|> ...\n";
-				open(TARGET, '>', $target) or print_error "unable to write $target: $!";
+				open(my $fh, '>', $target) or print_error "unable to write $target: $!";
 				foreach (@final_lines) {
-					say TARGET $_;
+					say $fh $_;
 				}
-				close(TARGET);
+				close $fh;
 
 				# Set file permissions.
 				if (defined $mode) {
