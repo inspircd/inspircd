@@ -224,7 +224,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		WriteData("\r\n");
 	}
 
-	void OnDataReady()
+	void OnDataReady() CXX11_OVERRIDE
 	{
 		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 		{
@@ -415,7 +415,7 @@ class ModuleHttpServer : public Module
 		return MOD_RES_ALLOW;
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{

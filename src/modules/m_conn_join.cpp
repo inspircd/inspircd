@@ -78,7 +78,7 @@ class ModuleConnJoin : public Module
 		defdelay = tag->getInt("delay", 0, 0, 60);
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
 	}

@@ -157,7 +157,7 @@ class ModuleNickLock : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, nflood);

@@ -176,7 +176,7 @@ class ModuleFilter : public Module
 	ExemptTargetSet exemptednicks;
 
 	ModuleFilter();
-	CullResult cull();
+	CullResult cull() CXX11_OVERRIDE;
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);

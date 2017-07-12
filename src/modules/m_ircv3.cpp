@@ -169,7 +169,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		last_excepts.clear();
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_LAST);
 	}

@@ -312,7 +312,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
-	virtual CullResult cull();
+	virtual CullResult cull() CXX11_OVERRIDE;
 
 	/** Get the IOHook of a module attached to this socket
 	 * @param mod Module whose IOHook to return
@@ -372,7 +372,7 @@ class CoreExport BufferedSocket : public StreamSocket
 	/** When there is data waiting to be read on a socket, the OnDataReady()
 	 * method is called.
 	 */
-	virtual void OnDataReady() = 0;
+	virtual void OnDataReady() CXX11_OVERRIDE = 0;
 
 	/**
 	 * When an outbound connection fails, and the attempt times out, you

@@ -43,7 +43,7 @@ class ServerCommand : public CommandBase
 	void RegisterService() CXX11_OVERRIDE;
 
 	virtual CmdResult Handle(User* user, std::vector<std::string>& parameters) = 0;
-	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 
 	/**
 	 * Extract the TS from a string.

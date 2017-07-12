@@ -97,8 +97,8 @@ class ModeUserServerNoticeMask : public ModeHandler
 
  public:
 	ModeUserServerNoticeMask();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	void OnParameterMissing(User* user, User* dest, Channel* channel);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
+	void OnParameterMissing(User* user, User* dest, Channel* channel) CXX11_OVERRIDE;
 
 	/** Create a displayable mode string of the snomasks set on a given user
 	 * @param user The user whose notice masks to format

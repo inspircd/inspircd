@@ -108,7 +108,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Prepare for class destruction
 	 */
-	CullResult cull();
+	CullResult cull() CXX11_OVERRIDE;
 
 	/** Destroy class and free listeners etc
 	 */

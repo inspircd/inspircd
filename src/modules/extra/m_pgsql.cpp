@@ -159,7 +159,7 @@ class SQLConn : public SQLProvider, public EventHandler
 		}
 	}
 
-	CullResult cull()
+	CullResult cull() CXX11_OVERRIDE
 	{
 		this->SQLProvider::cull();
 		ServerInstance->Modules->DelService(*this);
@@ -389,7 +389,7 @@ restart:
 		}
 	}
 
-	void submit(SQLQuery *req, const std::string& q)
+	void submit(SQLQuery *req, const std::string& q) CXX11_OVERRIDE
 	{
 		if (qinprog.q.empty())
 		{
@@ -402,7 +402,7 @@ restart:
 		}
 	}
 
-	void submit(SQLQuery *req, const std::string& q, const ParamL& p)
+	void submit(SQLQuery *req, const std::string& q, const ParamL& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -427,7 +427,7 @@ restart:
 		submit(req, res);
 	}
 
-	void submit(SQLQuery *req, const std::string& q, const ParamM& p)
+	void submit(SQLQuery *req, const std::string& q, const ParamM& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)

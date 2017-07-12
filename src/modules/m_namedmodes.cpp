@@ -124,7 +124,7 @@ class ModuleNamedModes : public Module
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}

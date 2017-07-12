@@ -717,7 +717,7 @@ class CoreExport User : public Extensible
 	/** Default destructor
 	 */
 	virtual ~User();
-	virtual CullResult cull();
+	virtual CullResult cull() CXX11_OVERRIDE;
 };
 
 class CoreExport UserIOHandler : public StreamSocket
@@ -742,7 +742,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-	CullResult cull();
+	CullResult cull() CXX11_OVERRIDE;
 
 	UserIOHandler eh;
 
@@ -836,12 +836,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const char* sip, bool recheck_eline = true);
+	bool SetClientIP(const char* sip, bool recheck_eline = true) CXX11_OVERRIDE;
 
-	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
+	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true) CXX11_OVERRIDE;
 
-	void Write(const std::string& text);
-	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
+	void Write(const std::string& text) CXX11_OVERRIDE;
+	void Write(const char*, ...) CXX11_OVERRIDE CUSTOM_PRINTF(2, 3);
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.
@@ -855,7 +855,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	bool HasPermission(const std::string &command);
+	bool HasPermission(const std::string &command) CXX11_OVERRIDE;
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -865,7 +865,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	bool HasPrivPermission(const std::string &privstr, bool noisy = false);
+	bool HasPrivPermission(const std::string &privstr, bool noisy = false) CXX11_OVERRIDE;
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -873,7 +873,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param mh Mode to check
 	 * @return True if the user can set or unset this mode.
 	 */
-	bool HasModePermission(const ModeHandler* mh) const;
+	bool HasModePermission(const ModeHandler* mh) const CXX11_OVERRIDE;
 
 	/** Change nick to uuid, unset REG_NICK and send a nickname overruled numeric.
 	 * This is called when another user (either local or remote) needs the nick of this user and this user
@@ -904,9 +904,9 @@ class CoreExport FakeUser : public User
 		nick = sname;
 	}
 
-	virtual CullResult cull();
-	virtual const std::string& GetFullHost();
-	virtual const std::string& GetFullRealHost();
+	virtual CullResult cull() CXX11_OVERRIDE;
+	virtual const std::string& GetFullHost() CXX11_OVERRIDE;
+	virtual const std::string& GetFullRealHost() CXX11_OVERRIDE;
 };
 
 /* Faster than dynamic_cast */

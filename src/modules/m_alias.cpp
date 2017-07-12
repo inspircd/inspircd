@@ -352,7 +352,7 @@ class ModuleAlias : public Module
 		ServerInstance->Parser.CallHandler(command, pars, user);
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
 		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");

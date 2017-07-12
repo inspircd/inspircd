@@ -191,7 +191,7 @@ class ModuleShun : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		Module* alias = ServerInstance->Modules->Find("m_alias.so");
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);

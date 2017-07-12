@@ -290,7 +290,7 @@ class ModuleCloaking : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		/* Needs to be after m_banexception etc. */
 		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_LAST);

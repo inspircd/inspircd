@@ -190,7 +190,7 @@ class ModuleSHA1 : public Module
 		big_endian = (htonl(1337) == 1337);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements SHA-1 hashing", VF_VENDOR);
 	}

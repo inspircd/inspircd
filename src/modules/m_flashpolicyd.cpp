@@ -146,7 +146,7 @@ class ModuleFlashPD : public Module
 </cross-domain-policy>";
 	}
 
-	CullResult cull()
+	CullResult cull() CXX11_OVERRIDE
 	{
 		for (insp::intrusive_list<FlashPDSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{

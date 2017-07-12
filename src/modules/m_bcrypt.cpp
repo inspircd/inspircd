@@ -978,7 +978,7 @@ class ModuleBCrypt : public Module
 		bcrypt.rounds = conf->getInt("rounds", 10, 1);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements bcrypt hashing", VF_VENDOR);
 	}
