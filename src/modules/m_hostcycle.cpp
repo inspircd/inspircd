@@ -40,6 +40,8 @@ class ModuleHostCycle : public Module
 
 		FOREACH_MOD(OnBuildNeighborList, (user, include_chans, exceptions));
 
+		// Users shouldn't see themselves quitting when host cycling
+		exceptions.erase(user);
 		for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 		{
 			LocalUser* u = IS_LOCAL(i->first);

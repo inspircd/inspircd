@@ -77,6 +77,7 @@ class CommandWebirc : public Command
 		  realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
 		  , realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
 		{
+			allow_empty_last_param = false;
 			works_before_reg = true;
 			this->syntax = "password client hostname ip";
 		}
@@ -84,6 +85,14 @@ class CommandWebirc : public Command
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;
+
+			irc::sockets::sockaddrs ipaddr;
+			if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
+			{
+				IS_LOCAL(user)->CommandFloodPenalty += 5000;
+				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
+				return CMD_FAILURE;
+			}
 
 			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 			{
@@ -112,6 +121,7 @@ class CommandWebirc : public Command
 				}
 			}
 
+			IS_LOCAL(user)->CommandFloodPenalty += 5000;
 			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}

@@ -22,7 +22,7 @@
 #include "exitcodes.h"
 
 #include <sys/epoll.h>
-#include <ulimit.h>
+#include <sys/resource.h>
 #include <iostream>
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
@@ -38,8 +38,12 @@ namespace
 
 void SocketEngine::Init()
 {
-	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
-	MAX_DESCRIPTORS = ulimit(4, 0);
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if getrlimit() fails
+	struct rlimit limit;
+	if (!getrlimit(RLIMIT_NOFILE, &limit))
+	{
+		MAX_DESCRIPTORS = limit.rlim_cur;
+	}
 
 	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
 	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.

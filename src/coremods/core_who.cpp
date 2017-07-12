@@ -38,14 +38,18 @@ class CommandWho : public Command
 	bool opt_time;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
+	UserModeReference hidechansmode;
 	UserModeReference invisiblemode;
 
-	Membership* get_first_visible_channel(User* u)
+	Membership* get_first_visible_channel(User* source, User* u)
 	{
 		for (User::ChanList::iterator i = u->chans.begin(); i != u->chans.end(); ++i)
 		{
 			Membership* memb = *i;
-			if (!memb->chan->IsModeSet(secretmode))
+
+			/* XXX move the +I check into m_hidechans */
+			bool has_modes = memb->chan->IsModeSet(secretmode) || memb->chan->IsModeSet(privatemode) || u->IsModeSet(hidechansmode);
+			if (source == u || !has_modes || memb->chan->HasUser(source))
 				return memb;
 		}
 		return NULL;
@@ -58,6 +62,7 @@ class CommandWho : public Command
 		: Command(parent, "WHO", 1)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
+		, hidechansmode(parent, "hidechans")
 		, invisiblemode(parent, "invisible")
 	{
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
@@ -189,7 +194,7 @@ bool CommandWho::CanView(Channel* chan, User* user)
 void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, Membership* memb, User* u, std::vector<Numeric::Numeric>& whoresults)
 {
 	if (!memb)
-		memb = get_first_visible_channel(u);
+		memb = get_first_visible_channel(user, u);
 
 	Numeric::Numeric wholine(RPL_WHOREPLY);
 	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
