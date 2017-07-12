@@ -56,7 +56,7 @@ ServerConfig::ServerConfig()
 	, NoSnoticeStack(false)
 {
 	RawLog = HideBans = HideSplits = false;
-	WildcardIPv6 = true;
+	LegacyMode = WildcardIPv6 = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -422,6 +422,7 @@ void ServerConfig::Fill()
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
+	LegacyMode = options->getBool("legacymode", true);
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");

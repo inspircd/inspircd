@@ -100,7 +100,8 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 
 		/* Set up the flood parameters for this channel */
 		unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		const std::string duration = parameter.substr(colon + 1);
+		unsigned int nsecs = ServerInstance->Config->LegacyMode ? ConvToInt(duration) : InspIRCd::Duration(duration);
 
 		if ((nnicks<1) || (nsecs<1))
 		{

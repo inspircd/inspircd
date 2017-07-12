@@ -80,7 +80,8 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 		/* Set up the flood parameters for this channel */
 		bool ban = (parameter[0] == '*');
 		unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		const std::string duration = parameter.substr(colon + 1);
+		unsigned int nsecs = ServerInstance->Config->LegacyMode ? ConvToInt(duration) : InspIRCd::Duration(duration);
 
 		if ((nlines<2) || (nsecs<1))
 		{
