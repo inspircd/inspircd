@@ -217,7 +217,7 @@ class SaslAuthenticator
 		params.push_back(method);
 
 		LocalUser* localuser = IS_LOCAL(user);
-		if (method == "EXTERNAL" && localuser)
+		if (localuser)
 		{
 			std::string fp = SSLClientCert::GetFingerprint(&localuser->eh);
 
