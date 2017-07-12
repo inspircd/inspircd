@@ -183,7 +183,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(zl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
+						ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on %s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
