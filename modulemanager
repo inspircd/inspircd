@@ -254,7 +254,7 @@ sub resolve_deps {
 }
 
 command 'install', 'Install a third-party module', sub {
-	for my $mod (@ARGV) {
+	for my $mod (@_) {
 		my $vers = $mod =~ s/=([-0-9.]+)// ? $1 : undef;
 		$mod = lc $mod;
 		unless ($modules{$mod}) {
@@ -296,6 +296,7 @@ command 'list', 'List available third-party modules', sub {
 		my $vers = join ' ', map { $_ eq $instver ? "\e[1m$_\e[m" : $_ } @vers;
 		print "$mod ($vers) - $desc\n";
 	}
+	exit 0;
 };
 
 execute_command @ARGV;
