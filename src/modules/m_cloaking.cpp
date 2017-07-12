@@ -143,7 +143,6 @@ class ModuleCloaking : public Module
 	std::string prefix;
 	std::string suffix;
 	std::string key;
-	const char* xtab[4];
 	dynamic_reference<HashProvider> Hash;
 
 	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), ck(this), Hash(this, "hash/md5")
