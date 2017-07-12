@@ -333,7 +333,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);

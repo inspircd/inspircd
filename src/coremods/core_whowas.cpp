@@ -259,13 +259,13 @@ class ModuleWhoWas : public Module
 	{
 	}
 
-	void OnGarbageCollect()
+	void OnGarbageCollect() CXX11_OVERRIDE
 	{
 		// Remove all entries older than MaxKeep
 		cmd.manager.Maintain();
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		cmd.manager.Add(user);
 	}
@@ -288,7 +288,7 @@ class ModuleWhoWas : public Module
 		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("WHOWAS", VF_VENDOR);
 	}

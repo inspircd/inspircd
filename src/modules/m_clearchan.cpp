@@ -150,7 +150,7 @@ class ModuleClearChan : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		// Only attached while we are working; don't react to events otherwise
 		ServerInstance->Modules->DetachAll(this);

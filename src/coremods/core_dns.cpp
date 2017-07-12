@@ -442,7 +442,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 	}
 
-	void Process(DNS::Request* req)
+	void Process(DNS::Request* req) CXX11_OVERRIDE
 	{
 		if ((unloading) || (req->creator->dying))
 			throw Exception("Module is being unloaded");
@@ -509,13 +509,13 @@ class MyManager : public Manager, public Timer, public EventHandler
 		ServerInstance->Timers.AddTimer(req);
 	}
 
-	void RemoveRequest(DNS::Request* req)
+	void RemoveRequest(DNS::Request* req) CXX11_OVERRIDE
 	{
 		if (requests[req->id] == req)
 			requests[req->id] = NULL;
 	}
 
-	std::string GetErrorStr(Error e)
+	std::string GetErrorStr(Error e) CXX11_OVERRIDE
 	{
 		switch (e)
 		{
@@ -664,7 +664,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		delete request;
 	}
 
-	bool Tick(time_t now)
+	bool Tick(time_t now) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: purging DNS cache");
 
@@ -826,7 +826,7 @@ class ModuleDNS : public Module
 			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 		{
@@ -845,7 +845,7 @@ class ModuleDNS : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("DNS support", VF_CORE|VF_VENDOR);
 	}

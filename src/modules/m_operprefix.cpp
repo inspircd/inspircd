@@ -72,7 +72,7 @@ class ModuleOperPrefixMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostJoin(Membership* memb)
+	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
 		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
 			return;
@@ -105,7 +105,7 @@ class ModuleOperPrefixMode : public Module
 		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
 		Module* opermodes = ServerInstance->Modules->Find("m_opermodes.so");

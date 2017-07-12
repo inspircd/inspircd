@@ -96,7 +96,7 @@ class ModuleSaMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		Module *override = ServerInstance->Modules->Find("m_override.so");
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);

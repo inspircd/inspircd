@@ -111,7 +111,7 @@ class CoreExport Extensible : public classbase
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 
 	Extensible();
-	virtual CullResult cull();
+	virtual CullResult cull() CXX11_OVERRIDE;
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
 

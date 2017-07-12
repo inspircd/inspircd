@@ -150,7 +150,7 @@ class ModuleOjoin : public Module
 		return MOD_RES_DENY;
 	}
 
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
 	}

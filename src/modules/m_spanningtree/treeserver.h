@@ -219,7 +219,7 @@ class TreeServer : public Server
 	 */
 	void OnPong() { pingtimer.OnPong(); }
 
-	CullResult cull();
+	CullResult cull() CXX11_OVERRIDE;
 
 	/** Destructor, deletes ServerUser unless IsRoot()
 	 */

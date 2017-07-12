@@ -22,7 +22,7 @@
 class ModuleAbbreviation : public Module
 {
  public:
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}

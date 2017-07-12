@@ -25,7 +25,7 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	void Prioritize()
+	void Prioritize() CXX11_OVERRIDE
 	{
 		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);

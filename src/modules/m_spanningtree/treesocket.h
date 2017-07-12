@@ -200,7 +200,7 @@ class TreeSocket : public BufferedSocket
 	 */
 	void CleanNegotiationInfo();
 
-	CullResult cull();
+	CullResult cull() CXX11_OVERRIDE;
 	/** Destructor
 	 */
 	~TreeSocket();
@@ -216,7 +216,7 @@ class TreeSocket : public BufferedSocket
 	 * to server docs on the inspircd.org site, the other side
 	 * will then send back its own server string.
 	 */
-	void OnConnected();
+	void OnConnected() CXX11_OVERRIDE;
 
 	/** Handle socket error event
 	 */
@@ -270,7 +270,7 @@ class TreeSocket : public BufferedSocket
 	/** This function is called when we receive data from a remote
 	 * server.
 	 */
-	void OnDataReady();
+	void OnDataReady() CXX11_OVERRIDE;
 
 	/** Send one or more complete lines down the socket
 	 */
@@ -299,10 +299,10 @@ class TreeSocket : public BufferedSocket
 
 	/** Handle socket timeout from connect()
 	 */
-	void OnTimeout();
+	void OnTimeout() CXX11_OVERRIDE;
 	/** Handle server quit on close
 	 */
-	void Close();
+	void Close() CXX11_OVERRIDE;
 
 	/** Fixes messages coming from old servers so the new command handlers understand them
 	 */

@@ -95,7 +95,7 @@ class ModuleConnectBan : public Module
 		}
 	}
 
-	void OnGarbageCollect()
+	void OnGarbageCollect() CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Clearing map.");
 		connects.clear();

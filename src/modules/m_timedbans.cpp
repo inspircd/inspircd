@@ -218,7 +218,7 @@ class ModuleTimedBans : public Module
 		}
 	}
 
-	void OnChannelDelete(Channel* chan)
+	void OnChannelDelete(Channel* chan) CXX11_OVERRIDE
 	{
 		// Remove all timed bans affecting the channel from internal bookkeeping
 		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());

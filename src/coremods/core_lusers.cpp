@@ -151,20 +151,20 @@ class ModuleLusers : public Module
 	{
 	}
 
-	void OnPostConnect(User* user)
+	void OnPostConnect(User* user) CXX11_OVERRIDE
 	{
 		counters.UpdateMaxUsers();
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible++;
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("LUSERS", VF_VENDOR | VF_CORE);
 	}
