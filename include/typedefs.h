@@ -66,13 +66,13 @@ typedef std::vector<Membership*> IncludeChanList;
  */
 typedef std::vector<std::string> file_cache;
 
-/** A configuration key and value pair
+/** A mapping of configuration keys to their assigned values.
  */
-typedef std::pair<std::string, std::string> KeyVal;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> ConfigItems;
 
 /** The entire configuration
  */
-typedef std::multimap<std::string, reference<ConfigTag> > ConfigDataHash;
+typedef std::multimap<std::string, reference<ConfigTag>, irc::insensitive_swo> ConfigDataHash;
 
 /** Iterator of ConfigDataHash */
 typedef ConfigDataHash::const_iterator ConfigIter;
