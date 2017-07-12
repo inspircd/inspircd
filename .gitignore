@@ -6,7 +6,7 @@
 !.git*
 
 /.configure
-/BSDmakefile
+/Makefile
 /GNUmakefile
 /build
 /docs/doxygen

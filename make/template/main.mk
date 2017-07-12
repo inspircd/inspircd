@@ -1,5 +1,4 @@
-%target BSD_MAKE BSDmakefile
-%target GNU_MAKE GNUmakefile
+%target GNUmakefile
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
@@ -26,9 +25,7 @@
 # make/template/main.mk. Any changes made to the generated
 #     files will go away whenever it is regenerated!
 #
-# Please do not edit unless you know what you're doing. This
-# needs to work in both GNU and BSD make; it is mangled for
-# them by configure.
+# Please do not edit unless you know what you're doing.
 #
 
 
@@ -54,101 +51,106 @@ INSTMODE_DIR = 0750
 INSTMODE_BIN = 0750
 INSTMODE_LIB = 0640
 
-@IFNEQ $(COMPILER) ICC
+ifneq ($(COMPILER), ICC)
   CORECXXFLAGS += -Woverloaded-virtual -Wshadow
-@IFNEQ $(SYSTEM) openbsd
+ifneq ($(SYSTEM), openbsd)
     CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute
-@ENDIF
-@ENDIF
+endif
+endif
 
-@IFNEQ $(SYSTEM) darwin
+ifneq ($(SYSTEM), darwin)
   LDLIBS += -pthread
-@ENDIF
+endif
 
-@IFEQ $(SYSTEM) linux
+ifeq ($(SYSTEM), linux)
   LDLIBS += -ldl -lrt
-@ENDIF
-@IFEQ $(SYSTEM) gnukfreebsd
+endif
+ifeq ($(SYSTEM), gnukfreebsd)
   LDLIBS += -ldl -lrt
-@ENDIF
-@IFEQ $(SYSTEM) gnu
+endif
+ifeq ($(SYSTEM), gnu)
   LDLIBS += -ldl -lrt
-@ENDIF
-@IFEQ $(SYSTEM) solaris
+endif
+ifeq ($(SYSTEM), solaris)
   LDLIBS += -lsocket -lnsl -lrt -lresolv
   INSTALL = ginstall
-@ENDIF
-@IFEQ $(SYSTEM) darwin
+endif
+ifeq ($(SYSTEM), darwin)
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
-@ENDIF
+endif
 
-@IFNDEF INSPIRCD_DEBUG
+ifndef INSPIRCD_DEBUG
   INSPIRCD_DEBUG=0
-@ENDIF
+endif
 
 DBGOK=0
-@IFEQ $(INSPIRCD_DEBUG) 0
+ifeq ($(INSPIRCD_DEBUG), 0)
   CORECXXFLAGS += -fno-rtti -O2
-@IFEQ $(COMPILER) GCC
+ifeq ($(COMPILER), GCC)
     CORECXXFLAGS += -g1
-@ENDIF
+endif
   HEADER = std-header
   DBGOK=1
-@ENDIF
-@IFEQ $(INSPIRCD_DEBUG) 1
+endif
+ifeq ($(INSPIRCD_DEBUG), 1)
   CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
   HEADER = debug-header
   DBGOK=1
-@ENDIF
-@IFEQ $(INSPIRCD_DEBUG) 2
+endif
+ifeq ($(INSPIRCD_DEBUG), 2)
   CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
   DBGOK=1
-@ENDIF
+endif
 FOOTER = finishmessage
 
-@TARGET GNU_MAKE MAKEFLAGS += --no-print-directory
+MAKEFLAGS += --no-print-directory
 
-@TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
-@TARGET BSD_MAKE SOURCEPATH != /bin/pwd
+SOURCEPATH = $(shell /bin/pwd)
 
-@IFNDEF INSPIRCD_VERBOSE
-  @TARGET GNU_MAKE MAKEFLAGS += --silent
-  @TARGET BSD_MAKE MAKE += -s
-@ENDIF
+ifndef INSPIRCD_VERBOSE
+  MAKEFLAGS += --silent
+endif
 
-@IFDEF INSPIRCD_STATIC
+ifdef INSPIRCD_STATIC
   CORECXXFLAGS += -DINSPIRCD_STATIC
-@ENDIF
+endif
 
 # Add the users CPPFLAGS/CXXFLAGS to the base ones to allow them to
 # override things like -Wfatal-errors if they wish to.
 CORECXXFLAGS += $(CPPFLAGS) $(CXXFLAGS)
 
-@DO_EXPORT CXX CORECXXFLAGS LDLIBS PICLDFLAGS INSPIRCD_VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT SOURCEPATH BUILDPATH INSPIRCD_STATIC
+export BUILDPATH
+export CORECXXFLAGS
+export CORELDFLAGS
+export CXX
+export INSPIRCD_STATIC
+export INSPIRCD_VERBOSE
+export LDLIBS
+export PICLDFLAGS
+export SOCKETENGINE
+export SOURCEPATH
 
 # Default target
 TARGET = all
 
-@IFDEF INSPIRCD_MODULE
+ifdef INSPIRCD_MODULE
     HEADER = mod-header
     FOOTER = mod-footer
-    @TARGET BSD_MAKE TARGET = modules/${INSPIRCD_MODULE:S/.so$//}.so
-    @TARGET GNU_MAKE TARGET = modules/$(INSPIRCD_MODULE:.so=).so
-@ENDIF
+    TARGET = modules/$(INSPIRCD_MODULE:.so=).so
+endif
 
-@IFDEF INSPIRCD_TARGET
+ifdef INSPIRCD_TARGET
     HEADER =
     FOOTER = target
     TARGET = $(INSPIRCD_TARGET)
-@ENDIF
+endif
 
-@IFEQ $(DBGOK) 0
+ifeq ($(DBGOK), 0)
   HEADER = unknown-debug-level
-@ENDIF
+endif
 
 all: $(FOOTER)
 
@@ -174,10 +176,10 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
-@IFDEF INSPIRCD_STATIC
+ifdef INSPIRCD_STATIC
 	@echo 'Cannot build single modules in pure-static build'
 	@exit 1
-@ENDIF
+endif
 	@echo 'Building single module:'
 
 mod-footer: target
@@ -223,17 +225,17 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-@IFNDEF INSPIRCD_STATIC
+ifndef INSPIRCD_STATIC
 	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
-@ENDIF
+endif
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
-@IFEQ $(SYSTEM) darwin
+ifeq ($(SYSTEM), darwin)
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(BASE) 2>/dev/null
-@ENDIF
-@IFEQ $(SYSTEM) linux
+endif
+ifeq ($(SYSTEM), linux)
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(BASE) 2>/dev/null
-@ENDIF
+endif
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
@@ -255,9 +257,8 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
-GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
+GNUmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
 	./configure --update
-@TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
 
 clean:
 	@echo Cleaning...
@@ -280,7 +281,7 @@ deinstall:
 
 configureclean:
 	rm -f .gdbargs
-	rm -f BSDmakefile
+	-rm -f Makefile
 	rm -f GNUmakefile
 	rm -f include/config.h
 	rm -rf @CONFIGURE_DIRECTORY@

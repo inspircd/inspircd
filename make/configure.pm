@@ -258,7 +258,7 @@ sub parse_templates($$$) {
 	foreach (<make/template/*>) {
 		print_format "Parsing <|GREEN $_|> ...\n";
 		open(my $fh, $_) or print_error "unable to read $_: $!";
-		my (@lines, $mode, @platforms, %targets);
+		my (@lines, $mode, @platforms, @targets);
 
 		# First pass: parse template variables and directives.
 		while (my $line = <$fh>) {
@@ -288,11 +288,7 @@ sub parse_templates($$$) {
 				} elsif ($1 eq 'platform') {
 					push @platforms, $2;
 				} elsif ($1 eq 'target') {
-					if ($2 =~ /(\w+)\s(.+)/) {
-						$targets{$1} = $2;
-					} else {
-						$targets{DEFAULT} = $2;
-					}
+					push @targets, $2
 				} else {
 					print_warning "unknown template command '$1' in $_!";
 					push @lines, $line;
@@ -307,86 +303,12 @@ sub parse_templates($$$) {
 		if ($#platforms < 0 || grep { $_ eq $^O } @platforms) {
 
 			# Add a default target if the template has not defined one.
-			unless (scalar keys %targets) {
-				$targets{DEFAULT} = catfile(CONFIGURE_DIRECTORY, basename $_);
+			unless (@targets) {
+				push @targets, catfile(CONFIGURE_DIRECTORY, basename $_);
 			}
 
-			# Second pass: parse makefile junk and write files.
-			while (my ($name, $target) = each %targets) {
-
-				# TODO: when buildtool is done this mess can be removed completely.
-				my @final_lines;
-				foreach my $line (@lines) {
-
-					# Are we parsing a makefile and does this line match a statement?
-					if ($name =~ /(?:BSD|GNU)_MAKE/ && $line =~ /^\s*\@(\w+)(?:\s+(.+))?$/) {
-						my @tokens = split /\s/, $2 if defined $2;
-						if ($1 eq 'DO_EXPORT' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								foreach my $variable (@tokens) {
-									push @final_lines, "MAKEENV += $variable='\${$variable}'";
-								}
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "export $2";
-							}
-						} elsif ($1 eq 'ELSE') {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".else";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "else";
-							}
-						} elsif ($1 eq 'ENDIF') {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".endif";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "endif";
-							}
-						} elsif ($1 eq 'ELSIFEQ' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".elif $tokens[0] == $tokens[1]";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "else ifeq ($tokens[0], $tokens[1])";
-							}
-						} elsif ($1 eq 'IFDEF' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".if defined($2)";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "ifdef $2";
-							}
-						} elsif ($1 eq 'IFEQ' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".if $tokens[0] == $tokens[1]";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "ifeq ($tokens[0],$tokens[1])";
-							}
-						} elsif ($1 eq 'IFNEQ' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".if $tokens[0] != $tokens[1]";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "ifneq ($tokens[0],$tokens[1])";
-							}
-						} elsif ($1 eq 'IFNDEF' && defined $2) {
-							if ($name eq 'BSD_MAKE') {
-								push @final_lines, ".if !defined($2)";
-							} elsif ($name eq 'GNU_MAKE') {
-								push @final_lines, "ifndef $2";
-							}
-						} elsif ($1 eq 'TARGET' && defined $2) {
-							if ($tokens[0] eq $name) {
-								push @final_lines, substr($2, length($tokens[0]) + 1);
-							}
-						} elsif ($1 !~ /[A-Z]/) {
-							# HACK: silently ignore if lower case as these are probably make commands.
-							push @final_lines, $line;
-						} else {
-							print_warning "unknown template command '$1' in $_!";
-							push @final_lines, $line;
-						}
-						next;
-					}
-
-					push @final_lines, $line;
-				}
+			# Write the templated files to disk.
+			for my $target (@targets) {
 
 				# Create the directory if it doesn't already exist.
 				my $directory = dirname $target;
@@ -398,7 +320,7 @@ sub parse_templates($$$) {
 				# Write the template file.
 				print_format "Writing <|GREEN $target|> ...\n";
 				open(my $fh, '>', $target) or print_error "unable to write $target: $!";
-				foreach (@final_lines) {
+				foreach (@lines) {
 					say $fh $_;
 				}
 				close $fh;
