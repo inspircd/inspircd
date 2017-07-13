@@ -46,10 +46,12 @@ enum
 	RPL_SERVERVERSION               = 4, // 2812, not 1459
 	RPL_ISUPPORT                    = 5, // not RFC, extremely common though (defined as RPL_BOUNCE in 2812, widely ignored)
 
-	RPL_MAP                         = 6, // unrealircd
-	RPL_ENDMAP                      = 7, // unrealircd
 	RPL_SNOMASKIS                   = 8, // unrealircd
 	RPL_REDIR                       = 10,
+
+	RPL_MAP                         = 15, // ircu
+	RPL_ENDMAP                      = 17, // ircu
+	RPL_MAPUSERS                    = 18, // insp-specific
 
 	RPL_YOURUUID                    = 42, // taken from ircnet
 
@@ -69,8 +71,6 @@ enum
 
 	RPL_LOCALUSERS                  = 265,
 	RPL_GLOBALUSERS                 = 266,
-
-	RPL_MAPUSERS                    = 270, // insp-specific
 
 	RPL_AWAY                        = 301,
 	RPL_USERHOST                    = 302,
