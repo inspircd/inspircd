@@ -30,10 +30,10 @@
 #include <iostream>
 
 ServerLimits::ServerLimits(ConfigTag* tag)
-	: NickMax(tag->getInt("maxnick", 32))
+	: NickMax(tag->getInt("maxnick", 30))
 	, ChanMax(tag->getInt("maxchan", 64))
 	, MaxModes(tag->getInt("maxmodes", 20))
-	, IdentMax(tag->getInt("maxident", 11))
+	, IdentMax(tag->getInt("maxident", 10))
 	, MaxQuit(tag->getInt("maxquit", 255))
 	, MaxTopic(tag->getInt("maxtopic", 307))
 	, MaxKick(tag->getInt("maxkick", 255))

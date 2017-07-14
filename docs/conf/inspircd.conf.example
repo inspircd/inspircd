@@ -757,7 +757,7 @@
 
 <limits
         # maxnick: Maximum length of a nickname.
-        maxnick="31"
+        maxnick="30"
 
         # maxchan: Maximum length of a channel name.
         maxchan="64"
@@ -766,7 +766,7 @@
         maxmodes="20"
 
         # maxident: Maximum length of a ident/username.
-        maxident="11"
+        maxident="10"
 
         # maxhost: Maximum length of a hostname.
         maxhost="64"
