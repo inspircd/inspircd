@@ -223,6 +223,11 @@ void InspIRCd::RehashUsersAndChans()
 		(**i).already_sent = 0;
 		(**i).RemoveExpiredInvites();
 	}
+
+	// HACK: ELines are not expired properly at the moment but it can't be fixed as
+	// the 2.0 XLine system is a spaghetti nightmare. Instead we skip over expired
+	// ELines in XLineManager::CheckELines() and expire them here instead.
+	ServerInstance->XLines->GetAll("E");
 }
 
 void InspIRCd::SetSignals()

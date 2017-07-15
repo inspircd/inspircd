@@ -159,6 +159,7 @@ void XLineManager::CheckELines()
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
+		u->exempt = false;
 
 		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
 		LookupIter safei;
@@ -169,7 +170,8 @@ void XLineManager::CheckELines()
 			safei++;
 
 			XLine *e = i->second;
-			u->exempt = e->Matches(u);
+			if ((!e->duration || ServerInstance->Time() < e->expiry) && e->Matches(u))
+				u->exempt = true;
 
 			i = safei;
 		}
@@ -325,13 +327,6 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 
 void ELine::Unset()
 {
-	/* remove exempt from everyone and force recheck after deleting eline */
-	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
-	{
-		User* u = (User*)(*u2);
-		u->exempt = false;
-	}
-
 	ServerInstance->XLines->CheckELines();
 }
 
