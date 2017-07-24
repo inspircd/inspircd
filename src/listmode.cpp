@@ -121,6 +121,17 @@ unsigned int ListModeBase::GetLimit(Channel* channel)
 	return GetLimitInternal(channel->name, cd);
 }
 
+unsigned int ListModeBase::GetLowerLimit()
+{
+	unsigned int limit = UINT_MAX;
+	for (limitlist::iterator iter = chanlimits.begin(); iter != chanlimits.end(); ++iter)
+	{
+		if (iter->limit < limit)
+			limit = iter->limit;
+	}
+	return limit == UINT_MAX ? DEFAULT_LIST_SIZE : limit;
+}
+
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	// Try and grab the list
