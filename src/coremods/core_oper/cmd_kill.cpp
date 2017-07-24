@@ -43,95 +43,84 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	User *u = ServerInstance->FindNick(parameters[0]);
-	if (u)
-	{
-		/*
-		 * Here, we need to decide how to munge kill messages. Whether to hide killer, what to show opers, etc.
-		 * We only do this when the command is being issued LOCALLY, for remote KILL, we just copy the message we got.
-		 *
-		 * This conditional is so that we only append the "Killed (" prefix ONCE. If killer is remote, then the kill
-		 * just gets processed and passed on, otherwise, if they are local, it gets prefixed. Makes sense :-) -- w00t
-		 */
-
-		if (IS_LOCAL(user))
-		{
-			/*
-			 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
-			 * and the other half not. This would be a bad thing. ;p -- w00t
-			 */
-	 		ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, u, parameters[1]));
-
-			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
-
-			killreason = "Killed (";
-			if (!ServerInstance->Config->HideKillsServer.empty())
-			{
-				// hidekills is on, use it
-				killreason += ServerInstance->Config->HideKillsServer;
-			}
-			else
-			{
-				// hidekills is off, do nothing
-				killreason += user->nick;
-			}
-
-			killreason += " (" + parameters[1] + "))";
-		}
-		else
-		{
-			/* Leave it alone, remote server has already formatted it */
-			killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
-		}
-
-		/*
-		 * Now we need to decide whether or not to send a local or remote snotice. Currently this checking is a little flawed.
-		 * No time to fix it right now, so left a note. -- w00t
-		 */
-		if (!IS_LOCAL(u))
-		{
-			// remote kill
-			if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
-				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-			this->lastuuid = u->uuid;
-		}
-		else
-		{
-			// local kill
-			/*
-			 * XXX - this isn't entirely correct, servers A - B - C, oper on A, client on C. Oper kills client, A and B will get remote kill
-			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
-			 */
-			if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
-			{
-				if (IS_LOCAL(user))
-					ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-				else
-					ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-			}
-
-			ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
-
-			u->Write(":%s KILL %s :%s!%s!%s (%s)", ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-					u->nick.c_str(),
-					ServerInstance->Config->ServerName.c_str(),
-					ServerInstance->Config->HideKillsServer.empty() ? user->dhost.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-					ServerInstance->Config->HideKillsServer.empty() ? user->nick.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-					parameters[1].c_str());
-
-			this->lastuuid.clear();
-		}
-
-		// send the quit out
-		ServerInstance->Users->QuitUser(u, killreason);
-	}
-	else
+	User* target = ServerInstance->FindNick(parameters[0]);
+	if (!target)
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 		return CMD_FAILURE;
 	}
+
+	/*
+	 * Here, we need to decide how to munge kill messages. Whether to hide killer, what to show opers, etc.
+	 * We only do this when the command is being issued LOCALLY, for remote KILL, we just copy the message we got.
+	 *
+	 * This conditional is so that we only append the "Killed (" prefix ONCE. If killer is remote, then the kill
+	 * just gets processed and passed on, otherwise, if they are local, it gets prefixed. Makes sense :-) -- w00t
+	 */
+
+	if (IS_LOCAL(user))
+	{
+		/*
+		 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
+		 * and the other half not. This would be a bad thing. ;p -- w00t
+		 */
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, target, parameters[1]));
+
+		if (MOD_RESULT == MOD_RES_DENY)
+			return CMD_FAILURE;
+
+		killreason = "Killed (";
+		if (!ServerInstance->Config->HideKillsServer.empty())
+		{
+			// hidekills is on, use it
+			killreason += ServerInstance->Config->HideKillsServer;
+		}
+		else
+		{
+			// hidekills is off, do nothing
+			killreason += user->nick;
+		}
+
+		killreason += " (" + parameters[1] + "))";
+	}
+	else
+	{
+		/* Leave it alone, remote server has already formatted it */
+		killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
+	}
+
+	if ((!ServerInstance->Config->HideULineKills) || (!user->server->IsULine()))
+	{
+		if (IS_LOCAL(user) && IS_LOCAL(target))
+			ServerInstance->SNO->WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+		else
+			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+	}
+
+	if (IS_LOCAL(user) || IS_LOCAL(target))
+		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "%s KILL: %s :%s!%s!%s (%s)",
+				IS_LOCAL(user) && IS_LOCAL(target) ? "LOCAL" : "REMOTE",
+				target->nick.c_str(),
+				ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(),
+				parameters[1].c_str());
+
+	if (IS_LOCAL(target))
+	{
+		target->Write(":%s KILL %s :%s",
+				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
+				target->nick.c_str(),
+				parameters[1].c_str());
+
+		this->lastuuid.clear();
+	}
+	else
+	{
+		this->lastuuid = target->uuid;
+	}
+
+	// send the quit out
+	ServerInstance->Users->QuitUser(target, killreason);
 
 	return CMD_SUCCESS;
 }
