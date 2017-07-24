@@ -1695,7 +1695,7 @@
 # You can optionally let the user know that their command was blocked.
 #
 # You may also let SHUN affect opers (defaults to no).
-#<shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
+#<shun enabledcommands="ADMIN PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL channel mode module: Adds support for SSL-only channels via
