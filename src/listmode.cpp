@@ -77,7 +77,7 @@ void ListModeBase::DoRehash()
 
 	// Add the default entry. This is inserted last so if the user specifies a
 	// wildcard record in the config it will take precedence over this entry.
-	chanlimits.push_back(ListLimit("*", 64));
+	chanlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
 
 	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
 	if (oldlimits == chanlimits)
@@ -102,7 +102,7 @@ unsigned int ListModeBase::FindLimit(const std::string& channame)
 			return it->limit;
 		}
 	}
-	return 64;
+	return DEFAULT_LIST_SIZE;
 }
 
 unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
@@ -119,6 +119,17 @@ unsigned int ListModeBase::GetLimit(Channel* channel)
 		return FindLimit(channel->name);
 
 	return GetLimitInternal(channel->name, cd);
+}
+
+unsigned int ListModeBase::GetLowerLimit()
+{
+	unsigned int limit = UINT_MAX;
+	for (limitlist::iterator iter = chanlimits.begin(); iter != chanlimits.end(); ++iter)
+	{
+		if (iter->limit < limit)
+			limit = iter->limit;
+	}
+	return limit == UINT_MAX ? DEFAULT_LIST_SIZE : limit;
 }
 
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

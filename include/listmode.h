@@ -63,6 +63,9 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	typedef std::vector<ListLimit> limitlist;
 
+	/** The default maximum list size. */
+	static const unsigned int DEFAULT_LIST_SIZE = 64;
+
 	/** Finds the limit of modes that can be placed on the given channel name according to the config
 	 * @param channame The channel name to find the limit for
 	 * @return The maximum number of modes of this type that we allow to be set on the given channel name
@@ -122,6 +125,10 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @return Maximum number of modes of this type that can be placed on the given channel
 	 */
 	unsigned int GetLimit(Channel* channel);
+
+	/** Gets the lower list limit for this listmode.
+	 */
+	unsigned int GetLowerLimit();
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from

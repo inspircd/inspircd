@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "core_channel.h"
 #include "invite.h"
+#include "listmode.h"
 
 class CoreModChannel : public Module
 {
@@ -55,6 +56,30 @@ class CoreModChannel : public Module
 		{
 			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
 				ServerInstance->Modules.Detach(events[i], this);
+		}
+	}
+
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		// Build a map of limits to their mode character.
+		insp::flat_map<int, std::string> limits;
+		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
+		{
+			const unsigned int limit = (*iter)->GetLowerLimit();
+			limits[limit].push_back((*iter)->GetModeChar());
+		}
+
+		// Generate the MAXLIST token from the limits map.
+		std::string& buffer = tokens["MAXLIST"];
+		for (insp::flat_map<int, std::string>::const_iterator iter = limits.begin(); iter != limits.end(); ++iter)
+		{
+			if (!buffer.empty())
+				buffer.push_back(',');
+
+			buffer.append(iter->second);
+			buffer.push_back(':');
+			buffer.append(ConvToStr(iter->first));
 		}
 	}
 
