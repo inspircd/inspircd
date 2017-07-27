@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/exemption.h"
 
 /** Channel mode +r - mark a channel as identified
  */
@@ -139,6 +140,7 @@ class AccountExtItemImpl : public AccountExtItem
 
 class ModuleServicesAccount : public Module, public Whois::EventListener
 {
+	CheckExemption::EventProvider exemptionprov;
 	AChannel_R m1;
 	AChannel_M m2;
 	AUser_R m3;
@@ -149,6 +151,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
  public:
 	ModuleServicesAccount()
 		: Whois::EventListener(this)
+		, exemptionprov(this)
 		, m1(this), m2(this), m3(this), m4(this), m5(this)
 		, accountname(this)
 		, checking_ban(false)
@@ -196,7 +199,8 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"regmoderated");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "regmoderated"));
 
 			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{

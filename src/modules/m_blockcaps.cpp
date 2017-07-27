@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 
 /** Handles the +B channel mode
@@ -33,13 +34,16 @@ class BlockCaps : public SimpleChannelModeHandler
 
 class ModuleBlockCAPS : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	BlockCaps bc;
 	unsigned int percent;
 	unsigned int minlen;
 	char capsmap[256];
 
 public:
-	ModuleBlockCAPS() : bc(this)
+	ModuleBlockCAPS()
+		: exemptionprov(this)
+		, bc(this)
 	{
 	}
 
@@ -56,7 +60,8 @@ public:
 				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"blockcaps");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "blockcaps"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

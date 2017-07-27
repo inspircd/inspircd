@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 // The number of seconds nickname changing will be blocked for.
 static unsigned int duration;
@@ -121,11 +122,13 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 
 class ModuleNickFlood : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	NickFlood nf;
 
  public:
 	ModuleNickFlood()
-		: nf(this)
+		: exemptionprov(this)
+		, nf(this)
 	{
 	}
 
@@ -145,7 +148,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
+				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "nickflood"));
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -184,7 +187,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
+				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "nickflood"));
 				if (res == MOD_RES_ALLOW)
 					return;
 

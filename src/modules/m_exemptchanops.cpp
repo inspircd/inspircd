@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/exemption.h"
 
 /** Handles channel mode +X
  */
@@ -68,11 +69,15 @@ class ExemptChanOps : public ListModeBase
 	}
 };
 
-class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std::string&>
+class ExemptHandler : public CheckExemption::EventListener
 {
  public:
 	ExemptChanOps ec;
-	ExemptHandler(Module* me) : ec(me) {}
+	ExemptHandler(Module* me)
+		: CheckExemption::EventListener(me)
+		, ec(me)
+	{
+	}
 
 	PrefixMode* FindMode(const std::string& mid)
 	{
@@ -83,7 +88,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
-	ModResult Call(User* user, Channel* chan, const std::string& restriction)
+	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) CXX11_OVERRIDE
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		std::string minmode;
@@ -108,7 +113,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		if (mh || minmode == "*")
 			return MOD_RES_DENY;
 
-		return ServerInstance->HandleOnCheckExemption.Call(user, chan, restriction);
+		return MOD_RES_PASSTHRU;
 	}
 };
 
@@ -119,16 +124,6 @@ class ModuleExemptChanOps : public Module
  public:
 	ModuleExemptChanOps() : eh(this)
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->OnCheckExemption = &eh;
-	}
-
-	~ModuleExemptChanOps()
-	{
-		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

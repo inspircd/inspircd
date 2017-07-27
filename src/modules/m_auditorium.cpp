@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 class AuditoriumMode : public SimpleChannelModeHandler
 {
@@ -33,13 +34,16 @@ class AuditoriumMode : public SimpleChannelModeHandler
 
 class ModuleAuditorium : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	AuditoriumMode aum;
 	bool OpsVisible;
 	bool OpsCanSee;
 	bool OperCanSee;
 
  public:
-	ModuleAuditorium() : aum(this)
+	ModuleAuditorium()
+		: exemptionprov(this)
+		, aum(this)
 	{
 	}
 
@@ -62,7 +66,8 @@ class ModuleAuditorium : public Module
 		if (!memb->chan->IsModeSet(&aum))
 			return true;
 
-		ModResult res = ServerInstance->OnCheckExemption(memb->user, memb->chan, "auditorium-vis");
+		ModResult res;
+		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (memb->user, memb->chan, "auditorium-vis"));
 		return res.check(OpsVisible && memb->getRank() >= OP_VALUE);
 	}
 
@@ -78,7 +83,8 @@ class ModuleAuditorium : public Module
 			return true;
 
 		// Can you see the list by permission?
-		ModResult res = ServerInstance->OnCheckExemption(issuer,memb->chan,"auditorium-see");
+		ModResult res;
+		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (issuer, memb->chan, "auditorium-see"));
 		if (res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE))
 			return true;
 

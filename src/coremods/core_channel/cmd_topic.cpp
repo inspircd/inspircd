@@ -25,6 +25,7 @@
 
 CommandTopic::CommandTopic(Module* parent)
 	: SplitCommand(parent, "TOPIC", 1, 2)
+	, exemptionprov(parent)
 	, secretmode(parent, "secret")
 	, topiclockmode(parent, "topiclock")
 {
@@ -73,10 +74,15 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
 			return CMD_FAILURE;
 		}
-		if (c->IsModeSet(topiclockmode) && !ServerInstance->OnCheckExemption(user, c, "topiclock").check(c->GetPrefixValue(user) >= HALFOP_VALUE))
+		if (c->IsModeSet(topiclockmode))
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
-			return CMD_FAILURE;
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, MOD_RESULT, (user, c, "topiclock"));
+			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
+			{
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
+				return CMD_FAILURE;
+			}
 		}
 	}
 

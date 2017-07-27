@@ -22,7 +22,7 @@
 #include "invite.h"
 #include "listmode.h"
 
-class CoreModChannel : public Module
+class CoreModChannel : public Module, public CheckExemption::EventListener
 {
 	Invite::APIImpl invapi;
 	CommandInvite cmdinvite;
@@ -30,6 +30,7 @@ class CoreModChannel : public Module
 	CommandKick cmdkick;
 	CommandNames cmdnames;
 	CommandTopic cmdtopic;
+	insp::flat_map<std::string, char> exemptions;
 
 	ModResult IsInvited(User* user, Channel* chan)
 	{
@@ -41,8 +42,13 @@ class CoreModChannel : public Module
 
  public:
 	CoreModChannel()
-		: invapi(this)
-		, cmdinvite(this, invapi), cmdjoin(this), cmdkick(this), cmdnames(this), cmdtopic(this)
+		: CheckExemption::EventListener(this)
+		, invapi(this)
+		, cmdinvite(this, invapi)
+		, cmdjoin(this)
+		, cmdkick(this)
+		, cmdnames(this)
+		, cmdtopic(this)
 	{
 	}
 
@@ -57,6 +63,23 @@ class CoreModChannel : public Module
 			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
 				ServerInstance->Modules.Detach(events[i], this);
 		}
+
+		std::string current;
+		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
+		insp::flat_map<std::string, char> exempts;
+		while (defaultstream.GetToken(current))
+		{
+			std::string::size_type pos = current.find(':');
+			if (pos == std::string::npos || (pos + 2) > current.size())
+				throw ModuleException("Invalid exemptchanops value '" + current + "' at " + optionstag->getTagLocation());
+
+			const std::string restriction = current.substr(0, pos);
+			const char prefix = current[pos + 1];
+
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Exempting prefix %c from %s", prefix, restriction.c_str());
+			exempts[restriction] = prefix;
+		}
+		exemptions.swap(exempts);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -133,6 +156,22 @@ class CoreModChannel : public Module
 	{
 		// Make sure the channel won't appear in invite lists from now on, don't wait for cull to unset the ext
 		invapi.RemoveAll(chan);
+	}
+
+	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) CXX11_OVERRIDE
+	{
+		if (!exemptions.count(restriction))
+			return MOD_RES_PASSTHRU;
+
+		unsigned int mypfx = chan->GetPrefixValue(user);
+		char minmode = exemptions[restriction];
+
+		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(minmode);
+		if (mh && mypfx >= mh->GetPrefixRank())
+			return MOD_RES_ALLOW;
+		if (mh || minmode == '*')
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void Prioritize() CXX11_OVERRIDE

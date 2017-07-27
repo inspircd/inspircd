@@ -20,6 +20,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 namespace Topic
 {
@@ -72,6 +73,7 @@ class CommandJoin : public SplitCommand
  */
 class CommandTopic : public SplitCommand
 {
+	CheckExemption::EventProvider exemptionprov;
 	ChanModeReference secretmode;
 	ChanModeReference topiclockmode;
 

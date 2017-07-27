@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "modules/exemption.h"
 
 /** Handles the +c channel mode
  */
@@ -33,10 +34,13 @@ class BlockColor : public SimpleChannelModeHandler
 
 class ModuleBlockColor : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	BlockColor bc;
  public:
 
-	ModuleBlockColor() : bc(this)
+	ModuleBlockColor()
+		: exemptionprov(this)
+		, bc(this)
 	{
 	}
 
@@ -50,7 +54,8 @@ class ModuleBlockColor : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"blockcolor");
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "blockcolor"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

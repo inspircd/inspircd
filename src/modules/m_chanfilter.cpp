@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/exemption.h"
 
 /** Handles channel mode +g
  */
@@ -62,13 +63,15 @@ class ChanFilter : public ListModeBase
 
 class ModuleChanFilter : public Module
 {
+	CheckExemption::EventProvider exemptionprov;
 	ChanFilter cf;
 	bool hidemask;
 
  public:
 
 	ModuleChanFilter()
-		: cf(this)
+		: exemptionprov(this)
+		, cf(this)
 	{
 	}
 
@@ -84,7 +87,8 @@ class ModuleChanFilter : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = static_cast<Channel*>(dest);
-		ModResult res = ServerInstance->OnCheckExemption(user,chan,"filter");
+		ModResult res;
+		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, chan, "filter"));
 
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;

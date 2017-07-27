@@ -230,8 +230,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
 	 IsNick(&HandleIsNick),
-	 IsIdent(&HandleIsIdent),
-	 OnCheckExemption(&HandleOnCheckExemption)
+	 IsIdent(&HandleIsIdent)
 {
 	ServerInstance = this;
 
