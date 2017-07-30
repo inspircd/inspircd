@@ -164,7 +164,7 @@ void ISupportManager::Build()
 	std::map<std::string, std::string> tokens;
 
 	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
-	tokens["CASEMAPPING"] = "rfc1459";
+	tokens["CASEMAPPING"] = ServerInstance->Config->CaseMapping;
 	tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", ServerInstance->Config->MaxChans);
 	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);

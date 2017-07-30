@@ -218,7 +218,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 class ModuleNationalChars : public Module
 {
 	lwbNickHandler myhandler;
-	std::string charset, casemapping;
+	std::string charset;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
 	caller1<bool, const std::string&> rememberer;
 	bool forcequit;
@@ -262,18 +262,14 @@ class ModuleNationalChars : public Module
 		ServerInstance->IsNick = &myhandler;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["CASEMAPPING"] = casemapping;
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
-		casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset));
+		std::string casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset));
 		if (casemapping.find(' ') != std::string::npos)
 			throw ModuleException("<nationalchars:casemapping> must not contain any spaces!");
+		ServerInstance->Config->CaseMapping = casemapping;
 #if defined _WIN32
 		if (!FileSystem::StartsWithWindowsDriveLetter(charset))
 			charset.insert(0, "./locales/");

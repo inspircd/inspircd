@@ -424,6 +424,10 @@ class CoreExport ServerConfig
 	 */
 	bool SyntaxHints;
 
+	/** The name of the casemapping method used by this server.
+	 */
+	std::string CaseMapping;
+
 	/** If set to true, the CycleHosts mode change will be sourced from the user,
 	 * rather than the server
 	 */

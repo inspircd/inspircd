@@ -182,6 +182,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
 			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
+			" CASEMAPPING="+ServerInstance->Config->CaseMapping+
 			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
 			// Services want to know about it, and since m_globops was not marked as VF_(OPT)COMMON
 			// in 2.0, we advertise it here to not break linking to previous versions.
@@ -342,6 +343,24 @@ bool TreeSocket::Capab(const parameterlist &params)
 		{
 			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_USER))
 				reason = "One or more of the user modes on the remote server are invalid on this server.";
+		}
+		else
+		{
+			// We default to rfc1459 here because if this key is not sent then
+			// the remote server is running the 2.0 protocol which uses rfc1459
+			// by default.
+			std::string casemapping = "rfc1459";
+			std::map<std::string, std::string>::iterator citer = this->capab->CapKeys.find("CASEMAPPING");
+			if (citer != this->capab->CapKeys.end())
+				casemapping = citer->second;
+
+			if (casemapping != ServerInstance->Config->CaseMapping)
+			{
+				reason = "The casemapping of the remote server differs to that of the local server."
+					" Local casemapping: " + ServerInstance->Config->CaseMapping +
+					" Remote casemapping: " + casemapping;
+			}
+
 		}
 
 		/* Challenge response, store their challenge for our password */
