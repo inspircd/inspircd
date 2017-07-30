@@ -42,9 +42,6 @@ class Alias
 	/** Requires oper? */
 	bool OperOnly;
 
-	/* is case sensitive params */
-	bool CaseSensitive;
-
 	/* whether or not it may be executed via fantasy (default OFF) */
 	bool ChannelCommand;
 
@@ -94,7 +91,6 @@ class ModuleAlias : public Module
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
-			a.CaseSensitive = tag->getBool("matchcase");
 			Aliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
 	}
@@ -233,16 +229,8 @@ class ModuleAlias : public Module
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
-			if (a->CaseSensitive)
-			{
-				if (!InspIRCd::Match(compare, a->format, rfc_case_sensitive_map))
-					return 0;
-			}
-			else
-			{
-				if (!InspIRCd::Match(compare, a->format))
-					return 0;
-			}
+			if (!InspIRCd::Match(compare, a->format))
+				return 0;
 		}
 
 		if ((a->OperOnly) && (!user->IsOper()))

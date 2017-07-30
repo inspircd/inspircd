@@ -64,10 +64,6 @@ CoreExport extern unsigned const char rfc_case_insensitive_map[256];
  */
 CoreExport extern unsigned const char ascii_case_insensitive_map[256];
 
-/** Case sensitive (identity) map.
- */
-CoreExport extern unsigned const char rfc_case_sensitive_map[256];
-
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc
