@@ -568,7 +568,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	}
 	catch (CoreException &ce)
 	{
-		errstr << ce.GetReason();
+		errstr << ce.GetReason() << std::endl;
 	}
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
