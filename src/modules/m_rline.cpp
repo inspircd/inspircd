@@ -63,8 +63,9 @@ class RLine : public XLine
 		if (u->exempt)
 			return false;
 
-		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
-		return regex->Matches(compare);
+		std::string host = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
+		std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->fullname;
+		return (regex->Matches(host) || regex->Matches(ip));
 	}
 
 	bool Matches(const std::string &compare)
