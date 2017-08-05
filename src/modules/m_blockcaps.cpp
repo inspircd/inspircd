@@ -67,7 +67,7 @@ public:
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			if ((!IS_LOCAL(user)) || (text.length() < minlen))
+			if ((!IS_LOCAL(user)) || (text.length() < minlen) || (text == "\1ACTION\1") || (text == "\1ACTION"))
 				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;

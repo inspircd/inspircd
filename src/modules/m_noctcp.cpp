@@ -67,7 +67,7 @@ class ModuleNoCTCP : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ",8)))
+			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ", 8)) || (text == "\1ACTION\1") || (text == "\1ACTION"))
 				return MOD_RES_PASSTHRU;
 
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"noctcp");
