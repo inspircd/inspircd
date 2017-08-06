@@ -1,7 +1,7 @@
 Building InspIRCd for Windows:
 
 Prerequisites:
-	Visual Studio 2010 or newer (http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-products)
+	Visual Studio 2015 or newer (https://www.visualstudio.com/)
 	CMake 2.8 or newer (http://www.cmake.org/)
 	If building the installer, NSIS http://nsis.sourceforge.net/
 

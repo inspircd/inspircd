@@ -209,7 +209,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	else
 	{
 		in_addr n;
-		if (inet_aton(x->IPAddr.c_str(),&n) < 1)
+		if (inet_pton(AF_INET, x->IPAddr.c_str(),&n) < 1)
 			ipvalid = false;
 	}
 
