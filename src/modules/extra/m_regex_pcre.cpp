@@ -22,6 +22,7 @@
 
 /// $PackageInfo: require_system("centos") pcre-devel pkgconfig
 /// $PackageInfo: require_system("darwin") pcre pkg-config
+/// $PackageInfo: require_system("debian") libpcre3-dev pkg-config
 /// $PackageInfo: require_system("ubuntu") libpcre3-dev pkg-config
 
 

@@ -21,6 +21,7 @@
 /// $LinkerFlags: find_linker_flags("re2" "-lre2")
 
 /// $PackageInfo: require_system("darwin") pkg-config re2
+/// $PackageInfo: require_system("debian" "8.0") libre2-dev pkg-config
 /// $PackageInfo: require_system("ubuntu" "15.10") libre2-dev pkg-config
 
 

@@ -24,6 +24,7 @@
 
 /// $PackageInfo: require_system("centos") pkgconfig sqlite-devel
 /// $PackageInfo: require_system("darwin") pkg-config sqlite3
+/// $PackageInfo: require_system("debian") libsqlite3-dev pkg-config
 /// $PackageInfo: require_system("ubuntu") libsqlite3-dev pkg-config
 
 #include "inspircd.h"

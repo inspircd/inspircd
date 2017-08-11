@@ -26,6 +26,7 @@
 
 /// $PackageInfo: require_system("centos") postgresql-devel
 /// $PackageInfo: require_system("darwin") postgresql
+/// $PackageInfo: require_system("debian") libpq-dev
 /// $PackageInfo: require_system("ubuntu") libpq-dev
 
 

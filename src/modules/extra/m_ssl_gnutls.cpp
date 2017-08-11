@@ -28,6 +28,8 @@
 
 /// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
+/// $PackageInfo: require_system("debian" "1.0" "7.99") libgcrypt11-dev
+/// $PackageInfo: require_system("debian") gnutls-bin libgnutls28-dev pkg-config
 /// $PackageInfo: require_system("ubuntu" "1.0" "13.10") libgcrypt11-dev
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls-dev pkg-config
 

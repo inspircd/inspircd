@@ -22,6 +22,7 @@
 
 /// $PackageInfo: require_system("centos" "7.0") GeoIP-devel pkgconfig
 /// $PackageInfo: require_system("darwin") geoip pkg-config
+/// $PackageInfo: require_system("debian") libgeoip-dev pkg-config
 /// $PackageInfo: require_system("ubuntu") libgeoip-dev pkg-config
 
 #include "inspircd.h"
