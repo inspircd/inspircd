@@ -73,7 +73,7 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 
 	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		if (numeric.GetNumeric() != 252 || active || user->HasPrivPermission("users/auspex"))
+		if (numeric.GetNumeric() != RPL_LUSEROP || active || user->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU;
 
 		// If there are no visible operators then we shouldn't send the numeric.
@@ -81,7 +81,7 @@ class ModuleHideOper : public Module, public Whois::LineEventListener
 		if (opercount)
 		{
 			active = true;
-			user->WriteNumeric(252, opercount, "operator(s) online");
+			user->WriteNumeric(RPL_LUSEROP, opercount, "operator(s) online");
 			active = false;
 		}
 		return MOD_RES_DENY;
