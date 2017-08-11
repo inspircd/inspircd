@@ -26,7 +26,7 @@
 
 /// $PackageInfo: require_system("centos") openssl-devel pkgconfig
 /// $PackageInfo: require_system("darwin") openssl pkg-config
-/// $PackageInfo: require_system("ubuntu" "16.04") libssl-dev openssl pkg-config
+/// $PackageInfo: require_system("ubuntu") libssl-dev openssl pkg-config
 
 
 #include "inspircd.h"
