@@ -36,8 +36,7 @@ class CommandSethost : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		size_t len = 0;
-		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++, len++)
+		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++)
 		{
 			if (!hostmap[(const unsigned char)*x])
 			{
@@ -46,7 +45,7 @@ class CommandSethost : public Command
 			}
 		}
 
-		if (len > ServerInstance->Config->Limits.MaxHost)
+		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** SETHOST: Host too long");
 			return CMD_FAILURE;
