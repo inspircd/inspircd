@@ -36,6 +36,12 @@ class CommandSethost : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
+		{
+			user->WriteNotice("*** SETHOST: Host too long");
+			return CMD_FAILURE;
+		}
+
 		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++)
 		{
 			if (!hostmap[(const unsigned char)*x])
@@ -43,12 +49,6 @@ class CommandSethost : public Command
 				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
-		}
-
-		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
-		{
-			user->WriteNotice("*** SETHOST: Host too long");
-			return CMD_FAILURE;
 		}
 
 		if (user->ChangeDisplayedHost(parameters[0]))
