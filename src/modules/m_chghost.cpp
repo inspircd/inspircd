@@ -37,15 +37,13 @@ class CommandChghost : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		const char* x = parameters[1].c_str();
-
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** CHGHOST: Host too long");
 			return CMD_FAILURE;
 		}
 
-		for (; *x; x++)
+		for (std::string::const_iterator x = parameters[1].begin(); x != parameters[1].end(); x++)
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
