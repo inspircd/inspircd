@@ -394,7 +394,8 @@
 # represented as 192.168.1.0/24). This means that abuse across an ISP #
 # is detected and curtailed much easier. Here is a good chart that    #
 # shows how many IPs the different CIDRs correspond to:               #
-# http://en.wikipedia.org/wiki/CIDR#Prefix_aggregation                #
+# https://en.wikipedia.org/wiki/IPv4_subnetting_reference             #
+# https://en.wikipedia.org/wiki/IPv6_subnetting_reference             #
 #                                                                     #
 
 <cidr
