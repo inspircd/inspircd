@@ -97,7 +97,7 @@ class ModuleFlashPD : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("flashpolicyd");
-		timeout = tag->getInt("timeout", 5, 1);
+		timeout = tag->getDuration("timeout", 5, 1);
 		std::string file = tag->getString("file");
 
 		if (!file.empty())

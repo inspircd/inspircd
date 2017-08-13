@@ -310,8 +310,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 			me->name = name;
 
-			me->registration_timeout = tag->getInt("timeout", me->registration_timeout);
-			me->pingtime = tag->getInt("pingfreq", me->pingtime);
+			me->registration_timeout = tag->getDuration("timeout", me->registration_timeout);
+			me->pingtime = tag->getDuration("pingfreq", me->pingtime);
 			std::string sendq;
 			if (tag->readString("sendq", sendq))
 			{

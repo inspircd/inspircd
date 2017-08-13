@@ -74,7 +74,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first
-	int timeout = tag->getInt("defer", (tag->getString("ssl").empty() ? 0 : 3));
+	int timeout = tag->getDuration("defer", (tag->getString("ssl").empty() ? 0 : 3));
 	if (timeout && !rv)
 	{
 #if defined TCP_DEFER_ACCEPT

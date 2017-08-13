@@ -34,7 +34,7 @@
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the
       # failover (see above).
-      timeout="300"
+      timeout="5m"
 
       # ssl: If defined, this states the SSL profile that will be used when
       # making an outbound connection to the server. Options are the name of an
@@ -77,7 +77,7 @@
       ipaddr="penguin.example.org"
       port="7000"
       allowmask="203.0.113.0/24"
-      timeout="300"
+      timeout="5m"
       ssl="gnutls"
       bind="1.2.3.4"
       statshidden="no"
@@ -104,7 +104,7 @@
 # space separated servers to autoconnect; they will be tried in a round
 # robin fashion until one succeeds. Period defines the time for restarting
 # a single loop.
-<autoconnect period="120"
+<autoconnect period="2m"
 	server="hub.us.example.org hub.eu.example.org leaf.eu.example.org">
 
 

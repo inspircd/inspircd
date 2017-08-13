@@ -163,7 +163,7 @@
 
       # defer: When this is non-zero, connections will not be handed over to
       # the daemon from the operating system before data is ready.
-      # In Linux, the value indicates the number of seconds we'll wait for a
+      # In Linux, the value indicates the time period we'll wait for a
       # connection to come up with data. Don't set it too low!
       # In BSD the value is ignored; only zero and non-zero is possible.
       # Windows ignores this parameter completely.
@@ -261,8 +261,8 @@
          # be in at one time.
          maxchans="20"
 
-         # timeout: How long (in seconds) the server will wait before
-         # disconnecting a user if they do not do anything on connect.
+         # timeout: How long the server will wait before disconnecting
+         # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /nick, /user or /pass)
          timeout="10"
@@ -338,14 +338,14 @@
          # be in at one time.
          maxchans="20"
 
-         # timeout: How long (in seconds) the server will wait before
-         # disconnecting a user if they do not do anything on connect.
+         # timeout: How long the server will wait before disconnecting
+         # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /nick, /user or /pass)
          timeout="10"
 
-         # pingfreq: How often (in seconds) the server tries to ping connecting clients.
-         pingfreq="120"
+         # pingfreq: How often the server tries to ping connecting clients.
+         pingfreq="2m"
 
          # hardsendq: maximum amount of data allowed in a client's send queue
          # before they are dropped. Keep this value higher than the length of
@@ -468,7 +468,7 @@
      #
      # server="127.0.0.1"
 
-     # timeout: seconds to wait to try to resolve DNS/hostname.
+     # timeout: time to wait to try to resolve DNS/hostname.
      timeout="5">
 
 # An example of using an IPv6 nameserver
@@ -586,13 +586,13 @@
          # in the topic. If set to no, it will only show the nick of the topic setter.
          hostintopic="yes"
 
-         # pingwarning: If a server does not respond to a ping within x seconds,
+         # pingwarning: If a server does not respond to a ping within this period,
          # it will send a notice to opers with snomask +l informing that the server
          # is about to ping timeout.
          pingwarning="15"
 
-         # serverpingfreq: How often pings are sent between servers (in seconds).
-         serverpingfreq="60"
+         # serverpingfreq: How often pings are sent between servers.
+         serverpingfreq="1m"
 
          # defaultmodes: What modes are set on a empty channel when a user
          # joins it and it is unregistered.

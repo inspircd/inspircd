@@ -271,7 +271,7 @@ class ModuleIdent : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
-		RequestTimeout = tag->getInt("timeout", 5, 1);
+		RequestTimeout = tag->getDuration("timeout", 5, 1);
 		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 

@@ -263,7 +263,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else
 			searchscope = LDAP_SCOPE_SUBTREE;
-		timeout = config->getInt("timeout", 5);
+		timeout = config->getDuration("timeout", 5);
 
 		Connect();
 	}

@@ -229,8 +229,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");
 	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");
-	PingWarnTime = options->getInt("pingwarning");
-	PingFreq = options->getInt("serverpingfreq");
+	PingWarnTime = options->getDuration("pingwarning");
+	PingFreq = options->getDuration("serverpingfreq");
 
 	if (PingFreq == 0)
 		PingFreq = 60;

@@ -66,7 +66,7 @@ class ModuleBlockAmsg : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
-		ForgetDelay = tag->getInt("delay", -1);
+		ForgetDelay = tag->getDuration("delay", -1);
 		std::string act = tag->getString("action");
 
 		if (act == "notice")

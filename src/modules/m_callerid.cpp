@@ -425,7 +425,7 @@ public:
 		cmd.maxaccepts = tag->getInt("maxaccepts", 16);
 		operoverride = tag->getBool("operoverride");
 		tracknick = tag->getBool("tracknick");
-		notify_cooldown = tag->getInt("cooldown", 60);
+		notify_cooldown = tag->getDuration("cooldown", 60);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

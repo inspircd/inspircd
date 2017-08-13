@@ -75,7 +75,7 @@ class ModuleConnJoin : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
 		defchans = tag->getString("channel");
-		defdelay = tag->getInt("delay", 0, 0, 60);
+		defdelay = tag->getDuration("delay", 0, 0, 60);
 	}
 
 	void Prioritize() CXX11_OVERRIDE
@@ -95,7 +95,7 @@ class ModuleConnJoin : public Module
 			return;
 
 		std::string chanlist = localuser->GetClass()->config->getString("autojoin");
-		unsigned int chandelay = localuser->GetClass()->config->getInt("autojoindelay", 0, 0, 60);
+		unsigned int chandelay = localuser->GetClass()->config->getDuration("autojoindelay", 0, 0, 60);
 
 		if (chanlist.empty())
 		{

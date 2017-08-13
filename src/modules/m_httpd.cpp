@@ -401,7 +401,7 @@ class ModuleHttpServer : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
-		timeoutsec = tag->getInt("timeout", 10, 1);
+		timeoutsec = tag->getDuration("timeout", 10, 1);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE

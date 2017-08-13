@@ -231,8 +231,8 @@
 # If you have the blockamsg module loaded, you can configure it with  #
 # the <blockamsg> tag:                                                #
 #                                                                     #
-# delay          -   How many seconds between two messages to force   #
-#                    them to be recognised as unrelated.              #
+# delay          -   How much time between two messages to force them #
+#                    to be recognised as unrelated.                   #
 # action         -   Any of 'notice', 'noticeopers', 'silent', 'kill' #
 #                    or 'killopers'. Define how to take action when   #
 #                    a user uses /amsg or /ame.                       #
@@ -281,13 +281,13 @@
 # tracknick      - Preserve /accept entries when a user changes nick? #
 #                  If no (the default), the user is removed from      #
 #                  everyone's accept list if he changes nickname.     #
-# cooldown       - Amount of time (in seconds) that must pass since   #
-#                  the last notification sent to a user before he can #
-#                  be sent another. Default is 60 (1 minute).         #
+# cooldown       - Amount of time that must pass since the last       #
+#                  notification sent to a user before he can be sent  #
+#                  another. Default is 1 minute.                      #
 #<callerid maxaccepts="16"
 #          operoverride="no"
 #          tracknick="no"
-#          cooldown="60">
+#          cooldown="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CAP module: Provides the CAP negotiation mechanism required by the
@@ -588,7 +588,7 @@
 #<module name="connflood">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONNTHROTTLE CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
-#  seconds, maxconns -  Amount of connections per <seconds>.
+#  period, maxconns -  Amount of connections per <period>.
 #
 #  timeout           -  Time to wait after the throttle was activated
 #                       before deactivating it. Be aware that the time
@@ -892,7 +892,7 @@
 # httpd_* modules to provide pages to display.
 #
 # You can adjust the timeout for HTTP connections below. All HTTP
-# connections will be closed after (roughly) this many seconds.
+# connections will be closed after (roughly) this time period.
 #<httpd timeout="20">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1570,11 +1570,11 @@
 # maxbacklog - Maximum size that can be specified for backlog. 0 disables multiline matching.
 # maxdistance - Max percentage of difference between two lines we'll allow to match. Set to 0 to disable edit-distance matching.
 # maxlines - Max lines of backlog to match against.
-# maxsecs - Maximum value of seconds a user can set. 0 to allow any.
+# maxtime - Maximum period of time a user can set. 0 to allow any.
 # size - Maximum number of characters to check for, can be used to truncate messages
 # before they are checked, resulting in less CPU usage. Increasing this beyond 512
 # doesn't have any effect, as the maximum length of a message on IRC cannot exceed that.
-#<repeat maxbacklog="20" maxlines="20" maxdistance="50" maxsecs="0" size="512">
+#<repeat maxbacklog="20" maxlines="20" maxdistance="50" maxtime="0" size="512">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1697,7 +1697,7 @@
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
 #                                                                     #
-#<securelist waittime="60">                                           #
+#<securelist waittime="1m">                                           #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Servprotect module: Provides support for Austhex style +k /

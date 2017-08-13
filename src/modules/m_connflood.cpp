@@ -46,9 +46,9 @@ public:
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
-		seconds = tag->getInt("seconds");
+		seconds = tag->getDuration("period", tag->getInt("seconds"));
 		maxconns = tag->getInt("maxconns");
-		timeout = tag->getInt("timeout");
+		timeout = tag->getDuration("timeout");
 		quitmsg = tag->getString("quitmsg");
 
 		/* seconds to wait when the server just booted */

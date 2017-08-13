@@ -233,7 +233,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		ConfigTag* conf = ServerInstance->Config->ConfValue("repeat");
 		ms.MaxLines = conf->getInt("maxlines", 20);
 		ms.MaxBacklog = conf->getInt("maxbacklog", 20);
-		ms.MaxSecs = conf->getInt("maxsecs", 0);
+		ms.MaxSecs = conf->getDuration("maxtime", conf->getInt("maxsecs", 0));
 
 		ms.MaxDiff = conf->getInt("maxdistance", 50);
 		if (ms.MaxDiff > 100)

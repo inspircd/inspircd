@@ -40,7 +40,7 @@ class ModuleSecureList : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 			allowlist.push_back(i->second->getString("exception"));
 
-		WaitTime = ServerInstance->Config->ConfValue("securelist")->getInt("waittime", 60);
+		WaitTime = ServerInstance->Config->ConfValue("securelist")->getDuration("waittime", 60);
 	}
 
 
