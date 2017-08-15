@@ -62,7 +62,7 @@ class RLine : public XLine
 		if (lu && lu->exempt)
 			return false;
 
-		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
+		std::string compare = u->nick + "!" + u->ident + "@" + u->host.GetReal() + " " + u->fullname;
 		return regex->Matches(compare);
 	}
 

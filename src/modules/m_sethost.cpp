@@ -53,7 +53,7 @@ class CommandSethost : public Command
 
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->dhost);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->host.GetDisplay());
 			return CMD_SUCCESS;
 		}
 

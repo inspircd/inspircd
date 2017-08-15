@@ -67,6 +67,7 @@ User::User(const std::string& uid, Server* srv, int type)
 	: age(ServerInstance->Time())
 	, signon(0)
 	, uuid(uid)
+	, host("")
 	, server(srv)
 	, registered(REG_NONE)
 	, quitting(false)
@@ -106,7 +107,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
-	dhost = host = GetIPString();
+	host = insp::CloakedString(GetIPString());
 }
 
 User::~User()
@@ -119,7 +120,7 @@ const std::string& User::MakeHost()
 		return this->cached_makehost;
 
 	// XXX: Is there really a need to cache this?
-	this->cached_makehost = ident + "@" + host;
+	this->cached_makehost = ident + "@" + host.GetReal();
 	return this->cached_makehost;
 }
 
@@ -139,7 +140,7 @@ const std::string& User::GetFullHost()
 		return this->cached_fullhost;
 
 	// XXX: Is there really a need to cache this?
-	this->cached_fullhost = nick + "!" + ident + "@" + dhost;
+	this->cached_fullhost = nick + "!" + ident + "@" + host.GetDisplay();
 	return this->cached_fullhost;
 }
 
@@ -149,7 +150,7 @@ const std::string& User::GetFullRealHost()
 		return this->cached_fullrealhost;
 
 	// XXX: Is there really a need to cache this?
-	this->cached_fullrealhost = nick + "!" + ident + "@" + host;
+	this->cached_fullrealhost = nick + "!" + ident + "@" + host.GetReal();
 	return this->cached_fullrealhost;
 }
 
@@ -360,7 +361,7 @@ void User::Oper(OperInfo* info)
 	}
 
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
-		nick.c_str(), ident.c_str(), host.c_str(), oper->name.c_str(), opername.c_str());
+		nick.c_str(), ident.c_str(), host.GetReal().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
 	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->name.c_str());
@@ -997,7 +998,7 @@ bool User::ChangeName(const std::string& gecos)
 
 bool User::ChangeDisplayedHost(const std::string& shost)
 {
-	if (dhost == shost)
+	if (host.GetReal() == shost)
 		return true;
 
 	if (IS_LOCAL(this))
@@ -1010,11 +1011,11 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 	FOREACH_MOD(OnChangeHost, (this,shost));
 
-	this->dhost.assign(shost, 0, ServerInstance->Config->Limits.MaxHost);
+	this->host.SetDisplay(shost.substr(ServerInstance->Config->Limits.MaxHost));
 	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
-		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->dhost, "is now your displayed host");
+		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->host.GetDisplay(), "is now your displayed host");
 
 	return true;
 }
@@ -1085,7 +1086,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			/* check if host matches.. */
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
-			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
+			    !InspIRCd::MatchCIDR(this->host.GetReal(), c->GetHost(), NULL))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;

@@ -381,8 +381,8 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 	if (InspIRCd::Match(nickIdent, prefix, NULL))
 	{
 		std::string suffix(mask, at + 1);
-		if (InspIRCd::Match(user->host, suffix, NULL) ||
-			InspIRCd::Match(user->dhost, suffix, NULL) ||
+		if (InspIRCd::Match(user->host.GetReal(), suffix, NULL) ||
+			InspIRCd::Match(user->host.GetDisplay(), suffix, NULL) ||
 			InspIRCd::MatchCIDR(user->GetIPString(), suffix, NULL))
 			return true;
 	}

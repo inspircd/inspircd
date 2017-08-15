@@ -181,7 +181,7 @@ class CommandDccallow : public Command
 						}
 					}
 
-					std::string mask = target->nick+"!"+target->ident+"@"+target->dhost;
+					std::string mask = target->nick+"!"+target->ident+"@"+target->host.GetDisplay();
 					std::string default_length = ServerInstance->Config->ConfValue("dccallow")->getString("length");
 
 					unsigned long length;
@@ -382,14 +382,14 @@ class ModuleDCCAllow : public Module
 							return MOD_RES_PASSTHRU;
 
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC SENDs from you. Your file " + filename + " was not sent.");
-						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->dhost + ") attempted to send you a file named " + filename + ", which was blocked.");
+						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->host.GetDisplay() + ") attempted to send you a file named " + filename + ", which was blocked.");
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}
 					else if ((blockchat) && (stdalgo::string::equalsci(type, "CHAT")))
 					{
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC CHAT requests from you.");
-						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->dhost + ") attempted to initiate a DCC CHAT session, which was blocked.");
+						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->host.GetDisplay() + ") attempted to initiate a DCC CHAT session, which was blocked.");
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}

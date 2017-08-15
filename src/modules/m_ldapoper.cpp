@@ -217,7 +217,7 @@ class ModuleLDAPAuth : public Module
 				return MOD_RES_PASSTHRU;
 
 			std::string acceptedhosts = tag->getString("host");
-			std::string hostname = user->ident + "@" + user->host;
+			std::string hostname = user->ident + "@" + user->host.GetReal();
 			if (!InspIRCd::MatchMask(acceptedhosts, hostname, user->GetIPString()))
 				return MOD_RES_PASSTHRU;
 

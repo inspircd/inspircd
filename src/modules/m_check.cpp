@@ -265,7 +265,7 @@ class CommandCheck : public Command
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
 				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
 					i->second->GetAllPrefixChars().c_str(), i->first->nick.c_str(),
-					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str()));
+					i->first->ident.c_str(), i->first->host.GetDisplay().c_str(), i->first->fullname.c_str()));
 			}
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
@@ -283,7 +283,7 @@ class CommandCheck : public Command
 			const user_hash& users = ServerInstance->Users->GetUsers();
 			for (user_hash::const_iterator a = users.begin(); a != users.end(); ++a)
 			{
-				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
+				if (InspIRCd::Match(a->second->host.GetReal(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->host.GetDisplay(), parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
 					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);

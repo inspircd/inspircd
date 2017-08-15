@@ -98,12 +98,12 @@ class CommandWebirc : public Command
 
 			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 			{
-				if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
+				if(InspIRCd::Match(user->host.GetReal(), iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
 				{
 					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
 						gateway.set(user, parameters[1]);
-						realhost.set(user, user->host);
+						realhost.set(user, user->host.GetReal());
 						realip.set(user, user->GetIPString());
 
 						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
@@ -111,12 +111,12 @@ class CommandWebirc : public Command
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
-							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
+							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.GetReal().c_str(), newhost.c_str(), user->host.GetReal().c_str());
 
 						// Where the magic happens - change their IP
 						ChangeIP(user, parameters[3]);
 						// And follow this up by changing their host
-						user->host = user->dhost = newhost;
+						user->host = insp::CloakedString(newhost);
 						user->InvalidateCache();
 
 						return CMD_SUCCESS;
@@ -162,9 +162,9 @@ class CGIResolver : public DNS::Request
 				return;
 
 			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.GetReal().c_str(), ans_record.rdata.c_str(), typ.c_str());
 
-			them->host = them->dhost = ans_record.rdata;
+			them->host = insp::CloakedString(ans_record.rdata);
 			them->InvalidateCache();
 			lu->CheckLines(true);
 		}
@@ -178,7 +178,7 @@ class CGIResolver : public DNS::Request
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
+			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.GetReal().c_str(), typ.c_str());
 		}
 	}
 
@@ -208,10 +208,10 @@ class ModuleCgiIRC : public Module
 
 	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)
 	{
-		cmd.realhost.set(user, user->host);
+		cmd.realhost.set(user, user->host.GetReal());
 		cmd.realip.set(user, user->GetIPString());
 		ChangeIP(user, newip);
-		user->host = user->dhost = user->GetIPString();
+		user->host = insp::CloakedString(user->GetIPString());
 		user->InvalidateCache();
 		RecheckClass(user);
 
@@ -232,7 +232,7 @@ class ModuleCgiIRC : public Module
 				waiting.set(user, count - 1);
 			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
+				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.GetReal().c_str(), ex.GetReason().c_str());
 		}
 	}
 
@@ -339,7 +339,7 @@ public:
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
-			if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
+			if(InspIRCd::Match(user->host.GetReal(), iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
 			{
 				// Deal with it...
 				if(iter->type == PASS)

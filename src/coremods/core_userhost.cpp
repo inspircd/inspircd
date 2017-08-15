@@ -72,7 +72,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 			retbuf += (u->IsAway() ? '-' : '+');
 			retbuf += u->ident;
 			retbuf += '@';
-			retbuf += (((u == user) || (has_privs)) ? u->host : u->dhost);
+			retbuf += u->host.Get((u == user) || has_privs);
 			retbuf += ' ';
 		}
 	}

@@ -145,8 +145,7 @@ class UserResolver : public DNS::Request
 						hostname->insert(0, "0");
 
 					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->host.assign(*hostname, 0, ServerInstance->Config->Limits.MaxHost);
-					bound_user->dhost = bound_user->host;
+					bound_user->host = insp::CloakedString(hostname->substr(ServerInstance->Config->Limits.MaxHost));
 
 					/* Invalidate cache */
 					bound_user->InvalidateCache();
