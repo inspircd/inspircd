@@ -124,3 +124,42 @@ bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
 
 	return (diff == 0);
 }
+
+insp::CloakedString::CloakedString(const std::string& rvalue)
+	: real(rvalue)
+{
+}
+
+insp::CloakedString::CloakedString(const std::string& rvalue, const std::string& dvalue)
+	: real(rvalue)
+{
+	this->SetDisplay(dvalue);
+}
+
+const std::string& insp::CloakedString::Get(bool uncloak) const
+{
+	return uncloak ? GetReal() : GetDisplay();
+}
+const std::string& insp::CloakedString::GetDisplay() const
+{
+	return display.empty() ? real : display;
+}
+const std::string& insp::CloakedString::GetReal() const
+{
+	return real;
+}
+void insp::CloakedString::SetDisplay(const std::string& value)
+{
+	if (real == value)
+		display.clear();
+	else
+		display = value;
+}
+void insp::CloakedString::SetReal(const std::string& value)
+{
+	if (display.empty())
+		display = real;
+	else if (display == value)
+		display.clear();
+	real = value;
+}

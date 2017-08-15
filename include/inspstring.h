@@ -24,6 +24,49 @@
 #include "config.h"
 #include <cstring>
 
+namespace insp
+{
+	//! Implements a string wrapper which can have both a real value and a display value.
+	class CloakedString
+	{
+	private:
+		/** The display value. */
+		std::string display;
+
+		/** The real value. */
+		std::string real;
+
+	public:
+		/**
+		 * Initialize a cloaked string with just a real value.
+		 * @param rvalue The initial real value.
+		 */
+		CloakedString(const std::string& rvalue);
+
+		/**
+		 * Initialize a cloaked string with both a real and display value.
+		* @param rvalue The initial real value.
+		* @param dvalue The initial display value.
+		*/
+		CloakedString(const std::string& rvalue, const std::string& dvalue);
+
+		//! Retrieves the value of the cloaked string.
+		const std::string& Get(bool uncloak) const;
+
+		//! Retrieves the display value of the cloaked string.
+		const std::string& GetDisplay() const;
+
+		//! Retrieves the real value of the cloaked string.
+		const std::string& GetReal() const;
+
+		//! Sets the display value of the cloaked string.
+		void SetDisplay(const std::string& value);
+
+		//! Sets the real value of the cloaked string.
+		void SetReal(const std::string& value);
+	};
+}
+
 /** Sets ret to the formated string. last is the last parameter before ..., and format is the format in printf-style */
 #define VAFORMAT(ret, last, format) \
 	do { \
