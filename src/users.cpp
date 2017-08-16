@@ -539,7 +539,7 @@ void LocalUser::FullConnect()
 
 	this->WriteNumeric(RPL_WELCOME, InspIRCd::Format("Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str()));
 	this->WriteNumeric(RPL_YOURHOSTIS, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
-	this->WriteNumeric(RPL_SERVERCREATED, InspIRCd::Format("This server was created %s %s", __TIME__, __DATE__));
+	this->WriteNumeric(RPL_SERVERCREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 
 	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
 	this->WriteNumeric(RPL_SERVERVERSION, ServerInstance->Config->ServerName, INSPIRCD_BRANCH, modelist);

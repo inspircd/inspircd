@@ -367,7 +367,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
+	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl;
 	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
 
 #ifndef _WIN32
