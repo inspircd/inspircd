@@ -32,8 +32,7 @@ class OperPrefixMode : public PrefixMode
 		OperPrefixMode(Module* Creator)
 			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
-			std::string pfx = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!");
-			prefix = pfx.empty() ? '!' : pfx[0];
+			prefix = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!", 1, 1)[0];
 			levelrequired = INT_MAX;
 		}
 };

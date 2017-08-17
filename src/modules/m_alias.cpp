@@ -73,8 +73,7 @@ class ModuleAlias : public Module
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
-		std::string fpre = fantasy->getString("prefix");
-		fprefix = fpre.empty() ? "!" : fpre;
+		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
 
 		Aliases.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
