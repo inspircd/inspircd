@@ -197,12 +197,10 @@ class CommandCheck : public Command
 					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
 
 					CheckContext::List opcmdlist(context, "commandperms");
-					for (OperInfo::PrivSet::const_iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); ++i)
-						opcmdlist.Add(*i);
+					opcmdlist.Add(oper->AllowedOperCommands.ToString());
 					opcmdlist.Flush();
 					CheckContext::List privlist(context, "permissions");
-					for (OperInfo::PrivSet::const_iterator i = oper->AllowedPrivs.begin(); i != oper->AllowedPrivs.end(); ++i)
-						privlist.Add(*i);
+					opcmdlist.Add(oper->AllowedPrivs.ToString());
 					privlist.Flush();
 				}
 			}

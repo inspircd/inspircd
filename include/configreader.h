@@ -31,6 +31,7 @@
 #include "modules.h"
 #include "socketengine.h"
 #include "socket.h"
+#include "token_list.h"
 
 /** Structure representing a single \<tag> in config */
 class CoreExport ConfigTag : public refcountbase
@@ -165,9 +166,8 @@ struct CommandLineConf
 class CoreExport OperInfo : public refcountbase
 {
  public:
-	typedef insp::flat_set<std::string> PrivSet;
-	PrivSet AllowedOperCommands;
-	PrivSet AllowedPrivs;
+	TokenList AllowedOperCommands;
+	TokenList AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
 	std::bitset<64> AllowedUserModes;

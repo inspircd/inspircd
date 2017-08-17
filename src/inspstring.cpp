@@ -124,3 +124,113 @@ bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
 
 	return (diff == 0);
 }
+
+void TokenList::AddList(const std::string& tokenlist)
+{
+	std::string token;
+	irc::spacesepstream tokenstream(tokenlist);
+	while (tokenstream.GetToken(token))
+	{
+		if (token[0] == '-')
+			Remove(token.substr(1));
+		else
+			Add(token);
+	}
+ 	
+}
+void TokenList::Add(const std::string& token)
+{
+	// If the token is empty or contains just whitespace it is invalid.
+	if (token.empty() || token.find_first_not_of(" \t") == std::string::npos)
+		return;
+
+	// If the token is a wildcard entry then permissive mode has been enabled.
+	if (token == "*")
+	{
+		permissive = true;
+		tokens.clear();
+		return;
+	}
+
+	// If we are in permissive mode then remove the token from the token list.
+	// Otherwise, add it to the token list.
+	if (permissive)
+		tokens.erase(token);
+	else
+		tokens.insert(token);
+}
+
+void TokenList::Clear()
+{
+	permissive = false;
+	tokens.clear();
+}
+
+bool TokenList::Contains(const std::string& token) const
+{
+	// If we are in permissive mode and the token is in the list
+	// then we don't have it.
+	if (permissive && tokens.find(token) != tokens.end())
+		return false;
+
+	// If we are not in permissive mode and the token is not in
+	// the list then we don't have it.
+	if (!permissive && tokens.find(token) == tokens.end())
+		return false;
+
+	// We have the token!
+	return true;
+}
+
+void TokenList::Remove(const std::string& token)
+{
+	// If the token is empty or contains just whitespace it is invalid.
+	if (token.empty() || token.find_first_not_of(" \t") == std::string::npos)
+		return;
+
+	// If the token is a wildcard entry then permissive mode has been disabled.
+	if (token == "*")
+	{
+		permissive = false;
+		tokens.clear();
+		return;
+	}
+
+	// If we are in permissive mode then add the token to the token list.
+	// Otherwise, remove it from the token list.
+	if (permissive)
+		tokens.insert(token);
+	else
+		tokens.erase(token);
+}
+
+std::string TokenList::ToString() const
+{
+	std::string buffer(permissive ? "*" : "-*");
+	for (insp::flat_set<std::string>::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+	{
+		buffer.push_back(' ');
+		buffer.append(*iter);
+	}
+	return buffer;
+}
+
+bool TokenList::operator==(const TokenList& other) const
+{
+	// Both sets must be in the same mode to be equal.
+	if (permissive != other.permissive)
+		return false;
+
+	// Both sets must be the same size to be equal.
+	if (tokens.size() != other.tokens.size())
+		return false;
+
+	for (insp::flat_set<std::string>::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+	{
+		// Both sets must contain the same tokens to be equal.
+		if (other.tokens.find(*iter) == other.tokens.end())
+			return false;
+	}
+
+	return true;
+}

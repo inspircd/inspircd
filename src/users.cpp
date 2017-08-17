@@ -189,12 +189,7 @@ bool LocalUser::HasPermission(const std::string &command)
 		return false;
 	}
 
-	if (oper->AllowedOperCommands.find(command) != oper->AllowedOperCommands.end())
-		return true;
-	else if (oper->AllowedOperCommands.find("*") != oper->AllowedOperCommands.end())
-		return true;
-
-	return false;
+	return oper->AllowedOperCommands.Contains(command);
 }
 
 bool User::HasPrivPermission(const std::string &privstr, bool noisy)
@@ -211,14 +206,8 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 		return false;
 	}
 
-	if (oper->AllowedPrivs.find(privstr) != oper->AllowedPrivs.end())
-	{
+	if (oper->AllowedPrivs.Contains(privstr))
 		return true;
-	}
-	else if (oper->AllowedPrivs.find("*") != oper->AllowedPrivs.end())
-	{
-		return true;
-	}
 
 	if (noisy)
 		this->WriteNotice("Oper type " + oper->name + " does not have access to priv " + privstr);
@@ -375,8 +364,8 @@ void User::Oper(OperInfo* info)
 
 void OperInfo::init()
 {
-	AllowedOperCommands.clear();
-	AllowedPrivs.clear();
+	AllowedOperCommands.Clear();
+	AllowedPrivs.Clear();
 	AllowedUserModes.reset();
 	AllowedChanModes.reset();
 	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
@@ -384,19 +373,9 @@ void OperInfo::init()
 	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
 	{
 		ConfigTag* tag = *iter;
-		std::string mycmd, mypriv;
-		/* Process commands */
-		irc::spacesepstream CommandList(tag->getString("commands"));
-		while (CommandList.GetToken(mycmd))
-		{
-			AllowedOperCommands.insert(mycmd);
-		}
 
-		irc::spacesepstream PrivList(tag->getString("privs"));
-		while (PrivList.GetToken(mypriv))
-		{
-			AllowedPrivs.insert(mypriv);
-		}
+		AllowedOperCommands.AddList(tag->getString("commands"));
+		AllowedPrivs.AddList(tag->getString("privs"));
 
 		std::string modes = tag->getString("usermodes");
 		for (std::string::const_iterator c = modes.begin(); c != modes.end(); ++c)
