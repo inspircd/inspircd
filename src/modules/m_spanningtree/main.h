@@ -31,7 +31,7 @@
  * If you  completely change the protocol, completely change the number.
  *
  * IMPORTANT: If you make changes, document your changes here, without fail:
- * http://wiki.inspircd.org/List_of_protocol_changes_between_versions
+ * https://wiki.inspircd.org/List_of_protocol_changes_between_versions
  *
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.

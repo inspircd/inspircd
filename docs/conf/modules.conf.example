@@ -10,7 +10,7 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules. Please refer to       #
-#  http://wiki.inspircd.org/Modules for a list of modules and         #
+#  https://wiki.inspircd.org/2.0/Modules for a list of modules and    #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
@@ -313,7 +313,7 @@
 #                                                                     #
 # Optional - If you specify to use the m_censor module, then you must #
 # specify some censor tags. See also:                                 #
-# http://wiki.inspircd.org/Modules/censor                             #
+# https://wiki.inspircd.org/Modules/2.0/censor                        #
 #
 #<include file="conf/examples/censor.conf.example">
 
@@ -327,7 +327,7 @@
 # Optional - If you specify to use m_cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
-# For more information see: http://wiki.inspircd.org/Modules/cgiirc
+# For more information see: https://wiki.inspircd.org/Modules/2.0/cgiirc
 #
 # Set to yes if you want to notice opers when CGI:IRC clients connect.
 # <cgiirc opernotice="no">
@@ -745,7 +745,7 @@
 #<module name="m_dnsbl.so">                                           #
 #                                                                     #
 # For configuration options please see the wiki page for m_dnsbl at   #
-# http://wiki.inspircd.org/Modules/dnsbl                              #
+# https://wiki.inspircd.org/Modules/2.0/dnsbl                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
@@ -868,7 +868,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# See http://wiki.inspircd.org/Modules/hostchange for help.           #
+# See https://wiki.inspircd.org/Modules/2.0/hostchange for help.      #
 #                                                                     #
 #<host suffix="invalid.org" separator="." prefix="">
 #<hostchange mask="*@42.theanswer.example.org" action="addnick">
@@ -1129,7 +1129,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_mssql.so is more complex than described here, see wiki for more   #
-# info http://wiki.inspircd.org/Modules/mssql                         #
+# info https://wiki.inspircd.org/Modules/2.0/mssql                    #
 #
 #<database module="mssql" name="db" user="user" pass="pass" host="localhost" id="db1">
 
@@ -1144,7 +1144,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_mysql.so is more complex than described here, see the wiki for    #
-# more: http://wiki.inspircd.org/Modules/mysql                        #
+# more: https://wiki.inspircd.org/Modules/2.0/mysql                   #
 #
 #<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
 
@@ -1309,7 +1309,7 @@
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_override.so is too complex it describe here, see the wiki:        #
-# http://wiki.inspircd.org/Modules/override                           #
+# https://wiki.inspircd.org/Modules/2.0/override                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -1402,7 +1402,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_pgsql.so is more complex than described here, see the wiki for    #
-# more: http://wiki.inspircd.org/Modules/pgsql                        #
+# more: https://wiki.inspircd.org/Modules/2.0/pgsql                   #
 #
 #<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
 
@@ -1715,7 +1715,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
-# http://wiki.inspircd.org/Modules/ssl_gnutls                         #
+# https://wiki.inspircd.org/Modules/2.0/ssl_gnutls                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL info module: Allows users to retrieve information about other
@@ -1742,7 +1742,7 @@
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_openssl.so is too complex to describe here, see the wiki:     #
-# http://wiki.inspircd.org/Modules/ssl_openssl                        #
+# https://wiki.inspircd.org/Modules/2.0/ssl_openssl                   #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip color module: Adds channel mode +S that strips mIRC color
@@ -1769,7 +1769,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_sqlite.so is more complex than described here, see the wiki for   #
-# more: http://wiki.inspircd.org/Modules/sqlite3                      #
+# more: https://wiki.inspircd.org/Modules/2.0/sqlite3                 #
 #
 #<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
 
@@ -1785,7 +1785,7 @@
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_sqlauth.so is too complex to describe here, see the wiki:         #
-# http://wiki.inspircd.org/Modules/sqlauth                            #
+# https://wiki.inspircd.org/Modules/2.0/sqlauth                       #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
@@ -1800,7 +1800,7 @@
 # dbid       - Database ID to use (see SQL modules).                  #
 # hash       - Hashing provider to use for password hashing.          #
 #                                                                     #
-# See also: http://wiki.inspircd.org/Modules/sqloper                  #
+# See also: https://wiki.inspircd.org/Modules/2.0/sqloper             #
 #                                                                     #
 #<sqloper dbid="1" hash="md5">
 

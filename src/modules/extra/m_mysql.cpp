@@ -67,8 +67,6 @@
  * if a module is ever put in a re-enterant state (stack corruption could occur, crashes, data
  * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
  * gauranteed threadsafe!)
- *
- * For a diagram of this system please see http://wiki.inspircd.org/Mysql2
  */
 
 class SQLConnection;

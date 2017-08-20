@@ -46,7 +46,7 @@
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be
-      # authenticated using SSL Fingerprints. See http://wiki.inspircd.org/SSL
+      # authenticated using SSL Fingerprints. See https://wiki.inspircd.org/SSL
       # for more information. This will require an SSL link for both inbound
       # and outbound connections.
       #fingerprint=""

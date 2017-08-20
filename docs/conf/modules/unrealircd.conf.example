@@ -59,7 +59,7 @@
 # Optional - If you specify to use m_cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
-# For more information see: http://wiki.inspircd.org/Modules/cgiirc
+# For more information see: https://wiki.inspircd.org/Modules/2.0/cgiirc
 #
 # Set to yes if you want to notice opers when CGI clients connect
 # <cgiirc opernotice="no">
@@ -283,7 +283,7 @@
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_override.so is too complex to describe here, see the wiki:        #
-# http://wiki.inspircd.org/Modules/override                           #
+# https://wiki.inspircd.org/Modules/2.0/override                      #
 
 <module name="m_operlevels.so">
 <module name="m_opermodes.so">
@@ -371,7 +371,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
-# http://wiki.inspircd.org/Modules/ssl_gnutls                         #
+# https://wiki.inspircd.org/Modules/2.0/ssl_gnutls                    #
 
 <module name="m_sslinfo.so">
 
@@ -385,7 +385,7 @@
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_openssl.so is too complex to describe here, see the wiki:     #
-# http://wiki.inspircd.org/Modules/ssl_openssl                        #
+# https://wiki.inspircd.org/Modules/2.0/ssl_openssl                   #
 
 <module name="m_stripcolor.so">
 <module name="m_svshold.so">
