@@ -691,7 +691,7 @@ void ServerConfig::ApplyModules(User* user)
 	{
 		const std::string& modname = i->first;
 		// Don't remove core_*.so, just remove m_*.so
-		if (modname.c_str()[0] == 'c')
+		if (InspIRCd::Match(modname, "core_*.so", ascii_case_insensitive_map))
 			continue;
 		if (ServerInstance->Modules->Unload(i->second))
 		{

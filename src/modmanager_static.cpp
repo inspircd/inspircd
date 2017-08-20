@@ -136,7 +136,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 	for (modmap::const_iterator i = modlist->begin(); i != modlist->end(); ++i)
 	{
 		const std::string modname = i->first;
-		if (modname[0] == 'c')
+		if (InspIRCd::Match(modname, "core_*.so", ascii_case_insensitive_map))
 		{
 			this->NewServices = &servicemap[modname];
 			Load(modname, true);
