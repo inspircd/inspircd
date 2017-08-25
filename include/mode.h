@@ -380,7 +380,7 @@ class CoreExport PrefixMode : public ModeHandler
 
 	/**
 	 * Removes this prefix mode from all users on the given channel
-	 * @param chan The channel which the server wants to remove your mode from
+	 * @param channel The channel which the server wants to remove your mode from
 	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);

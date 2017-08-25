@@ -435,7 +435,7 @@ class CoreExport User : public Extensible
 	bool IsModeSet(UserModeReference& moderef) const;
 
 	/** Set a specific usermode to on or off
-	 * @param m The user mode
+	 * @param mh The user mode
 	 * @param value On or off setting of the mode
 	 */
 	void SetMode(ModeHandler* mh, bool value);
@@ -705,6 +705,7 @@ class CoreExport User : public Extensible
 
 	/** Change a user's nick
 	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.
+	 * @param newts The time at which this nick change happened.
 	 * @return True if the change succeeded
 	 */
 	bool ChangeNick(const std::string& newnick, time_t newts = 0);

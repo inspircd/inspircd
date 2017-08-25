@@ -122,7 +122,7 @@ class ServerLimits
 	 */
 	ServerLimits(ConfigTag* tag);
 
-	/** Maximum length of a n!u@h mask */
+	/** Maximum length of a n!u\@h mask */
 	size_t GetMaxMask() const { return NickMax + 1 + IdentMax + 1 + MaxHost; }
 };
 

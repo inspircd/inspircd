@@ -259,9 +259,9 @@ class CoreExport SocketEngine
 		void UpdateWriteCounters(int len_out);
 
 		/** Get data transfer statistics.
-		 * @param kbitspersec_in Filled with incoming traffic in this second in kbit/s.
-		 * @param kbitspersec_out Filled with outgoing traffic in this second in kbit/s.
-		 * @param kbitspersec_total Filled with total traffic in this second in kbit/s.
+		 * @param kbitpersec_in Filled with incoming traffic in this second in kbit/s.
+		 * @param kbitpersec_out Filled with outgoing traffic in this second in kbit/s.
+		 * @param kbitpersec_total Filled with total traffic in this second in kbit/s.
 		 */
 		void CoreExport GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const;
 

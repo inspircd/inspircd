@@ -54,9 +54,9 @@ class Modes::ChangeList
 	typedef std::vector<Change> List;
 
 	/** Add a new mode to be changed to this ChangeList
-	 * @param handler Mode handler
-	 * @param add True if this mode is being set, false if removed
-	 * @param parameter Mode parameter
+	 * @param mh Mode handler
+	 * @param adding True if this mode is being set, false if removed
+	 * @param param Mode parameter
 	 */
 	void push(ModeHandler* mh, bool adding, const std::string& param = std::string())
 	{
@@ -64,8 +64,8 @@ class Modes::ChangeList
 	}
 
 	/** Add a new mode to this ChangeList which will be set on the target
-	 * @param handler Mode handler
-	 * @param parameter Mode parameter
+	 * @param mh Mode handler
+	 * @param param Mode parameter
 	 */
 	void push_add(ModeHandler* mh, const std::string& param = std::string())
 	{
@@ -73,8 +73,8 @@ class Modes::ChangeList
 	}
 
 	/** Add a new mode to this ChangeList which will be unset from the target
-	 * @param handler Mode handler
-	 * @param parameter Mode parameter
+	 * @param mh Mode handler
+	 * @param param Mode parameter
 	 */
 	void push_remove(ModeHandler* mh, const std::string& param = std::string())
 	{

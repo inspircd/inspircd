@@ -50,7 +50,7 @@ class Snomask
 
 	/** Sends a message to all opers with this snomask.
 	 * @param message The message to send
-	 * @param remote If true the message will go to the uppercase variant of this snomask
+	 * @param letter The snomask character to send the message to.
 	 */
 	void SendMessage(const std::string& message, char letter);
 

@@ -989,7 +989,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user that this line of the query is about
 	 * @param memb The member shown in this line, NULL if no channel is in this line
 	 * @param numeric Numeric to send; modifiable.
-	 * @param Return MOD_RES_PASSTHRU to allow the line to be displayed, MOD_RES_DENY to hide it
+	 * @return MOD_RES_PASSTHRU to allow the line to be displayed, MOD_RES_DENY to hide it
 	 */
 	virtual ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric);
 

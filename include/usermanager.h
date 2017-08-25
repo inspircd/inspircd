@@ -131,7 +131,7 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	void RemoveCloneCounts(User *user);
 
-	/** Rebuild clone counts. Required when <cidr> settings change.
+	/** Rebuild clone counts. Required when \<cidr> settings change.
 	 */
 	void RehashCloneCounts();
 

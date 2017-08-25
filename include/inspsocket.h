@@ -88,7 +88,6 @@ class CoreExport SocketTimeout : public Timer
 	 * @param fd File descriptor of BufferedSocket
 	 * @param thesock BufferedSocket to attach to
 	 * @param secs_from_now Seconds from now to time out
-	 * @param now The current time
 	 */
 	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now) : Timer(secs_from_now), sock(thesock), sfd(fd) { }
 
