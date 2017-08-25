@@ -119,7 +119,7 @@ class CommandTban : public Command
 
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 		ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-		char pfxchar = (mh && mh->name == "halfop") ? '%' : '@';
+		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
 		channel->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
 		return CMD_SUCCESS;
