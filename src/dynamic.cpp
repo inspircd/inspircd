@@ -43,11 +43,7 @@ DLLManager::DLLManager(const char *fname)
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
-#ifdef _WIN32
 		RetrieveLastError();
-#else
-		err = dlerror();
-#endif
 	}
 }
 
@@ -72,11 +68,7 @@ Module* DLLManager::CallInit()
 	initfn.vptr = dlsym(h, MODULE_INIT_STR);
 	if (!initfn.vptr)
 	{
-#ifdef _WIN32
 		RetrieveLastError();
-#else
-		err = dlerror();
-#endif
 		return NULL;
 	}
 
@@ -94,18 +86,21 @@ std::string DLLManager::GetVersion()
 	return "Unversioned module";
 }
 
-#ifdef _WIN32
 void DLLManager::RetrieveLastError()
 {
+#if defined _WIN32
 	char errmsg[500];
 	DWORD dwErrorCode = GetLastError();
 	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
 		sprintf_s(errmsg, _countof(errmsg), "Error code: %u", dwErrorCode);
 	SetLastError(ERROR_SUCCESS);
 	err = errmsg;
+#else
+	char* errmsg = dlerror();
+	err = errmsg ? errmsg : "Unknown error";
+#endif
 
 	std::string::size_type p;
 	while ((p = err.find_last_of("\r\n")) != std::string::npos)
 		err.erase(p, 1);
 }
-#endif
