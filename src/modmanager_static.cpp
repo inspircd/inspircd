@@ -17,7 +17,7 @@
  */
 
 
-#define MODNAME "cmd_all"
+#define MODNAME "core_all"
 
 #include "inspircd.h"
 #include "exitcodes.h"

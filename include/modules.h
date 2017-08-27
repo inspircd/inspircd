@@ -1028,7 +1028,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 		PRIO_STATE_LAST
 	} prioritizationState;
 
-	/** Loads all core modules (cmd_*)
+	/** Loads all core modules (core_*)
 	 */
 	void LoadCoreModules(std::map<std::string, ServiceList>& servicemap);
 

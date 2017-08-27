@@ -37,7 +37,7 @@ ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, st
 		return MODEACTION_DENY;
 
 	/* Set the bitfields.
-	 * Note that oper status is only given in cmd_oper.cpp
+	 * Note that oper status is only given in User::Oper()
 	 * NOT here. It is impossible to directly set +o without
 	 * verifying as an oper and getting an opertype assigned
 	 * to your User!
