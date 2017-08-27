@@ -23,6 +23,7 @@
 
 CommandQuit::CommandQuit(Module* parent)
 	: Command(parent, "QUIT", 0, 1)
+	, operquit("operquit", ExtensionItem::EXT_USER, parent)
 {
 	works_before_reg = true;
 	syntax = "[<message>]";
@@ -38,8 +39,8 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 	else
 		quitmsg = parameters[0];
 
-	std::string* operquit = ServerInstance->OperQuit.get(user);
-	ServerInstance->Users->QuitUser(user, quitmsg, operquit);
+	std::string* operquitmsg = operquit.get(user);
+	ServerInstance->Users->QuitUser(user, quitmsg, operquitmsg);
 
 	return CMD_SUCCESS;
 }

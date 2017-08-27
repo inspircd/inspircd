@@ -320,10 +320,6 @@ class CoreExport InspIRCd
 	 */
 	ProtocolInterface DefaultProtocolInterface;
 
-	/** Holds extensible for user operquit
-	 */
-	StringExtItem OperQuit;
-
 	/** Manages the generation and transmission of ISUPPORT. */
 	ISupportManager ISupport;
 

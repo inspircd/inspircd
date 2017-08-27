@@ -137,6 +137,9 @@ class CommandPart : public Command
  */
 class CommandQuit : public Command
 {
+ private:
+	StringExtItem operquit;
+
  public:
 	MessageWrapper msgwrap;
 
