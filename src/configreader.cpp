@@ -44,6 +44,14 @@ ServerLimits::ServerLimits(ConfigTag* tag)
 {
 }
 
+ServerConfig::ServerPaths::ServerPaths(ConfigTag* tag)
+	: Config(tag->getString("configdir", INSPIRCD_CONFIG_PATH))
+	, Data(tag->getString("datadir", INSPIRCD_DATA_PATH))
+	, Log(tag->getString("logdir", INSPIRCD_LOG_PATH))
+	, Module(tag->getString("moduledir", INSPIRCD_MODULE_PATH))
+{
+}
+
 static ConfigTag* CreateEmptyTag()
 {
 	ConfigItems* items;
@@ -53,6 +61,7 @@ static ConfigTag* CreateEmptyTag()
 ServerConfig::ServerConfig()
 	: EmptyTag(CreateEmptyTag())
 	, Limits(EmptyTag)
+	, Paths(EmptyTag)
 	, NoSnoticeStack(false)
 {
 	RawLog = HideBans = HideSplits = false;
@@ -433,10 +442,7 @@ void ServerConfig::Fill()
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
 	Limits = ServerLimits(ConfValue("limits"));
-	Paths.Config = ConfValue("path")->getString("configdir", INSPIRCD_CONFIG_PATH);
-	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
-	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
-	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
+	Paths = ServerPaths(ConfValue("path"));
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
 	if (Network.find(' ') != std::string::npos)
