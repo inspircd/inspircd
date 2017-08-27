@@ -426,7 +426,7 @@ class ModuleSASL : public Module
 	void init() CXX11_OVERRIDE
 	{
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account and m_cap are not loaded! m_sasl will NOT function correctly until these two modules are loaded!");
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

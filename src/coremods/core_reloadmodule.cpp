@@ -613,7 +613,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m == creator)
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule.so (unload and load it)");
+		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
 		return CMD_FAILURE;
 	}
 

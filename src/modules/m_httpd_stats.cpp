@@ -247,7 +247,7 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides statistics over HTTP via m_httpd.so", VF_VENDOR);
+		return Version("Provides statistics over HTTP via m_httpd", VF_VENDOR);
 	}
 };
 

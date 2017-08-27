@@ -231,7 +231,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 	else if (!DNS)
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and m_dns.so is not loaded, unable to resolve.", x->Name.c_str());
+		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and core_dns is not loaded, unable to resolve.", x->Name.c_str());
 	}
 	else
 	{

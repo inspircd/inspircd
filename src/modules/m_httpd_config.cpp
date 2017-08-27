@@ -108,7 +108,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd.so", VF_VENDOR);
+		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd", VF_VENDOR);
 	}
 };
 
