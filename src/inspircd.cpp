@@ -437,7 +437,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
-			std::cout << j << ".\tAddress: " << (i->first.empty() ? "<all>" : i->first) << " \tReason: " << i->second << std::endl;
+			std::cout << j << ".\tAddress: " << i->first.str() << " \tReason: " << strerror(i->second) << std::endl;
 		}
 
 		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;

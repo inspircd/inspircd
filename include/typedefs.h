@@ -55,9 +55,6 @@ struct ModResult;
 typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
 typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
-/** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
-
 /** List of channels to consider when building the neighbor list of a user
  */
 typedef std::vector<Membership*> IncludeChanList;

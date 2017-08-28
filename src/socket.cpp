@@ -70,7 +70,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				}
 				else
 				{
-					failed_ports.push_back(std::make_pair(bindspec.str(), strerror(errno)));
+					failed_ports.push_back(std::make_pair(bindspec, errno));
 					delete ll;
 				}
 			}

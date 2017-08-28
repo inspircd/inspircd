@@ -615,8 +615,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				errstr << j << ".\tAddress: " << (i->first.empty() ? "<all>" : i->first.c_str()) << "\tReason: "
-					<< i->second << std::endl;
+				errstr << j << ".\tAddress: " << i->first.str() << "\tReason: " << strerror(i->second) << std::endl;
 			}
 		}
 	}
