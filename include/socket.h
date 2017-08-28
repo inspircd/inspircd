@@ -128,10 +128,7 @@ class CoreExport ListenSocket : public EventHandler
 {
  public:
 	reference<ConfigTag> bind_tag;
-	std::string bind_addr;
-	int bind_port;
-	/** Human-readable bind description */
-	std::string bind_desc;
+	const irc::sockets::sockaddrs bind_sa;
 
 	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
 	{

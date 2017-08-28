@@ -126,7 +126,7 @@ class ModuleFlashPD : public Module
 				if (ls->bind_tag->getString("type", "clients") != "clients" || ls->bind_tag->getString("ssl", "plaintext") != "plaintext")
 					continue;
 
-				to_ports.append(ConvToStr(ls->bind_port)).push_back(',');
+				to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');
 		}
 
 		if (to_ports.empty())

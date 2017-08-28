@@ -99,18 +99,10 @@ void CommandStats::DoStats(Stats::Context& stats)
 			for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
 			{
 				ListenSocket* ls = *i;
-				std::string ip = ls->bind_addr;
-				if (ip.empty())
-					ip.assign("*");
-				else if (ip.find_first_of(':') != std::string::npos)
-				{
-					ip.insert(ip.begin(), '[');
-					ip.insert(ip.end(),  ']');
-				}
 				std::string type = ls->bind_tag->getString("type", "clients");
 				std::string hook = ls->bind_tag->getString("ssl", "plaintext");
 
-				stats.AddRow(249, ip + ":"+ConvToStr(ls->bind_port) + " (" + type + ", " + hook + ")");
+				stats.AddRow(249, ls->bind_sa.str() + " (" + type + ", " + hook + ")");
 			}
 		}
 		break;

@@ -45,12 +45,11 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 			irc::sockets::sockaddrs bindspec;
 			if (!irc::sockets::aptosa(Addr, portno, bindspec))
 				continue;
-			std::string bind_readable = bindspec.str();
 
 			bool skip = false;
 			for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
 			{
-				if ((**n).bind_desc == bind_readable)
+				if ((**n).bind_sa == bindspec)
 				{
 					(*n)->bind_tag = tag; // Replace tag, we know addr and port match, but other info (type, ssl) may not
 					(*n)->ResetIOHookProvider();
@@ -71,7 +70,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				}
 				else
 				{
-					failed_ports.push_back(std::make_pair(bind_readable, strerror(errno)));
+					failed_ports.push_back(std::make_pair(bindspec.str(), strerror(errno)));
 					delete ll;
 				}
 			}
@@ -90,7 +89,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		}
 
 		this->Logs->Log("SOCKET", LOG_DEFAULT, "Port binding %s was removed from the config file, closing.",
-			(**n).bind_desc.c_str());
+			(**n).bind_sa.str().c_str());
 		delete *n;
 
 		// this keeps the iterator valid, pointing to the next element

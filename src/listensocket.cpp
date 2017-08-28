@@ -27,11 +27,8 @@
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
+	, bind_sa(bind_to)
 {
-	bind_addr = bind_to.addr();
-	bind_port = bind_to.port();
-	bind_desc = bind_to.str();
-
 	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
 
 	if (this->fd == -1)
@@ -119,12 +116,12 @@ ListenSocket::~ListenSocket()
 void ListenSocket::OnEventHandlerRead()
 {
 	irc::sockets::sockaddrs client;
-	irc::sockets::sockaddrs server;
+	irc::sockets::sockaddrs server(bind_sa);
 
 	socklen_t length = sizeof(client);
 	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Accepting connection on socket %s fd %d", bind_desc.c_str(), incomingSockfd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Accepting connection on socket %s fd %d", bind_sa.str().c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
 		ServerInstance->stats.Refused++;
@@ -135,7 +132,6 @@ void ListenSocket::OnEventHandlerRead()
 	if (getsockname(incomingSockfd, &server.sa, &sz))
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Can't get peername: %s", strerror(errno));
-		irc::sockets::aptosa(bind_addr, bind_port, server);
 	}
 
 	if (client.sa.sa_family == AF_INET6)
@@ -189,7 +185,7 @@ void ListenSocket::OnEventHandlerRead()
 	{
 		ServerInstance->stats.Refused++;
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
-			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
+			bind_sa.str().c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		SocketEngine::Close(incomingSockfd);
 	}
 }
