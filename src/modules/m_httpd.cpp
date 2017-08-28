@@ -408,10 +408,8 @@ class ModuleHttpServer : public Module
 	{
 		if (from->bind_tag->getString("type") != "httpd")
 			return MOD_RES_PASSTHRU;
-		int port;
-		std::string incomingip;
-		irc::sockets::satoap(*client, incomingip, port);
-		sockets.push_front(new HttpServerSocket(nfd, incomingip, from, client, server, timeoutsec));
+
+		sockets.push_front(new HttpServerSocket(nfd, client->addr(), from, client, server, timeoutsec));
 		return MOD_RES_ALLOW;
 	}
 

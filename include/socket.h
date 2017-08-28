@@ -116,14 +116,6 @@ namespace irc
 		 * @return true if the conversion was successful, false if not.
 		 */
 		CoreExport bool aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa);
-
-		/** Convert a binary sockaddr to an address-port pair
-		 * @param sa The structure to convert
-		 * @param addr the IP address
-		 * @param port the port
-		 * @return true if the conversion was successful, false if unknown address family
-		 */
-		CoreExport bool satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port);
 	}
 }
 

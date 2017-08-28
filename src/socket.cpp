@@ -159,13 +159,6 @@ std::string irc::sockets::sockaddrs::addr() const
 	return "";
 }
 
-bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port)
-{
-	port = sa.port();
-	addr = sa.addr();
-	return !addr.empty();
-}
-
 std::string irc::sockets::sockaddrs::str() const
 {
 	if (sa.sa_family == AF_INET)

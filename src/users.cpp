@@ -681,10 +681,9 @@ int LocalUser::GetServerPort()
 
 const std::string& User::GetIPString()
 {
-	int port;
 	if (cachedip.empty())
 	{
-		irc::sockets::satoap(client_sa, cachedip, port);
+		cachedip = client_sa.addr();
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 		if (cachedip[0] == ':')
 			cachedip.insert(cachedip.begin(),1,'0');
