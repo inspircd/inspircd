@@ -42,8 +42,8 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if ((InspIRCd::Match(u->second->MakeHost(), mask, ascii_case_insensitive_map)) ||
-		    (InspIRCd::Match(u->second->MakeHostIP(), mask, ascii_case_insensitive_map)))
+		if ((InspIRCd::MatchCIDR(u->second->MakeHost(), mask, ascii_case_insensitive_map)) ||
+		    (InspIRCd::MatchCIDR(u->second->MakeHostIP(), mask, ascii_case_insensitive_map)))
 		{
 			matches++;
 		}
@@ -74,7 +74,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (InspIRCd::Match(u->second->GetIPString(), ip, ascii_case_insensitive_map))
+		if (InspIRCd::MatchCIDR(u->second->GetIPString(), ip, ascii_case_insensitive_map))
 			matches++;
 	}
 
