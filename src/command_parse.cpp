@@ -307,7 +307,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		user->CommandFloodPenalty += failpenalty;
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, InspIRCd::Format("SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str()));
+			user->WriteNumeric(RPL_SYNTAX, handler->name, handler->syntax);
 		return;
 	}
 

@@ -73,7 +73,6 @@ enum
 	RPL_AWAY                        = 301,
 	RPL_USERHOST                    = 302,
 	RPL_ISON                        = 303,
-	RPL_SYNTAX                      = 304, // insp-specific
 
 	RPL_UNAWAY                      = 305,
 	RPL_NOWAWAY                     = 306,
@@ -186,6 +185,8 @@ enum
 	ERR_USERSDONTMATCH              = 502,
 	ERR_CANTJOINOPERSONLY           = 520, // unrealircd, but crap to have so many numerics for cant join..
 	ERR_CANTSENDTOUSER              = 531, // ???
+
+	RPL_SYNTAX                      = 650, // insp-specific
 
 	ERR_CHANOPEN                    = 713,
 	ERR_KNOCKONCHAN                 = 714,
