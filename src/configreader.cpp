@@ -66,7 +66,6 @@ ServerConfig::ServerConfig()
 {
 	RawLog = HideBans = HideSplits = false;
 	WildcardIPv6 = true;
-	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
 	MaxConn = SOMAXCONN;
@@ -419,7 +418,6 @@ void ServerConfig::Fill()
 	ServerDesc = server->getString("description", "Configure Me");
 	Network = server->getString("network", "Network");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
-	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");

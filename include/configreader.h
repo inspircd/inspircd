@@ -336,11 +336,6 @@ class CoreExport ServerConfig
 	 */
 	bool RestrictBannedUsers;
 
-	/** The number of seconds the DNS subsystem
-	 * will wait before timing out any request.
-	 */
-	int dns_timeout;
-
 	/** The size of the read() buffer in the user
 	 * handling code, used to read data into a user's
 	 * recvQ.

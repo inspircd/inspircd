@@ -494,7 +494,7 @@ void LocalUser::CheckClass(bool clone_count)
 		}
 	}
 
-	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
+	this->nping = ServerInstance->Time() + a->GetPingTime();
 }
 
 bool LocalUser::CheckLines(bool doZline)
