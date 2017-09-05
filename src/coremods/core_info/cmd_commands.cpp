@@ -21,6 +21,13 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// InspIRCd-specific.
+	RPL_COMMANDS = 700,
+	RPL_COMMANDSEND = 701
+};
+
 CommandCommands::CommandCommands(Module* parent)
 	: Command(parent, "COMMANDS", 0, 0)
 {

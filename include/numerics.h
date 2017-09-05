@@ -189,9 +189,6 @@ enum
 	ERR_CANTJOINOPERSONLY           = 520, // unrealircd, but crap to have so many numerics for cant join..
 	ERR_CANTSENDTOUSER              = 531, // ???
 
-	RPL_COMMANDS                    = 702, // insp-specific
-	RPL_COMMANDSEND                 = 703, // insp-specific
-
 	ERR_CHANOPEN                    = 713,
 	ERR_KNOCKONCHAN                 = 714,
 
