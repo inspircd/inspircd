@@ -53,8 +53,6 @@ enum
 	RPL_ENDMAP                      = 17, // ircu
 	RPL_MAPUSERS                    = 18, // insp-specific
 
-	RPL_YOURUUID                    = 42, // taken from ircnet
-
 	RPL_UMODEIS                     = 221,
 	RPL_RULES                       = 232, // unrealircd
 

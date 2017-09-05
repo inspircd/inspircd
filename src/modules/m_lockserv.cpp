@@ -24,6 +24,12 @@
  * 988 <nick> <servername> :Closed for new connections
  * 989 <nick> <servername> :Open for new connections
  */
+enum
+{
+	// InspIRCd-specific.
+	RPL_SERVLOCKON = 988,
+	RPL_SERVLOCKOFF = 989
+};
 
 class CommandLockserv : public Command
 {
@@ -45,7 +51,7 @@ class CommandLockserv : public Command
 		}
 
 		locked = parameters.empty() ? "Server is temporarily closed. Please try again later." : parameters[0];
-		user->WriteNumeric(988, user->server->GetName(), "Closed for new connections");
+		user->WriteNumeric(RPL_SERVLOCKON, user->server->GetName(), "Closed for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
@@ -70,7 +76,7 @@ class CommandUnlockserv : public Command
 		}
 
 		locked.clear();
-		user->WriteNumeric(989, user->server->GetName(), "Open for new connections");
+		user->WriteNumeric(RPL_SERVLOCKOFF, user->server->GetName(), "Open for new connections");
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}

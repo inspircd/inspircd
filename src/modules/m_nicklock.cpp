@@ -22,6 +22,14 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// InspIRCd-specific.
+	ERR_NICKNOTLOCKED = 946,
+	RPL_NICKLOCKON = 947,
+	RPL_NICKLOCKOFF = 945
+};
+
 /** Handle /NICKLOCK
  */
 class CommandNicklock : public Command
@@ -55,7 +63,7 @@ class CommandNicklock : public Command
 				return CMD_FAILURE;
 			}
 
-			user->WriteNumeric(947, parameters[1], "Nickname now locked.");
+			user->WriteNumeric(RPL_NICKLOCKON, parameters[1], "Nickname now locked.");
 		}
 
 		/* If we made it this far, extend the user */
@@ -111,11 +119,11 @@ class CommandNickunlock : public Command
 			if (locked.set(target, 0))
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
-				user->WriteRemoteNumeric(945, target->nick, "Nickname now unlocked.");
+				user->WriteRemoteNumeric(RPL_NICKLOCKOFF, target->nick, "Nickname now unlocked.");
 			}
 			else
 			{
-				user->WriteRemoteNumeric(946, target->nick, "This user's nickname is not locked.");
+				user->WriteRemoteNumeric(ERR_NICKNOTLOCKED, target->nick, "This user's nickname is not locked.");
 				return CMD_FAILURE;
 			}
 		}

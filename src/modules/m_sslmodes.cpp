@@ -24,6 +24,12 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_SECUREONLYCHAN = 489
+};
+
 /** Handle channel mode +z
  */
 class SSLMode : public ModeHandler
@@ -107,7 +113,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteNumeric(489, cname, "Cannot join channel; SSL users only (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z)");
 				return MOD_RES_DENY;
 			}
 		}

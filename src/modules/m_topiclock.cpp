@@ -18,6 +18,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// InspIRCd-specific.
+	ERR_TOPICLOCK = 744
+};
+
 class CommandSVSTOPIC : public Command
 {
  public:
@@ -131,7 +137,7 @@ class ModuleTopicLock : public Module
 		// Only fired for local users currently, but added a check anyway
 		if ((IS_LOCAL(user)) && (topiclock.get(chan)))
 		{
-			user->WriteNumeric(744, chan->name, "TOPIC cannot be changed due to topic lock being active on the channel");
+			user->WriteNumeric(ERR_TOPICLOCK, chan->name, "TOPIC cannot be changed due to topic lock being active on the channel");
 			return MOD_RES_DENY;
 		}
 

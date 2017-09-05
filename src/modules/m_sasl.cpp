@@ -25,6 +25,15 @@
 #include "modules/ssl.h"
 #include "modules/spanningtree.h"
 
+enum
+{
+	// From IRCv3 sasl-3.1
+	RPL_SASLSUCCESS = 903,
+	ERR_SASLFAIL = 904,
+	ERR_SASLABORTED = 906,
+	RPL_SASLMECHS = 908
+};
+
 static std::string sasl_target;
 
 class ServerTracker : public SpanningTreeEventListener
@@ -263,7 +272,7 @@ class SaslAuthenticator
 				this->result = this->GetSaslResult(msg[3]);
 			}
 			else if (msg[2] == "M")
-				this->user->WriteNumeric(908, msg[3], "are available SASL mechanisms");
+				this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");
 			else
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
@@ -315,13 +324,13 @@ class SaslAuthenticator
 		switch (this->result)
 		{
 		 case SASL_OK:
-			this->user->WriteNumeric(903, "SASL authentication successful");
+			this->user->WriteNumeric(RPL_SASLSUCCESS, "SASL authentication successful");
 			break;
 	 	 case SASL_ABORT:
-			this->user->WriteNumeric(906, "SASL authentication aborted");
+			this->user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
 			break;
 		 case SASL_FAIL:
-			this->user->WriteNumeric(904, "SASL authentication failed");
+			this->user->WriteNumeric(ERR_SASLFAIL, "SASL authentication failed");
 			break;
 		 default:
 			break;

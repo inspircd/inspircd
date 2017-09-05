@@ -93,7 +93,7 @@ class CommandGunloadmodule : public Command
 				if (ServerInstance->Modules->Unload(m))
 				{
 					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-					user->WriteRemoteNumeric(973, parameters[0], "Module successfully unloaded.");
+					user->WriteRemoteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 				}
 				else
 				{

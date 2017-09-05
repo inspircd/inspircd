@@ -56,14 +56,14 @@ class CommandOpermotd : public Command
 			return;
 		}
 
-		user->WriteRemoteNumeric(375, "- IRC Operators Message of the Day");
+		user->WriteRemoteNumeric(RPL_MOTDSTART, "- IRC Operators Message of the Day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->WriteRemoteNumeric(372, InspIRCd::Format("- %s", i->c_str()));
+			user->WriteRemoteNumeric(RPL_MOTD, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->WriteRemoteNumeric(376, "- End of OPERMOTD");
+		user->WriteRemoteNumeric(RPL_ENDOFMOTD, "- End of OPERMOTD");
 	}
 };
 

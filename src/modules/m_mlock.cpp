@@ -19,6 +19,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From Charybdis.
+	ERR_MLOCKRESTRICTED = 742
+};
+
 class ModuleMLock : public Module
 {
 	StringExtItem mlock;
@@ -50,7 +56,7 @@ class ModuleMLock : public Module
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{
-			source->WriteNumeric(742, channel->name, mode, *mlock_str, "MODE cannot be set due to channel having an active MLOCK restriction policy");
+			source->WriteNumeric(ERR_MLOCKRESTRICTED, channel->name, mode, *mlock_str, "MODE cannot be set due to channel having an active MLOCK restriction policy");
 			return MOD_RES_DENY;
 		}
 
