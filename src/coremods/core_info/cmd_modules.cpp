@@ -22,6 +22,13 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// From ircd-ratbox with an InspIRCd-specific format.
+	RPL_MODLIST = 702,
+	RPL_ENDOFMODLIST = 703
+};
+
 CommandModules::CommandModules(Module* parent)
 	: ServerTargetCommand(parent, "MODULES")
 {
@@ -65,18 +72,18 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 					flags[pos] = '-';
 
 #ifdef INSPIRCD_STATIC
-			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s :%s", m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str()));
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, INSPIRCD_VERSION, flags, V.description);
 #else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();
-			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s :%s - %s", m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str()));
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev.empty() ? "*" : srcrev, flags, V.description);
 #endif
 		}
 		else
 		{
-			user->WriteRemoteNumeric(702, InspIRCd::Format("%s %s", m->ModuleSourceFile.c_str(), V.description.c_str()));
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, '*', '*', V.description);
 		}
 	}
-	user->WriteRemoteNumeric(703, "End of MODULES list");
+	user->WriteRemoteNumeric(RPL_ENDOFMODLIST, "End of MODULES list");
 
 	return CMD_SUCCESS;
 }

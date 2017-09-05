@@ -71,6 +71,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 			newmod->dying = false;
 			Modules[filename] = newmod;
 			std::string version = newhandle->GetVersion();
+			if (version.empty())
+				version.assign("unknown");
 			if (defer)
 			{
 				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)",

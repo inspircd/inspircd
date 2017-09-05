@@ -91,7 +91,7 @@ std::string DLLManager::GetVersion()
 	const char* srcver = (char*)dlsym(h, "inspircd_src_version");
 	if (srcver)
 		return srcver;
-	return "Unversioned module";
+	return "";
 }
 
 #ifdef _WIN32
