@@ -40,10 +40,13 @@ enum
 class ChanFilter : public ListModeBase
 {
  public:
+	unsigned long maxlen;
+
 	ChanFilter(Module* Creator) : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE	{
-		if (word.length() > 35)
+	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
+	{
+		if (word.length() > maxlen)	
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list"));
 			return false;
@@ -84,7 +87,9 @@ class ModuleChanFilter : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
+		hidemask = tag->getBool("hidemask");
+		cf.maxlen = tag->getInt("maxlen", 35, 10, 100);
 		cf.DoRehash();
 	}
 
@@ -121,7 +126,12 @@ class ModuleChanFilter : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR);
+		// We don't send any link data if the length is 35 for compatibility with the 2.0 branch.
+		std::string maxfilterlen;
+		if (cf.maxlen != 35)
+			maxfilterlen.assign(ConvToStr(cf.maxlen));
+
+		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR, maxfilterlen);
 	}
 };
 

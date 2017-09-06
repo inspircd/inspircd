@@ -386,7 +386,9 @@
 #
 # If hidemask is set to yes, the user will not be shown the mask when
 # his/her message is blocked.
-#<chanfilter hidemask="yes">
+#
+# If maxlen is set then it defines the maximum length of a filter entry.
+#<chanfilter hidemask="yes" maxlen="50">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel history module: Displays the last 'X' lines of chat to a user
