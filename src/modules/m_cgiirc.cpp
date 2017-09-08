@@ -99,7 +99,7 @@ class CommandWebirc : public Command
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
 
-						bool host_ok = (parameters[2].length() < 64);
+						bool host_ok = (parameters[2].length() < 64) && (parameters[2].find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
