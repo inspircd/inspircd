@@ -27,7 +27,7 @@
 #include "xline.h"
 #include "modules/dns.h"
 
-enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
+enum CGItype { IDENT, WEBIRC };
 
 // We need this method up here so that it can be accessed from anywhere
 static void ChangeIP(User* user, const std::string& newip)
@@ -135,15 +135,15 @@ class CommandWebirc : public Command
  */
 class CGIResolver : public DNS::Request
 {
-	std::string typ;
 	std::string theiruid;
 	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(DNS::Manager *mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
-			const std::string &ttype, LocalIntExt& ext)
-		: DNS::Request(mgr, me, source, DNS::QUERY_PTR), typ(ttype), theiruid(u->uuid),
-		waiting(ext), notify(NotifyOpers)
+	CGIResolver(DNS::Manager* mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u, LocalIntExt& ext)
+		: DNS::Request(mgr, me, source, DNS::QUERY_PTR)
+		, theiruid(u->uuid)
+		, waiting(ext)
+		, notify(NotifyOpers)
 	{
 	}
 
@@ -162,7 +162,7 @@ class CGIResolver : public DNS::Request
 				return;
 
 			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str());
 
 			them->host = them->dhost = ans_record.rdata;
 			them->InvalidateCache();
@@ -178,7 +178,7 @@ class CGIResolver : public DNS::Request
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
+			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick.c_str(), them->host.c_str());
 		}
 	}
 
@@ -206,7 +206,7 @@ class ModuleCgiIRC : public Module
 		user->CheckClass();
 	}
 
-	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)
+	void HandleIdent(LocalUser* user, const std::string& newip)
 	{
 		cmd.realhost.set(user, user->host);
 		cmd.realip.set(user, user->GetIPString());
@@ -219,7 +219,7 @@ class ModuleCgiIRC : public Module
 		if (user->quitting || !DNS || !user->MyClass->resolvehostnames)
 			return;
 
-		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
+		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, waiting);
 		try
 		{
 			waiting.set(user, waiting.get(user) + 1);
@@ -273,18 +273,14 @@ public:
 				else
 				{
 					CGItype cgitype;
-					if (type == "pass")
-						cgitype = PASS;
-					else if (type == "ident")
+					if (type == "ident")
 						cgitype = IDENT;
-					else if (type == "passfirst")
-						cgitype = PASSFIRST;
 					else if (type == "webirc")
 						cgitype = WEBIRC;
 					else
 					{
-						cgitype = PASS;
-						ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
+						cgitype = IDENT;
+						ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid <cgihost:type> value in config: %s, setting it to \"ident\"", type.c_str());
 					}
 
 					cmd.Hosts.push_back(CGIhost(hostmask, cgitype, password));
@@ -342,26 +338,9 @@ public:
 			if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
 			{
 				// Deal with it...
-				if(iter->type == PASS)
-				{
-					CheckPass(user); // We do nothing if it fails so...
-					user->CheckLines(true);
-				}
-				else if(iter->type == PASSFIRST && !CheckPass(user))
-				{
-					// If the password lookup failed, try the ident
-					CheckIdent(user);	// If this fails too, do nothing
-					user->CheckLines(true);
-				}
-				else if(iter->type == IDENT)
+				if(iter->type == IDENT)
 				{
 					CheckIdent(user); // Nothing on failure.
-					user->CheckLines(true);
-				}
-				else if(iter->type == IDENTFIRST && !CheckIdent(user))
-				{
-					// If the ident lookup fails, try the password.
-					CheckPass(user);
 					user->CheckLines(true);
 				}
 				else if(iter->type == WEBIRC)
@@ -372,18 +351,6 @@ public:
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	bool CheckPass(LocalUser* user)
-	{
-		if(IsValidHost(user->password))
-		{
-			HandleIdentOrPass(user, user->password, true);
-			user->password.clear();
-			return true;
-		}
-
-		return false;
 	}
 
 	bool CheckIdent(LocalUser* user)
@@ -406,28 +373,7 @@ public:
 		std::string newipstr(inet_ntoa(newip));
 
 		user->ident = "~cgiirc";
-		HandleIdentOrPass(user, newipstr, false);
-
-		return true;
-	}
-
-	bool IsValidHost(const std::string &host)
-	{
-		if(!host.size() || host.size() > ServerInstance->Config->Limits.MaxHost)
-			return false;
-
-		for(unsigned int i = 0; i < host.size(); i++)
-		{
-			if(	((host[i] >= '0') && (host[i] <= '9')) ||
-					((host[i] >= 'A') && (host[i] <= 'Z')) ||
-					((host[i] >= 'a') && (host[i] <= 'z')) ||
-					((host[i] == '-') && (i > 0) && (i+1 < host.size()) && (host[i-1] != '.') && (host[i+1] != '.')) ||
-					((host[i] == '.') && (i > 0) && (i+1 < host.size())) )
-
-				continue;
-			else
-				return false;
-		}
+		HandleIdent(user, newipstr);
 
 		return true;
 	}

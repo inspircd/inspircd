@@ -334,9 +334,7 @@
 # CGI:IRC documentation.
 #
 # Old style:
-# <cgihost type="pass" mask="www.example.com">       # Get IP from PASS
 # <cgihost type="ident" mask="otherbox.example.com"> # Get IP from ident
-# <cgihost type="passfirst" mask="www.example.com">  # See the docs
 # New style:
 # <cgihost type="webirc" password="foobar"
 #   mask="somebox.example.com">                      # Get IP from WEBIRC
