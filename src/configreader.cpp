@@ -487,8 +487,8 @@ void ServerConfig::Fill()
 	std::string modes = ConfValue("disabled")->getString("usermodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
-		// Complain when the character is not a-z or A-Z
-		if ((*p < 'A') || (*p > 'z') || ((*p < 'a') && (*p > 'Z')))
+		// Complain when the character is not a valid mode character.
+		if (!ModeParser::IsModeChar(*p))
 			throw CoreException("Invalid usermode " + std::string(1, *p) + " was found.");
 		DisabledUModes[*p - 'A'] = 1;
 	}
@@ -497,7 +497,7 @@ void ServerConfig::Fill()
 	modes = ConfValue("disabled")->getString("chanmodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
-		if ((*p < 'A') || (*p > 'z') || ((*p < 'a') && (*p > 'Z')))
+		if (!ModeParser::IsModeChar(*p))
 			throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
 		DisabledCModes[*p - 'A'] = 1;
 	}

@@ -570,11 +570,7 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeType mt)
 
 void ModeParser::AddMode(ModeHandler* mh)
 {
-	/* Yes, i know, this might let people declare modes like '_' or '^'.
-	 * If they do that, thats their problem, and if i ever EVER see an
-	 * official InspIRCd developer do that, i'll beat them with a paddle!
-	 */
-	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
+	if (!ModeParser::IsModeChar(mh->GetModeChar()))
 		throw ModuleException("Invalid letter for mode " + mh->name);
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
@@ -624,7 +620,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 bool ModeParser::DelMode(ModeHandler* mh)
 {
-	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
+	if (!ModeParser::IsModeChar(mh->GetModeChar()))
 		return false;
 
 	ModeHandlerMap& mhmap = modehandlersbyname[mh->GetModeType()];
@@ -694,7 +690,7 @@ ModeHandler* ModeParser::FindMode(const std::string& modename, ModeType mt)
 
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 {
-	if ((modeletter < 'A') || (modeletter > 'z'))
+	if (!ModeParser::IsModeChar(modeletter))
 		return NULL;
 
 	return modehandlers[mt][modeletter-65];
@@ -917,6 +913,11 @@ void ModeParser::InitBuiltinModes()
 {
 	static_modes.init();
 	static_modes.b.DoRehash();
+}
+
+bool ModeParser::IsModeChar(char chr)
+{
+	return ((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'));
 }
 
 ModeParser::ModeParser()
