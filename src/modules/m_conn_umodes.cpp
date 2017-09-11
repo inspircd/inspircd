@@ -39,10 +39,8 @@ class ModuleModesOnConnect : public Module
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		// Backup and zero out the disabled usermodes, so that we can override them here.
-		char save[64];
-		memcpy(save, ServerInstance->Config->DisabledUModes,
-				sizeof(ServerInstance->Config->DisabledUModes));
-		memset(ServerInstance->Config->DisabledUModes, 0, 64);
+		const std::bitset<64> save = ServerInstance->Config->DisabledUModes;
+		ServerInstance->Config->DisabledUModes.reset();
 
 		ConfigTag* tag = user->MyClass->config;
 		std::string ThisModes = tag->getString("modes");
@@ -61,7 +59,7 @@ class ModuleModesOnConnect : public Module
 			ServerInstance->Parser.CallHandler("MODE", modes, user);
 		}
 
-		memcpy(ServerInstance->Config->DisabledUModes, save, 64);
+		ServerInstance->Config->DisabledUModes = save;
 	}
 };
 

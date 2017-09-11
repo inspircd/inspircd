@@ -319,11 +319,11 @@ class CoreExport ServerConfig
 
 	/** This variable identifies which usermodes have been diabled.
 	 */
-	char DisabledUModes[64];
+	std::bitset<64> DisabledUModes;
 
 	/** This variable identifies which chanmodes have been disabled.
 	 */
-	char DisabledCModes[64];
+	std::bitset<64> DisabledCModes;
 
 	/** If set to true, then all opers on this server are
 	 * shown with a generic 'is an IRC operator' line rather

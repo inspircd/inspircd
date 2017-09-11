@@ -286,8 +286,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 
 	if (IS_LOCAL(user) && !user->IsOper())
 	{
-		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
-		if (disabled[modechar - 'A'])
+		const std::bitset<64>& disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
+		if (disabled.test(modechar - 'A'))
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c has been locked by the administrator",
 				type == MODETYPE_CHANNEL ? "channel" : "user", modechar));

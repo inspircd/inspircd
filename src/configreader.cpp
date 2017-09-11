@@ -483,23 +483,23 @@ void ServerConfig::Fill()
 	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));
 	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
 
-	memset(DisabledUModes, 0, sizeof(DisabledUModes));
+	DisabledUModes.reset();
 	std::string modes = ConfValue("disabled")->getString("usermodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
 		// Complain when the character is not a valid mode character.
 		if (!ModeParser::IsModeChar(*p))
 			throw CoreException("Invalid usermode " + std::string(1, *p) + " was found.");
-		DisabledUModes[*p - 'A'] = 1;
+		DisabledUModes.set(*p - 'A');
 	}
 
-	memset(DisabledCModes, 0, sizeof(DisabledCModes));
+	DisabledCModes.reset();
 	modes = ConfValue("disabled")->getString("chanmodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
 		if (!ModeParser::IsModeChar(*p))
 			throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
-		DisabledCModes[*p - 'A'] = 1;
+		DisabledCModes.set(*p - 'A');
 	}
 
 	std::string v = security->getString("announceinvites");
