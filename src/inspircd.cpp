@@ -501,61 +501,46 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
-	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
-	std::string SetGroup = Config->ConfValue("security")->getString("runasgroup");
+	ConfigTag* security = Config->ConfValue("security");
+
+	const std::string SetGroup = security->getString("runasgroup");
 	if (!SetGroup.empty())
 	{
-		int ret;
-
-		// setgroups
-		ret = setgroups(0, NULL);
-
-		if (ret == -1)
+		errno = 0;
+		if (setgroups(0, NULL) == -1)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
-		// setgid
-		struct group *g;
-
-		errno = 0;
-		g = getgrnam(SetGroup.c_str());
-
+		struct group* g = getgrnam(SetGroup.c_str());
 		if (!g)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
-		ret = setgid(g->gr_gid);
-
-		if (ret == -1)
+		if (setgid(g->gr_gid) == -1)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid() failed (wrong group?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
 			this->QuickExit(0);
 		}
 	}
 
+	const std::string SetUser = security->getString("runasuser");
 	if (!SetUser.empty())
 	{
-		// setuid
-		struct passwd *u;
-
 		errno = 0;
-		u = getpwnam(SetUser.c_str());
-
+		struct passwd* u = getpwnam(SetUser.c_str());
 		if (!u)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
-		int ret = setuid(u->pw_uid);
-
-		if (ret == -1)
+		if (setuid(u->pw_uid) == -1)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid() failed (wrong user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
 			this->QuickExit(0);
 		}
 	}
