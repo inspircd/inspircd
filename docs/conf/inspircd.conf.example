@@ -493,11 +493,11 @@
 # matches the channels name applies the banlimit to that channel.     #
 # It is advisable to put an entry with the channel as '*' at the      #
 # bottom of the list. If none are specified or no maxbans tag is      #
-# matched, the banlist size defaults to 64 entries.                   #
+# matched, the banlist size defaults to 100 entries.                  #
 #                                                                     #
 
-<banlist chan="#largechan" limit="128">
-<banlist chan="*" limit="69">
+<banlist chan="#largechan" limit="200">
+<banlist chan="*" limit="100">
 
 #-#-#-#-#-#-#-#-#-#-#-  DISABLED FEATURES  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
