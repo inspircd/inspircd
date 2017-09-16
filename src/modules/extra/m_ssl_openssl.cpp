@@ -200,6 +200,45 @@ namespace OpenSSL
 			return SSL_CTX_load_verify_locations(ctx, filename.c_str(), 0);
 		}
 
+		void SetCRL(const std::string& crlfile, const std::string& crlpath, const std::string& crlmode)
+		{
+			if (crlfile.empty() && crlpath.empty())
+				return;
+
+			/* Set CRL mode */
+			unsigned long crlflags = X509_V_FLAG_CRL_CHECK;
+			if (crlmode == "chain")
+			{
+				crlflags |= X509_V_FLAG_CRL_CHECK_ALL;
+			}
+			else if (crlmode != "leaf")
+			{
+				throw ModuleException("Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
+			}
+
+			/* Load CRL files */
+			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
+			if (!store)
+			{
+				throw ModuleException("Unable to get X509_STORE from SSL context; this should never happen");
+			}
+			ERR_clear_error();
+			if (!X509_STORE_load_locations(store,
+				crlfile.empty() ? NULL : crlfile.c_str(),
+				crlpath.empty() ? NULL : crlpath.c_str()))
+			{
+				int err = ERR_get_error();
+				throw ModuleException("Unable to load CRL file '" + crlfile + "' or CRL path '" + crlpath + "': '" + (err ? ERR_error_string(err, NULL) : "unknown") + "'");
+			}
+
+			/* Set CRL mode */
+			if (X509_STORE_set_flags(store, crlflags) != 1)
+			{
+				throw ModuleException("Unable to set X509 CRL flags");
+			}
+		}
+
+
 		long GetDefaultContextOptions() const
 		{
 			return ctx_options;
@@ -358,6 +397,12 @@ namespace OpenSSL
 				ERR_print_errors_cb(error_callback, this);
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
 			}
+
+			// Load the CRLs.
+			std::string crlfile  = tag->getString("crlfile");
+			std::string crlpath  = tag->getString("crlpath");
+			std::string crlmode  = tag->getString("crlmode", "chain");
+			ctx.SetCRL(crlfile, crlpath, crlmode);
 
 			clictx.SetVerifyCert();
 			if (tag->getBool("requestclientcert", true))
