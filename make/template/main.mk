@@ -45,6 +45,7 @@ MODPATH = "$(DESTDIR)@MODULE_DIR@"
 LOGPATH = "$(DESTDIR)@LOG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
+SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
 INSTALL = install
 INSTUID = @UID@
 INSTMODE_DIR = 0750
@@ -224,17 +225,18 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/services
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(SCRPATH)
 	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
 ifndef INSPIRCD_STATIC
 	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 endif
-	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(BASE) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)
-	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
-	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
@@ -253,7 +255,7 @@ endif
 	@echo '  Binaries:' $(BINPATH)
 	@echo '  Modules:' $(MODPATH)
 	@echo '  Data:' $(DATPATH)
-	@echo 'To start the ircd, run:' $(BASE)/inspircd start
+	@echo 'To start the ircd, run:' $(SCRPATH)/inspircd start
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
@@ -275,9 +277,9 @@ deinstall:
 	-rm -f $(MANPATH)/inspircd-genssl.1
 	-rm -f $(MODPATH)/m_*.so
 	-rm -f $(MODPATH)/core_*.so
-	-rm -f $(BASE)/.gdbargs
-	-rm -f $(BASE)/inspircd.service
-	-rm -f $(BASE)/org.inspircd.plist
+	-rm -f $(SCRPATH)/.gdbargs
+	-rm -f $(SCRPATH)/inspircd.service
+	-rm -f $(SCRPATH)/org.inspircd.plist
 
 configureclean:
 	rm -f .gdbargs

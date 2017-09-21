@@ -24,9 +24,9 @@ Description=InspIRCd - Internet Relay Chat Daemon
 Requires=network.target
 
 [Service]
-ExecReload=@BASE_DIR@/inspircd rehash
-ExecStart=@BASE_DIR@/inspircd start
-ExecStop=@BASE_DIR@/inspircd stop
+ExecReload=@SCRIPT_DIR@/inspircd rehash
+ExecStart=@SCRIPT_DIR@/inspircd start
+ExecStop=@SCRIPT_DIR@/inspircd stop
 PIDFile=@DATA_DIR@/inspircd.pid
 Restart=on-failure
 Type=forking

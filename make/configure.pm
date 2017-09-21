@@ -139,6 +139,9 @@ PATH OPTIONS
   --module-dir=[dir]            The location where the loadable modules are
                                 stored.
                                 [$PWD/run/modules]
+  --script-dir=[dir]            The location where the scripts, such as the
+                                init scripts, are stored.
+                                [$PWD/run]
 
 EXTRA MODULE OPTIONS
 
