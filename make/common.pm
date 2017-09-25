@@ -59,7 +59,7 @@ sub get_version {
 
 	# Attempt to retrieve missing version information from Git
 	chomp(my $gr = `git describe --tags 2>/dev/null`);
-	if ($gr =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-\d+-g(\w+))?$/) {
+	if ($gr =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:[a-z]+\d+)?(?:-\d+-g(\w+))?$/) {
 		$version{MAJOR} //= $1;
 		$version{MINOR} //= $2;
 		$version{PATCH} //= $3;
