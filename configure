@@ -270,7 +270,7 @@ EOQ
 if (prompt_bool $interactive, $question, 0) {
 	my $original_base_dir = $config{BASE_DIR};
 	$config{BASE_DIR} = prompt_dir $interactive, 'In what directory do you wish to install the InspIRCd base?', $config{BASE_DIR};
-	foreach my $key (qw(BINARY_DIR CONFIG_DIR DATA_DIR LOG_DIR MANUAL_DIR MODULE_DIR)) {
+	foreach my $key (qw(BINARY_DIR CONFIG_DIR DATA_DIR LOG_DIR MANUAL_DIR MODULE_DIR SCRIPT_DIR)) {
 		$config{$key} =~ s/^\Q$original_base_dir\E/$config{BASE_DIR}/;
 	}
 	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?', $config{BINARY_DIR};
