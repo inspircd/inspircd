@@ -177,10 +177,10 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, unsigned long signon, un
 {
 	WhoisContextImpl whois(user, dest, lineevprov);
 
-	whois.SendLine(311, dest->ident, dest->dhost, '*', dest->fullname);
+	whois.SendLine(311, dest->ident, dest->host.GetDisplay(), '*', dest->fullname);
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
-		whois.SendLine(378, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str()));
+		whois.SendLine(378, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->host.GetReal().c_str(), dest->GetIPString().c_str()));
 	}
 
 	SendChanList(whois);

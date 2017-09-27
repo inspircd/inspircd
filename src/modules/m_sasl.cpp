@@ -188,7 +188,7 @@ class SaslAuthenticator
 
 		if (!ReadCGIIRCExt("cgiirc_webirc_hostname", user, host))
 		{
-			host = user->host;
+			host = user->host.GetReal();
 		}
 		if (!ReadCGIIRCExt("cgiirc_webirc_ip", user, ip))
 		{

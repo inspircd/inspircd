@@ -73,8 +73,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	RemoteUser* _new = new SpanningTree::RemoteUser(params[0], remoteserver);
 	ServerInstance->Users->clientlist[params[2]] = _new;
 	_new->nick = params[2];
-	_new->host = params[3];
-	_new->dhost = params[4];
+	_new->host = insp::CloakedString(params[3], params[4]);
 	_new->ident = params[5];
 	_new->fullname = params.back();
 	_new->registered = REG_ALL;
@@ -157,8 +156,8 @@ CommandUID::Builder::Builder(User* user)
 	push(user->uuid);
 	push_int(user->age);
 	push(user->nick);
-	push(user->host);
-	push(user->dhost);
+	push(user->host.GetReal());
+	push(user->host.GetDisplay());
 	push(user->ident);
 	push(user->GetIPString());
 	push_int(user->signon);

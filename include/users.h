@@ -28,6 +28,7 @@
 #include "inspsocket.h"
 #include "mode.h"
 #include "membership.h"
+#include "inspstring.h"
 
 /** connect class types
  */
@@ -270,11 +271,6 @@ class CoreExport User : public Extensible
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
 
-	/** Hostname of connection.
-	 * This should be valid as per RFC1035.
-	 */
-	std::string host;
-
 	/** Time that the object was instantiated (used for TS calculation etc)
 	*/
 	time_t age;
@@ -307,10 +303,9 @@ class CoreExport User : public Extensible
 	 */
 	std::string ident;
 
-	/** The host displayed to non-opers (used for cloaking etc).
-	 * This usually matches the value of User::host.
+	/** The hostname of this user.
 	 */
-	std::string dhost;
+	insp::CloakedString host;
 
 	/** The users full name (GECOS).
 	 */
