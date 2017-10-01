@@ -64,7 +64,7 @@ typedef std::vector<CGIhost> CGIHostlist;
  *  To tie in with the rest of cgiirc module, and to avoid race conditions, /webirc is only processed locally
  *  and simply sets metadata on the user, which is later decoded on full connect to give something meaningful.
  */
-class CommandWebirc : public Command
+class CommandWebIRC : public SplitCommand
 {
  public:
 	bool notify;
@@ -73,8 +73,8 @@ class CommandWebirc : public Command
 	StringExtItem realip;
 
 	CGIHostlist Hosts;
-	CommandWebirc(Module* Creator)
-		: Command(Creator, "WEBIRC", 4)
+	CommandWebIRC(Module* Creator)
+		: SplitCommand(Creator, "WEBIRC", 4)
 		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
 		, realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
 		, realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
@@ -83,7 +83,7 @@ class CommandWebirc : public Command
 			works_before_reg = true;
 			this->syntax = "password gateway hostname ip";
 		}
-		CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+		CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;
@@ -91,7 +91,7 @@ class CommandWebirc : public Command
 			irc::sockets::sockaddrs ipaddr;
 			if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
 			{
-				IS_LOCAL(user)->CommandFloodPenalty += 5000;
+				user->CommandFloodPenalty += 5000;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
 				return CMD_FAILURE;
 			}
@@ -124,7 +124,7 @@ class CommandWebirc : public Command
 				}
 			}
 
-			IS_LOCAL(user)->CommandFloodPenalty += 5000;
+			user->CommandFloodPenalty += 5000;
 			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
@@ -195,7 +195,7 @@ class CGIResolver : public DNS::Request
 
 class ModuleCgiIRC : public Module
 {
-	CommandWebirc cmd;
+	CommandWebIRC cmd;
 	LocalIntExt waiting;
 	dynamic_reference<DNS::Manager> DNS;
 
