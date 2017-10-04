@@ -586,7 +586,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 	/** Cached mode list for use in 004 numeric
 	 */
-	std::string Cached004ModeList;
+	TR1NS::array<std::string, 3> Cached004ModeList;
 
  public:
 	typedef std::vector<ListModeBase*> ListModeList;
@@ -755,13 +755,13 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
-	/** Returns a list of modes, space seperated by type:
+	/** Returns an array of modes:
 	 * 1. User modes
 	 * 2. Channel modes
 	 * 3. Channel modes that require a parameter when set
 	 * This is sent to users as the last part of the 004 numeric
 	 */
-	const std::string& GetModeListFor004Numeric();
+	const TR1NS::array<std::string, 3>& GetModeListFor004Numeric();
 
 	/** Generates a list of modes, comma seperated by type:
 	 *  1; Listmodes EXCEPT those with a prefix
@@ -800,7 +800,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	void ShowListModeList(User* user, Channel* chan, ModeHandler* mh);
 };
 
-inline const std::string& ModeParser::GetModeListFor004Numeric()
+inline const TR1NS::array<std::string, 3>& ModeParser::GetModeListFor004Numeric()
 {
 	return Cached004ModeList;
 }

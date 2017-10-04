@@ -720,7 +720,9 @@ std::string ModeParser::CreateModeList(ModeType mt, bool needparam)
 
 void ModeParser::RecreateModeListFor004Numeric()
 {
-	Cached004ModeList = CreateModeList(MODETYPE_USER) + " " + CreateModeList(MODETYPE_CHANNEL) + " " + CreateModeList(MODETYPE_CHANNEL, true);
+	Cached004ModeList[0] = CreateModeList(MODETYPE_USER);
+	Cached004ModeList[1] = CreateModeList(MODETYPE_CHANNEL);
+	Cached004ModeList[2] = CreateModeList(MODETYPE_CHANNEL, true);
 }
 
 PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)

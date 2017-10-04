@@ -541,8 +541,8 @@ void LocalUser::FullConnect()
 	this->WriteNumeric(RPL_YOURHOSTIS, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
 	this->WriteNumeric(RPL_SERVERCREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 
-	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, ServerInstance->Config->ServerName, INSPIRCD_BRANCH, modelist);
+	const TR1NS::array<std::string, 3>& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
+	this->WriteNumeric(RPL_SERVERVERSION, ServerInstance->Config->ServerName, INSPIRCD_BRANCH, modelist[0], modelist[1], modelist[2]);
 
 	ServerInstance->ISupport.SendTo(this);
 
