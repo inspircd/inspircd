@@ -548,6 +548,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		/*
 		 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 		 */
+		this->CaseMapping = old->CaseMapping;
 		this->ServerName = old->ServerName;
 		this->sid = old->sid;
 		this->cmdline = old->cmdline;
