@@ -48,7 +48,7 @@ use constant {
     GENERIC_EXIT_NOT_RUNNING => 7
 };
 
-my $scriptpath = "@SCRIPT_DIR@"
+my $scriptpath = "@SCRIPT_DIR@";
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
