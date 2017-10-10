@@ -245,12 +245,6 @@ class SaslAuthenticator
 		return this->state;
 	}
 
-	void Abort(void)
-	{
-		this->state = SASL_DONE;
-		this->result = SASL_ABORT;
-	}
-
 	bool SendClientMessage(const std::vector<std::string>& parameters)
 	{
 		if (this->state != SASL_COMM)
@@ -267,7 +261,8 @@ class SaslAuthenticator
 
 		if (parameters[0].c_str()[0] == '*')
 		{
-			this->Abort();
+			this->state = SASL_DONE;
+			this->result = SASL_ABORT;
 			return false;
 		}
 
@@ -402,16 +397,6 @@ class ModuleSASL : public Module
 	{
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 		servertracker.Reset();
-	}
-
-	void OnUserConnect(LocalUser *user) CXX11_OVERRIDE
-	{
-		SaslAuthenticator *sasl_ = authExt.get(user);
-		if (sasl_)
-		{
-			sasl_->Abort();
-			authExt.unset(user);
-		}
 	}
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE
