@@ -162,53 +162,16 @@ class SaslAuthenticator
 	SaslResult result;
 	bool state_announced;
 
-	/* taken from m_services_account */
-	static bool ReadCGIIRCExt(const char* extname, User* user, std::string& out)
-	{
-		ExtensionItem* wiext = ServerInstance->Extensions.GetItem(extname);
-		if (!wiext)
-			return false;
-
-		if (wiext->creator->ModuleSourceFile != "m_cgiirc.so")
-			return false;
-
-		StringExtItem* stringext = static_cast<StringExtItem*>(wiext);
-		std::string* addr = stringext->get(user);
-		if (!addr)
-			return false;
-
-		out = *addr;
-		return true;
-	}
-
-
 	void SendHostIP()
 	{
-		std::string host, ip;
-
-		if (!ReadCGIIRCExt("cgiirc_webirc_hostname", user, host))
-		{
-			host = user->host;
-		}
-		if (!ReadCGIIRCExt("cgiirc_webirc_ip", user, ip))
-		{
-			ip = user->GetIPString();
-		}
-		else
-		{
-			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-			if (ip.c_str()[0] == ':')
-				ip.insert(ip.begin(),1,'0');
-		}
-
 		parameterlist params;
 		params.push_back(sasl_target);
 		params.push_back("SASL");
 		params.push_back(user->uuid);
 		params.push_back("*");
 		params.push_back("H");
-		params.push_back(host);
-		params.push_back(ip);
+		params.push_back(user->host);
+		params.push_back(user->GetIPString());
 
 		SendSASL(params);
 	}
