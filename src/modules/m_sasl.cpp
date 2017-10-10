@@ -157,7 +157,7 @@ class SaslAuthenticator
 {
  private:
 	std::string agent;
-	User *user;
+	LocalUser* user;
 	SaslState state;
 	SaslResult result;
 	bool state_announced;
@@ -214,7 +214,7 @@ class SaslAuthenticator
 	}
 
  public:
-	SaslAuthenticator(User* user_, const std::string& method)
+	SaslAuthenticator(LocalUser* user_, const std::string& method)
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		SendHostIP();
@@ -225,14 +225,9 @@ class SaslAuthenticator
 		params.push_back("S");
 		params.push_back(method);
 
-		LocalUser* localuser = IS_LOCAL(user);
-		if (localuser)
-		{
-			std::string fp = SSLClientCert::GetFingerprint(&localuser->eh);
-
-			if (fp.size())
-				params.push_back(fp);
-		}
+		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
+		if (fp.size())
+			params.push_back(fp);
 
 		SendSASL(params);
 	}
@@ -340,19 +335,21 @@ class SaslAuthenticator
 	}
 };
 
-class CommandAuthenticate : public Command
+class CommandAuthenticate : public SplitCommand
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	Cap::Capability& cap;
 	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
-		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
+		: SplitCommand(Creator, "AUTHENTICATE", 1)
+		, authExt(ext)
+		, cap(Cap)
 	{
 		works_before_reg = true;
 		allow_empty_last_param = false;
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
 		{
 			if (!cap.get(user))
