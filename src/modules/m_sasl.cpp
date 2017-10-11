@@ -143,8 +143,14 @@ enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
 static Events::ModuleEventProvider* saslevprov;
 
-static void SendSASL(const parameterlist& params)
+static void SendSASL(LocalUser* user, const std::string& agent, char mode, const parameterlist& parameters)
 {
+	parameterlist params(parameters.size() + 3);
+	params.push_back(user->uuid);
+	params.push_back(agent);
+	params.push_back(ConvToStr(mode));
+	params.insert(params.end(), parameters.begin(), parameters.end());
+
 	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
 	{
 		FOREACH_MOD_CUSTOM(*saslevprov, SASLEventListener, OnSASLAuth, (params));
@@ -166,15 +172,10 @@ class SaslAuthenticator
 	void SendHostIP()
 	{
 		parameterlist params;
-		params.push_back(sasl_target);
-		params.push_back("SASL");
-		params.push_back(user->uuid);
-		params.push_back("*");
-		params.push_back("H");
 		params.push_back(user->host);
 		params.push_back(user->GetIPString());
 
-		SendSASL(params);
+		SendSASL(user, "*", 'H', params);
 	}
 
  public:
@@ -184,16 +185,13 @@ class SaslAuthenticator
 		SendHostIP();
 
 		parameterlist params;
-		params.push_back(user->uuid);
-		params.push_back("*");
-		params.push_back("S");
 		params.push_back(method);
 
 		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
 		if (fp.size())
 			params.push_back(fp);
 
-		SendSASL(params);
+		SendSASL(user, "*", 'S', params);
 	}
 
 	SaslResult GetSaslResult(const std::string &result_)
@@ -251,14 +249,7 @@ class SaslAuthenticator
 		if (this->state != SASL_COMM)
 			return true;
 
-		parameterlist params;
-		params.push_back(this->user->uuid);
-		params.push_back(this->agent);
-		params.push_back("C");
-
-		params.insert(params.end(), parameters.begin(), parameters.end());
-
-		SendSASL(params);
+		SendSASL(this->user, this->agent, 'C', parameters);
 
 		if (parameters[0].c_str()[0] == '*')
 		{
