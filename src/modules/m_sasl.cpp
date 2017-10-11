@@ -99,6 +99,15 @@ class SaslAuthenticator
 		params.push_back(host);
 		params.push_back(ip);
 
+		LocalUser* lu = IS_LOCAL(user);
+		if (lu)
+		{
+			// NOTE: SaslAuthenticator instances are only created for local
+			// users so this parameter will always be appended.
+			SocketCertificateRequest req(&lu->eh, ServerInstance->Modules->Find("m_sasl.so"));
+			params.push_back(req.cert ? "S" : "P");
+		}
+
 		SendSASL(params);
 	}
 
