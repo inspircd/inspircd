@@ -28,6 +28,9 @@
 
 enum
 {
+	// From ircd-hybrid?
+	ERR_NEEDREGGEDNICK = 477,
+
 	// From IRCv3 sasl-3.1.
 	RPL_LOGGEDIN = 900,
 	RPL_LOGGEDOUT = 901
@@ -216,7 +219,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, c->name, "You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, c->name, "You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
 		}
@@ -227,7 +230,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			if (u->IsModeSet(m3) && !is_registered)
 			{
 				// user messaging a +R user and is not registered
-				user->WriteNumeric(477, u->nick, "You need to be identified to a registered account to message this user");
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, u->nick, "You need to be identified to a registered account to message this user");
 				return MOD_RES_DENY;
 			}
 		}
@@ -282,7 +285,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 				if (!is_registered)
 				{
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, chan->name, "You need to be identified to a registered account to join this channel");
+					user->WriteNumeric(ERR_NEEDREGGEDNICK, chan->name, "You need to be identified to a registered account to join this channel");
 					return MOD_RES_DENY;
 				}
 			}
