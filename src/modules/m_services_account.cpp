@@ -26,6 +26,13 @@
 #include "modules/account.h"
 #include "modules/exemption.h"
 
+enum
+{
+	// From IRCv3 sasl-3.1.
+	RPL_LOGGEDIN = 900,
+	RPL_LOGGEDOUT = 901
+};
+
 /** Channel mode +r - mark a channel as identified
  */
 class Channel_r : public ModeHandler
@@ -124,15 +131,19 @@ class AccountExtItemImpl : public AccountExtItem
 		if (format == FORMAT_INTERNAL)
 			return;
 
-		if (!value.empty())
+		if (IS_LOCAL(user))
 		{
-			// Logged in
-			if (IS_LOCAL(user))
+			if (value.empty())
 			{
-				user->WriteNumeric(900, user->GetFullHost(), value, InspIRCd::Format("You are now logged in as %s", value.c_str()));
+				// Logged out.
+				user->WriteNumeric(RPL_LOGGEDOUT, user->GetFullHost(), "You are now logged out");
+			}
+			else
+			{
+				// Logged in.
+				user->WriteNumeric(RPL_LOGGEDIN, user->GetFullHost(), value, InspIRCd::Format("You are now logged in as %s", value.c_str()));
 			}
 		}
-		// If value is empty then logged out
 
 		FOREACH_MOD_CUSTOM(eventprov, AccountEventListener, OnAccountChange, (user, value));
 	}
