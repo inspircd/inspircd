@@ -30,6 +30,7 @@ enum
 	// From IRCv3 sasl-3.1
 	RPL_SASLSUCCESS = 903,
 	ERR_SASLFAIL = 904,
+	ERR_SASLTOOLONG = 905,
 	ERR_SASLABORTED = 906,
 	RPL_SASLMECHS = 908
 };
@@ -295,6 +296,10 @@ class SaslAuthenticator
 
 class CommandAuthenticate : public SplitCommand
 {
+ private:
+	 // The maximum length of an AUTHENTICATE request.
+	 static const size_t MAX_AUTHENTICATE_SIZE = 400;
+
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	Cap::Capability& cap;
@@ -315,6 +320,12 @@ class CommandAuthenticate : public SplitCommand
 
 			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
 				return CMD_FAILURE;
+
+			if (parameters[0].length() > MAX_AUTHENTICATE_SIZE)
+			{
+				user->WriteNumeric(ERR_SASLTOOLONG, "SASL message too long");
+				return CMD_FAILURE;
+			}
 
 			SaslAuthenticator *sasl = authExt.get(user);
 			if (!sasl)
