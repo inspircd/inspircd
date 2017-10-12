@@ -107,7 +107,7 @@ class CommandWebIRC : public SplitCommand
 						realip.set(user, user->GetIPString());
 
 						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
-						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost);
+						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost) && (parameters[2].find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)

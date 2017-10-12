@@ -174,6 +174,7 @@ class SaslAuthenticator
 		parameterlist params;
 		params.push_back(user->host);
 		params.push_back(user->GetIPString());
+		params.push_back(SSLIOHook::IsSSL(&user->eh) ? "S" : "P");
 
 		SendSASL(user, "*", 'H', params);
 	}

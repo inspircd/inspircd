@@ -1694,7 +1694,7 @@
 # as shown below:                                                     #
 #<securehost exception="*@*.netsplit.de">
 #<securehost exception="*@*.ircdriven.com">
-#<securehost exception="*@*.irc-source.com">
+#<securehost exception="*@*.ircs.me">
 #                                                                     #
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
@@ -1826,7 +1826,7 @@
 # You can optionally let the user know that their command was blocked.
 #
 # You may also let SHUN affect opers (defaults to no).
-#<shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
+#<shun enabledcommands="ADMIN PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL channel mode module: Adds support for SSL-only channels via
@@ -1899,7 +1899,7 @@
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
 # databases through a unified API.                                    #
 # This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras=m_sqlite.cpp
+# ./configure --enable-extras=m_sqlite3.cpp
 # and run make install, then uncomment this module to enable it.      #
 #
 #<module name="sqlite3">
