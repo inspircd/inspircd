@@ -29,7 +29,7 @@
 /// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
 /// $PackageInfo: require_system("ubuntu" "1.0" "13.10") libgcrypt11-dev
-/// $PackageInfo: require_system("ubuntu" "14.04") gnutls-bin libgnutls-dev pkg-config
+/// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls-dev pkg-config
 
 #include "inspircd.h"
 #include "modules/ssl.h"
