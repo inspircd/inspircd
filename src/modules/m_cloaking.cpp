@@ -143,6 +143,7 @@ class ModuleCloaking : public Module
 	std::string prefix;
 	std::string suffix;
 	std::string key;
+	unsigned int domainparts;
 	dynamic_reference<HashProvider> Hash;
 
 	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), ck(this), Hash(this, "hash/md5")
@@ -160,7 +161,7 @@ class ModuleCloaking : public Module
 	 */
 	std::string LastTwoDomainParts(const std::string &host)
 	{
-		int dots = 0;
+		unsigned int dots = 0;
 		std::string::size_type splitdot = host.length();
 
 		for (std::string::size_type x = host.length() - 1; x; --x)
@@ -170,7 +171,7 @@ class ModuleCloaking : public Module
 				splitdot = x;
 				dots++;
 			}
-			if (dots >= 3)
+			if (dots >= domainparts)
 				break;
 		}
 
@@ -314,7 +315,15 @@ class ModuleCloaking : public Module
 			switch (mode)
 			{
 				case MODE_HALF_CLOAK:
-					testcloak = prefix + SegmentCloak("*", 3, 8) + suffix;
+					// Use old cloaking verification to stay compatible with 2.0
+					// But verify domainparts when use 3.0-only features
+					if (domainparts == 3)
+						testcloak = prefix + SegmentCloak("*", 3, 8) + suffix;
+					else
+					{
+						irc::sockets::sockaddrs sa;
+						testcloak = GenCloak(sa, "", testcloak + ConvToStr(domainparts));
+					}
 					break;
 				case MODE_OPAQUE:
 					testcloak = prefix + SegmentCloak("*", 4, 8) + suffix;
@@ -331,7 +340,10 @@ class ModuleCloaking : public Module
 
 		std::string modestr = tag->getString("mode");
 		if (modestr == "half")
+		{
 			mode = MODE_HALF_CLOAK;
+			domainparts = tag->getInt("domainparts", 3, 1, 10);
+		}
 		else if (modestr == "full")
 			mode = MODE_OPAQUE;
 		else

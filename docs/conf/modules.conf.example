@@ -481,9 +481,12 @@
 #                                                                     #
 # There are two methods of cloaking:                                  #
 #                                                                     #
-#   half           Cloak only the "unique" portion of a host; show    #
-#                  the last 2 parts of the domain, /16 subnet of IPv4 #
-#                  or /48 subnet of the IPv6 address.                 #
+#   half           Cloak only the "unique" portion of a host; by      #
+#                  default show the last 2 parts of the domain,       #
+#                  /16 subnet of IPv4 or /48 subnet of the IPv6       #
+#                  address.                                           #
+#                  To change the number of shown parts, modify the    #
+#                  domainparts option.                                #
 #                                                                     #
 #   full           Cloak the users completely, using three slices for #
 #                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64). #
@@ -494,6 +497,7 @@
 #
 #<cloak mode="half"
 #       key="secret"
+#       domainparts="3"
 #       prefix="net-">
 
 #-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
