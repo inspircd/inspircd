@@ -41,18 +41,20 @@ class WebIRCHost
  private:
 	const std::string hostmask;
 	const std::string password;
+	const std::string passhash;
 
  public:
-	WebIRCHost(const std::string& mask, const std::string& pass)
+	WebIRCHost(const std::string& mask, const std::string& pass, const std::string& hash)
 		: hostmask(mask)
 		, password(pass)
+		, passhash(hash)
 	{
 	}
 
 	bool Matches(LocalUser* user, const std::string& pass) const
 	{
 		// Did the user send a valid password?
-		if (!InspIRCd::TimingSafeCompare(password, pass))
+		if (!ServerInstance->PassCompare(user, password, pass, passhash))
 			return false;
 
 		// Does the user's hostname match our hostmask?
@@ -294,7 +296,7 @@ public:
 				if (password.empty())
 					throw ModuleException("When using <cgihost type=\"webirc\"> the password field is required, at " + tag->getTagLocation());
 
-				webirchosts.push_back(WebIRCHost(mask, password));
+				webirchosts.push_back(WebIRCHost(mask, password, tag->getString("hash")));
 			}
 			else
 			{
