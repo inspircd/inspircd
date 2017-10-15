@@ -24,8 +24,8 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 #include "modules/dns.h"
+#include "modules/ssl.h"
 
 enum
 {
@@ -45,12 +45,14 @@ class WebIRCHost
 {
  private:
 	const std::string hostmask;
+	const std::string fingerprint;
 	const std::string password;
 	const std::string passhash;
 
  public:
-	WebIRCHost(const std::string& mask, const std::string& pass, const std::string& hash)
+	WebIRCHost(const std::string& mask, const std::string& fp, const std::string& pass, const std::string& hash)
 		: hostmask(mask)
+		, fingerprint(fp)
 		, password(pass)
 		, passhash(hash)
 	{
@@ -59,7 +61,12 @@ class WebIRCHost
 	bool Matches(LocalUser* user, const std::string& pass) const
 	{
 		// Did the user send a valid password?
-		if (!ServerInstance->PassCompare(user, password, pass, passhash))
+		if (!password.empty() && !ServerInstance->PassCompare(user, password, pass, passhash))
+			return false;
+
+		// Does the user have a valid fingerprint?
+		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
+		if (!fingerprint.empty() && fp != fingerprint)
 			return false;
 
 		// Does the user's hostname match our hostmask?
@@ -293,13 +300,14 @@ public:
 			else if (stdalgo::string::equalsci(type, "webirc"))
 			{
 				// The IP address will be received via the WEBIRC command.
+				const std::string fingerprint = tag->getString("fingerprint");
 				const std::string password = tag->getString("password");
 
 				// WebIRC blocks require a password.
-				if (password.empty())
-					throw ModuleException("When using <cgihost type=\"webirc\"> the password field is required, at " + tag->getTagLocation());
+				if (fingerprint.empty() && password.empty())
+					throw ModuleException("When using <cgihost type=\"webirc\"> either the fingerprint or password field is required, at " + tag->getTagLocation());
 
-				webirchosts.push_back(WebIRCHost(mask, password, tag->getString("hash")));
+				webirchosts.push_back(WebIRCHost(mask, fingerprint, password, tag->getString("hash")));
 			}
 			else
 			{
