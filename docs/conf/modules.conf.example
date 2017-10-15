@@ -314,40 +314,58 @@
 #<include file="examples/censor.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CGI:IRC module: Adds support for automatic host changing in CGI:IRC
-# (http://cgiirc.sourceforge.net).
-# Adds snomask +w for monitoring CGI:IRC connections.
+# CGI:IRC module: Enables forwarding the IP/host information from web
+# gateways to the IRC server.
 #<module name="cgiirc">
 #
 #-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# Optional - If you specify to use cgiirc, then you must specify one
-# or more cgihost tags which indicate authorised CGI:IRC servers which
-# will be connecting to your network, and an optional cgiirc tag.
-# For more information see: http://wiki.inspircd.org/Modules/cgiirc
+# If you use the cgiirc module then you must specify the gateways which
+# are authorised to forward IP/host information to your server. There
+# are currently two ways to do this:
 #
-# Set to yes if you want to notice opers when CGI:IRC clients connect.
+# The webirc method is the recommended way to allow gateways to forward
+# IP/host information. When using this method the gateway sends a WEBIRC
+# message to the server on connection. For more details please read the
+# IRCv3 WebIRC specification at http://ircv3.net/specs/extensions/webirc.html.
+#
+# When using this method you must specify a wildcard mask or CIDR range
+# to allow gateway connections from and at least one of either a SSL
+# client certificate fingerprint for the gateway or a password to be
+# sent in the WEBIRC command.
+#
+# <cgihost type="webirc"
+#          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
+#          mask="192.0.2.0/24">
+# <cgihost type="webirc"
+#          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
+#          hash="bcrypt"
+#          mask="*.webirc.gateway.example.com">
+#
+# Alternatively if your gateway does not support sending the WEBIRC
+# message then you can configure InspIRCd to look for the client IP
+# address in the ident sent by the user. This is not recommended as it
+# only works with IPv4 connections.
+#
+# When using this method you must specify a wildcard mask or CIDR range to
+# allow gateway connections from.
+#
+# <cgihost type="ident" mask="198.51.100.0/24">
+# <cgihost type="ident" mask="*.ident.gateway.example.com">
+#
+# By default gateway connections are logged to the +w snomask. If you
+# do not want this to happen then you can uncomment this to disable it.
 # <cgiirc opernotice="no">
-#
-# The type field indicates where the module should get the real
-# client's IP address from, for further information, please see the
-# CGI:IRC documentation.
-#
-# Old style:
-# <cgihost type="ident" mask="otherbox.example.com"> # Get IP from ident
-# New style:
-# <cgihost type="webirc" password="foobar"
-#   mask="somebox.example.com">                      # Get IP from WEBIRC
-#
+
 # IMPORTANT NOTE:
 # ---------------
 #
-# When you connect CGI:IRC clients, there are two connect classes which
+# When you connect gateway clients, there are two connect classes which
 # apply to these clients. When the client initially connects, the connect
-# class which matches the CGI:IRC site's host is checked. Therefore you
-# must raise the maximum local/global clients for this ip as high as you
-# want to allow cgi clients. After the client has connected and is
-# determined to be a cgi:irc client, the class which matches the client's
+# class which matches the gateway site's host is checked. Therefore you
+# must raise the maximum local/global clients for this IP as high as you
+# want to allow gateway clients. After the client has connected and is
+# determined to be a gateway client, the class which matches the client's
 # real IP is then checked. You may set this class to a lower value, so that
 # the real IP of the client can still be restricted to, for example, 3
 # sessions maximum.

@@ -419,7 +419,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR);
+		return Version("Enables forwarding the IP/host information from a gateway to the IRC server", VF_VENDOR);
 	}
 };
 
