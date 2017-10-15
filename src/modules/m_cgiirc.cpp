@@ -27,8 +27,6 @@
 #include "xline.h"
 #include "modules/dns.h"
 
-enum CGItype { IDENT, WEBIRC };
-
 // We need this method up here so that it can be accessed from anywhere
 static void ChangeIP(User* user, const std::string& newip)
 {
@@ -37,21 +35,34 @@ static void ChangeIP(User* user, const std::string& newip)
 	ServerInstance->Users->AddClone(user);
 }
 
-/** Holds a CGI site's details
- */
-class CGIhost
+// Encapsulates information about a WebIRC host.
+class WebIRCHost
 {
-public:
-	std::string hostmask;
-	CGItype type;
-	std::string password;
+ private:
+	const std::string hostmask;
+	const std::string password;
 
-	CGIhost(const std::string &mask, CGItype t, const std::string &spassword)
-	: hostmask(mask), type(t), password(spassword)
+ public:
+	WebIRCHost(const std::string& mask, const std::string& pass)
+		: hostmask(mask)
+		, password(pass)
 	{
 	}
+
+	bool Matches(LocalUser* user, const std::string& pass) const
+	{
+		// Did the user send a valid password?
+		if (!InspIRCd::TimingSafeCompare(password, pass))
+			return false;
+
+		// Does the user's hostname match our hostmask?
+		if (InspIRCd::Match(user->host, hostmask, ascii_case_insensitive_map))
+			return true;
+
+		// Does the user's IP address match our hostmask?
+		return InspIRCd::MatchCIDR(user->GetIPString(), hostmask, ascii_case_insensitive_map);
+	}
 };
-typedef std::vector<CGIhost> CGIHostlist;
 
 /*
  * WEBIRC
@@ -67,12 +78,12 @@ typedef std::vector<CGIhost> CGIHostlist;
 class CommandWebIRC : public SplitCommand
 {
  public:
+	std::vector<WebIRCHost> hosts;
 	bool notify;
 	StringExtItem gateway;
 	StringExtItem realhost;
 	StringExtItem realip;
 
-	CGIHostlist Hosts;
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
 		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
@@ -96,11 +107,13 @@ class CommandWebIRC : public SplitCommand
 				return CMD_FAILURE;
 			}
 
-			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
+			for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 			{
-				if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
+				// If we don't match the host then skip to the next host.
+				if (!iter->Matches(user, parameters[0]))
+					continue;
+
 				{
-					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
 						gateway.set(user, parameters[1]);
 						realhost.set(user, user->host);
@@ -198,6 +211,7 @@ class ModuleCgiIRC : public Module
 	CommandWebIRC cmd;
 	LocalIntExt waiting;
 	dynamic_reference<DNS::Manager> DNS;
+	std::vector<std::string> hosts;
 
 	static void RecheckClass(LocalUser* user)
 	{
@@ -251,47 +265,49 @@ public:
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		cmd.Hosts.clear();
-
-		// Do we send an oper notice when a CGI:IRC has their host changed?
-		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		std::vector<std::string> identhosts;
+		std::vector<WebIRCHost> webirchosts;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			std::string hostmask = tag->getString("mask"); // An allowed CGI:IRC host
-			std::string type = tag->getString("type"); // What type of user-munging we do on this host.
-			std::string password = tag->getString("password");
 
-			if(hostmask.length())
+			// Ensure that we have the <cgihost:mask> parameter.
+			const std::string mask = tag->getString("mask");
+			if (mask.empty())
+				throw ModuleException("<cgihost:mask> is a mandatory field, at " + tag->getTagLocation());
+
+			// Determine what lookup type this host uses.
+			const std::string type = tag->getString("type");
+			if (stdalgo::string::equalsci(type, "ident"))
 			{
-				if (type == "webirc" && password.empty())
-				{
-					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Missing password in config: %s", hostmask.c_str());
-				}
-				else
-				{
-					CGItype cgitype;
-					if (type == "ident")
-						cgitype = IDENT;
-					else if (type == "webirc")
-						cgitype = WEBIRC;
-					else
-					{
-						cgitype = IDENT;
-						ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid <cgihost:type> value in config: %s, setting it to \"ident\"", type.c_str());
-					}
+				// The IP address should be looked up from the hex IP address.
+				identhosts.push_back(mask);
+			}
+			else if (stdalgo::string::equalsci(type, "webirc"))
+			{
+				// The IP address will be received via the WEBIRC command.
+				const std::string password = tag->getString("password");
 
-					cmd.Hosts.push_back(CGIhost(hostmask, cgitype, password));
-				}
+				// WebIRC blocks require a password.
+				if (password.empty())
+					throw ModuleException("When using <cgihost type=\"webirc\"> the password field is required, at " + tag->getTagLocation());
+
+				webirchosts.push_back(WebIRCHost(mask, password));
 			}
 			else
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
-				continue;
+				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->getTagLocation()); 
 			}
 		}
+
+		// The host configuration was valid so we can apply it.
+		hosts.swap(identhosts);
+		cmd.hosts.swap(webirchosts);
+
+		// Do we send an oper notice when a m_cgiirc client has their IP/host changed?
+		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
 	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
@@ -333,22 +349,14 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
+		for (std::vector<std::string>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
-			if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
-			{
-				// Deal with it...
-				if(iter->type == IDENT)
-				{
-					CheckIdent(user); // Nothing on failure.
-					user->CheckLines(true);
-				}
-				else if(iter->type == WEBIRC)
-				{
-					// We don't need to do anything here
-				}
-				return MOD_RES_PASSTHRU;
-			}
+			if (!InspIRCd::Match(user->host, *iter, ascii_case_insensitive_map) && !InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+				continue;
+
+			CheckIdent(user); // Nothing on failure.
+			user->CheckLines(true);
+			break;
 		}
 		return MOD_RES_PASSTHRU;
 	}
