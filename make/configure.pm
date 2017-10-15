@@ -90,7 +90,6 @@ sub __get_template_settings($$$) {
 	$settings{CONFIGURE_DIRECTORY} = CONFIGURE_DIRECTORY;
 	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
 	$settings{SYSTEM_NAME} = lc $^O;
-	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
 
 	return %settings;
 }

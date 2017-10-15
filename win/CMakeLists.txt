@@ -12,9 +12,6 @@ set(EXTRA_LIBS "" CACHE PATH "Extra library paths")
 
 set(INSPIRCD_BASE "${CMAKE_CURRENT_SOURCE_DIR}/../")
 
-set(SYSTEM_NAME_VERSION ${CMAKE_SYSTEM})
-set(SOCKETENGINE "select")
-
 # Build with multiple processes
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
