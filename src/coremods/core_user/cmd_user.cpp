@@ -45,11 +45,6 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 		}
 		else
 		{
-			/*
-			 * The ident field is IDENTMAX+2 in size to account for +1 for the optional
-			 * ~ character, and +1 for null termination, therefore we can safely use up to
-			 * IDENTMAX here.
-			 */
 			user->ChangeIdent(parameters[0]);
 			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
 			user->registered = (user->registered | REG_USER);
