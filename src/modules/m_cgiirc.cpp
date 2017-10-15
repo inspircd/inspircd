@@ -44,10 +44,10 @@ static void ChangeIP(User* user, const std::string& newip)
 class WebIRCHost
 {
  private:
-	const std::string hostmask;
-	const std::string fingerprint;
-	const std::string password;
-	const std::string passhash;
+	std::string hostmask;
+	std::string fingerprint;
+	std::string password;
+	std::string passhash;
 
  public:
 	WebIRCHost(const std::string& mask, const std::string& fp, const std::string& pass, const std::string& hash)
