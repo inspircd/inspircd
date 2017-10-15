@@ -91,58 +91,55 @@ class CommandWebIRC : public SplitCommand
 		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
 		, realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
 		, realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
+	{
+		allow_empty_last_param = false;
+		works_before_reg = true;
+		this->syntax = "password gateway hostname ip";
+	}
+
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->registered == REG_ALL)
+			return CMD_FAILURE;
+
+		irc::sockets::sockaddrs ipaddr;
+		if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
 		{
-			allow_empty_last_param = false;
-			works_before_reg = true;
-			this->syntax = "password gateway hostname ip";
-		}
-		CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
-		{
-			if(user->registered == REG_ALL)
-				return CMD_FAILURE;
-
-			irc::sockets::sockaddrs ipaddr;
-			if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
-			{
-				user->CommandFloodPenalty += 5000;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
-				return CMD_FAILURE;
-			}
-
-			for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
-			{
-				// If we don't match the host then skip to the next host.
-				if (!iter->Matches(user, parameters[0]))
-					continue;
-
-				{
-					{
-						gateway.set(user, parameters[1]);
-						realhost.set(user, user->host);
-						realip.set(user, user->GetIPString());
-
-						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
-						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost) && (parameters[2].find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
-						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
-
-						if (notify)
-							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
-
-						// Where the magic happens - change their IP
-						ChangeIP(user, parameters[3]);
-						// And follow this up by changing their host
-						user->host = user->dhost = newhost;
-						user->InvalidateCache();
-
-						return CMD_SUCCESS;
-					}
-				}
-			}
-
 			user->CommandFloodPenalty += 5000;
-			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
+
+		// If the hostname is malformed then we use the IP address instead.
+		bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost) && (parameters[2].find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
+		const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
+
+		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
+		{
+			// If we don't match the host then skip to the next host.
+			if (!iter->Matches(user, parameters[0]))
+				continue;
+
+			// The user matched a WebIRC block!
+			gateway.set(user, parameters[1]);
+			realhost.set(user, user->host);
+			realip.set(user, user->GetIPString());
+
+			if (notify)
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using a WebIRC gateway; changing their IP/host from %s/%s to %s/%s.",
+					user->nick.c_str(), user->GetIPString().c_str(), user->host.c_str(), parameters[3].c_str(), newhost.c_str());
+
+			// Set the IP address and hostname sent via WEBIRC.
+			ChangeIP(user, parameters[3]);
+			user->host = user->dhost = newhost;
+			user->InvalidateCache();
+			return CMD_SUCCESS;
+		}
+
+		user->CommandFloodPenalty += 5000;
+		ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC but didn't match any configured WebIRC hosts.", user->GetFullRealHost().c_str());
+		return CMD_FAILURE;
+	}
 };
 
 
