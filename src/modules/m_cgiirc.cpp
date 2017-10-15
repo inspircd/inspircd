@@ -27,6 +27,11 @@
 #include "xline.h"
 #include "modules/dns.h"
 
+enum
+{
+	RPL_WHOISGATEWAY = 350
+};
+
 // We need this method up here so that it can be accessed from anywhere
 static void ChangeIP(User* user, const std::string& newip)
 {
@@ -205,7 +210,7 @@ class CGIResolver : public DNS::Request
 	}
 };
 
-class ModuleCgiIRC : public Module
+class ModuleCgiIRC : public Module, public Whois::EventListener
 {
 	CommandWebIRC cmd;
 	LocalIntExt waiting;
@@ -251,7 +256,8 @@ class ModuleCgiIRC : public Module
 
 public:
 	ModuleCgiIRC()
-		: cmd(this)
+		: Whois::EventListener(this)
+		, cmd(this)
 		, waiting("cgiirc-delay", ExtensionItem::EXT_USER, this)
 		, DNS(this, "DNS")
 	{
@@ -358,6 +364,24 @@ public:
 			break;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	{
+		if (!whois.IsSelfWhois() && !whois.GetSource()->HasPrivPermission("users/auspex"))
+			return;
+
+		// If these fields are not set then the client is not using a gateway.
+		const std::string* realhost = cmd.realhost.get(whois.GetTarget());
+		const std::string* realip = cmd.realip.get(whois.GetTarget());
+		if (!realhost || !realip)
+			return;
+
+		const std::string* gateway = cmd.gateway.get(whois.GetTarget());
+		if (gateway)
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
+		else
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an ident gateway");
 	}
 
 	bool CheckIdent(LocalUser* user)
