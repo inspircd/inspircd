@@ -120,7 +120,11 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 
 /** A hash of commands used by the core
  */
-typedef nspace::hash_map<std::string,Command*> Commandtable;
+#ifdef HASHMAP_DEPRECATED
+	typedef nspace::hash_map<std::string, Command*, nspace::insensitive, irc::StrHashComp> Commandtable;
+#else
+	typedef nspace::hash_map<std::string, Command*, nspace::hash<std::string>, irc::StrHashComp> Commandtable;
+#endif
 
 /** Membership list of a channel */
 typedef std::map<User*, Membership*> UserMembList;
