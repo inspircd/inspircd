@@ -184,6 +184,11 @@ class CoreExport OperInfo : public refcountbase
 	/** Name of the oper type; i.e. the one shown in WHOIS */
 	std::string name;
 
+	/** Creates a new OperInfo with the specified oper type name.
+	 * @param Name The name of the oper type.
+	 */
+	OperInfo(const std::string& Name);
+
 	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
 	std::string getConfig(const std::string& key);
 	void init();

@@ -39,10 +39,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else
-	{
-		u->oper = new OperInfo;
-		u->oper->name = opertype;
-	}
+		u->oper = new OperInfo(opertype);
 
 	if (Utils->quiet_bursts)
 	{

@@ -507,6 +507,11 @@ ConfigTag::ConfigTag(const std::string& Tag, const std::string& file, int line)
 {
 }
 
+OperInfo::OperInfo(const std::string& Name)
+	: name(Name)
+{
+}
+
 std::string OperInfo::getConfig(const std::string& key)
 {
 	std::string rv;

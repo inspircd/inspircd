@@ -158,9 +158,8 @@ void ServerConfig::CrossCheckOperClassType()
 		if (OperTypes.find(name) != OperTypes.end())
 			throw CoreException("Duplicate type block with name " + name + " at " + tag->getTagLocation());
 
-		OperInfo* ifo = new OperInfo;
+		OperInfo* ifo = new OperInfo(name);
 		OperTypes[name] = ifo;
-		ifo->name = name;
 		ifo->type_block = tag;
 
 		std::string classname;
@@ -190,8 +189,7 @@ void ServerConfig::CrossCheckOperClassType()
 		if (oper_blocks.find(name) != oper_blocks.end())
 			throw CoreException("Duplicate oper block with name " + name + " at " + tag->getTagLocation());
 
-		OperInfo* ifo = new OperInfo;
-		ifo->name = type;
+		OperInfo* ifo = new OperInfo(type);
 		ifo->oper_block = tag;
 		ifo->type_block = tblk->second->type_block;
 		ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
