@@ -92,22 +92,27 @@ static void ValidHost(const std::string& p, const std::string& msg)
 		throw CoreException("The value of "+msg+" is not a valid hostname");
 }
 
-bool ServerConfig::ApplyDisabledCommands(const std::string& data)
+bool ServerConfig::ApplyDisabledCommands()
 {
-	std::stringstream dcmds(data);
-	std::string thiscmd;
-
-	/* Enable everything first */
+	// Enable everything first.
 	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
 	for (CommandParser::CommandMap::const_iterator x = commands.begin(); x != commands.end(); ++x)
 		x->second->Disable(false);
 
-	/* Now disable all the ones which the user wants disabled */
-	while (dcmds >> thiscmd)
+	// Now disable the commands specified in the config.
+	std::string command;
+	irc::spacesepstream commandlist(ConfValue("disabled")->getString("commands"));
+	while (commandlist.GetToken(command))
 	{
-		Command* handler = ServerInstance->Parser.GetHandler(thiscmd);
-		if (handler)
-			handler->Disable(true);
+		Command* handler = ServerInstance->Parser.GetHandler(command);
+		if (!handler)
+		{
+			ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Unable to disable the %s command as it does not exist!", command.c_str());
+			continue;
+		}
+
+		ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "The %s command has been disabled", command.c_str());
+		handler->Disable(true);
 	}
 	return true;
 }
@@ -423,7 +428,6 @@ void ServerConfig::Fill()
 	ServerDesc = server->getString("description", "Configure Me");
 	Network = server->getString("network", "Network");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
-	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion");
@@ -808,7 +812,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->XLines->ApplyLines();
 		ChanModeReference ban(NULL, "ban");
 		static_cast<ListModeBase*>(*ban)->DoRehash();
-		Config->ApplyDisabledCommands(Config->DisabledCommands);
+		Config->ApplyDisabledCommands();
 		User* user = ServerInstance->FindNick(TheUserUID);
 
 		ConfigStatus status(user);

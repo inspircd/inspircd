@@ -311,12 +311,6 @@ class CoreExport ServerConfig
 	 */
 	bool DisabledDontExist;
 
-	/** This variable contains a space-seperated list
-	 * of commands which are disabled by the
-	 * administrator of the server for non-opers.
-	 */
-	std::string DisabledCommands;
-
 	/** This variable identifies which usermodes have been diabled.
 	 */
 	std::bitset<64> DisabledUModes;
@@ -484,7 +478,8 @@ class CoreExport ServerConfig
 
 	void Fill();
 
-	bool ApplyDisabledCommands(const std::string& data);
+	/** Disables the commands specified in <disabled:commands>. */
+	bool ApplyDisabledCommands();
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.
