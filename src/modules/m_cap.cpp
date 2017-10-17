@@ -120,7 +120,7 @@ class CommandCAP : public Command
 		}
 		else
 		{
-			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "%s %s :Invalid CAP subcommand", user->nick.c_str(), subcommand.c_str());
+			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "%s %s :Invalid CAP subcommand", user->nick.c_str(), subcommand.empty() ? "*" : subcommand.c_str());
 			return CMD_FAILURE;
 		}
 
