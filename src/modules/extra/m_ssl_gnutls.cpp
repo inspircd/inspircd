@@ -1333,9 +1333,9 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
 
-	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
 	{
-		if(target_type == TYPE_USER)
+		if (type == ExtensionItem::EXT_USER)
 		{
 			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 

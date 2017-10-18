@@ -649,16 +649,15 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnExpireLine(XLine *line);
 
-	/** Called before your module is unloaded to clean up Extensibles.
-	 * This method is called once for every user and channel on the network,
-	 * so that when your module unloads it may clear up any remaining data
-	 * in the form of Extensibles added using Extensible::Extend().
-	 * If the target_type variable is TYPE_USER, then void* item refers to
-	 * a User*, otherwise it refers to a Channel*.
-	 * @param target_type The type of item being cleaned
-	 * @param item A pointer to the item's class
+	/** Called before the module is unloaded to clean up extensibles.
+	 * This method is called once for every channel, membership, and user.
+	 * so that you can clear up any data relating to the specified extensible.
+	 * @param type The type of extensible being cleaned up. If this is EXT_CHANNEL
+	 *             then item is a Channel*, EXT_MEMBERSHIP then item is a Membership*,
+	 *             and EXT_USER then item is a User*.
+	 * @param item A pointer to the extensible which is being cleaned up.
 	 */
-	virtual void OnCleanup(int target_type, void* item);
+	virtual void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should

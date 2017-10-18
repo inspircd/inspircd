@@ -386,9 +386,9 @@ class ModuleWebSocket : public Module
 		sha1 = &hash;
 	}
 
-	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_USER)
+		if (type != ExtensionItem::EXT_USER)
 			return;
 
 		LocalUser* user = IS_LOCAL(static_cast<User*>(item));

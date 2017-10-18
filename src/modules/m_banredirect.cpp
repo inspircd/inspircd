@@ -239,9 +239,9 @@ class ModuleBanRedirect : public Module
 	{
 	}
 
-	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
 	{
-		if(target_type == TYPE_CHANNEL)
+		if (type == ExtensionItem::EXT_CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
 			BanRedirectList* redirects = re.extItem.get(chan);
