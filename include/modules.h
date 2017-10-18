@@ -35,14 +35,23 @@
 #include "timer.h"
 #include "mode.h"
 
-/** Used to define a set of behavior bits for a module
- */
-enum ModuleFlags {
-	VF_NONE = 0,		// module is not special at all
-	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
-	VF_COMMON = 4,		// module needs to be common on all servers in a network to link
-	VF_OPTCOMMON = 8,	// module should be common on all servers for unsurprising behavior
-	VF_CORE = 16		// module is a core command, can be assumed loaded on all servers
+/** Used to specify the behaviour of a module. */
+enum ModuleFlags
+{
+	/** The module has no special attributes. */
+	VF_NONE = 0,
+
+	/** The module is a coremod and can be assumed to be loaded on all servers. */
+	VF_CORE = 1,
+
+	/* The module is included with InspIRCd. */
+	VF_VENDOR = 2,
+
+	/** The module MUST be loaded on all servers on a network to link. */
+	VF_COMMON = 4,
+
+	/** The module SHOULD be loaded on all servers on a network for consistency. */
+	VF_OPTCOMMON = 8
 };
 
 /** Used to represent an event type, for user, channel or server
