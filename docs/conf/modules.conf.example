@@ -633,7 +633,8 @@
 # rank       A numeric rank for this prefix, defining what permissions it gives.
 #            The rank of voice, halfop and op is 10000, 20000, and 30000,
 #            respectively.
-# ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
+# ranktoset  The numeric rank required to set this mode. Defaults to rank.
+# ranktounset The numeric rank required to unset this mode. Defaults to ranktoset.
 # depriv     Can you remove the mode from yourself? Defaults to yes.
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
 #<customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">

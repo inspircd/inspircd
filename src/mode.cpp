@@ -27,9 +27,16 @@
 #include "builtinmodes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
-	: ServiceProvider(Creator, Name, SERVICE_MODE), modeid(ModeParser::MODEID_MAX),
-	parameters_taken(Params), mode(modeletter), oper(false),
-	list(false), m_type(type), type_id(mclass), levelrequired(HALFOP_VALUE)
+	: ServiceProvider(Creator, Name, SERVICE_MODE)
+	, modeid(ModeParser::MODEID_MAX)
+	, parameters_taken(Params)
+	, mode(modeletter)
+	, oper(false)
+	, list(false)
+	, m_type(type)
+	, type_id(mclass)
+	, ranktoset(HALFOP_VALUE)
+	, ranktounset(HALFOP_VALUE)
 {
 }
 
@@ -237,7 +244,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			return MODEACTION_DENY;
 		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
-			unsigned int neededrank = mh->GetLevelRequired();
+			unsigned int neededrank = mh->GetLevelRequired(adding);
 			/* Compare our rank on the channel against the rank of the required prefix,
 			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
 			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed

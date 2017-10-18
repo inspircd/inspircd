@@ -28,7 +28,7 @@ class AuditoriumMode : public SimpleChannelModeHandler
  public:
 	AuditoriumMode(Module* Creator) : SimpleChannelModeHandler(Creator, "auditorium", 'u')
 	{
-		levelrequired = OP_VALUE;
+		ranktoset = ranktounset = OP_VALUE;
 	}
 };
 

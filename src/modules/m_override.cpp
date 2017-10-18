@@ -42,7 +42,7 @@ class ModuleOverride : public Module
 		for (Modes::ChangeList::List::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			ModeHandler* mh = i->mh;
-			if (mh->GetLevelRequired() > userlevel)
+			if (mh->GetLevelRequired(i->adding) > userlevel)
 				return true;
 		}
 		return false;

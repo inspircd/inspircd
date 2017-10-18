@@ -33,7 +33,7 @@ class OperPrefixMode : public PrefixMode
 			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
 			prefix = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!", 1, 1)[0];
-			levelrequired = INT_MAX;
+			ranktoset = ranktounset = UINT_MAX;
 		}
 };
 

@@ -28,7 +28,7 @@ class DelayJoinMode : public ModeHandler
  public:
 	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 	{
-		levelrequired = OP_VALUE;
+		ranktoset = ranktounset = OP_VALUE;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);

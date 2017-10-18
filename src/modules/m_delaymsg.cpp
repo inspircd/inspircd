@@ -27,7 +27,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 		: ParamMode<DelayMsgMode, LocalIntExt>(Parent, "delaymsg", 'd')
 		, jointime("delaymsg", ExtensionItem::EXT_MEMBERSHIP, Parent)
 	{
-		levelrequired = OP_VALUE;
+		ranktoset = ranktounset = OP_VALUE;
 	}
 
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)

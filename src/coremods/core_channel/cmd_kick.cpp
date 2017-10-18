@@ -104,8 +104,8 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
-				if (mh && mh->GetLevelRequired() > req)
-					req = mh->GetLevelRequired();
+				if (mh && mh->GetLevelRequired(true) > req)
+					req = mh->GetLevelRequired(true);
 			}
 
 			if (them < req)

@@ -66,7 +66,7 @@ class ModeChannelOp : public PrefixMode
 	ModeChannelOp()
 		: PrefixMode(NULL, "op", 'o', OP_VALUE, '@')
 	{
-		levelrequired = OP_VALUE;
+		ranktoset = ranktounset = OP_VALUE;
 	}
 };
 
@@ -78,7 +78,7 @@ class ModeChannelVoice : public PrefixMode
 	ModeChannelVoice()
 		: PrefixMode(NULL, "voice", 'v', VOICE_VALUE, '+')
 	{
-		levelrequired = HALFOP_VALUE;
+		ranktoset = ranktounset = HALFOP_VALUE;
 	}
 };
 

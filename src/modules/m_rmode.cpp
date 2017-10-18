@@ -50,7 +50,7 @@ class CommandRMode : public Command
 			return CMD_FAILURE;
 		}
 
-		if (chan->GetPrefixValue(user) < mh->GetLevelRequired())
+		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
 			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
 			return CMD_FAILURE;

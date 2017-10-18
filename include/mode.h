@@ -148,10 +148,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	const Class type_id;
 
-	/** The prefix char needed on channel to use this mode,
-	 * only checked for channel modes
-	 */
-	int levelrequired;
+	/** The prefix rank required to set this mode on channels. */
+	unsigned int ranktoset;
+
+	/** The prefix rank required to unset this mode on channels. */
+	unsigned int ranktounset;
 
  public:
 	/**
@@ -320,7 +321,13 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
-	inline unsigned int GetLevelRequired() const { return levelrequired; }
+	/** Retrieves the level required to modify this mode.
+	 * @param adding Whether the mode is being added or removed.
+	 */
+	inline unsigned int GetLevelRequired(bool adding) const
+	{
+		return adding ? ranktoset : ranktounset;
+	}
 
 	friend class ModeParser;
 };
@@ -616,7 +623,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 		/** If this flag is set then the mode change will be subject to access checks.
 		 * For more information see the documentation of the PrefixMode class,
-		 * ModeHandler::levelrequired and ModeHandler::AccessCheck().
+		 * ModeHandler::ranktoset and ModeHandler::AccessCheck().
 		 * Modules may explicitly allow a mode change regardless of this flag by returning
 		 * MOD_RES_ALLOW from the OnPreMode hook. Only affects channel mode changes.
 		 */

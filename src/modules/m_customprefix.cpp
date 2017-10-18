@@ -33,7 +33,8 @@ class CustomPrefixMode : public PrefixMode
 		prefix = v.c_str()[0];
 		v = tag->getString("letter");
 		mode = v.c_str()[0];
-		levelrequired = tag->getInt("ranktoset", prefixrank);
+		ranktoset = tag->getInt("ranktoset", prefixrank, prefixrank, UINT_MAX);
+		ranktounset = tag->getInt("ranktounset", ranktoset, ranktoset, UINT_MAX);
 		depriv = tag->getBool("depriv", true);
 	}
 
