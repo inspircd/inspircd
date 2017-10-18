@@ -137,15 +137,9 @@ export SOURCEPATH
 # Default target
 TARGET = all
 
-ifdef INSPIRCD_MODULE
+ifdef INSPIRCD_TARGET
     HEADER = mod-header
     FOOTER = mod-footer
-    TARGET = modules/$(INSPIRCD_MODULE:.so=).so
-endif
-
-ifdef INSPIRCD_TARGET
-    HEADER =
-    FOOTER = target
     TARGET = $(INSPIRCD_TARGET)
 endif
 
@@ -178,10 +172,10 @@ debug-header:
 
 mod-header:
 ifdef INSPIRCD_STATIC
-	@echo 'Cannot build single modules in pure-static build'
+	@echo 'Cannot build specific targets in pure-static build'
 	@exit 1
 endif
-	@echo 'Building single module:'
+	@echo 'Building specific targets:'
 
 mod-footer: target
 	@echo 'To install, copy $(BUILDPATH)/$(TARGET) to $(MODPATH)'
@@ -308,9 +302,7 @@ help:
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
-	@echo ' INSPIRCD_MODULE=m_foo   Builds a single module (core_foo also works here)'
-	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "modules"'
-	@echo '                         Other targets are specified by their path in the build directory'
+	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "core_dns"'
 	@echo '                         Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'

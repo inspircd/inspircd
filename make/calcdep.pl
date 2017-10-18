@@ -30,6 +30,8 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
+use File::Basename qw(basename);
+
 use constant {
 	BUILDPATH  => $ENV{BUILDPATH},
 	SOURCEPATH => $ENV{SOURCEPATH}
@@ -238,6 +240,10 @@ sub dep_so($) {
 	my($file) = @_;
 	my $out = find_output $file;
 
+	my $name = basename $out, '.so';
+	print MAKE ".PHONY: $name\n";
+	print MAKE "$name: $out\n";
+
 	dep_cpp $file, $out, 'gen-so';
 	return $out;
 }
@@ -255,6 +261,9 @@ sub dep_dir($$) {
 	closedir DIR;
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
+		my $name = basename $outdir;
+		print MAKE ".PHONY: $name\n";
+		print MAKE "$name: $outdir.so\n";
 		print MAKE "$outdir.so: $ofiles\n";
 		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir \$\@ ${\SOURCEPATH}/src/$dir \$^ \$>\n";
 		return 1;
