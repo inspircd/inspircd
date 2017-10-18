@@ -726,6 +726,10 @@ void ServerConfig::ApplyModules(User* user)
 
 	for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 	{
+		// Skip modules which are already loaded.
+		if (ServerInstance->Modules->Find(*adding))
+			continue;
+
 		if (ServerInstance->Modules->Load(*adding))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());

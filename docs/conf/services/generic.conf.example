@@ -1,6 +1,8 @@
 # This file contains aliases and nickname reservations which are used
 # by all common services implementations.
 
+<module name="alias">
+
 # Long hand aliases for services pseudoclients.
 <alias text="BOTSERV"  replace="PRIVMSG $requirement :$2-" requires="BotServ"  uline="yes">
 <alias text="CHANSERV" replace="PRIVMSG $requirement :$2-" requires="ChanServ" uline="yes">

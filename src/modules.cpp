@@ -468,10 +468,14 @@ void ModuleManager::LoadAll()
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		std::string name = tag->getString("name");
-		this->NewServices = &servicemap[ExpandModName(name)];
-		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
+		std::string name = ExpandModName(tag->getString("name"));
+		this->NewServices = &servicemap[name];
 
+		// Skip modules which are already loaded.
+		if (Modules.find(name) != Modules.end())
+			continue;
+
+		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 		if (!this->Load(name, true))
 		{
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
