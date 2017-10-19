@@ -52,12 +52,12 @@ class ModuleModesOnOper : public Module
 			smodes = "+" + smodes;
 
 		std::string buf;
-		std::stringstream ss(smodes);
+		irc::spacesepstream ss(smodes);
 		std::vector<std::string> modes;
 
 		modes.push_back(u->nick);
 		// split into modes and mode params
-		while (ss >> buf)
+		while (ss.GetToken(buf))
 			modes.push_back(buf);
 
 		ServerInstance->Parser.CallHandler("MODE", modes, u);

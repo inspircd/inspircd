@@ -47,13 +47,13 @@ class ModuleModesOnConnect : public Module
 		if (!ThisModes.empty())
 		{
 			std::string buf;
-			std::stringstream ss(ThisModes);
+			irc::spacesepstream ss(ThisModes);
 
 			std::vector<std::string> modes;
 			modes.push_back(user->nick);
 
 			// split ThisUserModes into modes and mode params
-			while (ss >> buf)
+			while (ss.GetToken(buf))
 				modes.push_back(buf);
 
 			ServerInstance->Parser.CallHandler("MODE", modes, user);

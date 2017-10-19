@@ -217,10 +217,10 @@ class ModuleShun : public Module
 
 		ShunEnabledCommands.clear();
 
-		std::stringstream dcmds(cmds);
+		irc::spacesepstream dcmds(cmds);
 		std::string thiscmd;
 
-		while (dcmds >> thiscmd)
+		while (dcmds.GetToken(thiscmd))
 		{
 			ShunEnabledCommands.insert(thiscmd);
 		}

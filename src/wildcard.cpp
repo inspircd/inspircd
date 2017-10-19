@@ -109,9 +109,9 @@ bool InspIRCd::MatchCIDR(const char* str, const char* mask, unsigned const char*
 
 bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr)
 {
-	std::stringstream masklist(masks);
+	irc::spacesepstream masklist(masks);
 	std::string mask;
-	while (masklist >> mask)
+	while (masklist.GetToken(mask))
 	{
 		if (InspIRCd::Match(hostname, mask, ascii_case_insensitive_map) ||
 			InspIRCd::MatchCIDR(ipaddr, mask, ascii_case_insensitive_map))
