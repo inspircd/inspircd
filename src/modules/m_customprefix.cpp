@@ -24,14 +24,11 @@ class CustomPrefixMode : public PrefixMode
  public:
 	reference<ConfigTag> tag;
 
-	CustomPrefixMode(Module* parent, ConfigTag* Tag)
-		: PrefixMode(parent, Tag->getString("name"), 0, Tag->getInt("rank"))
+	CustomPrefixMode(Module* parent, const std::string& Name, char Letter, char Prefix, ConfigTag* Tag)
+		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		std::string v = tag->getString("prefix");
-		prefix = v.c_str()[0];
-		v = tag->getString("letter");
-		mode = v.c_str()[0];
+		prefixrank = tag->getInt("rank", 0, 0, UINT_MAX);
 		ranktoset = tag->getInt("ranktoset", prefixrank, prefixrank, UINT_MAX);
 		ranktounset = tag->getInt("ranktounset", ranktoset, ranktoset, UINT_MAX);
 		selfremove = tag->getBool("depriv", true);
@@ -45,18 +42,25 @@ class ModuleCustomPrefix : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");
-		while (tags.first != tags.second)
+		for (ConfigIter iter = tags.first; iter != tags.second; ++iter)
 		{
-			ConfigTag* tag = tags.first->second;
-			tags.first++;
-			CustomPrefixMode* mh = new CustomPrefixMode(this, tag);
-			modes.push_back(mh);
-			if (mh->GetPrefixRank() == 0)
-				throw ModuleException("Rank must be specified for prefix at " + tag->getTagLocation());
-			if (!isalpha(mh->GetModeChar()))
-				throw ModuleException("Mode must be a letter for prefix at " + tag->getTagLocation());
+			ConfigTag* tag = iter->second;
+
+			const std::string name = tag->getString("name");
+			if (name.empty())
+				throw ModuleException("<customprefix:name> must be specified at " + tag->getTagLocation());
+
+			const std::string letter = tag->getString("letter");
+			if (letter.length() != 1)
+				throw ModuleException("<customprefix:letter> must be set to a mode character at " + tag->getTagLocation());
+
+			const std::string prefix = tag->getString("prefix");
+			if (prefix.length() != 1)
+				throw ModuleException("<customprefix:prefix> must be set to a mode prefix at " + tag->getTagLocation());
+
 			try
 			{
+				CustomPrefixMode* mh = new CustomPrefixMode(this, name, letter[0], prefix[0], tag);
 				ServerInstance->Modules->AddService(*mh);
 			}
 			catch (ModuleException& e)
