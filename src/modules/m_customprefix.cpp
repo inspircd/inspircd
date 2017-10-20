@@ -28,10 +28,14 @@ class CustomPrefixMode : public PrefixMode
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		prefixrank = tag->getInt("rank", 0, 0, UINT_MAX);
-		ranktoset = tag->getInt("ranktoset", prefixrank, prefixrank, UINT_MAX);
-		ranktounset = tag->getInt("ranktounset", ranktoset, ranktoset, UINT_MAX);
-		selfremove = tag->getBool("depriv", true);
+		long rank = tag->getInt("rank", 0, 0, UINT_MAX);
+		long setrank = tag->getInt("ranktoset", prefixrank, rank, UINT_MAX);
+		long unsetrank = tag->getInt("ranktounset", setrank, setrank, UINT_MAX);
+		bool depriv = tag->getBool("depriv", true);
+		this->Update(rank, setrank, unsetrank, depriv);
+
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Created the %s prefix: letter=%c prefix=%c rank=%u ranktoset=%u ranktounset=%i depriv=%d",
+			name.c_str(), GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false), CanSelfRemove());
 	}
 };
 
@@ -49,6 +53,27 @@ class ModuleCustomPrefix : public Module
 			const std::string name = tag->getString("name");
 			if (name.empty())
 				throw ModuleException("<customprefix:name> must be specified at " + tag->getTagLocation());
+
+			if (tag->getBool("change"))
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
+				if (!mh)
+					throw ModuleException("<customprefix:change> specified for a non-existent mode at " + tag->getTagLocation());
+
+				PrefixMode* pm = mh->IsPrefixMode();
+				if (!pm)
+					throw ModuleException("<customprefix:change> specified for a non-prefix mode at " + tag->getTagLocation());
+
+				long rank = tag->getInt("rank", pm->GetPrefixRank(), 0, UINT_MAX);
+				long setrank = tag->getInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX);
+				long unsetrank = tag->getInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX);
+				bool depriv = tag->getBool("depriv", pm->CanSelfRemove());
+				pm->Update(rank, setrank, unsetrank, depriv);
+
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Changed the %s prefix: depriv=%u rank=%u ranktoset=%u ranktounset=%u",
+					pm->name.c_str(), pm->CanSelfRemove(), pm->GetPrefixRank(), pm->GetLevelRequired(true), pm->GetLevelRequired(false));
+				continue;
+			}
 
 			const std::string letter = tag->getString("letter");
 			if (letter.length() != 1)

@@ -28,7 +28,7 @@ you searched for. Please try again.">
 -------------
 
 PRIVMSG   NOTICE   NICK      JOIN      PART
-CYCLE     KNOCK    MODE      DEVOICE   TOPIC
+CYCLE     KNOCK    MODE      OPER      TOPIC
 KICK      FPART    REMOVE    TBAN      INVITE
 UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
@@ -39,9 +39,7 @@ ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
 SSLINFO
 
-USER      PASS     PING     PONG       QUIT
-
-OPER">
+USER      PASS     PING     PONG       QUIT">
 
 <helpop key="sslinfo" value="/SSLINFO <nick>
 
@@ -117,10 +115,6 @@ E.g. /RMODE #Chan b m:* will remove all mute extbans.">
 
 This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
 which caused trouble for some users.">
-
-<helpop key="devoice" value="/DEVOICE <channel>
-
-Devoices yourself on the specified channel.">
 
 <helpop key="silence" value="/SILENCE - Shows a list of silenced masks
 /SILENCE +<mask> [<flags>] - Add a mask

@@ -624,7 +624,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Custom prefixes: Allows for channel prefixes to be added.
+# Custom prefixes: Allows for channel prefixes to be configured.
 #<module name="customprefix">
 #
 # name       The name of the mode, must be unique from other modes.
@@ -639,7 +639,11 @@
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
 #<customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">
 #<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
-#<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
+#
+# You can also override the configuration of prefix modes added by both the core
+# and other modules by adding a customprefix tag with change="yes" specified.
+# <customprefix name="op" change="yes" rank="30000" ranktoset="30000"">
+# <customprefix name="voice" change="yes" rank="10000" ranktoset="10000" depriv="no">
 #
 # Do /RELOADMODULE customprefix after changing the settings of this module.
 
@@ -728,10 +732,6 @@
 # a badchan tag specifies it would be denied:                         #
 #<goodchan name="#funtimes">                                          #
 # Glob masks are accepted here also.                                  #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Devoice module: Let users devoice themselves using /DEVOICE #chan.
-#<module name="devoice">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DNS blacklist module: Provides support for looking up IPs on one or #

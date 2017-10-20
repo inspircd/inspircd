@@ -198,6 +198,14 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 	return (memb->SetPrefix(this, adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
 }
 
+void PrefixMode::Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm)
+{
+	prefixrank = rank;
+	ranktoset = setrank;
+	ranktounset = unsetrank;
+	selfremove = selfrm;
+}
+
 ModeAction ParamModeBase::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)
 {
 	if (adding)

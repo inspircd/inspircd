@@ -399,6 +399,15 @@ class CoreExport PrefixMode : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding);
 
 	/**
+	 * Updates the configuration of this prefix.
+	 * @param rank The prefix rank of this mode.
+	 * @param setrank The prefix rank required to set this mode on channels.
+	 * @param unsetrank The prefix rank required to set this unmode on channels.
+	 * @param selfrm Whether a client with this prefix can remove it from themself.
+	 */
+	void Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm);
+
+	/**
 	 * Removes this prefix mode from all users on the given channel
 	 * @param channel The channel which the server wants to remove your mode from
 	 * @param changelist Mode change list to populate with the removal of this mode

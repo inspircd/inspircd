@@ -31,7 +31,7 @@ you searched for. Please try again.">
 -------------
 
 PRIVMSG   NOTICE   NICK      JOIN      PART
-CYCLE     KNOCK    MODE      DEVOICE   TOPIC
+CYCLE     KNOCK    MODE      OPER      TOPIC
 KICK      FPART    REMOVE    TBAN      INVITE
 UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
@@ -42,9 +42,7 @@ ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
 SSLINFO
 
-USER      PASS     PING     PONG       QUIT
-
-OPER">
+USER      PASS     PING     PONG       QUIT">
 
 <helpop key="coper" value="Oper Commands
 -------------

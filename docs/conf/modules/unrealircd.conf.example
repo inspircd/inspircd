@@ -168,8 +168,6 @@
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
 #<badchan name="#heaven" redirect="#hell" reason="Nice try!">         #
 
-<module name="devoice">
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides message filtering, similar to SPAMFILTER.
 <module name="filter">
