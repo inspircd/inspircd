@@ -384,7 +384,7 @@ std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 
 	// This is the default format used by asctime without the terminating new line.
 	if (!format)
-		format = "%a %b %d %H:%M:%S %Y";
+		format = "%a %b %d %Y %H:%M:%S";
 
 	char buffer[512];
 	if (!strftime(buffer, sizeof(buffer), format, timeinfo))
