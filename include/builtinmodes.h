@@ -78,6 +78,7 @@ class ModeChannelVoice : public PrefixMode
 	ModeChannelVoice()
 		: PrefixMode(NULL, "voice", 'v', VOICE_VALUE, '+')
 	{
+		selfremove = false;
 		ranktoset = ranktounset = HALFOP_VALUE;
 	}
 };

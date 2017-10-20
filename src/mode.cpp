@@ -162,9 +162,18 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool)
 
 PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank, char PrefixChar)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
-	, prefix(PrefixChar), prefixrank(Rank)
+	, prefix(PrefixChar)
+	, prefixrank(Rank)
+	, selfremove(true)
 {
 	list = true;
+}
+
+ModResult PrefixMode::AccessCheck(User* src, Channel*, std::string& value, bool adding)
+{
+	if (!adding && src->nick == value && selfremove)
+		return MOD_RES_ALLOW;
+	return MOD_RES_PASSTHRU;
 }
 
 ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)

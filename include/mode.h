@@ -359,6 +359,9 @@ class CoreExport PrefixMode : public ModeHandler
 	 */
 	unsigned int prefixrank;
 
+	/** Whether a client with this prefix can remove it from themself. */
+	bool selfremove;
+
  public:
 	/**
 	 * Constructor
@@ -369,6 +372,16 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param PrefixChar Prefix character, or 0 if the mode has no prefix character
 	 */
 	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank = 0, char PrefixChar = 0);
+
+	/**
+	 * Called when a channel mode change access check for your mode occurs.
+	 * @param source Contains the user setting the mode.
+	 * @param channel contains the destination channel the modes are being set on.
+	 * @param parameter The parameter for your mode. This is modifiable.
+	 * @param adding This value is true when the mode is being set, or false when it is being unset.
+	 * @return allow, deny, or passthru to check against the required level
+	 */
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
 
 	/**
 	 * Handles setting and unsetting the prefix mode.
@@ -391,6 +404,12 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
+
+
+	/**
+	* Determines whether a user with this prefix mode can remove it.
+	*/
+	bool CanSelfRemove() const { return selfremove; }
 
 	/**
 	 * Mode prefix or 0. If this is defined, you should

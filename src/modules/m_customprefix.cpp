@@ -23,7 +23,6 @@ class CustomPrefixMode : public PrefixMode
 {
  public:
 	reference<ConfigTag> tag;
-	bool depriv;
 
 	CustomPrefixMode(Module* parent, ConfigTag* Tag)
 		: PrefixMode(parent, Tag->getString("name"), 0, Tag->getInt("rank"))
@@ -35,14 +34,7 @@ class CustomPrefixMode : public PrefixMode
 		mode = v.c_str()[0];
 		ranktoset = tag->getInt("ranktoset", prefixrank, prefixrank, UINT_MAX);
 		ranktounset = tag->getInt("ranktounset", ranktoset, ranktoset, UINT_MAX);
-		depriv = tag->getBool("depriv", true);
-	}
-
-	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
-	{
-		if (!adding && src->nick == value && depriv)
-			return MOD_RES_ALLOW;
-		return MOD_RES_PASSTHRU;
+		selfremove = tag->getBool("depriv", true);
 	}
 };
 
