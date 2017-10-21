@@ -1188,7 +1188,32 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	Update(&parent);
 	name = "unnamed";
 	type = t;
-	config = tag;
+	host = mask;
+
+	// Connect classes can inherit from each other but this is problematic for modules which can't use
+	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as
+	// well as the parent class.
+	ConfigItems* items = NULL;
+	config = ConfigTag::create(tag->tag, tag->src_name, tag->src_line, items);
+
+	const ConfigItems& parentkeys = parent.config->getItems();
+	for (ConfigItems::const_iterator piter = parentkeys.begin(); piter != parentkeys.end(); ++piter)
+	{
+		// The class name and parent name are not inherited
+		if (piter->first == "name" || piter->first == "parent")
+			continue;
+
+		// Store the item in the config tag. If this item also
+		// exists in the child it will be overwritten.
+		(*items)[piter->first] = piter->second;
+	}
+
+	const ConfigItems& childkeys = tag->getItems();
+	for (ConfigItems::const_iterator citer = childkeys.begin(); citer != childkeys.end(); ++citer)
+	{
+		// This will overwrite the parent value if present.
+		(*items)[citer->first] = citer->second;
+	}
 }
 
 void ConnectClass::Update(const ConnectClass* src)
