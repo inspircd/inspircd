@@ -213,8 +213,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "regmoderated"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "regmoderated");
 
 			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{

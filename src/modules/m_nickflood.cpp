@@ -148,7 +148,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "nickflood"));
+				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -187,7 +187,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "nickflood"));
+				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
 

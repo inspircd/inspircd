@@ -56,8 +56,7 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = (*i)->chan;
 
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, curr, "nonick"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, curr, "nonick");
 
 			if (res == MOD_RES_ALLOW)
 				continue;

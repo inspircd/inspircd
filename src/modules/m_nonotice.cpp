@@ -53,7 +53,7 @@ class ModuleNoNotice : public Module
 			Channel* c = (Channel*)dest;
 			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
 			{
-				FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "nonotice"));
+				res = CheckExemption::Call(exemptionprov, user, c, "nonotice");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 				else

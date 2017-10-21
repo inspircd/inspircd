@@ -66,8 +66,7 @@ class ModuleAuditorium : public Module
 		if (!memb->chan->IsModeSet(&aum))
 			return true;
 
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (memb->user, memb->chan, "auditorium-vis"));
+		ModResult res = CheckExemption::Call(exemptionprov, memb->user, memb->chan, "auditorium-vis");
 		return res.check(OpsVisible && memb->getRank() >= OP_VALUE);
 	}
 
@@ -83,8 +82,7 @@ class ModuleAuditorium : public Module
 			return true;
 
 		// Can you see the list by permission?
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (issuer, memb->chan, "auditorium-see"));
+		ModResult res = CheckExemption::Call(exemptionprov, issuer, memb->chan, "auditorium-see");
 		if (res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE))
 			return true;
 

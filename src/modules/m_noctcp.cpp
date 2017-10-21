@@ -53,8 +53,7 @@ class ModuleNoCTCP : public Module
 			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ", 8)) || (text == "\1ACTION\1") || (text == "\1ACTION"))
 				return MOD_RES_PASSTHRU;
 
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "noctcp"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 

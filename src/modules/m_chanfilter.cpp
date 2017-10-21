@@ -87,8 +87,7 @@ class ModuleChanFilter : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = static_cast<Channel*>(dest);
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, chan, "filter"));
+		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "filter");
 
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;

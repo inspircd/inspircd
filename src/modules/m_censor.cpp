@@ -70,8 +70,7 @@ class ModuleCensor : public Module
 		{
 			Channel* c = (Channel*)dest;
 			active = c->IsModeSet(cc);
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "censor"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "censor");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

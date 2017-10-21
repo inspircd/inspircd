@@ -25,6 +25,16 @@ namespace CheckExemption
 {
 	class EventListener;
 	class EventProvider;
+
+	/** Helper function for calling the CheckExemption::EventListener::OnCheckExemption event.
+	 * @param prov The CheckExemption::EventProvider which is calling the event.
+	 * @param user The user to check exemption for.
+	 * @param chan The channel to check exemption on.
+	 * @param restriction The restriction to check for.
+	 * @return Either MOD_RES_ALLOW if the exemption was confirmed, MOD_RES_DENY if the exemption was
+	 *         denied or MOD_RES_PASSTHRU if no module handled the event.
+	 */
+	inline ModResult Call(const CheckExemption::EventProvider& prov, User* user, Channel* chan, const std::string& restriction);
 }
 
 class CheckExemption::EventListener
@@ -56,3 +66,10 @@ class CheckExemption::EventProvider
 	{
 	}
 };
+
+inline ModResult CheckExemption::Call(const CheckExemption::EventProvider& prov, User* user, Channel* chan, const std::string& restriction)
+{
+	ModResult result;
+	FIRST_MOD_RESULT_CUSTOM(prov, CheckExemption::EventListener, OnCheckExemption, result, (user, chan, restriction));
+	return result;
+}

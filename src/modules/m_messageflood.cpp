@@ -124,8 +124,7 @@ class ModuleMsgFlood : public Module
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, dest, "flood"));
+		ModResult res = CheckExemption::Call(exemptionprov, user, dest, "flood");
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

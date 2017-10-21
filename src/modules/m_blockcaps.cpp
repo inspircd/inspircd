@@ -60,8 +60,7 @@ public:
 				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "blockcaps"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcaps");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

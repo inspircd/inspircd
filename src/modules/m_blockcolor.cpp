@@ -54,8 +54,7 @@ class ModuleBlockColor : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, c, "blockcolor"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcolor");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

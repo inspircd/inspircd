@@ -72,8 +72,7 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, t, "stripcolor"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
@@ -99,8 +98,7 @@ class ModuleStripColor : public Module
 
 		if (channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc)))
 		{
-			ModResult res;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, channel, "stripcolor"));
+			ModResult res = CheckExemption::Call(exemptionprov, user, channel, "stripcolor");
 
 			if (res != MOD_RES_ALLOW)
 				InspIRCd::StripColor(partmessage);

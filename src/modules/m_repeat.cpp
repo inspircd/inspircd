@@ -369,8 +369,7 @@ class RepeatModule : public Module
 		if (!memb)
 			return MOD_RES_PASSTHRU;
 
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, res, (user, chan, "repeat"));
+		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "repeat");
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

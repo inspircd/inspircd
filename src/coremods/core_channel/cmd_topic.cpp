@@ -76,8 +76,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 		}
 		if (c->IsModeSet(topiclockmode))
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT_CUSTOM(exemptionprov, CheckExemption::EventListener, OnCheckExemption, MOD_RESULT, (user, c, "topiclock"));
+			ModResult MOD_RESULT = CheckExemption::Call(exemptionprov, user, c, "topiclock");
 			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 			{
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
