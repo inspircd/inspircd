@@ -23,14 +23,17 @@
 
 #pragma once
 
-/** Used to indicate command success codes
- */
+/** Used to indicate the result of trying to execute a command. */
 enum CmdResult
 {
-	CMD_FAILURE = 0,	/* Command exists, but failed */
-	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
-	CMD_INVALID = 2,	/* Command doesnt exist at all! */
-	CMD_EPERM = 3       /* Command failed because of a permission check */
+	/** The command exists but its execution failed. */
+	CMD_FAILURE = 0,
+
+	/** The command exists and its execution succeeded. */
+	CMD_SUCCESS = 1,
+
+	/* The command does not exist. */
+	CMD_INVALID = 2
 };
 
 /** Flag for commands that are only allowed from servers */
