@@ -46,20 +46,7 @@ namespace
  */
 void SocketEngine::Init()
 {
-	MAX_DESCRIPTORS = 0;
-	int mib[2];
-	size_t len;
-
-	mib[0] = CTL_KERN;
-#ifdef KERN_MAXFILESPERPROC
-	mib[1] = KERN_MAXFILESPERPROC;
-#else
-	mib[1] = KERN_MAXFILES;
-#endif
-	len = sizeof(MAX_DESCRIPTORS);
-	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if the sysctl() below fails
-	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
-
+	LookupMaxFds();
 	RecoverFromFork();
 }
 

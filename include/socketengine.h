@@ -266,19 +266,22 @@ class CoreExport SocketEngine
 	 **/
 	static std::vector<EventHandler*> ref;
 
- protected:
-	/** Current number of descriptors in the engine
-	 */
+	/** Current number of descriptors in the engine. */
 	static size_t CurrentSetSize;
+
+	/** The maximum number of descriptors in the engine. */
+	static size_t MaxSetSize;
+
 	/** List of handlers that want a trial read/write
 	 */
 	static std::set<int> trials;
 
-	static int MAX_DESCRIPTORS;
-
 	/** Socket engine statistics: count of various events, bandwidth usage
 	 */
 	static Statistics stats;
+
+	/** Look up the fd limit using rlimit. */
+	static void LookupMaxFds();
 
 	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 
@@ -344,10 +347,10 @@ public:
 
 	/** Returns the number of file descriptors reported by the system this program may use
 	 * when it was started.
-	 * @return If positive, the number of file descriptors that the system reported that we
-	 * may use. Otherwise (<= 0) this number could not be determined.
+	 * @return If non-zero the number of file descriptors that the system reported that we
+	 * may use.
 	 */
-	static int GetMaxFds() { return MAX_DESCRIPTORS; }
+	static size_t GetMaxFds() { return MaxSetSize; }
 
 	/** Returns the number of file descriptors being queried
 	 * @return The set size

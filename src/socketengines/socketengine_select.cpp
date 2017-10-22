@@ -35,7 +35,7 @@ namespace
 
 void SocketEngine::Init()
 {
-	MAX_DESCRIPTORS = FD_SETSIZE;
+	MaxSetSize = FD_SETSIZE;
 
 	FD_ZERO(&ReadSet);
 	FD_ZERO(&WriteSet);
@@ -53,7 +53,11 @@ void SocketEngine::RecoverFromFork()
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+
+	if (fd < 0)
+		return false;
+
+	if (static_cast<size_t>(fd) >= GetMaxFds())
 		return false;
 
 	if (!SocketEngine::AddFdRef(eh))
@@ -73,7 +77,10 @@ void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
+		return;
+
+	if (static_cast<size_t>(fd) >= GetMaxFds())
 		return;
 
 	SocketEngine::DelFdRef(eh);

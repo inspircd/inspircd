@@ -498,7 +498,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
-	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
 	ConfigTag* security = Config->ConfValue("security");

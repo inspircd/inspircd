@@ -23,7 +23,6 @@
 
 #include "inspircd.h"
 
-
 /** Reference table, contains all current handlers
  **/
 std::vector<EventHandler*> SocketEngine::ref;
@@ -36,7 +35,7 @@ size_t SocketEngine::CurrentSetSize = 0;
  */
 std::set<int> SocketEngine::trials;
 
-int SocketEngine::MAX_DESCRIPTORS;
+size_t SocketEngine::MaxSetSize = 0;
 
 /** Socket engine statistics: count of various events, bandwidth usage
  */
@@ -59,6 +58,21 @@ void EventHandler::OnEventHandlerWrite()
 
 void EventHandler::OnEventHandlerError(int errornum)
 {
+}
+
+void SocketEngine::LookupMaxFds()
+{
+	struct rlimit limits;
+	if (!getrlimit(RLIMIT_NOFILE, &limits))
+		MaxSetSize = limits.rlim_cur;
+
+#if defined __APPLE__
+	limits.rlim_cur = limits.rlim_max == RLIM_INFINITY ? OPEN_MAX : limits.rlim_max;
+#else
+	limits.rlim_cur = limits.rlim_max;
+#endif
+	if (!setrlimit(RLIMIT_NOFILE, &limits))
+		MaxSetSize = limits.rlim_cur;
 }
 
 void SocketEngine::ChangeEventMask(EventHandler* eh, int change)

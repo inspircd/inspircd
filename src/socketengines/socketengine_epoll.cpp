@@ -38,12 +38,7 @@ namespace
 
 void SocketEngine::Init()
 {
-	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if getrlimit() fails
-	struct rlimit limit;
-	if (!getrlimit(RLIMIT_NOFILE, &limit))
-	{
-		MAX_DESCRIPTORS = limit.rlim_cur;
-	}
+	LookupMaxFds();
 
 	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
 	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.

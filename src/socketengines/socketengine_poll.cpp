@@ -41,16 +41,7 @@ namespace
 
 void SocketEngine::Init()
 {
-	struct rlimit limits;
-	if (!getrlimit(RLIMIT_NOFILE, &limits))
-	{
-		MAX_DESCRIPTORS = limits.rlim_cur;
-	}
-	else
-	{
-		// MAX_DESCRIPTORS is mainly used for display purposes, it's not a problem that getrlimit() failed
-		MAX_DESCRIPTORS = -1;
-	}
+	LookupMaxFds();
 }
 
 void SocketEngine::Deinit()
