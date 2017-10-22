@@ -36,7 +36,7 @@ namespace
 	std::vector<struct pollfd> events(16);
 	/** This vector maps fds to an index in the events array.
 	 */
-	std::vector<int> fd_mappings(16);
+	std::vector<int> fd_mappings(16, -1);
 }
 
 void SocketEngine::Init()
