@@ -244,6 +244,12 @@ class CoreExport User : public Extensible
 	 */
 	std::string cachedip;
 
+	/** If set then the hostname which is displayed to users. */
+	std::string displayhost;
+
+	/** The real hostname of this user. */
+	std::string realhost;
+
 	/** The user's mode list.
 	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
 	 * if (modes[modeid]) is set, then the mode is set.
@@ -269,11 +275,6 @@ class CoreExport User : public Extensible
 	/** List of Memberships for this user
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
-
-	/** Hostname of connection.
-	 * This should be valid as per RFC1035.
-	 */
-	std::string host;
 
 	/** Time that the object was instantiated (used for TS calculation etc)
 	*/
@@ -306,11 +307,6 @@ class CoreExport User : public Extensible
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
 	std::string ident;
-
-	/** The host displayed to non-opers (used for cloaking etc).
-	 * This usually matches the value of User::host.
-	 */
-	std::string dhost;
 
 	/** The users full name (GECOS).
 	 */
@@ -363,6 +359,17 @@ class CoreExport User : public Extensible
 	 * @return The IP string
 	 */
 	const std::string& GetIPString();
+
+	/** Retrieves this user's hostname.
+	 * @param uncloak If true then return the real host; otherwise, the display host.
+	 */
+	const std::string& GetHost(bool uncloak) const;
+
+	/** Retrieves this user's displayed hostname. */
+	const std::string& GetDisplayedHost() const;
+
+	/** Retrieves this user's real hostname. */
+	const std::string& GetRealHost() const;
 
 	/** Get CIDR mask, using default range, for this user
 	 */
@@ -675,15 +682,17 @@ class CoreExport User : public Extensible
 	 */
 	bool SharesChannelWith(User *other);
 
-	/** Change the displayed host of a user.
-	 * ALWAYS use this function, rather than writing User::dhost directly,
-	 * as this triggers module events allowing the change to be syncronized to
-	 * remote servers.
-	 * @param host The new hostname to set
-	 * @return True if the change succeeded, false if it didn't
-	 * (a module vetoed the change).
+	/** Change the displayed hostname of this user.
+	 * @param host The new displayed hostname of this user.
+	 * @return True if the hostname was changed successfully; otherwise, false.
 	 */
 	bool ChangeDisplayedHost(const std::string& host);
+
+	/** Change the real hostname of this user.
+	 * @param host The new real hostname of this user.
+	 * @param resetdisplay Whether to reset the display host to this value.
+	 */
+	void ChangeRealHost(const std::string& host, bool resetdisplay);
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,

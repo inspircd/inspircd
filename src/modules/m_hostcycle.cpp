@@ -109,7 +109,7 @@ class ModuleHostCycle : public Module
 
 	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
 	{
-		DoHostCycle(user, newident, user->dhost, "Changing ident");
+		DoHostCycle(user, newident, user->GetDisplayedHost(), "Changing ident");
 	}
 
 	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE

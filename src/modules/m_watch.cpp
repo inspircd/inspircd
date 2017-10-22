@@ -53,9 +53,9 @@ class CommandWatch : public SplitCommand
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
 			if (target->IsAway())
-				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->dhost, (unsigned long)target->awaytime, "is away");
+				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->awaytime, "is away");
 			else
-				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->dhost, (unsigned long)target->age, "is online");
+				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->age, "is online");
 		}
 		else if (show_offline)
 			user->WriteNumeric(RPL_NOWOFF, nick, "*", "*", "0", "is offline");
@@ -88,7 +88,7 @@ class CommandWatch : public SplitCommand
 
 		User* target = IRCv3::Monitor::Manager::FindNick(nick);
 		if (target)
-			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->dhost, (unsigned long)target->age, "stopped watching");
+			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->age, "stopped watching");
 		else
 			user->WriteNumeric(RPL_WATCHOFF, nick, "*", "*", "0", "stopped watching");
 	}
@@ -190,7 +190,7 @@ class ModuleWatch : public Module
 			return;
 
 		Numeric::Numeric num(numeric);
-		num.push(nick).push(user->ident).push(user->dhost).push(ConvToStr(shownts)).push(numerictext);
+		num.push(nick).push(user->ident).push(user->GetDisplayedHost()).push(ConvToStr(shownts)).push(numerictext);
 		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
 		{
 			LocalUser* curr = *i;

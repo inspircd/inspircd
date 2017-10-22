@@ -50,7 +50,7 @@ class WhoisNoticeCmd : public Command
 	void HandleFast(User* dest, User* src)
 	{
 		dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
-			(dest->HasPrivPermission("users/auspex") ? src->host : src->dhost) +
+			src->GetHost(dest->HasPrivPermission("users/auspex")) + 
 			") did a /whois on you");
 	}
 

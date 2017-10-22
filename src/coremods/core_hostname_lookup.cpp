@@ -145,11 +145,7 @@ class UserResolver : public DNS::Request
 						hostname->insert(0, "0");
 
 					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->host.assign(*hostname, 0, ServerInstance->Config->Limits.MaxHost);
-					bound_user->dhost = bound_user->host;
-
-					/* Invalidate cache */
-					bound_user->InvalidateCache();
+					bound_user->ChangeRealHost(hostname->substr(ServerInstance->Config->Limits.MaxHost), true);
 				}
 				else
 				{

@@ -174,7 +174,7 @@ class SQLProvider : public DataProvider
 	void PopulateUserInfo(User* user, ParamM& userinfo)
 	{
 		userinfo["nick"] = user->nick;
-		userinfo["host"] = user->host;
+		userinfo["host"] = user->GetRealHost();
 		userinfo["ip"] = user->GetIPString();
 		userinfo["gecos"] = user->fullname;
 		userinfo["ident"] = user->ident;

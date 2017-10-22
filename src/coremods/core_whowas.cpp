@@ -230,8 +230,8 @@ void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
 }
 
 WhoWas::Entry::Entry(User* user)
-	: host(user->host)
-	, dhost(user->dhost)
+	: host(user->GetRealHost())
+	, dhost(user->GetDisplayedHost())
 	, ident(user->ident)
 	, server(user->server->GetName())
 	, gecos(user->fullname)

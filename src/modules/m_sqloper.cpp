@@ -88,7 +88,7 @@ class OpMeQuery : public SQLQuery
 
 		std::string hostname(user->ident);
 
-		hostname.append("@").append(user->host);
+		hostname.append("@").append(user->GetRealHost());
 
 		if (InspIRCd::MatchMask(pattern, hostname, user->GetIPString()))
 		{

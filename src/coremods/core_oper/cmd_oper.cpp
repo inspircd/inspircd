@@ -34,7 +34,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	bool match_pass = false;
 	bool match_hosts = false;
 
-	const std::string userHost = user->ident + "@" + user->host;
+	const std::string userHost = user->ident + "@" + user->GetRealHost();
 	const std::string userIP = user->ident + "@" + user->GetIPString();
 
 	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);

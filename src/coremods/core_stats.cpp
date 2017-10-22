@@ -58,7 +58,7 @@ static void GenerateStatsLl(Stats::Context& stats)
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		LocalUser* u = *i;
-		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 	}
 }
 
@@ -76,7 +76,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
-				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+				statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
 		stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar + " requires the servers/auspex priv."));
 		return;
 	}
@@ -87,7 +87,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	{
 		stats.AddRow(219, statschar, "End of /STATS report");
 		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
 		return;
 	}
 
@@ -167,7 +167,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				if (!oper->server->IsULine())
 				{
 					LocalUser* lu = IS_LOCAL(oper);
-					stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
+					stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->GetDisplayedHost() + ") Idle: " +
 							(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
 					idx++;
 				}
@@ -360,7 +360,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 	stats.AddRow(219, statschar, "End of /STATS report");
 	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
 	return;
 }
 

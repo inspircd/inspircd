@@ -40,7 +40,7 @@ class ModuleIRCv3ChgHost : public Module
 
 	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
 	{
-		DoChgHost(user, newident, user->dhost);
+		DoChgHost(user, newident, user->GetDisplayedHost());
 	}
 
 	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE

@@ -296,7 +296,7 @@ class ModuleAlias : public Module
 				}
 				else if (!newline.compare(i, 5, "$host", 5))
 				{
-					result.append(user->host);
+					result.append(user->GetRealHost());
 					i += 4;
 				}
 				else if (!newline.compare(i, 5, "$chan", 5))
@@ -312,7 +312,7 @@ class ModuleAlias : public Module
 				}
 				else if (!newline.compare(i, 6, "$vhost", 6))
 				{
-					result.append(user->dhost);
+					result.append(user->GetDisplayedHost());
 					i += 5;
 				}
 				else if (!newline.compare(i, 12, "$requirement", 12))

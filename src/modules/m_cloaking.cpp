@@ -90,7 +90,7 @@ class CloakUser : public ModeHandler
 		if (adding)
 		{
 			// assume this is more correct
-			if (user->registered != REG_ALL && user->host != user->dhost)
+			if (user->registered != REG_ALL && user->GetRealHost() != user->GetDisplayedHost())
 				return MODEACTION_DENY;
 
 			std::string* cloak = ext.get(user);
@@ -116,7 +116,7 @@ class CloakUser : public ModeHandler
 			 * and make it match the displayed one.
 			 */
 			user->SetMode(this, false);
-			user->ChangeDisplayedHost(user->host.c_str());
+			user->ChangeDisplayedHost(user->GetRealHost().c_str());
 			return MODEACTION_ALLOW;
 		}
 	}
@@ -281,7 +281,7 @@ class ModuleCloaking : public Module
 		OnUserConnect(lu);
 		std::string* cloak = cu.ext.get(user);
 		/* Check if they have a cloaked host, but are not using it */
-		if (cloak && *cloak != user->dhost)
+		if (cloak && *cloak != user->GetDisplayedHost())
 		{
 			const std::string cloakMask = user->nick + "!" + user->ident + "@" + *cloak;
 			if (InspIRCd::Match(cloakMask, mask))
@@ -384,7 +384,7 @@ class ModuleCloaking : public Module
 		if (cloak)
 			return;
 
-		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host));
+		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
 	}
 };
 

@@ -35,7 +35,7 @@ class CommandTitle : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		const std::string userHost = user->ident + "@" + user->host;
+		const std::string userHost = user->ident + "@" + user->GetRealHost();
 		const std::string userIP = user->ident + "@" + user->GetIPString();
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("title");

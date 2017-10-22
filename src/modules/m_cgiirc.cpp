@@ -70,7 +70,7 @@ class WebIRCHost
 			return false;
 
 		// Does the user's hostname match our hostmask?
-		if (InspIRCd::Match(user->host, hostmask, ascii_case_insensitive_map))
+		if (InspIRCd::Match(user->GetRealHost(), hostmask, ascii_case_insensitive_map))
 			return true;
 
 		// Does the user's IP address match our hostmask?
@@ -134,17 +134,16 @@ class CommandWebIRC : public SplitCommand
 
 			// The user matched a WebIRC block!
 			gateway.set(user, parameters[1]);
-			realhost.set(user, user->host);
+			realhost.set(user, user->GetRealHost());
 			realip.set(user, user->GetIPString());
 
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using a WebIRC gateway; changing their IP/host from %s/%s to %s/%s.",
-					user->nick.c_str(), user->GetIPString().c_str(), user->host.c_str(), parameters[3].c_str(), newhost.c_str());
+					user->nick.c_str(), user->GetIPString().c_str(), user->GetRealHost().c_str(), parameters[3].c_str(), newhost.c_str());
 
 			// Set the IP address and hostname sent via WEBIRC.
 			ChangeIP(user, parameters[3]);
-			user->host = user->dhost = newhost;
-			user->InvalidateCache();
+			user->ChangeRealHost(newhost, true);
 			return CMD_SUCCESS;
 		}
 
@@ -186,10 +185,9 @@ class CGIResolver : public DNS::Request
 				return;
 
 			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str());
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s", them->nick.c_str(), them->GetRealHost().c_str(), ans_record.rdata.c_str());
 
-			them->host = them->dhost = ans_record.rdata;
-			them->InvalidateCache();
+			them->ChangeRealHost(ans_record.rdata, true);
 			lu->CheckLines(true);
 		}
 	}
@@ -202,7 +200,7 @@ class CGIResolver : public DNS::Request
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick.c_str(), them->host.c_str());
+			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick.c_str(), them->GetRealHost().c_str());
 		}
 	}
 
@@ -233,11 +231,10 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 
 	void HandleIdent(LocalUser* user, const std::string& newip)
 	{
-		cmd.realhost.set(user, user->host);
+		cmd.realhost.set(user, user->GetRealHost());
 		cmd.realip.set(user, user->GetIPString());
 		ChangeIP(user, newip);
-		user->host = user->dhost = user->GetIPString();
-		user->InvalidateCache();
+		user->ChangeRealHost(user->GetIPString(), true);
 		RecheckClass(user);
 
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
@@ -257,7 +254,7 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 				waiting.set(user, count - 1);
 			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
+				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->GetRealHost().c_str(), ex.GetReason().c_str());
 		}
 	}
 
@@ -364,7 +361,7 @@ public:
 	{
 		for (std::vector<std::string>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
-			if (!InspIRCd::Match(user->host, *iter, ascii_case_insensitive_map) && !InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+			if (!InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map) && !InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
 				continue;
 
 			CheckIdent(user); // Nothing on failure.

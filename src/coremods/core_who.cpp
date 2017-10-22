@@ -128,7 +128,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 		else if (opt_realname)
 			match = InspIRCd::Match(user->fullname, matchtext);
 		else if (opt_showrealhost)
-			match = InspIRCd::Match(user->host, matchtext, ascii_case_insensitive_map);
+			match = InspIRCd::Match(user->GetRealHost(), matchtext, ascii_case_insensitive_map);
 		else if (opt_ident)
 			match = InspIRCd::Match(user->ident, matchtext, ascii_case_insensitive_map);
 		else if (opt_port)
@@ -161,7 +161,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 		 * -- w00t
 		 */
 		if (!match)
-			match = InspIRCd::Match(user->dhost, matchtext, ascii_case_insensitive_map);
+			match = InspIRCd::Match(user->GetDisplayedHost(), matchtext, ascii_case_insensitive_map);
 
 		if (!match)
 			match = InspIRCd::Match(user->nick, matchtext);
@@ -198,7 +198,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 
 	Numeric::Numeric wholine(RPL_WHOREPLY);
 	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
-	wholine.push(opt_showrealhost ? u->host : u->dhost);
+	wholine.push(u->GetHost(opt_showrealhost));
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 		wholine.push(ServerInstance->Config->HideWhoisServer);
 	else
