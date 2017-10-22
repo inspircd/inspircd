@@ -281,6 +281,8 @@ Matching extbans:
 
  j:<channel>   Matches anyone in the given channel. Does not support
                wildcards (requires channelban module).
+ n:<class>     Matches users in a matching connect class (requires
+               classban module).
  r:<realname>  Matches users with a matching realname (requires gecosban
                module).
  s:<server>    Matches users on a matching server (requires serverban
