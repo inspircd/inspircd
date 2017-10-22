@@ -21,7 +21,6 @@
  */
 
 
-#include "exitcodes.h"
 #include "inspircd.h"
 
 #include <sys/poll.h>

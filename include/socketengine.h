@@ -283,6 +283,9 @@ class CoreExport SocketEngine
 	/** Look up the fd limit using rlimit. */
 	static void LookupMaxFds();
 
+	/** Terminates the program when the socket engine fails to initialize. */
+	static void InitError();
+
 	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 
 	/** Add an event handler to the base socket engine. AddFd(EventHandler*, int) should call this.

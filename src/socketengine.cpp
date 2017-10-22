@@ -21,7 +21,10 @@
  */
 
 
+#include "exitcodes.h"
 #include "inspircd.h"
+
+#include <iostream>
 
 /** Reference table, contains all current handlers
  **/
@@ -58,6 +61,12 @@ void EventHandler::OnEventHandlerWrite()
 
 void EventHandler::OnEventHandlerError(int errornum)
 {
+}
+
+void SocketEngine::InitError()
+{
+	std::cerr << con_red << "FATAL ERROR!" << con_reset << " Socket engine initialization failed. " << strerror(errno) << '.' << std::endl;
+	ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 }
 
 void SocketEngine::LookupMaxFds()

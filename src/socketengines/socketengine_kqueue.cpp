@@ -20,11 +20,10 @@
 
 
 #include "inspircd.h"
-#include "exitcodes.h"
+
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include <iostream>
 #include <sys/sysctl.h>
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().
@@ -59,13 +58,7 @@ void SocketEngine::RecoverFromFork()
 	 */
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: this is a fatal error, exiting now.");
-		std::cout << "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features." << std::endl;
-		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+		InitError();
 }
 
 /** Shutdown the kqueue engine

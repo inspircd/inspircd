@@ -19,11 +19,9 @@
 
 
 #include "inspircd.h"
-#include "exitcodes.h"
 
 #include <sys/epoll.h>
 #include <sys/resource.h>
-#include <iostream>
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
  */
@@ -43,15 +41,8 @@ void SocketEngine::Init()
 	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
 	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.
 	EngineHandle = epoll_create(128);
-
 	if (EngineHandle == -1)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
-		std::cout << "ERROR: Could not initialize epoll socket engine: " << strerror(errno) << std::endl;
-		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+		InitError();
 }
 
 void SocketEngine::RecoverFromFork()
