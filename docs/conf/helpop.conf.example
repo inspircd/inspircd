@@ -281,6 +281,8 @@ Matching extbans:
 
  j:<channel>   Matches anyone in the given channel. Does not support
                wildcards (requires channelban module).
+ n:<class>     Matches users in a matching connect class (requires
+               classban module).
  r:<realname>  Matches users with a matching realname (requires gecosban
                module).
  s:<server>    Matches users on a matching server (requires serverban
@@ -291,6 +293,8 @@ Matching extbans:
                an invite exception (requires operchans module).
  R:<account>   Matches users logged into a matching account (requires
                services account module).
+ U:<banmask>   Matches unregistered users matching the given banmask.
+               (requires services account module).
 
 Acting extbans:
 
@@ -314,8 +318,6 @@ Acting extbans:
                users (requires stripcolor module).
  T:<banmask>   Blocks notices from matching users (requires nonotice
                module).
- U:<banmask>   Blocks unregistered users matching the given banmask.
-               (requires services account).
 
 A ban given to an Acting extban may either be a nick!user@host mask
 (unless stated otherwise), matched against users as for a normal ban,
