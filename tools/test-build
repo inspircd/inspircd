@@ -51,7 +51,6 @@ foreach my $compiler (@compilers) {
 	push @socketengines, 'epoll' if test_header $compiler, 'sys/epoll.h';
 	push @socketengines, 'kqueue' if test_file $compiler, 'kqueue.cpp';
 	push @socketengines, 'poll' if test_header $compiler, 'poll.h';
-	push @socketengines, 'ports' if test_header $compiler, 'ports.h';
 	foreach my $socketengine (@socketengines) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
 		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};

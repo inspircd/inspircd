@@ -165,7 +165,6 @@ $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cp
 my @socketengines;
 push @socketengines, 'epoll'  if run_test 'epoll', test_header $config{CXX}, 'sys/epoll.h';
 push @socketengines, 'kqueue' if run_test 'kqueue', test_file $config{CXX}, 'kqueue.cpp';
-push @socketengines, 'ports'  if run_test 'Solaris IOCP', test_header $config{CXX}, 'port.h';
 push @socketengines, 'poll'   if run_test 'poll', test_header $config{CXX}, 'poll.h';
 push @socketengines, 'select';
 
