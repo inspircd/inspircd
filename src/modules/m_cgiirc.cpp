@@ -36,7 +36,7 @@ enum
 static void ChangeIP(User* user, const std::string& newip)
 {
 	ServerInstance->Users->RemoveCloneCounts(user);
-	user->SetClientIP(newip.c_str());
+	user->SetClientIP(newip);
 	ServerInstance->Users->AddClone(user);
 }
 

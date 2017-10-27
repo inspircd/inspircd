@@ -707,10 +707,10 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const char* sip, bool recheck_eline)
+bool User::SetClientIP(const std::string& address, bool recheck_eline)
 {
 	this->InvalidateCache();
-	return irc::sockets::aptosa(sip, 0, client_sa);
+	return irc::sockets::aptosa(address, 0, client_sa);
 }
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
@@ -720,10 +720,10 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 }
 
-bool LocalUser::SetClientIP(const char* sip, bool recheck_eline)
+bool LocalUser::SetClientIP(const std::string& address, bool recheck_eline)
 {
 	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(sip, 0, sa))
+	if (!irc::sockets::aptosa(address, 0, sa))
 		// Invalid
 		return false;
 

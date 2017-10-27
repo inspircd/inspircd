@@ -371,7 +371,7 @@ class CoreExport User : public Extensible
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	virtual bool SetClientIP(const char* sip, bool recheck_eline = true);
+	virtual bool SetClientIP(const std::string& address, bool recheck_eline = true);
 
 	virtual void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
 
@@ -837,7 +837,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const char* sip, bool recheck_eline = true) CXX11_OVERRIDE;
+	bool SetClientIP(const std::string& address, bool recheck_eline = true) CXX11_OVERRIDE;
 
 	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true) CXX11_OVERRIDE;
 
