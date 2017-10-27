@@ -641,7 +641,8 @@ static ConfigTag* SlowGetTag(const std::string &tag, int index)
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
 {
 	std::string result = default_value;
-	if (!SlowGetTag(tag, index)->readString(name, result, allow_linefeeds))
+	ConfigTag* conftag = SlowGetTag(tag, index);
+	if (!conftag || !conftag->readString(name, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 	}
@@ -656,7 +657,8 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
 {
 	bool def = (default_value == "yes");
-	return SlowGetTag(tag, index)->getBool(name, def);
+	ConfigTag* conftag = SlowGetTag(tag, index);
+	return conftag ? conftag->getBool(name, def) : def;
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
@@ -668,7 +670,8 @@ bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int
 int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
 {
 	int v = atoi(default_value.c_str());
-	int result = SlowGetTag(tag, index)->getInt(name, v);
+	ConfigTag* conftag = SlowGetTag(tag, index);
+	int result = conftag ? conftag->getInt(name, v) : v;
 
 	if ((need_positive) && (result < 0))
 	{
