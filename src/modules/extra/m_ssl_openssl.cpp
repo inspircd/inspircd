@@ -779,6 +779,16 @@ class OpenSSLIOHook : public SSLIOHook
 		out.append(SSL_get_cipher(sess));
 	}
 
+	bool GetServerName(std::string& out) const CXX11_OVERRIDE
+	{
+		const char* name = SSL_get_servername(sess, TLSEXT_NAMETYPE_host_name);
+		if (!name)
+			return false;
+
+		out.append(name);
+		return true;
+	}
+
 	bool IsHandshakeDone() const { return (status == ISSL_OPEN); }
 };
 

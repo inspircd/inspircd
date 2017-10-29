@@ -204,6 +204,13 @@ class SSLIOHook : public IOHook
 	 * @param out String where the ciphersuite string will be appended to
 	 */
 	virtual void GetCiphersuite(std::string& out) const = 0;
+
+
+	/** Retrieves the name of the SSL connection which is sent via SNI.
+	 * @param out String that the server name will be appended to.
+	 * returns True if the server name was retrieved; otherwise, false.
+	 */
+	virtual bool GetServerName(std::string& out) const = 0;
 };
 
 /** Helper functions for obtaining SSL client certificates and key fingerprints

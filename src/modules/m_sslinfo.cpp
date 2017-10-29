@@ -220,7 +220,10 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		ssl_cert* const cert = ssliohook->GetCertificate();
 
 		{
-			std::string text = "*** You are connected using SSL cipher '";
+			std::string text = "*** You are connected to ";
+			if (!ssliohook->GetServerName(text))
+				text.append(ServerInstance->Config->ServerName);
+			text.append(" using SSL cipher '");
 			ssliohook->GetCiphersuite(text);
 			text.push_back('\'');
 			if ((cert) && (!cert->GetFingerprint().empty()))

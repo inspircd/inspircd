@@ -1182,6 +1182,25 @@ info_done_dealloc:
 		out.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));
 	}
 
+	bool GetServerName(std::string& out) const CXX11_OVERRIDE
+	{
+		std::vector<char> nameBuffer;
+		size_t nameLength = 0;
+		unsigned int nameType = GNUTLS_NAME_DNS;
+
+		// First, determine the size of the hostname.
+		if (gnutls_server_name_get(sess, &nameBuffer[0], &nameLength, &nameType, 0) != GNUTLS_E_SHORT_MEMORY_BUFFER)
+			return false;
+
+		// Then retrieve the hostname.
+		nameBuffer.resize(nameLength);
+		if (gnutls_server_name_get(sess, &nameBuffer[0], &nameLength, &nameType, 0) != GNUTLS_E_SUCCESS)
+			return false;
+
+		out.append(&nameBuffer[0]);
+		return true;
+	}
+
 	GnuTLS::Profile* GetProfile() { return profile; }
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
