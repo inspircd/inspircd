@@ -1014,6 +1014,27 @@
 #<module name="ircv3_invitenotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 Strict Transport Security module: Provides the sts IRCv3.2
+# extension which allows clients connecting insecurely to upgrade their
+# connections to TLS.
+#<module name="ircv3_sts">
+#
+# If using the ircv3_sts module you MUST define a STS policy to send
+# to clients using the <sts> tag. This tag takes the following
+# attributes:
+#
+# host     - A glob match for the SNI hostname to apply this policy to.
+# duration - The amount of time that the policy lasts for. Defaults to
+#            approximately two months by default.
+# port     - The port on which TLS connections to the server are being
+#            accepted. You MUST have a CA-verified certificate on this
+#            port. Self signed certificates are not acceptable.
+# preload  - Whether client developers can include your certificate in
+#            preload lists.
+#
+# <sts host="*.example.com" duration="60d" port="6697" preload="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
 # Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
