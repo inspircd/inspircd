@@ -145,7 +145,7 @@ class UserResolver : public DNS::Request
 						hostname->insert(0, "0");
 
 					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->ChangeRealHost(hostname->substr(ServerInstance->Config->Limits.MaxHost), true);
+					bound_user->ChangeRealHost(hostname->substr(0, ServerInstance->Config->Limits.MaxHost), true);
 				}
 				else
 				{
@@ -191,7 +191,7 @@ class ModuleHostnameLookup : public Module
 		ph = &ptrHosts;
 	}
 
-	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (!DNS || !user->MyClass->resolvehostnames)
 		{

@@ -122,10 +122,6 @@ class CommandWebIRC : public SplitCommand
 			return CMD_FAILURE;
 		}
 
-		// If the hostname is malformed then we use the IP address instead.
-		bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost) && (parameters[2].find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
-		const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
-
 		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
 			// If we don't match the host then skip to the next host.
@@ -138,12 +134,12 @@ class CommandWebIRC : public SplitCommand
 			realip.set(user, user->GetIPString());
 
 			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using a WebIRC gateway; changing their IP/host from %s/%s to %s/%s.",
-					user->nick.c_str(), user->GetIPString().c_str(), user->GetRealHost().c_str(), parameters[3].c_str(), newhost.c_str());
+				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
+					user->nick.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
 
-			// Set the IP address and hostname sent via WEBIRC.
+			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
+			// instead do our own DNS lookups because of unreliable gateways.
 			ChangeIP(user, parameters[3]);
-			user->ChangeRealHost(newhost, true);
 			return CMD_SUCCESS;
 		}
 
@@ -153,73 +149,9 @@ class CommandWebIRC : public SplitCommand
 	}
 };
 
-
-/** Resolver for CGI:IRC hostnames encoded in ident/GECOS
- */
-class CGIResolver : public DNS::Request
-{
-	std::string theiruid;
-	LocalIntExt& waiting;
-	bool notify;
- public:
-	CGIResolver(DNS::Manager* mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u, LocalIntExt& ext)
-		: DNS::Request(mgr, me, source, DNS::QUERY_PTR)
-		, theiruid(u->uuid)
-		, waiting(ext)
-		, notify(NotifyOpers)
-	{
-	}
-
-	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
-	{
-		/* Check the user still exists */
-		User* them = ServerInstance->FindUUID(theiruid);
-		if ((them) && (!them->quitting))
-		{
-			LocalUser* lu = IS_LOCAL(them);
-			if (!lu)
-				return;
-
-			const DNS::ResourceRecord &ans_record = r->answers[0];
-			if (ans_record.rdata.empty() || ans_record.rdata.length() > ServerInstance->Config->Limits.MaxHost)
-				return;
-
-			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s", them->nick.c_str(), them->GetRealHost().c_str(), ans_record.rdata.c_str());
-
-			them->ChangeRealHost(ans_record.rdata, true);
-			lu->CheckLines(true);
-		}
-	}
-
-	void OnError(const DNS::Query *r) CXX11_OVERRIDE
-	{
-		if (!notify)
-			return;
-
-		User* them = ServerInstance->FindUUID(theiruid);
-		if ((them) && (!them->quitting))
-		{
-			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick.c_str(), them->GetRealHost().c_str());
-		}
-	}
-
-	~CGIResolver()
-	{
-		User* them = ServerInstance->FindUUID(theiruid);
-		if (!them)
-			return;
-		int count = waiting.get(them);
-		if (count)
-			waiting.set(them, count - 1);
-	}
-};
-
 class ModuleCgiIRC : public Module, public Whois::EventListener
 {
 	CommandWebIRC cmd;
-	LocalIntExt waiting;
-	dynamic_reference<DNS::Manager> DNS;
 	std::vector<std::string> hosts;
 
 	static void RecheckClass(LocalUser* user)
@@ -233,37 +165,19 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 	{
 		cmd.realhost.set(user, user->GetRealHost());
 		cmd.realip.set(user, user->GetIPString());
+
+		if (cmd.notify)
+			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using an ident gateway; changing their IP from %s to %s.",
+				user->nick.c_str(), user->GetIPString().c_str(), newip.c_str());
+
 		ChangeIP(user, newip);
-		user->ChangeRealHost(user->GetIPString(), true);
 		RecheckClass(user);
-
-		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
-		if (user->quitting || !DNS || !user->MyClass->resolvehostnames)
-			return;
-
-		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, waiting);
-		try
-		{
-			waiting.set(user, waiting.get(user) + 1);
-			this->DNS->Process(r);
-		}
-		catch (DNS::Exception &ex)
-		{
-			int count = waiting.get(user);
-			if (count)
-				waiting.set(user, count - 1);
-			delete r;
-			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->GetRealHost().c_str(), ex.GetReason().c_str());
-		}
 	}
 
 public:
 	ModuleCgiIRC()
 		: Whois::EventListener(this)
 		, cmd(this)
-		, waiting("cgiirc-delay", ExtensionItem::EXT_USER, this)
-		, DNS(this, "DNS")
 	{
 	}
 
@@ -316,15 +230,12 @@ public:
 		hosts.swap(identhosts);
 		cmd.hosts.swap(webirchosts);
 
-		// Do we send an oper notice when a m_cgiirc client has their IP/host changed?
+		// Do we send an oper notice when a m_cgiirc client has their IP changed?
 		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
 	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
-		if (waiting.get(user))
-			return MOD_RES_DENY;
-
 		if (!cmd.realip.get(user))
 			return MOD_RES_PASSTHRU;
 
@@ -416,7 +327,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Enables forwarding the IP/host information from a gateway to the IRC server", VF_VENDOR);
+		return Version("Enables forwarding the real IP address of a user from a gateway to the IRC server", VF_VENDOR);
 	}
 };
 

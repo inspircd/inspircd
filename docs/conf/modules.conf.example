@@ -314,8 +314,8 @@
 #<include file="examples/censor.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CGI:IRC module: Enables forwarding the IP/host information from web
-# gateways to the IRC server.
+# CGI:IRC module: Enables forwarding the real IP address of a user from
+# a gateway to the IRC server.
 #<module name="cgiirc">
 #
 #-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
