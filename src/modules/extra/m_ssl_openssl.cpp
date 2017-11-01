@@ -307,7 +307,7 @@ namespace OpenSSL
 	 public:
 		Profile(const std::string& profilename, ConfigTag* tag)
 			: name(profilename)
-			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dh.pem")))
+			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem")))
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default

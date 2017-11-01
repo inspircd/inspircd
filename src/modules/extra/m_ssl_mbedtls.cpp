@@ -782,6 +782,12 @@ class mbedTLSIOHook : public SSLIOHook
 		out.append(ciphersuitestr + skip);
 	}
 
+	bool GetServerName(std::string& out) const CXX11_OVERRIDE
+	{
+		// TODO: Implement SNI support.
+		return false;
+	}
+
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
