@@ -47,7 +47,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 		ServerInstance->SendError("Server restarting.");
 
 #ifndef _WIN32
-		/* XXX: This hack sets FD_CLOEXEC on all possible file descriptors, so they're closed if the execv() below succeeds.
+		/* XXX: This hack sets FD_CLOEXEC on all possible file descriptors, so they're closed if the execvp() below succeeds.
 		 * Certainly, this is not a nice way to do things and it's slow when the fd limit is high.
 		 *
 		 * A better solution would be to set the close-on-exec flag for each fd we create (or create them with O_CLOEXEC),
@@ -61,7 +61,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 		}
 #endif
 
-		execv(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
+		execvp(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
 		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART - could not execute '%s' (%s)",
 			ServerInstance->Config->cmdline.argv[0], strerror(errno));
 	}
