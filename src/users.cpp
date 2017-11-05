@@ -1603,7 +1603,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
 			if (MOD_RESULT == MOD_RES_DENY)
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class denied by module: %s", c->GetName().c_str());
 				continue;
+			}
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->GetName().c_str());
@@ -1616,7 +1619,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			bool regdone = (registered != REG_NONE);
 			if (c->config->getBool("registered", regdone) != regdone)
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Mismatch in 'registered' status, skipping class %s", c->GetName().c_str());
 				continue;
+			}
 
 			/* check if host matches.. */
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
@@ -1644,7 +1650,12 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 				/* and our port doesn't match, fail. */
 				if (this->GetServerPort() != port)
+				{
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "...but the user has port %d", this->GetServerPort());
 					continue;
+				}
+				else
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "...and the user has that port");
 			}
 
 			if (regdone && !c->config->getString("password").empty())
@@ -1668,6 +1679,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	if (found)
 	{
 		MyClass = found;
+		ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Found matching connect class %s", found->GetName().c_str());
 	}
 }
 
