@@ -820,7 +820,17 @@ void ConfigReaderThread::Finish()
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
-			i->second->ReadConfig(status);
+		{
+			try
+			{
+				ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Rehashing " + i->first);
+				i->second->ReadConfig(status);
+			}
+			catch (CoreException& modex)
+			{
+				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
+			}
+		}
 
 		// The description of this server may have changed - update it for WHOIS etc.
 		ServerInstance->FakeClient->server->description = Config->ServerDesc;
