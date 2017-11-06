@@ -1591,6 +1591,13 @@
 # Layer via AUTHENTICATE. Note: You also need to have m_cap.so loaded
 # for SASL to work.
 #<module name="m_sasl.so">
+# Define the following to your services server name to improve security
+# by ensuring the SASL messages are only sent to the services server
+# and not to all connected servers. This prevents a rogue server from
+# capturing SASL messages. Having this defined can also improve client
+# connections when your services are down, as the client will be told
+# that SASL failed rather than just timing out on registration.
+#<sasl target="services.mynetwork.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,
