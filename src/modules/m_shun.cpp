@@ -114,13 +114,17 @@ class CommandShun : public Command
 
 		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", user))
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", user))
+			{
+				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s", user->nick.c_str(), parameters[0].c_str());
+			}
+			else if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", user))
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SHUN on %s",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
+				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
