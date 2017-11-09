@@ -35,10 +35,6 @@ static void SendSASL(const parameterlist& params)
 {
 	if (!ServerInstance->PI->SendEncapsulatedData(params))
 	{
-		User* u = ServerInstance->FindUUID(params[2]);
-		if (u)
-			u->WriteNumeric(904, "%s :SASL authentication failed", u->nick.c_str());
-
 		SASLFallback(NULL, params);
 	}
 }
