@@ -155,6 +155,27 @@ std::string UIDGenerator::GetUID()
 	return current_uid;
 }
 
+void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
+{
+	// If this token has no value then we have nothing to do.
+	if (value.empty())
+		return;
+
+	// This function implements value escaping according to the rules of the ISUPPORT draft:
+	// https://tools.ietf.org/html/draft-brocklesby-irc-isupport-03
+	buffer.push_back('=');
+	for (std::string::const_iterator iter = value.begin(); iter != value.end(); ++iter)
+	{
+		// The value must be escaped if:
+		//   (1) It is a banned character in an IRC <middle> parameter (NUL, LF, CR, SPACE).
+		//   (2) It has special meaning within an ISUPPORT token (EQUALS, BACKSLASH).
+		if (*iter == '\0' || *iter == '\n' || *iter == '\r' || *iter == ' ' || *iter == '=' || *iter == '\\')
+			buffer.append(InspIRCd::Format("\\x%X", *iter));
+		else
+			buffer.push_back(*iter);
+	}
+}
+
 void ISupportManager::Build()
 {
 	/**
@@ -200,10 +221,7 @@ void ISupportManager::Build()
 	{
 		numeric.push(it->first);
 		std::string& token = numeric.GetParams().back();
-
-		// If this token has a value then append a '=' char after the name and then the value itself
-		if (!it->second.empty())
-			token.append(1, '=').append(it->second);
+		AppendValue(token, it->second);
 
 		token_count++;
 

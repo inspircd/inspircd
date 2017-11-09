@@ -26,6 +26,12 @@ class CoreExport ISupportManager
 	/** The generated lines which are sent to clients. */
 	std::vector<Numeric::Numeric> cachedlines;
 
+	/** Escapes an ISUPPORT token value and appends it to the buffer.
+	 * @param buffer The buffer to append to.
+	 * @param value An ISUPPORT token value.
+	 */
+	void AppendValue(std::string& buffer, const std::string& value);
+
  public:
 	/** (Re)build the ISUPPORT vector.
 	 * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
