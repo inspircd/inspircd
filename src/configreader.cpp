@@ -450,9 +450,6 @@ void ServerConfig::Fill()
 	Paths = ServerPaths(ConfValue("path"));
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
-	if (Network.find(' ') != std::string::npos)
-		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
-
 	std::string defbind = options->getString("defaultbind");
 	if (stdalgo::string::equalsci(defbind, "ipv4"))
 	{

@@ -97,8 +97,7 @@
         #id="97K"
 
         # network: Network name given on connect to clients.
-        # Should be the same on all servers on the network and
-        # not contain spaces.
+        # Should be the same on all servers on the network.
         network="Omega">
 
 
