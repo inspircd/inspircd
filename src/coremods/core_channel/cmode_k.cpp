@@ -49,16 +49,29 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		}
 	}
 
-	channel->SetMode(this, adding);
 	if (adding)
 	{
+		// When joining a channel multiple keys are delimited with a comma so we strip
+		// them out here to avoid creating channels that are unjoinable.
+		size_t commapos;
+		while ((commapos = parameter.find(',')) != std::string::npos)
+			parameter.erase(commapos, 1);
+
+		// Truncate the parameter to the maximum key length.
 		if (parameter.length() > maxkeylen)
 			parameter.erase(maxkeylen);
+
+		// If the password is empty here then it only consisted of commas. This is not
+		// acceptable so we reject the mode change.
+		if (parameter.empty())
+			return MODEACTION_DENY;
+
 		ext.set(channel, parameter);
 	}
 	else
 		ext.unset(channel);
 
+	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
 }
 
