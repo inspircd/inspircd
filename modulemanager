@@ -75,7 +75,7 @@ sub parse_url {
 	}
 
 	my $mod;
-	for (split /\n+/, $response->decoded_content) {
+	for (split /\n+/, $response->content) {
 		s/^\s+//; # ignore whitespace at start
 		next if /^#/;
 		if (/^module (\S+) (\S+) (\S+)/) {
@@ -359,7 +359,7 @@ for my $mod (sort keys %todo) {
 
 	if ($response->is_success) {
 		open(MF, ">src/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
-		print MF $response->decoded_content;
+		print MF $response->content;
 		close(MF);
 		print " - done\n";
 	} else {
