@@ -187,10 +187,18 @@
 
        # diepass: Password for opers to use if they need to shutdown (die)
        # a server.
+       #
+       # IMPORTANT: leaving this field empty does not disable the use of
+       # the DIE command. In order to prevent the use of this command you
+       # should remove it from the command privileges of your opers.
        diepass=""
 
        # restartpass: Password for opers to use if they need to restart
        # a server.
+       #
+       # IMPORTANT: leaving this field empty does not disable the use of
+       # the RESTART command. In order to prevent the use of this command
+       # you should remove it from the command privileges of your opers.
        restartpass="">
 
 
@@ -796,11 +804,6 @@
 # Logging is covered with the <log> tag, which you may use to change
 # the behaviour of the logging of the IRCd.
 #
-# In InspIRCd as of 1.2, logging is pluggable and very extensible.
-# Different files can log the same thing, different 'types' of log can
-# go to different places, and modules can even extend the log tag
-# to do what they want.
-#
 # An example log tag would be:
 #  <log method="file" type="OPER" level="default" target="logs/opers.log">
 # which would log all information on /oper (failed and successful) to
@@ -978,6 +981,6 @@
 #########################################################################
 #                                                                       #
 #                     - InspIRCd Development Team -                     #
-#                        http://www.inspircd.org                        #
+#                        https://www.inspircd.org                       #
 #                                                                       #
 #########################################################################

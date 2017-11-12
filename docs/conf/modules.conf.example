@@ -941,7 +941,7 @@
 #<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 module: Provides the following IRCv3.1 extensions:
+# IRCv3 module: Provides the following IRCv3 extensions:
 # extended-join, away-notify and account-notify. These are optional
 # enhancements to the client-to-server protocol. An extension is only
 # active for a client when the client specifically requests it, so this
@@ -949,7 +949,7 @@
 #
 # Further information on these extensions can be found at the IRCv3
 # working group website:
-# http://ircv3.org/extensions/
+# http://ircv3.net/irc/
 #
 #<module name="m_ircv3.so">
 # The following block can be used to control which extensions are
@@ -1594,9 +1594,7 @@
 # Define the following to your services server name to improve security
 # by ensuring the SASL messages are only sent to the services server
 # and not to all connected servers. This prevents a rogue server from
-# capturing SASL messages. Having this defined can also improve client
-# connections when your services are down, as the client will be told
-# that SASL failed rather than just timing out on registration.
+# capturing SASL messages.
 #<sasl target="services.mynetwork.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
