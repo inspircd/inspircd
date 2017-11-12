@@ -23,19 +23,10 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-
-/** Handles the +B channel mode
- */
-class BlockCaps : public SimpleChannelModeHandler
-{
- public:
-	BlockCaps(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcaps", 'B') { }
-};
-
 class ModuleBlockCAPS : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	BlockCaps bc;
+	SimpleChannelModeHandler bc;
 	unsigned int percent;
 	unsigned int minlen;
 	char capsmap[256];
@@ -43,7 +34,7 @@ class ModuleBlockCAPS : public Module
 public:
 	ModuleBlockCAPS()
 		: exemptionprov(this)
-		, bc(this)
+		, bc(this, "blockcaps", 'B')
 	{
 	}
 

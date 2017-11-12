@@ -19,18 +19,13 @@
 
 #include "inspircd.h"
 
-class AllowInvite : public SimpleChannelModeHandler
-{
- public:
-	AllowInvite(Module* Creator) : SimpleChannelModeHandler(Creator, "allowinvite", 'A') { }
-};
-
 class ModuleAllowInvite : public Module
 {
-	AllowInvite ni;
+	SimpleChannelModeHandler ni;
  public:
 
-	ModuleAllowInvite() : ni(this)
+	ModuleAllowInvite()
+		: ni(this, "allowinvite", 'A')
 	{
 	}
 

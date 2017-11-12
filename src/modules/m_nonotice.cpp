@@ -22,21 +22,15 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class NoNotice : public SimpleChannelModeHandler
-{
- public:
-	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, "nonotice", 'T') { }
-};
-
 class ModuleNoNotice : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	NoNotice nt;
+	SimpleChannelModeHandler nt;
  public:
 
 	ModuleNoNotice()
 		: exemptionprov(this)
-		, nt(this)
+		, nt(this, "nonotice", 'T')
 	{
 	}
 

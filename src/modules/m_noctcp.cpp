@@ -22,21 +22,15 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class NoCTCP : public SimpleChannelModeHandler
-{
- public:
-	NoCTCP(Module* Creator) : SimpleChannelModeHandler(Creator, "noctcp", 'C') { }
-};
-
 class ModuleNoCTCP : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	NoCTCP nc;
+	SimpleChannelModeHandler nc;
 
  public:
 	ModuleNoCTCP()
 		: exemptionprov(this)
-		, nc(this)
+		, nc(this, "noctcp", 'C')
 	{
 	}
 

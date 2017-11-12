@@ -21,21 +21,13 @@
 
 #include "inspircd.h"
 
-/** Handles user mode +B
- */
-class BotMode : public SimpleUserModeHandler
-{
- public:
-	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, "bot", 'B') { }
-};
-
 class ModuleBotMode : public Module, public Whois::EventListener
 {
-	BotMode bm;
+	SimpleUserModeHandler bm;
  public:
 	ModuleBotMode()
 		: Whois::EventListener(this)
-		, bm(this)
+		, bm(this, "bot", 'B')
 	{
 	}
 

@@ -24,23 +24,15 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-/** Handles the +c channel mode
- */
-class BlockColor : public SimpleChannelModeHandler
-{
- public:
-	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { }
-};
-
 class ModuleBlockColor : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	BlockColor bc;
+	SimpleChannelModeHandler bc;
  public:
 
 	ModuleBlockColor()
 		: exemptionprov(this)
-		, bc(this)
+		, bc(this, "blockcolor", 'c')
 	{
 	}
 

@@ -89,30 +89,6 @@ class User_r : public ModeHandler
 	}
 };
 
-/** Channel mode +R - unidentified users cannot join
- */
-class AChannel_R : public SimpleChannelModeHandler
-{
- public:
-	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, "reginvite", 'R') { }
-};
-
-/** User mode +R - unidentified users cannot message
- */
-class AUser_R : public SimpleUserModeHandler
-{
- public:
-	AUser_R(Module* Creator) : SimpleUserModeHandler(Creator, "regdeaf", 'R') { }
-};
-
-/** Channel mode +M - unidentified users cannot message channel
- */
-class AChannel_M : public SimpleChannelModeHandler
-{
- public:
-	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
-};
-
 class AccountExtItemImpl : public AccountExtItem
 {
 	Events::ModuleEventProvider eventprov;
@@ -155,9 +131,9 @@ class AccountExtItemImpl : public AccountExtItem
 class ModuleServicesAccount : public Module, public Whois::EventListener
 {
 	CheckExemption::EventProvider exemptionprov;
-	AChannel_R m1;
-	AChannel_M m2;
-	AUser_R m3;
+	SimpleChannelModeHandler m1;
+	SimpleChannelModeHandler m2;
+	SimpleUserModeHandler m3;
 	Channel_r m4;
 	User_r m5;
 	AccountExtItemImpl accountname;
@@ -166,7 +142,11 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 	ModuleServicesAccount()
 		: Whois::EventListener(this)
 		, exemptionprov(this)
-		, m1(this), m2(this), m3(this), m4(this), m5(this)
+		, m1(this, "reginvite", 'R')
+		, m2(this, "regmoderated", 'M')
+		, m3(this, "regdeaf", 'R')
+		, m4(this)
+		, m5(this)
 		, accountname(this)
 		, checking_ban(false)
 	{

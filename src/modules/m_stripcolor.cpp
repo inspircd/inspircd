@@ -22,34 +22,17 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-/** Handles channel mode +S
- */
-class ChannelStripColor : public SimpleChannelModeHandler
-{
- public:
-	ChannelStripColor(Module* Creator) : SimpleChannelModeHandler(Creator, "stripcolor", 'S') { }
-};
-
-/** Handles user mode +S
- */
-class UserStripColor : public SimpleUserModeHandler
-{
- public:
-	UserStripColor(Module* Creator) : SimpleUserModeHandler(Creator, "u_stripcolor", 'S') { }
-};
-
-
 class ModuleStripColor : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	ChannelStripColor csc;
-	UserStripColor usc;
+	SimpleChannelModeHandler csc;
+	SimpleUserModeHandler usc;
 
  public:
 	ModuleStripColor()
 		: exemptionprov(this)
-		, csc(this)
-		, usc(this)
+		, csc(this, "stripcolor", 'S')
+		, usc(this, "u_stripcolor", 'S')
 	{
 	}
 

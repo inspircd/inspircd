@@ -25,34 +25,18 @@
 
 typedef insp::flat_map<irc::string, irc::string> censor_t;
 
-/** Handles usermode +G
- */
-class CensorUser : public SimpleUserModeHandler
-{
- public:
-	CensorUser(Module* Creator) : SimpleUserModeHandler(Creator, "u_censor", 'G') { }
-};
-
-/** Handles channel mode +G
- */
-class CensorChannel : public SimpleChannelModeHandler
-{
- public:
-	CensorChannel(Module* Creator) : SimpleChannelModeHandler(Creator, "censor", 'G') { }
-};
-
 class ModuleCensor : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	censor_t censors;
-	CensorUser cu;
-	CensorChannel cc;
+	SimpleUserModeHandler cu;
+	SimpleChannelModeHandler cc;
 
  public:
 	ModuleCensor()
 		: exemptionprov(this)
-		, cu(this)
-		, cc(this)
+		, cu(this, "u_censor", 'G')
+		, cc(this, "censor", 'G')
 	{
 	}
 

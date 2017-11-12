@@ -22,21 +22,15 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class NoNicks : public SimpleChannelModeHandler
-{
- public:
-	NoNicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nonick", 'N') { }
-};
-
 class ModuleNoNickChange : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	NoNicks nn;
+	SimpleChannelModeHandler nn;
 	bool override;
  public:
 	ModuleNoNickChange()
 		: exemptionprov(this)
-		, nn(this)
+		, nn(this, "nonick", 'N')
 	{
 	}
 

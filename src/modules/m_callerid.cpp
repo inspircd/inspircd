@@ -147,12 +147,6 @@ struct CallerIDExtInfo : public ExtensionItem
 	}
 };
 
-class User_g : public SimpleUserModeHandler
-{
-public:
-	User_g(Module* Creator) : SimpleUserModeHandler(Creator, "callerid", 'g') { }
-};
-
 class CommandAccept : public Command
 {
 	/** Pair: first is the target, second is true to add, false to remove
@@ -333,7 +327,7 @@ public:
 class ModuleCallerID : public Module
 {
 	CommandAccept cmd;
-	User_g myumode;
+	SimpleUserModeHandler myumode;
 
 	// Configuration variables:
 	bool operoverride; // Operators can override callerid.
@@ -364,7 +358,9 @@ class ModuleCallerID : public Module
 	}
 
 public:
-	ModuleCallerID() : cmd(this), myumode(this)
+	ModuleCallerID()
+		: cmd(this)
+		, myumode(this, "callerid", 'g')
 	{
 	}
 

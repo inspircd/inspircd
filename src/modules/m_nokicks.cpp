@@ -22,19 +22,13 @@
 
 #include "inspircd.h"
 
-class NoKicks : public SimpleChannelModeHandler
-{
- public:
-	NoKicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nokick", 'Q') { }
-};
-
 class ModuleNoKicks : public Module
 {
-	NoKicks nk;
+	SimpleChannelModeHandler nk;
 
  public:
 	ModuleNoKicks()
-		: nk(this)
+		: nk(this, "nokick", 'Q')
 	{
 	}
 

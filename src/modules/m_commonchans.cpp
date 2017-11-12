@@ -19,19 +19,12 @@
 
 #include "inspircd.h"
 
-/** Handles user mode +c
- */
-class PrivacyMode : public SimpleUserModeHandler
-{
- public:
-	PrivacyMode(Module* Creator) : SimpleUserModeHandler(Creator, "deaf_commonchan", 'c') { }
-};
-
 class ModulePrivacyMode : public Module
 {
-	PrivacyMode pm;
+	SimpleUserModeHandler pm;
  public:
-	ModulePrivacyMode() : pm(this)
+	ModulePrivacyMode()
+		: pm(this, "deaf_commonchan", 'c')
 	{
 	}
 
