@@ -30,7 +30,7 @@
 class CoreExport CommandParser
 {
  public:
- 	typedef TR1NS::unordered_map<std::string, Command*> CommandMap;
+ 	typedef TR1NS::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
 
  private:
 	/** Process a command from a user.

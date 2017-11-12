@@ -10,7 +10,7 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules. Please refer to       #
-#  http://wiki.inspircd.org/Modules for a list of modules and         #
+#  https://wiki.inspircd.org/3.0/Modules for a list of modules and    #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
@@ -309,7 +309,7 @@
 #                                                                     #
 # Optional - If you specify to use the censor module, then you must   #
 # specify some censor tags. See also:                                 #
-# http://wiki.inspircd.org/Modules/censor                             #
+# https://wiki.inspircd.org/Modules/3.0/censor                        #
 #
 #<include file="examples/censor.conf.example">
 
@@ -739,7 +739,7 @@
 #<module name="dnsbl">                                                #
 #                                                                     #
 # For configuration options please see the wiki page for dnsbl at     #
-# http://wiki.inspircd.org/Modules/dnsbl                              #
+# https://wiki.inspircd.org/Modules/3.0/dnsbl                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
@@ -886,7 +886,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# See http://wiki.inspircd.org/Modules/hostchange for help.           #
+# See https://wiki.inspircd.org/Modules/3.0/hostchange for help.      #
 #                                                                     #
 #<host suffix="invalid.org" separator="." prefix="">
 #<hostchange mask="*@42.theanswer.example.org" action="addnick">
@@ -971,7 +971,7 @@
 #<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 module: Provides the following IRCv3.1 extensions:
+# IRCv3 module: Provides the following IRCv3 extensions:
 # extended-join, away-notify and account-notify. These are optional
 # enhancements to the client-to-server protocol. An extension is only
 # active for a client when the client specifically requests it, so this
@@ -979,7 +979,7 @@
 #
 # Further information on these extensions can be found at the IRCv3
 # working group website:
-# http://ircv3.org/extensions/
+# http://ircv3.net/irc/
 #
 #<module name="ircv3">
 # The following block can be used to control which extensions are
@@ -1195,7 +1195,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # mysql is more complex than described here, see the wiki for more    #
-# info: http://wiki.inspircd.org/Modules/mysql                        #
+# info: https://wiki.inspircd.org/Modules/3.0/mysql                   #
 #
 #<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
 
@@ -1472,8 +1472,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# pgsql is more complex than described here, see the wiki for    #
-# more: http://wiki.inspircd.org/Modules/pgsql                        #
+# pgsql is more complex than described here, see the wiki for         #
+# more: https://wiki.inspircd.org/Modules/3.0/pgsql                   #
 #
 #<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
 
@@ -1700,6 +1700,12 @@
 # Layer via AUTHENTICATE. Note: You also need to have cap loaded
 # for SASL to work.
 #<module name="sasl">
+# Define the following to your services server name to improve security
+# by ensuring the SASL messages are only sent to the services server
+# and not to all connected servers. This prevents a rogue server from
+# capturing SASL messages and disables the SASL cap when services is
+# down.
+#<sasl target="services.mynetwork.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,
@@ -1865,7 +1871,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # ssl_gnutls is too complex to describe here, see the wiki:           #
-# http://wiki.inspircd.org/Modules/ssl_gnutls                         #
+# https://wiki.inspircd.org/Modules/3.0/ssl_gnutls                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL info module: Allows users to retrieve information about other
@@ -1896,7 +1902,7 @@
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # ssl_openssl is too complex to describe here, see the wiki:          #
-# http://wiki.inspircd.org/Modules/ssl_openssl                        #
+# https://wiki.inspircd.org/Modules/3.0/ssl_openssl                   #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip color module: Adds channel mode +S that strips color codes and
@@ -1926,7 +1932,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # sqlite is more complex than described here, see the wiki for more   #
-# info: http://wiki.inspircd.org/Modules/sqlite3                      #
+# info: https://wiki.inspircd.org/Modules/3.0/sqlite3                 #
 #
 #<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
 
@@ -1942,7 +1948,7 @@
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # sqlauth is too complex to describe here, see the wiki:              #
-# http://wiki.inspircd.org/Modules/sqlauth                            #
+# https://wiki.inspircd.org/Modules/3.0/sqlauth                       #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
@@ -1957,7 +1963,7 @@
 # dbid       - Database ID to use (see SQL modules).                  #
 # hash       - Hashing provider to use for password hashing.          #
 #                                                                     #
-# See also: http://wiki.inspircd.org/Modules/sqloper                  #
+# See also: https://wiki.inspircd.org/Modules/3.0/sqloper             #
 #                                                                     #
 #<sqloper dbid="1" hash="bcrypt">
 

@@ -49,7 +49,7 @@
 
       # fingerprint: If defined, this option will force servers to be
       # authenticated using SSL certificate fingerprints. See
-      # http://wiki.inspircd.org/SSL for more information. This will
+      # https://wiki.inspircd.org/SSL for more information. This will
       # require an SSL link for both inbound and outbound connections.
       #fingerprint=""
 

@@ -399,7 +399,7 @@ class CommandCap : public SplitCommand
 		}
 		else
 		{
-			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, subcommand, "Invalid CAP subcommand");
+			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, subcommand.empty() ? "*" : subcommand, "Invalid CAP subcommand");
 			return CMD_FAILURE;
 		}
 

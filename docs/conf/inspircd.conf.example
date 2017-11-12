@@ -810,11 +810,6 @@
 # Logging is covered with the <log> tag, which you may use to change
 # the behaviour of the logging of the IRCd.
 #
-# In InspIRCd as of 1.2, logging is pluggable and very extensible.
-# Different files can log the same thing, different 'types' of log can
-# go to different places, and modules can even extend the log tag
-# to do what they want.
-#
 # An example log tag would be:
 #  <log method="file" type="OPER" level="default" target="opers.log">
 # which would log all information on /oper (failed and successful) to
@@ -1007,6 +1002,6 @@
 #########################################################################
 #                                                                       #
 #                     - InspIRCd Development Team -                     #
-#                        http://www.inspircd.org                        #
+#                        https://www.inspircd.org                       #
 #                                                                       #
 #########################################################################

@@ -730,8 +730,7 @@ bool User::SetClientIP(const std::string& address, bool recheck_eline)
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 {
-	cachedip.clear();
-	cached_hostip.clear();
+	this->InvalidateCache();
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 }
 
