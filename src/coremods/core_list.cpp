@@ -24,8 +24,21 @@
  */
 class CommandList : public Command
 {
+ private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
+
+	/** Parses the creation time or topic set time out of a LIST parameter.
+	 * @param value The parameter containing a minute count.
+	 * @return The UNIX time at \p value minutes ago.
+	 */
+	time_t ParseMinutes(const std::string& value)
+	{
+		time_t minutes = ConvToNum<time_t>(value.c_str() + 2);
+		if (!minutes)
+			return 0;
+		return ServerInstance->Time() - (minutes * 60);
+	}
 
  public:
 	/** Constructor for list.
@@ -51,42 +64,105 @@ class CommandList : public Command
  */
 CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	size_t minusers = 0, maxusers = 0;
+	// C: Searching based on creation time, via the "C<val" and "C>val" modifiers
+	// to search for a channel creation time that is lower or higher than val
+	// respectively.
+	time_t mincreationtime = 0;
+	time_t maxcreationtime = 0;
 
-	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+	// M: Searching based on mask.
+	// N: Searching based on !mask.
+	bool match_name_topic = false;
+	bool match_inverted = false;
+	const char* match = NULL;
+
+	// T: Searching based on topic time, via the "T<val" and "T>val" modifiers to
+	// search for a topic time that is lower or higher than val respectively.
+	time_t mintopictime = 0;
+	time_t maxtopictime = 0;
+
+	// U: Searching based on user count within the channel, via the "<val" and
+	// ">val" modifiers to search for a channel that has less than or more than
+	// val users respectively.
+	size_t minusers = 0;
+	size_t maxusers = 0;
 
 	if ((parameters.size() == 1) && (!parameters[0].empty()))
 	{
 		if (parameters[0][0] == '<')
 		{
-			maxusers = strtoul((parameters[0].c_str() + 1), NULL, 10);
+			maxusers = ConvToNum<size_t>(parameters[0].c_str() + 1);
 		}
 		else if (parameters[0][0] == '>')
 		{
-			minusers = strtoul((parameters[0].c_str() + 1), NULL, 10);
+			minusers = ConvToNum<size_t>(parameters[0].c_str() + 1);
+		}
+		else if (!parameters[0].compare(0, 2, "C<", 2))
+		{
+			mincreationtime = ParseMinutes(parameters[0]);
+		}
+		else if (!parameters[0].compare(0, 2, "C>", 2))
+		{
+			maxcreationtime = ParseMinutes(parameters[0]);
+		}
+		else if (!parameters[0].compare(0, 2, "T<", 2))
+		{
+			mintopictime = ParseMinutes(parameters[0]);
+		}
+		else if (!parameters[0].compare(0, 2, "T>", 2))
+		{
+			maxtopictime = ParseMinutes(parameters[0]);
+		}
+		else
+		{
+			// If the glob is prefixed with ! it is inverted.
+			match = parameters[0].c_str();
+			if (match[0] == '!')
+			{
+				match_inverted = true;
+				match += 1;
+			}
+
+			// Ensure that the user didn't just run "LIST !".
+			if (match[0])
+				match_name_topic = true;
 		}
 	}
 
 	const bool has_privs = user->HasPrivPermission("channels/auspex");
-	const bool match_name_topic = ((!parameters.empty()) && (!parameters[0].empty()) && (parameters[0][0] != '<') && (parameters[0][0] != '>'));
 
+	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
 		Channel* const chan = i->second;
 
-		// attempt to match a glob pattern
-		size_t users = chan->GetUserCounter();
-
-		bool too_few = (minusers && (users <= minusers));
-		bool too_many = (maxusers && (users >= maxusers));
-
-		if (too_many || too_few)
+		// Check the user count if a search has been specified.
+		const size_t users = chan->GetUserCounter();
+		if ((minusers && users <= minusers) || (maxusers && users >= maxusers))
 			continue;
 
+		// Check the creation ts if a search has been specified.
+		const time_t creationtime = chan->age;
+		if ((mincreationtime && creationtime <= mincreationtime) || (maxcreationtime && creationtime >= maxcreationtime))
+			continue;
+
+		// Check the topic ts if a search has been specified.
+		const time_t topictime = chan->topicset;
+		if ((mintopictime && (!topictime || topictime <= mintopictime)) || (maxtopictime && (!topictime || topictime >= maxtopictime)))
+			continue;
+
+		// Attempt to match a glob pattern.
 		if (match_name_topic)
 		{
-			if (!InspIRCd::Match(chan->name, parameters[0]) && !InspIRCd::Match(chan->topic, parameters[0]))
+			bool matches = InspIRCd::Match(chan->name, match) || InspIRCd::Match(chan->topic, match);
+
+			// The user specified an match that we did not match.
+			if (!matches && !match_inverted)
+				continue;
+
+			// The user specified an inverted match that we did match.
+			if (matches && match_inverted)
 				continue;
 		}
 
@@ -113,5 +189,27 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
+class CoreModList : public Module
+{
+ private:
+	CommandList cmd;
 
-COMMAND_INIT(CommandList)
+ public:
+	CoreModList()
+		: cmd(this)
+	{
+	}
+
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		tokens["ELIST"] = "CMNTU";
+		tokens["SAFELIST"];
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the LIST command", VF_VENDOR|VF_CORE);
+	}
+};
+
+MODULE_INIT(CoreModList)

@@ -190,7 +190,6 @@ void ISupportManager::Build()
 	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
-	tokens["ELIST"] = "MU";
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
