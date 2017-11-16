@@ -309,10 +309,10 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats o */
 		case 'o':
 		{
-			ConfigTagList tags = ServerInstance->Config->ConfTags("oper");
-			for(ConfigIter i = tags.first; i != tags.second; ++i)
+			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
 			{
-				ConfigTag* tag = i->second;
+				OperInfo* ifo = i->second;
+				ConfigTag* tag = ifo->oper_block;
 				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
 			}
 		}

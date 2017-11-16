@@ -1,10 +1,13 @@
 CREATE TABLE ircd_opers (
-    id serial NOT NULL,
-    username text,
-    "password" text,
-    hostname text,
-    "type" text,
-    active boolean NOT NULL DEFAULT 1
+    "id" serial NOT NULL,
+    "name" text NOT NULL,
+    "password" text NOT NULL,
+    "hash" text,
+    "host" text NOT NULL,
+    "type" text NOT NULL,
+    "fingerprint" text,
+    "autologin" boolean NOT NULL DEFAULT 0,
+    "active" boolean NOT NULL DEFAULT 1
 );
 ALTER TABLE ONLY ircd_opers
     ADD CONSTRAINT ircd_opers_pkey PRIMARY KEY (id);

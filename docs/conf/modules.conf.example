@@ -2008,18 +2008,20 @@
 # https://wiki.inspircd.org/Modules/3.0/sqlauth                       #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL oper module: Allows you to store oper credentials in an SQL table
+# SQL oper module: Allows you to store oper credentials in an SQL
+# table. You can add additional table columns like you would config
+# tags in opers.conf. Opers in opers.conf will override opers from
+# this module.
 #
 #<module name="sqloper">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # dbid       - Database ID to use (see SQL modules).                  #
-# hash       - Hashing provider to use for password hashing.          #
 #                                                                     #
 # See also: https://wiki.inspircd.org/Modules/3.0/sqloper             #
 #                                                                     #
-#<sqloper dbid="1" hash="bcrypt">
+#<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # StartTLS module: Implements STARTTLS, which allows clients          #

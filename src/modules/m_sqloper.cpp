@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2017 Dylan Frank <b00mx0r@aureus.pw>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -19,49 +20,110 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
-#include "modules/hash.h"
 
 class OperQuery : public SQL::Query
 {
  public:
+	// This variable will store all the OPER blocks from the DB
+	std::vector<std::string>& my_blocks;
+	/** We want to store the username and password if this is called during an /OPER, as we're responsible for /OPER post-DB fetch
+	 *  Note: uid will be empty if this DB update was not called as a result of a user command (i.e. /REHASH)
+	 */
 	const std::string uid, username, password;
-	OperQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
+	OperQuery(Module* me, std::vector<std::string>& mb, const std::string& u, const std::string& un, const std::string& pw)
 		: SQL::Query(me)
+		, my_blocks(mb)
 		, uid(u)
 		, username(un)
 		, password(pw)
 	{
 	}
+	OperQuery(Module* me, std::vector<std::string>& mb)
+		: SQL::Query(me)
+		, my_blocks(mb)
+	{
+	}
 
 	void OnResult(SQL::Result& res) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "result for %s", uid.c_str());
-		User* user = ServerInstance->FindNick(uid);
-		if (!user)
-			return;
+		ServerConfig::OperIndex& oper_blocks = ServerInstance->Config->oper_blocks;
 
-		// multiple rows may exist
+		// Remove our previous blocks from oper_blocks for a clean update
+		for (std::vector<std::string>::const_iterator i = my_blocks.begin(); i != my_blocks.end(); ++i)
+		{
+			oper_blocks.erase(*i);
+		}
+		my_blocks.clear();
+
 		SQL::Row row;
+		// Iterate through DB results to create oper blocks from sqloper rows
 		while (res.GetRow(row))
 		{
-			if (OperUser(user, row[0], row[1]))
-				return;
+			std::vector<std::string> cols;
+			res.GetCols(cols);
+
+			// Create the oper tag as if we were the conf file.
+			ConfigItems* items;
+			reference<ConfigTag> tag = ConfigTag::create("oper", MODNAME, 0, items);
+
+			/** Iterate through each column in the SQLOpers table. An infinite number of fields can be specified.
+			 *  Column 'x' with cell value 'y' will be the same as x=y in an OPER block in opers.conf.
+			 */
+			for (unsigned int i=0; i < cols.size(); ++i)
+			{
+				if (!row[i].IsNull())
+					(*items)[cols[i]] = row[i];
+			}
+			const std::string name = tag->getString("name");
+
+			// Skip both duplicate sqloper blocks and sqloper blocks that attempt to override conf blocks.
+			if (oper_blocks.find(name) != oper_blocks.end())
+				continue;
+
+			const std::string type = tag->getString("type");
+			ServerConfig::OperIndex::iterator tblk = ServerInstance->Config->OperTypes.find(type);
+			if (tblk == ServerInstance->Config->OperTypes.end())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Sqloper block " + name + " has missing type " + type);
+				ServerInstance->SNO->WriteGlobalSno('a', "m_sqloper: Oper block %s has missing type %s", name.c_str(), type.c_str());
+				continue;
+			}
+
+			OperInfo* ifo = new OperInfo(type);
+
+			ifo->type_block = tblk->second->type_block;
+			ifo->oper_block = tag;
+			ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
+			oper_blocks[name] = ifo;
+			my_blocks.push_back(name);
 		}
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
-		// nobody succeeded... fall back to OPER
-		fallback();
+
+		// If this was done as a result of /OPER and not a config read
+		if (!uid.empty())
+		{
+			// Now that we've updated the DB, call any other /OPER hooks and then call /OPER
+			OperExec();
+		}
 	}
 
 	void OnError(SQL::Error& error) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.ToString());
-		fallback();
+		ServerInstance->SNO->WriteGlobalSno('a', "m_sqloper: failed to update blocks from database");
+		if (!uid.empty())
+		{
+			// Fallback. We don't want to block a netadmin from /OPER
+			OperExec();
+		}
 	}
 
-	void fallback()
+	// Call /oper after placing all blocks from the SQL table into the config->oper_blocks list.
+	void OperExec()
 	{
 		User* user = ServerInstance->FindNick(uid);
-		if (!user)
+		LocalUser* localuser = IS_LOCAL(user);
+		// This should never be true
+		if (!localuser)
 			return;
 
 		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
@@ -71,6 +133,16 @@ class OperQuery : public SQL::Query
 			std::vector<std::string> params;
 			params.push_back(username);
 			params.push_back(password);
+
+			// Begin callback to other modules (i.e. sslinfo) now that we completed the DB fetch
+			ModResult MOD_RESULT;
+
+			std::string origin = "OPER";
+			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, localuser, true, origin));
+			if (MOD_RESULT == MOD_RES_DENY)
+				return;
+
+			// Now handle /OPER.
 			oper_command->Handle(params, user);
 		}
 		else
@@ -78,44 +150,29 @@ class OperQuery : public SQL::Query
 			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
-
-	bool OperUser(User* user, const std::string &pattern, const std::string &type)
-	{
-		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(type);
-		if (iter == ServerInstance->Config->OperTypes.end())
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
-			return false;
-		}
-		OperInfo* ifo = iter->second;
-
-		std::string hostname(user->ident);
-
-		hostname.append("@").append(user->GetRealHost());
-
-		if (InspIRCd::MatchMask(pattern, hostname, user->GetIPString()))
-		{
-			/* Opertype and host match, looks like this is it. */
-
-			user->Oper(ifo);
-			return true;
-		}
-
-		return false;
-	}
 };
 
 class ModuleSQLOper : public Module
 {
+	// Whether OperQuery is running
+	bool active;
 	std::string query;
-	std::string hashtype;
+	// Stores oper blocks from DB
+	std::vector<std::string> my_blocks;
 	dynamic_reference<SQL::Provider> SQL;
 
 public:
-	ModuleSQLOper() : SQL(this, "SQL") {}
+	ModuleSQLOper()
+		: active(false)
+		, SQL(this, "SQL")
+	{
+	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
+		// Clear list of our blocks, as ConfigReader just wiped them anyway
+		my_blocks.clear();
+
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
 		std::string dbid = tag->getString("dbid");
@@ -124,35 +181,61 @@ public:
 		else
 			SQL.SetProvider("SQL/" + dbid);
 
-		hashtype = tag->getString("hash");
-		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password' AND active=1;");
+		query = tag->getString("query", "SELECT * FROM ircd_opers WHERE active=1;");
+		// Update sqloper list from the database.
+		GetOperBlocks();
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	~ModuleSQLOper()
 	{
-		if (validated && command == "OPER" && parameters.size() >= 2)
+		// Remove all oper blocks that were from the DB
+		for (std::vector<std::string>::const_iterator i = my_blocks.begin(); i != my_blocks.end(); ++i)
+		{
+			ServerInstance->Config->oper_blocks.erase(*i);
+		}
+	}
+
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	{
+		// If we are not in the middle of an existing /OPER and someone is trying to oper-up
+		if (validated && command == "OPER" && parameters.size() >= 2 && !active)
 		{
 			if (SQL)
 			{
-				LookupOper(user, parameters[0], parameters[1]);
-				/* Query is in progress, it will re-invoke OPER if needed */
+				GetOperBlocks(user->uuid, parameters[0], parameters[1]);
+				/** We need to reload oper blocks from the DB before other
+				 *  hooks can run (i.e. sslinfo). We will re-call /OPER later.
+				 */
 				return MOD_RES_DENY;
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "database not present");
 		}
+		else if (active)
+		{
+			active = false;
+		}
+		// There is either no DB or we successfully reloaded oper blocks
 		return MOD_RES_PASSTHRU;
 	}
 
-	void LookupOper(User* user, const std::string &username, const std::string &password)
+	// The one w/o params is for non-/OPER DB updates, such as a rehash.
+	void GetOperBlocks()
 	{
-		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
+		SQL->Submit(new OperQuery(this, my_blocks), query);
+	}
+	void GetOperBlocks(const std::string u, const std::string& un, const std::string& pw)
+	{
+		active = true;
+		// Call to SQL query to fetch oper list from SQL table.
+		SQL->Submit(new OperQuery(this, my_blocks, u, un, pw), query);
+	}
 
-		SQL::ParamMap userinfo;
-		SQL::PopulateUserInfo(user, userinfo);
-		userinfo["username"] = username;
-		userinfo["password"] = hash ? hash->Generate(password) : password;
-
-		SQL->Submit(new OperQuery(this, user->uuid, username, password), query, userinfo);
+	void Prioritize() CXX11_OVERRIDE
+	{
+		/** Run before other /OPER hooks that expect populated blocks, i.e. sslinfo or a TOTP module.
+		 *  We issue a DENY first, and will re-run OnPreCommand later to trigger the other hooks post-DB update.
+		 */
+		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
