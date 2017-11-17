@@ -52,7 +52,7 @@ class ModuleConnectBan : public Module
 		if (u->exempt)
 			return;
 
-		int range = 32;
+		unsigned char range = 32;
 
 		switch (u->client_sa.sa.sa_family)
 		{

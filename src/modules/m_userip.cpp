@@ -38,7 +38,7 @@ class CommandUserip : public Command
 		bool checked_privs = false;
 		bool has_privs = false;
 
-		for (int i = 0; i < (int)parameters.size(); i++)
+		for (size_t i = 0; i < parameters.size(); i++)
 		{
 			User *u = ServerInstance->FindNickOnly(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))

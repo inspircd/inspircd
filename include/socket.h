@@ -60,7 +60,7 @@ namespace irc
 			struct sockaddr_in in4;
 			struct sockaddr_in6 in6;
 			/** Return the size of the structure for syscall passing */
-			int sa_size() const;
+			socklen_t sa_size() const;
 			/** Return port number or -1 if invalid */
 			int port() const;
 			/** Return IP only */
@@ -84,7 +84,7 @@ namespace irc
 			/** Construct a CIDR mask from the string. Will normalize (127.0.0.1/8 => 127.0.0.0/8). */
 			cidr_mask(const std::string& mask);
 			/** Construct a CIDR mask of a given length from the given address */
-			cidr_mask(const irc::sockets::sockaddrs& addr, int len);
+			cidr_mask(const irc::sockets::sockaddrs& addr, unsigned char len);
 			/** Equality of bits, type, and length */
 			bool operator==(const cidr_mask& other) const;
 			/** Ordering defined for maps */

@@ -48,7 +48,7 @@ BufferedSocket::BufferedSocket(int newfd)
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
 
-void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
+void BufferedSocket::DoConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip)
 {
 	BufferedSocketError err = BeginConnect(ipaddr, aport, maxtime, connectbindip);
 	if (err != I_ERR_NONE)
@@ -59,7 +59,7 @@ void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned lo
 	}
 }
 
-BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
+BufferedSocketError BufferedSocket::BeginConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip)
 {
 	irc::sockets::sockaddrs addr, bind;
 	if (!irc::sockets::aptosa(ipaddr, aport, addr))
@@ -80,7 +80,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int 
 	return BeginConnect(addr, bind, maxtime);
 }
 
-BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout)
+BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout)
 {
 	if (fd < 0)
 		fd = socket(dest.sa.sa_family, SOCK_STREAM, 0);

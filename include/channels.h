@@ -149,7 +149,7 @@ class CoreExport Channel : public Extensible
 	 *
 	 * @return The number of users on this channel
 	 */
-	long GetUserCounter() const { return userlist.size(); }
+	size_t GetUserCounter() const { return userlist.size(); }
 
 	/** Add a user pointer to the internal reference list
 	 * @param user The user to add

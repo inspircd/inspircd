@@ -353,7 +353,7 @@ class CoreExport User : public Extensible
 	unsigned int quitting:1;
 
 	/** What type of user is this? */
-	const unsigned int usertype:2;
+	const UserType usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
@@ -385,7 +385,7 @@ class CoreExport User : public Extensible
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
-	User(const std::string& uid, Server* srv, int objtype);
+	User(const std::string& uid, Server* srv, UserType objtype);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users

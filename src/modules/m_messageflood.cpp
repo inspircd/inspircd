@@ -37,7 +37,10 @@ class floodsettings
 	time_t reset;
 	insp::flat_map<User*, unsigned int> counters;
 
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
+	floodsettings(bool a, unsigned int b, unsigned int c)
+		: ban(a)
+		, secs(b)
+		, lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	}

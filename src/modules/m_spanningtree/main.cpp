@@ -273,12 +273,12 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 
 void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 {
-	std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin();
+	SpanningTreeUtilities::TimeoutList::iterator i = Utils->timeoutlist.begin();
 	while (i != Utils->timeoutlist.end())
 	{
 		TreeSocket* s = i->first;
-		std::pair<std::string, int> p = i->second;
-		std::map<TreeSocket*, std::pair<std::string, int> >::iterator me = i;
+		std::pair<std::string, unsigned int> p = i->second;
+		SpanningTreeUtilities::TimeoutList::iterator me = i;
 		i++;
 		if (s->GetLinkState() == DYING)
 		{
@@ -287,7 +287,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		}
 		else if (curtime > s->age + p.second)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
+			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %u seconds)",p.first.c_str(),p.second);
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}

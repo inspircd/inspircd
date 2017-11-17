@@ -393,13 +393,13 @@ std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 	return buffer;
 }
 
-std::string InspIRCd::GenRandomStr(int length, bool printable)
+std::string InspIRCd::GenRandomStr(unsigned int length, bool printable)
 {
 	char* buf = new char[length];
 	GenRandom(buf, length);
 	std::string rv;
 	rv.resize(length);
-	for(int i=0; i < length; i++)
+	for(size_t i = 0; i < length; i++)
 		rv[i] = printable ? 0x3F + (buf[i] & 0x3F) : buf[i];
 	delete[] buf;
 	return rv;

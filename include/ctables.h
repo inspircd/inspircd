@@ -112,7 +112,7 @@ class CoreExport CommandBase : public ServiceProvider
  public:
 	/** User flags needed to execute the command or 0
 	 */
-	char flags_needed;
+	unsigned char flags_needed;
 
 	/** Minimum number of parameters command takes
 	*/
@@ -157,7 +157,7 @@ class CoreExport CommandBase : public ServiceProvider
 
 	/** How many seconds worth of penalty does this command have?
 	 */
-	int Penalty;
+	unsigned int Penalty;
 
 	/** Create a new command.
 	 * @param me The module which created this command.
@@ -175,7 +175,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param parameter The parameter to encode. Can be modified in place.
 	 * @param index The parameter index (0 == first parameter).
 	 */
-	virtual void EncodeParameter(std::string& parameter, int index);
+	virtual void EncodeParameter(std::string& parameter, unsigned int index);
 
 	/** Disable or enable this command.
 	 * @param setting True to disable the command.
@@ -234,7 +234,7 @@ class CoreExport Command : public CommandBase
 class CoreExport SplitCommand : public Command
 {
  public:
-	SplitCommand(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0)
+	SplitCommand(Module* me, const std::string &cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
 		: Command(me, cmd, minpara, maxpara) {}
 	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user);
 	virtual CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);

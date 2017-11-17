@@ -74,7 +74,7 @@ class CommandKill : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 
-	void EncodeParameter(std::string& param, int index);
+	void EncodeParameter(std::string& param, unsigned int index);
 };
 
 /** Handle /OPER.

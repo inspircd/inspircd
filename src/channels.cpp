@@ -267,7 +267,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				if (!limit.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()))))
+					if (!MOD_RESULT.check(chan->GetUserCounter() < ConvToNum<size_t>(limit)))
 					{
 						user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (Channel is full)");
 						return NULL;

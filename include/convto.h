@@ -100,9 +100,9 @@ template<typename T> inline long ConvToInt(const T& in)
 	return atol(tmp.str().c_str());
 }
 
-inline uint64_t ConvToUInt64(const std::string& in)
+template<typename TOut> inline TOut ConvToNum(const std::string& in)
 {
-	uint64_t ret;
+	TOut ret;
 	std::istringstream tmp(in);
 	if (!(tmp >> ret))
 		return 0;

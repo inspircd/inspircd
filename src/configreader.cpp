@@ -219,7 +219,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		}
 	}
 
-	int blk_count = config_data.count("connect");
+	size_t blk_count = config_data.count("connect");
 	if (blk_count == 0)
 	{
 		// No connect blocks found; make a trivial default block
@@ -231,14 +231,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 
 	Classes.resize(blk_count);
-	std::map<std::string, int> names;
+	std::map<std::string, size_t> names;
 
 	bool try_again = true;
-	for(int tries=0; try_again; tries++)
+	for(size_t tries = 0; try_again; tries++)
 	{
 		try_again = false;
 		ConfigTagList tags = ConfTags("connect");
-		int i=0;
+		size_t i = 0;
 		for(ConfigIter it = tags.first; it != tags.second; ++it, ++i)
 		{
 			ConfigTag* tag = it->second;
@@ -249,7 +249,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			std::string parentName = tag->getString("parent");
 			if (!parentName.empty())
 			{
-				std::map<std::string,int>::iterator parentIter = names.find(parentName);
+				std::map<std::string, size_t>::const_iterator parentIter = names.find(parentName);
 				if (parentIter == names.end())
 				{
 					try_again = true;
@@ -311,7 +311,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			if (tag->readString("sendq", sendq))
 			{
 				// attempt to guess a good hard/soft sendq from a single value
-				long value = atol(sendq.c_str());
+				unsigned long value = strtoul(sendq.c_str(), NULL, 10);
 				if (value > 16384)
 					me->softsendqmax = value / 16;
 				else
@@ -444,8 +444,8 @@ void ServerConfig::Fill()
 	PID = ConfValue("pid")->getString("file");
 	MaxChans = ConfValue("channels")->getInt("users", 20);
 	OperMaxChans = ConfValue("channels")->getInt("opers");
-	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
-	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
+	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32, 1, 32);
+	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128, 1, 128);
 	Limits = ServerLimits(ConfValue("limits"));
 	Paths = ServerPaths(ConfValue("path"));
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
@@ -548,7 +548,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-		for (int index = 0; index * sizeof(DeprecatedConfig) < sizeof(ChangedConfig); index++)
+		for (unsigned long index = 0; index * sizeof(DeprecatedConfig) < sizeof(ChangedConfig); index++)
 		{
 			std::string value;
 			ConfigTagList tags = ConfTags(ChangedConfig[index].tag);

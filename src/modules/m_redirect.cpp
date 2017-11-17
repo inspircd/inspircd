@@ -111,7 +111,7 @@ class ModuleRedirect : public Module
 		{
 			if (chan->IsModeSet(re) && chan->IsModeSet(limitmode))
 			{
-				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limitmode)))
+				if (chan->GetUserCounter() >= ConvToNum<size_t>(chan->GetModeParameter(limitmode)))
 				{
 					const std::string& channel = *re.ext.get(chan);
 

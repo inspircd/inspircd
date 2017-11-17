@@ -178,7 +178,7 @@ std::string irc::sockets::sockaddrs::str() const
 	return "<unknown>";
 }
 
-int irc::sockets::sockaddrs::sa_size() const
+socklen_t irc::sockets::sockaddrs::sa_size() const
 {
 	if (sa.sa_family == AF_INET)
 		return sizeof(in4);
@@ -198,7 +198,7 @@ bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) c
 	return !memcmp(this, &other, sizeof(*this));
 }
 
-static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs& sa, int range)
+static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs& sa, unsigned char range)
 {
 	const unsigned char* base;
 	unsigned char target_byte;
@@ -239,7 +239,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 	}
 }
 
-irc::sockets::cidr_mask::cidr_mask(const irc::sockets::sockaddrs& sa, int range)
+irc::sockets::cidr_mask::cidr_mask(const irc::sockets::sockaddrs& sa, unsigned char range)
 {
 	sa2cidr(*this, sa, range);
 }
@@ -267,7 +267,7 @@ std::string irc::sockets::cidr_mask::str() const
 	irc::sockets::sockaddrs sa;
 	sa.sa.sa_family = type;
 	unsigned char* base;
-	int len;
+	size_t len;
 	if (type == AF_INET)
 	{
 		base = (unsigned char*)&sa.in4.sin_addr;

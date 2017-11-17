@@ -51,7 +51,7 @@ class CommandList : public Command
  */
 CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	int minusers = 0, maxusers = 0;
+	size_t minusers = 0, maxusers = 0;
 
 	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 
@@ -59,11 +59,11 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 	{
 		if (parameters[0][0] == '<')
 		{
-			maxusers = atoi((parameters[0].c_str())+1);
+			maxusers = strtoul((parameters[0].c_str() + 1), NULL, 10);
 		}
 		else if (parameters[0][0] == '>')
 		{
-			minusers = atoi((parameters[0].c_str())+1);
+			minusers = strtoul((parameters[0].c_str() + 1), NULL, 10);
 		}
 	}
 
@@ -76,7 +76,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		Channel* const chan = i->second;
 
 		// attempt to match a glob pattern
-		long users = chan->GetUserCounter();
+		size_t users = chan->GetUserCounter();
 
 		bool too_few = (minusers && (users <= minusers));
 		bool too_many = (maxusers && (users >= maxusers));

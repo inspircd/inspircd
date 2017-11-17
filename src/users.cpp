@@ -63,7 +63,7 @@ std::string User::GetModeLetters(bool includeparams) const
 	return ret;
 }
 
-User::User(const std::string& uid, Server* srv, int type)
+User::User(const std::string& uid, Server* srv, UserType type)
 	: age(ServerInstance->Time())
 	, signon(0)
 	, uuid(uid)
@@ -688,7 +688,7 @@ const std::string& User::GetRealHost() const
 
 irc::sockets::cidr_mask User::GetCIDRMask()
 {
-	int range = 0;
+	unsigned char range = 0;
 	switch (client_sa.sa.sa_family)
 	{
 		case AF_INET6:

@@ -35,7 +35,7 @@ class DNSBLConfEntry : public refcountbase
 		EnumBanaction banaction;
 		EnumType type;
 		long duration;
-		int bitmask;
+		unsigned int bitmask;
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;
 		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
@@ -279,7 +279,7 @@ class ModuleDNSBL : public Module
 			if (tag->getString("type") == "bitmask")
 			{
 				e->type = DNSBLConfEntry::A_BITMASK;
-				e->bitmask = tag->getInt("bitmask");
+				e->bitmask = tag->getInt("bitmask", 0, 0, UINT_MAX);
 			}
 			else
 			{

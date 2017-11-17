@@ -20,7 +20,7 @@
 
 #pragma once
 
-uint64_t ConvToUInt64(const std::string& in);
+#include "convto.h"
 
 /**
  * Represents a member of a channel.
@@ -60,7 +60,7 @@ class CoreExport Membership : public Extensible, public insp::intrusive_list_nod
 	 */
 	static Id IdFromString(const std::string& str)
 	{
-		return ConvToUInt64(str);
+		return ConvToNum<Id>(str);
 	}
 
 	/** Constructor, sets the user and chan fields to the parameters, does NOT update any bookkeeping

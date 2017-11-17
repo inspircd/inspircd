@@ -182,7 +182,7 @@ public:
 		TRANSLATE1(TR_CUSTOM);
 	}
 
-	void EncodeParameter(std::string& parameter, int index)
+	void EncodeParameter(std::string& parameter, unsigned int index)
 	{
 		// Send lists as-is (part of 2.0 compat)
 		if (parameter.find(',') != std::string::npos)

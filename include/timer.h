@@ -76,7 +76,7 @@ class CoreExport Timer
 
 	/** Sets the interval between two ticks.
 	 */
-	void SetInterval(time_t interval);
+	void SetInterval(unsigned int interval);
 
 	/** Called when the timer ticks.
 	 * You should override this method with some useful code to

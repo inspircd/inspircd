@@ -100,7 +100,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		AddToCull();
 	}
 
-	std::string Response(int response)
+	std::string Response(unsigned int response)
 	{
 		switch (response)
 		{
@@ -191,7 +191,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		}
 	}
 
-	void SendHTTPError(int response)
+	void SendHTTPError(unsigned int response)
 	{
 		HTTPHeaders empty;
 		std::string data = "<html><head></head><body>Server error "+ConvToStr(response)+": "+Response(response)+"<br>"+
@@ -201,7 +201,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		WriteData(data);
 	}
 
-	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
+	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders &rheaders)
 	{
 
 		WriteData(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
@@ -345,7 +345,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		}
 	}
 
-	void Page(std::stringstream* n, int response, HTTPHeaders *hheaders)
+	void Page(std::stringstream* n, unsigned int response, HTTPHeaders *hheaders)
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		WriteData(n->str());

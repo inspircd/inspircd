@@ -55,7 +55,7 @@ class CommandWhois : public SplitCommand
 	Events::ModuleEventProvider evprov;
 	Events::ModuleEventProvider lineevprov;
 
-	void DoWhois(LocalUser* user, User* dest, unsigned long signon, unsigned long idle);
+	void DoWhois(LocalUser* user, User* dest, time_t signon, unsigned long idle);
 	void SendChanList(WhoisContextImpl& whois);
 
  public:
@@ -173,7 +173,7 @@ void CommandWhois::SendChanList(WhoisContextImpl& whois)
 	chanlist.Flush(whois);
 }
 
-void CommandWhois::DoWhois(LocalUser* user, User* dest, unsigned long signon, unsigned long idle)
+void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned long idle)
 {
 	WhoisContextImpl whois(user, dest, lineevprov);
 
@@ -247,7 +247,7 @@ CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters,
 	if (!localuser)
 		return CMD_FAILURE;
 
-	unsigned long idle = ConvToInt(parameters.back());
+	unsigned long idle = ConvToNum<unsigned long>(parameters.back());
 	DoWhois(localuser, target, target->signon, idle);
 
 	return CMD_SUCCESS;
@@ -256,8 +256,9 @@ CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters,
 CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	User *dest;
-	int userindex = 0;
-	unsigned long idle = 0, signon = 0;
+	unsigned int userindex = 0;
+	unsigned long idle = 0;
+	time_t signon = 0;
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;

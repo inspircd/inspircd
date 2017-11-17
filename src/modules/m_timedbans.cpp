@@ -74,7 +74,7 @@ class CommandTban : public Command
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
-		int cm = channel->GetPrefixValue(user);
+		unsigned int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You do not have permission to set bans on this channel");

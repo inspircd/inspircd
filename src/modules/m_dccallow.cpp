@@ -61,11 +61,17 @@ class DCCAllow
 	std::string nickname;
 	std::string hostmask;
 	time_t set_on;
-	long length;
+	unsigned long length;
 
 	DCCAllow() { }
 
-	DCCAllow(const std::string &nick, const std::string &hm, const time_t so, const long ln) : nickname(nick), hostmask(hm), set_on(so), length(ln) { }
+	DCCAllow(const std::string& nick, const std::string& hm, time_t so, unsigned long ln)
+		: nickname(nick)
+		, hostmask(hm)
+		, set_on(so)
+		, length(ln)
+	{
+	}
 };
 
 typedef std::vector<User *> userlist;
@@ -412,7 +418,8 @@ class ModuleDCCAllow : public Module
 					dccallowlist::iterator iter2 = dl->begin();
 					while (iter2 != dl->end())
 					{
-						if (iter2->length != 0 && (iter2->set_on + iter2->length) <= ServerInstance->Time())
+						time_t expires = iter2->set_on + iter2->length;
+						if (iter2->length != 0 && expires <= ServerInstance->Time())
 						{
 							u->WriteNumeric(997, u->nick, InspIRCd::Format("DCCALLOW entry for %s has expired", iter2->nickname.c_str()));
 							iter2 = dl->erase(iter2);

@@ -93,9 +93,9 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 		}
 	}
 
-	void BlockAccess(HTTPRequest* http, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
+	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BlockAccess (%d)", returnval);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BlockAccess (%u)", returnval);
 
 		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
 		HTTPDocumentResponse response(this, *http, &data, returnval);

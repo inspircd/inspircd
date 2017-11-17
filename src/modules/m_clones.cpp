@@ -36,7 +36,7 @@ class CommandClones : public Command
 
 		std::string clonesstr = "CLONES ";
 
-		unsigned long limit = atoi(parameters[0].c_str());
+		unsigned long limit = strtoul(parameters[0].c_str(), NULL, 10);
 
 		/*
 		 * Syntax of a /clones reply:

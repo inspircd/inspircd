@@ -359,7 +359,7 @@ CommandBase::~CommandBase()
 {
 }
 
-void CommandBase::EncodeParameter(std::string& parameter, int index)
+void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
 {
 }
 

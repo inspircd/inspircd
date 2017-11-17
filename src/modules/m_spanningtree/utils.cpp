@@ -118,7 +118,7 @@ CullResult SpanningTreeUtilities::cull()
 		sock->Close();
 	}
 
-	for(std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
+	for(TimeoutList::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
 	{
 		TreeSocket* s = i->first;
 		s->Close();
@@ -235,7 +235,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	if (PingFreq == 0)
 		PingFreq = 60;
 
-	if (PingWarnTime < 0 || PingWarnTime > PingFreq - 1)
+	if (PingWarnTime > PingFreq - 1)
 		PingWarnTime = 0;
 
 	AutoconnectBlocks.clear();

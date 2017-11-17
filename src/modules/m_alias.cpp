@@ -284,7 +284,7 @@ class ModuleAlias : public Module
 			{
 				if (isdigit(newline[i+1]))
 				{
-					int len = ((i + 2 < newline.length()) && (newline[i+2] == '-')) ? 3 : 2;
+					size_t len = ((i + 2 < newline.length()) && (newline[i+2] == '-')) ? 3 : 2;
 					std::string var = newline.substr(i, len);
 					result.append(GetVar(var, original_line));
 					i += len - 1;

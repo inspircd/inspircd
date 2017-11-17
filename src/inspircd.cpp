@@ -309,7 +309,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 				/* Fall through to handle other weird values too */
 				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
 				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--config <config>]" << std::endl <<
-					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
+					std::string(static_cast<size_t>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}

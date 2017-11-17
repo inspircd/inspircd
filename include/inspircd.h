@@ -339,7 +339,7 @@ class CoreExport InspIRCd
 	 * @param printable if false, the string will use characters 0-255; otherwise,
 	 * it will be limited to 0x30-0x7E ('0'-'~', nonspace printable characters)
 	 */
-	std::string GenRandomStr(int length, bool printable = true);
+	std::string GenRandomStr(unsigned int length, bool printable = true);
 	/** Generate a random integer.
 	 * This is generally more secure than rand()
 	 */

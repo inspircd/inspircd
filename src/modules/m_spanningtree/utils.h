@@ -48,7 +48,7 @@ class SpanningTreeUtilities : public classbase
 
  public:
  	typedef std::set<TreeSocket*> TreeSocketSet;
-	typedef std::map<TreeSocket*, std::pair<std::string, int> > TimeoutList;
+	typedef std::map<TreeSocket*, std::pair<std::string, unsigned int> > TimeoutList;
 
 	/** Creator module
 	 */
@@ -75,7 +75,7 @@ class SpanningTreeUtilities : public classbase
 	/* Number of seconds that a server can go without ping
 	 * before opers are warned of high latency.
 	 */
-	int PingWarnTime;
+	unsigned int PingWarnTime;
 	/** This variable represents the root of the server tree
 	 */
 	TreeServer *TreeRoot;
@@ -100,7 +100,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Ping frequency of server to server links
 	 */
-	int PingFreq;
+	unsigned int PingFreq;
 
 	/** Initialise utility class
 	 */

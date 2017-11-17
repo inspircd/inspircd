@@ -33,7 +33,7 @@ class Link : public refcountbase
 	std::vector<std::string> AllowMasks;
 	bool HiddenFromStats;
 	std::string Hook;
-	int Timeout;
+	unsigned int Timeout;
 	std::string Bind;
 	bool Hidden;
 	Link(ConfigTag* Tag) : tag(Tag) {}

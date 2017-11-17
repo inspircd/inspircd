@@ -89,7 +89,12 @@ class CoreExport SocketTimeout : public Timer
 	 * @param thesock BufferedSocket to attach to
 	 * @param secs_from_now Seconds from now to time out
 	 */
-	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now) : Timer(secs_from_now), sock(thesock), sfd(fd) { }
+	SocketTimeout(int fd, BufferedSocket* thesock, unsigned int secs_from_now)
+		: Timer(secs_from_now)
+		, sock(thesock)
+		, sfd(fd)
+	{
+	}
 
 	/** Handle tick event
 	 */
@@ -361,7 +366,7 @@ class CoreExport BufferedSocket : public StreamSocket
 	 * @param maxtime Time to wait for connection
 	 * @param connectbindip Address to bind to (if NULL, no bind will be done)
 	 */
-	void DoConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
+	void DoConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip);
 
 	/** This method is called when an outbound connection on your socket is
 	 * completed.
@@ -387,8 +392,8 @@ class CoreExport BufferedSocket : public StreamSocket
 	virtual ~BufferedSocket();
  protected:
 	void OnEventHandlerWrite() CXX11_OVERRIDE;
-	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
-	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
+	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout);
+	BufferedSocketError BeginConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip);
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }

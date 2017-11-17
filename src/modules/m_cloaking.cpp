@@ -187,7 +187,7 @@ class ModuleCloaking : public Module
 	 * @param id A unique ID for this type of item (to make it unique if the item matches)
 	 * @param len The length of the output. Maximum for MD5 is 16 characters.
 	 */
-	std::string SegmentCloak(const std::string& item, char id, int len)
+	std::string SegmentCloak(const std::string& item, char id, size_t len)
 	{
 		std::string input;
 		input.reserve(key.length() + 3 + item.length());
@@ -197,7 +197,7 @@ class ModuleCloaking : public Module
 		input.append(item);
 
 		std::string rv = Hash->GenerateRaw(input).substr(0,len);
-		for(int i=0; i < len; i++)
+		for(size_t i = 0; i < len; i++)
 		{
 			// this discards 3 bits per byte. We have an
 			// overabundance of bits in the hash output, doesn't
@@ -210,8 +210,8 @@ class ModuleCloaking : public Module
 	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full)
 	{
 		std::string bindata;
-		int hop1, hop2, hop3;
-		int len1, len2;
+		size_t hop1, hop2, hop3;
+		size_t len1, len2;
 		std::string rv;
 		if (ip.sa.sa_family == AF_INET6)
 		{

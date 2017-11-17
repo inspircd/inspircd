@@ -163,7 +163,7 @@ class ModuleIRCv3STS : public Module
 		if (host.empty())
 			throw ModuleException("<sts:host> must contain a hostname, at " + tag->getTagLocation());
 
-		int port = tag->getInt("port");
+		unsigned int port = tag->getInt("port", 0, 0, UINT16_MAX);
 		if (!HasValidSSLPort(port))
 			throw ModuleException("<sts:port> must be a TLS port, at " + tag->getTagLocation());
 

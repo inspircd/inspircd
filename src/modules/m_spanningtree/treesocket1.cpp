@@ -46,7 +46,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	capab->capab_phase = 0;
 
 	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
-	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);
+	Utils->timeoutlist[this] = std::pair<std::string, unsigned int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }
 
@@ -77,7 +77,7 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 
 	SendCapabilities(1);
 
-	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
+	Utils->timeoutlist[this] = std::pair<std::string, unsigned int>(linkID, 30);
 }
 
 void TreeSocket::CleanNegotiationInfo()

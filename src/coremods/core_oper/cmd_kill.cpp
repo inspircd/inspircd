@@ -136,7 +136,7 @@ RouteDescriptor CommandKill::GetRouting(User* user, const std::vector<std::strin
 }
 
 
-void CommandKill::EncodeParameter(std::string& param, int index)
+void CommandKill::EncodeParameter(std::string& param, unsigned int index)
 {
 	// Manually translate the nick -> uuid (see above), and also the reason (params[1])
 	// because we decorate it if the oper is local and want remote servers to see the

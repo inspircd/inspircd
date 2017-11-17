@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-void Timer::SetInterval(time_t newinterval)
+void Timer::SetInterval(unsigned int newinterval)
 {
 	ServerInstance->Timers.DelTimer(this);
 	secs = newinterval;
