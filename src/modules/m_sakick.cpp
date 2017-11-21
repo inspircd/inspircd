@@ -31,7 +31,7 @@ class CommandSakick : public Command
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		User* dest = ServerInstance->FindNick(parameters[1]);
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
@@ -73,7 +73,7 @@ class CommandSakick : public Command
 		return CMD_FAILURE;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[1]);
 	}

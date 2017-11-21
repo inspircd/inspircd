@@ -146,9 +146,9 @@ class CommandFilter : public Command
 		flags_needed = 'o';
 		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
-	CmdResult Handle(const std::vector<std::string>&, User*);
+	CmdResult Handle(const std::vector<std::string>& , User* ) CXX11_OVERRIDE;
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

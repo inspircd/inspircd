@@ -45,7 +45,7 @@ class CommandReloadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 namespace ReloadModule
@@ -579,7 +579,7 @@ class ReloadAction : public HandlerBase0<void>
 	{
 	}
 
-	void Call()
+	void Call() CXX11_OVERRIDE
 	{
 		ReloadModule::DataKeeper datakeeper;
 		datakeeper.Save(mod);

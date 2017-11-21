@@ -31,7 +31,7 @@ class CommandCycle : public SplitCommand
 		Penalty = 3; syntax = "<channel> :[reason]";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = "Cycling";

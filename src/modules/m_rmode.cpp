@@ -31,7 +31,7 @@ class CommandRMode : public Command
 		syntax = "<channel> <mode> [pattern]";
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		ModeHandler* mh;
 		Channel* chan = ServerInstance->FindChan(parameters[0]);

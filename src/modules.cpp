@@ -444,7 +444,7 @@ namespace
 	{
 		Module* const mod;
 		UnloadAction(Module* m) : mod(m) {}
-		void Call()
+		void Call() CXX11_OVERRIDE
 		{
 			DLLManager* dll = mod->ModuleDLLManager;
 			ServerInstance->Modules->DoSafeUnload(mod);

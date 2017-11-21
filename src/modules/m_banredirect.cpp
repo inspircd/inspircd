@@ -54,7 +54,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan

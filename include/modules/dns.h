@@ -191,7 +191,7 @@ namespace DNS
 		/** Used to time out the query, calls OnError and asks the TimerManager
 		 * to delete this request
 		 */
-		bool Tick(time_t now)
+		bool Tick(time_t now) CXX11_OVERRIDE
 		{
 			Query rr(this->question);
 			rr.error = ERROR_TIMEDOUT;

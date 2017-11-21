@@ -33,7 +33,7 @@ class CommandChgname : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
@@ -64,7 +64,7 @@ class CommandChgname : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}

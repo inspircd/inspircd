@@ -42,9 +42,9 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 	static const std::string::size_type maxkeylen = 32;
  public:
 	ModeChannelKey();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
-	ModeAction OnSet(User* source, Channel* chan, std::string& param);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
+	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;
+	ModeAction OnSet(User* source, Channel* chan, std::string& param) CXX11_OVERRIDE;
 };
 
 /** Channel mode +l
@@ -53,9 +53,9 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 {
  public:
 	ModeChannelLimit();
-	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) CXX11_OVERRIDE;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter);
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE;
 };
 
 /** Channel mode +o
@@ -114,5 +114,5 @@ class ModeUserOperator : public ModeHandler
 {
  public:
 	ModeUserOperator();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
 };

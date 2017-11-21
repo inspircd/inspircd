@@ -141,7 +141,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param user The user to send the list to
 	 * @param channel The channel the user is requesting the list for
 	 */
-	virtual void DisplayList(User* user, Channel* channel);
+	void DisplayList(User* user, Channel* channel) CXX11_OVERRIDE;
 
 	/** Tell a user that a list contains no elements.
 	 * Sends 'eolnum' numeric with text 'eolstr', unless overridden (see constructor)
@@ -149,7 +149,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel The channel that has the empty list
 	 * See mode.h
 	 */
-	virtual void DisplayEmptyList(User* user, Channel* channel);
+	void DisplayEmptyList(User* user, Channel* channel) CXX11_OVERRIDE;
 
 	/** Remove all instances of the mode from a channel.
 	 * Populates the given modestack with modes that remove every instance of
@@ -158,7 +158,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel The channel to remove all instances of the mode from
 	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) CXX11_OVERRIDE;
 
 	/** Perform a rehash of this mode's configuration data
 	 */
@@ -167,7 +167,7 @@ class CoreExport ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
 
 	/** Validate parameters.
 	 * Overridden by implementing module.

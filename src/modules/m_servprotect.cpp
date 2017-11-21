@@ -28,7 +28,7 @@ class ServProtectMode : public ModeHandler
  public:
 	ServProtectMode(Module* Creator) : ModeHandler(Creator, "servprotect", 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		/* Because this returns MODEACTION_DENY all the time, there is only ONE
 		 * way to add this mode and that is at client introduction in the UID command,

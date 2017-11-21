@@ -30,12 +30,12 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
+	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) CXX11_OVERRIDE
 	{
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}
 
-	ModeAction OnSet(User* source, Channel* chan, std::string& parameter);
+	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) CXX11_OVERRIDE;
 	void OnUnset(User* source, Channel* chan);
 
 	void SerializeParam(Channel* chan, int n, std::string& out)

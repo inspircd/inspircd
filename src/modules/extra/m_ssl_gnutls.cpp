@@ -115,7 +115,7 @@ static Module* thismod;
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
-	void Call(char* buffer, size_t len)
+	void Call(char* buffer, size_t len) CXX11_OVERRIDE
 	{
 #ifdef GNUTLS_HAS_RND
 		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);

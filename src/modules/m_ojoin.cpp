@@ -38,7 +38,7 @@ class CommandOjoin : public SplitCommand
 		active = false;
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0]))
@@ -92,7 +92,7 @@ class NetworkPrefix : public PrefixMode
 		ranktoset = ranktounset = UINT_MAX;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE
 	{
 		User* theuser = ServerInstance->FindNick(parameter);
 		// remove own privs?

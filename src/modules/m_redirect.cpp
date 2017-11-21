@@ -32,7 +32,7 @@ class Redirect : public ParamMode<Redirect, LocalStringExt>
 	Redirect(Module* Creator)
 		: ParamMode<Redirect, LocalStringExt>(Creator, "redirect", 'L') { }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(source))
 		{

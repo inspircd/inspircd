@@ -126,8 +126,8 @@ class DispatcherThread : public SocketThread
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
-	void Run();
-	void OnNotify();
+	void Run() CXX11_OVERRIDE;
+	void OnNotify() CXX11_OVERRIDE;
 };
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -193,12 +193,12 @@ class MySQLresult : public SQLResult
 
 	}
 
-	int Rows()
+	int Rows() CXX11_OVERRIDE
 	{
 		return rows;
 	}
 
-	void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
 	{
 		result.assign(colnames.begin(), colnames.end());
 	}
@@ -212,7 +212,7 @@ class MySQLresult : public SQLResult
 		return SQLEntry();
 	}
 
-	bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
 	{
 		if (currentrow < rows)
 		{
@@ -319,14 +319,14 @@ class SQLConnection : public SQLProvider
 		mysql_close(connection);
 	}
 
-	void submit(SQLQuery* q, const std::string& qs)
+	void submit(SQLQuery* q, const std::string& qs) CXX11_OVERRIDE
 	{
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
-	void submit(SQLQuery* call, const std::string& q, const ParamL& p)
+	void submit(SQLQuery* call, const std::string& q, const ParamL& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -354,7 +354,7 @@ class SQLConnection : public SQLProvider
 		submit(call, res);
 	}
 
-	void submit(SQLQuery* call, const std::string& q, const ParamM& p)
+	void submit(SQLQuery* call, const std::string& q, const ParamM& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)

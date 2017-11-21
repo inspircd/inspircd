@@ -96,7 +96,7 @@ class CommandDccallow : public Command
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
 		if (!parameters.size())
@@ -234,7 +234,7 @@ class CommandDccallow : public Command
 		return CMD_FAILURE;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

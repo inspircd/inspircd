@@ -31,7 +31,7 @@ class ServerTargetCommand : public Command
 	{
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /ADMIN.
@@ -63,7 +63,7 @@ class CommandAdmin : public ServerTargetCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /COMMANDS.
@@ -80,7 +80,7 @@ class CommandCommands : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /INFO.
@@ -97,7 +97,7 @@ class CommandInfo : public ServerTargetCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /MODULES.
@@ -114,7 +114,7 @@ class CommandModules : public ServerTargetCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /MOTD.
@@ -131,7 +131,7 @@ class CommandMotd : public ServerTargetCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /TIME.
@@ -148,7 +148,7 @@ class CommandTime : public ServerTargetCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /VERSION.
@@ -165,5 +165,5 @@ class CommandVersion : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };

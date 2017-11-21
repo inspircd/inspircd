@@ -58,12 +58,12 @@ class SQLite3Result : public SQLResult
 	{
 	}
 
-	int Rows()
+	int Rows() CXX11_OVERRIDE
 	{
 		return rows;
 	}
 
-	bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
 	{
 		if (currentrow < rows)
 		{
@@ -78,7 +78,7 @@ class SQLite3Result : public SQLResult
 		}
 	}
 
-	void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
 	{
 		result.assign(columns.begin(), columns.end());
 	}
@@ -159,13 +159,13 @@ class SQLConn : public SQLProvider
 		sqlite3_finalize(stmt);
 	}
 
-	void submit(SQLQuery* query, const std::string& q)
+	void submit(SQLQuery* query, const std::string& q) CXX11_OVERRIDE
 	{
 		Query(query, q);
 		delete query;
 	}
 
-	void submit(SQLQuery* query, const std::string& q, const ParamL& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamL& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -186,7 +186,7 @@ class SQLConn : public SQLProvider
 		submit(query, res);
 	}
 
-	void submit(SQLQuery* query, const std::string& q, const ParamM& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamM& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)

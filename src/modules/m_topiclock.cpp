@@ -33,7 +33,7 @@ class CommandSVSTOPIC : public Command
 		flags_needed = FLAG_SERVERONLY;
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (!user->server->IsULine())
 		{
@@ -67,7 +67,7 @@ class CommandSVSTOPIC : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -86,7 +86,7 @@ class FlagExtItem : public ExtensionItem
 		return (get_raw(container) != NULL);
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
 		if (format == FORMAT_USER)
 			return "true";
@@ -94,7 +94,7 @@ class FlagExtItem : public ExtensionItem
 		return "1";
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
 		if (value == "1")
 			set_raw(container, this);
@@ -115,7 +115,7 @@ class FlagExtItem : public ExtensionItem
 		unset_raw(container);
 	}
 
-	void free(void* item)
+	void free(void* item) CXX11_OVERRIDE
 	{
 		// nothing to free
 	}

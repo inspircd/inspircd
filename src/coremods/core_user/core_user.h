@@ -58,8 +58,8 @@ class CommandAway : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 };
 
 class CommandMode : public Command
@@ -91,9 +91,9 @@ class CommandMode : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /NICK.
@@ -110,7 +110,7 @@ class CommandNick : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
 };
 
 /** Handle /PART.
@@ -129,8 +129,8 @@ class CommandPart : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /QUIT.
@@ -152,9 +152,9 @@ class CommandQuit : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User*user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /USER.
@@ -171,7 +171,7 @@ class CommandUser : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
 
 	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after an unregistered user
 	 * successfully executes the USER or the NICK command.

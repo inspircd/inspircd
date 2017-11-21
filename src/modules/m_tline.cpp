@@ -30,7 +30,7 @@ class CommandTline : public Command
 		flags_needed = 'o'; this->syntax = "<mask>";
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		unsigned int n_matched = 0;
 		unsigned int n_match_host = 0;

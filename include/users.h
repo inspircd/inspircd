@@ -727,7 +727,7 @@ class CoreExport User : public Extensible
 	/** Default destructor
 	 */
 	virtual ~User();
-	virtual CullResult cull() CXX11_OVERRIDE;
+	CullResult cull() CXX11_OVERRIDE;
 };
 
 class CoreExport UserIOHandler : public StreamSocket
@@ -735,8 +735,8 @@ class CoreExport UserIOHandler : public StreamSocket
  public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me) : user(me) {}
-	void OnDataReady();
-	void OnError(BufferedSocketError error);
+	void OnDataReady() CXX11_OVERRIDE;
+	void OnError(BufferedSocketError error) CXX11_OVERRIDE;
 
 	/** Adds to the user's write buffer.
 	 * You may add any amount of text up to this users sendq value, if you exceed the
@@ -914,9 +914,9 @@ class CoreExport FakeUser : public User
 		nick = sname;
 	}
 
-	virtual CullResult cull() CXX11_OVERRIDE;
-	virtual const std::string& GetFullHost() CXX11_OVERRIDE;
-	virtual const std::string& GetFullRealHost() CXX11_OVERRIDE;
+	CullResult cull() CXX11_OVERRIDE;
+	const std::string& GetFullHost() CXX11_OVERRIDE;
+	const std::string& GetFullRealHost() CXX11_OVERRIDE;
 };
 
 /* Faster than dynamic_cast */

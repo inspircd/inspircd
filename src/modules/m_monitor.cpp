@@ -82,7 +82,7 @@ class IRCv3::Monitor::Manager
 			free(unset_raw(container));
 		}
 
-		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
 		{
 			std::string ret;
 			if (format == FORMAT_NETWORK)
@@ -99,9 +99,9 @@ class IRCv3::Monitor::Manager
 			return ret;
 		}
 
-		void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
+		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 
-		void free(void* item)
+		void free(void* item) CXX11_OVERRIDE
 		{
 			delete static_cast<ExtData*>(item);
 		}
@@ -319,7 +319,7 @@ class CommandMonitor : public SplitCommand
 		syntax = "[C|L|S|+ <nick1>[,<nick2>]|- <nick1>[,<nick2>]";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		char subcmd = toupper(parameters[0][0]);
 		if (subcmd == '+')

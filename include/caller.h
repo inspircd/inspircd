@@ -65,31 +65,31 @@ template<typename ReturnType, typename... Args> class CoreExport Caller
 #define caller8 Caller
 
 #define DEFINE_HANDLER0(NAME, RETURN) \
-	class CoreExport NAME : public Handler<RETURN> { public: NAME() { } virtual RETURN Call(); }
+	class CoreExport NAME : public Handler<RETURN> { public: RETURN Call() CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER1(NAME, RETURN, V1) \
-	class CoreExport NAME : public Handler<RETURN, V1> { public: NAME() { } virtual RETURN Call(V1); }
+	class CoreExport NAME : public Handler<RETURN, V1> { public: RETURN Call(V1) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER2(NAME, RETURN, V1, V2) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2> { public: NAME() { } virtual RETURN Call(V1, V2); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2> { public: RETURN Call(V1, V2) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER3(NAME, RETURN, V1, V2, V3) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3> { public: NAME() { } virtual RETURN Call(V1, V2, V3); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3> { public: RETURN Call(V1, V2, V3) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER4(NAME, RETURN, V1, V2, V3, V4) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4> { public: NAME() { } virtual RETURN Call(V1, V2, V3, V4); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4> { public: RETURN Call(V1, V2, V3, V4) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER5(NAME, RETURN, V1, V2, V3, V4, V5) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5> { public: NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5> { public: RETURN Call(V1, V2, V3, V4, V5) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER6(NAME, RETURN, V1, V2, V3, V4, V5, V6) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6> { public: NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6> { public: RETURN Call(V1, V2, V3, V4, V5, V6) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER7(NAME, RETURN, V1, V2, V3, V4, V5, V6, V7) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6, V7> { public: NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6, V7> { public: RETURN Call(V1, V2, V3, V4, V5, V6, V7) CXX11_OVERRIDE; }
 
 #define DEFINE_HANDLER8(NAME, RETURN, V1, V2, V3, V4, V5, V6, V7, V8) \
-	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6, V7, V8> { public: NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7, V8); }
+	class CoreExport NAME : public Handler<RETURN, V1, V2, V3, V4, V5, V6, V7, V8> { public: RETURN Call(V1, V2, V3, V4, V5, V6, V7, V8) CXX11_OVERRIDE; }
 
 #else
 

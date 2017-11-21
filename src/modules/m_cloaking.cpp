@@ -53,7 +53,7 @@ class CloakUser : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		LocalUser* user = IS_LOCAL(dest);
 
@@ -131,7 +131,7 @@ class CommandCloak : public Command
 		syntax = "<host>";
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 class ModuleCloaking : public Module

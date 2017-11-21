@@ -41,19 +41,19 @@ public:
 		this->nickname = nick;
 	}
 
-	bool Matches(User *u)
+	bool Matches(User* u) CXX11_OVERRIDE
 	{
 		if (u->nick == nickname)
 			return true;
 		return false;
 	}
 
-	bool Matches(const std::string &s)
+	bool Matches(const std::string& s) CXX11_OVERRIDE
 	{
 		return InspIRCd::Match(s, nickname);
 	}
 
-	void DisplayExpiry()
+	void DisplayExpiry() CXX11_OVERRIDE
 	{
 		if (!silent)
 		{
@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	const std::string& Displayable()
+	const std::string& Displayable() CXX11_OVERRIDE
 	{
 		return nickname;
 	}
@@ -77,12 +77,12 @@ class SVSHoldFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
 	}
 
-	bool AutoApplyToUserList(XLine *x)
+	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
 	{
 		return false;
 	}
@@ -98,7 +98,7 @@ class CommandSvshold : public Command
 		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -155,7 +155,7 @@ class CommandSvshold : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

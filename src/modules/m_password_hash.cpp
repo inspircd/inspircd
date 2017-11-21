@@ -70,7 +70,7 @@ class CommandMkpasswd : public Command
 		}
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		MakeHash(user, parameters[0], parameters[1]);
 

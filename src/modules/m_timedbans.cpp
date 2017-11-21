@@ -66,7 +66,7 @@ class CommandTban : public Command
 		syntax = "<channel> <duration> <banmask>";
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (!channel)
@@ -127,7 +127,7 @@ class CommandTban : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -141,7 +141,7 @@ class BanWatcher : public ModeWatcher
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding)
+	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding) CXX11_OVERRIDE
 	{
 		if (adding)
 			return;

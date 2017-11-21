@@ -434,7 +434,7 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string GenerateRaw(const std::string& data)
+	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
 		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
 		return std::string(rv, RMDsize / 8);

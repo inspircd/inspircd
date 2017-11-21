@@ -44,7 +44,7 @@ class HideOperWatcher : public ModeWatcher
 
  public:
 	HideOperWatcher(ModuleOperPrefixMode* parent);
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding);
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding) CXX11_OVERRIDE;
 };
 
 class ModuleOperPrefixMode : public Module

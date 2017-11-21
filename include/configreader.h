@@ -516,7 +516,7 @@ class CoreExport ConfigReaderThread : public Thread
 		delete Config;
 	}
 
-	void Run();
+	void Run() CXX11_OVERRIDE;
 	/** Run in the main thread to apply the configuration */
 	void Finish();
 	bool IsDone() { return done; }

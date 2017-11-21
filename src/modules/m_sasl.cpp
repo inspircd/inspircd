@@ -304,7 +304,7 @@ class CommandAuthenticate : public SplitCommand
 		allow_empty_last_param = false;
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		{
 			if (!cap.get(user))
@@ -341,7 +341,7 @@ class CommandSASL : public Command
 		this->flags_needed = FLAG_SERVERONLY; // should not be called by users
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindUUID(parameters[1]);
 		if (!target)
@@ -363,7 +363,7 @@ class CommandSASL : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

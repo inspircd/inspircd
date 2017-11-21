@@ -33,7 +33,7 @@ class CommandLoadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /LOADMODULE
@@ -72,7 +72,7 @@ class CommandUnloadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 CmdResult CommandUnloadmodule::Handle(const std::vector<std::string>& parameters, User* user)

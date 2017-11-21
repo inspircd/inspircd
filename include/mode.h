@@ -167,7 +167,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param mclass The object type of this mode handler, one of ModeHandler::Class
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
-	virtual CullResult cull() CXX11_OVERRIDE;
+	CullResult cull() CXX11_OVERRIDE;
 	virtual ~ModeHandler();
 
 	/** Register this object in the ModeParser
@@ -396,7 +396,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
 	 * (when setting) or doesn't have this prefix set (when unsetting).
 	 */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE;
 
 	/**
 	 * Updates the configuration of this prefix.
@@ -412,7 +412,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param channel The channel which the server wants to remove your mode from
 	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) CXX11_OVERRIDE;
 
 
 	/**
@@ -447,7 +447,7 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
  public:
 	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER) {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 
 /** A prebuilt mode handler which handles a simple channel mode, e.g. no parameters, usable by any user, with no extra
@@ -460,7 +460,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
  public:
 	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 
 /**

@@ -73,7 +73,7 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
 		std::string ret;
 		if (format != FORMAT_NETWORK)
@@ -84,7 +84,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		return ret;
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
 		if (format == FORMAT_NETWORK)
 			return;
@@ -125,7 +125,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		return dat;
 	}
 
-	void free(void* item)
+	void free(void* item) CXX11_OVERRIDE
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
@@ -182,7 +182,7 @@ public:
 		TRANSLATE1(TR_CUSTOM);
 	}
 
-	void EncodeParameter(std::string& parameter, unsigned int index)
+	void EncodeParameter(std::string& parameter, unsigned int index) CXX11_OVERRIDE
 	{
 		// Send lists as-is (part of 2.0 compat)
 		if (parameter.find(',') != std::string::npos)
@@ -201,7 +201,7 @@ public:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list
 	 */
-	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
@@ -234,7 +234,7 @@ public:
 			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		// There is a list in parameters[0] in two cases:
 		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,

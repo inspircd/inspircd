@@ -54,7 +54,7 @@ class MessageCommandBase : public Command
 	 */
 	CmdResult HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt);
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			// This is handled by the OnUserMessage hook to split the LoopCall pieces
@@ -263,7 +263,7 @@ class CommandMessage : public MessageCommandBase
 	{
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		return HandleMessage(parameters, user, MT);
 	}

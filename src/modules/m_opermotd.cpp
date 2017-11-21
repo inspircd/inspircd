@@ -34,14 +34,14 @@ class CommandOpermotd : public Command
 		flags_needed = 'o'; syntax = "[<servername>]";
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User* user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if ((parameters.empty()) || (parameters[0] == ServerInstance->Config->ServerName))
 			ShowOperMOTD(user);
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[0]);

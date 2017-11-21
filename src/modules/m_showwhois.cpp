@@ -54,7 +54,7 @@ class WhoisNoticeCmd : public Command
 			") did a /whois on you");
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (!dest)

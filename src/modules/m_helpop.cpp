@@ -50,7 +50,7 @@ class CommandHelpop : public Command
 		syntax = "<any-text>";
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		const std::string& parameter = (!parameters.empty() ? parameters[0] : startkey);
 

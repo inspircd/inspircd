@@ -52,7 +52,7 @@ class CommandProp : public SplitCommand
 		syntax = "<user|channel> {[+-]<mode> [<value>]}*";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* src)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* src) CXX11_OVERRIDE
 	{
 		Channel* const chan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
@@ -103,7 +103,7 @@ class DummyZ : public ModeHandler
 	}
 
 	// Handle /MODE #chan Z
-	void DisplayList(User* user, Channel* chan)
+	void DisplayList(User* user, Channel* chan) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			::DisplayList(static_cast<LocalUser*>(user), chan);

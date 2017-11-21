@@ -24,7 +24,7 @@ static std::bitset<256> allowedmap;
 class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
-	bool Call(const std::string&);
+	bool Call(const std::string&) CXX11_OVERRIDE;
 };
 
 bool NewIsChannelHandler::Call(const std::string& channame)

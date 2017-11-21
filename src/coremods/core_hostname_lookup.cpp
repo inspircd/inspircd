@@ -56,7 +56,7 @@ class UserResolver : public DNS::Request
 	 * if a previous result has already come back.
 	 * @param r The finished query
 	 */
-	void OnLookupComplete(const DNS::Query* r)
+	void OnLookupComplete(const DNS::Query* r) CXX11_OVERRIDE
 	{
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (!bound_user)
@@ -164,7 +164,7 @@ class UserResolver : public DNS::Request
 	/** Called on failed lookup
 	 * @param query The errored query
 	 */
-	void OnError(const DNS::Query* query)
+	void OnError(const DNS::Query* query) CXX11_OVERRIDE
 	{
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (bound_user)

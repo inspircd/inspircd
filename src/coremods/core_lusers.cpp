@@ -61,7 +61,7 @@ class CommandLusers : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 };
 
 /** Handle /LUSERS
@@ -110,7 +110,7 @@ public:
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding)
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		if (dest->registered != REG_ALL)
 			return;

@@ -111,7 +111,7 @@ class CoreExport Extensible : public classbase
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 
 	Extensible();
-	virtual CullResult cull() CXX11_OVERRIDE;
+	CullResult cull() CXX11_OVERRIDE;
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
 
@@ -145,9 +145,9 @@ class CoreExport LocalExtItem : public ExtensionItem
  public:
 	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalExtItem();
-	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
-	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
-	virtual void free(void* item) = 0;
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+	void free(void* item) CXX11_OVERRIDE = 0;
 };
 
 template <typename T, typename Del = stdalgo::defaultdeleter<T> >
@@ -190,7 +190,7 @@ class SimpleExtItem : public LocalExtItem
 		del(old);
 	}
 
-	virtual void free(void* item)
+	void free(void* item) CXX11_OVERRIDE
 	{
 		Del del;
 		del(static_cast<T*>(item));
@@ -202,8 +202,8 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
  public:
 	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalStringExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
@@ -211,12 +211,12 @@ class CoreExport LocalIntExt : public LocalExtItem
  public:
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalIntExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
-	void free(void* item);
+	void free(void* item) CXX11_OVERRIDE;
 };
 
 class CoreExport StringExtItem : public ExtensionItem
@@ -225,9 +225,9 @@ class CoreExport StringExtItem : public ExtensionItem
 	StringExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);
-	void free(void* item);
+	void free(void* item) CXX11_OVERRIDE;
 };

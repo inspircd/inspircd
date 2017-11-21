@@ -32,7 +32,7 @@ class CommandSetname : public Command
 		syntax = "<new-gecos>";
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{

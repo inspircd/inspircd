@@ -25,5 +25,5 @@ class CacheRefreshTimer : public Timer
 {
  public:
 	CacheRefreshTimer();
-	bool Tick(time_t TIME);
+	bool Tick(time_t TIME) CXX11_OVERRIDE;
 };

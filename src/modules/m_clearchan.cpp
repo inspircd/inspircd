@@ -35,7 +35,7 @@ class CommandClearChan : public Command
 		force_manual_route = true;
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		Channel* chan = activechan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)

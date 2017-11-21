@@ -31,7 +31,7 @@ class DelayJoinMode : public ModeHandler
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 
 class ModuleDelayJoin : public Module

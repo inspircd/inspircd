@@ -562,7 +562,7 @@ class CommandModule : public Module
 	{
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}

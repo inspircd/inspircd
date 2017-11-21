@@ -56,7 +56,7 @@ class RLine : public XLine
 		delete regex;
 	}
 
-	bool Matches(User *u)
+	bool Matches(User* u) CXX11_OVERRIDE
 	{
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu && lu->exempt)
@@ -67,12 +67,12 @@ class RLine : public XLine
 		return (regex->Matches(host) || regex->Matches(ip));
 	}
 
-	bool Matches(const std::string &compare)
+	bool Matches(const std::string& compare) CXX11_OVERRIDE
 	{
 		return regex->Matches(compare);
 	}
 
-	void Apply(User* u)
+	void Apply(User* u) CXX11_OVERRIDE
 	{
 		if (ZlineOnMatch)
 		{
@@ -90,7 +90,7 @@ class RLine : public XLine
 		DefaultApply(u, "R", false);
 	}
 
-	const std::string& Displayable()
+	const std::string& Displayable() CXX11_OVERRIDE
 	{
 		return matchtext;
 	}
@@ -113,7 +113,7 @@ class RLineFactory : public XLineFactory
 
 	/** Generate a RLine
 	 */
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
 	{
 		if (!rxfactory)
 		{
@@ -139,7 +139,7 @@ class CommandRLine : public Command
 		flags_needed = 'o'; this->syntax = "<regex> [<rline-duration>] :<reason>";
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 
 		if (parameters.size() >= 3)
@@ -197,7 +197,7 @@ class CommandRLine : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE

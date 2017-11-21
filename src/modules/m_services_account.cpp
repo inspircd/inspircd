@@ -43,7 +43,7 @@ class Channel_r : public ModeHandler
  public:
 	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		// only a u-lined server may add or remove the +r mode.
 		if (!IS_LOCAL(source))
@@ -71,7 +71,7 @@ class User_r : public ModeHandler
  public:
 	User_r(Module* Creator) : ModeHandler(Creator, "u_registered", 'r', PARAM_NONE, MODETYPE_USER) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(source))
 		{
@@ -100,7 +100,7 @@ class AccountExtItemImpl : public AccountExtItem
 	{
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
 		User* user = static_cast<User*>(container);
 

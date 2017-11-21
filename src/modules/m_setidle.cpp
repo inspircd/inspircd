@@ -38,7 +38,7 @@ class CommandSetidle : public SplitCommand
 		flags_needed = 'o'; syntax = "<duration>";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		int idle = InspIRCd::Duration(parameters[0]);
 		if (idle < 1)

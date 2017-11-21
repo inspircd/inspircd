@@ -34,8 +34,7 @@ class ChanFilter : public ListModeBase
  public:
 	ChanFilter(Module* Creator) : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
-	bool ValidateParam(User* user, Channel* chan, std::string &word)
-	{
+	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE	{
 		if (word.length() > 35)
 		{
 			user->WriteNumeric(935, chan->name, word, "%word is too long for censor list");
@@ -45,17 +44,17 @@ class ChanFilter : public ListModeBase
 		return true;
 	}
 
-	void TellListTooLong(User* user, Channel* chan, std::string &word)
+	void TellListTooLong(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(939, chan->name, word, "Channel spamfilter list is full");
 	}
 
-	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
+	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(937, chan->name, InspIRCd::Format("The word %s is already on the spamfilter list", word.c_str()));
 	}
 
-	void TellNotSet(User* user, Channel* chan, std::string &word)
+	void TellNotSet(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(938, chan->name, "No such spamfilter word is set");
 	}

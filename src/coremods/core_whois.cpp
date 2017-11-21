@@ -78,8 +78,8 @@ class CommandWhois : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
-	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target) CXX11_OVERRIDE;
 };
 
 class WhoisNumericSink

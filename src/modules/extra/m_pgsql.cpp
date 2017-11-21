@@ -65,7 +65,7 @@ class ReconnectTimer : public Timer
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
-	bool Tick(time_t TIME);
+	bool Tick(time_t TIME) CXX11_OVERRIDE;
 };
 
 struct QueueItem
@@ -100,12 +100,12 @@ class PgSQLresult : public SQLResult
 		PQclear(res);
 	}
 
-	int Rows()
+	int Rows() CXX11_OVERRIDE
 	{
 		return rows;
 	}
 
-	void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
 	{
 		result.resize(PQnfields(res));
 		for(unsigned int i=0; i < result.size(); i++)
@@ -123,7 +123,7 @@ class PgSQLresult : public SQLResult
 		return SQLEntry(std::string(v, PQgetlength(res, row, column)));
 	}
 
-	bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
 	{
 		if (currentrow >= PQntuples(res))
 			return false;

@@ -39,12 +39,12 @@ class SSLCertExt : public ExtensionItem {
 			delete old;
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
 		ssl_cert* cert = new ssl_cert;
 		set(container, cert);
@@ -69,7 +69,7 @@ class SSLCertExt : public ExtensionItem {
 		}
 	}
 
-	void free(void* item)
+	void free(void* item) CXX11_OVERRIDE
 	{
 		ssl_cert* old = static_cast<ssl_cert*>(item);
 		if (old && old->refcount_dec())
@@ -89,7 +89,7 @@ class CommandSSLInfo : public Command
 		this->syntax = "<nick>";
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
 

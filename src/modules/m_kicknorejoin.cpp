@@ -91,7 +91,7 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
 	{
 		int v = ConvToInt(parameter);
 		if (v <= 0)

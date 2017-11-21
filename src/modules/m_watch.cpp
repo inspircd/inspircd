@@ -134,7 +134,7 @@ class CommandWatch : public SplitCommand
 		syntax = "[<C|L|S|l|+<nick1>|-<nick>>]";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
 	{
 		if (parameters.empty())
 		{

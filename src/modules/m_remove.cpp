@@ -164,7 +164,7 @@ class CommandRemove : public RemoveBase
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		return HandleRMB(parameters, user, false);
 	}
@@ -182,7 +182,7 @@ class CommandFpart : public RemoveBase
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		return HandleRMB(parameters, user, true);
 	}

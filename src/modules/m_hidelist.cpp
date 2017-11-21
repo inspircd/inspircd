@@ -31,7 +31,7 @@ class ListWatcher : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* user, User* destuser, Channel* chan, std::string& param, bool adding)
+	bool BeforeMode(User* user, User* destuser, Channel* chan, std::string& param, bool adding) CXX11_OVERRIDE
 	{
 		// Only handle listmode list requests
 		if (!param.empty())

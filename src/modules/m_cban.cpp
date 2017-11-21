@@ -38,17 +38,17 @@ public:
 	}
 
 	// XXX I shouldn't have to define this
-	bool Matches(User *u)
+	bool Matches(User* u) CXX11_OVERRIDE
 	{
 		return false;
 	}
 
-	bool Matches(const std::string &s)
+	bool Matches(const std::string& s) CXX11_OVERRIDE
 	{
 		return irc::equals(matchtext, s);
 	}
 
-	const std::string& Displayable()
+	const std::string& Displayable() CXX11_OVERRIDE
 	{
 		return matchtext;
 	}
@@ -63,12 +63,12 @@ class CBanFactory : public XLineFactory
 
 	/** Generate a CBAN
  	*/
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new CBan(set_time, duration, source, reason, xline_specific_mask);
 	}
 
-	bool AutoApplyToUserList(XLine *x)
+	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
 	{
 		return false; // No, we apply to channels.
 	}
@@ -84,7 +84,7 @@ class CommandCBan : public Command
 		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -131,7 +131,7 @@ class CommandCBan : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE

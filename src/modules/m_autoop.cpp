@@ -41,7 +41,7 @@ class AutoOpList : public ListModeBase
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE
 	{
 		std::string::size_type pos = parameter.find(':');
 		if (pos == 0 || pos == std::string::npos)

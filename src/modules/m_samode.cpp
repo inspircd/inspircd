@@ -35,7 +35,7 @@ class CommandSamode : public Command
 		active = false;
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (parameters[0].c_str()[0] != '#')
 		{

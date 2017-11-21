@@ -32,7 +32,7 @@ class CommandVhost : public Command
 		syntax = "<username> <password>";
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)

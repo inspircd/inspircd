@@ -32,7 +32,7 @@ class CommandSapart : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 1))
 			return CMD_FAILURE;
@@ -78,7 +78,7 @@ class CommandSapart : public Command
 		return CMD_FAILURE;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}

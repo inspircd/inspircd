@@ -135,7 +135,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 			MemberInfoExt.unset(i->second);
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
 	{
 		ChannelSettings settings;
 		if (!ParseSettings(source, parameter, settings))

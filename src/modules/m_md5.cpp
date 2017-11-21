@@ -235,7 +235,7 @@ class MD5Provider : public HashProvider
 	}
 
  public:
-	std::string GenerateRaw(const std::string& data)
+	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length());

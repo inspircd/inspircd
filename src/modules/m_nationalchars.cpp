@@ -31,7 +31,7 @@
 class lwbNickHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
-	bool Call(const std::string&);
+	bool Call(const std::string&) CXX11_OVERRIDE;
 };
 
 								 /*,m_reverse_additionalUp[256];*/

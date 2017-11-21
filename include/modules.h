@@ -286,7 +286,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup
 	 */
-	virtual CullResult cull() CXX11_OVERRIDE;
+	CullResult cull() CXX11_OVERRIDE;
 
 	/** Default destructor.
 	 * destroys a module class

@@ -28,8 +28,7 @@ class ExemptChanOps : public ListModeBase
  public:
 	ExemptChanOps(Module* Creator) : ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false, "exemptchanops") { }
 
-	bool ValidateParam(User* user, Channel* chan, std::string &word)
-	{
+	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE	{
 		std::string::size_type p = word.find(':');
 		if (p == std::string::npos)
 		{
@@ -53,17 +52,17 @@ class ExemptChanOps : public ListModeBase
 		return true;
 	}
 
-	void TellListTooLong(User* user, Channel* chan, std::string &word)
+	void TellListTooLong(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(959, chan->name, word, "Channel exemptchanops list is full");
 	}
 
-	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
+	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(957, chan->name, InspIRCd::Format("The word %s is already on the exemptchanops list", word.c_str()));
 	}
 
-	void TellNotSet(User* user, Channel* chan, std::string &word)
+	void TellNotSet(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(958, chan->name, "No such exemptchanops word is set");
 	}

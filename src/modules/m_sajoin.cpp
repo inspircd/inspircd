@@ -33,7 +33,7 @@ class CommandSajoin : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		const unsigned int channelindex = (parameters.size() > 1) ? 1 : 0;
 		if (CommandParser::LoopCall(user, this, parameters, channelindex))
@@ -101,7 +101,7 @@ class CommandSajoin : public Command
 		}
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}

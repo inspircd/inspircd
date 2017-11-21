@@ -34,7 +34,7 @@ class PermChannel : public ModeHandler
 		oper = true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		if (adding == channel->IsModeSet(this))
 			return MODEACTION_DENY;

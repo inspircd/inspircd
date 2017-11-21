@@ -170,15 +170,15 @@ class CoreExport KLine : public XLine
 	{
 	}
 
-	virtual bool Matches(User *u);
+	bool Matches(User* u) CXX11_OVERRIDE;
 
-	virtual bool Matches(const std::string &str);
+	bool Matches(const std::string& str) CXX11_OVERRIDE;
 
-	virtual void Apply(User* u);
+	void Apply(User* u) CXX11_OVERRIDE;
 
-	virtual const std::string& Displayable();
+	const std::string& Displayable() CXX11_OVERRIDE;
 
-	virtual bool IsBurstable();
+	bool IsBurstable() CXX11_OVERRIDE;
 
 	/** Ident mask (ident part only)
 	 */
@@ -216,13 +216,13 @@ class CoreExport GLine : public XLine
 	{
 	}
 
-	virtual bool Matches(User *u);
+	bool Matches(User* u) CXX11_OVERRIDE;
 
-	virtual bool Matches(const std::string &str);
+	bool Matches(const std::string& str) CXX11_OVERRIDE;
 
-	virtual void Apply(User* u);
+	void Apply(User* u)  CXX11_OVERRIDE;
 
-	virtual const std::string& Displayable();
+	const std::string& Displayable() CXX11_OVERRIDE;
 
 	/** Ident mask (ident part only)
 	 */
@@ -258,15 +258,15 @@ class CoreExport ELine : public XLine
 	{
 	}
 
-	virtual bool Matches(User *u);
+	bool Matches(User* u) CXX11_OVERRIDE;
 
-	virtual bool Matches(const std::string &str);
+	bool Matches(const std::string& str) CXX11_OVERRIDE;
 
-	virtual void Unset();
+	void Unset() CXX11_OVERRIDE;
 
-	virtual void OnAdd();
+	void OnAdd() CXX11_OVERRIDE;
 
-	virtual const std::string& Displayable();
+	const std::string& Displayable() CXX11_OVERRIDE;
 
 	/** Ident mask (ident part only)
 	 */
@@ -301,13 +301,13 @@ class CoreExport ZLine : public XLine
 	{
 	}
 
-	virtual bool Matches(User *u);
+	bool Matches(User* u) CXX11_OVERRIDE;
 
-	virtual bool Matches(const std::string &str);
+	bool Matches(const std::string& str) CXX11_OVERRIDE;
 
-	virtual void Apply(User* u);
+	void Apply(User* u) CXX11_OVERRIDE;
 
-	virtual const std::string& Displayable();
+	const std::string& Displayable() CXX11_OVERRIDE;
 
 	/** IP mask (no ident part)
 	 */
@@ -336,13 +336,13 @@ class CoreExport QLine : public XLine
 	~QLine()
 	{
 	}
-	virtual bool Matches(User *u);
+	bool Matches(User* u) CXX11_OVERRIDE;
 
-	virtual bool Matches(const std::string &str);
+	bool Matches(const std::string& str) CXX11_OVERRIDE;
 
-	virtual void Apply(User* u);
+	void Apply(User* u) CXX11_OVERRIDE;
 
-	virtual const std::string& Displayable();
+	const std::string& Displayable() CXX11_OVERRIDE;
 
 	/** Nickname mask
 	 */

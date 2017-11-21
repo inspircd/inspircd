@@ -170,7 +170,7 @@ class SHA1HashProvider : public HashProvider
 	{
 	}
 
-	std::string GenerateRaw(const std::string& data)
+	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
 		SHA1Context ctx;
 		ctx.Update(reinterpret_cast<const unsigned char*>(data.data()), data.length());

@@ -40,7 +40,7 @@ class CommandKnock : public Command
 		Penalty = 5;
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (!c)
@@ -77,7 +77,7 @@ class CommandKnock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_BCAST;
 	}
