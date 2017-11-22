@@ -969,21 +969,6 @@
 # The default does nothing -- we include it for simplicity for you.   #
 <include file="examples/modules.conf.example">
 
-# Here are some pre-built modules.conf files that closely match the
-# default configurations of some popular IRCd's. You still may want to
-# look over them and make sure if everything is correct for you and setup
-# the proper SSL information.
-#
-# *NOTE*: These files have no comments for what the modules do. If you
-# are interested in that, please read the modules.conf.example. It is also
-# recommended that you make your own modules file based on modules.conf.example.
-
-# Settings similar to UnrealIRCd defaults.
-#<include file="examples/modules/unrealircd.conf.example">
-
-# Settings similar to Charybdis IRCd defaults.
-#<include file="examples/modules/charybdis.conf.example">
-
 #-#-#-#-#-#-#-#-#-#-#-# SERVICES CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you use services you will probably want to include one of the    #
