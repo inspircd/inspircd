@@ -23,7 +23,7 @@
 #include "modules/account.h"
 #include "modules/sasl.h"
 #include "modules/ssl.h"
-#include "modules/spanningtree.h"
+#include "modules/server.h"
 
 enum
 {
@@ -37,7 +37,7 @@ enum
 
 static std::string sasl_target;
 
-class ServerTracker : public SpanningTreeEventListener
+class ServerTracker : public ServerEventListener
 {
 	bool online;
 
@@ -65,7 +65,7 @@ class ServerTracker : public SpanningTreeEventListener
 
  public:
 	ServerTracker(Module* mod)
-		: SpanningTreeEventListener(mod)
+		: ServerEventListener(mod)
 	{
 		Reset();
 	}

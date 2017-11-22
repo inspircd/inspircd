@@ -21,11 +21,11 @@
 
 #include "event.h"
 
-class SpanningTreeEventListener : public Events::ModuleEventListener
+class ServerEventListener : public Events::ModuleEventListener
 {
  public:
-	SpanningTreeEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/spanningtree")
+	ServerEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/server")
 	{
 	}
 

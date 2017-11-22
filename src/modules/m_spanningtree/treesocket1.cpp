@@ -24,7 +24,7 @@
 #include "iohook.h"
 
 #include "main.h"
-#include "modules/spanningtree.h"
+#include "modules/server.h"
 #include "utils.h"
 #include "treeserver.h"
 #include "link.h"

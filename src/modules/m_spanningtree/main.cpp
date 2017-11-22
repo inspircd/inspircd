@@ -25,7 +25,7 @@
 #include "socket.h"
 #include "xline.h"
 #include "iohook.h"
-#include "modules/spanningtree.h"
+#include "modules/server.h"
 
 #include "resolvers.h"
 #include "main.h"
@@ -40,7 +40,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
 	, commands(this)
 	, currmembid(0)
-	, eventprov(this, "event/spanningtree")
+	, eventprov(this, "event/server")
 	, DNS(this, "DNS")
 	, loopCall(false)
 {
@@ -642,7 +642,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			TreeServer* server = i->second;
 			if (!server->IsRoot())
-				FOREACH_MOD_CUSTOM(GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server));
+				FOREACH_MOD_CUSTOM(GetEventProvider(), ServerEventListener, OnServerSplit, (server));
 		}
 		return;
 	}
