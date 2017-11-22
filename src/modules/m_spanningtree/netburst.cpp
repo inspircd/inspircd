@@ -27,6 +27,7 @@
 #include "treeserver.h"
 #include "main.h"
 #include "commands.h"
+#include "modules/server.h"
 
 /**
  * Creates FMODE messages, used only when syncing channels
@@ -122,7 +123,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 	// Send all xlines
 	this->SendXLines();
-	FOREACH_MOD(OnSyncNetwork, (bs.server));
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncNetwork, (bs.server));
 	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 
@@ -261,7 +262,7 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
 	}
 
-	FOREACH_MOD(OnSyncChannel, (chan, bs.server));
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncChannel, (chan, bs.server));
 }
 
 void TreeSocket::SyncChannel(Channel* chan)
@@ -273,8 +274,6 @@ void TreeSocket::SyncChannel(Channel* chan)
 /** Send all users and their state, including oper and away status and global metadata */
 void TreeSocket::SendUsers(BurstState& bs)
 {
-	ProtocolInterface::Server& piserver = bs.server;
-
 	const user_hash& users = ServerInstance->Users->GetUsers();
 	for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 	{
@@ -299,6 +298,6 @@ void TreeSocket::SendUsers(BurstState& bs)
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		FOREACH_MOD(OnSyncUser, (user, piserver));
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncUser, (user, bs.server));
 	}
 }

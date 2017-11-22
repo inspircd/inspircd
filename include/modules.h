@@ -230,8 +230,8 @@ enum Implementation
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserMessage, I_OnMode, I_OnSyncUser,
-	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
+	I_OnUserMessage, I_OnMode,
+	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -239,7 +239,7 @@ enum Implementation
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
@@ -581,40 +581,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
 
-	/** Allows modules to synchronize data which relates to users during a netburst.
-	 * When this function is called, it will be called from the module which implements
-	 * the linking protocol. This currently is m_spanningtree.so.
-	 * This function will be called for every user visible on your side
-	 * of the burst, allowing you to for example set modes, etc.
-	 * @param user The user being syncronized
-	 * @param server The target of the burst
-	 */
-	virtual void OnSyncUser(User* user, ProtocolServer& server);
-
-	/** Allows modules to synchronize data which relates to channels during a netburst.
-	 * When this function is called, it will be called from the module which implements
-	 * the linking protocol. This currently is m_spanningtree.so.
-	 * This function will be called for every channel visible on your side of the burst,
-	 * allowing you to for example set modes, etc.
-	 *
-	 * @param chan The channel being syncronized
-	 * @param server The target of the burst
-	 */
-	virtual void OnSyncChannel(Channel* chan, ProtocolServer& server);
-
-	/** Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
-	 * When the linking module has finished sending all data it wanted to send during a netburst, then
-	 * this method is called. You should use the SendMetaData() function after you've
-	 * correctly decided how the data should be represented, to send the data.
-	 * @param server The target of the burst
-	 */
-	virtual void OnSyncNetwork(ProtocolServer& server);
-
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
 	 * @param target The Channel* or User* that data should be added to
 	 * @param extname The extension name which is being sent
-	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
+	 * @param extdata The extension data, encoded at the other end by an identical module
 	 */
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 

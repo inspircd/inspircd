@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "modules/regex.h"
+#include "modules/server.h"
 
 enum FilterFlags
 {
@@ -154,7 +155,7 @@ class CommandFilter : public Command
 	}
 };
 
-class ModuleFilter : public Module
+class ModuleFilter : public Module, public ServerEventListener
 {
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
@@ -292,7 +293,10 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter()
-	: initing(true), filtcommand(this), RegexEngine(this, "regex")
+	: ServerEventListener(this)
+	, initing(true)
+	, filtcommand(this)
+	, RegexEngine(this, "regex")
 {
 }
 

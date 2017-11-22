@@ -38,4 +38,24 @@ class ServerEventListener : public Events::ModuleEventListener
 	  * @param server Server that split
 	  */
 	virtual void OnServerSplit(const Server* server) { }
+
+	/** Allows modules to synchronize user metadata during a netburst. This will
+	 * be called for every user visible on your side of the burst.
+	 * @param user The user being synchronized.
+	 * @param server The target of the burst.
+	 */
+	virtual void OnSyncUser(User* user, ProtocolServer& server) { }
+
+	/** Allows modules to synchronize channel metadata during a netburst. This will
+	 * be called for every channel visible on your side of the burst.
+	 * @param chan The channel being synchronized.
+	 * @param server The target of the burst.
+	 */
+	virtual void OnSyncChannel(Channel* chan, ProtocolServer& server) { }
+
+	/** Allows modules to synchronize network metadata during a netburst.
+	 * @param server The target of the burst.
+	 */
+	virtual void OnSyncNetwork(ProtocolServer& server) { }
+	
 };

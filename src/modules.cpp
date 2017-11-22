@@ -116,9 +116,6 @@ void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t, unsigned int, CUList&) { DetachEvent(I_OnUserInvite); }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
-void		Module::OnSyncUser(User*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncUser); }
-void		Module::OnSyncChannel(Channel*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncChannel); }
-void		Module::OnSyncNetwork(ProtocolInterface::Server&) { DetachEvent(I_OnSyncNetwork); }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
 void		Module::OnChangeName(User*, const std::string&) { DetachEvent(I_OnChangeName); }
