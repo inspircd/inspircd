@@ -94,7 +94,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 
 		// Generate the MAXLIST token from the limits map.
-		std::string& buffer = tokens["MAX	LIST"];
+		std::string& buffer = tokens["MAXLIST"];
 		for (insp::flat_map<int, std::string>::const_iterator iter = limits.begin(); iter != limits.end(); ++iter)
 		{
 			if (!buffer.empty())
