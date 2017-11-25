@@ -415,7 +415,7 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max)
 }
 
 // This is overridden by a higher-quality algorithm when SSL support is loaded
-void GenRandomHandler::Call(char *output, size_t max)
+void InspIRCd::DefaultGenRandom(char* output, size_t max)
 {
 	for(unsigned int i=0; i < max; i++)
 #ifdef _WIN32

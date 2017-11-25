@@ -226,7 +226,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 GenRandom(&HandleGenRandom),
+	 GenRandom(&DefaultGenRandom),
 	 IsChannel(&DefaultIsChannel),
 	 IsNick(&DefaultIsNick),
 	 IsIdent(&DefaultIsIdent)

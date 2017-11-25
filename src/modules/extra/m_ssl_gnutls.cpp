@@ -112,10 +112,10 @@ typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 
 static Module* thismod;
 
-class RandGen : public HandlerBase2<void, char*, size_t>
+class RandGen
 {
  public:
-	void Call(char* buffer, size_t len) CXX11_OVERRIDE
+	static void Call(char* buffer, size_t len)
 	{
 #ifdef GNUTLS_HAS_RND
 		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
@@ -1272,7 +1272,6 @@ class ModuleSSLGnuTLS : public Module
 
 	// First member of the class, gets constructed first and destructed last
 	GnuTLS::Init libinit;
-	RandGen randhandler;
 	ProfileList profiles;
 
 	void ReadProfiles()
@@ -1352,7 +1351,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
 		ReadProfiles();
-		ServerInstance->GenRandom = &randhandler;
+		ServerInstance->GenRandom = RandGen::Call;
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
@@ -1372,7 +1371,7 @@ class ModuleSSLGnuTLS : public Module
 
 	~ModuleSSLGnuTLS()
 	{
-		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
+		ServerInstance->GenRandom = &InspIRCd::DefaultGenRandom;
 	}
 
 	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE

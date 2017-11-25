@@ -165,8 +165,6 @@ class serverstats
 	}
 };
 
-DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
  * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
@@ -208,9 +206,6 @@ class CoreExport InspIRCd
 	CullList GlobalCulls;
 	/** Actions that must happen outside of the current call stack */
 	ActionList AtomicActions;
-
-	/**** Functors ****/
-	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -339,7 +334,14 @@ class CoreExport InspIRCd
 	unsigned long GenRandomInt(unsigned long max);
 
 	/** Fill a buffer with random bits */
-	caller2<void, char*, size_t> GenRandom;
+	TR1NS::function<void(char*, size_t)> GenRandom;
+
+	/** Fills the output buffer with the specified number of random characters.
+	 * This is the default function for InspIRCd::GenRandom.
+	 * @param output The output buffer to store random characters in.
+	 * @param max The maximum number of random characters to put in the buffer.
+	 */
+	static void DefaultGenRandom(char* output, size_t max);
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
