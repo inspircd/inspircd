@@ -21,10 +21,10 @@
 
 static std::bitset<256> allowedmap;
 
-class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>
+class NewIsChannelHandler
 {
  public:
-	bool Call(const std::string&) CXX11_OVERRIDE;
+	static bool Call(const std::string&);
 };
 
 bool NewIsChannelHandler::Call(const std::string& channame)
@@ -44,8 +44,7 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 
 class ModuleChannelNames : public Module
 {
-	NewIsChannelHandler myhandler;
-	caller1<bool, const std::string&> rememberer;
+	TR1NS::function<bool(const std::string&)> rememberer;
 	bool badchan;
 	ChanModeReference permchannelmode;
 
@@ -59,7 +58,7 @@ class ModuleChannelNames : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->IsChannel = &myhandler;
+		ServerInstance->IsChannel = NewIsChannelHandler::Call;
 	}
 
 	void ValidateChans()

@@ -166,7 +166,6 @@ class serverstats
 };
 
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
@@ -211,7 +210,6 @@ class CoreExport InspIRCd
 	ActionList AtomicActions;
 
 	/**** Functors ****/
-	IsChannelHandler HandleIsChannel;
 	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
@@ -370,11 +368,15 @@ class CoreExport InspIRCd
 	 */
 	chan_hash& GetChans() { return chanlist; }
 
-	/** Return true if a channel name is valid
-	 * @param chname A channel name to verify
-	 * @return True if the name is valid
-	 */
-	caller1<bool, const std::string&> IsChannel;
+	/** Determines whether an channel name is valid. */
+	TR1NS::function<bool(const std::string&)> IsChannel;
+
+	/** Determines whether a channel name is valid according to the RFC 1459 rules.
+	 * This is the default function for InspIRCd::IsChannel.
+	 * @param nick The channel name to validate.
+	 * @return True if the channel name is valid according to RFC 1459 rules; otherwise, false.
+	*/
+	static bool DefaultIsChannel(const std::string& channel);
 
 	/** Return true if str looks like a server ID
 	 * @param sid string to check against

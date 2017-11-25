@@ -227,7 +227,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * themselves within the class.
 	  */
 	 GenRandom(&HandleGenRandom),
-	 IsChannel(&HandleIsChannel),
+	 IsChannel(&DefaultIsChannel),
 	 IsNick(&DefaultIsNick),
 	 IsIdent(&DefaultIsIdent)
 {
