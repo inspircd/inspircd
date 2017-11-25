@@ -28,10 +28,10 @@
 #include "inspircd.h"
 #include <fstream>
 
-class lwbNickHandler : public HandlerBase1<bool, const std::string&>
+class lwbNickHandler
 {
  public:
-	bool Call(const std::string&) CXX11_OVERRIDE;
+	static bool Call(const std::string&);
 };
 
 								 /*,m_reverse_additionalUp[256];*/
@@ -217,10 +217,9 @@ bool lwbNickHandler::Call(const std::string& nick)
 
 class ModuleNationalChars : public Module
 {
-	lwbNickHandler myhandler;
 	std::string charset;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller1<bool, const std::string&> rememberer;
+	TR1NS::function<bool(const std::string&)> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 	unsigned char prev_map[256];
@@ -259,7 +258,7 @@ class ModuleNationalChars : public Module
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 
-		ServerInstance->IsNick = &myhandler;
+		ServerInstance->IsNick = &lwbNickHandler::Call;
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

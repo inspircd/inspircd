@@ -216,7 +216,7 @@ bool IsChannelHandler::Call(const std::string& chname)
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const std::string& n)
+bool InspIRCd::DefaultIsNick(const std::string& n)
 {
 	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;

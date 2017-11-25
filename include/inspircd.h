@@ -165,7 +165,6 @@ class serverstats
 	}
 };
 
-DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
 DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
@@ -213,8 +212,6 @@ class CoreExport InspIRCd
 	ActionList AtomicActions;
 
 	/**** Functors ****/
-
-	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
 	IsChannelHandler HandleIsChannel;
 	GenRandomHandler HandleGenRandom;
@@ -417,11 +414,15 @@ class CoreExport InspIRCd
 	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
 	static const char* Format(va_list &vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
 
-	/** Return true if a nickname is valid
-	 * @param n A nickname to verify
-	 * @return True if the nick is valid
+	/** Determines whether a nickname is valid. */
+	TR1NS::function<bool(const std::string&)> IsNick;
+
+	/** Determines whether a nickname is valid according to the RFC 1459 rules.
+	 * This is the default function for InspIRCd::IsNick.
+	 * @param nick The nickname to validate.
+	 * @return True if the nickname is valid according to RFC 1459 rules; otherwise, false.
 	 */
-	caller1<bool, const std::string&> IsNick;
+	static bool DefaultIsNick(const std::string& nick);
 
 	/** Return true if an ident is valid
 	 * @param An ident to verify
