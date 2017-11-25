@@ -77,24 +77,6 @@
 #endif
 
 /**
- * These macros enable the detection of the C++11 variadic templates in
- * compilers which support them.
- */
-#if __cplusplus >= 201103L
-# define HAS_CXX11_VARIADIC_TEMPLATES
-#elif defined __clang__
-# if __has_feature(cxx_variadic_templates)
-#  define HAS_CXX11_VARIADIC_TEMPLATES
-# endif
-#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
-# if defined __GXX_EXPERIMENTAL_CXX0X__
-#  define HAS_CXX11_VARIADIC_TEMPLATES
-# endif
-#elif _MSC_FULL_VER >= 170051025
-# define HAS_CXX11_VARIADIC_TEMPLATES
-#endif
-
-/**
  * This macro allows methods to be marked as deprecated. To use this, wrap the
  * method declaration in the header file with the macro.
  */

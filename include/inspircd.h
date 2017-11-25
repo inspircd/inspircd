@@ -68,7 +68,6 @@ struct fakederef
 #include "convto.h"
 #include "dynref.h"
 #include "consolecolors.h"
-#include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
 #include "fileutils.h"

@@ -565,7 +565,7 @@ void DataKeeper::DoRestoreModules()
 
 } // namespace ReloadModule
 
-class ReloadAction : public HandlerBase0<void>
+class ReloadAction : public ActionBase
 {
 	Module* const mod;
 	const std::string uuid;
