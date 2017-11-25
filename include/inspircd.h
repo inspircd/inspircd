@@ -166,7 +166,6 @@ class serverstats
 };
 
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
 DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
 
 /** The main class of the irc server.
@@ -212,7 +211,6 @@ class CoreExport InspIRCd
 	ActionList AtomicActions;
 
 	/**** Functors ****/
-	IsIdentHandler HandleIsIdent;
 	IsChannelHandler HandleIsChannel;
 	GenRandomHandler HandleGenRandom;
 
@@ -424,11 +422,15 @@ class CoreExport InspIRCd
 	 */
 	static bool DefaultIsNick(const std::string& nick);
 
-	/** Return true if an ident is valid
-	 * @param An ident to verify
-	 * @return True if the ident is valid
-	 */
-	caller1<bool, const std::string&> IsIdent;
+	/** Determines whether an ident is valid. */
+	TR1NS::function<bool(const std::string&)> IsIdent;
+
+	/** Determines whether a ident is valid according to the RFC 1459 rules.
+	 * This is the default function for InspIRCd::IsIdent.
+	 * @param nick The ident to validate.
+	 * @return True if the ident is valid according to RFC 1459 rules; otherwise, false.
+	*/
+	static bool DefaultIsIdent(const std::string& ident);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.

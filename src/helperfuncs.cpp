@@ -243,7 +243,7 @@ bool InspIRCd::DefaultIsNick(const std::string& n)
 }
 
 /* return true for good ident, false else */
-bool IsIdentHandler::Call(const std::string& n)
+bool InspIRCd::DefaultIsIdent(const std::string& n)
 {
 	if (n.empty())
 		return false;
