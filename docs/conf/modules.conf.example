@@ -511,12 +511,14 @@
 #                                                                     #
 # The methods use a single key that can be any length of text.        #
 # An optional prefix may be specified to mark cloaked hosts.          #
+# Casesensitive controls whether hosts are case-sensitive.            #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
 #       key="secret"
 #       domainparts="3"
-#       prefix="net-">
+#       prefix="net-"
+#       casesensitive="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Close module: Allows an oper to close all unregistered connections.

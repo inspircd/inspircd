@@ -145,6 +145,7 @@ class ModuleCloaking : public Module
 	std::string key;
 	unsigned int domainparts;
 	dynamic_reference<HashProvider> Hash;
+	bool caseSensitive;
 
 	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), ck(this), Hash(this, "hash/md5")
 	{
@@ -187,8 +188,10 @@ class ModuleCloaking : public Module
 	 * @param id A unique ID for this type of item (to make it unique if the item matches)
 	 * @param len The length of the output. Maximum for MD5 is 16 characters.
 	 */
-	std::string SegmentCloak(const std::string& item, char id, size_t len)
+	std::string SegmentCloak(std::string item, char id, size_t len)
 	{
+		if (!caseSensitive)
+			std::transform(item.begin(), item.end(), item.begin(), ::tolower);
 		std::string input;
 		input.reserve(key.length() + 3 + item.length());
 		input.append(1, id);
@@ -352,6 +355,8 @@ class ModuleCloaking : public Module
 		key = tag->getString("key");
 		if (key.empty() || key == "secret")
 			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
+
+		caseSensitive = tag->getBool("casesensitive", true);
 	}
 
 	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
