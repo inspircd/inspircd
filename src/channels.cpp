@@ -402,7 +402,10 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 	{
 		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); ++it)
 		{
-			if (CheckBan(user, it->mask))
+			if (it->mask[0] != type || it->mask[1] != ':')
+				continue;
+
+			if (CheckBan(user, it->mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 	}
