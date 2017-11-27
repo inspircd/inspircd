@@ -35,12 +35,6 @@
 	#include <sys/resource.h>
 	#include <dlfcn.h>
 	#include <getopt.h>
-
-	/* Some systems don't define RUSAGE_SELF. This should fix them. */
-	#ifndef RUSAGE_SELF
-		#define RUSAGE_SELF 0
-	#endif
-
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
 #else
