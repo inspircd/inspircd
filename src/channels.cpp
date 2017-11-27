@@ -476,7 +476,7 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 		return rv;
 	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
-		if (i->data[0] == type && i->data[1] == ':')
+		if (i->data.length() > 2 && i->data[0] == type && i->data[1] == ':')
 		{
 			std::string val = i->data.substr(2);
 			if (CheckBan(user, val))
