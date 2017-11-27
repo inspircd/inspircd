@@ -40,6 +40,7 @@ class Override : public SimpleUserModeHandler
 
 class ModuleOverride : public Module
 {
+	bool active;
 	bool RequireKey;
 	bool NoisyOverride;
 	bool UmodeEnabled;
@@ -78,7 +79,8 @@ class ModuleOverride : public Module
 
  public:
 	ModuleOverride()
-		: UmodeEnabled(false)
+		: active(false)
+		, UmodeEnabled(false)
 		, ou(this)
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
@@ -216,6 +218,47 @@ class ModuleOverride : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	// Begin override for CHANMSG (bypassing external modules' privmsg restirctions such as muteban and chanfilter)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	{
+		if (active)
+			return MOD_RES_PASSTHRU;
+
+		ModResult MOD_RESULT;
+
+		if (target_type == TYPE_CHANNEL && user->IsOper() && CanOverride(user, "CHANMSG"))
+		{
+			active = true;
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, target_type, text, status, exempt_list, msgtype));
+			active = false;
+
+			// If there is something stopping us from sending our privmsg to the channel then we override
+			if (MOD_RESULT == MOD_RES_DENY)
+			{
+				Channel* channel = static_cast<Channel*>(dest);
+				ServerInstance->SNO->WriteGlobalSno('v',user->nick+" used oper override to send a message on "+channel->name);
+				return MOD_RES_ALLOW;
+			}
+			// We already ran FIRST_MOD_RESULT, so if there was no MOD_RES_DENY then they were all passthrus, so there's no point in re-running it anyway
+			return MOD_RES_ALLOW;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	// For preventing "cannot send message to channel" errors during CHANMSG override
+	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		if (!active || numeric.GetNumeric() != ERR_CANNOTSENDTOCHAN)
+			return MOD_RES_PASSTHRU;
+
+		return MOD_RES_DENY;
+	}
+
+	void Prioritize() CXX11_OVERRIDE
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_FIRST);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
