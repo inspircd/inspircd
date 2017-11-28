@@ -21,6 +21,12 @@
 #include "inspircd.h"
 #include "core_user.h"
 
+enum
+{
+	// From ircu.
+	ERR_INVALIDUSERNAME = 468
+};
+
 CommandUser::CommandUser(Module* parent)
 	: SplitCommand(parent, "USER", 4, 4)
 {
@@ -36,11 +42,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	{
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
-			/*
-			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
-			 *  -- Craig, and then w00t.
-			 */
-			user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Your username is not valid");
+			user->WriteNumeric(ERR_INVALIDUSERNAME, name, "Your username is not valid");
 			return CMD_FAILURE;
 		}
 		else
