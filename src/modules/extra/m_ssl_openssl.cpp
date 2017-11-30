@@ -54,11 +54,6 @@
 # pragma comment(lib, "libeay32.lib")
 #endif
 
-#if ((OPENSSL_VERSION_NUMBER >= 0x10000000L) && (!(defined(OPENSSL_NO_ECDH))))
-// OpenSSL 0.9.8 includes some ECC support, but it's unfinished. Enable only for 1.0.0 and later.
-#define INSPIRCD_OPENSSL_ENABLE_ECDH
-#endif
-
 // BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0 and older.
 #if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
 # define BIO_get_data(BIO) BIO->ptr
@@ -162,7 +157,7 @@ namespace OpenSSL
 			return (SSL_CTX_set_tmp_dh(ctx, dh.get()) >= 0);
 		}
 
-#ifdef INSPIRCD_OPENSSL_ENABLE_ECDH
+#ifndef OPENSSL_NO_ECDH
 		void SetECDH(const std::string& curvename)
 		{
 			int nid = OBJ_sn2nid(curvename.c_str());
@@ -330,7 +325,7 @@ namespace OpenSSL
 				}
 			}
 
-#ifdef INSPIRCD_OPENSSL_ENABLE_ECDH
+#ifndef OPENSSL_NO_ECDH
 			std::string curvename = tag->getString("ecdhcurve", "prime256v1");
 			if (!curvename.empty())
 				ctx.SetECDH(curvename);

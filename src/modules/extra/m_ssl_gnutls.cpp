@@ -79,11 +79,6 @@
 #define GNUTLS_NEW_PRIO_API
 #endif
 
-#if (!INSPIRCD_GNUTLS_HAS_VERSION(2, 0, 0))
-typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
-typedef gnutls_dh_params_t gnutls_dh_params;
-#endif
-
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
