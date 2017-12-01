@@ -328,7 +328,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			throw CoreException("Invalid <include:executable> tag in file included with noexec=\"yes\"");
 		if (tag->getBool("noinclude", false))
 			flags |= FLAG_NO_INC;
-		if (tag->getBool("noexec", true))
+		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
 		if (!ParseFile(name, flags, mandatorytag, true))
 			throw CoreException("Included");
