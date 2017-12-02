@@ -642,7 +642,7 @@
 #
 # You can also override the configuration of prefix modes added by both the core
 # and other modules by adding a customprefix tag with change="yes" specified.
-# <customprefix name="op" change="yes" rank="30000" ranktoset="30000"">
+# <customprefix name="op" change="yes" rank="30000" ranktoset="30000">
 # <customprefix name="voice" change="yes" rank="10000" ranktoset="10000" depriv="no">
 #
 # Do /RELOADMODULE customprefix after changing the settings of this module.
