@@ -24,9 +24,9 @@
 class OpMeQuery : public SQLQuery
 {
  public:
-	const std::string uid, username, password;
-	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me), uid(u), username(un), password(pw)
+	const std::string uid, username, password, hashtype;
+	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw, const std::string& ht)
+		: SQLQuery(me), uid(u), username(un), password(pw), hashtype(ht)
 	{
 	}
 
@@ -41,7 +41,7 @@ class OpMeQuery : public SQLQuery
 		SQLEntries row;
 		while (res.GetRow(row))
 		{
-			if (OperUser(user, row[0], row[1]))
+			if (OperUser(user, row[0], row[1],row[2]))
 				return;
 		}
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
@@ -76,9 +76,21 @@ class OpMeQuery : public SQLQuery
 		}
 	}
 
-	bool OperUser(User* user, const std::string &pattern, const std::string &type)
+	bool OperUser(User* user, const std::string &pattern, const std::string &type, const std::string &hashedpass)
 	{
 		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(type);
+		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
+		
+		if(hash)
+		{
+			if(!hash->Compare(password,hashedpass))
+		    		return false;
+		}
+		else
+		{
+			if(hashedpass.compare(password) != 0)
+				return false;
+		}
 		if (iter == ServerInstance->Config->OperTypes.end())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
@@ -122,7 +134,7 @@ public:
 			SQL.SetProvider("SQL/" + dbid);
 
 		hashtype = tag->getString("hash");
-		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password' AND active=1;");
+		query = tag->getString("query", "SELECT hostname as host, type, password FROM ircd_opers WHERE username='$username' AND active=1;");
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
@@ -142,14 +154,11 @@ public:
 
 	void LookupOper(User* user, const std::string &username, const std::string &password)
 	{
-		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
-
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
-		userinfo["password"] = hash ? hash->Generate(password) : password;
 
-		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
+		SQL->submit(new OpMeQuery(this, user->uuid, username, password, hashtype), query, userinfo);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
