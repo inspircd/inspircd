@@ -190,7 +190,9 @@ void ISupportManager::Build()
 	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
+	tokens["HOSTLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxHost);
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
+	tokens["LINELEN"] = ConvToStr(ServerInstance->Config->Limits.MaxLine);
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
 	tokens["NETWORK"] = ServerInstance->Config->Network;
@@ -198,6 +200,7 @@ void ISupportManager::Build()
 	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
 	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
 	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
+	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
 	tokens["VBANLIST"];
 
 	// Modules can add new tokens and also edit or remove existing tokens
