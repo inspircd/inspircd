@@ -20,9 +20,10 @@
 
 
 #include "inspircd.h"
-#include "builtinmodes.h"
+#include "core_user.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
+	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;
 }

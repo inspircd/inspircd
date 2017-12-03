@@ -83,7 +83,7 @@ all: inspircd modules
 
 END
 	my(@core_deps, @modlist);
-	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
+	for my $file (<*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";
@@ -149,7 +149,7 @@ all: inspircd
 
 END
 	my(@deps, @srcs);
-	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, <coremods/*.cpp>, <coremods/core_*/*.cpp>,
+	for my $file (<*.cpp>, <socketengines/*.cpp>, <coremods/*.cpp>, <coremods/core_*/*.cpp>,
 			<modules/*.cpp>, <modules/m_*/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file, 1;
 		if ($out =~ m#obj/([^/]+)/[^/]+.o$#) {

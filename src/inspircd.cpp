@@ -398,7 +398,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
-	ModeParser::InitBuiltinModes();
 
 	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())

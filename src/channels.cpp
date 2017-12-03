@@ -349,6 +349,9 @@ bool Channel::IsBanned(User* user)
 		return (result == MOD_RES_DENY);
 
 	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+	if (!banlm)
+		return false;
+
 	const ListModeBase::ModeList* bans = banlm->GetList(this);
 	if (bans)
 	{
@@ -397,6 +400,9 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 		return rv;
 
 	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+	if (!banlm)
+		return MOD_RES_PASSTHRU;
+
 	const ListModeBase::ModeList* bans = banlm->GetList(this);
 	if (bans)
 	{

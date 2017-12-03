@@ -147,11 +147,24 @@ class CoreModUser : public Module
 	CommandPong cmdpong;
 	CommandQuit cmdquit;
 	CommandUser cmduser;
+	SimpleUserModeHandler invisiblemode;
+	ModeUserOperator operatormode;
+	ModeUserServerNoticeMask snomaskmode;
 
  public:
 	CoreModUser()
-		: cmdaway(this), cmdmode(this), cmdnick(this), cmdpart(this), cmdpass(this), cmdping(this)
-		, cmdpong(this), cmdquit(this), cmduser(this)
+		: cmdaway(this)
+		, cmdmode(this)
+		, cmdnick(this)
+		, cmdpart(this)
+		, cmdpass(this)
+		, cmdping(this)
+		, cmdpong(this)
+		, cmdquit(this)
+		, cmduser(this)
+		, invisiblemode(this, "invisible", 'i')
+		, operatormode(this)
+		, snomaskmode(this)
 	{
 	}
 

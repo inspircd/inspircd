@@ -21,10 +21,10 @@
 
 
 #include "inspircd.h"
-#include "builtinmodes.h"
+#include "core_channel.h"
 
-ModeChannelKey::ModeChannelKey()
-	: ParamMode<ModeChannelKey, LocalStringExt>(NULL, "key", 'k', PARAM_ALWAYS)
+ModeChannelKey::ModeChannelKey(Module* Creator)
+	: ParamMode<ModeChannelKey, LocalStringExt>(Creator, "key", 'k', PARAM_ALWAYS)
 {
 }
 

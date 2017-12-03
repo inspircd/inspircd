@@ -2,6 +2,9 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2006 Craig Edwards <craigedwards@brainbox.cc>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,6 +23,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "listmode.h"
 
 class MessageWrapper
 {
@@ -181,4 +185,38 @@ class CommandUser : public SplitCommand
 	 * a non-MOD_RES_DENY result).
 	 */
 	static CmdResult CheckRegister(LocalUser* user);
+};
+
+/** User mode +s
+ */
+class ModeUserServerNoticeMask : public ModeHandler
+{
+	/** Process a snomask modifier string, e.g. +abc-de
+	 * @param user The target user
+	 * @param input A sequence of notice mask characters
+	 * @return The cleaned mode sequence which can be output,
+	 * e.g. in the above example if masks c and e are not
+	 * valid, this function will return +ab-d
+	 */
+	std::string ProcessNoticeMasks(User* user, const std::string& input);
+
+ public:
+	ModeUserServerNoticeMask(Module* Creator);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
+	void OnParameterMissing(User* user, User* dest, Channel* channel) CXX11_OVERRIDE;
+
+	/** Create a displayable mode string of the snomasks set on a given user
+	 * @param user The user whose notice masks to format
+	 * @return The notice mask character sequence
+	 */
+	std::string GetUserParameter(const User* user) const CXX11_OVERRIDE;
+};
+
+/** User mode +o
+ */
+class ModeUserOperator : public ModeHandler
+{
+ public:
+	ModeUserOperator(Module* Creator);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
 };

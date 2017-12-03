@@ -45,6 +45,8 @@ class CommandTban : public Command
 	bool IsBanSet(Channel* chan, const std::string& mask)
 	{
 		ListModeBase* banlm = static_cast<ListModeBase*>(*banmode);
+		if (!banlm)
+			return false;
 		const ListModeBase::ModeList* bans = banlm->GetList(chan);
 		if (bans)
 		{

@@ -24,7 +24,6 @@
 
 
 #include "inspircd.h"
-#include "builtinmodes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
 	: ServiceProvider(Creator, Name, SERVICE_MODE)
@@ -892,53 +891,6 @@ void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 		if (i->second->HasMode(this))
 			changelist.push_remove(this, i->first->nick);
 	}
-}
-
-struct builtin_modes
-{
-	SimpleChannelModeHandler s;
-	SimpleChannelModeHandler p;
-	SimpleChannelModeHandler m;
-	SimpleChannelModeHandler t;
-
-	SimpleChannelModeHandler n;
-	SimpleChannelModeHandler i;
-	ModeChannelKey k;
-	ModeChannelLimit l;
-
-	ModeChannelBan b;
-	ModeChannelOp o;
-	ModeChannelVoice v;
-
-	SimpleUserModeHandler ui;
-	ModeUserOperator uo;
-	ModeUserServerNoticeMask us;
-
-	builtin_modes()
-		: s(NULL, "secret", 's')
-		, p(NULL, "private", 'p')
-		, m(NULL, "moderated", 'm')
-		, t(NULL, "topiclock", 't')
-		, n(NULL, "noextmsg", 'n')
-		, i(NULL, "inviteonly", 'i')
-		, ui(NULL, "invisible", 'i')
-	{
-	}
-
-	void init()
-	{
-		ServiceProvider* modes[] = { &s, &p, &m, &t, &n, &i, &k, &l, &b, &o, &v,
-									 &ui, &uo, &us };
-		ServerInstance->Modules->AddServices(modes, sizeof(modes)/sizeof(ServiceProvider*));
-	}
-};
-
-static builtin_modes static_modes;
-
-void ModeParser::InitBuiltinModes()
-{
-	static_modes.init();
-	static_modes.b.DoRehash();
 }
 
 bool ModeParser::IsModeChar(char chr)

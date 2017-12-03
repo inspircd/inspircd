@@ -43,7 +43,6 @@ endif(MSVC)
 file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 "${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
 "${INSPIRCD_BASE}/win/win32service.cpp" "${INSPIRCD_BASE}/src/*.cpp"
-"${INSPIRCD_BASE}/src/modes/*.cpp"
 "${INSPIRCD_BASE}/src/socketengines/socketengine_select.cpp"
 "${INSPIRCD_BASE}/src/threadengines/threadengine_win32.cpp")
 list(SORT INSPIRCD_SOURCES)

@@ -809,8 +809,6 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		ChanModeReference ban(NULL, "ban");
-		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands();
 		User* user = ServerInstance->FindNick(TheUserUID);
 

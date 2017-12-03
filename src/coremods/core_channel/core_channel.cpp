@@ -30,6 +30,19 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	CommandKick cmdkick;
 	CommandNames cmdnames;
 	CommandTopic cmdtopic;
+
+	ModeChannelBan banmode;
+	SimpleChannelModeHandler inviteonlymode;
+	ModeChannelKey keymode;
+	ModeChannelLimit limitmode;
+	SimpleChannelModeHandler moderatedmode;
+	SimpleChannelModeHandler noextmsgmode;
+	ModeChannelOp opmode;
+	SimpleChannelModeHandler privatemode;
+	SimpleChannelModeHandler secretmode;
+	SimpleChannelModeHandler topiclockmode;
+	ModeChannelVoice voicemode;
+
 	insp::flat_map<std::string, char> exemptions;
 
 	ModResult IsInvited(User* user, Channel* chan)
@@ -49,6 +62,17 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		, cmdkick(this)
 		, cmdnames(this)
 		, cmdtopic(this)
+		, banmode(this)
+		, inviteonlymode(this, "inviteonly", 'i')
+		, keymode(this)
+		, limitmode(this)
+		, moderatedmode(this, "moderated", 'm')
+		, noextmsgmode(this, "noextmsg", 'n')
+		, opmode(this)
+		, privatemode(this, "private", 'p')
+		, secretmode(this, "secret", 's')
+		, topiclockmode(this, "topiclock", 't')
+		, voicemode(this)
 	{
 	}
 
@@ -80,6 +104,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			exempts[restriction] = prefix;
 		}
 		exemptions.swap(exempts);
+		banmode.DoRehash();
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

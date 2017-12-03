@@ -661,10 +661,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	ModeParser();
 	~ModeParser();
 
-	/** Initialize all built-in modes
-	 */
-	static void InitBuiltinModes();
-
 	static bool IsModeChar(char chr);
 
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.

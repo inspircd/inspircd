@@ -20,10 +20,10 @@
 
 
 #include "inspircd.h"
-#include "builtinmodes.h"
+#include "core_channel.h"
 
-ModeChannelLimit::ModeChannelLimit()
-	: ParamMode<ModeChannelLimit, LocalIntExt>(NULL, "limit", 'l')
+ModeChannelLimit::ModeChannelLimit(Module* Creator)
+	: ParamMode<ModeChannelLimit, LocalIntExt>(Creator, "limit", 'l')
 {
 }
 

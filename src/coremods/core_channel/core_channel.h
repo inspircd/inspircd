@@ -2,6 +2,9 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2006 Craig Edwards <craigedwards@brainbox.cc>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,6 +23,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "listmode.h"
 #include "modules/exemption.h"
 
 namespace Topic
@@ -134,4 +138,63 @@ class CommandKick : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+};
+
+/** Channel mode +b
+ */
+class ModeChannelBan : public ListModeBase
+{
+ public:
+	ModeChannelBan(Module* Creator)
+		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", 367, 368, true, "maxbans")
+	{
+	}
+};
+
+/** Channel mode +k
+ */
+class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
+{
+	static const std::string::size_type maxkeylen = 32;
+ public:
+	ModeChannelKey(Module* Creator);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
+	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;
+	ModeAction OnSet(User* source, Channel* chan, std::string& param) CXX11_OVERRIDE;
+};
+
+/** Channel mode +l
+ */
+class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
+{
+ public:
+	ModeChannelLimit(Module* Creator);
+	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) CXX11_OVERRIDE;
+	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE;
+};
+
+/** Channel mode +o
+ */
+class ModeChannelOp : public PrefixMode
+{
+ public:
+	ModeChannelOp(Module* Creator)
+		: PrefixMode(Creator, "op", 'o', OP_VALUE, '@')
+	{
+		ranktoset = ranktounset = OP_VALUE;
+	}
+};
+
+/** Channel mode +v
+ */
+class ModeChannelVoice : public PrefixMode
+{
+ public:
+	ModeChannelVoice(Module* Creator)
+		: PrefixMode(Creator, "voice", 'v', VOICE_VALUE, '+')
+	{
+		selfremove = false;
+		ranktoset = ranktounset = HALFOP_VALUE;
+	}
 };
