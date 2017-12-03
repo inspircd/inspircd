@@ -32,58 +32,53 @@ class CommandMkpasswd : public Command
 		Penalty = 5;
 	}
 
-	void MakeHash(User* user, const std::string& algo, const std::string& stuff)
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
-		if (!algo.compare(0, 5, "hmac-", 5))
+		if (!parameters[0].compare(0, 5, "hmac-", 5))
 		{
-			std::string type(algo, 5);
+			std::string type(parameters[0], 5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 			{
 				user->WriteNotice("Unknown hash type");
-				return;
+				return CMD_FAILURE;
 			}
 
 			if (hp->IsKDF())
 			{
 				user->WriteNotice(type + " does not support HMAC");
-				return;
+				return CMD_FAILURE;
 			}
 
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
-			std::string target = hp->hmac(salt, stuff);
+			std::string target = hp->hmac(salt, parameters[1]);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
-			user->WriteNotice(algo + " hashed password for " + stuff + " is " + str);
-			return;
+			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + str);
+			return CMD_SUCCESS;
 		}
-		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + algo);
-		if (hp)
-		{
-			/* Now attempt to generate a hash */
-			std::string hexsum = hp->Generate(stuff);
-			user->WriteNotice(algo + " hashed password for " + stuff + " is " + hexsum);
-		}
-		else
+
+		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + parameters[0]);
+		if (!hp)
 		{
 			user->WriteNotice("Unknown hash type");
+			return CMD_FAILURE;
 		}
-	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
-	{
-		MakeHash(user, parameters[0], parameters[1]);
-
+		std::string hexsum = hp->Generate(parameters[1]);
+		user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + hexsum);
 		return CMD_SUCCESS;
 	}
 };
 
-class ModuleOperHash : public Module
+class ModulePasswordHash : public Module
 {
+ private:
 	CommandMkpasswd cmd;
- public:
 
-	ModuleOperHash() : cmd(this)
+ public:
+	ModulePasswordHash()
+		: cmd(this)
 	{
 	}
 
@@ -133,8 +128,8 @@ class ModuleOperHash : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows for hashed oper passwords",VF_VENDOR);
+		return Version("Provides the ability to hash passwords to other modules", VF_VENDOR);
 	}
 };
 
-MODULE_INIT(ModuleOperHash)
+MODULE_INIT(ModulePasswordHash)
