@@ -449,6 +449,9 @@ unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User*
 
 		Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
+		// This is both a defensive coding gesture and a fix for core_reloadmodule attempting to restore a mode that no longer exists (i.e. a module with an optional umode that was disabled then reloaded)
+		if (mh == NULL)
+			continue;
 
 		// If the mode is supposed to have a parameter then we first take a look at item.param
 		// and, if we were asked to, also handle mode merges now
