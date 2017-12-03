@@ -360,11 +360,13 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		}
 		else if (f->action == FA_KILL)
 		{
+			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered and was Killed, target was "+target+": "+f->reason);
 			ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 		}
 		else if (f->action == FA_GLINE)
 		{
 			GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered and was G-Lined, target was "+target+": "+f->reason);
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
