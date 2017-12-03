@@ -42,14 +42,18 @@ static const char base32[] = "0123456789abcdefghijklmnopqrstuv";
 class CloakUser : public ModeHandler
 {
  public:
+	bool active;
 	LocalStringExt ext;
 	std::string debounce_uid;
 	time_t debounce_ts;
 	int debounce_count;
 
 	CloakUser(Module* source)
-		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER),
-		ext("cloaked_host", ExtensionItem::EXT_USER, source), debounce_ts(0), debounce_count(0)
+		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
+		, active(false)
+		, ext("cloaked_host", ExtensionItem::EXT_USER, source)
+		, debounce_ts(0)
+		, debounce_count(0)
 	{
 	}
 
@@ -63,6 +67,8 @@ class CloakUser : public ModeHandler
 		 */
 		if (!user)
 		{
+			// Remote setters broadcast mode before host while local setters do the opposite, so this takes that into account
+			active = IS_LOCAL(source) ? adding : !adding;
 			dest->SetMode(this, adding);
 			return MODEACTION_ALLOW;
 		}
@@ -146,7 +152,11 @@ class ModuleCloaking : public Module
 	unsigned int domainparts;
 	dynamic_reference<HashProvider> Hash;
 
-	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), ck(this), Hash(this, "hash/md5")
+	ModuleCloaking()
+		: cu(this)
+		, mode(MODE_OPAQUE)
+		, ck(this)
+		, Hash(this, "hash/md5")
 	{
 	}
 
@@ -300,11 +310,12 @@ class ModuleCloaking : public Module
 	// mode change, we will call SetMode back to true AFTER the host change is done.
 	void OnChangeHost(User* u, const std::string& host) CXX11_OVERRIDE
 	{
-		if (u->IsModeSet(cu))
+		if (u->IsModeSet(cu) && !cu.active)
 		{
 			u->SetMode(cu, false);
 			u->WriteCommand("MODE", "-" + ConvToStr(cu.GetModeChar()));
 		}
+		cu.active = false;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
