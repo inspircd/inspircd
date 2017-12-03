@@ -239,10 +239,12 @@ class ModuleSSLInfo : public Module
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
 			ok = (req.cert && req.cert->IsCAVerified());
+			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class requires trusted SSL cert. Client %s.", (ok ? "has one" : "does not have one"));
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
 			ok = (req.cert != NULL);
+			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class requires any SSL cert. Client %s.", (ok ? "has one" : "does not have one"));
 		}
 
 		if (!ok)
