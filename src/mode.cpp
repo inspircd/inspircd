@@ -449,6 +449,12 @@ unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User*
 		Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
 
+		// If a mode change has been given for a mode that does not exist then reject
+		// it. This can happen when core_reloadmodule attempts to restore a mode that
+		// no longer exists.
+		if (!mh)
+			continue;
+
 		// If the mode is supposed to have a parameter then we first take a look at item.param
 		// and, if we were asked to, also handle mode merges now
 		if (mh->NeedsParam(item.adding))
