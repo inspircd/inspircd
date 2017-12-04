@@ -849,7 +849,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	parameterlist params;
 	params.push_back(x->type);
 	params.push_back(x->Displayable());
-	params.push_back(ServerInstance->Config->ServerName);
+	params.push_back(x->source);
 	params.push_back(ConvToStr(x->set_time));
 	params.push_back(ConvToStr(x->duration));
 	params.push_back(":" + x->reason);
