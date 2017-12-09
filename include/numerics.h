@@ -81,7 +81,6 @@ enum
 	RPL_RULESEND                    = 309, // unrealircd
 
 	RPL_WHOISSERVER                 = 312,
-	RPL_WHOWASUSER                  = 314,
 
 	RPL_ENDOFWHO                    = 315,
 	RPL_ENDOFWHOIS                  = 318,
@@ -106,15 +105,12 @@ enum
 	RPL_LINKS                       = 364,
 	RPL_ENDOFLINKS                  = 365,
 	RPL_ENDOFNAMES                  = 366,
-	RPL_ENDOFWHOWAS                 = 369,
 
 	RPL_INFO                        = 371,
 	RPL_ENDOFINFO                   = 374,
 	RPL_MOTD                        = 372,
 	RPL_MOTDSTART                   = 375,
 	RPL_ENDOFMOTD                   = 376,
-
-	RPL_WHOWASIP                    = 379,
 
 	RPL_YOUAREOPER                  = 381,
 	RPL_REHASHING                   = 382,

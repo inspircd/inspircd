@@ -23,6 +23,16 @@
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_WHOWASUSER = 314,
+	RPL_ENDOFWHOWAS = 369,
+
+	// InspIRCd-specific.
+	RPL_WHOWASIP = 652
+};
+
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {

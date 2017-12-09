@@ -21,6 +21,22 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_WHOISUSER = 311,
+	RPL_WHOISOPERATOR = 313,
+	RPL_WHOISIDLE = 317,
+	RPL_WHOISCHANNELS = 319,
+
+	// From UnrealIRCd.
+	RPL_WHOISHOST = 378,
+	RPL_WHOISMODES = 379,
+
+	// InspIRCd-specific.
+	RPL_CHANNELSMSG = 651
+};
+
 class WhoisContextImpl : public Whois::Context
 {
 	Events::ModuleEventProvider& lineevprov;
@@ -101,7 +117,7 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 {
  public:
 	WhoisChanListNumericBuilder(WhoisContextImpl& whois)
-		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), 319, false, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
+		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), RPL_WHOISCHANNELS, false, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
 	{
 		GetNumeric().push(whois.GetTarget()->nick).push(std::string());
 	}
@@ -147,7 +163,7 @@ class WhoisChanList
 	{
 		num.Flush();
 		if (!spynum.IsEmpty())
-			whois.SendLine(336, "is on private/secret channels:");
+			whois.SendLine(RPL_CHANNELSMSG, "is on private/secret channels:");
 		spynum.Flush();
 	}
 };
@@ -177,45 +193,45 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 {
 	WhoisContextImpl whois(user, dest, lineevprov);
 
-	whois.SendLine(311, dest->ident, dest->GetDisplayedHost(), '*', dest->fullname);
+	whois.SendLine(RPL_WHOISUSER, dest->ident, dest->GetDisplayedHost(), '*', dest->fullname);
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
-		whois.SendLine(378, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->GetRealHost().c_str(), dest->GetIPString().c_str()));
+		whois.SendLine(RPL_WHOISHOST, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->GetRealHost().c_str(), dest->GetIPString().c_str()));
 	}
 
 	SendChanList(whois);
 
 	if (!whois.IsSelfWhois() && !ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 	{
-		whois.SendLine(312, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
+		whois.SendLine(RPL_WHOISSERVER, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 	}
 	else
 	{
-		whois.SendLine(312, dest->server->GetName(), dest->server->GetDesc());
+		whois.SendLine(RPL_WHOISSERVER, dest->server->GetName(), dest->server->GetDesc());
 	}
 
 	if (dest->IsAway())
 	{
-		whois.SendLine(301, dest->awaymsg);
+		whois.SendLine(RPL_AWAY, dest->awaymsg);
 	}
 
 	if (dest->IsOper())
 	{
 		if (ServerInstance->Config->GenericOper)
-			whois.SendLine(313, "is an IRC operator");
+			whois.SendLine(RPL_WHOISOPERATOR, "is an IRC operator");
 		else
-			whois.SendLine(313, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"), dest->oper->name.c_str(), ServerInstance->Config->Network.c_str()));
+			whois.SendLine(RPL_WHOISOPERATOR, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"), dest->oper->name.c_str(), ServerInstance->Config->Network.c_str()));
 	}
 
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
 		if (dest->IsModeSet(snomaskmode))
 		{
-			whois.SendLine(379, InspIRCd::Format("is using modes %s %s", dest->GetModeLetters().c_str(), snomaskmode->GetUserParameter(dest).c_str()));
+			whois.SendLine(RPL_WHOISMODES, InspIRCd::Format("is using modes %s %s", dest->GetModeLetters().c_str(), snomaskmode->GetUserParameter(dest).c_str()));
 		}
 		else
 		{
-			whois.SendLine(379, InspIRCd::Format("is using modes %s", dest->GetModeLetters().c_str()));
+			whois.SendLine(RPL_WHOISMODES, InspIRCd::Format("is using modes %s", dest->GetModeLetters().c_str()));
 		}
 	}
 
@@ -227,10 +243,10 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	 */
 	if ((idle) || (signon))
 	{
-		whois.SendLine(317, idle, signon, "seconds idle, signon time");
+		whois.SendLine(RPL_WHOISIDLE, idle, signon, "seconds idle, signon time");
 	}
 
-	whois.SendLine(318, "End of /WHOIS list.");
+	whois.SendLine(RPL_ENDOFWHOIS, "End of /WHOIS list.");
 }
 
 CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target)

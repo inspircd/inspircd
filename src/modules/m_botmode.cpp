@@ -24,7 +24,7 @@
 enum
 {
 	// From UnrealIRCd.
-	RPL_WHOISBOT = 335,
+	RPL_WHOISBOT = 335
 };
 
 class ModuleBotMode : public Module, public Whois::EventListener
