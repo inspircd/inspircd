@@ -25,6 +25,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_WHOISSPECIAL = 320
+};
+
 /** Handle /SWHOIS
  */
 class CommandSwhois : public Command
@@ -102,7 +108,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 			std::string* swhois = cmd.swhois.get(whois.GetTarget());
 			if (swhois)
 			{
-				whois.SendLine(320, *swhois);
+				whois.SendLine(RPL_WHOISSPECIAL, *swhois);
 			}
 		}
 

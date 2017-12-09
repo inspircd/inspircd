@@ -21,6 +21,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From AustHex.
+	RPL_WHOISSERVICE = 310
+};
+
 /** Handles user mode +k
  */
 class ServProtectMode : public ModeHandler
@@ -62,7 +68,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(310, "is a Network Service on " + ServerInstance->Config->Network);
+			whois.SendLine(RPL_WHOISSERVICE, "is a Network Service on " + ServerInstance->Config->Network);
 		}
 	}
 

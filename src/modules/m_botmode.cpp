@@ -21,6 +21,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_WHOISBOT = 335,
+};
+
 class ModuleBotMode : public Module, public Whois::EventListener
 {
 	SimpleUserModeHandler bm;
@@ -40,7 +46,7 @@ class ModuleBotMode : public Module, public Whois::EventListener
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(335, "is a bot on " + ServerInstance->Config->Network);
+			whois.SendLine(RPL_WHOISBOT, "is a bot on " + ServerInstance->Config->Network);
 		}
 	}
 };

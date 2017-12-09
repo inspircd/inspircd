@@ -23,6 +23,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_WHOISHELPOP = 310
+};
+
 typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
 static HelpopMap helpop_map;
 
@@ -145,7 +151,7 @@ class ModuleHelpop : public Module, public Whois::EventListener
 		{
 			if (whois.GetTarget()->IsModeSet(ho))
 			{
-				whois.SendLine(310, "is available for help.");
+				whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
 			}
 		}
 

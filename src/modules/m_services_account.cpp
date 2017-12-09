@@ -28,6 +28,12 @@
 
 enum
 {
+	// From UnrealIRCd.
+	RPL_WHOISREGNICK = 307,
+
+	// From ircu.
+	RPL_WHOISACCOUNT = 330,
+
 	// From ircd-hybrid?
 	ERR_NEEDREGGEDNICK = 477,
 
@@ -165,13 +171,13 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 
 		if (account)
 		{
-			whois.SendLine(330, *account, "is logged in as");
+			whois.SendLine(RPL_WHOISACCOUNT, *account, "is logged in as");
 		}
 
 		if (whois.GetTarget()->IsModeSet(m5))
 		{
 			/* user is registered */
-			whois.SendLine(307, "is a registered nick");
+			whois.SendLine(RPL_WHOISREGNICK, "is a registered nick");
 		}
 	}
 

@@ -21,6 +21,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_WHOISSPECIAL = 320
+};
+
 /** Handle /TITLE
  */
 class CommandTitle : public Command
@@ -91,7 +97,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 			const std::string* ctitle = cmd.ctitle.get(whois.GetTarget());
 			if (ctitle)
 			{
-				whois.SendLine(320, ctitle);
+				whois.SendLine(RPL_WHOISSPECIAL, ctitle);
 			}
 		}
 		/* Don't block anything */
