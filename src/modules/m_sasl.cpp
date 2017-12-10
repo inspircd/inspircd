@@ -398,7 +398,11 @@ class ModuleSASL : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
+		std::string target = ServerInstance->Config->ConfValue("sasl")->getString("target");
+		if (target.empty())
+			throw ModuleException("<sasl:target> must be set to the name of your services server!");
+
+		sasl_target = target;
 		servertracker.Reset();
 	}
 
