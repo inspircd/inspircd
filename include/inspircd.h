@@ -402,11 +402,6 @@ class CoreExport InspIRCd
 	 */
 	void Exit(int status);
 
-	/** Causes the server to exit immediately with exit code 0.
-	 * The status code is required for signal handlers, and ignored.
-	 */
-	static void QuickExit(int status);
-
 	/** Formats the input string with the specified arguments.
 	* @param formatString The string to format
 	* @param ... A variable number of format arguments.

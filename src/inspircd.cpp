@@ -132,15 +132,10 @@ void InspIRCd::SetSignals()
 	signal(SIGTERM, InspIRCd::SetSignal);
 }
 
-void InspIRCd::QuickExit(int status)
-{
-	exit(status);
-}
-
 // Required for returning the proper value of EXIT_SUCCESS for the parent process
 static void VoidSignalHandler(int signalreceived)
 {
-	exit(0);
+	exit(EXIT_STATUS_NOERROR);
 }
 
 bool InspIRCd::DaemonSeed()
@@ -149,7 +144,7 @@ bool InspIRCd::DaemonSeed()
 	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
 	return true;
 #else
-	// Do not use QuickExit here: It will exit with status SIGTERM which would break e.g. daemon scripts
+	// Do not use exit() here: It will exit with status SIGTERM which would break e.g. daemon scripts
 	signal(SIGTERM, VoidSignalHandler);
 
 	int childpid = fork();
@@ -166,7 +161,7 @@ bool InspIRCd::DaemonSeed()
 		 */
 		while (kill(childpid, 0) != -1)
 			sleep(1);
-		exit(0);
+		exit(EXIT_STATUS_NOERROR);
 	}
 	setsid ();
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
@@ -503,20 +498,20 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (setgroups(0, NULL) == -1)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
-			this->QuickExit(0);
+			exit(EXIT_STATUS_CONFIG);
 		}
 
 		struct group* g = getgrnam(SetGroup.c_str());
 		if (!g)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
-			this->QuickExit(0);
+			exit(EXIT_STATUS_CONFIG);
 		}
 
 		if (setgid(g->gr_gid) == -1)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
-			this->QuickExit(0);
+			exit(EXIT_STATUS_CONFIG);
 		}
 	}
 
@@ -528,13 +523,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!u)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
-			this->QuickExit(0);
+			exit(EXIT_STATUS_CONFIG);
 		}
 
 		if (setuid(u->pw_uid) == -1)
 		{
 			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
-			this->QuickExit(0);
+			exit(EXIT_STATUS_CONFIG);
 		}
 	}
 
