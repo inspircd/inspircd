@@ -610,6 +610,11 @@
          # banned from the server.
          xlinemessage="You're banned! Email irc@example.com with the ERROR line below for help."
 
+         # allowzerolimit: If enabled then allow a limit of 0 to be set on channels.
+         # This is non-standard behaviour and should only be enabled if you need to
+         # link with servers running 2.0. Defaults to yes.
+         allowzerolimit="no"
+
          # exemptchanops: exemptions for channel access restrictions based on prefix.
          exemptchanops="nonick:v flood:o"
 

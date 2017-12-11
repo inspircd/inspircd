@@ -104,6 +104,11 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			exempts[restriction] = prefix;
 		}
 		exemptions.swap(exempts);
+
+		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
+		// and will be removed in the next major release.
+		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;
+
 		banmode.DoRehash();
 	}
 

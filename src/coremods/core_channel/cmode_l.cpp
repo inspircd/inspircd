@@ -24,6 +24,7 @@
 
 ModeChannelLimit::ModeChannelLimit(Module* Creator)
 	: ParamMode<ModeChannelLimit, LocalIntExt>(Creator, "limit", 'l')
+	, minlimit(0)
 {
 }
 
@@ -35,8 +36,8 @@ bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::
 
 ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 {
-	int limit = ConvToInt(parameter);
-	if (limit < 0)
+	size_t limit = ConvToNum<size_t>(parameter);
+	if (limit < minlimit)
 		return MODEACTION_DENY;
 
 	ext.set(chan, limit);
