@@ -39,12 +39,12 @@ class ModuleNoNotice : public Module
 		tokens["EXTBAN"].push_back('T');
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		ModResult res;
-		if ((msgtype == MSG_NOTICE) && (target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
 			{
 				res = CheckExemption::Call(exemptionprov, user, c, "nonotice");

@@ -24,11 +24,11 @@
 class ModuleRestrictMsg : public Module
 {
  public:
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
+		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{
-			User* u = (User*)dest;
+			User* u = target.Get<User>();
 
 			// message allowed if:
 			// (1) the sender is opered

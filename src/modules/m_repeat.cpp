@@ -355,12 +355,12 @@ class RepeatModule : public Module
 		rm.ReadConfig();
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_CHANNEL || !IS_LOCAL(user))
+		if (target.type != MessageTarget::TYPE_CHANNEL || !IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = reinterpret_cast<Channel*>(dest);
+		Channel* chan = target.Get<Channel>();
 		ChannelSettings* settings = rm.ext.get(chan);
 		if (!settings)
 			return MOD_RES_PASSTHRU;
@@ -373,7 +373,7 @@ class RepeatModule : public Module
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
-		if (rm.MatchLine(memb, settings, text))
+		if (rm.MatchLine(memb, settings, details.text))
 		{
 			if (settings->Action == ChannelSettings::ACT_BLOCK)
 			{

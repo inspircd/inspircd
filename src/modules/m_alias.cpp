@@ -162,9 +162,9 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target_type != TYPE_CHANNEL) || (msgtype != MSG_PRIVMSG))
+		if ((target.type != MessageTarget::TYPE_CHANNEL) || (details.type != MSG_PRIVMSG))
 		{
 			return;
 		}
@@ -181,11 +181,11 @@ class ModuleAlias : public Module
 			return;
 		}
 
-		Channel *c = (Channel *)dest;
+		Channel *c = target.Get<Channel>();
 		std::string scommand;
 
 		// text is like "!moo cows bite me", we want "!moo" first
-		irc::spacesepstream ss(text);
+		irc::spacesepstream ss(details.text);
 		ss.GetToken(scommand);
 
 		if (scommand.size() <= fprefix.size())
@@ -207,7 +207,7 @@ class ModuleAlias : public Module
 			return;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare(text, scommand.length() + fprefix.size());
+		std::string compare(details.text, scommand.length() + fprefix.size());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
@@ -216,7 +216,7 @@ class ModuleAlias : public Module
 			if (i->second.ChannelCommand)
 			{
 				// We use substr here to remove the fantasy prefix
-				if (DoAlias(user, c, &(i->second), compare, text.substr(fprefix.size())))
+				if (DoAlias(user, c, &(i->second), compare, details.text.substr(fprefix.size())))
 					return;
 			}
 		}
@@ -343,7 +343,7 @@ class ModuleAlias : public Module
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
 		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserMessage, PRIORITY_AFTER, linkmod);
+		ServerInstance->Modules->SetPriority(this, I_OnUserPostMessage, PRIORITY_AFTER, linkmod);
 	}
 };
 

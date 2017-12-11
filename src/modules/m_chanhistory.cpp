@@ -121,15 +121,15 @@ class ModuleChanHistory : public Module
 		dobots = tag->getBool("bots", true);
 	}
 
-	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target_type == TYPE_CHANNEL) && (status == 0) && (msgtype == MSG_PRIVMSG))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (details.type == MSG_PRIVMSG))
 		{
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + text;
+				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + details.text;
 				list->lines.push_back(HistoryItem(line));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();

@@ -332,16 +332,16 @@ class ModuleSilence : public Module
 		}
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_USER && IS_LOCAL(((User*)dest)))
+		if (target.type == MessageTarget::TYPE_USER && IS_LOCAL(target.Get<User>()))
 		{
-			return MatchPattern((User*)dest, user, ((msgtype == MSG_PRIVMSG) ? SILENCE_PRIVATE : SILENCE_NOTICE));
+			return MatchPattern(target.Get<User>(), user, ((details.type == MSG_PRIVMSG) ? SILENCE_PRIVATE : SILENCE_NOTICE));
 		}
-		else if (target_type == TYPE_CHANNEL)
+		else if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* chan = (Channel*)dest;
-			BuildExemptList(msgtype, chan, user, exempt_list);
+			Channel* chan = target.Get<Channel>();
+			BuildExemptList(details.type, chan, user, details.exemptions);
 		}
 		return MOD_RES_PASSTHRU;
 	}

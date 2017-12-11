@@ -54,22 +54,6 @@ enum ModuleFlags
 	VF_OPTCOMMON = 8
 };
 
-/** Used to represent an event type, for user, channel or server
- */
-enum TargetTypeFlags {
-	TYPE_USER = 1,
-	TYPE_CHANNEL,
-	TYPE_SERVER,
-	TYPE_OTHER
-};
-
-/** Used to represent wether a message was PRIVMSG or NOTICE
- */
-enum MessageType {
-	MSG_PRIVMSG = 0,
-	MSG_NOTICE = 1
-};
-
 #define MOD_RES_ALLOW (ModResult(1))
 #define MOD_RES_PASSTHRU (ModResult(0))
 #define MOD_RES_DENY (ModResult(-1))
@@ -230,7 +214,7 @@ enum Implementation
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserMessage, I_OnMode,
+	I_OnUserPostMessage, I_OnMode,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
@@ -241,7 +225,7 @@ enum Implementation
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
+	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_OnServiceAdd, I_OnServiceDel,
 	I_END
@@ -500,24 +484,16 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts);
 
-	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
-	 * Returning any nonzero value from this function stops the process immediately, causing no
-	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc. This is useful for modules which may want to filter or redirect messages.
-	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
-	 * you must cast dest to a User* otherwise you must cast it to a Channel*, this is the details
-	 * of where the message is destined to be sent.
-	 * @param user The user sending the message
-	 * @param dest The target of the message (Channel* or User*)
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text Changeable text being sent by the user
-	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
-	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
-	 * It will be ignored for private messages.
-	 * @param msgtype The message type, MSG_PRIVMSG for PRIVMSGs, MSG_NOTICE for NOTICEs
-	 * @return 1 to deny the message, 0 to allow it
+	/** Called before a user sends a message to a channel, a user, or a server glob mask.
+	 * @param user The user sending the message.
+	 * @param target The target of the message. This can either be a channel, a user, or a server
+	 *               glob mask.
+	 * @param details Details about the message such as the message text and type. See the
+	 *                MessageDetails class for more information.
+	 * @return MOD_RES_ALLOW to explicitly allow the message, MOD_RES_DENY to explicitly deny the
+	 *         message, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list, MessageType msgtype);
+	virtual ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details);
 
 	/** Called when sending a message to all "neighbors" of a given user -
 	 * that is, all users that share a common channel. This is used in
@@ -539,33 +515,23 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick);
 
-	/** Called after any PRIVMSG sent from a user.
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL.
-	 * @param user The user sending the message
-	 * @param dest The target of the message
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text the text being sent by the user
-	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
-	 * @param exempt_list A list of users to not send to.
-	 * @param msgtype The message type, MSG_PRIVMSG for PRIVMSGs, MSG_NOTICE for NOTICEs
+	/** Called immediately after a user sends a message to a channel, a user, or a server glob mask.
+	 * @param user The user sending the message.
+	 * @param target The target of the message. This can either be a channel, a user, or a server
+	 *               glob mask.
+	 * @param details Details about the message such as the message text and type. See the
+	 *                MessageDetails class for more information.
 	 */
-	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, MessageType msgtype);
+	virtual void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details);
 
-	/** Called immediately before any NOTICE or PRIVMSG sent from a user, local or remote.
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL.
-	 * The difference between this event and OnUserPreMessage is that delivery is gauranteed,
-	 * the message has already been vetted. In the case of the other two methods, a later module may stop your
-	 * message. This also differs from OnUserMessage which occurs AFTER the message has been sent.
-	 * @param user The user sending the message
-	 * @param dest The target of the message
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text the text being sent by the user
-	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
-	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
+	/** Called immediately before a user sends a message to a channel, a user, or a server glob mask.
+	 * @param user The user sending the message.
+	 * @param target The target of the message. This can either be a channel, a user, or a server
+	 *               glob mask.
+	 * @param details Details about the message such as the message text and type. See the
+	 *                MessageDetails class for more information.
 	 */
-	virtual void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
+	virtual void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details);
 
 	/** Called after every MODE command sent from a user
 	 * Either the usertarget or the chantarget variable contains the target of the modes,

@@ -44,14 +44,14 @@ public:
 		tokens["EXTBAN"].push_back('B');
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_CHANNEL)
+		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
 			if (!IS_LOCAL(user))
 				return MOD_RES_PASSTHRU;
 
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcaps");
 
 			if (res == MOD_RES_ALLOW)
@@ -61,17 +61,17 @@ public:
 			{
 				// If the message is a CTCP then we skip it unless it is
 				// an ACTION in which case we strip the prefix and suffix.
-				std::string::const_iterator text_begin = text.begin();
-				std::string::const_iterator text_end = text.end();
-				if (text[0] == '\1')
+				std::string::const_iterator text_begin = details.text.begin();
+				std::string::const_iterator text_end = details.text.end();
+				if (details.text[0] == '\1')
 				{
 					// If the CTCP is not an action then skip it.
-					if (text.compare(0, 8, "\1ACTION ", 8))
+					if (details.text.compare(0, 8, "\1ACTION ", 8))
 						return MOD_RES_PASSTHRU;
 
 					// Skip the CTCP message characters.
 					text_begin += 8;
-					if (*text.rbegin() == '\1')
+					if (*details.text.rbegin() == '\1')
 						text_end -= 1;
 				}
 

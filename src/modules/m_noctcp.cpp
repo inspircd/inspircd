@@ -39,12 +39,12 @@ class ModuleNoCTCP : public Module
 		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = (Channel*)dest;
-			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ", 8)) || (text == "\1ACTION\1") || (text == "\1ACTION"))
+			Channel* c = target.Get<Channel>();
+			if ((details.text.empty()) || (details.text[0] != '\001') || (!strncmp(details.text.c_str(),"\1ACTION ", 8)) || (details.text == "\1ACTION\1") || (details.text == "\1ACTION"))
 				return MOD_RES_PASSTHRU;
 
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");

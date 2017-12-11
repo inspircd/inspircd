@@ -33,11 +33,11 @@ class ModulePrivacyMode : public Module
 		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_USER)
+		if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* t = (User*)dest;
+			User* t = target.Get<User>();
 			if (!user->IsOper() && (t->IsModeSet(pm)) && (!user->server->IsULine()) && !user->SharesChannelWith(t))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, t->nick, "You are not permitted to send private messages to this user (+c set)");

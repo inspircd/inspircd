@@ -33,31 +33,31 @@ class ModuleIRCv3EchoMessage : public Module
 	{
 	}
 
-	void OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
 		if (!cap.get(user))
 			return;
 
-		std::string msg = MessageTypeStringSp[msgtype];
-		if (target_type == TYPE_USER)
+		std::string msg = MessageTypeStringSp[details.type];
+		if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* destuser = static_cast<User*>(dest);
+			User* destuser = target.Get<User>();
 			msg.append(destuser->nick);
 		}
-		else if (target_type == TYPE_CHANNEL)
+		else if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			if (status)
-				msg.push_back(status);
+			if (target.status)
+				msg.push_back(target.status);
 
-			Channel* chan = static_cast<Channel*>(dest);
+			Channel* chan = target.Get<Channel>();
 			msg.append(chan->name);
 		}
 		else
 		{
-			const char* servername = static_cast<const char*>(dest);
-			msg.append(servername);
+			const std::string* servername = target.Get<std::string>();
+			msg.append(*servername);
 		}
-		msg.append(" :").append(text);
+		msg.append(" :").append(details.echooriginal ? details.originaltext : details.text);
 		user->WriteFrom(user, msg);
 	}
 

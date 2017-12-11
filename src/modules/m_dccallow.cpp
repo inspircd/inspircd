@@ -299,27 +299,27 @@ class ModuleDCCAllow : public Module
 		RemoveNick(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		if (target_type == TYPE_USER)
+		if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* u = (User*)dest;
+			User* u = target.Get<User>();
 
 			/* Always allow a user to dcc themselves (although... why?) */
 			if (user == u)
 				return MOD_RES_PASSTHRU;
 
-			if ((text.length()) && (text[0] == '\1'))
+			if ((details.text.length()) && (details.text[0] == '\1'))
 			{
 				Expire();
 
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 
-				if (strncmp(text.c_str(), "\1DCC ", 5) == 0)
+				if (strncmp(details.text.c_str(), "\1DCC ", 5) == 0)
 				{
 					dl = ext.get(u);
 					if (dl && dl->size())
@@ -329,7 +329,7 @@ class ModuleDCCAllow : public Module
 								return MOD_RES_PASSTHRU;
 					}
 
-					std::string buf = text.substr(5);
+					std::string buf = details.text.substr(5);
 					size_t s = buf.find(' ');
 					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;

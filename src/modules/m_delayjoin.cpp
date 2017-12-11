@@ -24,7 +24,6 @@
 
 class DelayJoinMode : public ModeHandler
 {
-	CUList empty;
  public:
 	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 	{
@@ -52,7 +51,7 @@ class ModuleDelayJoin : public Module
 	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
-	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE;
 	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
@@ -68,9 +67,13 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * Make all users visible, as +D is being removed. If we don't do this,
 		 * they remain permanently invisible on this channel!
 		 */
+		MessageTarget msgtarget(channel, 0);
+		MessageDetails msgdetails(MSG_PRIVMSG, "");
 		const Channel::MemberMap& users = channel->GetUsers();
 		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
-			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
+		{
+			creator->OnUserMessage(n->first, msgtarget, msgdetails);
+		}
 	}
 	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
@@ -138,12 +141,12 @@ void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include
 	}
 }
 
-void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list)
+void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details)
 {
-	if (target_type != TYPE_CHANNEL)
+	if (target.type != MessageTarget::TYPE_CHANNEL)
 		return;
 
-	Channel* channel = static_cast<Channel*>(dest);
+	Channel* channel = target.Get<Channel>();
 
 	Membership* memb = channel->GetUser(user);
 	if (!memb || !unjoined.set(memb, 0))

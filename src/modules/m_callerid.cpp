@@ -374,12 +374,12 @@ public:
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 
-	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user) || target_type != TYPE_USER)
+		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		User* dest = static_cast<User*>(voiddest);
+		User* dest = target.Get<User>();
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 

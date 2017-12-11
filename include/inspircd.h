@@ -88,6 +88,7 @@ struct fakederef
 #include "socketengine.h"
 #include "snomasks.h"
 #include "filelogger.h"
+#include "message.h"
 #include "modules.h"
 #include "threadengine.h"
 #include "configreader.h"

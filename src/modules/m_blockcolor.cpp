@@ -41,11 +41,11 @@ class ModuleBlockColor : public Module
 		tokens["EXTBAN"].push_back('c');
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcolor");
 
 			if (res == MOD_RES_ALLOW)
@@ -53,7 +53,7 @@ class ModuleBlockColor : public Module
 
 			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(bc)))
 			{
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
+				for (std::string::iterator i = details.text.begin(); i != details.text.end(); i++)
 				{
 					switch (*i)
 					{

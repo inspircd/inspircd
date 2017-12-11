@@ -60,14 +60,14 @@ class ModuleDeaf : public Module
 		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_CHANNEL)
+		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = static_cast<Channel*>(dest);
-		bool is_bypasschar = (deaf_bypasschars.find(text[0]) != std::string::npos);
-		bool is_bypasschar_uline = (deaf_bypasschars_uline.find(text[0]) != std::string::npos);
+		Channel* chan = target.Get<Channel>();
+		bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
+		bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
 
 		/*
 		 * If we have no bypasschars_uline in config, and this is a bypasschar (regular)
@@ -95,7 +95,7 @@ class ModuleDeaf : public Module
 				continue; /* deliver message */
 
 			/* don't deliver message! */
-			exempt_list.insert(i->first);
+			details.exemptions.insert(i->first);
 		}
 
 		return MOD_RES_PASSTHRU;

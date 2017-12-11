@@ -386,33 +386,33 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	CommandFTopic::Builder(user, chan).Broadcast();
 }
 
-void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
+void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details)
 {
 	if (!IS_LOCAL(user))
 		return;
 
-	const char* message_type = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
-	if (target_type == TYPE_USER)
+	const char* message_type = (details.type == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
+	if (target.type == MessageTarget::TYPE_USER)
 	{
-		User* d = (User*) dest;
+		User* d = target.Get<User>();
 		if (!IS_LOCAL(d))
 		{
 			CmdBuilder params(user, message_type);
 			params.push_back(d->uuid);
-			params.push_last(text);
+			params.push_last(details.text);
 			params.Unicast(d);
 		}
 	}
-	else if (target_type == TYPE_CHANNEL)
+	else if (target.type == MessageTarget::TYPE_CHANNEL)
 	{
-		Utils->SendChannelMessage(user->uuid, (Channel*)dest, text, status, exempt_list, message_type);
+		Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.exemptions, message_type);
 	}
-	else if (target_type == TYPE_SERVER)
+	else if (target.type == MessageTarget::TYPE_SERVER)
 	{
-		char* target = (char*) dest;
+		const std::string* serverglob = target.Get<std::string>();
 		CmdBuilder par(user, message_type);
-		par.push_back(target);
-		par.push_last(text);
+		par.push_back(*serverglob);
+		par.push_last(details.text);
 		par.Broadcast();
 	}
 }

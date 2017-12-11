@@ -80,12 +80,12 @@ class ModuleChanFilter : public Module
 		cf.DoRehash();
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_CHANNEL)
+		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = static_cast<Channel*>(dest);
+		Channel* chan = target.Get<Channel>();
 		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "filter");
 
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
@@ -97,7 +97,7 @@ class ModuleChanFilter : public Module
 		{
 			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
 			{
-				if (InspIRCd::Match(text, i->mask))
+				if (InspIRCd::Match(details.text, i->mask))
 				{
 					if (hidemask)
 						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");

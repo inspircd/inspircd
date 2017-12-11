@@ -183,7 +183,7 @@ class ModuleFilter : public Module, public ServerEventListener
 
 	ModuleFilter();
 	CullResult cull() CXX11_OVERRIDE;
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
@@ -322,30 +322,30 @@ void ModuleFilter::FreeFilters()
 	filters.clear();
 }
 
-ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
+ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtarget, MessageDetails& details)
 {
 	// Leave remote users and servers alone
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	flags = (msgtype == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
+	flags = (details.type == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
 
-	FilterResult* f = this->FilterMatch(user, text, flags);
+	FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)
 	{
 		std::string target;
-		if (target_type == TYPE_USER)
+		if (msgtarget.type == MessageTarget::TYPE_USER)
 		{
-			User* t = (User*)dest;
+			User* t = msgtarget.Get<User>();
 			// Check if the target nick is exempted, if yes, ignore this message
 			if (exemptednicks.count(t->nick))
 				return MOD_RES_PASSTHRU;
 
 			target = t->nick;
 		}
-		else if (target_type == TYPE_CHANNEL)
+		else if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* t = (Channel*)dest;
+			Channel* t = msgtarget.Get<Channel>();
 			if (exemptedchans.count(t->name))
 				return MOD_RES_PASSTHRU;
 
@@ -354,14 +354,14 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
-			if (target_type == TYPE_CHANNEL)
+			if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
 				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		else if (f->action == FA_SILENT)
 		{
-			if (target_type == TYPE_CHANNEL)
+			if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
 				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 			else
 				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);

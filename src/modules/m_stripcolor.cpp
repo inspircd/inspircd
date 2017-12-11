@@ -41,20 +41,20 @@ class ModuleStripColor : public Module
 		tokens["EXTBAN"].push_back('S');
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
 		bool active = false;
-		if (target_type == TYPE_USER)
+		if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* t = (User*)dest;
+			User* t = target.Get<User>();
 			active = t->IsModeSet(usc);
 		}
-		else if (target_type == TYPE_CHANNEL)
+		else if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* t = (Channel*)dest;
+			Channel* t = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
 
 			if (res == MOD_RES_ALLOW)
@@ -65,7 +65,7 @@ class ModuleStripColor : public Module
 
 		if (active)
 		{
-			InspIRCd::StripColor(text);
+			InspIRCd::StripColor(details.text);
 		}
 
 		return MOD_RES_PASSTHRU;

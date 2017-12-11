@@ -188,7 +188,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			m5.RemoveMode(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -196,9 +196,9 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
 
-		if (target_type == TYPE_CHANNEL)
+		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "regmoderated");
 
 			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
@@ -208,9 +208,9 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 				return MOD_RES_DENY;
 			}
 		}
-		else if (target_type == TYPE_USER)
+		else if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* u = (User*)dest;
+			User* u = target.Get<User>();
 
 			if (u->IsModeSet(m3) && !is_registered)
 			{

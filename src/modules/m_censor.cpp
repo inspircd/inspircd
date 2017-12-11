@@ -41,18 +41,18 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
 		bool active = false;
 
-		if (target_type == TYPE_USER)
-			active = ((User*)dest)->IsModeSet(cu);
-		else if (target_type == TYPE_CHANNEL)
+		if (target.type == MessageTarget::TYPE_USER)
+			active = target.Get<User>()->IsModeSet(cu);
+		else if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* c = (Channel*)dest;
+			Channel* c = target.Get<Channel>();
 			active = c->IsModeSet(cc);
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "censor");
 
@@ -63,21 +63,22 @@ class ModuleCensor : public Module
 		if (!active)
 			return MOD_RES_PASSTHRU;
 
-		irc::string text2 = text.c_str();
+		irc::string text2 = details.text.c_str();
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
 		{
 			if (text2.find(index->first) != irc::string::npos)
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(ERR_WORDFILTERED, ((target_type == TYPE_CHANNEL) ? ((Channel*)dest)->name : ((User*)dest)->nick), index->first.c_str(), "Your message contained a censored word, and was blocked");
+					const std::string targname = target.type == MessageTarget::TYPE_CHANNEL ? target.Get<Channel>()->name : target.Get<User>()->nick;
+					user->WriteNumeric(ERR_WORDFILTERED, targname, index->first.c_str(), "Your message contained a censored word, and was blocked");
 					return MOD_RES_DENY;
 				}
 
 				stdalgo::string::replace_all(text2, index->first, index->second);
 			}
 		}
-		text = text2.c_str();
+		details.text = text2.c_str();
 		return MOD_RES_PASSTHRU;
 	}
 

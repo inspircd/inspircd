@@ -55,7 +55,7 @@ class ModuleDelayMsg : public Module
 
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 };
 
@@ -93,15 +93,15 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 	}
 }
 
-ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
+ModResult ModuleDelayMsg::OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details)
 {
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	if ((target_type != TYPE_CHANNEL) || ((!allownotice) && (msgtype == MSG_NOTICE)))
+	if ((target.type != MessageTarget::TYPE_CHANNEL) || ((!allownotice) && (details.type == MSG_NOTICE)))
 		return MOD_RES_PASSTHRU;
 
-	Channel* channel = (Channel*) dest;
+	Channel* channel = target.Get<Channel>();
 	Membership* memb = channel->GetUser(user);
 
 	if (!memb)

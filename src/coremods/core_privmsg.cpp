@@ -57,7 +57,7 @@ class MessageCommandBase : public Command
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
-			// This is handled by the OnUserMessage hook to split the LoopCall pieces
+			// This is handled by the OnUserPostMessage hook to split the LoopCall pieces
 			return ROUTE_LOCALONLY;
 		else
 			return ROUTE_MESSAGE(parameters[0]);
@@ -79,7 +79,6 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 {
 	User *dest;
 	Channel *chan;
-	CUList except_list;
 
 	LocalUser* localuser = IS_LOCAL(user);
 	if (localuser)
@@ -93,23 +92,24 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		if (!user->HasPrivPermission("users/mass-message"))
 			return CMD_SUCCESS;
 
+		std::string servername(parameters[0], 1);
+		MessageTarget msgtarget(&servername);
+		MessageDetails msgdetails(mt, parameters[1]);
+
 		ModResult MOD_RESULT;
-		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list, mt));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
-		const char* text = temp.c_str();
-		const char* servermask = (parameters[0].c_str()) + 1;
-
-		FOREACH_MOD(OnText, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, servermask, NULL))
+		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
 		{
-			SendAll(user, text, mt);
+			SendAll(user, msgdetails.text, mt);
 		}
-		FOREACH_MOD(OnUserMessage, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, mt));
+		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 		return CMD_SUCCESS;
 	}
+
 	char status = 0;
 	const char* target = parameters[0].c_str();
 
@@ -121,8 +121,6 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 	if (*target == '#')
 	{
 		chan = ServerInstance->FindChan(target);
-
-		except_list.insert(user);
 
 		if (chan)
 		{
@@ -149,34 +147,35 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 					}
 				}
 			}
-			ModResult MOD_RESULT;
 
-			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, chan, TYPE_CHANNEL, temp, status, except_list, mt));
+			MessageTarget msgtarget(chan, status);
+			MessageDetails msgdetails(mt, parameters[1]);
+			msgdetails.exemptions.insert(user);
+
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
-			const char* text = temp.c_str();
-
 			/* Check again, a module may have zapped the input string */
-			if (temp.empty())
+			if (msgdetails.text.empty())
 			{
 				user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
 				return CMD_FAILURE;
 			}
 
-			FOREACH_MOD(OnText, (user,chan,TYPE_CHANNEL,text,status,except_list));
+			FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
 			if (status)
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), text);
+				chan->WriteAllExcept(user, false, status, msgdetails.exemptions, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), msgdetails.text.c_str());
 			}
 			else
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "%s %s :%s", MessageTypeString[mt], chan->name.c_str(), text);
+				chan->WriteAllExcept(user, false, status, msgdetails.exemptions, "%s %s :%s", MessageTypeString[mt], chan->name.c_str(), msgdetails.text.c_str());
 			}
 
-			FOREACH_MOD(OnUserMessage, (user,chan, TYPE_CHANNEL, text, status, except_list, mt));
+			FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 		}
 		else
 		{
@@ -226,24 +225,23 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			user->WriteNumeric(RPL_AWAY, dest->nick, dest->awaymsg);
 		}
 
-		ModResult MOD_RESULT;
+		MessageTarget msgtarget(dest);
+		MessageDetails msgdetails(mt, parameters[1]);
 
-		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list, mt));
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
-		const char* text = temp.c_str();
-
-		FOREACH_MOD(OnText, (user, dest, TYPE_USER, text, 0, except_list));
+		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			dest->WriteFrom(user, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), text);
+			dest->WriteFrom(user, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), msgdetails.text.c_str());
 		}
 
-		FOREACH_MOD(OnUserMessage, (user, dest, TYPE_USER, text, 0, except_list, mt));
+		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 	}
 	else
 	{

@@ -28,12 +28,12 @@ class ModuleQuietBan : public Module
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user) || target_type != TYPE_CHANNEL)
+		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = static_cast<Channel*>(dest);
+		Channel* chan = target.Get<Channel>();
 		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
 			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're muted)");
