@@ -1384,8 +1384,19 @@
 #
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# override is too complex it describe here, see the wiki:             #
-# http://wiki.inspircd.org/Modules/override                           #
+# Much of override's configuration relates to your oper blocks.       #
+# For more information on how to allow opers to override, see:        #
+# https://wiki.inspircd.org/Modules/3.0/override                      #
+#                                                                     #
+# noisy         - If enabled, all oper overrides will be announced    #
+#                 via channel notice.                                 #
+#                                                                     #
+# requirekey    - If enabled, overriding on join requires a channel   #
+#                 key of "override" to be specified                   #
+#                                                                     #
+# enableumode   - If enabled, usermode +O is required for override.   #
+#                                                                     #
+#<override noisy="yes" requirekey="no" enableumode="true">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions

@@ -27,10 +27,23 @@
 #include "inspircd.h"
 #include "modules/invite.h"
 
+class Override : public SimpleUserModeHandler
+{
+ public:
+	Override(Module* Creator) : SimpleUserModeHandler(Creator, "override", 'O')
+	{
+		oper = true;
+		if (!ServerInstance->Config->ConfValue("override")->getBool("enableumode"))
+			DisableAutoRegister();
+	}
+};
+
 class ModuleOverride : public Module
 {
 	bool RequireKey;
 	bool NoisyOverride;
+	bool UmodeEnabled;
+	Override ou;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
 	ChanModeReference key;
@@ -65,7 +78,9 @@ class ModuleOverride : public Module
 
  public:
 	ModuleOverride()
-		: topiclock(this, "topiclock")
+		: UmodeEnabled(false)
+		, ou(this)
+		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
 		, limit(this, "limit")
@@ -76,6 +91,7 @@ class ModuleOverride : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
+		UmodeEnabled = ServerInstance->Config->ConfValue("override")->getBool("enableumode");
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -93,8 +109,11 @@ class ModuleOverride : public Module
 
 	bool CanOverride(User* source, const char* token)
 	{
-		std::string tokenlist = source->oper->getConfig("override");
+		// If we require oper override umode (+O) but it is not set
+		if (UmodeEnabled && !source->IsModeSet(ou))
+			return false;
 
+		std::string tokenlist = source->oper->getConfig("override");
 		// its defined or * is set, return its value as a boolean for if the token is set
 		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
 	}
