@@ -64,7 +64,7 @@ class ModuleBanException : public Module
 
 		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 		{
-			if (it->mask[0] != type || it->mask[1] != ':')
+			if (it->mask.length() <= 2 || it->mask[0] != type || it->mask[1] != ':')
 				continue;
 
 			if (chan->CheckBan(user, it->mask.substr(2)))

@@ -1964,9 +1964,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL authentication module: Allows IRCd connections to be tied into
 # a database table (for example a forum).
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_sqlauth.cpp
-# and run make install, then uncomment this module to enable it.
 #
 #<module name="sqlauth">
 #
@@ -1977,9 +1974,6 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_sqloper.cpp
-# and run make install, then uncomment this module to enable it.
 #
 #<module name="sqloper">
 #
