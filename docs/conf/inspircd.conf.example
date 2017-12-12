@@ -240,7 +240,9 @@
          # you only want to adjust sendq and a password
          parent="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
+         # allow: The IP address or hostname of clients that can use this
+         # class. You can specify either an exact match, a glob match, or
+         # a CIDR range here.
          allow="203.0.113.*"
 
          # hash: what hash this password is hashed with. requires the module
@@ -320,7 +322,9 @@
          # connect class inheriting.
          name="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
+         # allow: The IP address or hostname of clients that can use this
+         # class. You can specify either an exact match, a glob match, or
+         # a CIDR range here.
          allow="*"
 
          # maxchans: Maximum number of channels a user in this class
