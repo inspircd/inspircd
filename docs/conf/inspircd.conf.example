@@ -53,7 +53,7 @@
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
 # Executable include example:                                         #
-#<include executable="/usr/bin/wget -q -O - http://example.com/inspircd.conf">
+#<include executable="/usr/bin/wget -q -O - https://example.com/inspircd.conf">
 #                                                                     #
 
 
@@ -443,7 +443,7 @@
 
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
-#<execfiles rules="wget -O - http://www.example.com/rules.txt">
+#<execfiles rules="wget -O - https://www.example.com/rules.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
