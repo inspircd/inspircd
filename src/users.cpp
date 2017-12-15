@@ -1163,15 +1163,15 @@ void User::PurgeEmptyChannels()
 
 const std::string& FakeUser::GetFullHost()
 {
-	if (!ServerInstance->Config->HideWhoisServer.empty())
-		return ServerInstance->Config->HideWhoisServer;
+	if (!ServerInstance->Config->HideServer.empty())
+		return ServerInstance->Config->HideServer;
 	return server->GetName();
 }
 
 const std::string& FakeUser::GetFullRealHost()
 {
-	if (!ServerInstance->Config->HideWhoisServer.empty())
-		return ServerInstance->Config->HideWhoisServer;
+	if (!ServerInstance->Config->HideServer.empty())
+		return ServerInstance->Config->HideServer;
 	return server->GetName();
 }
 

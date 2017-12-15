@@ -166,8 +166,8 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 		if (!match)
 			match = InspIRCd::Match(user->nick, matchtext);
 
-		/* Don't allow server name matches if HideWhoisServer is enabled, unless the command user has the priv */
-		if (!match && (ServerInstance->Config->HideWhoisServer.empty() || cuser->HasPrivPermission("users/auspex")))
+		/* Don't allow server name matches if HideServer is enabled, unless the command user has the priv */
+		if (!match && (ServerInstance->Config->HideServer.empty() || cuser->HasPrivPermission("users/auspex")))
 			match = InspIRCd::Match(user->server->GetName(), matchtext);
 
 		return match;
@@ -199,8 +199,8 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	Numeric::Numeric wholine(RPL_WHOREPLY);
 	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
 	wholine.push(u->GetHost(opt_showrealhost));
-	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
-		wholine.push(ServerInstance->Config->HideWhoisServer);
+	if (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"))
+		wholine.push(ServerInstance->Config->HideServer);
 	else
 		wholine.push(u->server->GetName());
 
@@ -305,11 +305,11 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_away = true;
 					break;
 				case 'l':
-					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideWhoisServer.empty())
+					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideServer.empty())
 						opt_local = true;
 					break;
 				case 'f':
-					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideWhoisServer.empty())
+					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideServer.empty())
 						opt_far = true;
 					break;
 				case 't':

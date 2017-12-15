@@ -201,9 +201,9 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 
 	SendChanList(whois);
 
-	if (!whois.IsSelfWhois() && !ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
+	if (!whois.IsSelfWhois() && !ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"))
 	{
-		whois.SendLine(RPL_WHOISSERVER, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
+		whois.SendLine(RPL_WHOISSERVER, ServerInstance->Config->HideServer, ServerInstance->Config->Network);
 	}
 	else
 	{
@@ -238,7 +238,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	FOREACH_MOD_CUSTOM(evprov, Whois::EventListener, OnWhois, (whois));
 
 	/*
-	 * We only send these if we've been provided them. That is, if hidewhois is turned off, and user is local, or
+	 * We only send these if we've been provided them. That is, if hideserver is turned off, and user is local, or
 	 * if remote whois is queried, too. This is to keep the user hidden, and also since you can't reliably tell remote time. -- w00t
 	 */
 	if ((idle) || (signon))
@@ -292,14 +292,14 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 	{
 		/*
 		 * Okay. Umpteenth attempt at doing this, so let's re-comment...
-		 * For local users (/w localuser), we show idletime if hidewhois is disabled
+		 * For local users (/w localuser), we show idletime if hideserver is disabled
 		 * For local users (/w localuser localuser), we always show idletime, hence parameters.size() > 1 check.
 		 * For remote users (/w remoteuser), we do NOT show idletime
 		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
 		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
 		 */
 		LocalUser* localuser = IS_LOCAL(dest);
-		if (localuser && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
+		if (localuser && (ServerInstance->Config->HideServer.empty() || parameters.size() > 1))
 		{
 			idle = labs((long)((localuser->idle_lastmsg)-ServerInstance->Time()));
 			signon = dest->signon;

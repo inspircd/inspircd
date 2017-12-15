@@ -431,7 +431,7 @@ void ServerConfig::Fill()
 	CustomVersion = security->getString("customversion");
 	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
-	HideWhoisServer = security->getString("hidewhois");
+	HideServer = security->getString("hideserver", security->getString("hidewhois"));
 	HideKillsServer = security->getString("hidekills");
 	HideULineKills = security->getBool("hideulinekills");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);

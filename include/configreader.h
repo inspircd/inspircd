@@ -385,9 +385,8 @@ class CoreExport ServerConfig
 	/** True if raw I/O is being logged */
 	bool RawLog;
 
-	/** Set to a non-empty string to obfuscate the server name of users in WHOIS
-	 */
-	std::string HideWhoisServer;
+	/** Set to a non-empty string to obfuscate server names. */
+	std::string HideServer;
 
 	/** Set to a non empty string to obfuscate nicknames prepended to a KILL.
 	 */

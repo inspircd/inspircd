@@ -688,13 +688,13 @@
           # be flattened when shown to non-opers.
           flatlinks="no"
 
-          # hidewhois: When defined, the given text will be used in place
-          # of the server a user is on when whoised by a non-oper. Most
-          # networks will want to set this to something like "*.netname.net"
-          # to conceal the actual server a user is on.
-          # Note that enabling this will cause users' idle times to only be
-          # shown when the format /WHOIS <nick> <nick> is used.
-          hidewhois=""
+          # hideserver: When defined, the given text will be used in place
+          # of the server name in public messages. As with <server:name> this
+          # does not need to resolve but does need to be a valid hostname.
+          #
+          # NOTE: enabling this will cause users' idle times to only be shown
+          # when a remote whois (/WHOIS <nick> <nick>) is used.
+          #hideserver="*.example.com"
 
           # hidebans: If this value is set to yes, when a user is banned ([gkz]lined)
           # only opers will see the ban message when the user is removed

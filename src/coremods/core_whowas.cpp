@@ -67,8 +67,8 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				user->WriteNumeric(RPL_WHOWASIP, parameters[0], InspIRCd::Format("was connecting from *@%s", u->host.c_str()));
 
 			std::string signon = InspIRCd::TimeString(u->signon);
-			bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
-			user->WriteNumeric(RPL_WHOISSERVER, parameters[0], (hide_server ? ServerInstance->Config->HideWhoisServer : u->server), signon);
+			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
+			user->WriteNumeric(RPL_WHOISSERVER, parameters[0], (hide_server ? ServerInstance->Config->HideServer : u->server), signon);
 		}
 	}
 
