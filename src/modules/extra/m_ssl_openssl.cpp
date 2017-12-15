@@ -48,17 +48,32 @@
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/dh.h>
 
 #ifdef _WIN32
 # pragma comment(lib, "ssleay32.lib")
 # pragma comment(lib, "libeay32.lib")
 #endif
 
-// BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0 and older.
+// Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
 #if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
+
+// BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0.
 # define BIO_get_data(BIO) BIO->ptr
 # define BIO_set_data(BIO, VALUE) BIO->ptr = VALUE;
 # define BIO_set_init(BIO, VALUE) BIO->init = VALUE;
+
+// These functions have been renamed in OpenSSL 1.1.
+# define OpenSSL_version SSLeay_version
+# define X509_getm_notAfter X509_get_notAfter
+# define X509_getm_notBefore X509_get_notBefore
+# define OPENSSL_init_ssl(OPTIONS, SETTINGS) \
+	SSL_library_init(); \
+	SSL_load_error_strings();
+
+// These macros have been renamed in OpenSSL 1.1.
+# define OPENSSL_VERSION SSLEAY_VERSION
+
 #else
 # define INSPIRCD_OPENSSL_OPAQUE_BIO
 #endif
@@ -561,7 +576,7 @@ class OpenSSLIOHook : public SSLIOHook
 			certinfo->fingerprint = BinToHex(md, n);
 		}
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
+		if ((ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time()) == 0))
 		{
 			certinfo->error = "Not activated, or expired certificate";
 		}
@@ -939,8 +954,7 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL()
 	{
 		// Initialize OpenSSL
-		SSL_library_init();
-		SSL_load_error_strings();
+		OPENSSL_init_ssl(0, NULL);
 #ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		biomethods = OpenSSL::BIOMethod::alloc();
 	}
@@ -953,7 +967,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", SSLeay_version(SSLEAY_VERSION));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
 
 		// Register application specific data
 		char exdatastr[] = "inspircd";
