@@ -71,7 +71,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 
 		unsigned int len = ConvToInt(parameter.substr(0, colon));
 		unsigned int time = InspIRCd::Duration(duration);
-		if (len == 0 || time == 0)
+		if (len == 0)
 			return MODEACTION_DENY;
 		if (len > maxlines && IS_LOCAL(source))
 			return MODEACTION_DENY;
@@ -154,7 +154,10 @@ class ModuleChanHistory : public Module
 
 		if (sendnotice)
 		{
-			memb->user->WriteNotice("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history spanning up to " + ConvToStr(list->maxtime) + " seconds");
+			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
+			if (list->maxtime > 0)
+				message.append(" spanning up to " + ConvToStr(list->maxtime) + " seconds");
+			memb->user->WriteNotice(message);
 		}
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
