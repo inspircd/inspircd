@@ -552,13 +552,13 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 
 void ModeParser::CleanMask(std::string &mask)
 {
+	if ((mask.length() > 2 && mask[1] == ':') || (mask.length() > 3 && mask[2] == ':'))
+		return; // if it's an extban, don't even try guess how it needs to be formed.
+
 	std::string::size_type pos_of_pling = mask.find_first_of('!');
 	std::string::size_type pos_of_at = mask.find_first_of('@');
 	std::string::size_type pos_of_dot = mask.find_first_of('.');
 	std::string::size_type pos_of_colons = mask.find("::"); /* Because ipv6 addresses are colon delimited -- double so it treats extban as nick */
-
-	if (mask.length() >= 2 && mask[1] == ':')
-		return; // if it's an extban, don't even try guess how it needs to be formed.
 
 	if ((pos_of_pling == std::string::npos) && (pos_of_at == std::string::npos))
 	{

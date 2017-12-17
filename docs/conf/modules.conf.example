@@ -209,6 +209,14 @@
 #<module name="banexception">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ban negate module: Adds support for negating a ban by adding a ~
+# before the ban mask and any matching extban. Examples:
+# /mode #chan +b ~user!*@*     will ban anyone NOT user!*@*
+# /mode #chan +b m:~user!*@*   will mute anyone NOT user!*@*
+# /mode #chan +b m:~R:user     will mute anyone NOT logged into user
+#<module name="bannegate">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban redirection module: Allows bans which redirect to a specified
 # channel. e.g. +b nick!ident@host#channelbanneduserissentto
 #<module name="banredirect">
