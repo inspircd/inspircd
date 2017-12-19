@@ -48,6 +48,7 @@ class TreeServer : public Server
 	/** Full version string including patch version and other info
 	 */
 	std::string fullversion;
+	std::string rawversion;
 
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	std::string sid;			/* Server ID */
@@ -144,6 +145,10 @@ class TreeServer : public Server
 	 */
 	const std::string& GetFullVersion() const { return fullversion; }
 
+	/** Get the raw version string of this server
+	 */
+	const std::string& GetRawVersion() const { return rawversion; }
+
 	/** Round trip time of last ping
 	 */
 	unsigned long rtt;
@@ -174,6 +179,10 @@ class TreeServer : public Server
 	 * @param verstr The version string to set
 	 */
 	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
+
+	/** Set the raw version string
+	 */
+	void SetRawVersion(const std::string& verstr) { rawversion = verstr; }
 
 	/** Sets the description of this server. Called when the description of a remote server changes
 	 * and we are notified about it.
