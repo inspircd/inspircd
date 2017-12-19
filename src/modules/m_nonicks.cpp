@@ -60,7 +60,7 @@ class ModuleNoNickChange : public Module
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(nn)))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (+N is set)",
+				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (+N is set)",
 					curr->name.c_str()));
 				return MOD_RES_DENY;
 			}
