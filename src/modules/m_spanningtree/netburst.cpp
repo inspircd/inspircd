@@ -137,6 +137,9 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 
 	// Send full version string that contains more information and is shown to opers
 	this->WriteLine(CommandSInfo::Builder(from, "fullversion", from->GetFullVersion()));
+
+	// Send the raw version string that just contains the base info
+	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->GetRawVersion()));
 }
 
 /** Recursively send the server tree.
