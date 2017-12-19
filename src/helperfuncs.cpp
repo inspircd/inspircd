@@ -101,7 +101,7 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 	if (exclamation != 1 || atsign != 1)
 		return false;
 
-	if (mask.length() > 250)
+	if (mask.length() > ServerInstance->Config->Limits.GetMaxMask())
 		return false;
 
 	return true;
