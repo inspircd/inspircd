@@ -44,7 +44,7 @@ class CommandCycle : public SplitCommand
 
 		if (!channel)
 		{
-			user->WriteNumeric(ERR_NOSUCHCHANNEL, parameters[0], "No such channel");
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 

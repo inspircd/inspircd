@@ -42,9 +42,14 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	else
 		u = ServerInstance->FindNick(parameters[1]);
 
-	if ((!u) || (!c) || (u->registered != REG_ALL))
+	if (!c)
 	{
-		user->WriteNumeric(Numerics::NoSuchNick(c ? parameters[1] : parameters[0]));
+		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+		return CMD_FAILURE;
+	}
+	if ((!u) || (u->registered != REG_ALL))
+	{
+		user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
 		return CMD_FAILURE;
 	}
 

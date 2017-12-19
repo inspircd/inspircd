@@ -180,8 +180,8 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		}
 		else
 		{
-			/* no such nick/channel */
-			user->WriteNumeric(Numerics::NoSuchNick(target));
+			/* channel does not exist */
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;

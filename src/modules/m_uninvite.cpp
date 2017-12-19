@@ -51,7 +51,7 @@ class CommandUninvite : public Command
 		{
 			if (!c)
 			{
-				user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
+				user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
 			}
 			else
 			{

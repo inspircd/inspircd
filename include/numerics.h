@@ -161,6 +161,7 @@ enum
 	 *  -- A message from the IRC group for coder sanity, and w00t
 	 */
 	ERR_BADCHANNELKEY               = 475,
+	ERR_BADCHANMASK			= 476,
 	ERR_INVITEONLYCHAN              = 473,
 	ERR_CHANNELISFULL               = 471,
 	ERR_BANNEDFROMCHAN              = 474,

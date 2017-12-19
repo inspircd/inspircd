@@ -38,7 +38,7 @@ class Redirect : public ParamMode<Redirect, LocalStringExt>
 		{
 			if (!ServerInstance->IsChannel(parameter))
 			{
-				source->WriteNumeric(ERR_NOSUCHCHANNEL, parameter, "Invalid channel name");
+				source->WriteNumeric(Numerics::NoSuchChannel(parameter));
 				return MODEACTION_DENY;
 			}
 		}

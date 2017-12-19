@@ -38,7 +38,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	if (!c)
 	{
-		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 		return CMD_FAILURE;
 	}
 
@@ -46,7 +46,7 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	{
 		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(c->name));
+			user->WriteNumeric(Numerics::NoSuchChannel(c->name));
 			return CMD_FAILURE;
 		}
 
