@@ -22,46 +22,8 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/shun.h"
 
-class Shun : public XLine
-{
-public:
-	std::string matchtext;
-
-	Shun(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& shunmask)
-		: XLine(s_time, d, src, re, "SHUN")
-		, matchtext(shunmask)
-	{
-	}
-
-	bool Matches(User* u) CXX11_OVERRIDE
-	{
-		// E: overrides shun
-		LocalUser* lu = IS_LOCAL(u);
-		if (lu && lu->exempt)
-			return false;
-
-		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
-			return true;
-
-		if (InspIRCd::MatchCIDR(u->GetIPString(), matchtext, ascii_case_insensitive_map))
-			return true;
-
-		return false;
-	}
-
-	bool Matches(const std::string& s) CXX11_OVERRIDE
-	{
-		if (matchtext == s)
-			return true;
-		return false;
-	}
-
-	const std::string& Displayable() CXX11_OVERRIDE
-	{
-		return matchtext;
-	}
-};
 
 /** An XLineFactory specialized to generate shun pointers
  */
