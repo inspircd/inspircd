@@ -77,7 +77,8 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 			Channel* chan = (*i)->chan;
 			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
+					chan->name.c_str()));
 				return CMD_FAILURE;
 			}
 		}
