@@ -440,6 +440,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			{
 				/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
 				GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+				ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their " + command + " message filtered and was G-Lined: " + f->reason);
 				if (ServerInstance->XLines->AddLine(gl,NULL))
 				{
 					ServerInstance->XLines->ApplyLines();
