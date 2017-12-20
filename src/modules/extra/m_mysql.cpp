@@ -203,6 +203,19 @@ class MySQLresult : public SQLResult
 		result.assign(colnames.begin(), colnames.end());
 	}
 
+	bool HasColumn(const std::string& column, size_t& index)
+	{
+		for (size_t i = 0; i < colnames.size(); ++i)
+		{
+			if (colnames[i] == column)
+			{
+				index = i;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	SQLEntry GetValue(int row, int column)
 	{
 		if ((row >= 0) && (row < rows) && (column >= 0) && (column < (int)fieldlists[row].size()))

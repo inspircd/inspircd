@@ -82,6 +82,19 @@ class SQLite3Result : public SQLResult
 	{
 		result.assign(columns.begin(), columns.end());
 	}
+
+	bool HasColumn(const std::string& column, size_t& index)
+	{
+		for (size_t i = 0; i < columns.size(); ++i)
+		{
+			if (columns[i] == column)
+			{
+				index = i;
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class SQLConn : public SQLProvider
