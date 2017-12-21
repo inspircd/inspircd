@@ -724,10 +724,10 @@
           # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
 
-          # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
-          #  splitmsg  Split with an explanatory message
-          #  yes       Split with no explanatory message
-          #  no        Do not show
+          # operspywhois: show opers (users/auspex) the +s and +p channels a user is in. Values:
+          #  splitmsg  Split secret/private from public channels with an explanatory message
+          #  yes       Show secret/private channels
+          #  no        Do not show secret/private channels
           operspywhois="no"
 
           # runasuser: If this is set, InspIRCd will attempt to switch

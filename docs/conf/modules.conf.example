@@ -402,14 +402,14 @@
 # that looks like the name of another channel on the network.
 #<module name="m_channames.so">
 
-<channames
+#<channames
 	# denyrange: characters or range of characters to deny in channel
 	# names.
-	denyrange="2,3"
+	#denyrange="2,3"
 
 	# allowrange: characters or range of characters to specifically allow
 	# in channel names.
-	allowrange="">
+	#allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
@@ -426,26 +426,26 @@
 # InspIRCd. You should use m_customprefix instead.
 #<module name="m_chanprotect.so">
 
-<chanprotect
+#<chanprotect
 	# noservices: With this set to yes, when a user joins an empty channel,
 	# the server will set +q on them. If set to no, it will only set +o
 	# on them until they register the channel.
-	noservices="no"
+	#noservices="no"
 
 	# qprefix: Prefix (symbol) to use for +q users.
-	qprefix="~"
+	#qprefix="~"
 
 	# aprefix: Prefix (symbol) to use for +a users.
-	aprefix="&amp;"
+	#aprefix="&amp;"
 
 	# deprotectself: If this value is set (true, yes or 1), it will allow
 	# +a and +q users to remove the +a and +q from themselves, otherwise,
 	# the status will have to be removed by services.
-	deprotectself="yes"
+	#deprotectself="yes"
 
 	# deprotectothers: If this value is set to yes, true, or 1, then any
 	# user with +q or +a may remove the +q or +a from other users.
-	deprotectothers="yes">
+	#deprotectothers="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
