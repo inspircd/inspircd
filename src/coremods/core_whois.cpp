@@ -125,7 +125,6 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 
 class WhoisChanList
 {
-	const ServerConfig::OperSpyWhoisState spywhois;
 	WhoisChanListNumericBuilder num;
 	WhoisChanListNumericBuilder spynum;
 	std::string prefixstr;
@@ -140,10 +139,11 @@ class WhoisChanList
 	}
 
  public:
+	const ServerConfig::OperSpyWhoisState spywhois;
 	WhoisChanList(WhoisContextImpl& whois)
-		: spywhois(whois.GetSource()->HasPrivPermission("users/auspex") ? ServerInstance->Config->OperSpyWhois : ServerConfig::SPYWHOIS_NONE)
-		, num(whois)
+		: num(whois)
 		, spynum(whois)
+		, spywhois((whois.GetSource()->HasPrivPermission("users/auspex") && ServerInstance->Config->OperSpyWhois) ? ServerConfig::SPYWHOIS_SPLITMSG : ServerConfig::SPYWHOIS_NONE)
 	{
 	}
 
@@ -154,9 +154,7 @@ class WhoisChanList
 
 	void AddHidden(Membership* memb)
 	{
-		if (spywhois == ServerConfig::SPYWHOIS_NONE)
-			return;
-		AddMember(memb, (spywhois == ServerConfig::SPYWHOIS_SPLITMSG ? spynum : num));
+		AddMember(memb, spynum);
 	}
 
 	void Flush(WhoisContextImpl& whois)
@@ -177,12 +175,13 @@ void CommandWhois::SendChanList(WhoisContextImpl& whois)
 	{
 		Membership* memb = *i;
 		Channel* c = memb->chan;
-		/* If the target is the sender, neither +p nor +s is set, or
-		 * the channel contains the user, it is not a spy channel
+		/* If neither +p nor +s is set, or the channel contains the user
+		 * and the user is not running whois on themselves, it is not
+		 # a spy channel
 		 */
-		if ((whois.IsSelfWhois()) || ((!c->IsModeSet(privatemode)) && (!c->IsModeSet(secretmode))) || (c->HasUser(whois.GetSource())))
+		if (!c->IsModeSet(privatemode) && !c->IsModeSet(secretmode))
 			chanlist.AddVisible(memb);
-		else
+		else if (c->HasUser(whois.GetSource()) || chanlist.spywhois == ServerConfig::SPYWHOIS_SPLITMSG)
 			chanlist.AddHidden(memb);
 	}
 
