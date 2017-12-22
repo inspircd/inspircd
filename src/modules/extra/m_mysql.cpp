@@ -84,17 +84,17 @@ class DispatcherThread;
 
 struct QQueueItem
 {
-	SQLQuery* q;
+	SQL::Query* q;
 	std::string query;
 	SQLConnection* c;
-	QQueueItem(SQLQuery* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
+	QQueueItem(SQL::Query* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
 };
 
 struct RQueueItem
 {
-	SQLQuery* q;
+	SQL::Query* q;
 	MySQLresult* r;
-	RQueueItem(SQLQuery* Q, MySQLresult* R) : q(Q), r(R) {}
+	RQueueItem(SQL::Query* Q, MySQLresult* R) : q(Q), r(R) {}
 };
 
 typedef insp::flat_map<std::string, SQLConnection*> ConnMap;
@@ -136,16 +136,16 @@ class DispatcherThread : public SocketThread
 
 /** Represents a mysql result set
  */
-class MySQLresult : public SQLResult
+class MySQLresult : public SQL::Result
 {
  public:
-	SQLerror err;
+	SQL::Error err;
 	int currentrow;
 	int rows;
 	std::vector<std::string> colnames;
-	std::vector<SQLEntries> fieldlists;
+	std::vector<SQL::Row> fieldlists;
 
-	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL_NO_ERROR), currentrow(0), rows(0)
+	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL::NO_ERROR), currentrow(0), rows(0)
 	{
 		if (affected_rows >= 1)
 		{
@@ -174,9 +174,9 @@ class MySQLresult : public SQLResult
 					{
 						std::string a = (fields[field_count].name ? fields[field_count].name : "");
 						if (row[field_count])
-							fieldlists[n].push_back(SQLEntry(row[field_count]));
+							fieldlists[n].push_back(SQL::Field(row[field_count]));
 						else
-							fieldlists[n].push_back(SQLEntry());
+							fieldlists[n].push_back(SQL::Field());
 						colnames.push_back(a);
 						field_count++;
 					}
@@ -188,7 +188,7 @@ class MySQLresult : public SQLResult
 		}
 	}
 
-	MySQLresult(SQLerror& e) : err(e)
+	MySQLresult(SQL::Error& e) : err(e)
 	{
 
 	}
@@ -203,16 +203,16 @@ class MySQLresult : public SQLResult
 		result.assign(colnames.begin(), colnames.end());
 	}
 
-	SQLEntry GetValue(int row, int column)
+	SQL::Field GetValue(int row, int column)
 	{
 		if ((row >= 0) && (row < rows) && (column >= 0) && (column < (int)fieldlists[row].size()))
 		{
 			return fieldlists[row][column];
 		}
-		return SQLEntry();
+		return SQL::Field();
 	}
 
-	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
 	{
 		if (currentrow < rows)
 		{
@@ -230,7 +230,7 @@ class MySQLresult : public SQLResult
 
 /** Represents a connection to a mysql database
  */
-class SQLConnection : public SQLProvider
+class SQLConnection : public SQL::Provider
 {
  public:
 	reference<ConfigTag> config;
@@ -238,7 +238,7 @@ class SQLConnection : public SQLProvider
 	Mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, ConfigTag* tag) : SQLProvider(p, "SQL/" + tag->getString("id")),
+	SQLConnection(Module* p, ConfigTag* tag) : SQL::Provider(p, "SQL/" + tag->getString("id")),
 		config(tag), connection(NULL)
 	{
 	}
@@ -297,7 +297,7 @@ class SQLConnection : public SQLProvider
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
-			SQLerror e(SQL_QREPLY_FAIL, ConvToStr(mysql_errno(connection)) + ": " + mysql_error(connection));
+			SQL::Error e(SQL::QREPLY_FAIL, InspIRCd::Format("%u: %s", mysql_errno(connection), mysql_error(connection)));
 			return new MySQLresult(e);
 		}
 	}
@@ -319,14 +319,14 @@ class SQLConnection : public SQLProvider
 		mysql_close(connection);
 	}
 
-	void submit(SQLQuery* q, const std::string& qs) CXX11_OVERRIDE
+	void Submit(SQL::Query* q, const std::string& qs) CXX11_OVERRIDE
 	{
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
-	void submit(SQLQuery* call, const std::string& q, const ParamL& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -351,10 +351,10 @@ class SQLConnection : public SQLProvider
 				}
 			}
 		}
-		submit(call, res);
+		Submit(call, res);
 	}
 
-	void submit(SQLQuery* call, const std::string& q, const ParamM& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -369,7 +369,7 @@ class SQLConnection : public SQLProvider
 					field.push_back(q[i++]);
 				i--;
 
-				ParamM::const_iterator it = p.find(field);
+				SQL::ParamMap::const_iterator it = p.find(field);
 				if (it != p.end())
 				{
 					std::string parm = it->second;
@@ -380,7 +380,7 @@ class SQLConnection : public SQLProvider
 				}
 			}
 		}
-		submit(call, res);
+		Submit(call, res);
 	}
 };
 
@@ -434,7 +434,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 
 	// now clean up the deleted databases
 	Dispatcher->LockQueue();
-	SQLerror err(SQL_BAD_DBID);
+	SQL::Error err(SQL::BAD_DBID);
 	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 	{
 		ServerInstance->Modules->DelService(*i->second);
@@ -461,7 +461,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 
 void ModuleSQL::OnUnloadModule(Module* mod)
 {
-	SQLerror err(SQL_BAD_DBID);
+	SQL::Error err(SQL::BAD_DBID);
 	Dispatcher->LockQueue();
 	unsigned int i = qq.size();
 	while (i > 0)
@@ -541,7 +541,7 @@ void DispatcherThread::OnNotify()
 	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
 	{
 		MySQLresult* res = i->r;
-		if (res->err.id == SQL_NO_ERROR)
+		if (res->err.code == SQL::NO_ERROR)
 			i->q->OnResult(*res);
 		else
 			i->q->OnError(res->err);

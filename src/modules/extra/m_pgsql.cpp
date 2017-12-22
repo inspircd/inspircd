@@ -70,9 +70,9 @@ class ReconnectTimer : public Timer
 
 struct QueueItem
 {
-	SQLQuery* c;
+	SQL::Query* c;
 	std::string q;
-	QueueItem(SQLQuery* C, const std::string& Q) : c(C), q(Q) {}
+	QueueItem(SQL::Query* C, const std::string& Q) : c(C), q(Q) {}
 };
 
 /** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
@@ -82,7 +82,7 @@ struct QueueItem
  * data is passes to the module nearly as directly as if it was using the API directly itself.
  */
 
-class PgSQLresult : public SQLResult
+class PgSQLresult : public SQL::Result
 {
 	PGresult* res;
 	int currentrow;
@@ -114,16 +114,16 @@ class PgSQLresult : public SQLResult
 		}
 	}
 
-	SQLEntry GetValue(int row, int column)
+	SQL::Field GetValue(int row, int column)
 	{
 		char* v = PQgetvalue(res, row, column);
 		if (!v || PQgetisnull(res, row, column))
-			return SQLEntry();
+			return SQL::Field();
 
-		return SQLEntry(std::string(v, PQgetlength(res, row, column)));
+		return SQL::Field(std::string(v, PQgetlength(res, row, column)));
 	}
 
-	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
 	{
 		if (currentrow >= PQntuples(res))
 			return false;
@@ -141,7 +141,7 @@ class PgSQLresult : public SQLResult
 
 /** SQLConn represents one SQL session.
  */
-class SQLConn : public SQLProvider, public EventHandler
+class SQLConn : public SQL::Provider, public EventHandler
 {
  public:
 	reference<ConfigTag> conf;	/* The <database> entry */
@@ -151,7 +151,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	QueueItem		qinprog;	/* If there is currently a query in progress */
 
 	SQLConn(Module* Creator, ConfigTag* tag)
-	: SQLProvider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL, "")
+	: SQL::Provider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL, "")
 	{
 		if (!DoConnect())
 		{
@@ -162,14 +162,14 @@ class SQLConn : public SQLProvider, public EventHandler
 
 	CullResult cull() CXX11_OVERRIDE
 	{
-		this->SQLProvider::cull();
+		this->SQL::Provider::cull();
 		ServerInstance->Modules->DelService(*this);
 		return this->EventHandler::cull();
 	}
 
 	~SQLConn()
 	{
-		SQLerror err(SQL_BAD_DBID);
+		SQL::Error err(SQL::BAD_DBID);
 		if (qinprog.c)
 		{
 			qinprog.c->OnError(err);
@@ -177,7 +177,7 @@ class SQLConn : public SQLProvider, public EventHandler
 		}
 		for(std::deque<QueueItem>::iterator i = queue.begin(); i != queue.end(); i++)
 		{
-			SQLQuery* q = i->c;
+			SQL::Query* q = i->c;
 			q->OnError(err);
 			delete q;
 		}
@@ -320,7 +320,7 @@ restart:
 					case PGRES_BAD_RESPONSE:
 					case PGRES_FATAL_ERROR:
 					{
-						SQLerror err(SQL_QREPLY_FAIL, PQresultErrorMessage(result));
+						SQL::Error err(SQL::QREPLY_FAIL, PQresultErrorMessage(result));
 						qinprog.c->OnError(err);
 						break;
 					}
@@ -390,7 +390,7 @@ restart:
 		}
 	}
 
-	void submit(SQLQuery *req, const std::string& q) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q) CXX11_OVERRIDE
 	{
 		if (qinprog.q.empty())
 		{
@@ -403,7 +403,7 @@ restart:
 		}
 	}
 
-	void submit(SQLQuery *req, const std::string& q, const ParamL& p) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -425,10 +425,10 @@ restart:
 				}
 			}
 		}
-		submit(req, res);
+		Submit(req, res);
 	}
 
-	void submit(SQLQuery *req, const std::string& q, const ParamM& p) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -443,7 +443,7 @@ restart:
 					field.push_back(q[i++]);
 				i--;
 
-				ParamM::const_iterator it = p.find(field);
+				SQL::ParamMap::const_iterator it = p.find(field);
 				if (it != p.end())
 				{
 					std::string parm = it->second;
@@ -456,7 +456,7 @@ restart:
 				}
 			}
 		}
-		submit(req, res);
+		Submit(req, res);
 	}
 
 	void DoQuery(const QueueItem& req)
@@ -464,7 +464,7 @@ restart:
 		if (status != WREAD && status != WWRITE)
 		{
 			// whoops, not connected...
-			SQLerror err(SQL_BAD_CONN);
+			SQL::Error err(SQL::BAD_CONN);
 			req.c->OnError(err);
 			delete req.c;
 			return;
@@ -476,7 +476,7 @@ restart:
 		}
 		else
 		{
-			SQLerror err(SQL_QSEND_FAIL, PQerrorMessage(sql));
+			SQL::Error err(SQL::QSEND_FAIL, PQerrorMessage(sql));
 			req.c->OnError(err);
 			delete req.c;
 		}
@@ -554,7 +554,7 @@ class ModulePgSQL : public Module
 
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
-		SQLerror err(SQL_BAD_DBID);
+		SQL::Error err(SQL::BAD_DBID);
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 		{
 			SQLConn* conn = i->second;
@@ -567,7 +567,7 @@ class ModulePgSQL : public Module
 			std::deque<QueueItem>::iterator j = conn->queue.begin();
 			while (j != conn->queue.end())
 			{
-				SQLQuery* q = j->c;
+				SQL::Query* q = j->c;
 				if (q->creator == mod)
 				{
 					q->OnError(err);

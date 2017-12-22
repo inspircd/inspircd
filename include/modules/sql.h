@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2017 Peter Powell <petpow@saberuk.com>
  *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -19,32 +20,85 @@
 
 #pragma once
 
-/** Defines the error types which SQLerror may be set to
- */
-enum SQLerrorNum { SQL_NO_ERROR, SQL_BAD_DBID, SQL_BAD_CONN, SQL_QSEND_FAIL, SQL_QREPLY_FAIL };
 
-/** A list of format parameters for an SQLquery object.
- */
-typedef std::vector<std::string> ParamL;
-
-typedef std::map<std::string, std::string> ParamM;
-
-class SQLEntry
+namespace SQL
 {
- public:
+	class Error;
+	class Field;
+	class Provider;
+	class Query;
+	class Result;
+
+	/** A list of parameter replacement values. */
+	typedef std::vector<std::string> ParamList;
+
+	/** A map of parameter replacement values. */
+	typedef std::map<std::string, std::string> ParamMap;
+
+	/** A list of SQL fields from a specific row. */
+	typedef std::vector<Field> Row;
+
+	/** An enumeration of possible error codes. */
+	enum ErrorCode
+	{
+		/** No error has occurred. */
+		NO_ERROR,
+
+		/** The database identifier is invalid. */
+		BAD_DBID,
+
+		/** The database connection has failed. */
+		BAD_CONN,
+
+		/** Executing the query failed. */
+		QSEND_FAIL,
+
+		/** Reading the response failed. */
+		QREPLY_FAIL
+	};
+
+	/** Populates a parameter map with information about a user.
+	 * @param user The user to collect information from.
+	 * @param userinfo The map to populate.
+	 */
+	void PopulateUserInfo(User* user, ParamMap& userinfo);
+}
+
+/** Represents a single SQL field. */
+class SQL::Field
+{
+ private:
+	/** Whether this SQL field is NULL. */
+	bool null;
+
+	/** The underlying SQL value. */
 	std::string value;
-	bool nul;
-	SQLEntry() : nul(true) {}
-	SQLEntry(const std::string& v) : value(v), nul(false) {}
-	inline operator std::string&() { return value; }
+
+ public:
+	/** Creates a new NULL SQL field. */
+	Field()
+		: null(true)
+	{
+	}
+
+	/** Creates a new non-NULL SQL field.
+	 * @param v The value of the field.
+	 */
+	Field(const std::string& v)
+		: null(false)
+		, value(v)
+	{
+	}
+
+	/** Determines whether this SQL entry is NULL. */
+	inline bool IsNull() const { return null; }
+
+	/** Retrieves the underlying value. */
+	inline operator const std::string&() const { return value; }
 };
 
-typedef std::vector<SQLEntry> SQLEntries;
-
-/**
- * Result of an SQL query. Only valid inside OnResult
- */
-class SQLResult : public classbase
+/** Represents the result of an SQL query. */
+class SQL::Result : public classbase
 {
  public:
 	/**
@@ -58,61 +112,66 @@ class SQLResult : public classbase
 	 */
 	virtual int Rows() = 0;
 
-	/**
-	 * Return a single row (result of the query). The internal row counter
-	 * is incremented by one.
-	 *
-	 * @param result Storage for the result data.
-	 * @returns true if there was a row, false if no row exists (end of
-	 * iteration)
+	/** Retrieves the next available row from the database.
+	 * @param result A list to store the fields from this row in.
+	 * @return True if a row could be retrieved; otherwise, false.
 	 */
-	virtual bool GetRow(SQLEntries& result) = 0;
+	virtual bool GetRow(Row& result) = 0;
 
-	/** Returns column names for the items in this row
+	/** Retrieves a list of SQL columns in the result.
+	 * @param result A reference to the vector to store column names in.
 	 */
 	virtual void GetCols(std::vector<std::string>& result) = 0;
 };
 
-/** SQLerror holds the error state of a request.
+/** SQL::Error holds the error state of a request.
  * The error string varies from database software to database software
  * and should be used to display informational error messages to users.
  */
-class SQLerror
+class SQL::Error
 {
+ private:
+	/** The custom error message if one has been specified. */
+	const char* message;
+
  public:
-	/** The error id
-	 */
-	SQLerrorNum id;
+	/** The code which represents this error. */
+	const ErrorCode code;
 
-	/** The error string
+	/** Initialize an SQL::Error from an error code.
+	 * @param c A code which represents this error.
 	 */
-	std::string str;
-
-	/** Initialize an SQLerror
-	 * @param i The error ID to set
-	 * @param s The (optional) error string to set
-	 */
-	SQLerror(SQLerrorNum i, const std::string &s = "")
-	: id(i), str(s)
+	Error(ErrorCode c)
+		: message(NULL)
+		, code(c)
 	{
 	}
 
-	/** Return the error string for an error
+	/** Initialize an SQL::Error from an error code and a custom error message.
+	 * @param c A code which represents this error.
+	 * @param m A custom error message.
 	 */
-	const char* Str()
+	Error(ErrorCode c, const char* m)
+		: message(m)
+		, code(c)
 	{
-		if(str.length())
-			return str.c_str();
+	}
 
-		switch(id)
+	/** Retrieves the error message. */
+	const char* ToString() const
+	{
+		if (message)
+			return message;
+
+		switch (code)
 		{
-			case SQL_BAD_DBID:
-				return "Invalid database ID";
-			case SQL_BAD_CONN:
+			case BAD_DBID:
+				return "Invalid database identifier";
+			case BAD_CONN:
 				return "Invalid connection";
-			case SQL_QSEND_FAIL:
+			case QSEND_FAIL:
 				return "Sending query failed";
-			case SQL_QREPLY_FAIL:
+			case QREPLY_FAIL:
 				return "Getting query result failed";
 			default:
 				return "Unknown error";
@@ -122,63 +181,79 @@ class SQLerror
 
 /**
  * Object representing an SQL query. This should be allocated on the heap and
- * passed to an SQLProvider, which will free it when the query is complete or
+ * passed to an SQL::Provider, which will free it when the query is complete or
  * when the querying module is unloaded.
  *
  * You should store whatever information is needed to have the callbacks work in
  * this object (UID of user, channel name, etc).
  */
-class SQLQuery : public classbase
+class SQL::Query : public classbase
 {
+ protected:
+	/** Creates a new SQL query. */
+	Query(Module* Creator)
+		: creator(Creator)
+	{
+	}
+
  public:
-	ModuleRef creator;
+	const ModuleRef creator;
 
-	SQLQuery(Module* Creator) : creator(Creator) {}
-	virtual ~SQLQuery() {}
+	/* Destroys this Query instance. */
+	virtual ~Query()
+	{
+	}
 
-	virtual void OnResult(SQLResult& result) = 0;
-	/**
-	 * Called when the query fails
+	/** Called when an SQL error happens.
+	 * @param error The error that occurred.
 	 */
-	virtual void OnError(SQLerror& error) { }
+	virtual void OnError(Error& error) = 0;
+
+	/** Called when a SQL result is received.
+	 * @param result The result of the SQL query.
+	 */
+	virtual void OnResult(Result& result) = 0;
 };
 
 /**
  * Provider object for SQL servers
  */
-class SQLProvider : public DataProvider
+class SQL::Provider : public DataProvider
 {
  public:
-	SQLProvider(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
-	/** Submit an asynchronous SQL request
+	Provider(Module* Creator, const std::string& Name)
+		: DataProvider(Creator, Name)
+	{
+	}
+
+	/** Submit an asynchronous SQL query.
 	 * @param callback The result reporting point
 	 * @param query The hardcoded query string. If you have parameters to substitute, see below.
 	 */
-	virtual void submit(SQLQuery* callback, const std::string& query) = 0;
+	virtual void Submit(Query* callback, const std::string& query) = 0;
 
-	/** Submit an asynchronous SQL request
+	/** Submit an asynchronous SQL query.
 	 * @param callback The result reporting point
 	 * @param format The simple parameterized query string ('?' parameters)
 	 * @param p Parameters to fill in for the '?' entries
 	 */
-	virtual void submit(SQLQuery* callback, const std::string& format, const ParamL& p) = 0;
+	virtual void Submit(Query* callback, const std::string& format, const SQL::ParamList& p) = 0;
 
-	/** Submit an asynchronous SQL request.
+	/** Submit an asynchronous SQL query.
 	 * @param callback The result reporting point
 	 * @param format The parameterized query string ('$name' parameters)
 	 * @param p Parameters to fill in for the '$name' entries
 	 */
-	virtual void submit(SQLQuery* callback, const std::string& format, const ParamM& p) = 0;
-
-	/** Convenience function to prepare a map from a User* */
-	void PopulateUserInfo(User* user, ParamM& userinfo)
-	{
-		userinfo["nick"] = user->nick;
-		userinfo["host"] = user->GetRealHost();
-		userinfo["ip"] = user->GetIPString();
-		userinfo["gecos"] = user->fullname;
-		userinfo["ident"] = user->ident;
-		userinfo["server"] = user->server->GetName();
-		userinfo["uuid"] = user->uuid;
-	}
+	virtual void Submit(Query* callback, const std::string& format, const ParamMap& p) = 0;
 };
+
+inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
+{
+	userinfo["nick"] = user->nick;
+	userinfo["host"] = user->GetRealHost();
+	userinfo["ip"] = user->GetIPString();
+	userinfo["gecos"] = user->fullname;
+	userinfo["ident"] = user->ident;
+	userinfo["server"] = user->server->GetName();
+	userinfo["uuid"] = user->uuid;
+}

@@ -46,13 +46,13 @@
 class SQLConn;
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
-class SQLite3Result : public SQLResult
+class SQLite3Result : public SQL::Result
 {
  public:
 	int currentrow;
 	int rows;
 	std::vector<std::string> columns;
-	std::vector<SQLEntries> fieldlists;
+	std::vector<SQL::Row> fieldlists;
 
 	SQLite3Result() : currentrow(0), rows(0)
 	{
@@ -63,7 +63,7 @@ class SQLite3Result : public SQLResult
 		return rows;
 	}
 
-	bool GetRow(SQLEntries& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
 	{
 		if (currentrow < rows)
 		{
@@ -84,13 +84,13 @@ class SQLite3Result : public SQLResult
 	}
 };
 
-class SQLConn : public SQLProvider
+class SQLConn : public SQL::Provider
 {
 	sqlite3* conn;
 	reference<ConfigTag> config;
 
  public:
-	SQLConn(Module* Parent, ConfigTag* tag) : SQLProvider(Parent, "SQL/" + tag->getString("id")), config(tag)
+	SQLConn(Module* Parent, ConfigTag* tag) : SQL::Provider(Parent, "SQL/" + tag->getString("id")), config(tag)
 	{
 		std::string host = tag->getString("hostname");
 		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
@@ -111,14 +111,14 @@ class SQLConn : public SQLProvider
 		}
 	}
 
-	void Query(SQLQuery* query, const std::string& q)
+	void Query(SQL::Query* query, const std::string& q)
 	{
 		SQLite3Result res;
 		sqlite3_stmt *stmt;
 		int err = sqlite3_prepare_v2(conn, q.c_str(), q.length(), &stmt, NULL);
 		if (err != SQLITE_OK)
 		{
-			SQLerror error(SQL_QSEND_FAIL, sqlite3_errmsg(conn));
+			SQL::Error error(SQL::QSEND_FAIL, sqlite3_errmsg(conn));
 			query->OnError(error);
 			return;
 		}
@@ -140,7 +140,7 @@ class SQLConn : public SQLProvider
 				{
 					const char* txt = (const char*)sqlite3_column_text(stmt, i);
 					if (txt)
-						res.fieldlists[res.rows][i] = SQLEntry(txt);
+						res.fieldlists[res.rows][i] = SQL::Field(txt);
 				}
 				res.rows++;
 			}
@@ -151,7 +151,7 @@ class SQLConn : public SQLProvider
 			}
 			else
 			{
-				SQLerror error(SQL_QREPLY_FAIL, sqlite3_errmsg(conn));
+				SQL::Error error(SQL::QREPLY_FAIL, sqlite3_errmsg(conn));
 				query->OnError(error);
 				break;
 			}
@@ -159,13 +159,13 @@ class SQLConn : public SQLProvider
 		sqlite3_finalize(stmt);
 	}
 
-	void submit(SQLQuery* query, const std::string& q) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q) CXX11_OVERRIDE
 	{
 		Query(query, q);
 		delete query;
 	}
 
-	void submit(SQLQuery* query, const std::string& q, const ParamL& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -183,10 +183,10 @@ class SQLConn : public SQLProvider
 				}
 			}
 		}
-		submit(query, res);
+		Submit(query, res);
 	}
 
-	void submit(SQLQuery* query, const std::string& q, const ParamM& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -201,7 +201,7 @@ class SQLConn : public SQLProvider
 					field.push_back(q[i++]);
 				i--;
 
-				ParamM::const_iterator it = p.find(field);
+				SQL::ParamMap::const_iterator it = p.find(field);
 				if (it != p.end())
 				{
 					char* escaped = sqlite3_mprintf("%q", it->second.c_str());
@@ -210,7 +210,7 @@ class SQLConn : public SQLProvider
 				}
 			}
 		}
-		submit(query, res);
+		Submit(query, res);
 	}
 };
 

@@ -28,18 +28,21 @@ enum AuthState {
 	AUTH_STATE_FAIL = 2
 };
 
-class AuthQuery : public SQLQuery
+class AuthQuery : public SQL::Query
 {
  public:
 	const std::string uid;
 	LocalIntExt& pendingExt;
 	bool verbose;
 	AuthQuery(Module* me, const std::string& u, LocalIntExt& e, bool v)
-		: SQLQuery(me), uid(u), pendingExt(e), verbose(v)
+		: SQL::Query(me)
+		, uid(u)
+		, pendingExt(e)
+		, verbose(v)
 	{
 	}
 
-	void OnResult(SQLResult& res) CXX11_OVERRIDE
+	void OnResult(SQL::Result& res) CXX11_OVERRIDE
 	{
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
@@ -56,21 +59,21 @@ class AuthQuery : public SQLQuery
 		}
 	}
 
-	void OnError(SQLerror& error) CXX11_OVERRIDE
+	void OnError(SQL::Error& error) CXX11_OVERRIDE
 	{
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
 		pendingExt.set(user, AUTH_STATE_FAIL);
 		if (verbose)
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.Str());
+			ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.ToString());
 	}
 };
 
 class ModuleSQLAuth : public Module
 {
 	LocalIntExt pendingExt;
-	dynamic_reference<SQLProvider> SQL;
+	dynamic_reference<SQL::Provider> SQL;
 
 	std::string freeformquery;
 	std::string killreason;
@@ -120,8 +123,8 @@ class ModuleSQLAuth : public Module
 
 		pendingExt.set(user, AUTH_STATE_BUSY);
 
-		ParamM userinfo;
-		SQL->PopulateUserInfo(user, userinfo);
+		SQL::ParamMap userinfo;
+		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
 
 		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
@@ -135,7 +138,7 @@ class ModuleSQLAuth : public Module
 		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
 		userinfo["certfp"] = certfp;
 
-		SQL->submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
+		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
 
 		return MOD_RES_PASSTHRU;
 	}

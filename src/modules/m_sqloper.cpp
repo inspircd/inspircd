@@ -21,16 +21,19 @@
 #include "modules/sql.h"
 #include "modules/hash.h"
 
-class OpMeQuery : public SQLQuery
+class OperQuery : public SQL::Query
 {
  public:
 	const std::string uid, username, password;
-	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me), uid(u), username(un), password(pw)
+	OperQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
+		: SQL::Query(me)
+		, uid(u)
+		, username(un)
+		, password(pw)
 	{
 	}
 
-	void OnResult(SQLResult& res) CXX11_OVERRIDE
+	void OnResult(SQL::Result& res) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
@@ -38,7 +41,7 @@ class OpMeQuery : public SQLQuery
 			return;
 
 		// multiple rows may exist
-		SQLEntries row;
+		SQL::Row row;
 		while (res.GetRow(row))
 		{
 			if (OperUser(user, row[0], row[1]))
@@ -49,9 +52,9 @@ class OpMeQuery : public SQLQuery
 		fallback();
 	}
 
-	void OnError(SQLerror& error) CXX11_OVERRIDE
+	void OnError(SQL::Error& error) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.Str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.ToString());
 		fallback();
 	}
 
@@ -106,7 +109,7 @@ class ModuleSQLOper : public Module
 {
 	std::string query;
 	std::string hashtype;
-	dynamic_reference<SQLProvider> SQL;
+	dynamic_reference<SQL::Provider> SQL;
 
 public:
 	ModuleSQLOper() : SQL(this, "SQL") {}
@@ -144,12 +147,12 @@ public:
 	{
 		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
 
-		ParamM userinfo;
-		SQL->PopulateUserInfo(user, userinfo);
+		SQL::ParamMap userinfo;
+		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
 		userinfo["password"] = hash ? hash->Generate(password) : password;
 
-		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
+		SQL->Submit(new OperQuery(this, user->uuid, username, password), query, userinfo);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
