@@ -434,11 +434,11 @@ reason parameter is optional, and if not provided defaults to
 'Please use this server/port instead' (the default given in various
 numeric lists)">
 
-<helpop key="filter" value="/FILTER <filter-definition> [<action> <flags> [<gline-duration>] :<reason>]
+<helpop key="filter" value="/FILTER <filter-definition> [<action> <flags> [<duration>] :<reason>]
 
 This command will add a filter when more than one parameter is given,
 for messages of the types specified by the flags, with the given
-filter definition, action, gline duration (when the action is 'gline')
+filter definition, action, duration (when the action is 'gline' or 'shun'),
 and reason.
 
 The filter will take effect when a message of any type specified by
@@ -454,6 +454,7 @@ Block   Blocks message and informs +s IRCops of the blocked message
 Silent  Blocks message, but does not notify IRCops
 Kill    Kills the user
 Gline   Glines the user for the specified duration
+Shun    Shuns the user for the specified duration (requires the shun module)
 
 Valid FILTER Flags
 ------------------

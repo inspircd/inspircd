@@ -24,6 +24,7 @@
 #include "xline.h"
 #include "modules/regex.h"
 #include "modules/server.h"
+#include "modules/shun.h"
 
 enum FilterFlags
 {
@@ -39,6 +40,7 @@ enum FilterAction
 	FA_BLOCK,
 	FA_SILENT,
 	FA_KILL,
+	FA_SHUN,
 	FA_NONE
 };
 
@@ -49,7 +51,7 @@ class FilterResult
 	std::string freeform;
 	std::string reason;
 	FilterAction action;
-	long gline_time;
+	long duration;
 
 	bool flag_no_opers;
 	bool flag_part_message;
@@ -59,7 +61,10 @@ class FilterResult
 	bool flag_strip_color;
 
 	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla)
-		: freeform(free), reason(rea), action(act), gline_time(gt)
+		: freeform(free)
+		, reason(rea)
+		, action(act)
+		, duration(gt)
 	{
 		if (!RegexEngine)
 			throw ModuleException("Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
@@ -145,7 +150,7 @@ class CommandFilter : public Command
 		: Command(f, "FILTER", 1, 5)
 	{
 		flags_needed = 'o';
-		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
+		this->syntax = "<filter-definition> <action> <flags> [<duration>] :<reason>";
 	}
 	CmdResult Handle(const std::vector<std::string>& , User* ) CXX11_OVERRIDE;
 
@@ -228,11 +233,14 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
-				user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.");
+				if (ServerInstance->XLines->GetFactory("SHUN"))
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent', 'kill', and 'shun'.");
+				else
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent', and 'kill'.");
 				return CMD_FAILURE;
 			}
 
-			if (type == FA_GLINE)
+			if (type == FA_GLINE || type == FA_SHUN)
 			{
 				if (parameters.size() >= 5)
 				{
@@ -241,7 +249,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 				}
 				else
 				{
-					user->WriteNotice("*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.");
+					user->WriteNotice("*** Not enough parameters: When setting a gline or shun type filter, a duration must be specified as the third parameter.");
 					return CMD_FAILURE;
 				}
 			}
@@ -363,9 +371,20 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their message filtered and was killed, target was " + target + ": " + f->reason);
 			ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 		}
+		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
+		{
+			Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their message filtered and was shunned, target was " + target + ": " + f->reason);
+			if (ServerInstance->XLines->AddLine(sh, NULL))
+			{
+				ServerInstance->XLines->ApplyLines();
+			}
+			else
+				delete sh;
+		}
 		else if (f->action == FA_GLINE)
 		{
-			GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+			GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their message filtered and was G-Lined, target was " + target + ": " + f->reason);
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
@@ -439,7 +458,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (f->action == FA_GLINE)
 			{
 				/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
-				GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+				GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
 				ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their " + command + " message filtered and was G-Lined: " + f->reason);
 				if (ServerInstance->XLines->AddLine(gl,NULL))
 				{
@@ -447,6 +466,18 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 				}
 				else
 					delete gl;
+			}
+			else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
+			{
+				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
+				Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+				ServerInstance->SNO->WriteGlobalSno('a', "FILTER: " + user->nick + " had their " + command + " message filtered and was shunned: " + f->reason);
+				if (ServerInstance->XLines->AddLine(sh, NULL))
+				{
+					ServerInstance->XLines->ApplyLines();
+				}
+				else
+					delete sh;
 			}
 			return MOD_RES_DENY;
 		}
@@ -521,7 +552,7 @@ std::string ModuleFilter::EncodeFilter(FilterResult* filter)
 		if (*n == ' ')
 			*n = '\7';
 
-	stream << x << " " << FilterActionToString(filter->action) << " " << filter->GetFlags() << " " << filter->gline_time << " :" << filter->reason;
+	stream << x << " " << FilterActionToString(filter->action) << " " << filter->GetFlags() << " " << filter->duration << " :" << filter->reason;
 	return stream.str();
 }
 
@@ -541,7 +572,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	if (c != 0)
 		throw ModuleException("Invalid flag: '" + std::string(1, c) + "'");
 
-	tokens.GetToken(res.gline_time);
+	tokens.GetToken(res.duration);
 	tokens.GetToken(res.reason);
 
 	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
@@ -567,7 +598,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		try
 		{
 			FilterResult data = DecodeFilter(extdata);
-			this->AddFilter(data.freeform, data.action, data.reason, data.gline_time, data.GetFlags());
+			this->AddFilter(data.freeform, data.action, data.reason, data.duration, data.GetFlags());
 		}
 		catch (ModuleException& e)
 		{
@@ -647,6 +678,8 @@ bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa
 		fa = FA_SILENT;
 	else if (stdalgo::string::equalsci(str, "kill"))
 		fa = FA_KILL;
+	else if (stdalgo::string::equalsci(str, "shun") && (ServerInstance->XLines->GetFactory("SHUN")))
+		fa = FA_SHUN;
 	else if (stdalgo::string::equalsci(str, "none"))
 		fa = FA_NONE;
 	else
@@ -663,6 +696,7 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 		case FA_BLOCK:  return "block";
 		case FA_SILENT: return "silent";
 		case FA_KILL:   return "kill";
+		case FA_SHUN:   return "shun";
 		default:		return "none";
 	}
 }
@@ -678,7 +712,7 @@ void ModuleFilter::ReadFilters()
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
-		unsigned long gline_time = i->second->getDuration("duration", 10*60, 1);
+		unsigned long duration = i->second->getDuration("duration", 10*60, 1);
 		if (flgs.empty())
 			flgs = "*";
 
@@ -688,7 +722,7 @@ void ModuleFilter::ReadFilters()
 
 		try
 		{
-			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, gline_time, flgs));
+			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, duration, flgs));
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
@@ -704,7 +738,7 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 	{
 		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			stats.AddRow(223, RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			stats.AddRow(223, RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->duration)+" :"+i->reason);
 		}
 		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
 		{
