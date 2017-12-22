@@ -45,7 +45,7 @@ class CommandKnock : public Command
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (!c)
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 

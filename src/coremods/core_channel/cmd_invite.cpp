@@ -56,9 +56,14 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				timeout = ConvToInt(parameters[3]);
 		}
 
-		if ((!c) || (!u) || (u->registered != REG_ALL))
+		if (!c)
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(c ? parameters[0] : parameters[1]));
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
+			return CMD_FAILURE;
+		}
+		if ((!u) || (u->registered != REG_ALL))
+		{
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 

@@ -62,7 +62,7 @@ CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, 
 		}
 	}
 
-	user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+	user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 	return CMD_FAILURE;
 }
 

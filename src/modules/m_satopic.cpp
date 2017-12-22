@@ -52,7 +52,7 @@ class CommandSATopic : public Command
 		}
 		else
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 	}

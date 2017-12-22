@@ -74,9 +74,14 @@ class RemoveBase : public Command
 		channel = ServerInstance->FindChan(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
-		if ((!target) || (target->registered != REG_ALL) || (!channel))
+		if (!channel)
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(channel ? username.c_str() : channame.c_str()));
+			user->WriteNumeric(Numerics::NoSuchChannel(channame));
+			return CMD_FAILURE;
+		}
+		if ((!target) || (target->registered != REG_ALL))
+		{
+			user->WriteNumeric(Numerics::NoSuchNick(username));
 			return CMD_FAILURE;
 		}
 

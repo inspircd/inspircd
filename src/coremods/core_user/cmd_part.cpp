@@ -46,7 +46,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 
 	if (!c)
 	{
-		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 		return CMD_FAILURE;
 	}
 

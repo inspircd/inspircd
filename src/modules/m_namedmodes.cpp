@@ -57,7 +57,7 @@ class CommandProp : public SplitCommand
 		Channel* const chan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
 		{
-			src->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			src->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 

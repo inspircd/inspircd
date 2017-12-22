@@ -45,7 +45,10 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 
 	if ((!targetchannel) && (!targetuser))
 	{
-		user->WriteNumeric(Numerics::NoSuchNick(target));
+		if (target[0] == '#')
+			user->WriteNumeric(Numerics::NoSuchChannel(target));
+		else
+			user->WriteNumeric(Numerics::NoSuchNick(target));
 		return CMD_FAILURE;
 	}
 	if (parameters.size() == 1)
