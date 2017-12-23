@@ -25,9 +25,11 @@
  */
 class CommandChghost : public Command
 {
-	char* hostmap;
  public:
-	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
+	std::bitset<UCHAR_MAX> hostmap;
+
+	CommandChghost(Module* Creator)
+		: Command(Creator,"CHGHOST", 2)
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
@@ -45,7 +47,7 @@ class CommandChghost : public Command
 
 		for (std::string::const_iterator x = parameters[1].begin(); x != parameters[1].end(); x++)
 		{
-			if (!hostmap[(unsigned char)*x])
+			if (!hostmap.test(*x))
 			{
 				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -83,10 +85,10 @@ class CommandChghost : public Command
 class ModuleChgHost : public Module
 {
 	CommandChghost cmd;
-	char hostmap[256];
 
  public:
-	ModuleChgHost() : cmd(this, hostmap)
+	ModuleChgHost()
+		: cmd(this)
 	{
 	}
 
@@ -94,9 +96,9 @@ class ModuleChgHost : public Module
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
-		memset(hostmap, 0, sizeof(hostmap));
+		cmd.hostmap.reset();
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			hostmap[(unsigned char)*n] = 1;
+			cmd.hostmap.set(*n);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

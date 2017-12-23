@@ -25,10 +25,11 @@
  */
 class CommandSethost : public Command
 {
-	char* hostmap;
-
  public:
-	CommandSethost(Module* Creator, char* hmap) : Command(Creator,"SETHOST", 1), hostmap(hmap)
+	std::bitset<UCHAR_MAX> hostmap;
+
+	CommandSethost(Module* Creator)
+		: Command(Creator,"SETHOST", 1)
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o'; syntax = "<new-hostname>";
@@ -44,7 +45,7 @@ class CommandSethost : public Command
 
 		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++)
 		{
-			if (!hostmap[(const unsigned char)*x])
+			if (!hostmap.test(*x))
 			{
 				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -65,11 +66,10 @@ class CommandSethost : public Command
 class ModuleSetHost : public Module
 {
 	CommandSethost cmd;
-	char hostmap[256];
 
  public:
 	ModuleSetHost()
-		: cmd(this, hostmap)
+		: cmd(this)
 	{
 	}
 
@@ -77,9 +77,9 @@ class ModuleSetHost : public Module
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
-		memset(hostmap, 0, sizeof(hostmap));
+		cmd.hostmap.reset();
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			hostmap[(unsigned char)*n] = 1;
+			cmd.hostmap.set(*n);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
