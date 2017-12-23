@@ -1018,14 +1018,26 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 {
-	if (displayhost == host)
+	// If the real host is the new host and we are not resetting the
+	// display host then we have nothing to do.
+	const bool changehost = (realhost != host);
+	if (!changehost && !resetdisplay)
 		return;
 	
+	// If the displayhost is not set and we are not resetting it then
+	// we need to copy it to the displayhost field.
 	if (displayhost.empty() && !resetdisplay)
 		displayhost = realhost;
 
+	// If the displayhost is the new host or we are resetting it then
+	// we clear its contents to save memory.
 	else if (displayhost == host || resetdisplay)
 		displayhost.clear();
+
+	// If we are just resetting the display host then we don't need to
+	// do anything else.
+	if (!changehost)
+		return;
 
 	realhost = host;
 	this->InvalidateCache();
