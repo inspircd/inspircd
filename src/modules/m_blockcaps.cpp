@@ -29,7 +29,7 @@ class ModuleBlockCAPS : public Module
 	SimpleChannelModeHandler bc;
 	unsigned int percent;
 	unsigned int minlen;
-	char capsmap[256];
+	std::bitset<UCHAR_MAX> capsmap;
 
 public:
 	ModuleBlockCAPS()
@@ -65,7 +65,8 @@ public:
 					offset = 8;
 
 				for (std::string::const_iterator i = text.begin() + offset; i != text.end(); ++i)
-					caps += capsmap[(unsigned char)*i];
+					if (capsmap.test(*i))
+						caps += 1;
 
 				if (((caps * 100) / text.length()) >= percent)
 				{
@@ -83,9 +84,9 @@ public:
 		percent = tag->getInt("percent", 100, 1, 100);
 		minlen = tag->getInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
 		std::string hmap = tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		memset(capsmap, 0, sizeof(capsmap));
+		capsmap.reset();
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			capsmap[(unsigned char)*n] = 1;
+			capsmap.set(*n);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
