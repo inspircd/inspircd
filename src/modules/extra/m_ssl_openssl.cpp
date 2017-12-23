@@ -67,9 +67,12 @@
 # define OpenSSL_version SSLeay_version
 # define X509_getm_notAfter X509_get_notAfter
 # define X509_getm_notBefore X509_get_notBefore
-# define OPENSSL_init_ssl(OPTIONS, SETTINGS) \
-	SSL_library_init(); \
+# define OPENSSL_init_ssl(OPTIONS, SETTINGS) OPENSSL_init_compat()
+static int OPENSSL_init_compat() {
+	SSL_library_init();
 	SSL_load_error_strings();
+	return 1;
+}
 
 // These macros have been renamed in OpenSSL 1.1.
 # define OPENSSL_VERSION SSLEAY_VERSION
