@@ -24,11 +24,11 @@
 
 
 #include "inspircd.h"
-#include "modules/dns.h"
 #include "modules/ssl.h"
 
 enum
 {
+	// InspIRCd-specific.
 	RPL_WHOISGATEWAY = 350
 };
 
@@ -118,7 +118,8 @@ class CommandWebIRC : public SplitCommand
 		if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
 		{
 			user->CommandFloodPenalty += 5000;
-			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC but gave an invalid IP address.", user->GetFullRealHost().c_str());
+			WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
+				user->uuid.c_str(), user->GetIPString().c_str());
 			return CMD_FAILURE;
 		}
 
@@ -133,9 +134,8 @@ class CommandWebIRC : public SplitCommand
 			realhost.set(user, user->GetRealHost());
 			realip.set(user, user->GetIPString());
 
-			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
-					user->nick.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
+			WriteLog("Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
+				user->uuid.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
 
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
@@ -144,8 +144,22 @@ class CommandWebIRC : public SplitCommand
 		}
 
 		user->CommandFloodPenalty += 5000;
-		ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC but didn't match any configured WebIRC hosts.", user->GetFullRealHost().c_str());
+		WriteLog("Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
+			user->uuid.c_str(), user->GetIPString().c_str());
 		return CMD_FAILURE;
+	}
+
+	void WriteLog(const char* message, ...) CUSTOM_PRINTF(2, 3)
+	{
+		std::string buffer;
+		VAFORMAT(buffer, message, message);
+
+		// If we are sending a snotice then the message will already be
+		// written to the logfile.
+		if (notify)
+			ServerInstance->SNO->WriteGlobalSno('w', buffer);
+		else
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, buffer);
 	}
 };
 
@@ -166,10 +180,8 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 		cmd.realhost.set(user, user->GetRealHost());
 		cmd.realip.set(user, user->GetIPString());
 
-		if (cmd.notify)
-			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s is using an ident gateway; changing their IP from %s to %s.",
-				user->nick.c_str(), user->GetIPString().c_str(), newip.c_str());
-
+		cmd.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s.",
+			user->uuid.c_str(), user->GetIPString().c_str(), newip.c_str());
 		ChangeIP(user, newip);
 		RecheckClass(user);
 	}
