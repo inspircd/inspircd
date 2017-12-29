@@ -383,7 +383,8 @@
 # This is the hard limit for 'X'.
 # If notice is set to yes, joining users will get a NOTICE before playback
 # telling them about the following lines being the pre-join history.
-#<chanhistory maxlines="20" notice="yes">
+# If bots is set to yes, it will also send to users marked with +B
+#<chanhistory maxlines="20" notice="yes" bots="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: Used to send snotice output to channels, to
