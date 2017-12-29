@@ -111,6 +111,7 @@ class ModuleChanHistory : public Module
 {
 	HistoryMode m;
 	bool sendnotice;
+	bool dobots;
  public:
 	ModuleChanHistory() : m(this)
 	{
@@ -131,6 +132,7 @@ class ModuleChanHistory : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getInt("maxlines", 50);
 		sendnotice = tag->getBool("notice", true);
+		dobots = tag->getBool("bots", true);
 	}
 
 	void OnUserMessage(User* user,void* dest,int target_type, const std::string &text, char status, const CUList&)
@@ -154,6 +156,9 @@ class ModuleChanHistory : public Module
 	void OnPostJoin(Membership* memb)
 	{
 		if (IS_REMOTE(memb->user))
+			return;
+
+		if (!dobots && ServerInstance->Modules->Find("m_botmode.so") && memb->user->IsModeSet('B'))
 			return;
 
 		HistoryList* list = m.ext.get(memb->chan);
