@@ -53,7 +53,7 @@ class ModuleBanException : public Module
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["EXCEPTS"] = "e";
+		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE

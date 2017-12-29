@@ -371,7 +371,7 @@ public:
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["CALLERID"] = "g";
+		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 
 	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE

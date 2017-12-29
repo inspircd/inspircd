@@ -53,7 +53,7 @@ public:
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["INVEX"] = "I";
+		tokens["INVEX"] = ConvToStr(ie.GetModeChar());
 	}
 
 	ModResult OnCheckInvite(User* user, Channel* chan) CXX11_OVERRIDE
