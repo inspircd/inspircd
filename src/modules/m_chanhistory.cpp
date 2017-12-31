@@ -116,7 +116,7 @@ class ModuleChanHistory : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
-		m.maxlines = tag->getInt("maxlines", 50);
+		m.maxlines = tag->getInt("maxlines", 50, 1);
 		sendnotice = tag->getBool("notice", true);
 		dobots = tag->getBool("bots", true);
 	}
