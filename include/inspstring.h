@@ -29,7 +29,7 @@
 	do { \
 	va_list _vaList; \
 	va_start(_vaList, last); \
-	ret = InspIRCd::Format(_vaList, format); \
+	ret.assign(InspIRCd::Format(_vaList, format)); \
 	va_end(_vaList); \
 	} while (false);
 

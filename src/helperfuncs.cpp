@@ -331,7 +331,7 @@ unsigned long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-const char* InspIRCd::Format(va_list &vaList, const char* formatString)
+std::string InspIRCd::Format(va_list& vaList, const char* formatString)
 {
 	static std::vector<char> formatBuffer(1024);
 
@@ -351,12 +351,12 @@ const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 		formatBuffer.resize(formatBuffer.size() * 2);
 	}
 
-	return &formatBuffer[0];
+	return std::string(&formatBuffer[0]);
 }
 
-const char* InspIRCd::Format(const char* formatString, ...)
+std::string InspIRCd::Format(const char* formatString, ...)
 {
-	const char* ret;
+	std::string ret;
 	VAFORMAT(ret, formatString, formatString);
 	return ret;
 }

@@ -132,7 +132,7 @@ class SQL::Error
 {
  private:
 	/** The custom error message if one has been specified. */
-	const char* message;
+	const std::string message;
 
  public:
 	/** The code which represents this error. */
@@ -142,8 +142,7 @@ class SQL::Error
 	 * @param c A code which represents this error.
 	 */
 	Error(ErrorCode c)
-		: message(NULL)
-		, code(c)
+		: code(c)
 	{
 	}
 
@@ -151,7 +150,7 @@ class SQL::Error
 	 * @param c A code which represents this error.
 	 * @param m A custom error message.
 	 */
-	Error(ErrorCode c, const char* m)
+	Error(ErrorCode c, const std::string m)
 		: message(m)
 		, code(c)
 	{
@@ -160,8 +159,8 @@ class SQL::Error
 	/** Retrieves the error message. */
 	const char* ToString() const
 	{
-		if (message)
-			return message;
+		if (!message.empty())
+			return message.c_str();
 
 		switch (code)
 		{
