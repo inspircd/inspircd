@@ -245,19 +245,22 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# percent        - What percentage of the text must be caps before    #
-#                  text will be blocked.                              #
+# percent        - The percentage of a message which must be upper    #
+#                  case before it will be blocked.                    #
 #                                                                     #
-# minlen         - The minimum length a line must be for the block    #
-#                  percent to have any effect.                        #
+# minlen         - The minimum length a message must be before it     #
+#                  will be blocked.                                   #
 #                                                                     #
-# capsmap        - A list of chars to be considered CAPS. Can be used #
-#                  to add CAPS characters for your language. Also you #
-#                  can add things like ! and space to further lock    #
-#                  down on caps usage.                                #
+# lowercase      - The characters which will be considered lower      #
+#                  case.                                              #
+#                                                                     #
+# uppercase      - The characters which will be considered upper      #
+#                  case.                                              #
+#
 #<blockcaps percent="50"
 #           minlen="5"
-#           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
+#           lowercase="abcdefghijklmnopqrstuvwxyz"
+#           uppercase="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block color module: Blocking color-coded messages with chan mode +c.
