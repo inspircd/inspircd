@@ -157,7 +157,7 @@ class ModuleChanHistory : public Module
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
 				message.append(" spanning up to " + ConvToStr(list->maxtime) + " seconds");
-			memb->user->WriteNotice(message);
+			memb->WriteNotice(message);
 		}
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)

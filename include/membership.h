@@ -111,4 +111,9 @@ class CoreExport Membership : public Extensible, public insp::intrusive_list_nod
 	 * this when multiple prefixes are used names lists.
 	 */
 	std::string GetAllPrefixChars() const;
+
+	/** Sends a server notice to this user in the context of this channel.
+	 * @param text The contents of the message to send.
+	 */
+	void WriteNotice(const std::string& text) const;
 };

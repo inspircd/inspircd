@@ -660,3 +660,11 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 		modes.push_back(prefix);
 	return adding;
 }
+
+
+void Membership::WriteNotice(const std::string& text) const
+{
+	std::string rawmsg = "NOTICE ";
+	rawmsg.append(chan->name).append(" :").append(text);
+	user->WriteServ(rawmsg);
+}
