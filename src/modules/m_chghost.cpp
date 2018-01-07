@@ -47,7 +47,7 @@ class CommandChghost : public Command
 
 		for (std::string::const_iterator x = parameters[1].begin(); x != parameters[1].end(); x++)
 		{
-			if (!hostmap.test(*x))
+			if (!hostmap.test(static_cast<unsigned char>(*x)))
 			{
 				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -98,7 +98,7 @@ class ModuleChgHost : public Module
 
 		cmd.hostmap.reset();
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			cmd.hostmap.set(*n);
+			cmd.hostmap.set(static_cast<unsigned char>(*n));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

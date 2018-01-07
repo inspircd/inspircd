@@ -86,9 +86,10 @@ public:
 				size_t upper = 0;
 				for (std::string::const_iterator iter = text_begin; iter != text_end; ++iter)
 				{
-					if (uppercase.test(*iter))
+					unsigned char chr = static_cast<unsigned char>(*iter);
+					if (uppercase.test(chr))
 						upper += 1;
-					else if (!lowercase.test(*iter))
+					else if (!lowercase.test(chr))
 						length -= 1;
 				}
 
@@ -114,12 +115,12 @@ public:
 		lowercase.reset();
 		const std::string lower = tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz");
 		for (std::string::const_iterator iter = lower.begin(); iter != lower.end(); ++iter)
-			lowercase.set(*iter);
+			lowercase.set(static_cast<unsigned char>(*iter));
 
 		uppercase.reset();
 		const std::string upper = tag->getString("uppercase", tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
 		for (std::string::const_iterator iter = upper.begin(); iter != upper.end(); ++iter)
-			uppercase.set(*iter);
+			uppercase.set(static_cast<unsigned char>(*iter));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
