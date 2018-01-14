@@ -375,7 +375,7 @@ class CoreExport InspIRCd
 
 	/** Determines whether a channel name is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsChannel.
-	 * @param nick The channel name to validate.
+	 * @param channel The channel name to validate.
 	 * @return True if the channel name is valid according to RFC 1459 rules; otherwise, false.
 	*/
 	static bool DefaultIsChannel(const std::string& channel);
@@ -426,7 +426,7 @@ class CoreExport InspIRCd
 
 	/** Determines whether a ident is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsIdent.
-	 * @param nick The ident to validate.
+	 * @param ident The ident to validate.
 	 * @return True if the ident is valid according to RFC 1459 rules; otherwise, false.
 	*/
 	static bool DefaultIsIdent(const std::string& ident);
