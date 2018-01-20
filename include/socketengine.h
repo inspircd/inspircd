@@ -484,11 +484,10 @@ public:
 	 * @param buf The buffer in which the data that is sent is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the sending of the data.
-	 * @param to The remote IP address and port.
-	 * @param tolen The size of the to parameter.
+	 * @param address The remote IP address and port.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
+	static int SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address);
 
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.

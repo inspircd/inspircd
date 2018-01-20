@@ -244,9 +244,9 @@ int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 	return nbRecvd;
 }
 
-int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
+int SocketEngine::SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
 {
-	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
+	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, &address.sa, address.sa_size());
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }

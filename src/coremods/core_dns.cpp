@@ -502,7 +502,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		// Update name in the original request so question checking works for PTR queries
 		req->question.name = p.question.name;
 
-		if (SocketEngine::SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
+		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)
 			throw Exception("DNS: Unable to send query");
 
 		// Add timer for timeout
