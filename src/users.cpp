@@ -648,14 +648,7 @@ void LocalUser::OverruleNick()
 
 int LocalUser::GetServerPort()
 {
-	switch (this->server_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			return htons(this->server_sa.in6.sin6_port);
-		case AF_INET:
-			return htons(this->server_sa.in4.sin_port);
-	}
-	return 0;
+	return this->server_sa.port();
 }
 
 const std::string& User::GetIPString()
