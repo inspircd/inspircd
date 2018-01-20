@@ -493,11 +493,10 @@ public:
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
-	 * @param serv_addr The server IP address and port.
-	 * @param addrlen The size of the sockaddr parameter.
+	 * @param address The server IP address and port.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
+	static int Connect(EventHandler* fd, const irc::sockets::sockaddrs& address);
 
 	/** Make a file descriptor blocking.
 	 * @param fd a file descriptor to set to blocking mode

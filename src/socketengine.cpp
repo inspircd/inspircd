@@ -277,9 +277,9 @@ int SocketEngine::WriteV(EventHandler* fd, const iovec* iovec, int count)
 }
 #endif
 
-int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
+int SocketEngine::Connect(EventHandler* fd, const irc::sockets::sockaddrs& address)
 {
-	int ret = connect(fd->GetFd(), serv_addr, addrlen);
+	int ret = connect(fd->GetFd(), &address.sa, address.sa_size());
 #ifdef _WIN32
 	if ((ret == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK))
 		errno = EINPROGRESS;

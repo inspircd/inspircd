@@ -126,7 +126,7 @@ class IdentRequestSocket : public EventHandler
 		SocketEngine::NonBlocking(GetFd());
 
 		/* Attempt connection (nonblocking) */
-		if (SocketEngine::Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
+		if (SocketEngine::Connect(this, connaddr) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			throw ModuleException("connect() failed");
