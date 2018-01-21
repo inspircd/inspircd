@@ -32,8 +32,12 @@
 class CommandSwhois : public Command
 {
  public:
+	LocalIntExt operblock;
 	StringExtItem swhois;
-	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
+	CommandSwhois(Module* Creator)
+		: Command(Creator,"SWHOIS", 2,2)
+		, operblock("swhois_operblock", Creator)
+		, swhois("swhois", Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
@@ -63,6 +67,7 @@ class CommandSwhois : public Command
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 		}
 
+		operblock.set(user, 0);
 		if (parameters[1].empty())
 			swhois.unset(dest);
 		else
@@ -92,9 +97,9 @@ class ModuleSWhois : public Module
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.swhois);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostOper };
+		ServiceProvider* providerlist[] = { &cmd, &cmd.operblock, &cmd.swhois };
+		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostOper, I_OnPostDeoper, I_OnDecodeMetaData };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -126,8 +131,32 @@ class ModuleSWhois : public Module
 		if (!swhois.length())
 			return;
 
+		cmd.operblock.set(user, 1);
 		cmd.swhois.set(user, swhois);
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
+	}
+
+	void OnPostDeoper(User* user)
+	{
+		std::string* swhois = cmd.swhois.get(user);
+		if (!swhois)
+			return;
+
+		if (!cmd.operblock.get(user))
+			return;
+
+		cmd.operblock.set(user, 0);
+		cmd.swhois.unset(user);
+		ServerInstance->PI->SendMetaData(user, "swhois", "");
+	}
+
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&)
+	{
+		// XXX: We use a dynamic_cast in m_services_account so I used one
+		// here but do we actually need it or is static_cast okay?
+		User* dest = dynamic_cast<User*>(target);
+		if (dest && (extname == "swhois"))
+			cmd.operblock.set(dest, 0);
 	}
 
 	~ModuleSWhois()

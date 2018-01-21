@@ -692,6 +692,7 @@ void User::UnOper()
 	ServerInstance->Users->all_opers.remove(this);
 
 	this->modes[UM_OPERATOR] = 0;
+	FOREACH_MOD(I_OnPostDeoper, OnPostDeoper(this));
 }
 
 /* adds or updates an entry in the whowas list */

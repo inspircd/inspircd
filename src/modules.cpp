@@ -99,6 +99,7 @@ ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, cons
 void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
+void		Module::OnPostDeoper(User*) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
