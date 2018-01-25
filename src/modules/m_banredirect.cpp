@@ -40,9 +40,17 @@ class BanRedirectEntry
 	: targetchan(target), banmask(mask)
 	{
 	}
+
+	bool operator<(const BanRedirectEntry& other) const
+	{
+		if (this->targetchan < other.targetchan)
+			return true;
+
+		return this->banmask < other.banmask;
+	}
 };
 
-typedef std::vector<BanRedirectEntry> BanRedirectList;
+typedef std::set<BanRedirectEntry> BanRedirectList;
 typedef std::deque<std::string> StringDeque;
 
 class BanRedirect : public ModeWatcher
@@ -180,7 +188,7 @@ class BanRedirect : public ModeWatcher
 					}
 
 					/* Here 'param' doesn't have the channel on it yet */
-					redirects->push_back(BanRedirectEntry(mask[CHAN], param));
+					redirects->insert(BanRedirectEntry(mask[CHAN], param));
 
 					/* Now it does */
 					param.append(mask[CHAN]);
@@ -259,7 +267,7 @@ class ModuleBanRedirect : public Module
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.Push('b', i->targetchan.insert(0, i->banmask));
+					modestack.Push('b', i->banmask + i->targetchan);
 				}
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
