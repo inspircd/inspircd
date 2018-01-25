@@ -227,49 +227,73 @@ void UserIOHandler::OnDataReady()
 			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
 		return;
 	}
+
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
 		sendqmax = user->MyClass->GetSendqSoftMax();
+
 	unsigned long penaltymax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
 		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
 
+	const size_t linemax_crlf = ServerInstance->Config->Limits.MaxLine - 2;
+
+	std::string line;
+	std::string::size_type qpos;
+	line.reserve(linemax_crlf);
+
+	bool eol_found;
+
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
-		std::string line;
-		line.reserve(ServerInstance->Config->Limits.MaxLine);
-		std::string::size_type qpos = 0;
-		while (qpos < recvq.length())
+		qpos = 0;
+		eol_found = false;
+
+		const size_t qlen = recvq.length();
+
+		while (qpos < qlen)
 		{
 			char c = recvq[qpos++];
 			switch (c)
 			{
-			case '\0':
-				c = ' ';
-				break;
-			case '\r':
-				continue;
-			case '\n':
-				goto eol_found;
+				case '\0':
+					c = ' ';
+					break;
+				case '\r':
+					continue;
+				case '\n':
+					eol_found = true;
+					break;
 			}
-			if (line.length() < ServerInstance->Config->Limits.MaxLine - 2)
+
+			if (eol_found)
+				break;
+
+			if (line.length() < linemax_crlf)
 				line.push_back(c);
 		}
-		// if we got here, the recvq ran out before we found a newline
-		return;
-eol_found:
+
+		// if we return here, we haven't found a newline and make no modifications to recvq
+		// so we can wait for more data
+		if (!eol_found)
+			return;
+
 		// just found a newline. Terminate the string, and pull it out of recvq
 		recvq.erase(0, qpos);
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats.Recv += qpos;
 		user->bytes_in += qpos;
-		user->cmds_in++;
+		++user->cmds_in;
 
 		ServerInstance->Parser.ProcessBuffer(line, user);
 		if (user->quitting)
 			return;
+
+		// clear() does not reclaim memory associated with the string, so our .reserve() call is safe
+		line.clear();
 	}
+
 	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
 		ServerInstance->Users->QuitUser(user, "Excess Flood");
 }
