@@ -1895,6 +1895,11 @@
 #<sslmodes enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL rehash signal module: Allows the SSL modules to be rehashed by
+# sending SIGUSR1 to a running InspIRCd process.
+#<module name="sslrehashsignal">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or
 # manually symlink the source for this module from the directory
