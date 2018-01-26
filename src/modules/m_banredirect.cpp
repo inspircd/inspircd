@@ -40,17 +40,9 @@ class BanRedirectEntry
 	: targetchan(target), banmask(mask)
 	{
 	}
-
-	bool operator<(const BanRedirectEntry& other) const
-	{
-		if (targetchan != other.targetchan)
-			return targetchan < other.targetchan;
-
-		return banmask < other.banmask;
-	}
 };
 
-typedef std::set<BanRedirectEntry> BanRedirectList;
+typedef std::vector<BanRedirectEntry> BanRedirectList;
 typedef std::deque<std::string> StringDeque;
 
 class BanRedirect : public ModeWatcher
@@ -186,9 +178,24 @@ class BanRedirect : public ModeWatcher
 						redirects = new BanRedirectList;
 						extItem.set(channel, redirects);
 					}
+					else
+					{
+						for (BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); ++redir)
+						{
+							// Mimic the functionality used when removing the mode
+							if ((irc::string(redir->targetchan.c_str()) == irc::string(mask[CHAN].c_str())) && (irc::string(redir->banmask.c_str()) == irc::string(param.c_str())))
+							{
+								// Make sure the +b handler will still set the right ban
+								param.append(mask[CHAN]);
+								// Silently ignore the duplicate and don't set metadata
+								// This still allows channel ops to set/unset a redirect ban to clear "ghost" redirects
+								return true;
+							}
+						}
+					}
 
 					/* Here 'param' doesn't have the channel on it yet */
-					redirects->insert(BanRedirectEntry(mask[CHAN], param));
+					redirects->push_back(BanRedirectEntry(mask[CHAN], param));
 
 					/* Now it does */
 					param.append(mask[CHAN]);
@@ -267,7 +274,7 @@ class ModuleBanRedirect : public Module
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.Push('b', i->banmask + i->targetchan);
+					modestack.Push('b', i->targetchan.insert(0, i->banmask));
 				}
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
