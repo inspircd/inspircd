@@ -43,10 +43,10 @@ class BanRedirectEntry
 
 	bool operator<(const BanRedirectEntry& other) const
 	{
-		if (this->targetchan < other.targetchan)
-			return true;
+		if (targetchan != other.targetchan)
+			return targetchan < other.targetchan;
 
-		return this->banmask < other.banmask;
+		return banmask < other.banmask;
 	}
 };
 
