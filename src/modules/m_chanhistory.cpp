@@ -63,18 +63,25 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 	{
 		std::string::size_type colon = parameter.find(':');
 		if (colon == std::string::npos)
+		{
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
+		}
 
 		std::string duration(parameter, colon+1);
 		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
+		{
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
+		}
 
 		unsigned int len = ConvToInt(parameter.substr(0, colon));
 		unsigned int time = InspIRCd::Duration(duration);
-		if (len == 0)
+		if (len == 0 || (len > maxlines && IS_LOCAL(source)))
+		{
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
-		if (len > maxlines && IS_LOCAL(source))
-			return MODEACTION_DENY;
+		}
 		if (len > maxlines)
 			len = maxlines;
 

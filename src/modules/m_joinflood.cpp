@@ -98,7 +98,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 
@@ -107,7 +107,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 		if ((njoins<1) || (nsecs<1))
 		{
-			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 

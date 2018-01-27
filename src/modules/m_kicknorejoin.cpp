@@ -95,7 +95,10 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	{
 		int v = ConvToInt(parameter);
 		if (v <= 0)
+		{
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
+		}
 
 		if ((IS_LOCAL(source) && ((unsigned int)v > max)))
 			v = max;

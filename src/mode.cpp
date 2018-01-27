@@ -89,6 +89,11 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 
 void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
+	const std::string message = InspIRCd::Format("You must specify a parameter for the %s mode", name.c_str());
+	if (channel)
+		user->WriteNumeric(Numerics::InvalidModeParameter(channel, this, "*", message));
+	else
+		user->WriteNumeric(Numerics::InvalidModeParameter(dest, this, "*", message));
 }
 
 bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ours, Channel*)

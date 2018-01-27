@@ -196,3 +196,57 @@ class Numeric::ParamBuilder : public GenericParamBuilder<NumStaticParams, SendEm
 	{
 	}
 };
+
+namespace Numerics
+{
+	class InvalidModeParameter;
+	class NoSuchChannel;
+	class NoSuchNick;
+}
+
+/* Builder for the ERR_INVALIDMODEPARAM numeric. */
+class Numerics::InvalidModeParameter : public Numeric::Numeric
+{
+ public:
+	InvalidModeParameter(Channel* chan, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
+		: Numeric(ERR_INVALIDMODEPARAM)
+	{
+		push(chan->name);
+		push(mode->GetModeChar());
+		push(parameter);
+		push(message.empty() ? InspIRCd::Format("Invalid %s mode parameter", mode->name.c_str()) : message);
+	}
+
+	InvalidModeParameter(User* user, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
+		: Numeric(ERR_INVALIDMODEPARAM)
+	{
+		push(user->registered & REG_NICK ? user->nick : "*");
+		push(mode->GetModeChar());
+		push(parameter);
+		push(message.empty() ? InspIRCd::Format("Invalid %s mode parameter", mode->name.c_str()) : message);
+	}
+};
+
+/** Builder for the ERR_NOSUCHCHANNEL numeric. */
+class Numerics::NoSuchChannel : public Numeric::Numeric
+{
+ public:
+	NoSuchChannel(const std::string& chan)
+		: Numeric(ERR_NOSUCHCHANNEL)
+	{
+		push(chan);
+		push("No such channel");
+	}
+};
+
+/** Builder for the ERR_NOSUCHNICK numeric. */
+class Numerics::NoSuchNick : public Numeric::Numeric
+{
+ public:
+	NoSuchNick(const std::string& nick)
+		: Numeric(ERR_NOSUCHNICK)
+	{
+		push(nick);
+		push("No such nick");
+	}
+};

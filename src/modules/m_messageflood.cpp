@@ -77,7 +77,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 
@@ -88,7 +88,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 
 		if ((nlines<2) || (nsecs<1))
 		{
-			source->WriteNumeric(608, channel->name, "Invalid flood parameter");
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 

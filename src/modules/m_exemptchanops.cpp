@@ -32,7 +32,7 @@ class ExemptChanOps : public ListModeBase
 		std::string::size_type p = word.find(':');
 		if (p == std::string::npos)
 		{
-			user->WriteNumeric(955, chan->name, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>");
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>"));
 			return false;
 		}
 
@@ -45,7 +45,7 @@ class ExemptChanOps : public ListModeBase
 
 		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
 		{
-			user->WriteNumeric(955, chan->name, restriction, "Unknown restriction");
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction"));
 			return false;
 		}
 

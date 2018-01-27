@@ -184,6 +184,7 @@ enum
 	ERR_CANTSENDTOUSER              = 531, // ???
 
 	RPL_SYNTAX                      = 650, // insp-specific
+	ERR_INVALIDMODEPARAM            = 696, // insp-specific
 
 	ERR_CHANOPEN                    = 713,
 	ERR_KNOCKONCHAN                 = 714,

@@ -85,30 +85,3 @@ class Numeric::Numeric
 	 */
 	std::vector<std::string>& GetParams() { return params; }
 };
-
-namespace Numerics
-{
-	/** Builder for the ERR_NOSUCHNICK numeric. */
-	class NoSuchNick : public Numeric::Numeric
-	{
-	 public:
-		NoSuchNick(const std::string& nick)
-			: Numeric(ERR_NOSUCHNICK)
-		{
-			push(nick);
-			push("No such nick");
-		}
-	};
-
-	/** Builder for the ERR_NOSUCHCHANNEL numeric. */
-	class NoSuchChannel : public Numeric::Numeric
-	{
-	 public:
-		NoSuchChannel(const std::string& chan)
-			: Numeric(ERR_NOSUCHCHANNEL)
-		{
-			push(chan);
-			push("No such channel");
-		}
-	};
-}

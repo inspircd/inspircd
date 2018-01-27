@@ -37,7 +37,7 @@ class ChanFilter : public ListModeBase
 	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE	{
 		if (word.length() > 35)
 		{
-			user->WriteNumeric(935, chan->name, word, "%word is too long for censor list");
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list"));
 			return false;
 		}
 
