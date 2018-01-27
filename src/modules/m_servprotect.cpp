@@ -24,7 +24,10 @@
 enum
 {
 	// From AustHex.
-	RPL_WHOISSERVICE = 310
+	RPL_WHOISSERVICE = 310,
+
+	// From UnrealIRCd.
+	ERR_KILLDENY = 485
 };
 
 /** Handles user mode +k
@@ -112,7 +115,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 
 		if (dst->IsModeSet(bm))
 		{
-			src->WriteNumeric(485, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
+			src->WriteNumeric(ERR_KILLDENY, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}

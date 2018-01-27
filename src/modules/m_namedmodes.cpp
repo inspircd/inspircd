@@ -19,9 +19,16 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// InspIRCd-specific.
+	RPL_ENDOFPROPLIST = 960,
+	RPL_PROPLIST = 961
+};
+
 static void DisplayList(LocalUser* user, Channel* channel)
 {
-	Numeric::ParamBuilder<1> numeric(user, 961);
+	Numeric::ParamBuilder<1> numeric(user, RPL_PROPLIST);
 	numeric.AddStatic(channel->name);
 
 	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
@@ -40,7 +47,7 @@ static void DisplayList(LocalUser* user, Channel* channel)
 		}
 	}
 	numeric.Flush();
-	user->WriteNumeric(960, channel->name, "End of mode list");
+	user->WriteNumeric(RPL_ENDOFPROPLIST, channel->name, "End of mode list");
 }
 
 class CommandProp : public SplitCommand

@@ -23,6 +23,12 @@
 #include "inspircd.h"
 #include "modules/invite.h"
 
+enum
+{
+	// InspIRCd-specific.
+	RPL_UNINVITED = 493
+};
+
 /** Handle /UNINVITE
  */
 class CommandUninvite : public Command
@@ -93,7 +99,7 @@ class CommandUninvite : public Command
 			n.push(c->name).push(u->nick).push("Uninvited");
 			user->WriteRemoteNumeric(n);
 
-			lu->WriteNumeric(493, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
+			lu->WriteNumeric(RPL_UNINVITED, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
 			c->WriteNotice(msg);

@@ -25,6 +25,24 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// InspIRCd-specific?
+	RPL_DCCALLOWSTART = 990,
+	RPL_DCCALLOWLIST = 991,
+	RPL_DCCALLOWEND = 992,
+	RPL_DCCALLOWTIMED = 993,
+	RPL_DCCALLOWPERMANENT = 994,
+	RPL_DCCALLOWREMOVED = 995,
+	ERR_DCCALLOWINVALID = 996,
+	RPL_DCCALLOWEXPIRED = 997,
+	ERR_UNKNOWNDCCALLOWCMD = 998,
+	// TODO: These numerics are conflicting and should be removed
+	// and be replaced with helpop.
+	RPL_DCCALLOWHELP = 998,
+	RPL_ENDOFDCCALLOWHELP = 999
+};
+
 static const char* const helptext[] =
 {
 	"DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]",
@@ -126,7 +144,7 @@ class CommandDccallow : public Command
 				}
 				else
 				{
-					user->WriteNumeric(998, "DCCALLOW command not understood. For help on DCCALLOW, type /DCCALLOW HELP");
+					user->WriteNumeric(ERR_UNKNOWNDCCALLOWCMD, "DCCALLOW command not understood. For help on DCCALLOW, type /DCCALLOW HELP");
 					return CMD_FAILURE;
 				}
 			}
@@ -149,7 +167,7 @@ class CommandDccallow : public Command
 							if (i->nickname == target->nick)
 							{
 								dl->erase(i);
-								user->WriteNumeric(995, user->nick, InspIRCd::Format("Removed %s from your DCCALLOW list", target->nick.c_str()));
+								user->WriteNumeric(RPL_DCCALLOWREMOVED, user->nick, InspIRCd::Format("Removed %s from your DCCALLOW list", target->nick.c_str()));
 								break;
 							}
 						}
@@ -159,7 +177,7 @@ class CommandDccallow : public Command
 				{
 					if (target == user)
 					{
-						user->WriteNumeric(996, user->nick, "You cannot add yourself to your own DCCALLOW list!");
+						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, "You cannot add yourself to your own DCCALLOW list!");
 						return CMD_FAILURE;
 					}
 
@@ -174,7 +192,7 @@ class CommandDccallow : public Command
 
 					if (dl->size() >= maxentries)
 					{
-						user->WriteNumeric(996, user->nick, "Too many nicks on DCCALLOW list");
+						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, "Too many nicks on DCCALLOW list");
 						return CMD_FAILURE;
 					}
 
@@ -182,7 +200,7 @@ class CommandDccallow : public Command
 					{
 						if (k->nickname == target->nick)
 						{
-							user->WriteNumeric(996, user->nick, InspIRCd::Format("%s is already on your DCCALLOW list", target->nick.c_str()));
+							user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is already on your DCCALLOW list", target->nick.c_str()));
 							return CMD_FAILURE;
 						}
 					}
@@ -213,11 +231,11 @@ class CommandDccallow : public Command
 
 					if (length > 0)
 					{
-						user->WriteNumeric(993, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %ld seconds", target->nick.c_str(), length));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %ld seconds", target->nick.c_str(), length));
 					}
 					else
 					{
-						user->WriteNumeric(994, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for this session", target->nick.c_str()));
+						user->WriteNumeric(RPL_DCCALLOWPERMANENT, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for this session", target->nick.c_str()));
 					}
 
 					/* route it. */
@@ -242,8 +260,8 @@ class CommandDccallow : public Command
 	void DisplayHelp(User* user)
 	{
 		for (size_t i = 0; i < sizeof(helptext)/sizeof(helptext[0]); i++)
-			user->WriteNumeric(998, helptext[i]);
-		user->WriteNumeric(999, "End of DCCALLOW HELP");
+			user->WriteNumeric(RPL_DCCALLOWHELP, helptext[i]);
+		user->WriteNumeric(RPL_ENDOFDCCALLOWHELP, "End of DCCALLOW HELP");
 
 		LocalUser* localuser = IS_LOCAL(user);
 		if (localuser)
@@ -253,18 +271,18 @@ class CommandDccallow : public Command
 	void DisplayDCCAllowList(User* user)
 	{
 		 // display current DCCALLOW list
-		user->WriteNumeric(990, "Users on your DCCALLOW list:");
+		user->WriteNumeric(RPL_DCCALLOWSTART, "Users on your DCCALLOW list:");
 
 		dl = ext.get(user);
 		if (dl)
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
 			{
-				user->WriteNumeric(991, user->nick, InspIRCd::Format("%s (%s)", c->nickname.c_str(), c->hostmask.c_str()));
+				user->WriteNumeric(RPL_DCCALLOWLIST, user->nick, InspIRCd::Format("%s (%s)", c->nickname.c_str(), c->hostmask.c_str()));
 			}
 		}
 
-		user->WriteNumeric(992, "End of DCCALLOW list");
+		user->WriteNumeric(RPL_DCCALLOWEND, "End of DCCALLOW list");
 	}
 
 };
@@ -421,7 +439,7 @@ class ModuleDCCAllow : public Module
 						time_t expires = iter2->set_on + iter2->length;
 						if (iter2->length != 0 && expires <= ServerInstance->Time())
 						{
-							u->WriteNumeric(997, u->nick, InspIRCd::Format("DCCALLOW entry for %s has expired", iter2->nickname.c_str()));
+							u->WriteNumeric(RPL_DCCALLOWEXPIRED, u->nick, InspIRCd::Format("DCCALLOW entry for %s has expired", iter2->nickname.c_str()));
 							iter2 = dl->erase(iter2);
 						}
 						else
@@ -456,7 +474,7 @@ class ModuleDCCAllow : public Module
 						{
 
 							u->WriteNotice(i->nickname + " left the network or changed their nickname and has been removed from your DCCALLOW list");
-							u->WriteNumeric(995, u->nick, InspIRCd::Format("Removed %s from your DCCALLOW list", i->nickname.c_str()));
+							u->WriteNumeric(RPL_DCCALLOWREMOVED, u->nick, InspIRCd::Format("Removed %s from your DCCALLOW list", i->nickname.c_str()));
 							dl->erase(i);
 							break;
 						}

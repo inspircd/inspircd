@@ -57,6 +57,17 @@ static int SILENCE_CNOTICE	= 0x0010; /* t  channel notices       */
 static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
 static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
+enum
+{
+	// From ircu?
+	RPL_SILELIST = 271,
+	RPL_ENDOFSILELIST = 272,
+
+	// InspIRCd-specific.
+	RPL_UNSILENCED = 950,
+	RPL_SILENCED = 951,
+	ERR_NOTSILENCED = 952
+};
 
 class CommandSVSSilence : public Command
 {
@@ -122,10 +133,10 @@ class CommandSilence : public Command
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
 					std::string decomppattern = DecompPattern(c->second);
-					user->WriteNumeric(271, user->nick, c->first, decomppattern);
+					user->WriteNumeric(RPL_SILELIST, user->nick, c->first, decomppattern);
 				}
 			}
-			user->WriteNumeric(272, "End of Silence List");
+			user->WriteNumeric(RPL_ENDOFSILELIST, "End of Silence List");
 
 			return CMD_SUCCESS;
 		}
@@ -171,7 +182,7 @@ class CommandSilence : public Command
 						if ((irc::equals(listitem, mask)) && (i->second == pattern))
 						{
 							sl->erase(i);
-							user->WriteNumeric(950, user->nick, InspIRCd::Format("Removed %s %s from silence list", mask.c_str(), decomppattern.c_str()));
+							user->WriteNumeric(RPL_UNSILENCED, user->nick, InspIRCd::Format("Removed %s %s from silence list", mask.c_str(), decomppattern.c_str()));
 							if (!sl->size())
 							{
 								ext.unset(user);
@@ -180,7 +191,7 @@ class CommandSilence : public Command
 						}
 					}
 				}
-				user->WriteNumeric(952, user->nick, InspIRCd::Format("%s %s does not exist on your silence list", mask.c_str(), decomppattern.c_str()));
+				user->WriteNumeric(ERR_NOTSILENCED, user->nick, InspIRCd::Format("%s %s does not exist on your silence list", mask.c_str(), decomppattern.c_str()));
 			}
 			else if (action == '+')
 			{
@@ -193,7 +204,7 @@ class CommandSilence : public Command
 				}
 				if (sl->size() > maxsilence)
 				{
-					user->WriteNumeric(952, user->nick, "Your silence list is full");
+					user->WriteNumeric(ERR_NOTSILENCED, user->nick, "Your silence list is full");
 					return CMD_FAILURE;
 				}
 
@@ -203,7 +214,7 @@ class CommandSilence : public Command
 					const std::string& listitem = n->first;
 					if ((irc::equals(listitem, mask)) && (n->second == pattern))
 					{
-						user->WriteNumeric(952, user->nick, InspIRCd::Format("%s %s is already on your silence list", mask.c_str(), decomppattern.c_str()));
+						user->WriteNumeric(ERR_NOTSILENCED, user->nick, InspIRCd::Format("%s %s is already on your silence list", mask.c_str(), decomppattern.c_str()));
 						return CMD_FAILURE;
 					}
 				}
@@ -215,7 +226,7 @@ class CommandSilence : public Command
 				{
 					sl->push_back(silenceset(mask,pattern));
 				}
-				user->WriteNumeric(951, user->nick, InspIRCd::Format("Added %s %s to silence list", mask.c_str(), decomppattern.c_str()));
+				user->WriteNumeric(RPL_SILENCED, user->nick, InspIRCd::Format("Added %s %s to silence list", mask.c_str(), decomppattern.c_str()));
 				return CMD_SUCCESS;
 			}
 		}

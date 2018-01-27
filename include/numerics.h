@@ -24,8 +24,6 @@
  * Module authors, please note!
  *  While you are free to use any numerics on this list, like the rest of the core, you
  *  *should not* be editing it!
- *  You should just WriteNumeric(444, .. or whatever as you would before this file, OR:
- *  #define RPL_MYNUMERIC 444 & WriteNumeric(RPL_MYNUMERIC, ...
  *
  *  If you *do* have a suggestion for a numeric you genuinely believe would be useful,
  *  please speak to us. :)

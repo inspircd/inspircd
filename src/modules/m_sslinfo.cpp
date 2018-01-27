@@ -190,7 +190,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(491, "This oper login requires an SSL connection.");
+					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires an SSL connection.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -198,7 +198,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, "This oper login requires a matching SSL certificate fingerprint.");
+					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}

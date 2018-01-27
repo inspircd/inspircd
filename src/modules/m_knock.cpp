@@ -21,6 +21,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_CANNOTKNOCK = 480
+};
+
 /** Handles the /KNOCK command
  */
 class CommandKnock : public Command
@@ -57,7 +63,7 @@ class CommandKnock : public Command
 
 		if (c->IsModeSet(noknockmode))
 		{
-			user->WriteNumeric(480, InspIRCd::Format("Can't KNOCK on %s, +K is set.", c->name.c_str()));
+			user->WriteNumeric(ERR_CANNOTKNOCK, InspIRCd::Format("Can't KNOCK on %s, +K is set.", c->name.c_str()));
 			return CMD_FAILURE;
 		}
 

@@ -36,7 +36,8 @@ enum
 	RPL_ENDOFWATCHLIST = 607,
 	// RPL_CLEARWATCH = 608, // unused
 	RPL_NOWISAWAY = 609,
-	ERR_TOOMANYWATCH = 512
+	ERR_TOOMANYWATCH = 512,
+	ERR_INVALIDWATCHNICK = 942
 };
 
 class CommandWatch : public SplitCommand
@@ -72,7 +73,7 @@ class CommandWatch : public SplitCommand
 		}
 		else if (result == IRCv3::Monitor::Manager::WR_INVALIDNICK)
 		{
-			user->WriteNumeric(942, nick, "Invalid nickname");
+			user->WriteNumeric(ERR_INVALIDWATCHNICK, nick, "Invalid nickname");
 			return;
 		}
 		else if (result != IRCv3::Monitor::Manager::WR_OK)

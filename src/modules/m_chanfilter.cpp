@@ -27,6 +27,14 @@
 #include "listmode.h"
 #include "modules/exemption.h"
 
+enum
+{
+	// InspIRCd-specific.
+	ERR_ALREADYCHANFILTERED = 937,
+	ERR_NOSUCHCHANFILTER = 938,
+	ERR_CHANFILTERFULL = 939
+};
+
 /** Handles channel mode +g
  */
 class ChanFilter : public ListModeBase
@@ -46,17 +54,17 @@ class ChanFilter : public ListModeBase
 
 	void TellListTooLong(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
-		user->WriteNumeric(939, chan->name, word, "Channel spamfilter list is full");
+		user->WriteNumeric(ERR_CHANFILTERFULL, chan->name, word, "Channel spamfilter list is full");
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
-		user->WriteNumeric(937, chan->name, InspIRCd::Format("The word %s is already on the spamfilter list", word.c_str()));
+		user->WriteNumeric(ERR_ALREADYCHANFILTERED, chan->name, InspIRCd::Format("The word %s is already on the spamfilter list", word.c_str()));
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
-		user->WriteNumeric(938, chan->name, "No such spamfilter word is set");
+		user->WriteNumeric(ERR_NOSUCHCHANFILTER, chan->name, "No such spamfilter word is set");
 	}
 };
 
