@@ -155,8 +155,8 @@ class ModeChannelBan : public ListModeBase
  */
 class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 {
-	static const std::string::size_type maxkeylen = 32;
  public:
+	static const std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;

@@ -371,6 +371,7 @@ public:
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
+		tokens["ACCEPT"] = ConvToStr(cmd.maxaccepts);
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 

@@ -114,6 +114,8 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
+		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
+
 		// Build a map of limits to their mode character.
 		insp::flat_map<int, std::string> limits;
 		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
