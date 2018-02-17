@@ -42,7 +42,7 @@ namespace SQL
 	enum ErrorCode
 	{
 		/** No error has occurred. */
-		NO_ERROR,
+		SUCCESS,
 
 		/** The database identifier is invalid. */
 		BAD_DBID,

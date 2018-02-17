@@ -71,6 +71,9 @@ void SocketEngine::InitError()
 
 void SocketEngine::LookupMaxFds()
 {
+#if defined _WIN32
+	MaxSetSize = FD_SETSIZE;
+#else
 	struct rlimit limits;
 	if (!getrlimit(RLIMIT_NOFILE, &limits))
 		MaxSetSize = limits.rlim_cur;
@@ -82,6 +85,7 @@ void SocketEngine::LookupMaxFds()
 #endif
 	if (!setrlimit(RLIMIT_NOFILE, &limits))
 		MaxSetSize = limits.rlim_cur;
+#endif
 }
 
 void SocketEngine::ChangeEventMask(EventHandler* eh, int change)

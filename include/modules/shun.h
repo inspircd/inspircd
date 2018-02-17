@@ -23,7 +23,7 @@
 
 /** Shun class
  */
-class CoreExport Shun : public XLine
+class Shun : public XLine
 {
   public:
 	/** Create a Shun.

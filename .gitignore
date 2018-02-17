@@ -28,3 +28,5 @@
 /src/modules/m_ssl_mbedtls.cpp
 /src/modules/m_ssl_openssl.cpp
 
+/win/Win32
+/win/*.dir

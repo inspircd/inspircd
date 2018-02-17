@@ -145,7 +145,7 @@ class MySQLresult : public SQL::Result
 	std::vector<std::string> colnames;
 	std::vector<SQL::Row> fieldlists;
 
-	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL::NO_ERROR), currentrow(0), rows(0)
+	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL::SUCCESS), currentrow(0), rows(0)
 	{
 		if (affected_rows >= 1)
 		{
@@ -541,7 +541,7 @@ void DispatcherThread::OnNotify()
 	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
 	{
 		MySQLresult* res = i->r;
-		if (res->err.code == SQL::NO_ERROR)
+		if (res->err.code == SQL::SUCCESS)
 			i->q->OnResult(*res);
 		else
 			i->q->OnError(res->err);
