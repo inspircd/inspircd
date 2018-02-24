@@ -36,8 +36,8 @@ BUILDPATH ?= $(PWD)/build
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
-CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
-PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
+CORELDFLAGS = -rdynamic -L.
+PICLDFLAGS = -fPIC -shared -rdynamic
 BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 MANPATH = "$(DESTDIR)@MANUAL_DIR@"
@@ -78,8 +78,8 @@ ifeq ($(SYSTEM), solaris)
 endif
 ifeq ($(SYSTEM), darwin)
   LDLIBS += -ldl
-  CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
-  PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
+  CORELDFLAGS = -dynamic -bind_at_load -L.
+  PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup
 endif
 
 ifndef INSPIRCD_DEBUG
@@ -119,9 +119,11 @@ ifdef INSPIRCD_STATIC
   CORECXXFLAGS += -DINSPIRCD_STATIC
 endif
 
-# Add the users CPPFLAGS/CXXFLAGS to the base ones to allow them to
-# override things like -Wfatal-errors if they wish to.
+# Append any flags set in the environment after the base flags so
+# that they can be overridden if necessary.
 CORECXXFLAGS += $(CPPFLAGS) $(CXXFLAGS)
+CORELDFLAGS += $(LDFLAGS)
+PICLDFLAGS += $(LDFLAGS)
 
 export BUILDPATH
 export CORECXXFLAGS
