@@ -303,7 +303,15 @@ if (prompt_bool $interactive, $question, 0) {
 }
 
 # Generate SSL certificates.
-if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, 'Would you like to generate SSL certificates now?', $interactive) {
+$question = <<EOQ;
+Would you like to generate a self-signed SSL certificate now? This certificate
+can be used for testing but <|BOLD should not|> be used on a production network.
+
+Note: you can get a <|BOLD free|> CA-signed certificate from Let's Encrypt. See
+https://letsencrypt.org/getting-started/ for more details.
+EOQ
+
+if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, $question, $interactive) {
 	system './tools/genssl', 'auto';
 }
 
