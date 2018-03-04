@@ -33,6 +33,7 @@
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/dh.h>
 #include "ssl.h"
 
 #ifdef _WIN32
@@ -40,6 +41,15 @@
 # pragma comment(lib, "libeay32.lib")
 # undef MAX_DESCRIPTORS
 # define MAX_DESCRIPTORS 10000
+#endif
+
+// Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
+#if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
+# define X509_getm_notAfter X509_get_notAfter
+# define X509_getm_notBefore X509_get_notBefore
+# define OPENSSL_init_ssl(OPTIONS, SETTINGS) \
+	SSL_library_init(); \
+	SSL_load_error_strings();
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
@@ -216,8 +226,7 @@ class ModuleSSLOpenSSL : public Module
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		/* Global SSL library initialization*/
-		SSL_library_init();
-		SSL_load_error_strings();
+		OPENSSL_init_ssl(0, NULL);
 
 		/* Build our SSL contexts:
 		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
@@ -835,7 +844,7 @@ class ModuleSSLOpenSSL : public Module
 			certinfo->fingerprint = irc::hex(md, n);
 		}
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
+		if ((ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time()) == 0))
 		{
 			certinfo->error = "Not activated, or expired certificate";
 		}
