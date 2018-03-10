@@ -239,12 +239,13 @@ void CommandStats::DoStats(Stats::Context& stats)
 			/* Not sure why we were doing '0' with a RUSAGE_SELF comment rather than just using RUSAGE_SELF -- Om */
 			if (!getrusage(RUSAGE_SELF,&R))	/* RUSAGE_SELF */
 			{
+#ifndef __HAIKU__
 				stats.AddRow(249, "Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
 				stats.AddRow(249, "Signals:          "+ConvToStr(R.ru_nsignals));
 				stats.AddRow(249, "Page faults:      "+ConvToStr(R.ru_majflt));
 				stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
 				stats.AddRow(249, "Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
-
+#endif
 				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
 					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
 				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
