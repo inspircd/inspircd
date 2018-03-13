@@ -81,6 +81,11 @@ ifeq ($(SYSTEM), darwin)
   CORELDFLAGS = -dynamic -bind_at_load -L.
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup
 endif
+ifeq ($(SYSTEM), haiku)
+  LDLIBS = -lnetwork -lstdc++
+  CORELDFLAGS = -L.
+  PICLDFLAGS = -fPIC -shared
+endif
 
 ifndef INSPIRCD_DEBUG
   INSPIRCD_DEBUG=0
