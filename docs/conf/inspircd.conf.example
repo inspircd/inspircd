@@ -602,6 +602,13 @@
          # serverpingfreq: How often pings are sent between servers.
          serverpingfreq="1m"
 
+         # splitwhois: Whether to split private/secret channels from normal channels
+         # in WHOIS responses. Possible values for this are:
+         # 'no' - list all channels together in the WHOIS response regardless of type.
+         # 'split' - split private/secret channels to a separate WHOIS response numeric.
+         # 'splitmsg' - the same as split but also send a message explaining the split.
+         splitwhois="no"
+
          # defaultmodes: What modes are set on a empty channel when a user
          # joins it and it is unregistered.
          defaultmodes="not"
@@ -719,12 +726,6 @@
           # customversion: A custom message to be displayed in the comments field
           # of the VERSION command response. This does not hide the InspIRCd version.
           customversion=""
-
-          # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
-          #  splitmsg  Split with an explanatory message
-          #  yes       Split with no explanatory message
-          #  no        Do not show
-          operspywhois="no"
 
           # runasuser: If this is set, InspIRCd will attempt to switch
           # to run as this user, which allows binding of ports under 1024.
