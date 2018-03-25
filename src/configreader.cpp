@@ -503,14 +503,6 @@ void ServerConfig::Fill()
 		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_DYNAMIC;
 	else
 		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
-
-	v = security->getString("operspywhois");
-	if (v == "splitmsg")
-		OperSpyWhois = SPYWHOIS_SPLITMSG;
-	else if (v == "on" || v == "yes")
-		OperSpyWhois = SPYWHOIS_SINGLEMSG;
-	else
-		OperSpyWhois = SPYWHOIS_NONE;
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it

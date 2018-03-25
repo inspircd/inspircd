@@ -37,6 +37,18 @@ enum
 	RPL_CHANNELSMSG = 651
 };
 
+enum SplitWhoisState
+{
+	// Don't split private/secret channels into a separate RPL_WHOISCHANNELS numeric.
+	SPLITWHOIS_NONE,
+
+	// Split private/secret channels into a separate RPL_WHOISCHANNELS numeric.
+	SPLITWHOIS_SPLIT,
+
+	// Split private/secret channels into a separate RPL_WHOISCHANNELS numeric with RPL_CHANNELSMSG to explain the split.
+	SPLITWHOIS_SPLITMSG
+};
+
 class WhoisContextImpl : public Whois::Context
 {
 	Events::ModuleEventProvider& lineevprov;
@@ -75,6 +87,8 @@ class CommandWhois : public SplitCommand
 	void SendChanList(WhoisContextImpl& whois);
 
  public:
+	SplitWhoisState splitwhois;
+
 	/** Constructor for whois.
 	 */
 	CommandWhois(Module* parent)
@@ -125,9 +139,9 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 
 class WhoisChanList
 {
-	const ServerConfig::OperSpyWhoisState spywhois;
+	const SplitWhoisState& splitwhois;
 	WhoisChanListNumericBuilder num;
-	WhoisChanListNumericBuilder spynum;
+	WhoisChanListNumericBuilder secretnum;
 	std::string prefixstr;
 
 	void AddMember(Membership* memb, WhoisChanListNumericBuilder& out)
@@ -140,10 +154,10 @@ class WhoisChanList
 	}
 
  public:
-	WhoisChanList(WhoisContextImpl& whois)
-		: spywhois(whois.GetSource()->HasPrivPermission("users/auspex") ? ServerInstance->Config->OperSpyWhois : ServerConfig::SPYWHOIS_NONE)
+	WhoisChanList(WhoisContextImpl& whois, const SplitWhoisState& sws)
+		: splitwhois(sws)
 		, num(whois)
-		, spynum(whois)
+		, secretnum(whois)
 	{
 	}
 
@@ -154,35 +168,38 @@ class WhoisChanList
 
 	void AddHidden(Membership* memb)
 	{
-		if (spywhois == ServerConfig::SPYWHOIS_NONE)
-			return;
-		AddMember(memb, (spywhois == ServerConfig::SPYWHOIS_SPLITMSG ? spynum : num));
+		AddMember(memb, splitwhois == SPLITWHOIS_NONE ? num : secretnum);
 	}
 
 	void Flush(WhoisContextImpl& whois)
 	{
 		num.Flush();
-		if (!spynum.IsEmpty())
+		if (!secretnum.IsEmpty() && splitwhois == SPLITWHOIS_SPLITMSG)
 			whois.SendLine(RPL_CHANNELSMSG, "is on private/secret channels:");
-		spynum.Flush();
+		secretnum.Flush();
 	}
 };
 
 void CommandWhois::SendChanList(WhoisContextImpl& whois)
 {
-	WhoisChanList chanlist(whois);
+	WhoisChanList chanlist(whois, splitwhois);
 
 	User* const target = whois.GetTarget();
+	bool hasoperpriv = whois.GetSource()->HasPrivPermission("users/channel-spy");
 	for (User::ChanList::iterator i = target->chans.begin(); i != target->chans.end(); ++i)
 	{
 		Membership* memb = *i;
 		Channel* c = memb->chan;
-		/* If the target is the sender, neither +p nor +s is set, or
-		 * the channel contains the user, it is not a spy channel
-		 */
-		if ((whois.IsSelfWhois()) || ((!c->IsModeSet(privatemode)) && (!c->IsModeSet(secretmode))) || (c->HasUser(whois.GetSource())))
+
+		// Anyone can view channels which are not private or secret.
+		if (!c->IsModeSet(privatemode) && !c->IsModeSet(secretmode))
 			chanlist.AddVisible(memb);
-		else
+
+		// Hidden channels are visible when the following conditions are true:
+		// (1) The source user and the target user are the same.
+		// (2) The source user is a member of the hidden channel.
+		// (3) The source user is an oper with the users/channel-spy privilege.
+		else if (whois.IsSelfWhois() || c->HasUser(whois.GetSource()) || hasoperpriv)
 			chanlist.AddHidden(memb);
 	}
 
@@ -318,4 +335,35 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandWhois)
+class CoreModWhois : public Module
+{
+ private:
+	CommandWhois cmd;
+
+ public:
+	CoreModWhois()
+		: cmd(this)
+	{
+	}
+
+	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+		const std::string splitwhois = tag->getString("splitwhois", "no");
+		if (stdalgo::string::equalsci(splitwhois, "no"))
+			cmd.splitwhois = SPLITWHOIS_NONE;
+		else if (stdalgo::string::equalsci(splitwhois, "split"))
+			cmd.splitwhois = SPLITWHOIS_SPLIT;
+		else if (stdalgo::string::equalsci(splitwhois, "splitmsg"))
+			cmd.splitwhois = SPLITWHOIS_SPLITMSG;
+		else
+			throw ModuleException(splitwhois + " is an invalid <security:splitwhois> value, at " + tag->getTagLocation()); 
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the WHOIS command", VF_VENDOR|VF_CORE);
+	}
+};
+
+MODULE_INIT(CoreModWhois)
