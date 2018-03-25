@@ -147,7 +147,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			// Remove existing invite, if any
 			invapi.Remove(localuser, chan);
 
-			if (chan->topicset)
+			if (chan->topic.length())
 				Topic::ShowTopic(localuser, chan);
 
 			// Show all members of the channel, including invisible (+i) users
