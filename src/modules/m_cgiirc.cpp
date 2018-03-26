@@ -201,8 +201,8 @@ class ModuleCgiIRC : public Module
 	{
 		cmd.realhost.set(user, user->host);
 		cmd.realip.set(user, user->GetIPString());
-		ChangeIP(user, newip);
 		user->host = user->dhost = user->GetIPString();
+		ChangeIP(user, newip);
 		user->InvalidateCache();
 		RecheckClass(user);
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
@@ -296,10 +296,10 @@ public:
 		if (!webirc_ip)
 			return MOD_RES_PASSTHRU;
 
-		ChangeIP(user, *webirc_ip);
-
 		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
 		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
+
+		ChangeIP(user, *webirc_ip);
 		user->InvalidateCache();
 
 		RecheckClass(user);
