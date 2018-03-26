@@ -593,9 +593,6 @@ void GLine::Apply(User* u)
 
 bool ELine::Matches(User *u)
 {
-	if (u->exempt)
-		return false;
-
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->host, this->hostmask, ascii_case_insensitive_map) ||
