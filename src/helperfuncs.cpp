@@ -146,19 +146,20 @@ void InspIRCd::ProcessColors(file_cache& input)
 	{
 		std::string character;
 		std::string replace;
-		special_chars(const std::string &c, const std::string &r) : character(c), replace(r) { }
-	}
-
-	special[] = {
-		special_chars("\\002", "\002"),  // Bold
-		special_chars("\\037", "\037"),  // underline
-		special_chars("\\003", "\003"),  // Color
-		special_chars("\\017", "\017"), // Stop colors
-		special_chars("\\u", "\037"),    // Alias for underline
-		special_chars("\\b", "\002"),    // Alias for Bold
-		special_chars("\\x", "\017"),    // Alias for stop
-		special_chars("\\c", "\003"),    // Alias for color
-		special_chars("", "")
+		special_chars(const std::string& c, const std::string& r)
+			: character(c)
+			, replace(r)
+		{
+		}
+	} special[] = {
+		special_chars("\\b", "\x02"), // Bold
+		special_chars("\\c", "\x03"), // Color
+		special_chars("\\i", "\x1D"), // Italic
+		special_chars("\\m", "\x11"), // Monospace
+		special_chars("\\s", "\x1E"), // Strikethrough
+		special_chars("\\u", "\x1F"), // Underline
+		special_chars("\\x", "\x0F"), // Reset
+		special_chars("\\", "")
 	};
 
 	for(file_cache::iterator it = input.begin(), it_end = input.end(); it != it_end; it++)

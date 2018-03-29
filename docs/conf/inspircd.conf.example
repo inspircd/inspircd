@@ -313,6 +313,18 @@
 
          # Alternate MOTD file for this connect class. The contents of this file are
          # specified using <files secretmotd="filename"> or <execfiles ...>
+         #
+         # NOTE: the following escape sequences for IRC formatting characters can be
+         # used in your MOTD:
+         # Bold:          \b
+         # Color:         \c<fg>[,<bg>]
+         # Italic:        \i
+         # Monospace:     \m  (not widely supported)
+         # Reset:         \x
+         # Strikethrough: \s  (not widely supported)
+         # Underline:     \u
+         # See https://defs.ircdocs.horse/info/formatting.html for more information
+         # on client support for formatting characters.
          motd="secretmotd"
 
          # port: What port range this user is allowed to connect on. (optional)
