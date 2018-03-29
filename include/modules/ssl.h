@@ -112,9 +112,21 @@ class ssl_cert : public refcountbase
 		return revoked;
 	}
 
+	/** Get certificate usability
+	* @return True if the certificate is not expired nor revoked
+	*/
+	bool IsUsable()
+	{
+		return !invalid && !revoked && error.empty();
+	}
+
+	/** Get CA trust status
+	* @return True if the certificate is issued by a CA
+	* and valid.
+	*/
 	bool IsCAVerified()
 	{
-		return trusted && !invalid && !revoked && !unknownsigner && error.empty();
+		return IsUsable() && trusted && !unknownsigner;
 	}
 
 	std::string GetMetaLine()
@@ -183,7 +195,9 @@ class SSLIOHook : public IOHook
 	 */
 	ssl_cert* GetCertificate() const
 	{
-		return certificate;
+		if (certificate && certificate->IsUsable())
+			return certificate;
+		return NULL;
 	}
 
 	/**
