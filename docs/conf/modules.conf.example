@@ -1403,11 +1403,7 @@
 # onoper        - If on, the message is sent on /OPER, otherwise it's #
 #                 only sent when /OPERMOTD is used.                   #
 #                                                                     #
-# processcolors - Allow color codes to be processed in the opermotd.  #
-#                 Read the comment above <connect:allowmotdcolors> in #
-#                 inspircd.conf.example for details.                  #
-#                                                                     #
-#<opermotd file="examples/opermotd.txt.example" onoper="yes" processcolors="false">
+#<opermotd file="examples/opermotd.txt.example" onoper="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override.
@@ -1864,9 +1860,6 @@
 #             (similar to /MOTD; the default).                        #
 #           * notice:  Send contents as a series of notices.          #
 #           * msg:     Send contents as a series of private messages. #
-# colors  - If true, color codes (\c, \b, \u, etc.) will be processed #
-#           and sent as ANSI colors. If false (default) the file will #
-#           be displayed as-is.                                       #
 #                                                                     #
 # When using the method "numeric", the following extra settings are   #
 # available:                                                          #
@@ -1879,7 +1872,6 @@
 #                                                                     #
 #<showfile name="RULES"
 #          file="rules.txt"
-#          colors="true"
 #          introtext="Server rules:"
 #          endtext="End of server rules.">
 

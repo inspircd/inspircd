@@ -100,14 +100,12 @@ class ModuleOpermotd : public Module
 		{
 			FileReader reader(conf->getString("file", "opermotd"));
 			cmd.opermotd = reader.GetVector();
+			InspIRCd::ProcessColors(cmd.opermotd);
 		}
 		catch (CoreException&)
 		{
 			// Nothing happens here as we do the error handling in ShowOperMOTD.
 		}
-
-		if (conf->getBool("processcolors"))
-			InspIRCd::ProcessColors(cmd.opermotd);
 	}
 };
 

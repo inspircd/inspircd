@@ -315,14 +315,6 @@
          # specified using <files secretmotd="filename"> or <execfiles ...>
          motd="secretmotd"
 
-         # Allow color codes to be processed in the message of the day file.
-         # the following characters are valid color code escapes:
-         #   \002 or \b = Bold
-         #   \037 or \u = Underline
-         #   \003 or \c = Color (with a code postfixed to this char)
-         #   \017 or \x = Stop all color sequences
-         allowmotdcolors="false"
-
          # port: What port range this user is allowed to connect on. (optional)
          # The ports MUST be set to listen in the bind blocks above.
          port="6697,9999">

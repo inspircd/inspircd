@@ -91,8 +91,7 @@ class CommandShowFile : public Command
 			method = SF_NOTICE;
 
 		contents = filecontents;
-		if (tag->getBool("colors"))
-			InspIRCd::ProcessColors(contents);
+		InspIRCd::ProcessColors(contents);
 	}
 };
 

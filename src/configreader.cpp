@@ -624,9 +624,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	for (ClassVector::const_iterator it = this->Classes.begin(), it_end = this->Classes.end(); it != it_end; ++it)
 	{
 		ConfigTag *tag = (*it)->config;
-		// Make sure our connection class allows motd colors
-		if(!tag->getBool("allowmotdcolors"))
-			continue;
 
 		ConfigFileCache::iterator file = this->Files.find(tag->getString("motd", "motd"));
 		if (file != this->Files.end())
