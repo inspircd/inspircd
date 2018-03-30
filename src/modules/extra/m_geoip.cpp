@@ -58,7 +58,7 @@ class ModuleGeoIP : public Module
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
 		ServerInstance->Modules->AddService(ext);
-		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
+		Implementation eventlist[] = { I_OnSetConnectClass, I_OnSetUserIP, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
@@ -97,6 +97,13 @@ class ModuleGeoIP : public Module
 			if (country == *cc)
 				return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
+	}
+
+	void OnSetUserIP(LocalUser* user)
+	{
+		// If user has sent NICK/USER, re-set the ExtItem as this is likely CGI:IRC changing the IP
+		if (user->registered == REG_NICKUSER)
+			SetExt(user);
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &out)
