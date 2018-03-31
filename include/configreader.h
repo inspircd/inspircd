@@ -257,10 +257,7 @@ class CoreExport ServerConfig
 	/** Bind to IPv6 by default */
 	bool WildcardIPv6;
 
-	/** Used to indicate who we announce invites to on a channel */
-	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
-
-  	/** This holds all the information in the config file,
+	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
 	 */
 	ConfigDataHash config_data;
@@ -371,10 +368,6 @@ class CoreExport ServerConfig
 	 * K-Lines, Z-Lines)
 	 */
 	bool HideBans;
-
-	/** Announce invites to the channel with a server notice
-	 */
-	InviteAnnounceState AnnounceInvites;
 
 	/** True if raw I/O is being logged */
 	bool RawLog;

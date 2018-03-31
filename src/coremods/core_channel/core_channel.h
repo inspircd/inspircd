@@ -34,6 +34,22 @@ namespace Topic
 namespace Invite
 {
 	class APIImpl;
+
+	/** Used to indicate who we announce invites to on a channel. */
+	enum AnnounceState
+	{
+		/** Don't send invite announcements. */
+		ANNOUNCE_NONE,
+
+		/** Send invite announcements to all users. */
+		ANNOUNCE_ALL,
+
+		/** Send invite announcements to channel operators and higher. */
+		ANNOUNCE_OPS,
+
+		/** Send invite announcements to channel half-operators (if available) and higher. */
+		ANNOUNCE_DYNAMIC
+	};
 }
 
 /** Handle /INVITE.
@@ -43,6 +59,8 @@ class CommandInvite : public Command
 	Invite::APIImpl& invapi;
 
  public:
+	Invite::AnnounceState announceinvites;
+
 	/** Constructor for invite.
 	 */
 	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);

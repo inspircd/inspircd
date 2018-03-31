@@ -105,6 +105,19 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 		exemptions.swap(exempts);
 
+		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
+		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic");
+		if (stdalgo::string::equalsci(announceinvites, "none"))
+			cmdinvite.announceinvites = Invite::ANNOUNCE_NONE;
+		else if (stdalgo::string::equalsci(announceinvites, "all"))
+			cmdinvite.announceinvites = Invite::ANNOUNCE_ALL;
+		else if (stdalgo::string::equalsci(announceinvites, "ops"))
+			cmdinvite.announceinvites = Invite::ANNOUNCE_OPS;
+		else if (stdalgo::string::equalsci(announceinvites, "dynamic"))
+			cmdinvite.announceinvites = Invite::ANNOUNCE_DYNAMIC;
+		else
+			throw ModuleException(announceinvites + " is an invalid <security:announceinvites> value, at " + securitytag->getTagLocation());
+
 		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
 		// and will be removed in the next major release.
 		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;

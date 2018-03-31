@@ -129,15 +129,15 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		char prefix = 0;
 		unsigned int minrank = 0;
-		switch (ServerInstance->Config->AnnounceInvites)
+		switch (announceinvites)
 		{
-			case ServerConfig::INVITE_ANNOUNCE_OPS:
+			case Invite::ANNOUNCE_OPS:
 			{
 				prefix = '@';
 				minrank = OP_VALUE;
 				break;
 			}
-			case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
+			case Invite::ANNOUNCE_DYNAMIC:
 			{
 				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 				if ((mh) && (mh->name == "halfop"))
@@ -155,7 +155,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		CUList excepts;
 		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
 
-		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
+		if (announceinvites != Invite::ANNOUNCE_NONE)
 			c->WriteAllExcept(user, true, prefix, excepts, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 	}
 	else if (IS_LOCAL(user))

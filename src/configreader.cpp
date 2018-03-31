@@ -492,17 +492,6 @@ void ServerConfig::Fill()
 			throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
 		DisabledCModes.set(*p - 'A');
 	}
-
-	std::string v = security->getString("announceinvites");
-
-	if (v == "ops")
-		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_OPS;
-	else if (v == "all")
-		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_ALL;
-	else if (v == "dynamic")
-		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_DYNAMIC;
-	else
-		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it
