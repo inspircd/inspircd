@@ -138,6 +138,53 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 	}
 
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string&, std::string&, const std::string& keygiven) CXX11_OVERRIDE
+	{
+		if (!chan)
+			return MOD_RES_PASSTHRU;
+
+		// Check whether the channel key is correct.
+		const std::string ckey = chan->GetModeParameter(&keymode);
+		if (!ckey.empty())
+		{
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, keygiven));
+			if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, keygiven)))
+			{
+				// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
+				user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (Incorrect channel key)");
+				return MOD_RES_DENY;
+			}
+		}
+
+		// Check whether the invite only mode is set.
+		if (chan->IsModeSet(inviteonlymode))
+		{
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
+			if (MOD_RESULT != MOD_RES_ALLOW)
+			{
+				user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (Invite only)");
+				return MOD_RES_DENY;
+			}
+		}
+
+		// Check whether the limit would be exceeded by this user joining.
+		if (chan->IsModeSet(limitmode))
+		{
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
+			if (!MOD_RESULT.check(chan->GetUserCounter() < static_cast<size_t>(limitmode.ext.get(chan))))
+			{
+				user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (Channel is full)");
+				return MOD_RES_DENY;
+			}
+		}
+
+		// Everything looks okay.
+		return MOD_RES_PASSTHRU;
+	}
+
 	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
 		Channel* const chan = memb->chan;

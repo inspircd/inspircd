@@ -29,9 +29,6 @@
 namespace
 {
 	ChanModeReference ban(NULL, "ban");
-	ChanModeReference inviteonlymode(NULL, "inviteonly");
-	ChanModeReference keymode(NULL, "key");
-	ChanModeReference limitmode(NULL, "limit");
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
@@ -235,45 +232,12 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				return NULL;
 
 			// If no module returned MOD_RES_DENY or MOD_RES_ALLOW (which is the case
-			// most of the time) then proceed to check channel modes +k, +i, +l and bans,
-			// in this order.
+			// most of the time) then proceed to check channel bans.
+			//
 			// If a module explicitly allowed the join (by returning MOD_RES_ALLOW),
 			// then this entire section is skipped
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				std::string ckey = chan->GetModeParameter(keymode);
-				if (!ckey.empty())
-				{
-					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
-					if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, key)))
-					{
-						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (Incorrect channel key)");
-						return NULL;
-					}
-				}
-
-				if (chan->IsModeSet(inviteonlymode))
-				{
-					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
-					if (MOD_RESULT != MOD_RES_ALLOW)
-					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (Invite only)");
-						return NULL;
-					}
-				}
-
-				std::string limit = chan->GetModeParameter(limitmode);
-				if (!limit.empty())
-				{
-					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check(chan->GetUserCounter() < ConvToNum<size_t>(limit)))
-					{
-						user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (Channel is full)");
-						return NULL;
-					}
-				}
-
 				if (chan->IsBanned(user))
 				{
 					user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You're banned)");
