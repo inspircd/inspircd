@@ -269,6 +269,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	void Prioritize() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnPostJoin, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_LAST);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
