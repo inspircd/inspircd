@@ -833,6 +833,10 @@
 #
 # <connect deny="*" geoip="TR,RU">
 #
+# If enabled you can also ban people from channnels by country code
+# using the G: extban (e.g. /mode #channel +b G:US).
+# <geoip extban="yes">
+#
 # The country code must be in capitals and should be an ISO country
 # code such as TR, GB, or US. Unknown IPs (localhost, LAN IPs, etc)
 # will be assigned the country code "UNK". Since connect classes are

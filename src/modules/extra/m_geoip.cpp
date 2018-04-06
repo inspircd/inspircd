@@ -41,25 +41,33 @@
 # pragma comment(lib, "GeoIP.lib")
 #endif
 
-class ModuleGeoIP : public Module
+enum
 {
-	LocalStringExt ext;
+	// InspIRCd-specific.
+	RPL_WHOISCOUNTRY = 344
+};
+
+class ModuleGeoIP : public Module, public Whois::EventListener
+{
+	StringExtItem ext;
+	bool extban;
 	GeoIP* gi;
 
-	std::string* SetExt(LocalUser* user)
+	std::string* SetExt(User* user)
 	{
 		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
 		if (!c)
 			c = "UNK";
 
-		std::string* cc = new std::string(c);
-		ext.set(user, cc);
-		return cc;
+		ext.set(user, c);
+		return ext.get(user);
 	}
 
  public:
 	ModuleGeoIP()
-		: ext("geoip_cc", ExtensionItem::EXT_USER, this)
+		: Whois::EventListener(this)
+		, ext("geoip_cc", ExtensionItem::EXT_USER, this)
+		, extban(true)
 		, gi(NULL)
 	{
 	}
@@ -87,9 +95,29 @@ class ModuleGeoIP : public Module
 			GeoIP_delete(gi);
 	}
 
+	void ReadConfig(ConfigStatus&)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("geoip");
+		extban = tag->getBool("extban");
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_VENDOR);
+		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_OPTCOMMON|VF_VENDOR);
+	}
+
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	{
+		if ((mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
+		{
+			std::string* cc = ext.get(user);
+			if (!cc)
+				cc = SetExt(user);
+
+			if (InspIRCd::Match(*cc, mask.substr(2)))
+				return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
@@ -107,6 +135,19 @@ class ModuleGeoIP : public Module
 			if (country == *cc)
 				return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
+	}
+
+	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	{
+		// If the extban is disabled we don't expose users location.
+		if (!extban)
+			return;
+
+		std::string* cc = ext.get(whois.GetTarget());
+		if (!cc)
+			cc = SetExt(whois.GetTarget());
+
+		whois.SendLine(RPL_WHOISCOUNTRY, *cc, "is located in this country");
 	}
 
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
