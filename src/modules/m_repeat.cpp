@@ -306,39 +306,40 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 
 	bool ValidateSettings(LocalUser* source, Channel* channel, const std::string& parameter, const ChannelSettings& settings)
 	{
-		if (settings.Backlog && !ms.MaxBacklog)
+		if (ms.MaxLines && settings.Lines > ms.MaxLines)
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-				"Invalid repeat parameter. The server administrator has disabled backlog matching."));
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
+				"Invalid repeat parameter. The line number you specified is too great. Maximum allowed is %u.", ms.MaxLines)));
 			return false;
 		}
 
-		if (settings.Diff)
+		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
-			if (settings.Diff > ms.MaxDiff)
-			{
-				if (ms.MaxDiff == 0)
-					source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-						"Invalid repeat parameter. The server administrator has disabled matching on edit distance."));
-				else
-					source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-						"Invalid repeat parameter. The distance you specified is too great. Maximum allowed is %u.", ms.MaxDiff)));
-				return false;
-			}
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
+				"Invalid repeat parameter. The seconds you specified is too great. Maximum allowed is %u.", ms.MaxSecs)));
+			return false;
+		}
 
-			if (ms.MaxLines && settings.Lines > ms.MaxLines)
-			{
+		if (settings.Diff && settings.Diff > ms.MaxDiff)
+		{
+			if (ms.MaxDiff == 0)
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
+					"Invalid repeat parameter. The server administrator has disabled matching on edit distance."));
+			else
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"Invalid repeat parameter. The line number you specified is too great. Maximum allowed is %u.", ms.MaxLines)));
-				return false;
-			}
+					"Invalid repeat parameter. The distance you specified is too great. Maximum allowed is %u.", ms.MaxDiff)));
+			return false;
+		}
 
-			if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
-			{
+		if (settings.Backlog && settings.Backlog > ms.MaxBacklog)
+		{
+			if (ms.MaxBacklog == 0)
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
+					"Invalid repeat parameter. The server administrator has disabled backlog matching."));
+			else
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"Invalid repeat parameter. The seconds you specified is too great. Maximum allowed is %u.", ms.MaxSecs)));
-				return false;
-			}
+					"Invalid repeat paramter. The backlog you specified is too great. Maximum allowed is %u.", ms.MaxBacklog)));
+			return false;
 		}
 
 		return true;
