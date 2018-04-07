@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "event.h"
 #include "modules/dns.h"
+#include "modules/stats.h"
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
@@ -52,7 +53,7 @@ class Autoconnect;
 
 /** This is the main class for the spanningtree module
  */
-class ModuleSpanningTree : public Module
+class ModuleSpanningTree : public Module, public Stats::EventListener
 {
 	/** Client to server commands, registered in the core
 	 */

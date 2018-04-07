@@ -25,6 +25,7 @@
 #include "modules/regex.h"
 #include "modules/server.h"
 #include "modules/shun.h"
+#include "modules/stats.h"
 
 enum FilterFlags
 {
@@ -160,7 +161,7 @@ class CommandFilter : public Command
 	}
 };
 
-class ModuleFilter : public Module, public ServerEventListener
+class ModuleFilter : public Module, public ServerEventListener, public Stats::EventListener
 {
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
@@ -302,6 +303,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 
 ModuleFilter::ModuleFilter()
 	: ServerEventListener(this)
+	, Stats::EventListener(this)
 	, initing(true)
 	, filtcommand(this)
 	, RegexEngine(this, "regex")

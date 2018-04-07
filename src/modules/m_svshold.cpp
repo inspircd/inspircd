@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/stats.h"
 
 namespace
 {
@@ -161,14 +162,16 @@ class CommandSvshold : public Command
 	}
 };
 
-class ModuleSVSHold : public Module
+class ModuleSVSHold : public Module, public Stats::EventListener
 {
 	CommandSvshold cmd;
 	SVSHoldFactory s;
 
 
  public:
-	ModuleSVSHold() : cmd(this)
+	ModuleSVSHold()
+		: Stats::EventListener(this)
+		, cmd(this)
 	{
 	}
 

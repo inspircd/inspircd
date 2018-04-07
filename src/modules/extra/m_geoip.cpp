@@ -27,6 +27,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/stats.h"
 
 // Fix warnings about the use of commas at end of enumerator lists on C++03.
 #if defined __clang__
@@ -47,7 +48,7 @@ enum
 	RPL_WHOISCOUNTRY = 344
 };
 
-class ModuleGeoIP : public Module, public Whois::EventListener
+class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::EventListener
 {
 	StringExtItem ext;
 	bool extban;
@@ -65,7 +66,8 @@ class ModuleGeoIP : public Module, public Whois::EventListener
 
  public:
 	ModuleGeoIP()
-		: Whois::EventListener(this)
+		: Stats::EventListener(this)
+		, Whois::EventListener(this)
 		, ext("geoip_cc", ExtensionItem::EXT_USER, this)
 		, extban(true)
 		, gi(NULL)

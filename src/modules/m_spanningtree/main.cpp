@@ -37,7 +37,10 @@
 #include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: rconnect(this), rsquit(this), map(this)
+	: Stats::EventListener(this)
+	, rconnect(this)
+	, rsquit(this)
+	, map(this)
 	, commands(this)
 	, currmembid(0)
 	, eventprov(this, "event/server")

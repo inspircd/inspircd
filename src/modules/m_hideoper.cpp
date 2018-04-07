@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/stats.h"
 
 /** Handles user mode +H
  */
@@ -48,13 +49,14 @@ class HideOper : public SimpleUserModeHandler
 	}
 };
 
-class ModuleHideOper : public Module, public Whois::LineEventListener
+class ModuleHideOper : public Module, public Stats::EventListener, public Whois::LineEventListener
 {
 	HideOper hm;
 	bool active;
  public:
 	ModuleHideOper()
-		: Whois::LineEventListener(this)
+		: Stats::EventListener(this)
+		, Whois::LineEventListener(this)
 		, hm(this)
 		, active(false)
 	{

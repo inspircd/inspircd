@@ -220,7 +220,7 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
+	I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
@@ -814,13 +814,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
 	virtual ModResult OnExtBanCheck(User* user, Channel* chan, char type);
-
-	/** Called on all /STATS commands
-	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
-	 * @param stats Context of the /STATS request, contains requesting user, list of answer rows etc.
-	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
-	 */
-	virtual ModResult OnStats(Stats::Context& stats);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.

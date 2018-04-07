@@ -578,4 +578,3 @@ inline void stdalgo::culldeleter::operator()(classbase* item)
 
 #include "numericbuilder.h"
 #include "modules/whois.h"
-#include "modules/stats.h"

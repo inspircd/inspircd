@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/stats.h"
 
 #ifdef _WIN32
 #include <psapi.h>
@@ -31,11 +32,20 @@
  */
 class CommandStats : public Command
 {
+	Events::ModuleEventProvider statsevprov;
 	void DoStats(Stats::Context& stats);
+
  public:
 	/** Constructor for stats.
 	 */
-	CommandStats ( Module* parent) : Command(parent,"STATS",1,2) { allow_empty_last_param = false; syntax = "<stats-symbol> [<servername>]"; }
+	CommandStats(Module* Creator)
+		: Command(Creator, "STATS", 1, 2)
+		, statsevprov(Creator, "event/stats")
+	{
+		allow_empty_last_param = false;
+		syntax = "<stats-symbol> [<servername>]";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
@@ -82,7 +92,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	}
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnStats, MOD_RESULT, (stats));
+	FIRST_MOD_RESULT_CUSTOM(statsevprov, Stats::EventListener, OnStats, MOD_RESULT, (stats));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		stats.AddRow(219, statschar, "End of /STATS report");

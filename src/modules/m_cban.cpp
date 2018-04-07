@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/stats.h"
 
 /** Holds a CBAN item
  */
@@ -140,13 +141,15 @@ class CommandCBan : public Command
 	}
 };
 
-class ModuleCBan : public Module
+class ModuleCBan : public Module, public Stats::EventListener
 {
 	CommandCBan mycommand;
 	CBanFactory f;
 
  public:
-	ModuleCBan() : mycommand(this)
+	ModuleCBan()
+		: Stats::EventListener(this)
+		, mycommand(this)
 	{
 	}
 

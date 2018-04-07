@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
+#include "modules/stats.h"
 
 enum
 {
@@ -260,12 +261,14 @@ WhoWas::Nick::~Nick()
 	stdalgo::delete_all(entries);
 }
 
-class ModuleWhoWas : public Module
+class ModuleWhoWas : public Module, public Stats::EventListener
 {
 	CommandWhowas cmd;
 
  public:
-	ModuleWhoWas() : cmd(this)
+	ModuleWhoWas()
+		: Stats::EventListener(this)
+		, cmd(this)
 	{
 	}
 

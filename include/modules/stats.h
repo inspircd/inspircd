@@ -19,11 +19,29 @@
 
 #pragma once
 
+#include "event.h"
+
 namespace Stats
 {
 	class Context;
+	class EventListener;
 	class Row;
 }
+
+class Stats::EventListener : public Events::ModuleEventListener
+{
+ public:
+	EventListener(Module* mod)
+		: ModuleEventListener(mod, "event/stats")
+	{
+	}
+
+	/** Called when the STATS command is executed.
+	 * @param stats Context of the /STATS request, contains requesting user, list of answer rows etc.
+	 * @return MOD_RES_DENY if the stats request has been fulfilled. Otherwise, MOD_RES_PASSTHRU.
+	 */
+	virtual ModResult OnStats(Stats::Context& stats) = 0;
+};
 
 class Stats::Row : public Numeric::Numeric
 {

@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "modules/shun.h"
+#include "modules/stats.h"
 
 
 /** An XLineFactory specialized to generate shun pointers
@@ -133,7 +134,7 @@ class CommandShun : public Command
 	}
 };
 
-class ModuleShun : public Module
+class ModuleShun : public Module, public Stats::EventListener
 {
 	CommandShun cmd;
 	ShunFactory f;
@@ -142,7 +143,9 @@ class ModuleShun : public Module
 	bool affectopers;
 
  public:
-	ModuleShun() : cmd(this)
+	ModuleShun()
+		: Stats::EventListener(this)
+		, cmd(this)
 	{
 	}
 

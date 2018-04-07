@@ -24,6 +24,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "modules/dns.h"
+#include "modules/stats.h"
 
 /* Class holding data for a single entry */
 class DNSBLConfEntry : public refcountbase
@@ -220,7 +221,7 @@ class DNSBLResolver : public DNS::Request
 	}
 };
 
-class ModuleDNSBL : public Module
+class ModuleDNSBL : public Module, public Stats::EventListener
 {
 	std::vector<reference<DNSBLConfEntry> > DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;
@@ -247,7 +248,8 @@ class ModuleDNSBL : public Module
 	}
  public:
 	ModuleDNSBL()
-		: DNS(this, "DNS")
+		: Stats::EventListener(this)
+		, DNS(this, "DNS")
 		, nameExt("dnsbl_match", ExtensionItem::EXT_USER, this)
 		, countExt("dnsbl_pending", ExtensionItem::EXT_USER, this)
 	{

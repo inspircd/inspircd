@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/regex.h"
+#include "modules/stats.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
@@ -206,7 +207,7 @@ class CommandRLine : public Command
 	}
 };
 
-class ModuleRLine : public Module
+class ModuleRLine : public Module, public Stats::EventListener
 {
 	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
@@ -217,7 +218,10 @@ class ModuleRLine : public Module
 
  public:
 	ModuleRLine()
-		: rxfactory(this, "regex"), f(rxfactory), r(this, f)
+		: Stats::EventListener(this)
+		, rxfactory(this, "regex")
+		, f(rxfactory)
+		, r(this, f)
 		, initing(true)
 	{
 	}

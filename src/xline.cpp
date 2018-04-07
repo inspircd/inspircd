@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/stats.h"
 
 /** An XLineFactory specialized to generate GLine* pointers
  */
