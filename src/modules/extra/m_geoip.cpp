@@ -95,7 +95,7 @@ class ModuleGeoIP : public Module, public Whois::EventListener
 			GeoIP_delete(gi);
 	}
 
-	void ReadConfig(ConfigStatus&)
+	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("geoip");
 		extban = tag->getBool("extban");
@@ -106,7 +106,13 @@ class ModuleGeoIP : public Module, public Whois::EventListener
 		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		if (extban)
+			tokens["EXTBAN"].push_back('G');
+	}
+
+	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) CXX11_OVERRIDE
 	{
 		if (extban && (mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
 		{
