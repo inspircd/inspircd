@@ -108,7 +108,7 @@ class ModuleGeoIP : public Module, public Whois::EventListener
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if ((mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
+		if (extban && (mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
 		{
 			std::string* cc = ext.get(user);
 			if (!cc)
