@@ -28,6 +28,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "modules/stats.h"
+#include "modules/whois.h"
 
 // Fix warnings about the use of commas at end of enumerator lists on C++03.
 #if defined __clang__

@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/ssl.h"
+#include "modules/whois.h"
 
 enum
 {

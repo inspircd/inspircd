@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/whois.h"
 
 enum
 {

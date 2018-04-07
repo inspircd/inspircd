@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/exemption.h"
+#include "modules/whois.h"
 
 enum
 {

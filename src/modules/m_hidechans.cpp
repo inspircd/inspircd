@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "modules/whois.h"
 
 /** Handles user mode +I
  */
