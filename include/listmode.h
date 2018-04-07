@@ -178,6 +178,15 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	virtual bool ValidateParam(User* user, Channel* channel, std::string& parameter);
 
+	/** In the event that the mode should be given a parameter, and no parameter was provided, this method is called.
+	 * This allows you to give special information to the user, or handle this any way you like.
+	 * @param user The user issuing the mode change
+	 * @param dest For user mode changes, the target of the mode. For channel mode changes, NULL.
+	 * @param channel For channel mode changes, the target of the mode. For user mode changes, NULL.
+	 * See mode.h
+	 */
+	virtual void OnParameterMissing(User* user, User* dest, Channel* channel) CXX11_OVERRIDE;
+
 	/** Tell the user the list is too long.
 	 * Overridden by implementing module.
 	 * @param source Source user adding the parameter

@@ -221,6 +221,10 @@ bool ListModeBase::ValidateParam(User*, Channel*, std::string&)
 	return true;
 }
 
+void ListModeBase::OnParameterMissing(User*, User*, Channel*)
+{
+}
+
 void ListModeBase::TellListTooLong(User* source, Channel* channel, std::string& parameter)
 {
 	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, "Channel ban list is full");
