@@ -36,7 +36,7 @@ CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, 
 {
 	Channel* c;
 
-	if (!parameters.size())
+	if (parameters.empty())
 	{
 		user->WriteNumeric(RPL_ENDOFNAMES, '*', "End of /NAMES list.");
 		return CMD_SUCCESS;

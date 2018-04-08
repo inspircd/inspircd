@@ -645,8 +645,8 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	}
 
 	if (this->registered == REG_ALL)
-		this->WriteCommon("NICK %s",newnick.c_str());
-	std::string oldnick = nick;
+		this->WriteCommon("NICK %s", newnick.c_str());
+	const std::string oldnick = nick;
 	nick = newnick;
 
 	InvalidateCache();
@@ -767,10 +767,12 @@ void LocalUser::Write(const std::string& text)
 	if (!SocketEngine::BoundsCheckFd(&eh))
 		return;
 
-	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
+	// The maximum size of an IRC message minus the terminating CR+LF.
+	const size_t maxmessage = ServerInstance->Config->Limits.MaxLine - 2;
+	if (text.length() > maxmessage)
 	{
-		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again(text, 0, ServerInstance->Config->Limits.MaxLine - 2);
+		// This should happen rarely or never. Crop the string at MaxLine and try again.
+		std::string try_again(text, 0, maxmessage);
 		Write(try_again);
 		return;
 	}
@@ -780,8 +782,9 @@ void LocalUser::Write(const std::string& text)
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);
 
-	ServerInstance->stats.Sent += text.length() + 2;
-	this->bytes_out += text.length() + 2;
+	const size_t bytessent = text.length() + 2;
+	ServerInstance->stats.Sent += bytessent;
+	this->bytes_out += bytessent;
 	this->cmds_out++;
 }
 
