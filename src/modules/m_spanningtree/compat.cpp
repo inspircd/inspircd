@@ -526,6 +526,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		if ((numeric_number > 0) && (numeric_number < 1000))
 		{
 			// It's a numeric, translate to NUM
+			params.reserve(ts.Count());
 
 			// srcstr must be a valid server name
 			TreeServer* const numericsource = Utils->FindServer(srcstr);

@@ -33,7 +33,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 {
 	ModResult MOD_RESULT;
 
-	if ((parameters.size()) && (!parameters[0].empty()))
+	if ((!parameters.empty()) && (!parameters[0].empty()))
 	{
 		FIRST_MOD_RESULT(OnSetAway, MOD_RESULT, (user, parameters[0]));
 

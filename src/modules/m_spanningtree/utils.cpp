@@ -249,6 +249,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Name = linkname.c_str();
 
 		irc::spacesepstream sep = tag->getString("allowmask");
+		L->AllowMasks.reserve(sep.Count());
 		for (std::string s; sep.GetToken(s);)
 			L->AllowMasks.push_back(s);
 
@@ -307,6 +308,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		A->position = -1;
 		irc::spacesepstream ss(tag->getString("server"));
 		std::string server;
+		A->servers.reserve(ss.Count());
 		while (ss.GetToken(server))
 		{
 			A->servers.push_back(server);

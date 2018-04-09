@@ -164,6 +164,7 @@ void ServerConfig::CrossCheckOperClassType()
 
 		std::string classname;
 		irc::spacesepstream str(tag->getString("classes"));
+		ifo->class_blocks.reserve(str.Count());
 		while (str.GetToken(classname))
 		{
 			LocalIndex::iterator cls = operclass.find(classname);

@@ -174,6 +174,12 @@ namespace irc
 		/** Current string position
 		 */
 		size_t pos;
+		/** Length of original string
+		 */
+		size_t tokenlen;
+		/** Number of parts in string
+		 */
+		unsigned int numparts;
 		/** If set then GetToken() can return an empty string
 		 */
 		bool allow_empty;
@@ -197,6 +203,12 @@ namespace irc
 		 * @return True if the end of the stream has been reached, otherwise false
 		 */
 		bool StreamEnd();
+
+		/** Returns how many parts the stream contains when separated.
+		 *  Use for vector reservations.
+		 * @return unsigned int number of parts
+		 */
+		unsigned int Count();
 	};
 
 	/** A derived form of sepstream, which seperates on commas
@@ -259,6 +271,12 @@ namespace irc
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
 		bool GetToken(long &token);
+
+		/** Returns how many parts the stream contains when separated.
+		 *  Use for vector reservations.
+		 * @return unsigned int number of parts
+		 */
+		unsigned int Count();
 	};
 
 	/** The portparser class seperates out a port range into integers.

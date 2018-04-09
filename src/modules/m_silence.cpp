@@ -123,7 +123,7 @@ class CommandSilence : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
-		if (!parameters.size())
+		if (parameters.empty())
 		{
 			// no parameters, show the current silence list.
 			silencelist* sl = ext.get(user);
@@ -140,7 +140,7 @@ class CommandSilence : public Command
 
 			return CMD_SUCCESS;
 		}
-		else if (parameters.size() > 0)
+		else
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
 			std::string mask(parameters[0], 1);
