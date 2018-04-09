@@ -280,7 +280,7 @@ class ModuleShun : public Module
 		else if ((command == "PART") && (parameters.size() > 1))
 		{
 			/* same for PART */
-			parameters[1].clear();
+			parameters.pop_back();
 		}
 
 		/* if we're here, allow the command. */
