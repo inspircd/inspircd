@@ -293,7 +293,7 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 					const SendQueue::Element& elem = *i;
 					iovecs[j].iov_base = const_cast<char*>(elem.data());
 					iovecs[j].iov_len = elem.length();
-					rv_max += elem.length();
+					rv_max += iovecs[j].iov_len;
 				}
 				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
