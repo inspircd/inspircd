@@ -29,20 +29,20 @@ class CommandSetname : public Command
 	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
 	{
 		allow_empty_last_param = false;
-		syntax = "<new-gecos>";
+		syntax = "<newname>";
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteNotice("*** SETNAME: GECOS too long");
+			user->WriteNotice("*** SETNAME: Real name is too long");
 			return CMD_FAILURE;
 		}
 
 		if (user->ChangeName(parameters[0]))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their GECOS to '%s'", user->nick.c_str(), parameters[0].c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'", user->nick.c_str(), parameters[0].c_str());
 		}
 
 		return CMD_SUCCESS;

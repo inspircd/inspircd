@@ -43,7 +43,7 @@ class DNSBLConfEntry : public refcountbase
 };
 
 
-/** Resolver for CGI:IRC hostnames encoded in ident/GECOS
+/** Resolver for CGI:IRC hostnames encoded in ident/real name
  */
 class DNSBLResolver : public DNS::Request
 {

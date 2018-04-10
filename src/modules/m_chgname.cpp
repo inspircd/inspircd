@@ -45,20 +45,20 @@ class CommandChgname : public Command
 
 		if (parameters[1].empty())
 		{
-			user->WriteNotice("*** CHGNAME: GECOS must be specified");
+			user->WriteNotice("*** CHGNAME: Real name must be specified");
 			return CMD_FAILURE;
 		}
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteNotice("*** CHGNAME: GECOS too long");
+			user->WriteNotice("*** CHGNAME: Real name is too long");
 			return CMD_FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1]);
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's GECOS to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 		}
 
 		return CMD_SUCCESS;

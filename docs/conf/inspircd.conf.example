@@ -794,7 +794,7 @@
         # maxkick: Maximum length of a kick message.
         maxkick="255"
 
-        # maxgecos: Maximum length of a GECOS (realname).
+        # maxgecos: Maximum length of a real name (gecos).
         maxgecos="128"
 
         # maxaway: Maximum length of an away message.
