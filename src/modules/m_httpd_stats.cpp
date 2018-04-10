@@ -97,8 +97,8 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
-				data << "<inspircdstats><server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
-					<< Sanitize(ServerInstance->Config->ServerDesc) << "</gecos><version>"
+				data << "<inspircdstats><server><name>" << ServerInstance->Config->ServerName << "</name><description>"
+					<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
 					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
 
 				data << "<general>";
@@ -211,7 +211,7 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 					data << "<server>";
 					data << "<servername>" << b->servername << "</servername>";
 					data << "<parentname>" << b->parentname << "</parentname>";
-					data << "<gecos>" << Sanitize(b->gecos) << "</gecos>";
+					data << "<description>" << Sanitize(b->description) << "</description>";
 					data << "<usercount>" << b->usercount << "</usercount>";
 // This is currently not implemented, so, commented out.
 //					data << "<opercount>" << b->opercount << "</opercount>";
