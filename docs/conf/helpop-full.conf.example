@@ -145,10 +145,10 @@ everything from people with a host matching *.foo.net, you would do
 
 Sends a notice to a channel indicating you wish to join.">
 
-<helpop key="user" value="/USER <ident> <local host> <remote host> :<GECOS>
+<helpop key="user" value="/USER <ident> <local host> <remote host> :<real name>
 
 This command is used by your client to register your
-IRC session, providing your ident and GECOS to the
+IRC session, providing your ident and real name to the
 server.
 
 You should not use it during an established connection.">
@@ -245,10 +245,10 @@ The following flags after the mask have the following effects:
  i      Show all users who have an ident (username) matching the given mask
  p      Show all users who are connected on the given port number (IRC
         operators only)
- r      Show all users whose realnames match the mask. When this
+ r      Show all users whose real name match the mask. When this
         flag is set it overrides the meaning of the search-pattern,
-        which must contain a glob pattern intended to match GECOS
-        (realname) fields.
+        which must contain a glob pattern intended to match the
+        real name.
  m      Search for all users with a given set of user modes. When
         this flag is set it overrides the meaning of the
         search-pattern, which must contain the mode sequence to
@@ -744,7 +744,7 @@ Sends a message to all +w users.">
 
 <helpop key="rline" value="/RLINE <regex> [<duration> :<reason>]
 
-Sets or removes an r-line (regex line) on a n!u@h\\sgecos mask. You
+Sets or removes an r-line (regex line) on a n!u@h\\srealname mask. You
 must specify all three parameters to add an rline, and one parameter
 to remove an rline (just the regex).
 
@@ -1050,8 +1050,8 @@ Matching extbans:
                wildcards (requires channelban module).
  n:<class>     Matches users in a matching connect class (requires
                classban module).
- r:<realname>  Matches users with a matching realname (requires gecosban
-               module).
+ r:<realname>  Matches users with a matching real name (requires
+               gecosban module).
  s:<server>    Matches users on a matching server (requires serverban
                module).
  z:<certfp>    Matches users with a matching SSL certificate fingerprint

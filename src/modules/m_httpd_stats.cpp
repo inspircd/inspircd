@@ -183,8 +183,8 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 					data << "<user>";
 					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-						<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><gecos>"
-						<< Sanitize(u->fullname) << "</gecos><server>" << u->server->GetName() << "</server>";
+						<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
+						<< Sanitize(u->fullname) << "</realname><server>" << u->server->GetName() << "</server>";
 					if (u->IsAway())
 						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
 					if (u->IsOper())

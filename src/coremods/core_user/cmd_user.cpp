@@ -32,7 +32,7 @@ CommandUser::CommandUser(Module* parent)
 {
 	works_before_reg = true;
 	Penalty = 0;
-	syntax = "<username> <localhost> <remotehost> <GECOS>";
+	syntax = "<username> <localhost> <remotehost> <realname>";
 }
 
 CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)

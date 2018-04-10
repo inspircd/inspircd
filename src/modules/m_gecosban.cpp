@@ -24,7 +24,7 @@ class ModuleGecosBan : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Extban 'r' - realname (gecos) ban", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Extban 'r' - real name ban", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE

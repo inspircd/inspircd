@@ -283,8 +283,8 @@ Matching extbans:
                wildcards (requires channelban module).
  n:<class>     Matches users in a matching connect class (requires
                classban module).
- r:<realname>  Matches users with a matching realname (requires gecosban
-               module).
+ r:<realname>  Matches users with a matching real name (requires
+               gecosban module).
  s:<server>    Matches users on a matching server (requires serverban
                module).
  z:<certfp>    Matches users having the given SSL certificate
