@@ -46,7 +46,7 @@ class CoreExport ProtocolInterface
 	 public:
 		std::string servername;
 		std::string parentname;
-		std::string gecos;
+		std::string description;
 		unsigned int usercount;
 		unsigned int opercount;
 		unsigned int latencyms;

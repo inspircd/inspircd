@@ -38,7 +38,7 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 		ps.parentname = s ? s->GetName() : "";
 		ps.usercount = i->second->UserCount;
 		ps.opercount = i->second->OperCount;
-		ps.gecos = i->second->GetDesc();
+		ps.description = i->second->GetDesc();
 		ps.latencyms = i->second->rtt;
 		sl.push_back(ps);
 	}

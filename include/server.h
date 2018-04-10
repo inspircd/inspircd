@@ -53,7 +53,7 @@ class CoreExport Server : public classbase
 	 */
 	const std::string& GetName() const { return name; }
 
-	/** Returns the description (GECOS) of this server
+	/** Returns the description of this server
 	 * @return The description of this server
 	 */
 	const std::string& GetDesc() const { return description; }

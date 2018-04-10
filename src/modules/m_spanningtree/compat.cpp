@@ -267,7 +267,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				}
 				else if (command == "SERVER")
 				{
-					// :001 SERVER inspircd.test 002 [<anything> ...] :gecos
+					// :001 SERVER inspircd.test 002 [<anything> ...] :description
 					//     A      B             C
 					std::string::size_type c = line.find(' ', b + 1);
 					if (c == std::string::npos)
