@@ -99,7 +99,7 @@ sub parse_url {
 			$mod->{description} = $1;
 		} elsif (/^mask (.*)/) {
 			$mod->{mask} = $1;
-		} elsif (m#^source (http://\S+)#) {
+		} elsif (/^source (\S+)/) {
 			parse_url $1;
 		} else {
 			print "Unknown line in $src: $_\n";
