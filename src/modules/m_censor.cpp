@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-typedef insp::flat_map<irc::string, irc::string> censor_t;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> censor_t;
 
 class ModuleCensor : public Module
 {
@@ -63,10 +63,10 @@ class ModuleCensor : public Module
 		if (!active)
 			return MOD_RES_PASSTHRU;
 
-		irc::string text2 = details.text.c_str();
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
 		{
-			if (text2.find(index->first) != irc::string::npos)
+			size_t censorpos;
+			while ((censorpos = irc::find(details.text, index->first)) != std::string::npos)
 			{
 				if (index->second.empty())
 				{
@@ -75,10 +75,9 @@ class ModuleCensor : public Module
 					return MOD_RES_DENY;
 				}
 
-				stdalgo::string::replace_all(text2, index->first, index->second);
+				details.text.replace(censorpos, index->first.size(), index->second);
 			}
 		}
-		details.text = text2.c_str();
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -94,10 +93,12 @@ class ModuleCensor : public Module
 		for (ConfigIter i = badwords.first; i != badwords.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			std::string str = tag->getString("text");
-			irc::string pattern(str.c_str());
-			str = tag->getString("replace");
-			censors[pattern] = irc::string(str.c_str());
+			const std::string text = tag->getString("text");
+			if (text.empty())
+				continue;
+
+			const std::string replace = tag->getString("replace");
+			censors[text] = replace;
 		}
 	}
 

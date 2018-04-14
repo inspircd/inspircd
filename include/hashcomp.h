@@ -77,6 +77,13 @@ namespace irc
 	 */
 	CoreExport bool equals(const std::string& s1, const std::string& s2);
 
+	/** Check whether \p needle exists within \p haystack.
+	 * @param haystack The string to search within.
+	 * @param needle The string to search for.
+	 * @return Either the index at which \p needle was found or std::string::npos.
+	 */
+	CoreExport size_t find(const std::string& haystack, const std::string& needle);
+
 	/** This class returns true if two strings match.
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
@@ -100,55 +107,6 @@ namespace irc
 	{
 		bool CoreExport operator()(const std::string& a, const std::string& b) const;
 	};
-
-	/** The irc_char_traits class is used for RFC-style comparison of strings.
-	 * This class is used to implement irc::string, a case-insensitive, RFC-
-	 * comparing string class.
-	 */
-	struct CoreExport irc_char_traits : public std::char_traits<char>
-	{
-		/** Check if two chars match.
-		 * @param c1st First character
-		 * @param c2nd Second character
-		 * @return true if the characters are equal
-		 */
-		static bool eq(char c1st, char c2nd);
-
-		/** Check if two chars do NOT match.
-		 * @param c1st First character
-		 * @param c2nd Second character
-		 * @return true if the characters are unequal
-		 */
-		static bool ne(char c1st, char c2nd);
-
-		/** Check if one char is less than another.
-		 * @param c1st First character
-		 * @param c2nd Second character
-		 * @return true if c1st is less than c2nd
-		 */
-		static bool lt(char c1st, char c2nd);
-
-		/** Compare two strings of size n.
-		 * @param str1 First string
-		 * @param str2 Second string
-		 * @param n Length to compare to
-		 * @return similar to strcmp, zero for equal, less than zero for str1
-		 * being less and greater than zero for str1 being greater than str2.
-		 */
-		static int compare(const char* str1, const char* str2, size_t n);
-
-		/** Find a char within a string up to position n.
-		 * @param s1 String to find in
-		 * @param n Position to search up to
-		 * @param c Character to search for
-		 * @return Pointer to the first occurance of c in s1
-		 */
-		static const char* find(const char* s1, int  n, char c);
-	};
-
-	/** This typedef declares irc::string based upon irc_char_traits.
-	 */
-	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
 	/** Joins the contents of a vector to a string.
 	 * @param sequence Zero or more items to join.

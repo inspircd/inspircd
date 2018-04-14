@@ -128,6 +128,38 @@ bool irc::equals(const std::string& s1, const std::string& s2)
 	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
 }
 
+size_t irc::find(const std::string& haystack, const std::string& needle)
+{
+	// The haystack can't contain the needle if it is smaller than it.
+	if (needle.length() > haystack.length())
+		return std::string::npos;
+
+	// The inner loop checks the characters between haystack_last and the end of the haystack.
+	size_t haystack_last = haystack.length() - needle.length();
+	for (size_t hpos = 0; hpos <= haystack_last; ++hpos)
+	{
+		// Check for the needle at the current haystack position.
+		bool found = true;
+		for (size_t npos = 0; npos < needle.length(); ++npos)
+		{
+			if (national_case_insensitive_map[(unsigned char)needle[npos]] != national_case_insensitive_map[(unsigned char)haystack[hpos + npos]])
+			{
+				// Uh-oh, characters at the current haystack position don't match.
+				found = false;
+				break;
+			}
+		}
+
+		// The entire needle was found in the haystack!
+		if (found)
+			return hpos;
+	}
+
+	// We didn't find anything.
+	return std::string::npos;
+}
+
+
 bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
 {
 	const unsigned char* charmap = national_case_insensitive_map;
@@ -159,58 +191,6 @@ size_t irc::insensitive::operator()(const std::string &s) const
 	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
-}
-
-/******************************************************
- *
- * This is the implementation of our special irc::string
- * class which is a case-insensitive equivalent to
- * std::string which is not only case-insensitive but
- * can also do scandanavian comparisons, e.g. { = [, etc.
- *
- * This class depends on the const array 'national_case_insensitive_map'.
- *
- ******************************************************/
-
-bool irc::irc_char_traits::eq(char c1st, char c2nd)
-{
-	return national_case_insensitive_map[(unsigned char)c1st] == national_case_insensitive_map[(unsigned char)c2nd];
-}
-
-bool irc::irc_char_traits::ne(char c1st, char c2nd)
-{
-	return national_case_insensitive_map[(unsigned char)c1st] != national_case_insensitive_map[(unsigned char)c2nd];
-}
-
-bool irc::irc_char_traits::lt(char c1st, char c2nd)
-{
-	return national_case_insensitive_map[(unsigned char)c1st] < national_case_insensitive_map[(unsigned char)c2nd];
-}
-
-int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
-{
-	for(unsigned int i = 0; i < n; i++)
-	{
-		if(national_case_insensitive_map[(unsigned char)*str1] > national_case_insensitive_map[(unsigned char)*str2])
-			return 1;
-
-		if(national_case_insensitive_map[(unsigned char)*str1] < national_case_insensitive_map[(unsigned char)*str2])
-			return -1;
-
-		if(*str1 == 0 || *str2 == 0)
-		   	return 0;
-
-		str1++;
-		str2++;
-	}
-	return 0;
-}
-
-const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
-{
-	while(n-- > 0 && national_case_insensitive_map[(unsigned char)*s1] != national_case_insensitive_map[(unsigned char)c])
-		s1++;
-	return (n >= 0) ? s1 : NULL;
 }
 
 irc::tokenstream::tokenstream(const std::string &source) : spacesepstream(source)
