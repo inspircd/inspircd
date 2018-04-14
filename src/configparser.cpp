@@ -496,6 +496,23 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 	return res;
 }
 
+unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
+{
+	std::string result;
+	if (!readString(key, result))
+		return def;
+
+	const char* res_cstr = result.c_str();
+	char* res_tail = NULL;
+	unsigned long res = strtoul(res_cstr, &res_tail, 0);
+	if (res_tail == res_cstr)
+		return def;
+
+	CheckMagnitude(tag, key, result, res, def, res_tail);
+	CheckRange(tag, key, res, def, min, max);
+	return res;
+}
+
 unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
 {
 	std::string duration;

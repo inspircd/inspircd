@@ -147,8 +147,8 @@ class ModulePBKDF2 : public Module
 	{
 		// First set the common values
 		ConfigTag* tag = ServerInstance->Config->ConfValue("pbkdf2");
-		unsigned int global_iterations = tag->getInt("iterations", 12288, 1);
-		unsigned int global_dkey_length = tag->getInt("length", 32, 1, 1024);
+		unsigned int global_iterations = tag->getUInt("iterations", 12288, 1);
+		unsigned int global_dkey_length = tag->getUInt("length", 32, 1, 1024);
 		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
 		{
 			PBKDF2Provider* pi = *i;
@@ -168,8 +168,8 @@ class ModulePBKDF2 : public Module
 				if (pi->provider->name != hash_name)
 					continue;
 
-				pi->iterations = tag->getInt("iterations", global_iterations, 1);
-				pi->dkey_length = tag->getInt("length", global_dkey_length, 1, 1024);
+				pi->iterations = tag->getUInt("iterations", global_iterations, 1);
+				pi->dkey_length = tag->getUInt("length", global_dkey_length, 1, 1024);
 			}
 		}
 	}

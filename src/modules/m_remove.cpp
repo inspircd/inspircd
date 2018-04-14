@@ -217,7 +217,7 @@ class ModuleRemove : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
 		supportnokicks = tag->getBool("supportnokicks");
-		cmd1.protectedrank = cmd2.protectedrank = tag->getInt("protectedrank", 50000);
+		cmd1.protectedrank = cmd2.protectedrank = tag->getUInt("protectedrank", 50000);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

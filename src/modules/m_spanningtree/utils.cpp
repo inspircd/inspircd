@@ -250,7 +250,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 			L->AllowMasks.push_back(s);
 
 		L->IPAddr = tag->getString("ipaddr");
-		L->Port = tag->getInt("port", 0);
+		L->Port = tag->getUInt("port", 0);
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");

@@ -353,7 +353,7 @@ class ModuleCloaking : public Module
 		if (modestr == "half")
 		{
 			mode = MODE_HALF_CLOAK;
-			domainparts = tag->getInt("domainparts", 3, 1, 10);
+			domainparts = tag->getUInt("domainparts", 3, 1, 10);
 		}
 		else if (modestr == "full")
 			mode = MODE_OPAQUE;

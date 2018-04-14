@@ -26,7 +26,7 @@ class Link : public refcountbase
 	reference<ConfigTag> tag;
 	std::string Name;
 	std::string IPAddr;
-	int Port;
+	unsigned int Port;
 	std::string SendPass;
 	std::string RecvPass;
 	std::string Fingerprint;

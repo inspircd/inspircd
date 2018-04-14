@@ -68,7 +68,7 @@ class ModuleHideList : public Module
 			std::string modename = tag->getString("mode");
 			// If rank is set to 0 everyone inside the channel can view the list,
 			// but non-members may not
-			unsigned int rank = tag->getInt("rank", HALFOP_VALUE, 0);
+			unsigned int rank = tag->getUInt("rank", HALFOP_VALUE);
 			watchers.push_back(new ListWatcher(this, modename, rank));
 		}
 	}

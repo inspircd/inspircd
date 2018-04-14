@@ -418,7 +418,7 @@ public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
-		cmd.maxaccepts = tag->getInt("maxaccepts", 16);
+		cmd.maxaccepts = tag->getUInt("maxaccepts", 16);
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getDuration("cooldown", 60);
 	}

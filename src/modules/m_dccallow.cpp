@@ -506,7 +506,7 @@ class ModuleDCCAllow : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
-		cmd.maxentries = tag->getInt("maxentries", 20);
+		cmd.maxentries = tag->getUInt("maxentries", 20);
 
 		bfl.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");

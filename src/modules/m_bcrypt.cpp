@@ -975,7 +975,7 @@ class ModuleBCrypt : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
-		bcrypt.rounds = conf->getInt("rounds", 10, 1);
+		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

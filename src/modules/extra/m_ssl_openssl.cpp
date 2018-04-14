@@ -359,7 +359,7 @@ namespace OpenSSL
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
-			, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
+			, outrecsize(tag->getUInt("outrecsize", 2048, 512, 16384))
 		{
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");

@@ -313,10 +313,7 @@ class ModuleSilence : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
 
-		maxsilence = tag->getInt("maxentries", 32);
-		if (!maxsilence)
-			maxsilence = 32;
-
+		maxsilence = tag->getUInt("maxentries", 32, 1);
 		ExemptULine = tag->getBool("exemptuline", true);
 	}
 

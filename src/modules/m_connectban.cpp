@@ -40,9 +40,9 @@ class ModuleConnectBan : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getInt("ipv4cidr", 32, 1, 32);
-		ipv6_cidr = tag->getInt("ipv6cidr", 128, 1, 128);
-		threshold = tag->getInt("threshold", 10, 1);
+		ipv4_cidr = tag->getUInt("ipv4cidr", 32, 1, 32);
+		ipv6_cidr = tag->getUInt("ipv6cidr", 128, 1, 128);
+		threshold = tag->getUInt("threshold", 10, 1);
 		banduration = tag->getDuration("duration", 10*60, 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 	}

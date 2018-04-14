@@ -650,7 +650,7 @@ namespace GnuTLS
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem")))
 				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem"))))
 				, priostr(GetPrioStr(profilename, tag))
-				, mindh(tag->getInt("mindhbits", 1024))
+				, mindh(tag->getUInt("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "md5"))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
@@ -667,9 +667,9 @@ namespace GnuTLS
 
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 				// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
-				outrecsize = tag->getInt("outrecsize", 2048, 512);
+				outrecsize = tag->getUInt("outrecsize", 2048, 512);
 #else
-				outrecsize = tag->getInt("outrecsize", 2048, 512, 16384);
+				outrecsize = tag->getUInt("outrecsize", 2048, 512, 16384);
 #endif
 			}
 		};

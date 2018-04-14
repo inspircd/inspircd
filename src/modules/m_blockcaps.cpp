@@ -109,8 +109,8 @@ public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
-		percent = tag->getInt("percent", 100, 1, 100);
-		minlen = tag->getInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
+		percent = tag->getUInt("percent", 100, 1, 100);
+		minlen = tag->getUInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
 
 		lowercase.reset();
 		const std::string lower = tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz");

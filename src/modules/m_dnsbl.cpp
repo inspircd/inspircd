@@ -281,7 +281,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			if (tag->getString("type") == "bitmask")
 			{
 				e->type = DNSBLConfEntry::A_BITMASK;
-				e->bitmask = tag->getInt("bitmask", 0, 0, UINT_MAX);
+				e->bitmask = tag->getUInt("bitmask", 0, 0, UINT_MAX);
 			}
 			else
 			{

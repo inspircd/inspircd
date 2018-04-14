@@ -402,7 +402,7 @@ class ModuleMonitor : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("monitor");
-		cmd.maxmonitor = tag->getInt("maxentries", 30, 1);
+		cmd.maxmonitor = tag->getUInt("maxentries", 30, 1);
 	}
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE

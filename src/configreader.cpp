@@ -30,17 +30,17 @@
 #include <iostream>
 
 ServerLimits::ServerLimits(ConfigTag* tag)
-	: NickMax(tag->getInt("maxnick", 30))
-	, ChanMax(tag->getInt("maxchan", 64))
-	, MaxModes(tag->getInt("maxmodes", 20))
-	, IdentMax(tag->getInt("maxident", 10))
-	, MaxQuit(tag->getInt("maxquit", 255))
-	, MaxTopic(tag->getInt("maxtopic", 307))
-	, MaxKick(tag->getInt("maxkick", 255))
-	, MaxGecos(tag->getInt("maxgecos", 128))
-	, MaxAway(tag->getInt("maxaway", 200))
-	, MaxLine(tag->getInt("maxline", 512))
-	, MaxHost(tag->getInt("maxhost", 64))
+	: NickMax(tag->getUInt("maxnick", 30))
+	, ChanMax(tag->getUInt("maxchan", 64))
+	, MaxModes(tag->getUInt("maxmodes", 20))
+	, IdentMax(tag->getUInt("maxident", 10))
+	, MaxQuit(tag->getUInt("maxquit", 255))
+	, MaxTopic(tag->getUInt("maxtopic", 307))
+	, MaxKick(tag->getUInt("maxkick", 255))
+	, MaxGecos(tag->getUInt("maxgecos", 128))
+	, MaxAway(tag->getUInt("maxaway", 200))
+	, MaxLine(tag->getUInt("maxline", 512))
+	, MaxHost(tag->getUInt("maxhost", 64))
 {
 }
 
@@ -318,17 +318,17 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					me->softsendqmax = value;
 				me->hardsendqmax = value * 8;
 			}
-			me->softsendqmax = tag->getInt("softsendq", me->softsendqmax);
-			me->hardsendqmax = tag->getInt("hardsendq", me->hardsendqmax);
-			me->recvqmax = tag->getInt("recvq", me->recvqmax);
-			me->penaltythreshold = tag->getInt("threshold", me->penaltythreshold);
-			me->commandrate = tag->getInt("commandrate", me->commandrate);
+			me->softsendqmax = tag->getUInt("softsendq", me->softsendqmax);
+			me->hardsendqmax = tag->getUInt("hardsendq", me->hardsendqmax);
+			me->recvqmax = tag->getUInt("recvq", me->recvqmax);
+			me->penaltythreshold = tag->getUInt("threshold", me->penaltythreshold);
+			me->commandrate = tag->getUInt("commandrate", me->commandrate);
 			me->fakelag = tag->getBool("fakelag", me->fakelag);
-			me->maxlocal = tag->getInt("localmax", me->maxlocal);
-			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
-			me->maxchans = tag->getInt("maxchans", me->maxchans);
+			me->maxlocal = tag->getUInt("localmax", me->maxlocal);
+			me->maxglobal = tag->getUInt("globalmax", me->maxglobal);
+			me->maxchans = tag->getUInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
-			me->limit = tag->getInt("limit", me->limit);
+			me->limit = tag->getUInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 
 			std::string ports = tag->getString("port");
@@ -419,9 +419,9 @@ void ServerConfig::Fill()
 			throw CoreException("You must restart to change the server casemapping");
 
 	}
-	SoftLimit = ConfValue("performance")->getInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
+	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
-	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
+	MaxConn = ConfValue("performance")->getUInt("somaxconn", SOMAXCONN);
 	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
 	ServerDesc = server->getString("description", "Configure Me");
 	Network = server->getString("network", "Network");
@@ -439,13 +439,13 @@ void ServerConfig::Fill()
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
+	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
-	MaxChans = ConfValue("channels")->getInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getInt("opers", 0);
-	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32, 1, 32);
-	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128, 1, 128);
+	MaxChans = ConfValue("channels")->getUInt("users", 20);
+	OperMaxChans = ConfValue("channels")->getUInt("opers", 0);
+	c_ipv4_range = ConfValue("cidr")->getUInt("ipv4clone", 32, 1, 32);
+	c_ipv6_range = ConfValue("cidr")->getUInt("ipv6clone", 128, 1, 128);
 	Limits = ServerLimits(ConfValue("limits"));
 	Paths = ServerPaths(ConfValue("path"));
 	NoSnoticeStack = options->getBool("nosnoticestack", false);

@@ -47,6 +47,8 @@ class CoreExport ConfigTag : public refcountbase
 	/** Get the value of an option, using def if it does not exist */
 	long getInt(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX);
 	/** Get the value of an option, using def if it does not exist */
+	unsigned long getUInt(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX);
+	/** Get the value of an option, using def if it does not exist */
 	double getFloat(const std::string& key, double def);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);

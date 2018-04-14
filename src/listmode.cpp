@@ -69,7 +69,7 @@ void ListModeBase::DoRehash()
 	{
 		// For each <banlist> tag
 		ConfigTag* c = i->second;
-		ListLimit limit(c->getString("chan"), c->getInt("limit", 0));
+		ListLimit limit(c->getString("chan"), c->getUInt("limit", 0));
 
 		if (limit.mask.size() && limit.limit > 0)
 			chanlimits.push_back(limit);

@@ -219,7 +219,7 @@ class ModuleWatch : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("watch");
-		cmd.maxwatch = tag->getInt("maxwatch", 30, 1);
+		cmd.maxwatch = tag->getUInt("maxwatch", 30, 1);
 	}
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE

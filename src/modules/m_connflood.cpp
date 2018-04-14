@@ -49,7 +49,7 @@ public:
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
 		seconds = tag->getDuration("period", tag->getDuration("seconds", 30));
-		maxconns = tag->getInt("maxconns", 3);
+		maxconns = tag->getUInt("maxconns", 3);
 		timeout = tag->getDuration("timeout", 30);
 		quitmsg = tag->getString("quitmsg");
 

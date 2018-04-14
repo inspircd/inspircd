@@ -233,15 +233,15 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	void ReadConfig()
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("repeat");
-		ms.MaxLines = conf->getInt("maxlines", 20);
-		ms.MaxBacklog = conf->getInt("maxbacklog", 20);
+		ms.MaxLines = conf->getUInt("maxlines", 20);
+		ms.MaxBacklog = conf->getUInt("maxbacklog", 20);
 		ms.MaxSecs = conf->getDuration("maxtime", conf->getDuration("maxsecs", 0));
 
-		ms.MaxDiff = conf->getInt("maxdistance", 50);
+		ms.MaxDiff = conf->getUInt("maxdistance", 50);
 		if (ms.MaxDiff > 100)
 			ms.MaxDiff = 100;
 
-		unsigned int newsize = conf->getInt("size", 512);
+		unsigned int newsize = conf->getUInt("size", 512);
 		if (newsize > ServerInstance->Config->Limits.MaxLine)
 			newsize = ServerInstance->Config->Limits.MaxLine;
 		Resize(newsize);
