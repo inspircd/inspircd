@@ -419,6 +419,44 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 namespace
 {
+	/** Check for an invalid magnitude specifier. If one is found a warning is logged and the
+	 * value is corrected (set to \p def).
+	 * @param tag The tag name; used in the warning message.
+	 * @param key The key name; used in the warning message.
+	 * @param val The full value set in the config as a string.
+	 * @param num The value to verify and modify if needed.
+	 * @param def The default value, \p res will be set to this if \p tail does not contain a.
+	 *            valid magnitude specifier.
+	 * @param tail The location in the config value at which the magnifier is located.
+	 */
+	template <typename Numeric>
+	void CheckMagnitude(const std::string& tag, const std::string& key, const std::string& val, Numeric& num, Numeric def, const char* tail)
+	{
+		// If this is NULL then no magnitude specifier was given.
+		if (!*tail)
+			return;
+
+		switch (toupper(*tail))
+		{
+			case 'K':
+				num *= 1024;
+				return;
+
+			case 'M':
+				num *= 1024 * 1024;
+				return;
+
+			case 'G':
+				num *= 1024 * 1024 * 1024;
+				return;
+		}
+
+		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + val + " contains an invalid magnitude specifier '"
+			+ tail + "'; value set to " + ConvToStr(def) + ".";
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, message);
+		num = def;
+	}
+
 	/** Check for an out of range value. If the value falls outside the boundaries a warning is
 	 * logged and the value is corrected (set to \p def).
 	 * @param tag The tag name; used in the warning message.
@@ -452,19 +490,8 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 	long res = strtol(res_cstr, &res_tail, 0);
 	if (res_tail == res_cstr)
 		return def;
-	switch (toupper(*res_tail))
-	{
-		case 'K':
-			res = res * 1024;
-			break;
-		case 'M':
-			res = res * 1024 * 1024;
-			break;
-		case 'G':
-			res = res * 1024 * 1024 * 1024;
-			break;
-	}
 
+	CheckMagnitude(tag, key, result, res, def, res_tail);
 	CheckRange(tag, key, res, def, min, max);
 	return res;
 }
