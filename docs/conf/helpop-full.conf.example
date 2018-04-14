@@ -389,7 +389,7 @@ FILTER    OJOIN     CLEARCHAN
 CONNECT   SQUIT     RCONNECT    RSQUIT
 
 DIE            RESTART      REHASH
-CLEARCACHE     LOADMODULE   UNLOADMODULE
+               LOADMODULE   UNLOADMODULE
 RELOADMODULE   GLOADMODULE  GUNLOADMODULE
 GRELOADMODULE  CLOSE        JUMPSERVER
 LOCKSERV       UNLOCKSERV">
@@ -661,13 +661,11 @@ Loads the specified module into the local server.">
 
 <helpop key="unloadmodule" value="/UNLOADMODULE <modname>
 
-Unloads a module from the local server. The module cannot have the
-static flag set (see the output of /MODULES).">
+Unloads a module from the local server.">
 
 <helpop key="reloadmodule" value="/RELOADMODULE <modname>
 
-Unloads and reloads a module on the local server. This module cannot
-have the static flag set (see the output of /MODULES).">
+Unloads and reloads a module on the local server.">
 
 <helpop key="gloadmodule" value="/GLOADMODULE <modname>
 
@@ -675,13 +673,11 @@ Loads the specified module on all linked servers.">
 
 <helpop key="gunloadmodule" value="/GUNLOADMODULE <modname>
 
-Unloads a module from all linked servers. The module cannot have the
-static flag set (see the output of /MODULES).">
+Unloads a module from all linked servers.">
 
 <helpop key="greloadmodule" value="/GRELOADMODULE <modname>
 
-Unloads and reloads a module on all linked servers. This module cannot
-have the static flag set (see the output of /MODULES).">
+Unloads and reloads a module on all linked servers.">
 
 <helpop key="kline" value="/KLINE <user@host> [<duration> :<reason>]
 
@@ -751,10 +747,6 @@ to remove an rline (just the regex).
 The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
-
-<helpop key="clearcache" value="/CLEARCACHE
-
-This command clears the DNS cache of the local server.">
 
 <helpop key="close" value="/CLOSE
 
