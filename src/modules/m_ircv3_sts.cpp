@@ -167,7 +167,7 @@ class ModuleIRCv3STS : public Module
 		if (!HasValidSSLPort(port))
 			throw ModuleException("<sts:port> must be a TLS port, at " + tag->getTagLocation());
 
-		unsigned long duration = tag->getDuration("duration", 60*60*24*30*2, 0, LONG_MAX);
+		unsigned long duration = tag->getDuration("duration", 60*60*24*30*2);
 		bool preload = tag->getBool("preload");
 		cap.SetPolicy(host, duration, port, preload);
 	}

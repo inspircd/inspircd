@@ -24,7 +24,7 @@
 class ModuleSecureList : public Module
 {
 	std::vector<std::string> allowlist;
-	time_t WaitTime;
+	unsigned int WaitTime;
 
  public:
 	Version GetVersion() CXX11_OVERRIDE
@@ -40,7 +40,7 @@ class ModuleSecureList : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 			allowlist.push_back(i->second->getString("exception"));
 
-		WaitTime = ServerInstance->Config->ConfValue("securelist")->getDuration("waittime", 60);
+		WaitTime = ServerInstance->Config->ConfValue("securelist")->getDuration("waittime", 60, 1);
 	}
 
 

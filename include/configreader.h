@@ -59,7 +59,7 @@ class CoreExport ConfigTag : public refcountbase
 	 * @param max Maximum acceptable value (optional)
 	 * @return The duration in seconds
 	 */
-	long getDuration(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX);
+	unsigned long getDuration(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX);
 
 	/** Get the value of an option
 	 * @param key The option to get

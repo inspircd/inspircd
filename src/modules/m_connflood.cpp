@@ -23,7 +23,9 @@
 
 class ModuleConnFlood : public Module
 {
-	int seconds, timeout, boot_wait;
+	unsigned int seconds;
+	unsigned int timeout;
+	unsigned int boot_wait;
 	unsigned int conns;
 	unsigned int maxconns;
 	bool throttled;
@@ -46,13 +48,13 @@ public:
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
-		seconds = tag->getDuration("period", tag->getInt("seconds", 30));
+		seconds = tag->getDuration("period", tag->getDuration("seconds", 30));
 		maxconns = tag->getInt("maxconns", 3);
 		timeout = tag->getDuration("timeout", 30);
 		quitmsg = tag->getString("quitmsg");
 
 		/* seconds to wait when the server just booted */
-		boot_wait = tag->getInt("bootwait", 10);
+		boot_wait = tag->getDuration("bootwait", 10);
 
 		first = ServerInstance->Time();
 	}

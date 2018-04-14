@@ -496,13 +496,13 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 	return res;
 }
 
-long ConfigTag::getDuration(const std::string& key, long def, long min, long max)
+unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
 {
 	std::string duration;
 	if (!readString(key, duration))
 		return def;
 
-	long ret = InspIRCd::Duration(duration);
+	unsigned long ret = InspIRCd::Duration(duration);
 	CheckRange(tag, key, ret, def, min, max);
 	return ret;
 }
