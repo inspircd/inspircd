@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cfloat>
 #include <climits>
 #include <cmath>
 #include <csignal>

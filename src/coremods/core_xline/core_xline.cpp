@@ -28,7 +28,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	if (insane->getBool(confkey))
 		return false;
 
-	float itrigger = insane->getFloat("trigger", 95.5);
+	float itrigger = insane->getFloat("trigger", 95.5, 0.0, 100.0);
 
 	long matches = test.Run(mask);
 

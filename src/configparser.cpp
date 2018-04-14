@@ -524,12 +524,15 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	return ret;
 }
 
-double ConfigTag::getFloat(const std::string &key, double def)
+double ConfigTag::getFloat(const std::string& key, double def, double min, double max)
 {
 	std::string result;
 	if (!readString(key, result))
 		return def;
-	return strtod(result.c_str(), NULL);
+
+	double res = strtod(result.c_str(), NULL);
+	CheckRange(tag, key, res, def, min, max);
+	return res;
 }
 
 bool ConfigTag::getBool(const std::string &key, bool def)
