@@ -229,13 +229,10 @@ void SpanningTreeUtilities::ReadConfiguration()
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");
 	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");
-	PingWarnTime = options->getDuration("pingwarning");
-	PingFreq = options->getDuration("serverpingfreq");
+	PingWarnTime = options->getDuration("pingwarning", 15);
+	PingFreq = options->getDuration("serverpingfreq", 60, 1);
 
-	if (PingFreq == 0)
-		PingFreq = 60;
-
-	if (PingWarnTime > PingFreq - 1)
+	if (PingWarnTime >= PingFreq)
 		PingWarnTime = 0;
 
 	AutoconnectBlocks.clear();
@@ -253,7 +250,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 			L->AllowMasks.push_back(s);
 
 		L->IPAddr = tag->getString("ipaddr");
-		L->Port = tag->getInt("port");
+		L->Port = tag->getInt("port", 0);
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");

@@ -272,7 +272,7 @@ class SQLConnection : public SQL::Provider
 		std::string user = config->getString("user");
 		std::string pass = config->getString("pass");
 		std::string dbname = config->getString("name");
-		int port = config->getInt("port");
+		int port = config->getInt("port", 3306);
 		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
 		if (!rv)
 			return rv;

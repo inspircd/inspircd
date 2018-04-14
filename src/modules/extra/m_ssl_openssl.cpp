@@ -334,8 +334,8 @@ namespace OpenSSL
 		 */
 		void SetContextOptions(const std::string& ctxname, ConfigTag* tag, Context& context)
 		{
-			long setoptions = tag->getInt(ctxname + "setoptions");
-			long clearoptions = tag->getInt(ctxname + "clearoptions");
+			long setoptions = tag->getInt(ctxname + "setoptions", 0);
+			long clearoptions = tag->getInt(ctxname + "clearoptions", 0);
 #ifdef SSL_OP_NO_COMPRESSION
 			if (!tag->getBool("compression", false)) // Disable compression by default
 				setoptions |= SSL_OP_NO_COMPRESSION;

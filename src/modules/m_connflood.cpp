@@ -46,13 +46,13 @@ public:
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
-		seconds = tag->getDuration("period", tag->getInt("seconds"));
-		maxconns = tag->getInt("maxconns");
-		timeout = tag->getDuration("timeout");
+		seconds = tag->getDuration("period", tag->getInt("seconds", 30));
+		maxconns = tag->getInt("maxconns", 3);
+		timeout = tag->getDuration("timeout", 30);
 		quitmsg = tag->getString("quitmsg");
 
 		/* seconds to wait when the server just booted */
-		boot_wait = tag->getInt("bootwait");
+		boot_wait = tag->getInt("bootwait", 10);
 
 		first = ServerInstance->Time();
 	}

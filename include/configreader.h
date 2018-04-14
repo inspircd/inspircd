@@ -45,9 +45,9 @@ class CoreExport ConfigTag : public refcountbase
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "", size_t minlen = 0, size_t maxlen = UINT32_MAX);
 	/** Get the value of an option, using def if it does not exist */
-	long getInt(const std::string& key, long def = 0, long min = LONG_MIN, long max = LONG_MAX);
+	long getInt(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX);
 	/** Get the value of an option, using def if it does not exist */
-	double getFloat(const std::string& key, double def = 0);
+	double getFloat(const std::string& key, double def);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
 
@@ -59,7 +59,7 @@ class CoreExport ConfigTag : public refcountbase
 	 * @param max Maximum acceptable value (optional)
 	 * @return The duration in seconds
 	 */
-	long getDuration(const std::string& key, long def = 0, long min = LONG_MIN, long max = LONG_MAX);
+	long getDuration(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX);
 
 	/** Get the value of an option
 	 * @param key The option to get

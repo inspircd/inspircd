@@ -413,8 +413,8 @@ namespace mbedTLS
 				, mindh(tag->getInt("mindhbits", 2048))
 				, hashstr(tag->getString("hash", "sha256"))
 				, castr(tag->getString("cafile"))
-				, minver(tag->getInt("minver"))
-				, maxver(tag->getInt("maxver"))
+				, minver(tag->getInt("minver", 0))
+				, maxver(tag->getInt("maxver", 0))
 				, outrecsize(tag->getInt("outrecsize", 2048, 512, 16384))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{

@@ -206,7 +206,7 @@ public:
 				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);
 				c = new Channel(channel, TS);
 
-				unsigned int topicset = tag->getInt("topicts");
+				unsigned int topicset = tag->getInt("topicts", 0);
 				std::string topic = tag->getString("topic");
 
 				if ((topicset != 0) || (!topic.empty()))
