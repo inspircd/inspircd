@@ -417,6 +417,30 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 	return res;
 }
 
+namespace
+{
+	/** Check for an out of range value. If the value falls outside the boundaries a warning is
+	 * logged and the value is corrected (set to \p def).
+	 * @param tag The tag name; used in the warning message.
+	 * @param key The key name; used in the warning message.
+	 * @param num The value to verify and modify if needed.
+	 * @param def The default value, \p res will be set to this if (min <= res <= max) doesn't hold true.
+	 * @param min Minimum accepted value for \p res.
+	 * @param max Maximum accepted value for \p res.
+	 */
+	template <typename Numeric>
+	void CheckRange(const std::string& tag, const std::string& key, Numeric& num, Numeric def, Numeric min, Numeric max)
+	{
+		if (num >= min && num <= max)
+			return;
+
+		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + ConvToStr(num) + " is not between "
+			+ ConvToStr(min) + " and " + ConvToStr(max) + "; value set to " + ConvToStr(def) + ".";
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, message);
+		num = def;
+	}
+}
+
 long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 {
 	std::string result;
@@ -441,18 +465,8 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 			break;
 	}
 
-	CheckRange(key, res, def, min, max);
+	CheckRange(tag, key, res, def, min, max);
 	return res;
-}
-
-void ConfigTag::CheckRange(const std::string& key, long& res, long def, long min, long max)
-{
-	if (res < min || res > max)
-	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %ld is not between %ld and %ld; set to %ld.",
-			tag.c_str(), key.c_str(), res, min, max, def);
-		res = def;
-	}
 }
 
 long ConfigTag::getDuration(const std::string& key, long def, long min, long max)
@@ -462,7 +476,7 @@ long ConfigTag::getDuration(const std::string& key, long def, long min, long max
 		return def;
 
 	long ret = InspIRCd::Duration(duration);
-	CheckRange(key, ret, def, min, max);
+	CheckRange(tag, key, ret, def, min, max);
 	return ret;
 }
 

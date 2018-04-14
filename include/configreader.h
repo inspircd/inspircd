@@ -69,16 +69,6 @@ class CoreExport ConfigTag : public refcountbase
 	 */
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
 
-	/** Check for an out of range value. If the value falls outside the boundaries a warning is
-	 * logged and the value is corrected (set to def).
-	 * @param key The key name, used in the warning message
-	 * @param res The value to verify and modify if needed
-	 * @param def The default value, res will be set to this if (min <= res <= max) doesn't hold true
-	 * @param min Minimum accepted value for res
-	 * @param max Maximum accepted value for res
-	 */
-	void CheckRange(const std::string& key, long& res, long def, long min, long max);
-
 	std::string getTagLocation();
 
 	inline const ConfigItems& getItems() const { return items; }
