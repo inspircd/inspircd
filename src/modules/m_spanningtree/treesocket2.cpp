@@ -69,6 +69,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 		this->SendError("BUG (?) Empty command received: " + line);
 
 	std::string param;
+	params.reserve(tokens.Count());
 	while (tokens.GetToken(param))
 	{
 		params.push_back(param);

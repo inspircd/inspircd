@@ -125,7 +125,7 @@ bool irc::equals(const std::string& s1, const std::string& s2)
 	for (; *n1 && *n2; n1++, n2++)
 		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
 			return false;
-	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
+	return true;
 }
 
 bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
@@ -156,7 +156,7 @@ size_t irc::insensitive::operator()(const std::string &s) const
 	 * This avoids a copy to use hash<const char*>
 	 */
 	size_t t = 0;
-	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
+	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x)
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
 }
@@ -206,7 +206,7 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 	return 0;
 }
 
-const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
+const char* irc::irc_char_traits::find(const char* s1, int n, char c)
 {
 	while(n-- > 0 && national_case_insensitive_map[(unsigned char)*s1] != national_case_insensitive_map[(unsigned char)c])
 		s1++;
@@ -255,9 +255,19 @@ bool irc::tokenstream::GetToken(long &token)
 	return returnval;
 }
 
-irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
-	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
+unsigned int irc::tokenstream::Count()
 {
+	return this->numparts;
+}
+
+irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
+	: tokens(source)
+	, sep(separator)
+	, pos(0)
+	, allow_empty(allowempty)
+{
+	this->tokenlen = this->tokens.length();
+	this->numparts = std::count(this->tokens.begin(), this->tokens.end(), this->sep);
 }
 
 bool irc::sepstream::GetToken(std::string &token)
@@ -273,7 +283,7 @@ bool irc::sepstream::GetToken(std::string &token)
 		this->pos = this->tokens.find_first_not_of(this->sep, this->pos);
 		if (this->pos == std::string::npos)
 		{
-			this->pos = this->tokens.length() + 1;
+			this->pos = this->tokenlen + 1;
 			token.clear();
 			return false;
 		}
@@ -281,7 +291,7 @@ bool irc::sepstream::GetToken(std::string &token)
 
 	size_t p = this->tokens.find(this->sep, this->pos);
 	if (p == std::string::npos)
-		p = this->tokens.length();
+		p = this->tokenlen;
 
 	token.assign(tokens, this->pos, p - this->pos);
 	this->pos = p + 1;
@@ -296,7 +306,12 @@ const std::string irc::sepstream::GetRemaining()
 
 bool irc::sepstream::StreamEnd()
 {
-	return this->pos > this->tokens.length();
+	return this->pos > this->tokenlen;
+}
+
+unsigned int irc::sepstream::Count()
+{
+	return this->numparts;
 }
 
 std::string irc::stringjoiner(const std::vector<std::string>& sequence, char separator)

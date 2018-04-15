@@ -115,9 +115,8 @@ struct ModResult {
  */
 #define FOREACH_MOD(y,x) do { \
 	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
-	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(); _i != _handlers.rend(); ++_i) \
 	{ \
-		_next = _i+1; \
 		try \
 		{ \
 			(*_i)->y x ; \
@@ -138,9 +137,8 @@ struct ModResult {
 #define DO_EACH_HOOK(n,v,args) \
 do { \
 	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
-	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(); _i != _handlers.rend(); ++_i) \
 	{ \
-		_next = _i+1; \
 		try \
 		{ \
 			v = (*_i)->n args;

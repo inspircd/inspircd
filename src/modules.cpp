@@ -210,11 +210,12 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	 * the first or last of this subset, depending again on the type of priority.
 	 */
 	size_t my_pos = 0;
+	const size_t EVsize = EventHandlers[i].size();
 
 	/* Locate our module. This is O(n) but it only occurs on module load so we're
 	 * not too bothered about it
 	 */
-	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+	for (size_t x = 0; x != EVsize; ++x)
 	{
 		if (EventHandlers[i][x] == mod)
 		{
@@ -250,7 +251,7 @@ found_src:
 		case PRIORITY_BEFORE:
 		{
 			/* Find the latest possible position, only searching AFTER our position */
-			for (size_t x = EventHandlers[i].size() - 1; x > my_pos; --x)
+			for (size_t x = EVsize - 1; x > my_pos; --x)
 			{
 				if (EventHandlers[i][x] == which)
 				{
@@ -292,7 +293,7 @@ swap_now:
 
 		for (unsigned int j = my_pos; j != swap_pos; j += incrmnt)
 		{
-			if ((j + incrmnt > EventHandlers[i].size() - 1) || ((incrmnt == -1) && (j == 0)))
+			if ((j + incrmnt > EVsize - 1) || ((incrmnt == -1) && (j == 0)))
 				continue;
 
 			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
@@ -308,7 +309,7 @@ bool ModuleManager::PrioritizeHooks()
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others
 	 */
-	for (int tries = 0; tries < 20; tries++)
+	for (unsigned int tries = 0; tries < 20; ++tries)
 	{
 		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
 		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)

@@ -132,6 +132,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		// Build a map of limits to their mode character.
 		insp::flat_map<int, std::string> limits;
 		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+		limits.reserve(listmodes.size());
 		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
 		{
 			const unsigned int limit = (*iter)->GetLowerLimit();
