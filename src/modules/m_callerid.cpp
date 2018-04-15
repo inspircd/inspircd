@@ -330,7 +330,6 @@ class ModuleCallerID : public Module
 	SimpleUserModeHandler myumode;
 
 	// Configuration variables:
-	bool operoverride; // Operators can override callerid.
 	bool tracknick; // Allow ACCEPT entries to update with nick changes.
 	unsigned int notify_cooldown; // Seconds between notifications.
 
@@ -384,7 +383,7 @@ public:
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 
-		if (operoverride && user->IsOper())
+		if (user->HasPrivPermission("users/callerid-override"))
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
@@ -420,7 +419,6 @@ public:
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getInt("maxaccepts", 16);
-		operoverride = tag->getBool("operoverride");
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getDuration("cooldown", 60);
 	}

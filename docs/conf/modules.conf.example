@@ -296,8 +296,6 @@
 #-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 # maxaccepts     - Maximum number of entries a user can add to his    #
 #                  /ACCEPT list. Default is 16 entries.               #
-# operoverride   - Can opers (note: ALL opers) override callerid?     #
-#                  Default is no.                                     #
 # tracknick      - Preserve /accept entries when a user changes nick? #
 #                  If no (the default), the user is removed from      #
 #                  everyone's accept list if he changes nickname.     #
@@ -305,7 +303,6 @@
 #                  notification sent to a user before he can be sent  #
 #                  another. Default is 1 minute.                      #
 #<callerid maxaccepts="16"
-#          operoverride="no"
 #          tracknick="no"
 #          cooldown="1m">
 

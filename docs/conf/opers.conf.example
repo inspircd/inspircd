@@ -30,6 +30,7 @@
      #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE)
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
      #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE)
+     #.  - users/callerid-override: allows opers with this priv to message people using callerid without being on their callerid list.
      #
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message users/flood/no-throttle users/flood/increased-buffers"
