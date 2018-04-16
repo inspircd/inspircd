@@ -214,7 +214,7 @@ enum Implementation
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserPostMessage, I_OnMode,
+	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
@@ -532,6 +532,15 @@ class CoreExport Module : public classbase, public usecountbase
 	 *                MessageDetails class for more information.
 	 */
 	virtual void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details);
+
+	/** Called when a message sent by a user to a channel, a user, or a server glob mask is blocked.
+	 * @param user The user sending the message.
+	 * @param target The target of the message. This can either be a channel, a user, or a server
+	 *               glob mask.
+	 * @param details Details about the message such as the message text and type. See the
+	 *                MessageDetails class for more information.
+	 */
+	virtual void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details);
 
 	/** Called after every MODE command sent from a user
 	 * Either the usertarget or the chantarget variable contains the target of the modes,

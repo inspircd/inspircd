@@ -61,6 +61,13 @@ class ModuleIRCv3EchoMessage : public Module
 		user->WriteFrom(user, msg);
 	}
 
+	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	{
+		// Prevent spammers from knowing that their spam was blocked.
+		if (details.echooriginal)
+			OnUserPostMessage(user, target, details);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the echo-message IRCv3.2 extension", VF_VENDOR);

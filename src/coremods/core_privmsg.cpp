@@ -99,7 +99,10 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
 			return CMD_FAILURE;
+		}
 
 		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
@@ -155,7 +158,10 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 			if (MOD_RESULT == MOD_RES_DENY)
+			{
+				FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
 				return CMD_FAILURE;
+			}
 
 			/* Check again, a module may have zapped the input string */
 			if (msgdetails.text.empty())
@@ -231,7 +237,10 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
 			return CMD_FAILURE;
+		}
 
 		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
