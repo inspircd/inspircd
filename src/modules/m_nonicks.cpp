@@ -26,7 +26,6 @@ class ModuleNoNickChange : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nn;
-	bool override;
  public:
 	ModuleNoNickChange()
 		: exemptionprov(this)
@@ -55,7 +54,7 @@ class ModuleNoNickChange : public Module
 			if (res == MOD_RES_ALLOW)
 				continue;
 
-			if (override && user->IsOper())
+			if (user->HasPrivPermission("channels/ignore-nonicks"))
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(nn)))
@@ -67,11 +66,6 @@ class ModuleNoNickChange : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		override = ServerInstance->Config->ConfValue("nonicks")->getBool("operoverride", false);
 	}
 };
 
