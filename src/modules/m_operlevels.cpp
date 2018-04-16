@@ -35,14 +35,16 @@ class ModuleOperLevels : public Module
 			// oper killing an oper?
 			if (dest->IsOper() && source->IsOper())
 			{
-				std::string level = dest->oper->getConfig("level");
-				long dest_level = atol(level.c_str());
-				level = source->oper->getConfig("level");
-				long source_level = atol(level.c_str());
+				unsigned long dest_level = ConvToNum<unsigned long>(dest->oper->getConfig("level"));
+				unsigned long source_level = ConvToNum<unsigned long>(source->oper->getConfig("level"));
 
 				if (dest_level > source_level)
 				{
-					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
+					if (IS_LOCAL(source))
+					{
+						ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %lu) attempted to /kill a higher oper: %s (level %lu): Reason: %s",
+							source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
+					}
 					dest->WriteNotice("*** Oper " + source->nick + " attempted to /kill you!");
 					source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
 					return MOD_RES_DENY;

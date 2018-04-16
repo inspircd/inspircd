@@ -75,7 +75,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		if (!stream.GetToken(minlenstr))
 			return false;
 
-		uint16_t result = atoi(minlenstr.c_str());
+		uint16_t result = ConvToNum<uint16_t>(minlenstr);
 		if (result < 1 || result > ServerInstance->Config->Limits.MaxLine)
 			return false;
 
@@ -89,7 +89,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		if (!stream.GetToken(percentstr))
 			return false;
 
-		int result = atoi(percentstr.c_str());
+		uint8_t result = ConvToNum<uint8_t>(percentstr);
 		if (result < 1 || result > 100)
 			return false;
 

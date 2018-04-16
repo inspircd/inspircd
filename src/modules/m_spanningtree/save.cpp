@@ -32,7 +32,7 @@ CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 	if (!u)
 		return CMD_FAILURE;
 
-	time_t ts = atol(params[1].c_str());
+	time_t ts = ConvToNum<time_t>(params[1]);
 
 	if (u->age == ts)
 		u->ChangeNick(u->uuid, SavedTimestamp);
