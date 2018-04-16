@@ -750,9 +750,13 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
-# channel operators to be exempt from some channel modes.  Supported  #
-# modes are blockcaps, noctcp, blockcolor, nickflood, flood, censor,  #
-# filter, regmoderated, nonick, nonotice, and stripcolor.             #
+# users of a specified channel status to be exempt from some channel  #
+# restriction modes. Supported restrictions are                       #
+# blockcaps, blockcolor, censor, filter, flood, nickflood, noctcp,    #
+# nonick, nonotice, regmoderated, stripcolor, and topiclock.          #
+# See <options:exemptchanops> in inspircd.conf.example for a more     #
+# detailed list of the restriction modes that can be exempted.        #
+# These are settable using /mode #chan +X <restriction>:<status>      #
 #<module name="m_exemptchanops.so">                                   #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -845,7 +849,7 @@
 #                                                                     #
 # If you specify to use the m_helpop.so module, then specify below    #
 # the path to the helpop.conf file.                                   #
-#<include file="conf/examples/inspircd.helpop-full.example">
+#<include file="conf/examples/helpop-full.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide chans module: Allows users to hide their channels list from non-
