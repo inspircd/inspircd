@@ -805,6 +805,8 @@ void ConfigReaderThread::Finish()
 			catch (CoreException& modex)
 			{
 				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
+				if (user)
+					user->WriteNotice(i->first + ": " + modex.GetReason());
 			}
 		}
 
