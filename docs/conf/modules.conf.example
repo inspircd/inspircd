@@ -402,7 +402,10 @@
 # his/her message is blocked.
 #
 # If maxlen is set then it defines the maximum length of a filter entry.
-#<chanfilter hidemask="yes" maxlen="50">
+#
+# If notifyuser is set to no, the user will not be notified when
+# his/her message is blocked.
+#<chanfilter hidemask="yes" maxlen="50" notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel history module: Displays the last 'X' lines of chat to a user
@@ -785,14 +788,16 @@
 # stdlib - stdlib regexps, provided via regex_stdlib, see comment     #
 #          at the <module> tag for info on availability.              #
 #                                                                     #
-#<filteropts engine="glob">                                           #
+# If notifyuser is set to no, the user will not be notified when      #
+# his/her message is blocked.                                         #
+#<filteropts engine="glob" notifyuser="yes">
 #                                                                     #
-# Your choice of regex engine must match on all servers network-wide.
-#
+# Your choice of regex engine must match on all servers network-wide. #
+#                                                                     #
 # To learn more about the configuration of this module, read          #
 # examples/filter.conf.example, which covers the various types of     #
 # filters and shows how to add exemptions.                            #
-#
+#                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the filter module, then            #
@@ -1536,6 +1541,10 @@
 # Muteban: Implements extended ban 'm', which stops anyone matching
 # a mask like +b m:nick!user@host from speaking on channel.
 #<module name="muteban">
+#
+# If notifyuser is set to no, the user will not be notified when
+# his/her message is blocked.
+#<muteban notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random quote module: Provides a random quote on connect.

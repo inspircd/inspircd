@@ -36,6 +36,13 @@ class ModuleQuietBan : public Module
 		Channel* chan = target.Get<Channel>();
 		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
+			bool notifyuser = ServerInstance->Config->ConfValue("muteban")->getBool("notifyuser", true);
+			if (!notifyuser)
+			{
+				details.echooriginal = true;
+				return MOD_RES_DENY;
+			}
+
 			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're muted)");
 			return MOD_RES_DENY;
 		}

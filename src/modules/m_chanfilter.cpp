@@ -46,7 +46,7 @@ class ChanFilter : public ListModeBase
 
 	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
-		if (word.length() > maxlen)	
+		if (word.length() > maxlen)
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list"));
 			return false;
@@ -76,6 +76,7 @@ class ModuleChanFilter : public Module
 	CheckExemption::EventProvider exemptionprov;
 	ChanFilter cf;
 	bool hidemask;
+	bool notifyuser;
 
  public:
 
@@ -90,6 +91,7 @@ class ModuleChanFilter : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
 		hidemask = tag->getBool("hidemask");
 		cf.maxlen = tag->getUInt("maxlen", 35, 10, 100);
+		notifyuser = tag->getBool("notifyuser", true);
 		cf.DoRehash();
 	}
 
@@ -112,6 +114,12 @@ class ModuleChanFilter : public Module
 			{
 				if (InspIRCd::Match(details.text, i->mask))
 				{
+					if (!notifyuser)
+					{
+						details.echooriginal = true;
+						return MOD_RES_DENY;
+					}
+
 					if (hidemask)
 						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");
 					else
