@@ -166,6 +166,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
 	bool initing;
+	bool notifyuser;
 	RegexFactory* factory;
 	void FreeFilters();
 
@@ -356,17 +357,27 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
-			if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
+			if (notifyuser)
+			{
+				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
+				else
+					user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
+			}
 			else
-				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
+				details.echooriginal = true;
 		}
 		else if (f->action == FA_SILENT)
 		{
-			if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
+			if (notifyuser)
+			{
+				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
+				else
+					user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
+			}
 			else
-				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
+				details.echooriginal = true;
 		}
 		else if (f->action == FA_KILL)
 		{
@@ -508,7 +519,9 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		}
 	}
 
-	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
+	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
+	std::string newrxengine = tag->getString("engine");
+	notifyuser = tag->getBool("notifyuser", true);
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 
