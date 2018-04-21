@@ -589,10 +589,6 @@ void GLine::Apply(User* u)
 
 bool ELine::Matches(User *u)
 {
-	LocalUser* lu = IS_LOCAL(u);
-	if (lu && lu->exempt)
-		return false;
-
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||

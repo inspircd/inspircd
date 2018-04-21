@@ -438,14 +438,14 @@
 # that looks like the name of another channel on the network.
 #<module name="channames">
 
-<channames
+#<channames
 	# denyrange: characters or range of characters to deny in channel
 	# names.
-	denyrange="2,3"
+	#denyrange="2,3"
 
 	# allowrange: characters or range of characters to specifically allow
 	# in channel names.
-	allowrange="">
+	#allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
@@ -765,9 +765,13 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
-# channel operators to be exempt from some channel modes.  Supported  #
-# modes are blockcaps, noctcp, blockcolor, nickflood, flood, censor,  #
-# filter, regmoderated, nonick, nonotice, and stripcolor.             #
+# users of a specified channel status to be exempt from some channel  #
+# restriction modes. Supported restrictions are                       #
+# blockcaps, blockcolor, censor, filter, flood, nickflood, noctcp,    #
+# nonick, nonotice, regmoderated, stripcolor, and topiclock.          #
+# See <options:exemptchanops> in inspircd.conf.example for a more     #
+# detailed list of the restriction modes that can be exempted.        #
+# These are settable using /mode #chan +X <restriction>:<status>      #
 #<module name="exemptchanops">                                        #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -869,7 +873,7 @@
 # If you specify to use the helpop module, then specify below the     #
 # path to the helpop.conf file.                                       #
 #                                                                     #
-#<include file="examples/inspircd.helpop-full.example">
+#<include file="examples/helpop-full.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide chans module: Allows users to hide their channels list from non-

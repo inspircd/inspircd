@@ -62,7 +62,7 @@
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
 # Executable include example:                                         #
-#<include executable="/usr/bin/wget -q -O - http://example.com/inspircd.conf">
+#<include executable="/usr/bin/wget -q -O - https://example.com/inspircd.conf">
 #                                                                     #
 
 
@@ -241,7 +241,9 @@
          # you only want to adjust sendq and a password
          parent="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
+         # allow: The IP address or hostname of clients that can use this
+         # class. You can specify either an exact match, a glob match, or
+         # a CIDR range here.
          allow="203.0.113.*"
 
          # hash: the hash function this password is hashed with. Requires the
@@ -330,7 +332,9 @@
          # connect class inheriting.
          name="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
+         # allow: The IP address or hostname of clients that can use this
+         # class. You can specify either an exact match, a glob match, or
+         # a CIDR range here.
          allow="*"
 
          # maxchans: Maximum number of channels a user in this class
@@ -452,7 +456,7 @@
 
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
-#<execfiles motd="wget -O - http://www.example.com/motd.txt">
+#<execfiles motd="wget -O - https://www.example.com/motd.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # If these values are not defined, InspIRCd uses the default DNS resolver
@@ -622,8 +626,38 @@
          # link with servers running 2.0. Defaults to yes.
          allowzerolimit="no"
 
-         # exemptchanops: exemptions for channel access restrictions based on prefix.
-         exemptchanops="nonick:v flood:o"
+         # exemptchanops: Allows users with with a status mode to be exempt
+         # from various channel restrictions. Possible restrictions are:
+         #  - auditorium-see  Permission required to see the full user list of
+         #                    a +u channel (requires the auditorium module).
+         #  - auditorium-vis  Permission required to be visible in a +u channel
+         #                    (requires the auditorium module).
+         #  - blockcaps       Channel mode +B - blocks messages with too many capital
+         #                    letters (requires the blockcaps module).
+         #  - blockcolor      Channel mode +c - blocks messages with formatting codes
+         #                    (requires the blockcolor module).
+         #  - censor          Channel mode +G - censors messages based on the network
+         #                    configuration (requires the censor module).
+         #  - filter          Channel mode +g - blocks messages containing the given
+         #                    glob mask (requires the chanfilter module).
+         #  - flood           Channel mode +f - kicks (and bans) on text flood of a
+         #                    specified rate (requires the messageflood module).
+         #  - nickflood       Channel mode +F - blocks nick changes after a specified
+         #                    rate (requires the nickflood module).
+         #  - noctcp          Channel mode +C - blocks any CTCPs to the channel
+         #                    (requires the noctcp module).
+         #  - nonick          Channel mode +N - prevents users on the channel from
+         #                    changing nicks (requires the nonicks module).
+         #  - nonotice        Channel mode +T - blocks /NOTICEs to the channel
+         #                    (requires the nonotice module).
+         #  - regmoderated    Channel mode +M - blocks unregistered users from
+         #                    speaking (requires the services account module).
+         #  - stripcolor      Channel mode +S - strips formatting codes from
+         #                    messages (requires the stripcolor module).
+         #  - topiclock       Channel mode +t - limits changing the topic to (half)ops
+         # You can also configure this on a per-channel basis with a channel mode.
+         # See m_exemptchanops in modules.conf.example for more details.
+         exemptchanops="censor:o filter:o nickflood:o nonick:v regmoderated:o"
 
          # invitebypassmodes: This allows /invite to bypass other channel modes.
          # (Such as +k, +j, +l, etc.)

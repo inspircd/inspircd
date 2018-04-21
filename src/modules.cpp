@@ -82,6 +82,7 @@ ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::s
 void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag, const std::string&) { DetachEvent(I_OnMode); }
 void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { DetachEvent(I_OnPostOper); }
+void		Module::OnPostDeoper(User*) { DetachEvent(I_OnPostDeoper); }
 void		Module::OnInfo(User*) { DetachEvent(I_OnInfo); }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreMessage(User*, const MessageTarget&, MessageDetails&) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }

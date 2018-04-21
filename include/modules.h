@@ -221,7 +221,7 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnPostConnect,
+	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
@@ -447,6 +447,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param opertype The opers type name
 	 */
 	virtual void OnPostOper(User* user, const std::string &opername, const std::string &opertype);
+
+	/** Called after a user deopers locally.
+	 * @param user The user who has deopered.
+	 */
+	virtual void OnPostDeoper(User* user);
 
 	/** Called whenever a user types /INFO.
 	 * The User will contain the information of the user who typed the command. Modules may use this

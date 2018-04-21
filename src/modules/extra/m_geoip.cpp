@@ -146,6 +146,13 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 		return MOD_RES_DENY;
 	}
 
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	{
+		// If user has sent NICK/USER, re-set the ExtItem as this is likely CGI:IRC changing the IP
+		if (user->registered == REG_NICKUSER)
+			SetExt(user);
+	}
+
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
 		// If the extban is disabled we don't expose users location.

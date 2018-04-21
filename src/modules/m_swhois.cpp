@@ -37,9 +37,11 @@ enum
 class CommandSwhois : public Command
 {
  public:
+	LocalIntExt operblock;
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
+		, operblock("swhois_operblock", ExtensionItem::EXT_USER, Creator)
 		, swhois("swhois", ExtensionItem::EXT_USER, Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
@@ -70,6 +72,7 @@ class CommandSwhois : public Command
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 		}
 
+		operblock.set(user, 0);
 		if (parameters[1].empty())
 			swhois.unset(dest);
 		else
@@ -127,8 +130,30 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		if (!swhois.length())
 			return;
 
+		cmd.operblock.set(user, 1);
 		cmd.swhois.set(user, swhois);
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
+	}
+
+	void OnPostDeoper(User* user) CXX11_OVERRIDE
+	{
+		std::string* swhois = cmd.swhois.get(user);
+		if (!swhois)
+			return;
+
+		if (!cmd.operblock.get(user))
+			return;
+
+		cmd.operblock.set(user, 0);
+		cmd.swhois.unset(user);
+		ServerInstance->PI->SendMetaData(user, "swhois", "");
+	}
+
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) CXX11_OVERRIDE
+	{
+		User* dest = static_cast<User*>(target);
+		if (dest && (extname == "swhois"))
+			cmd.operblock.set(dest, 0);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

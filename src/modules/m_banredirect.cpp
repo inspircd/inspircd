@@ -182,6 +182,21 @@ class BanRedirect : public ModeWatcher
 						redirects = new BanRedirectList;
 						extItem.set(channel, redirects);
 					}
+					else
+					{
+						for (BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); ++redir)
+						{
+							// Mimic the functionality used when removing the mode
+							if (irc::equals(redir->targetchan, mask[CHAN]) && irc::equals(redir->banmask, param))
+							{
+								// Make sure the +b handler will still set the right ban
+								param.append(mask[CHAN]);
+								// Silently ignore the duplicate and don't set metadata
+								// This still allows channel ops to set/unset a redirect ban to clear "ghost" redirects
+								return true;
+							}
+						}
+					}
 
 					/* Here 'param' doesn't have the channel on it yet */
 					redirects->push_back(BanRedirectEntry(mask[CHAN], param));

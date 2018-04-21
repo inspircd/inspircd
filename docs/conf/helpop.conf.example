@@ -74,79 +74,81 @@ LOCKSERV       UNLOCKSERV">
 ----------
 
  c            Blocks private messages and notices from users who do
-              not share a common channel with you (requires
+              not share a common channel with you (requires the
               commonchans module).
  d            Deaf mode. User will not receive any messages or notices
-              from channels they are in (requires deaf module).
+              from channels they are in (requires the deaf module).
  g            In combination with /ACCEPT, provides for server side
-              ignore (requires callerid module).
+              ignore (requires the callerid module).
  h            Marks as 'available for help' in WHOIS (IRCop only,
-              requires helpop module).
+              requires the helpop module).
  i            Makes invisible to /WHO if the user using /WHO is not in
               a common channel.
  k            Prevents the user from being kicked from channels, or
               having op modes removed from them (services only,
-              requires servprotect module).
+              requires the servprotect module).
  o            Marks as a IRC operator.
  s <mask>     Receives server notices specified by <mask>
               (IRCop only).
  r            Marks as a having a registered nickname
-              (requires services account module).
+              (requires the services account module).
  w            Receives wallops messages.
- x            Gives a cloaked hostname (requires cloaking module).
- z            Only allow private messages from SSL users (requires
+ x            Gives a cloaked hostname (requires the cloaking module).
+ z            Only allow private messages from SSL users (requires the
               sslmode module).
- B            Marks as a bot (requires botmode module).
+ B            Marks as a bot (requires the botmode module).
  G            Censors messages sent to the user based on filters
-              configured for the network (requires censor module).
- H            Hides an oper's oper status from WHOIS (requires
+              configured for the network (requires the censor module).
+ H            Hides an oper's oper status from WHOIS (requires the
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
-              non-IRCops (requires hidechans module).
+              non-IRCops (requires the hidechans module).
  L            Stops redirections done by m_redirect (mode must be
               enabled in the config).
  R            Blocks private messages from unregistered users
-              (requires services account module).
- S            Strips mIRC color/bold/underline codes out of private
-              messages to the user (requires stripcolor module).
+              (requires the services account module).
+ S            Strips formatting codes out of private messages
+              to the user (requires the stripcolor module).
  W            Receives notification when a user uses WHOIS on them
-              (IRCop only, requires showwhois module).">
+              (IRCop only, requires the showwhois module).">
 
 <helpop key="chmodes" value="Channel Modes
 -------------
 
  v <nickname>       Gives voice to <nickname>, allowing them to speak
                     while the channel is +m.
- h <nickname>       Gives halfop status to <nickname> (requires
+ h <nickname>       Gives halfop status to <nickname> (requires the
                     customprefix module).
  o <nickname>       Gives op status to <nickname>.
  a <nickname>       Gives protected status to <nickname>, preventing
-                    them from them from being kicked (+q only,
-                    requires customprefix module).
- q <nickname>       Gives owner status to <nickname>, preventing them
-                    from being kicked (Services or only, requires
+                    them from being kicked (+q only, requires the
                     customprefix module).
+ q <nickname>       Gives owner status to <nickname>, preventing them
+                    from being kicked (Services or +q only, requires
+                    the customprefix module).
 
  b <hostmask>       Bans <hostmask> from the channel.
- e <hostmask>       Excepts <hostmask> from bans (requires
+ e <hostmask>       Excepts <hostmask> from bans (requires the
                     banexception module).
  I <hostmask>       Excepts <hostmask> from +i, allowing matching
                     users to join while the channel is invite-only
-                    (requires inviteexception module).
+                    (requires the inviteexception module).
 
- c                  Blocks messages containing mIRC color codes
-                    (requires blockcolor module).
+ c                  Blocks messages that contain formatting codes
+                    (requires the blockcolor module).
  d <time>           Blocks messages to a channel from new users
                     until they have been in the channel for <time>
-                    seconds (requires delaymsg module).
+                    seconds (requires the delaymsg module).
  f [*]<lines>:<sec> Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
-                    (requires messageflood module).
+                    (requires the messageflood module).
+ g <mask>           Blocks messages matching the given glob mask
+                    (requires the chanfilter module).
  i                  Makes the channel invite-only.
                     Users can only join if an operator
                     uses /INVITE to invite them.
  j <joins>:<sec>    Limits joins to the specified rate (requires
-                    joinflood module).
+                    the joinflood module).
  k <key>            Set the channel key (password) to <key>.
  l <limit>          Set the maximum allowed users to <limit>.
  m                  Enable moderation. Only users with +v, +h, or +o
@@ -156,73 +158,72 @@ LOCKSERV       UNLOCKSERV">
  p                  Make channel private, hiding it in users' whoises
                     and replacing it with * in /LIST.
  r                  Marks the channel as registered with Services
-                    (requires services account module).
+                    (requires the services account module).
  s                  Make channel secret, hiding it in users' whoises
                     and /LIST.
  t                  Prevents users without +h or +o from changing the
                     topic.
  u                  Makes the channel an auditorium; normal users only
                     see themselves or themselves and the operators,
-                    while operators see all the users (requires
+                    while operators see all the users (requires the
                     auditorium module).
  w <flag>:<banmask> Adds basic channel access controls of <flag> to
                     <banmask>, via the +w listmode.
                     For example, +w o:R:Brain will op anyone identified
                     to the account 'Brain' on join.
-                    (requires autoop module)
+                    (requires the autoop module)
  z                  Blocks non-SSL clients from joining the channel.
 
  A                  Allows anyone to invite users to the channel
                     (normally only chanops can invite, requires
-                    allowinvite module).
+                    the allowinvite module).
  B                  Blocks messages with too many capital letters,
                     as determined by the network configuration
-                    (requires blockcaps module).
- C                  Blocks any CTCPs to the channel (requires noctcp
-                    module).
- D                  Delays join messages from users until they
-                    message the channel (requires delayjoin module).
+                    (requires the blockcaps module).
+ C                  Blocks any CTCPs to the channel (requires the
+                    noctcp module).
+ D                  Delays join messages from users until they message
+                    the channel (requires the delayjoin module).
  E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similar messages.
                     Kicks as default, blocks with ~ and bans with *
                     The last two parameters are optional.
+
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the
-                    specified rate (requires nickflood module).
+                    specified rate (requires the nickflood module).
  G                  Censors messages to the channel based on the
-                    network configuration (requires censor module).
+                    network configuration (requires the censor module).
  H <num>:<duration> Displays the last <num> lines of chat to joining
                     users. <duration> is the maximum time to keep
-                    lines in the history buffer (requires chanhistory
-                    module).
+                    lines in the history buffer (requires the
+                    chanhistory module).
  J <seconds>        Prevents rejoin after kick for the specified
                     number of seconds. This prevents auto-rejoin
-                    (requires kicknorejoin module).
+                    (requires the kicknorejoin module).
  K                  Blocks /KNOCK on the channel.
  L <channel>        If the channel reaches its limit set by +l,
-                    redirect users to <channel> (requires redirect
-                    module).
+                    redirect users to <channel> (requires the
+                    redirect module).
  M                  Blocks unregistered users from speaking (requires
-                    services account module).
+                    the services account module).
  N                  Prevents users on the channel from changing nick
-                    (requires nonicks module).
+                    (requires the nonicks module).
  O                  Channel is IRCops only (can only be set by IRCops,
-                    requires operchans module).
+                    requires the operchans module).
  P                  Makes the channel permanent; Bans, invites, the
                     topic, modes, and such will not be lost when it
                     empties (can only be set by IRCops, requires
-                    permchannels module).
+                    the permchannels module).
  Q                  Only ulined servers and their users can kick
-                    (requires nokicks module)
+                    (requires the nokicks module)
  R                  Blocks unregistered users from joining (requires
-                    services account module).
- S                  Strips mIRC color codes from messages to the
-                    channel (requires stripcolor module).
+                    the services account module).
+ S                  Strips formatting codes from messages to the
+                    channel (requires the stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
-                    not at least halfop (requires nonotice module).
-
- g <mask>           Blocks messages matching the given glob mask
-                    (requires chanfilter module).
- X <mode>           Makes channel operators immune to the specified
-                    restrictive mode (requires exemptchanops module).
+                    not at least halfop (requires the nonotice module).
+ X <type>:<status>  Makes users of <status> or higher exempt to the
+                    specified restriction <type>. For example: flood:h
+                    (requires the exemptchanops module).
 
 -------------
 NOTE: A large number of these modes are dependent upon server-side modules
@@ -236,30 +237,25 @@ help channel if you have any questions.">
  A      Allows receipt of remote announcement messages.
  c      Allows receipt of local connect messages.
  C      Allows receipt of remote connect messages.
- d      Allows receipt of general (and sometimes random) debug
-        messages.
+ d      Allows receipt of general (and sometimes random) debug messages.
  f      Allows receipt of flooding notices.
- g      Allows receipt of globops (requires globops module).
- j      Allows receipt of channel creation notices (requires
-        chancreate module).
- J      Allows receipt of remote channel creation notices (requires
-        chancreate module).
+ g      Allows receipt of globops (requires the globops module).
+ j      Allows receipt of channel creation notices (requires the chancreate module).
+ J      Allows receipt of remote channel creation notices (requires the chancreate module).
  k      Allows receipt of local kill messages.
  K      Allows receipt of remote kill messages.
- l      Allows receipt of local linking related
-        messages.
- L      Allows receipt of remote linking related
-        messages.
- n      See local nickname changes (requires seenicks module).
- N      See remote nickname changes (requires seenicks modules).
- o      Allows receipt of oper-up, oper-down, and oper-failure
-        messages.
- O      Allows receipt of remote oper-up, oper-down, and oper-failure
-        messages.
+ l      Allows receipt of local linking related messages.
+ L      Allows receipt of remote linking related messages.
+ n      See local nickname changes (requires the seenicks module).
+ N      See remote nickname changes (requires the seenicks modules).
+ o      Allows receipt of oper-up, oper-down, and oper-failure messages.
+ O      Allows receipt of remote oper-up, oper-down, and oper-failure messages.
  q      Allows receipt of local quit messages.
  Q      Allows receipt of remote quit messages.
+ r      Allows receipt of local oper commands (requires the operlog module).
+ R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
- v      Allows receipt of oper-override notices (requires override module).
+ v      Allows receipt of oper-override notices (requires the override module).
  x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
  X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
@@ -280,44 +276,44 @@ setting +I <extban>.
 Matching extbans:
 
  j:<channel>   Matches anyone in the given channel. Does not support
-               wildcards (requires channelban module).
+               wildcards (requires the channelban module).
  n:<class>     Matches users in a matching connect class (requires
-               classban module).
- r:<realname>  Matches users with a matching real name (requires
+               the classban module).
+ r:<realname>  Matches users with a matching real name (requires the
                gecosban module).
- s:<server>    Matches users on a matching server (requires serverban
-               module).
+ s:<server>    Matches users on a matching server (requires the
+               serverban module).
  z:<certfp>    Matches users having the given SSL certificate
-               fingerprint (requires sslmodes module).
+               fingerprint (requires the sslmodes module).
  O:<opertype>  Matches IRCops of a matching type, mostly useful as an
-               an invite exception (requires operchans module).
+               an invite exception (requires the operchans module).
  R:<account>   Matches users logged into a matching account (requires
-               services account module).
+               the services account module).
  U:<banmask>   Matches unregistered users matching the given banmask.
-               (requires services account module).
+               (requires the services account module).
 
 Acting extbans:
 
- c:<banmask>   Blocks any messages that contain color codes from
-               matching users (requires blockcolor module).
- m:<banmask>   Blocks messages from matching users (requires muteban
+ c:<banmask>   Blocks any messages that contain formatting codes from
+               matching users (requires the blockcolor module).
+ m:<banmask>   Blocks messages from matching users (requires the muteban
                module). Users with +v or above are not affected.
  p:<banmask>   Blocks part messages from matching users (requires
-               nopartmsg module).
+               the nopartmsg module).
  A:<banmask>   Blocks invites by matching users even when +A is set
-               (requires allowinvite module).
+               (requires the allowinvite module).
  B:<banmask>   Blocks all capital or nearly all capital messages from
-               matching users (requires blockcaps module).
- C:<banmask>   Blocks CTCPs from matching users (requires noctcp
+               matching users (requires the blockcaps module).
+ C:<banmask>   Blocks CTCPs from matching users (requires the noctcp
                module).
  N:<banmask>   Blocks nick changes from matching users (requires
-               nonicks module).
- Q:<banmask>   Blocks kicks by matching users (requires nokicks
+               the nonicks module).
+ Q:<banmask>   Blocks kicks by matching users (requires the nokicks
                module).
- S:<banmask>   Strips color/bold/underline from messages from matching
-               users (requires stripcolor module).
- T:<banmask>   Blocks notices from matching users (requires nonotice
-               module).
+ S:<banmask>   Strips formatting codes from messages from matching
+               users (requires the stripcolor module).
+ T:<banmask>   Blocks notices from matching users (requires the
+               nonotice module).
 
 A ban given to an Acting extban may either be a nick!user@host mask
 (unless stated otherwise), matched against users as for a normal ban,
@@ -326,4 +322,4 @@ or a Matching extban.
 There is an additional special type of extended ban, a redirect ban:
 
  Redirect      n!u@h#channel will redirect the banned user to #channel
-               when they try to join (requires banredirect module).">
+               when they try to join (requires the banredirect module).">

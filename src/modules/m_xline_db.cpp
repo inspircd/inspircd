@@ -114,7 +114,7 @@ class ModuleXLineDB : public Module
 			{
 				XLine* line = i->second;
 				stream << "LINE " << line->type << " " << line->Displayable() << " "
-					<< ServerInstance->Config->ServerName << " " << line->set_time << " "
+					<< line->source << " " << line->set_time << " "
 					<< line->duration << " :" << line->reason << std::endl;
 			}
 		}

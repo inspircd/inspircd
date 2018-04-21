@@ -458,6 +458,7 @@ void User::UnOper()
 
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	this->SetMode(opermh, false);
+	FOREACH_MOD(OnPostDeoper, (this));
 }
 
 /*
