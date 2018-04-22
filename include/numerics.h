@@ -173,8 +173,6 @@ enum
 
 	ERR_ALLMUSTSSL                  = 490, // unrealircd
 	ERR_NOOPERHOST                  = 491,
-	ERR_NOCTCPALLOWED               = 492, // XXX: bzzzz. 1459 defines this as ERR_NOSERVICEHOST, research it more and perhaps change this! (ERR_CANNOTSENDTOCHAN?)
-	                                       // wtf, we also use this for m_noinvite. UGLY!
 	ERR_DELAYREJOIN                 = 495, // insp-specific, XXX: we should use 'resource temporarily unavailable' from ircnet/ratbox or whatever
 	ERR_UNKNOWNSNOMASK              = 501, // insp-specific
 	ERR_USERSDONTMATCH              = 502,
@@ -190,7 +188,6 @@ enum
 	RPL_OTHERUMODEIS                = 803, // insp-specific
 	RPL_OTHERSNOMASKIS              = 804, // insp-specific
 
-	ERR_WORDFILTERED                = 936, // insp-specific, would be nice if we could get rid of this..
 	ERR_CANTUNLOADMODULE            = 972, // insp-specific
 	RPL_UNLOADEDMODULE              = 973, // insp-specific
 	ERR_CANTLOADMODULE              = 974, // insp-specific
