@@ -71,7 +71,7 @@ class ModuleCensor : public Module
 				if (index->second.empty())
 				{
 					const std::string targname = target.type == MessageTarget::TYPE_CHANNEL ? target.Get<Channel>()->name : target.Get<User>()->nick;
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, targname, index->first.c_str(), "Your message contained a censored word, and was blocked");
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, targname, "Your message contained a censored word (" + index->first + "), and was blocked");
 					return MOD_RES_DENY;
 				}
 

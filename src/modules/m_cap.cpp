@@ -24,7 +24,7 @@
 enum
 {
 	// From IRCv3 capability-negotiation-3.1.
-	ERR_INVALIDCAPCMD = 232
+	ERR_INVALIDCAPCMD = 410
 };
 
 namespace Cap
