@@ -22,6 +22,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_CANTJOINOPERSONLY = 520
+};
+
 class OperChans : public SimpleChannelModeHandler
 {
  public:

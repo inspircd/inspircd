@@ -24,7 +24,11 @@
 enum
 {
 	// From UnrealIRCd.
-	ERR_CANNOTKNOCK = 480
+	ERR_CANNOTKNOCK = 480,
+
+	// From ircd-ratbox.
+	ERR_CHANOPEN = 713,
+	ERR_KNOCKONCHAN = 714
 };
 
 /** Handles the /KNOCK command

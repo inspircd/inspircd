@@ -21,6 +21,12 @@
 #include "modules/reload.h"
 #include "modules/cap.h"
 
+enum
+{
+	// From IRCv3 capability-negotiation-3.1.
+	ERR_INVALIDCAPCMD = 232
+};
+
 namespace Cap
 {
 	class ManagerImpl;
@@ -399,7 +405,7 @@ class CommandCap : public SplitCommand
 		}
 		else
 		{
-			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, subcommand.empty() ? "*" : subcommand, "Invalid CAP subcommand");
+			user->WriteNumeric(ERR_INVALIDCAPCMD, subcommand.empty() ? "*" : subcommand, "Invalid CAP subcommand");
 			return CMD_FAILURE;
 		}
 

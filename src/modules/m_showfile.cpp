@@ -19,6 +19,15 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_RULES = 232,
+	RPL_RULESTART = 308,
+	RPL_RULESEND = 309,
+	ERR_NORULES = 434
+};
+
 class CommandShowFile : public Command
 {
 	enum Method

@@ -22,6 +22,12 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
+enum
+{
+	// From ircd-ratbox.
+	RPL_REDIR = 10
+};
+
 /** Handle /JUMPSERVER
  */
 class CommandJumpserver : public Command

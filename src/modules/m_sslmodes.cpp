@@ -28,7 +28,8 @@
 enum
 {
 	// From UnrealIRCd.
-	ERR_SECUREONLYCHAN = 489
+	ERR_SECUREONLYCHAN = 489,
+	ERR_ALLMUSTSSL = 490
 };
 
 namespace

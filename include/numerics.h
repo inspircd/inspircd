@@ -45,14 +45,12 @@ enum
 	RPL_ISUPPORT                    = 5, // not RFC, extremely common though (defined as RPL_BOUNCE in 2812, widely ignored)
 
 	RPL_SNOMASKIS                   = 8, // unrealircd
-	RPL_REDIR                       = 10,
 
 	RPL_MAP                         = 15, // ircu
 	RPL_ENDMAP                      = 17, // ircu
 	RPL_MAPUSERS                    = 18, // insp-specific
 
 	RPL_UMODEIS                     = 221,
-	RPL_RULES                       = 232, // unrealircd
 
 	RPL_LUSERCLIENT                 = 251,
 	RPL_LUSEROP                     = 252,
@@ -74,9 +72,6 @@ enum
 
 	RPL_UNAWAY                      = 305,
 	RPL_NOWAWAY                     = 306,
-
-	RPL_RULESTART                   = 308, // unrealircd
-	RPL_RULESEND                    = 309, // unrealircd
 
 	RPL_WHOISSERVER                 = 312,
 
@@ -124,14 +119,12 @@ enum
 	ERR_CANNOTSENDTOCHAN            = 404,
 	ERR_TOOMANYCHANNELS             = 405,
 	ERR_WASNOSUCHNICK               = 406,
-	ERR_INVALIDCAPSUBCOMMAND        = 410, // ratbox/charybdis(?)
 	ERR_NOTEXTTOSEND                = 412,
 	ERR_UNKNOWNCOMMAND              = 421,
 	ERR_NOMOTD                      = 422,
 	ERR_NONICKNAMEGIVEN             = 431,
 	ERR_ERRONEUSNICKNAME            = 432,
 	ERR_NICKNAMEINUSE               = 433,
-	ERR_NORULES                     = 434, // unrealircd
 	ERR_USERNOTINCHANNEL            = 441,
 	ERR_NOTONCHANNEL                = 442,
 	ERR_USERONCHANNEL               = 443,
@@ -171,19 +164,14 @@ enum
 
 	ERR_RESTRICTED                  = 484,
 
-	ERR_ALLMUSTSSL                  = 490, // unrealircd
 	ERR_NOOPERHOST                  = 491,
 	ERR_DELAYREJOIN                 = 495, // insp-specific, XXX: we should use 'resource temporarily unavailable' from ircnet/ratbox or whatever
 	ERR_UNKNOWNSNOMASK              = 501, // insp-specific
 	ERR_USERSDONTMATCH              = 502,
-	ERR_CANTJOINOPERSONLY           = 520, // unrealircd, but crap to have so many numerics for cant join..
 	ERR_CANTSENDTOUSER              = 531, // ???
 
 	RPL_SYNTAX                      = 650, // insp-specific
 	ERR_INVALIDMODEPARAM            = 696, // insp-specific
-
-	ERR_CHANOPEN                    = 713,
-	ERR_KNOCKONCHAN                 = 714,
 
 	RPL_OTHERUMODEIS                = 803, // insp-specific
 	RPL_OTHERSNOMASKIS              = 804, // insp-specific
