@@ -216,23 +216,18 @@ class ModuleAntiCaps : public Module
 		// If the user is exempt from anticaps then we don't need
 		// to do anything else.
 		ModResult result = CheckExemption::Call(exemptionprov, user, channel, "anticaps");
-			if (result == MOD_RES_ALLOW)
+		if (result == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		// If the message is a CTCP then we skip it unless it is
-		// an ACTION in which case we skip the prefix and suffix.
-		std::string::const_iterator text_begin = details.text.begin();
-		std::string::const_iterator text_end = details.text.end();
-		if (details.text[0] == '\1')
+		// an ACTION in which case we just check against the body.
+		std::string ctcpname;
+		std::string msgbody(details.text);
+		if (details.IsCTCP(ctcpname, msgbody))
 		{
 			// If the CTCP is not an action then skip it.
-			if (details.text.compare(0, 8, "\1ACTION ", 8))
+			if (!irc::equals(ctcpname, "ACTION"))
 				return MOD_RES_PASSTHRU;
-
-			// Skip the CTCP message characters.
-			text_begin += 8;
-			if (*details.text.rbegin() == '\1')
-				text_end -= 1;
 		}
 
 		// Retrieve the anticaps config. This should never be
@@ -243,14 +238,14 @@ class ModuleAntiCaps : public Module
 
 		// If the message is shorter than the minimum length then
 		// we don't need to do anything else.
-		size_t length = std::distance(text_begin, text_end);
+		size_t length = msgbody.length();
 		if (length < config->minlen)
 			return MOD_RES_PASSTHRU;
 
 		// Count the characters to see how many upper case and
 		// ignored (non upper or lower) characters there are.
 		size_t upper = 0;
-		for (std::string::const_iterator iter = text_begin; iter != text_end; ++iter)
+		for (std::string::const_iterator iter = msgbody.begin(); iter != msgbody.end(); ++iter)
 		{
 			unsigned char chr = static_cast<unsigned char>(*iter);
 			if (uppercase.test(chr))

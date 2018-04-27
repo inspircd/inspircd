@@ -43,10 +43,11 @@ class ModuleNoCTCP : public Module
 	{
 		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = target.Get<Channel>();
-			if ((details.text.empty()) || (details.text[0] != '\001') || (!strncmp(details.text.c_str(),"\1ACTION ", 8)) || (details.text == "\1ACTION\1") || (details.text == "\1ACTION"))
+			std::string ctcpname;
+			if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
 				return MOD_RES_PASSTHRU;
 
+			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

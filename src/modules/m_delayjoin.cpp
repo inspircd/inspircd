@@ -91,6 +91,16 @@ class ModuleDelayJoin : public Module
 	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
+// TODO: make RevealUser accessible from DelayJoinMode and get rid of this.
+class DummyMessageDetails : public MessageDetails
+{
+public:
+	DummyMessageDetails() : MessageDetails(MSG_PRIVMSG, "", ClientProtocol::TagMap()) { }
+	bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE { return false; }
+	bool IsCTCP(std::string&) const CXX11_OVERRIDE { return false; }
+	bool IsCTCP() const CXX11_OVERRIDE { return false; }
+};
+
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* no change */
@@ -104,7 +114,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * they remain permanently invisible on this channel!
 		 */
 		MessageTarget msgtarget(channel, 0);
-		MessageDetails msgdetails(MSG_PRIVMSG, "", ClientProtocol::TagMap());
+		DummyMessageDetails msgdetails;
 		const Channel::MemberMap& users = channel->GetUsers();
 		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 		{

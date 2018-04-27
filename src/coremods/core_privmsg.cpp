@@ -21,6 +21,74 @@
 
 #include "inspircd.h"
 
+class MessageDetailsImpl : public MessageDetails
+{
+public:
+	MessageDetailsImpl(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
+		: MessageDetails(mt, msg, tags)
+	{
+	}
+
+	bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE
+	{
+		if (!this->IsCTCP())
+			return false;
+
+		size_t end_of_name = text.find(' ', 2);
+		size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
+		if (end_of_name == std::string::npos)
+		{
+			// The CTCP only contains a name.
+			name.assign(text, 1, text.length() - 1 - end_of_ctcp);
+			body.clear();
+			return true;
+		}
+
+		// The CTCP contains a name and a body.
+		name.assign(text, 1, end_of_name - 1);
+
+		size_t start_of_body = text.find_first_not_of(' ', end_of_name + 1);
+		if (start_of_body == std::string::npos)
+		{
+			// The CTCP body is provided but empty.
+			body.clear();
+			return true;
+		}
+
+		// The CTCP body provided was non-empty.
+		body.assign(text, start_of_body, text.length() - start_of_body - end_of_ctcp);
+		return true;
+	}
+
+	bool IsCTCP(std::string& name) const CXX11_OVERRIDE
+	{
+		if (!this->IsCTCP())
+			return false;
+
+		size_t end_of_name = text.find(' ', 2);
+		if (end_of_name == std::string::npos)
+		{
+			// The CTCP only contains a name.
+			size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
+			name.assign(text, 1, text.length() - 1 - end_of_ctcp);
+			return true;
+		}
+
+		// The CTCP contains a name and a body.
+		name.assign(text, 1, end_of_name - 1);
+		return true;
+	}
+
+	bool IsCTCP() const CXX11_OVERRIDE
+	{
+		// According to draft-oakley-irc-ctcp-02 a valid CTCP must begin with SOH and
+		// contain at least one octet which is not NUL, SOH, CR, LF, or SPACE. As most
+		// of these are restricted at the protocol level we only need to check for SOH
+		// and SPACE.
+		return (text.length() >= 2) && (text[0] == '\x1') &&  (text[1] != '\x1') && (text[1] != ' ');
+	}
+};
+
 class MessageCommandBase : public Command
 {
 	ChanModeReference moderatedmode;
@@ -94,7 +162,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 
 		std::string servername(parameters[0], 1);
 		MessageTarget msgtarget(&servername);
-		MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
+		MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
 
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
@@ -153,7 +221,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 			}
 
 			MessageTarget msgtarget(chan, status);
-			MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
+			MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
 			msgdetails.exemptions.insert(user);
 
 			ModResult MOD_RESULT;
@@ -229,7 +297,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 		}
 
 		MessageTarget msgtarget(dest);
-		MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
+		MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
 
 
 		ModResult MOD_RESULT;
