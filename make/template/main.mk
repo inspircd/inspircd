@@ -114,7 +114,7 @@ FOOTER = finishmessage
 
 MAKEFLAGS += --no-print-directory
 
-SOURCEPATH = $(shell /bin/pwd)
+SOURCEPATH = $(shell pwd)
 
 ifndef INSPIRCD_VERBOSE
   MAKEFLAGS += --silent
