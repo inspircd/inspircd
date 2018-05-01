@@ -21,3 +21,13 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **License** &mdash; 3-clause BSD
 
 **Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
+
+## http_parser
+
+**Author** &mdash; Joyent, Inc. and other Node contributors
+
+**Last Updated** &mdash; 2018-10-04 (77310eeb839c4251c07184a5db8885a572a08352)
+
+**License** &mdash; MIT
+
+**Website** &mdash; [https://github.com/nodejs/http-parser]
