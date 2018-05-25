@@ -172,25 +172,25 @@ sub __function_find_compiler_flags {
 	# Try to look up the compiler flags with pkg-config...
 	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
-		print_format "Found the compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
+		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
 		return $flags;
 	}
 
 	# If looking up with pkg-config fails then check the environment...
 	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
-		print_format "Found the compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
 	}
 
 	# If all else fails then look for the defaults..
 	if (defined $defaults) {
-		print_format "Found the compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
+		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
 		return $defaults;
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
-	__error $file, "unable to find the compiler flags for <|GREEN ${\basename $file, '.cpp'}|>!";
+	__error $file, "unable to find the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|>!";
 }
 
 sub __function_find_linker_flags {
@@ -199,25 +199,25 @@ sub __function_find_linker_flags {
 	# Try to look up the linker flags with pkg-config...
 	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
-		print_format "Found the linker flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
+		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
 		return $flags;
 	}
 
 	# If looking up with pkg-config fails then check the environment...
 	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
-		print_format "Found the linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
 	}
 
 	# If all else fails then look for the defaults..
 	if (defined $defaults) {
-		print_format "Found the linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
+		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
 		return $defaults;
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
-	__error $file, "unable to find the linker flags for <|GREEN ${\basename $file, '.cpp'}|>!";
+	__error $file, "unable to find the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|>!";
 }
 
 sub __function_require_system {
@@ -251,7 +251,7 @@ sub __function_require_version {
 
 	# If pkg-config isn't installed then we can't do anything here.
 	if (system "pkg-config --exists $name ${\DIRECTIVE_ERROR_PIPE}") {
-		print_warning "unable to look up the version of $name using pkg-config!";
+		print_warning "unable to look up the version of <|GREEN $name|> using pkg-config!";
 		return undef;
 	}
 
