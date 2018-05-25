@@ -27,13 +27,15 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use File::Basename qw(basename);
-use Exporter       qw(import);
+use File::Basename        qw(basename dirname);
+use File::Spec::Functions qw(catdir);
+use Exporter              qw(import);
 
 use make::configure;
 use make::console;
 
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
+use constant VENDOR_DIRECTORY     => catdir(dirname(dirname(__FILE__)), 'vendor');
 
 our @EXPORT = qw(get_directive
                  execute_functions);
@@ -185,7 +187,7 @@ sub __function_find_compiler_flags {
 
 	# If all else fails then look for the defaults..
 	if (defined $defaults) {
-		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
+		print_format "Using the default <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $defaults|>\n";
 		return $defaults;
 	}
 
@@ -212,7 +214,7 @@ sub __function_find_linker_flags {
 
 	# If all else fails then look for the defaults..
 	if (defined $defaults) {
-		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the defaults: <|BOLD $defaults|>\n";
+		print_format "Using the default <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $defaults|>\n";
 		return $defaults;
 	}
 
@@ -261,6 +263,26 @@ sub __function_require_version {
 
 	# Requirement directives don't change anything directly.
 	return "";
+}
+
+sub __function_vendor_directory {
+	my ($file, $name) = @_;
+
+	# Try to look the directory up in the environment...
+	my $key = __environment 'INSPIRCD_VENDOR_', $name;
+	if (defined $ENV{$key}) {
+		print_format "Found the <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		return $ENV{$key};
+	}
+
+	my $directory = catdir(VENDOR_DIRECTORY, $name);
+	if (-d $directory) {
+		print_format "Using the default <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $directory|>\n";
+		return $directory;
+	}
+
+	# We can't find it via the environment or via the filesystem so give up.
+	__error $file, "unable to find the <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|>!";
 }
 
 sub __function_warning {
