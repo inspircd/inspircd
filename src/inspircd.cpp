@@ -186,6 +186,12 @@ bool InspIRCd::DaemonSeed()
 void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 {
 #ifndef _WIN32
+	if (!ServerInstance->Config->cmdline.writepid)
+	{
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "--nopid specified on command line; PID file not written.");
+		return;
+	}
+
 	std::string fname(filename);
 	if (fname.empty())
 		fname = ServerInstance->Config->Paths.PrependData("inspircd.pid");
@@ -225,7 +231,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	FailedPortList pl;
 	// Flag variables passed to getopt_long() later
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0;
+	    do_nolog = 0, do_nopid = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Config = 0;
@@ -271,6 +277,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{ "config",	required_argument,	NULL,		'c'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
+		{ "nopid",	no_argument,		&do_nopid,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
 #ifdef INSPIRCD_ENABLE_TESTSUITE
@@ -297,7 +304,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			default:
 				/* Fall through to handle other weird values too */
 				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
-				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--config <config>]" << std::endl <<
+				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--nopid] [--debug] [--config <config>]" << std::endl <<
 					std::string(static_cast<size_t>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
@@ -325,6 +332,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
 	Config->cmdline.writelog = !do_nolog;
+	Config->cmdline.writepid = !do_nopid;
 
 	if (do_debug)
 	{
