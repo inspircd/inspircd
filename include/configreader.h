@@ -146,6 +146,18 @@ struct CommandLineConf
 	 */
 	bool writelog;
 
+	/** If this is true, a PID file will be written
+	 * to the file given in the "file" variable of
+	 * the <pid> tag in the config file. This is
+	 * the default.
+	 * Passing --nopid as a command line argument
+	 * sets this to false; in this case, a PID file
+	 * will not be written, even the default PID
+	 * file that is usually written when the <pid>
+	 * tag is not defined in the config file.
+	 */
+	bool writepid;
+
 	/** Saved argc from startup
 	 */
 	int argc;
