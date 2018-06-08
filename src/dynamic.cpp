@@ -96,7 +96,7 @@ void DLLManager::RetrieveLastError()
 	SetLastError(ERROR_SUCCESS);
 	err = errmsg;
 #else
-	char* errmsg = dlerror();
+	const char* errmsg = dlerror();
 	err = errmsg ? errmsg : "Unknown error";
 #endif
 
