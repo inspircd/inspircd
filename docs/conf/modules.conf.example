@@ -890,6 +890,8 @@
 # If you choose to use the m_httpd.so module, then you will need to add
 # a <bind> tag with type "httpd", and load at least one of the other
 # m_httpd_* modules to provide pages to display.
+# <bind address="127.0.0.1" port="8067" type="httpd">
+# <bind address="127.0.0.1" port="8097" type="httpd" ssl="gnutls">
 #
 # You can adjust the timeout for HTTP connections below. All HTTP
 # connections will be closed after (roughly) this many seconds.
@@ -912,13 +914,22 @@
 # <httpdacl path="/*" types="blacklist" blacklist="*">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HTTP config module: Allows the configuration of the server to be
-# viewed over HTTP. Requires m_httpd.so to be loaded for it to function.
+# HTTP config module: Allows the server configuration to be viewed over
+# HTTP via the /config path. Requires m_httpd.so to be loaded for it to
+# function.
+#
+# IMPORTANT: This module exposes extremely sensitive information about
+# your server and users so you *MUST* protect it using a local-only
+# <bind> tag and/or the m_httpd_acl.so module. See above for details.
 #<module name="m_httpd_config.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HTTP stats module: Provides basic stats pages over HTTP.
-# Requires m_httpd.so to be loaded for it to function.
+# HTTP stats module: Provides server statistics over HTTP via the /stats
+# path. Requires m_httpd.so to be loaded for it to function.
+#
+# IMPORTANT: This module exposes extremely sensitive information about
+# your server and users so you *MUST* protect it using a local-only
+# <bind> tag and/or the m_httpd_acl.so module. See above for details.
 #<module name="m_httpd_stats.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
