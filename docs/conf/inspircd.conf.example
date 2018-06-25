@@ -868,7 +868,6 @@
 #  - USERS - information relating to user connection and disconnection
 #  - OPER - succesful and failed oper attempts
 #  - KILL - kill related messages
-#  - snomask - server notices (*all* snomasks will be logged)
 #  - FILTER - messages related to filter matches (filter module)
 #  - CONFIG - configuration related messages
 #  - COMMAND - die and restart messages, and messages related to unknown user types
