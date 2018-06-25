@@ -98,13 +98,6 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 	}
 
-	if (IS_LOCAL(user) || IS_LOCAL(target))
-		ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "%s KILL: %s :%s!%s!%s (%s)",
-				IS_LOCAL(user) && IS_LOCAL(target) ? "LOCAL" : "REMOTE",
-				target->nick.c_str(),
-				ServerInstance->Config->ServerName.c_str(), user->GetDisplayedHost().c_str(), user->nick.c_str(),
-				parameters[1].c_str());
-
 	if (IS_LOCAL(target))
 	{
 		target->Write(":%s KILL %s :%s",

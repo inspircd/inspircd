@@ -375,7 +375,6 @@ void User::Oper(OperInfo* info)
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
-	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->name.c_str());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
