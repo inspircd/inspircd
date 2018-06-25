@@ -294,7 +294,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{
 			case 'c':
 				/* Config filename was set */
-				ConfigFileName = ServerInstance->Config->Paths.PrependConfig(optarg);
+				ConfigFileName = optarg;
+#ifdef _WIN32
+				TCHAR configPath[MAX_PATH + 1];
+				if (GetFullPathName(optarg, MAX_PATH, configPath, NULL) > 0)
+					ConfigFileName = configPath;
+#else
+				char configPath[PATH_MAX + 1];
+				if (realpath(optarg, configPath))
+					ConfigFileName = configPath;
+#endif
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
