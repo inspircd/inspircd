@@ -20,10 +20,12 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
 class ModuleSecureList : public Module
 {
 	std::vector<std::string> allowlist;
+	bool exemptregistered;
 	unsigned int WaitTime;
 
  public:
@@ -40,7 +42,9 @@ class ModuleSecureList : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 			allowlist.push_back(i->second->getString("exception"));
 
-		WaitTime = ServerInstance->Config->ConfValue("securelist")->getDuration("waittime", 60, 1);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
+		exemptregistered = tag->getBool("exemptregistered");
+		WaitTime = tag->getDuration("waittime", 60, 1);
 	}
 
 
@@ -60,6 +64,10 @@ class ModuleSecureList : public Module
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
 				if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map))
 					return MOD_RES_PASSTHRU;
+
+			const AccountExtItem* ext = GetAccountExtItem();
+			if (exemptregistered && ext && ext->get(user))
+				return MOD_RES_PASSTHRU;
 
 			/* Not exempt, BOOK EM DANNO! */
 			user->WriteNotice("*** You cannot list within the first " + ConvToStr(WaitTime) + " seconds of connecting. Please try again later.");
