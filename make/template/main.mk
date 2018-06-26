@@ -195,7 +195,7 @@ std-header:
 	@echo "*   This will take a *long* time.   *"
 	@echo "*     Why not read our wiki at      *"
 	@echo "*     http://wiki.inspircd.org      *"
-	@echo "*  while you wait for make to run?  *"
+	@echo "*  while you wait for Make to run?  *"
 	@echo "*************************************"
 
 finishmessage: target
@@ -204,7 +204,7 @@ finishmessage: target
 	@echo "*        BUILD COMPLETE!            *"
 	@echo "*                                   *"
 	@echo "*   To install InspIRCd, type:      *"
-	@echo "*         make install              *"
+	@echo "*        'make install'             *"
 	@echo "*************************************"
 
 install: target
