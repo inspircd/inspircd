@@ -110,6 +110,13 @@ public:
 					{
 						if (iter->first == user->uuid)
 						{
+							LocalUser* lusr = IS_LOCAL(user);
+							if (lusr && lusr->IsInvited(cname))
+							{
+								dl->erase(iter++);
+								return MOD_RES_PASSTHRU;
+							}
+
 							std::string modeparam = chan->GetModeParameter(&kr);
 							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
 								user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
