@@ -40,11 +40,6 @@ using namespace DNS;
  */
 class Packet : public Query
 {
-	static bool IsValidName(const std::string& name)
-	{
-		return (name.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-") == std::string::npos);
-	}
-
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
 	{
 		if (pos + name.length() + 2 > output_size)
@@ -195,7 +190,7 @@ class Packet : public Query
 			case QUERY_PTR:
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
-				if (!IsValidName(record.rdata))
+				if (!InspIRCd::IsHost(record.rdata))
 					throw Exception("Invalid name"); // XXX: Causes the request to time out
 
 				break;
