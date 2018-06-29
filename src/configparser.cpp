@@ -402,6 +402,21 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	return false;
 }
 
+std::string ConfigTag::getString(const std::string& key, const std::string& def, const TR1NS::function<bool(const std::string&)>& validator)
+{
+	std::string res;
+	if (!readString(key, res))
+		return def;
+
+	if (!validator(res))
+	{
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: The value of <%s:%s> is not valid; value set to %s.",
+			tag.c_str(), key.c_str(), def.c_str());
+		return def;
+	}
+	return res;
+}
+
 std::string ConfigTag::getString(const std::string& key, const std::string& def, size_t minlen, size_t maxlen)
 {
 	std::string res;
