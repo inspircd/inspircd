@@ -267,6 +267,65 @@ bool InspIRCd::DefaultIsIdent(const std::string& n)
 	return true;
 }
 
+bool InspIRCd::IsHost(const std::string& host)
+{
+	// Hostnames must be non-empty and shorter than the maximum hostname length.
+	if (host.empty() || host.length() > ServerInstance->Config->Limits.MaxHost)
+		return false;
+
+	unsigned int numdashes = 0;
+	unsigned int numdots = 0;
+	bool seendot = false;
+	const std::string::const_iterator hostend = host.end() - 1;
+	for (std::string::const_iterator iter = host.begin(); iter != host.end(); ++iter)
+	{
+		unsigned char chr = static_cast<unsigned char>(*iter);
+
+		// If the current character is a label separator.
+		if (chr == '.')
+		{
+			numdots++;
+
+			// Consecutive separators are not allowed and dashes can not exist at the start or end
+			// of labels and separators must only exist between labels.
+			if (seendot || numdashes || iter == host.begin() || iter == hostend)
+				return false;
+
+			seendot = true;
+			continue;
+		}
+
+		// If this point is reached then the character is not a dot.
+		seendot = false;
+
+		// If the current character is a dash.
+		if (chr == '-')
+		{
+			// Consecutive separators are not allowed and dashes can not exist at the start or end
+			// of labels and separators must only exist between labels.
+			if (seendot || numdashes >= 2 || iter == host.begin() || iter == hostend)
+				return false;
+
+			numdashes += 1;
+			continue;
+		}
+
+		// If this point is reached then the character is not a dash.
+		numdashes = 0;
+
+		// Alphanumeric characters are allowed at any position.
+		if ((chr >= '0' && chr <= '9') || (chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'))
+			continue;
+
+		return false;
+	}
+
+	// Whilst simple hostnames (e.g. localhost) are valid we do not allow the server to use
+	// them to prevent issues with clients that differentiate between short client and server
+	// prefixes by checking whether the nickname contains a dot.
+	return numdots;
+}
+
 bool InspIRCd::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,

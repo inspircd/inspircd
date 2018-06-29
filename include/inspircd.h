@@ -381,6 +381,12 @@ class CoreExport InspIRCd
 	*/
 	static bool DefaultIsChannel(const std::string& channel);
 
+	/** Determines whether a hostname is valid according to RFC 5891 rules.
+	 * @param host The hostname to validate.
+	 * @return True if the hostname is valid; otherwise, false.
+	 */
+	static bool IsHost(const std::string& host);
+
 	/** Return true if str looks like a server ID
 	 * @param sid string to check against
 	 */
