@@ -72,26 +72,6 @@ ServerConfig::~ServerConfig()
 	delete EmptyTag;
 }
 
-static void ValidHost(const std::string& p, const std::string& msg)
-{
-	int num_dots = 0;
-	if (p.empty() || p[0] == '.')
-		throw CoreException("The value of "+msg+" is not a valid hostname");
-	for (unsigned int i=0;i < p.length();i++)
-	{
-		switch (p[i])
-		{
-			case ' ':
-				throw CoreException("The value of "+msg+" is not a valid hostname");
-			case '.':
-				num_dots++;
-			break;
-		}
-	}
-	if (num_dots == 0)
-		throw CoreException("The value of "+msg+" is not a valid hostname");
-}
-
 bool ServerConfig::ApplyDisabledCommands()
 {
 	// Enable everything first.
@@ -389,8 +369,7 @@ void ServerConfig::Fill()
 	ConfigTag* server = ConfValue("server");
 	if (sid.empty())
 	{
-		ServerName = server->getString("name", "irc.example.com");
-		ValidHost(ServerName, "<server:name>");
+		ServerName = server->getString("name", "irc.example.com", InspIRCd::IsHost);
 
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
