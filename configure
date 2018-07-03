@@ -368,8 +368,8 @@ $has_epoll = test_compile('epoll');
 print $has_epoll ? "yes\n" : "no\n";
 
 printf "Checking for eventfd support... ";
-$config{HAS_EVENTFD} = test_compile('eventfd') ? 'true' : 'false';
-print $config{HAS_EVENTFD} eq 'true' ? "yes\n" : "no\n";
+$config{HAS_EVENTFD} = test_compile('eventfd');
+print $config{HAS_EVENTFD} ? "yes\n" : "no\n";
 
 printf "Checking if Solaris I/O completion ports are available... ";
 $has_ports = 0;
@@ -873,13 +873,13 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if ($config{GCCVER} >= 3) {
 			print FILEHANDLE "#define GCC3\n";
 		}
-		if ($config{HAS_STRLCPY} eq "true") {
+		if ($config{HAS_STRLCPY}) {
 			print FILEHANDLE "#define HAS_STRLCPY\n";
 		}
-		if ($config{HAS_STDINT} eq "true") {
+		if ($config{HAS_STDINT}) {
 			print FILEHANDLE "#define HAS_STDINT\n";
 		}
-		if ($config{HAS_EVENTFD} eq 'true') {
+		if ($config{HAS_EVENTFD}) {
 			print FILEHANDLE "#define HAS_EVENTFD\n";
 		}
 		if ($config{OSNAME} !~ /DARWIN/i) {
