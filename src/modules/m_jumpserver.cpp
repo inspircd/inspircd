@@ -58,7 +58,7 @@ class CommandJumpserver : public Command
 		std::string n_done_s;
 
 		/* No parameters: jumpserver disabled */
-		if (!parameters.size())
+		if (parameters.empty())
 		{
 			if (port)
 				user->WriteNotice("*** Disabled jumpserver (previously set to '" + redirect_to + ":" + ConvToStr(port) + "')");

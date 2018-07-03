@@ -25,7 +25,7 @@
 
 CmdResult CommandAway::HandleRemote(::RemoteUser* u, std::vector<std::string>& params)
 {
-	if (params.size())
+	if (!params.empty())
 	{
 		FOREACH_MOD(OnSetAway, (u, params.back()));
 
