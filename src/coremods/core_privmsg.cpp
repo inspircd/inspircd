@@ -141,11 +141,12 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 					return CMD_FAILURE;
 				}
 
-				if (ServerInstance->Config->RestrictBannedUsers)
+				if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
 				{
 					if (chan->IsBanned(user))
 					{
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+						if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
 						return CMD_FAILURE;
 					}
 				}

@@ -70,15 +70,16 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 
 	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
 	// one of the channels they are on
-	if (ServerInstance->Config->RestrictBannedUsers)
+	if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
 	{
 		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
 			Channel* chan = (*i)->chan;
 			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
-					chan->name.c_str()));
+				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
+						chan->name.c_str()));
 				return CMD_FAILURE;
 			}
 		}

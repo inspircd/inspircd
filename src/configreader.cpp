@@ -434,7 +434,6 @@ void ServerConfig::Fill()
 	HideServer = security->getString("hideserver", security->getString("hidewhois"));
 	HideKillsServer = security->getString("hidekills");
 	HideULineKills = security->getBool("hideulinekills");
-	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
@@ -473,6 +472,16 @@ void ServerConfig::Fill()
 	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));
 	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));
 	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
+
+	const std::string restrictbannedusers = options->getString("restrictbannedusers", "yes");
+	if (stdalgo::string::equalsci(restrictbannedusers, "no"))
+		RestrictBannedUsers = ServerConfig::BUT_NORMAL;
+	else if (stdalgo::string::equalsci(restrictbannedusers, "silent"))
+		RestrictBannedUsers = ServerConfig::BUT_RESTRICT_SILENT;
+	else if (stdalgo::string::equalsci(restrictbannedusers, "yes"))
+		RestrictBannedUsers =  ServerConfig::BUT_RESTRICT_NOTIFY;
+	else
+		throw CoreException(restrictbannedusers + " is an invalid <options:restrictbannedusers> value, at " + options->getTagLocation());
 
 	DisabledUModes.reset();
 	std::string modes = ConfValue("disabled")->getString("usermodes");

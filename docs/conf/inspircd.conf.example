@@ -779,7 +779,8 @@
 
           # restrictbannedusers: If this is set to yes, InspIRCd will not allow users
           # banned on a channel to change nickname or message channels they are
-          # banned on.
+          # banned on. This can also be set to silent to restrict the user but not
+          # notify them.
           restrictbannedusers="yes"
 
           # genericoper: Setting this value to yes makes all opers on this server

@@ -210,6 +210,19 @@ class CoreExport ServerConfig
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
+	/** How to treat a user in a channel who is banned. */
+	enum BannedUserTreatment
+	{
+		/** Don't treat a banned user any different to normal. */
+		BUT_NORMAL,
+
+		/** Restrict the actions of a banned user. */
+		BUT_RESTRICT_SILENT,
+
+		/** Restrict the actions of a banned user and notify them of their treatment. */
+		BUT_RESTRICT_NOTIFY
+	};
+
 	class ServerPaths
 	{
 	 public:
@@ -330,10 +343,8 @@ class CoreExport ServerConfig
 	 */
 	bool GenericOper;
 
-	/** If this value is true, banned users (+b, not extbans) will not be able to change nick
-	 * if banned on any channel, nor to message them.
-	 */
-	bool RestrictBannedUsers;
+	/** How to treat a user in a channel who is banned. */
+	BannedUserTreatment RestrictBannedUsers;
 
 	/** The size of the read() buffer in the user
 	 * handling code, used to read data into a user's
