@@ -340,15 +340,13 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 
 			for (UserMembCIter i = cu->begin(); i != cu->end(); i++)
 			{
-				/* None of this applies if we WHO ourselves */
-				if (user != i->first)
 				{
 					/* opers only, please */
 					if (opt_viewopersonly && !IS_OPER(i->first))
 						continue;
 
 					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet('i') && !inside && !user->HasPrivPermission("users/auspex"))
+					if (!inside && user != i->first && i->first->IsModeSet('i') && !user->HasPrivPermission("users/auspex"))
 						continue;
 				}
 
