@@ -1,6 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2018 Peter Powell <petpow@saberuk.com>
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *
@@ -19,387 +21,572 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
-/** Handle /WHO.
- */
-class CommandWho : public Command
+enum
 {
-	bool CanView(Channel* chan, User* user);
-	bool opt_viewopersonly;
-	bool opt_showrealhost;
-	bool opt_realname;
-	bool opt_mode;
-	bool opt_ident;
-	bool opt_metadata;
-	bool opt_port;
-	bool opt_away;
-	bool opt_local;
-	bool opt_far;
-	bool opt_time;
+	// From RFC 1459.
+	RPL_ENDOFWHO = 315,
+	RPL_WHOREPLY = 352,
+
+	// From ircu.
+	RPL_WHOSPCRPL = 354
+};
+
+struct WhoData
+{
+	// The flags for matching users to include.
+	std::bitset<UCHAR_MAX> flags;
+
+	// Whether we are matching using a wildcard or a flag.
+	bool fuzzy_match;
+
+	// The text to match against.
+	std::string matchtext;
+
+	// The WHO/WHOX responses we will send to the source.
+	std::vector<Numeric::Numeric> results;
+
+	// Whether the source requested a WHOX response.
+	bool whox;
+
+	// The fields to include in the WHOX response.
+	std::bitset<UCHAR_MAX> whox_fields;
+
+	// A user specified label for the WHOX response.
+	std::string whox_querytype;
+
+	WhoData(const std::vector<std::string>& parameters)
+		: whox(false)
+	{
+		// Find the matchtext and swap the 0 for a * so we can use InspIRCd::Match on it.
+		matchtext = parameters.size() > 2 ? parameters[2] : parameters[0];
+		if (matchtext == "0")
+			matchtext = "*";
+
+		// Fuzzy matches are when the source has not specified a specific user.
+		fuzzy_match = (parameters.size() > 1) || (matchtext.find_first_of("*?.") != std::string::npos);
+
+		// If flags have been specified by the source.
+		if (parameters.size() > 1)
+		{
+			std::bitset<UCHAR_MAX>* current_bitset = &flags;
+			for (std::string::const_iterator iter = parameters[1].begin(); iter != parameters[1].end(); ++iter)
+			{
+				unsigned char chr = static_cast<unsigned char>(*iter);
+
+				// If the source specifies a percentage the rest of the flags are WHOX fields.
+				if (chr == '%')
+				{
+					whox = true;
+					current_bitset = &whox_fields;
+					continue;
+				}
+
+				// If we are in WHOX mode and the source specifies a comma
+				// the rest of the parameter is the query type.
+				if (whox && chr == ',')
+				{
+					whox_querytype.assign(++iter, parameters[1].end());
+					break;
+				}
+
+				// The source specified a matching flag.
+				current_bitset->set(chr);
+			}
+		}
+	}
+};
+
+class CommandWho : public SplitCommand
+{
+ private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 	UserModeReference hidechansmode;
 	UserModeReference invisiblemode;
 
-	Membership* get_first_visible_channel(User* source, User* u)
+	/** Determines whether a user can view the users of a channel. */
+	bool CanView(Channel* chan, User* user)
 	{
-		for (User::ChanList::iterator i = u->chans.begin(); i != u->chans.end(); ++i)
-		{
-			Membership* memb = *i;
+		// If we are in a channel we can view all users in it.
+		if (chan->HasUser(user))
+			return true;
 
-			/* XXX move the +I check into m_hidechans */
-			bool has_modes = memb->chan->IsModeSet(secretmode) || memb->chan->IsModeSet(privatemode) || u->IsModeSet(hidechansmode);
-			if (source == u || !has_modes || memb->chan->HasUser(source))
+		// Opers with the users/auspex priv can see everything.
+		if (user->HasPrivPermission("users/auspex"))
+			return true;
+
+		// You can see inside a channel from outside unless it is secret or private.
+		return !chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode);
+	}
+
+	/** Gets the first channel which is visible between the source and the target users. */
+	Membership* GetFirstVisibleChannel(LocalUser* source, User* user)
+	{
+		for (User::ChanList::iterator iter = user->chans.begin(); iter != user->chans.end(); ++iter)
+		{
+			Membership* memb = *iter;
+
+			// TODO: move the +I check into m_hidechans.
+			bool has_modes = memb->chan->IsModeSet(secretmode) || memb->chan->IsModeSet(privatemode) || user->IsModeSet(hidechansmode);
+			if (source == user || !has_modes || memb->chan->HasUser(source))
 				return memb;
 		}
 		return NULL;
 	}
 
+	/** Determines whether WHO flags match a specific channel user. */
+	static bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
+
+	/** Determines whether WHO flags match a specific user. */
+	static bool MatchUser(LocalUser* source, User* target, WhoData& data);
+
+	/** Performs a WHO request on a channel. */
+	void WhoChannel(LocalUser* source, const std::vector<std::string>& parameters, Channel* c, WhoData& data);
+
+	/** Template for getting a user from various types of collection. */
+	template<typename T>
+	static User* GetUser(T& t);
+
+	/** Performs a WHO request on a list of users. */
+	template<typename T>
+	void WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data);
+
  public:
-	/** Constructor for who.
-	 */
 	CommandWho(Module* parent)
-		: Command(parent, "WHO", 1)
+		: SplitCommand(parent, "WHO", 1, 3)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
 		, hidechansmode(parent, "hidechans")
 		, invisiblemode(parent, "invisible")
 	{
-		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
+		allow_empty_last_param = false;
+		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
 	}
 
-	void SendWhoLine(User* user, const std::vector<std::string>& parms, Membership* memb, User* u, std::vector<Numeric::Numeric>& whoresults);
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	bool whomatch(User* cuser, User* user, const char* matchtext);
+	/** Sends a WHO reply to a user. */
+	void SendWhoLine(LocalUser* user, const std::vector<std::string>& parameters, Membership* memb, User* u, WhoData& data);
+
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
 };
 
-bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
-{
-	bool match = false;
-	bool positive = false;
+template<> User* CommandWho::GetUser(UserManager::OperList::const_iterator& t) { return *t; }
+template<> User* CommandWho::GetUser(user_hash::const_iterator& t) { return t->second; }
 
+bool CommandWho::MatchChannel(LocalUser* source, Membership* memb, WhoData& data)
+{
+	bool source_has_users_auspex = source->HasPrivPermission("users/auspex");
+	bool source_can_see_server = ServerInstance->Config->HideServer.empty() || source_has_users_auspex;
+
+	// The source only wants remote users. This user is eligible if:
+	//   (1) The source can't see server information.
+	//   (2) The source is not local to the current server.
+	LocalUser* lu = IS_LOCAL(memb->user);
+	if (data.flags['f'] && source_can_see_server && lu)
+		return false;
+
+	// The source only wants local users. This user is eligible if:
+	//   (1) The source can't see server information.
+	//   (2) The source is local to the current server.
+	if (data.flags['l'] && source_can_see_server && !lu)
+		return false;
+
+	// Only show operators if the oper flag has been specified.
+	if (data.flags['o'] && !memb->user->IsOper())
+		return false;
+
+	// All other flags are ignored for channels.
+	return true;
+}
+
+bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
+{
+	// Users who are not fully registered can never match.
 	if (user->registered != REG_ALL)
 		return false;
 
-	if (opt_local && !IS_LOCAL(user))
-		return false;
-	else if (opt_far && IS_LOCAL(user))
+	bool source_has_users_auspex = source->HasPrivPermission("users/auspex");
+	bool source_can_see_target = source == user || source_has_users_auspex;
+	bool source_can_see_server = ServerInstance->Config->HideServer.empty() || source_has_users_auspex;
+
+	// The source only wants remote users. This user is eligible if:
+	//   (1) The source can't see server information.
+	//   (2) The source is not local to the current server.
+	LocalUser* lu = IS_LOCAL(user);
+	if (data.flags['f'] && source_can_see_server && lu)
 		return false;
 
-	if (opt_mode)
+	// The source only wants local users. This user is eligible if:
+	//   (1) The source can't see server information.
+	//   (2) The source is local to the current server.
+	if (data.flags['l'] && source_can_see_server && !lu)
+		return false;
+
+	// The source wants to match against users' away messages.
+	bool match = false;
+	if (data.flags['A'])
+		match = user->IsAway() && InspIRCd::Match(user->awaymsg, data.matchtext, ascii_case_insensitive_map);
+
+	// The source wants to match against users' account names.
+	else if (data.flags['a'])
 	{
-		for (const char* n = matchtext; *n; n++)
-		{
-			if (*n == '+')
-			{
-				positive = true;
-				continue;
-			}
-			else if (*n == '-')
-			{
-				positive = false;
-				continue;
-			}
-			if (user->IsModeSet(*n) != positive)
-				return false;
-		}
-		return true;
+		const AccountExtItem* accountext = GetAccountExtItem();
+		const std::string* account = accountext ? accountext->get(user) : NULL;
+		match = account && InspIRCd::Match(*account, data.matchtext);
 	}
-	else
+
+	// The source wants to match against users' hostnames.
+	else if (data.flags['h'])
 	{
-		/*
-		 * This was previously one awesome pile of ugly nested if, when really, it didn't need
-		 * to be, since only one condition was ever checked, a chained if works just fine.
-		 * -- w00t
-		 */
-		if (opt_metadata)
+		const std::string host = user->GetHost(source_can_see_target && data.flags['x']);
+		match = InspIRCd::Match(host, data.matchtext, ascii_case_insensitive_map);
+	}
+
+	// The source wants to match against users' IP addresses.
+	else if (data.flags['i'])
+		match = source_can_see_target && InspIRCd::MatchCIDR(user->GetIPString(), data.matchtext, ascii_case_insensitive_map);
+
+	// The source wants to match against users' modes.
+	else if (data.flags['m'])
+	{
+		if (source_can_see_target)
 		{
-			match = false;
-			const Extensible::ExtensibleStore& list = user->GetExtList();
-			for(Extensible::ExtensibleStore::const_iterator i = list.begin(); i != list.end(); ++i)
-				if (InspIRCd::Match(i->first->name, matchtext))
-					match = true;
+			bool set = true;
+			for (std::string::const_iterator iter = data.matchtext.begin(); iter != data.matchtext.end(); ++iter)
+			{
+				unsigned char chr = static_cast<unsigned char>(*iter);
+				switch (chr)
+				{
+					// The following user modes should be set.
+					case '+':
+						set = true;
+						break;
+
+					// The following user modes should be unset.
+					case '-':
+						set = false;
+						break;
+
+					default:
+						if (user->IsModeSet(chr) != set)
+							return false;
+						break;
+				}
+			}
+
+			// All of the modes matched.
+			return true;
 		}
-		else if (opt_realname)
-			match = InspIRCd::Match(user->fullname, matchtext);
-		else if (opt_showrealhost)
-			match = InspIRCd::Match(user->GetRealHost(), matchtext, ascii_case_insensitive_map);
-		else if (opt_ident)
-			match = InspIRCd::Match(user->ident, matchtext, ascii_case_insensitive_map);
-		else if (opt_port)
+	}
+
+	// The source wants to match against users' nicks.
+	else if (data.flags['n'])
+		match = InspIRCd::Match(user->nick, data.matchtext);
+
+	// The source wants to match against users' connection ports.
+	else if (data.flags['p'])
+	{
+		if (source_can_see_target && lu)
 		{
-			irc::portparser portrange(matchtext, false);
-			long portno = -1;
-			while ((portno = portrange.GetToken()))
-				if (IS_LOCAL(user) && portno == IS_LOCAL(user)->GetServerPort())
+			irc::portparser portrange(data.matchtext, false);
+			long port;
+			while ((port = portrange.GetToken()))
+			{
+				if (port == lu->GetServerPort())
 				{
 					match = true;
 					break;
 				}
+			}
 		}
-		else if (opt_away)
-			match = InspIRCd::Match(user->awaymsg, matchtext);
-		else if (opt_time)
+	}
+
+	// The source wants to match against users' real names.
+	else if (data.flags['r'])
+		match = InspIRCd::Match(user->fullname, data.matchtext, ascii_case_insensitive_map);
+
+	else if (data.flags['s'])
+	{
+		bool show_real_server_name = ServerInstance->Config->HideServer.empty() || (source->HasPrivPermission("servers/auspex") && data.flags['x']);
+		const std::string server = show_real_server_name ? user->server->GetName() : ServerInstance->Config->HideServer;
+		match = InspIRCd::Match(server, data.matchtext, ascii_case_insensitive_map);
+	}
+
+	// The source wants to match against users' connection times.
+	else if (data.flags['t'])
+	{
+		time_t seconds = ServerInstance->Time() - InspIRCd::Duration(data.matchtext);
+		if (user->signon >= seconds)
+			match = true;
+	}
+
+	// The source wants to match against users' idents.
+	else if (data.flags['u'])
+		match = InspIRCd::Match(user->ident, data.matchtext, ascii_case_insensitive_map);
+
+	// The <name> passed to WHO is matched against users' host, server,
+	// real name and nickname if the channel <name> cannot be found.
+	else
+	{
+		const std::string host = user->GetHost(source_can_see_target && data.flags['x']);
+		match = InspIRCd::Match(host, data.matchtext, ascii_case_insensitive_map);
+
+		if (!match)
 		{
-			time_t seconds = ServerInstance->Time() - InspIRCd::Duration(matchtext);
-
-			// Okay, so time matching, we want all users connected `seconds' ago
-			if (user->signon >= seconds)
-				match = true;
+			bool show_real_server_name = ServerInstance->Config->HideServer.empty() || (source->HasPrivPermission("servers/auspex") && data.flags['x']);
+			const std::string server = show_real_server_name ? user->server->GetName() : ServerInstance->Config->HideServer;
+			match = InspIRCd::Match(server, data.matchtext, ascii_case_insensitive_map);
 		}
 
-		/*
-		 * Once the conditionals have been checked, only check dhost/nick/server
-		 * if they didn't match this user -- and only match if we don't find a match.
-		 *
-		 * This should make things minutely faster, and again, less ugly.
-		 * -- w00t
-		 */
 		if (!match)
-			match = InspIRCd::Match(user->GetDisplayedHost(), matchtext, ascii_case_insensitive_map);
+			match = InspIRCd::Match(user->fullname, data.matchtext, ascii_case_insensitive_map);
 
 		if (!match)
-			match = InspIRCd::Match(user->nick, matchtext);
+			match = InspIRCd::Match(user->nick, data.matchtext);
+	}
 
-		/* Don't allow server name matches if HideServer is enabled, unless the command user has the priv */
-		if (!match && (ServerInstance->Config->HideServer.empty() || cuser->HasPrivPermission("users/auspex")))
-			match = InspIRCd::Match(user->server->GetName(), matchtext);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "MATCH: %u", match);
+	return match;
+}
 
-		return match;
+void CommandWho::WhoChannel(LocalUser* source, const std::vector<std::string>& parameters, Channel* chan, WhoData& data)
+{
+	if (!CanView(chan, source))
+		return;
+
+	bool inside = chan->HasUser(source);
+	const Channel::MemberMap& users = chan->GetUsers();
+	for (Channel::MemberMap::const_iterator iter = users.begin(); iter != users.end(); ++iter)
+	{
+		User* user = iter->first;
+		Membership* memb = iter->second;
+
+		// Only show invisible users if the source is in the channel or has the users/auspex priv.
+		if (!inside && user->IsModeSet(invisiblemode) && !source->HasPrivPermission("users/auspex"))
+			continue;
+
+		// Skip the user if it doesn't match the query.
+		if (!MatchChannel(source, memb, data))
+			continue;
+
+		SendWhoLine(source, parameters, memb, user, data);
 	}
 }
 
-bool CommandWho::CanView(Channel* chan, User* user)
+template<typename T>
+void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data)
 {
-	/* Bug #383 - moved higher up the list, because if we are in the channel
-	 * we can see all its users
-	 */
-	if (chan->HasUser(user))
-		return true;
-	/* Opers see all */
-	if (user->HasPrivPermission("users/auspex"))
-		return true;
-	/* Cant see inside a +s or a +p channel unless we are a member (see above) */
-	else if (!chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode))
-		return true;
+	for (typename T::const_iterator iter = users.begin(); iter != users.end(); ++iter)
+	{
+		User* user = GetUser(iter);
 
-	return false;
+		// Only show users in response to a fuzzy WHO if we can see them normally.
+		bool can_see_normally = user == source || source->SharesChannelWith(user) || !user->IsModeSet(invisiblemode);
+		if (data.fuzzy_match && !can_see_normally && !source->HasPrivPermission("users/auspex"))
+			continue;
+
+		// Skip the user if it doesn't match the query.
+		if (!MatchUser(source, user, data))
+			continue;
+
+		SendWhoLine(source, parameters, NULL, user, data);
+	}
 }
 
-void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, Membership* memb, User* u, std::vector<Numeric::Numeric>& whoresults)
+void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& parameters, Membership* memb, User* user, WhoData& data)
 {
 	if (!memb)
-		memb = get_first_visible_channel(user, u);
+		memb = GetFirstVisibleChannel(source, user);
 
-	Numeric::Numeric wholine(RPL_WHOREPLY);
-	wholine.push(memb ? memb->chan->name : "*").push(u->ident);
-	wholine.push(u->GetHost(opt_showrealhost));
-	if (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"))
-		wholine.push(ServerInstance->Config->HideServer);
-	else
-		wholine.push(u->server->GetName());
-
-	wholine.push(u->nick);
-
-	std::string param;
-	/* away? */
-	if (u->IsAway())
+	bool source_can_see_target = source == user || source->HasPrivPermission("users/auspex");
+	Numeric::Numeric wholine(data.whox ? RPL_WHOSPCRPL : RPL_WHOREPLY);
+	if (data.whox)
 	{
-		param.push_back('G');
+		// The source used WHOX so we send a fancy customised response.
+
+		// Include the query type in the reply.
+		if (data.whox_fields['t'])
+			wholine.push(data.whox_querytype.empty() || data.whox_querytype.length() > 3 ? "0" : data.whox_querytype);
+
+		// Include the first channel name.
+		if (data.whox_fields['c'])
+			wholine.push(memb ? memb->chan->name : "*");
+
+		// Include the user's ident.
+		if (data.whox_fields['u'])
+			wholine.push(user->ident);
+
+		// Include the user's IP address.
+		if (data.whox_fields['i'])
+			wholine.push(source_can_see_target ? user->GetIPString() : "255.255.255.255");
+
+		// Include the user's hostname.
+		if (data.whox_fields['h'])
+			wholine.push(user->GetHost(source_can_see_target && data.flags['x']));
+
+		// Include the server name.
+		if (data.whox_fields['s'])
+		{
+			if (ServerInstance->Config->HideServer.empty() || (source->HasPrivPermission("servers/auspex") && data.flags['x']))
+				wholine.push(user->server->GetName());
+			else
+				wholine.push(ServerInstance->Config->HideServer);
+		}
+
+		// Include the user's nickname.
+		if (data.whox_fields['n'])
+			wholine.push(user->nick);
+
+		// Include the user's flags.
+		if (data.whox_fields['f'])
+		{
+			// Away state.
+			std::string flags(user->IsAway() ? "G" : "H");
+
+			// Operator status.
+			if (user->IsOper())
+				flags.push_back('*');
+
+			// Membership prefix.
+			if (memb)
+			{
+				char prefix = memb->GetPrefixChar();
+				if (prefix)
+					flags.push_back(prefix);
+			}
+
+			wholine.push(flags);
+		}
+
+		// Include the number of hops between the users.
+		if (data.whox_fields['d'])
+			wholine.push("0");
+
+		// Include the user's idle time.
+		if (data.whox_fields['l'])
+		{
+			LocalUser* lu = IS_LOCAL(user);
+			unsigned long idle = lu ? ServerInstance->Time() - lu->idle_lastmsg : 0;
+			wholine.push(ConvToStr(idle));
+		}
+
+		// Include the user's account name.
+		if (data.whox_fields['a'])
+		{
+			const AccountExtItem* accountext = GetAccountExtItem();
+			const std::string* account = accountext ? accountext->get(user) : NULL;
+			wholine.push(account ? *account : "0");
+		}
+
+		// Include the user's operator rank level.
+		if (data.whox_fields['o'])
+			wholine.push(memb ? ConvToStr(memb->getRank()) : "0");
+
+		// Include the user's real name.
+		if (data.whox_fields['r'])
+			wholine.push(user->fullname);
 	}
 	else
 	{
-		param.push_back('H');
-	}
+		// We are not using WHOX so we just send a plain RFC response.
 
-	/* oper? */
-	if (u->IsOper())
-	{
-		param.push_back('*');
-	}
+		// Include the channel name.
+		wholine.push(memb ? memb->chan->name : "*");
 
-	if (memb)
-	{
-		char prefix = memb->GetPrefixChar();
-		if (prefix)
-			param.push_back(prefix);
-	}
+		// Include the user's ident.
+		wholine.push(user->ident);
 
-	wholine.push(param);
-	wholine.push("0 ");
-	wholine.GetParams().back().append(u->fullname);
+		// Include the user's hostname.
+		wholine.push(user->GetHost(source_can_see_target && data.flags['x']));
+
+		// Include the server name.
+		if (ServerInstance->Config->HideServer.empty() || (source->HasPrivPermission("servers/auspex") && data.flags['x']))
+			wholine.push(user->server->GetName());
+		else
+			wholine.push(ServerInstance->Config->HideServer);
+
+		// Include the user's nick.
+		wholine.push(user->nick);
+
+		// Include the user's flags.
+		{
+			// Away state.
+			std::string flags(user->IsAway() ? "G" : "H");
+
+			// Operator status.
+			if (user->IsOper())
+				flags.push_back('*');
+
+			// Membership prefix.
+			if (memb)
+			{
+				char prefix = memb->GetPrefixChar();
+				if (prefix)
+					flags.push_back(prefix);
+			}
+
+			wholine.push(flags);
+		}
+
+		// Include the number of hops between the users and the user's real name.
+		wholine.push("0 ");
+		wholine.GetParams().back().append(user->fullname);
+	}
 
 	ModResult res;
-	FIRST_MOD_RESULT(OnSendWhoLine, res, (user, parms, u, memb, wholine));
+	FIRST_MOD_RESULT(OnSendWhoLine, res, (source, parameters, user, memb, wholine));
 	if (res != MOD_RES_DENY)
-		whoresults.push_back(wholine);
+		data.results.push_back(wholine);
 }
 
-CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandWho::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
-	/*
-	 * XXX - RFC says:
-	 *   The <name> passed to WHO is matched against users' host, server, real
-	 *   name and nickname
-	 * Currently, we support WHO #chan, WHO nick, WHO 0, WHO *, and the addition of a 'o' flag, as per RFC.
-	 */
+	WhoData data(parameters);
 
-	/* WHO options */
-	opt_viewopersonly = false;
-	opt_showrealhost = false;
-	opt_realname = false;
-	opt_mode = false;
-	opt_ident = false;
-	opt_metadata = false;
-	opt_port = false;
-	opt_away = false;
-	opt_local = false;
-	opt_far = false;
-	opt_time = false;
+	// Is the source running a WHO on a channel?
+	Channel* chan = ServerInstance->FindChan(data.matchtext);
+	if (chan)
+		WhoChannel(user, parameters, chan, data);
 
-	std::vector<Numeric::Numeric> whoresults;
+	// If we only want to match against opers we only have to iterate the oper list.
+	else if (data.flags['o'])
+		WhoUsers(user, parameters, ServerInstance->Users->all_opers, data);
 
-	/* Change '0' into '*' so the wildcard matcher can grok it */
-	std::string matchtext = ((parameters[0] == "0") ? "*" : parameters[0]);
-
-	// WHO flags count as a wildcard
-	bool usingwildcards = ((parameters.size() > 1) || (matchtext.find_first_of("*?.") != std::string::npos));
-
-	if (parameters.size() > 1)
-	{
-		for (std::string::const_iterator iter = parameters[1].begin(); iter != parameters[1].end(); ++iter)
-		{
-			switch (*iter)
-			{
-				case 'o':
-					opt_viewopersonly = true;
-					break;
-				case 'h':
-					if (user->HasPrivPermission("users/auspex"))
-						opt_showrealhost = true;
-					break;
-				case 'r':
-					opt_realname = true;
-					break;
-				case 'm':
-					if (user->HasPrivPermission("users/auspex"))
-						opt_mode = true;
-					break;
-				case 'M':
-					if (user->HasPrivPermission("users/auspex"))
-						opt_metadata = true;
-					break;
-				case 'i':
-					opt_ident = true;
-					break;
-				case 'p':
-					if (user->HasPrivPermission("users/auspex"))
-						opt_port = true;
-					break;
-				case 'a':
-					opt_away = true;
-					break;
-				case 'l':
-					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideServer.empty())
-						opt_local = true;
-					break;
-				case 'f':
-					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideServer.empty())
-						opt_far = true;
-					break;
-				case 't':
-					opt_time = true;
-					break;
-			}
-		}
-	}
-
-
-	/* who on a channel? */
-	Channel* ch = ServerInstance->FindChan(matchtext);
-
-	if (ch)
-	{
-		if (CanView(ch,user))
-		{
-			bool inside = ch->HasUser(user);
-
-			/* who on a channel. */
-			const Channel::MemberMap& cu = ch->GetUsers();
-			for (Channel::MemberMap::const_iterator i = cu.begin(); i != cu.end(); ++i)
-			{
-				/* None of this applies if we WHO ourselves */
-				if (user != i->first)
-				{
-					/* opers only, please */
-					if (opt_viewopersonly && !i->first->IsOper())
-						continue;
-
-					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet(invisiblemode) && !inside && !user->HasPrivPermission("users/auspex"))
-						continue;
-				}
-
-				SendWhoLine(user, parameters, i->second, i->first, whoresults);
-			}
-		}
-	}
+	// Otherwise we have to use the global user list.
 	else
-	{
-		/* Match against wildcard of nick, server or host */
-		if (opt_viewopersonly)
-		{
-			/* Showing only opers */
-			const UserManager::OperList& opers = ServerInstance->Users->all_opers;
-			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
-			{
-				User* oper = *i;
+		WhoUsers(user, parameters, ServerInstance->Users->GetUsers(), data);
 
-				if (whomatch(user, oper, matchtext.c_str()))
-				{
-					if (!user->SharesChannelWith(oper))
-					{
-						if (usingwildcards && (oper->IsModeSet(invisiblemode)) && (!user->HasPrivPermission("users/auspex")))
-							continue;
-					}
-
-					SendWhoLine(user, parameters, NULL, oper, whoresults);
-				}
-			}
-		}
-		else
-		{
-			const user_hash& users = ServerInstance->Users->GetUsers();
-			for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
-			{
-				if (whomatch(user, i->second, matchtext.c_str()))
-				{
-					if (!user->SharesChannelWith(i->second))
-					{
-						if (usingwildcards && (i->second->IsModeSet(invisiblemode)) && (!user->HasPrivPermission("users/auspex")))
-							continue;
-					}
-
-					SendWhoLine(user, parameters, NULL, i->second, whoresults);
-				}
-			}
-		}
-	}
-	/* Send the results out */
-	for (std::vector<Numeric::Numeric>::const_iterator n = whoresults.begin(); n != whoresults.end(); ++n)
+	// Send the results to the source.
+	for (std::vector<Numeric::Numeric>::const_iterator n = data.results.begin(); n != data.results.end(); ++n)
 		user->WriteNumeric(*n);
-	user->WriteNumeric(RPL_ENDOFWHO, (*parameters[0].c_str() ? parameters[0] : "*"), "End of /WHO list.");
+	user->WriteNumeric(RPL_ENDOFWHO, (data.matchtext.empty() ? "*" : data.matchtext.c_str()), "End of /WHO list.");
 
-	// Penalize the user a bit for large queries
-	// (add one unit of penalty per 200 results)
-	if (IS_LOCAL(user))
-		IS_LOCAL(user)->CommandFloodPenalty += whoresults.size() * 5;
+	// Penalize the source a bit for large queries with one unit of penalty per 200 results.
+	user->CommandFloodPenalty += data.results.size() * 5;
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandWho)
+class CoreModWho : public Module
+{
+ private:
+	CommandWho cmd;
+
+ public:
+	CoreModWho()
+		: cmd(this)
+	{
+	}
+
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		tokens["WHOX"];
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the WHO command", VF_VENDOR|VF_CORE);
+	}
+};
+
+MODULE_INIT(CoreModWho)

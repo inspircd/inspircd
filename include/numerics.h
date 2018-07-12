@@ -74,8 +74,6 @@ enum
 	RPL_NOWAWAY                     = 306,
 
 	RPL_WHOISSERVER                 = 312,
-
-	RPL_ENDOFWHO                    = 315,
 	RPL_ENDOFWHOIS                  = 318,
 
 	RPL_LISTSTART                   = 321,
@@ -93,7 +91,6 @@ enum
 	RPL_INVITELIST                  = 346, // insp-specific (stolen from ircu)
 	RPL_ENDOFINVITELIST             = 347, // insp-specific (stolen from ircu)
 	RPL_VERSION                     = 351,
-	RPL_WHOREPLY                    = 352,
 	RPL_NAMREPLY                    = 353,
 	RPL_LINKS                       = 364,
 	RPL_ENDOFLINKS                  = 365,
