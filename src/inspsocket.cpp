@@ -83,12 +83,12 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string& ipaddr, int 
 BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout)
 {
 	if (fd < 0)
-		fd = socket(dest.sa.sa_family, SOCK_STREAM, 0);
+		fd = socket(dest.family(), SOCK_STREAM, 0);
 
 	if (fd < 0)
 		return I_ERR_SOCKET;
 
-	if (bind.sa.sa_family != 0)
+	if (bind.family() != 0)
 	{
 		if (SocketEngine::Bind(fd, bind) < 0)
 			return I_ERR_BIND;

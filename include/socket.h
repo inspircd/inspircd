@@ -59,6 +59,8 @@ namespace irc
 			struct sockaddr sa;
 			struct sockaddr_in in4;
 			struct sockaddr_in6 in6;
+			/** Return the family of the socket (e.g. AF_INET). */
+			int family() const;
 			/** Return the size of the structure for syscall passing */
 			socklen_t sa_size() const;
 			/** Return port number or -1 if invalid */

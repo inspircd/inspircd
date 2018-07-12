@@ -80,7 +80,7 @@ class UserResolver : public DNS::Request
 			ph->set(bound_user, ans_record->rdata);
 
 			UserResolver* res_forward;
-			if (bound_user->client_sa.sa.sa_family == AF_INET6)
+			if (bound_user->client_sa.family() == AF_INET6)
 			{
 				/* IPV6 forward lookup */
 				res_forward = new UserResolver(this->manager, this->creator, bound_user, ans_record->rdata, DNS::QUERY_AAAA);
@@ -109,7 +109,7 @@ class UserResolver : public DNS::Request
 
 			irc::sockets::sockaddrs* user_ip = &bound_user->client_sa;
 			bool rev_match = false;
-			if (user_ip->sa.sa_family == AF_INET6)
+			if (user_ip->family() == AF_INET6)
 			{
 				struct in6_addr res_bin;
 				if (inet_pton(AF_INET6, ans_record->rdata.c_str(), &res_bin))

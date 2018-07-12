@@ -348,7 +348,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
 		std::string reversedip;
-		if (user->client_sa.sa.sa_family == AF_INET)
+		if (user->client_sa.family() == AF_INET)
 		{
 			unsigned int a, b, c, d;
 			d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
@@ -358,7 +358,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 			reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
 		}
-		else if (user->client_sa.sa.sa_family == AF_INET6)
+		else if (user->client_sa.family() == AF_INET6)
 		{
 			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
 

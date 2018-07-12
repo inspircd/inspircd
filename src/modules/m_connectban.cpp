@@ -54,7 +54,7 @@ class ModuleConnectBan : public Module
 
 		unsigned char range = 32;
 
-		switch (u->client_sa.sa.sa_family)
+		switch (u->client_sa.family())
 		{
 			case AF_INET6:
 				range = ipv6_cidr;

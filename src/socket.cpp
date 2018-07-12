@@ -131,11 +131,16 @@ bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::socka
 	return false;
 }
 
+int irc::sockets::sockaddrs::family() const
+{
+	return sa.sa_family;
+}
+
 int irc::sockets::sockaddrs::port() const
 {
-	if (sa.sa_family == AF_INET)
+	if (family() == AF_INET)
 		return ntohs(in4.sin_port);
-	if (sa.sa_family == AF_INET6)
+	if (family() == AF_INET6)
 		return ntohs(in6.sin6_port);
 	return -1;
 }
@@ -143,13 +148,13 @@ int irc::sockets::sockaddrs::port() const
 std::string irc::sockets::sockaddrs::addr() const
 {
 	char addrv[INET6_ADDRSTRLEN+1];
-	if (sa.sa_family == AF_INET)
+	if (family() == AF_INET)
 	{
 		if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, addrv, sizeof(addrv)))
 			return "";
 		return addrv;
 	}
-	else if (sa.sa_family == AF_INET6)
+	else if (family() == AF_INET6)
 	{
 		if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, addrv, sizeof(addrv)))
 			return "";
@@ -160,14 +165,14 @@ std::string irc::sockets::sockaddrs::addr() const
 
 std::string irc::sockets::sockaddrs::str() const
 {
-	if (sa.sa_family == AF_INET)
+	if (family() == AF_INET)
 	{
 		char ipaddr[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, (void*)&in4.sin_addr, ipaddr, sizeof(ipaddr));
 		return InspIRCd::Format("%s:%u", ipaddr, ntohs(in4.sin_port));
 	}
 
-	if (sa.sa_family == AF_INET6)
+	if (family() == AF_INET6)
 	{
 		char ipaddr[INET6_ADDRSTRLEN];
 		inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ipaddr, sizeof(ipaddr));
@@ -180,20 +185,20 @@ std::string irc::sockets::sockaddrs::str() const
 
 socklen_t irc::sockets::sockaddrs::sa_size() const
 {
-	if (sa.sa_family == AF_INET)
+	if (family() == AF_INET)
 		return sizeof(in4);
-	if (sa.sa_family == AF_INET6)
+	if (family() == AF_INET6)
 		return sizeof(in6);
 	return 0;
 }
 
 bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) const
 {
-	if (sa.sa_family != other.sa.sa_family)
+	if (family() != other.family())
 		return false;
-	if (sa.sa_family == AF_INET)
+	if (family() ==  AF_INET)
 		return (in4.sin_port == other.in4.sin_port) && (in4.sin_addr.s_addr == other.in4.sin_addr.s_addr);
-	if (sa.sa_family == AF_INET6)
+	if (family() ==  AF_INET6)
 		return (in6.sin6_port == other.in6.sin6_port) && !memcmp(in6.sin6_addr.s6_addr, other.in6.sin6_addr.s6_addr, 16);
 	return !memcmp(this, &other, sizeof(*this));
 }
@@ -202,7 +207,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 {
 	const unsigned char* base;
 	unsigned char target_byte;
-	cidr.type = sa.sa.sa_family;
+	cidr.type = sa.family();
 
 	memset(cidr.bits, 0, sizeof(cidr.bits));
 
@@ -301,7 +306,7 @@ bool irc::sockets::cidr_mask::operator<(const cidr_mask& other) const
 
 bool irc::sockets::cidr_mask::match(const irc::sockets::sockaddrs& addr) const
 {
-	if (addr.sa.sa_family != type)
+	if (addr.family() != type)
 		return false;
 	irc::sockets::cidr_mask tmp(addr, length);
 	return tmp == *this;

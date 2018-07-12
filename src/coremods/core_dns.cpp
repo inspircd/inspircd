@@ -688,7 +688,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		irc::sockets::aptosa(dnsserver, DNS::PORT, myserver);
 
 		/* Initialize mastersocket */
-		int s = socket(myserver.sa.sa_family, SOCK_DGRAM, 0);
+		int s = socket(myserver.family(), SOCK_DGRAM, 0);
 		this->SetFd(s);
 
 		/* Have we got a socket? */
@@ -701,9 +701,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 			if (sourceaddr.empty())
 			{
 				// set a sourceaddr for irc::sockets::aptosa() based on the servers af type
-				if (myserver.sa.sa_family == AF_INET)
+				if (myserver.family() == AF_INET)
 					sourceaddr = "0.0.0.0";
-				else if (myserver.sa.sa_family == AF_INET6)
+				else if (myserver.family() == AF_INET6)
 					sourceaddr = "::";
 			}
 			irc::sockets::aptosa(sourceaddr, sourceport, bindto);
@@ -722,7 +722,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 				this->SetFd(-1);
 			}
 
-			if (bindto.sa.sa_family != myserver.sa.sa_family)
+			if (bindto.family() != myserver.family())
 				ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Nameserver address family differs from source address family - hostnames might not resolve");
 		}
 		else

@@ -325,7 +325,7 @@ CullResult User::cull()
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
 
-	if (client_sa.sa.sa_family != AF_UNSPEC)
+	if (client_sa.family() != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
 
 	return Extensible::cull();
@@ -706,7 +706,7 @@ const std::string& User::GetRealHost() const
 irc::sockets::cidr_mask User::GetCIDRMask()
 {
 	unsigned char range = 0;
-	switch (client_sa.sa.sa_family)
+	switch (client_sa.family())
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;

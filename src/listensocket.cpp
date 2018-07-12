@@ -29,7 +29,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 {
-	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
+	fd = socket(bind_to.family(), SOCK_STREAM, 0);
 
 	if (this->fd == -1)
 		return;
@@ -41,7 +41,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	 * is "::" or an IPv6 address, disable support so that an IPv4 bind will
 	 * work on the port (by us or another application).
 	 */
-	if (bind_to.sa.sa_family == AF_INET6)
+	if (bind_to.family() == AF_INET6)
 	{
 		std::string addr = tag->getString("address");
 		/* This must be >= sizeof(DWORD) on Windows */
@@ -134,7 +134,7 @@ void ListenSocket::OnEventHandlerRead()
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Can't get peername: %s", strerror(errno));
 	}
 
-	if (client.sa.sa_family == AF_INET6)
+	if (client.family() == AF_INET6)
 	{
 		/*
 		 * This case is the be all and end all patch to catch and nuke 4in6

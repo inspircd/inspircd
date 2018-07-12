@@ -223,7 +223,7 @@ class ModuleCloaking : public Module
 		size_t hop1, hop2, hop3;
 		size_t len1, len2;
 		std::string rv;
-		if (ip.sa.sa_family == AF_INET6)
+		if (ip.family() == AF_INET6)
 		{
 			bindata = std::string((const char*)ip.in6.sin6_addr.s6_addr, 16);
 			hop1 = 8;
@@ -267,7 +267,7 @@ class ModuleCloaking : public Module
 		}
 		else
 		{
-			if (ip.sa.sa_family == AF_INET6)
+			if (ip.family() == AF_INET6)
 			{
 				rv.append(InspIRCd::Format(".%02x%02x.%02x%02x%s",
 					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],

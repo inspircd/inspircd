@@ -243,7 +243,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		irc::sockets::sockaddrs bind;
 		if ((!x->Bind.empty()) && (irc::sockets::aptosa(x->Bind, 0, bind)))
 		{
-			if (bind.sa.sa_family == AF_INET)
+			if (bind.family() == AF_INET)
 				start_type = DNS::QUERY_A;
 		}
 

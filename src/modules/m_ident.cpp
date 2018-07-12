@@ -92,7 +92,7 @@ class IdentRequestSocket : public EventHandler
 	{
 		age = ServerInstance->Time();
 
-		SetFd(socket(user->server_sa.sa.sa_family, SOCK_STREAM, 0));
+		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
 
 		if (GetFd() == -1)
 			throw ModuleException("Could not create socket");
@@ -105,7 +105,7 @@ class IdentRequestSocket : public EventHandler
 		memcpy(&bindaddr, &user->server_sa, sizeof(bindaddr));
 		memcpy(&connaddr, &user->client_sa, sizeof(connaddr));
 
-		if (connaddr.sa.sa_family == AF_INET6)
+		if (connaddr.family() == AF_INET6)
 		{
 			bindaddr.in6.sin6_port = 0;
 			connaddr.in6.sin6_port = htons(113);
@@ -148,7 +148,7 @@ class IdentRequestSocket : public EventHandler
 
 		/* Build request in the form 'localport,remoteport\r\n' */
 		int req_size;
-		if (user->client_sa.sa.sa_family == AF_INET6)
+		if (user->client_sa.family() == AF_INET6)
 			req_size = snprintf(req, sizeof(req), "%d,%d\r\n",
 				ntohs(user->client_sa.in6.sin6_port), ntohs(user->server_sa.in6.sin6_port));
 		else
