@@ -44,7 +44,7 @@ class CommandWho : public Command
 	/** Constructor for who.
 	 */
 	CommandWho ( Module* parent) : Command(parent,"WHO", 1) {
-		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
+		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [afhilMmoprt]";
 	}
 	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.

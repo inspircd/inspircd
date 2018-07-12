@@ -229,49 +229,47 @@ given in the command and either the channel is not +t, or
 you are at least a halfoperator, the channel topic will be
 changed to the new one you provide.">
 
-<helpop key="who" value="/WHO <search pattern> [ohurmaiMplf]
+<helpop key="who" value="/WHO <pattern> [afhilMmoprt]
 
 Looks up the information of users matching the range you provide.
+
 You may only /WHO nicknames in channels or on servers where you
 share a common channel with them, or ones which are not +i (unless
-you are an IRC operator). The search-pattern may be a special
+you are a server operator). The search pattern may be a special
 sequence of characters determined by the flags given below, or
-it may be one of a nickname, a channel, a hostmask, an ip address
+it may be one of a nickname, a channel, a hostmask, an IP address
 mask or a server mask.
 
 Valid WHO Flags
 ---------------
 
-The following flags after the mask have the following effects:
+The following flags use <pattern> to match against the specified user data:
 
- o      Show online IRC operators matching the mask
+ a     Show users who have an away message matching <pattern>.
+ i     Show users who have an ident (username) matching <pattern>.
+ M     Show users who have metadata attached to them with a key name matching
+       <pattern> (server operators only).
+ m     Show users who have the modes listed in <pattern>. The pattern
+       should be in the same format as a mode change e.g. +ow-i (server
+       operators only).
+ p     Show users who are connected to a port in the <pattern> range (server
+       operators only).
+ r     Show users who have a real name matching <pattern>.
+ t     Show users who have connected in the last <pattern> seconds.
 
- a      Show all users who have an away message matching the given mask
- i      Show all users who have an ident (username) matching the given mask
- p      Show all users who are connected on the given port number (IRC
-        operators only)
- r      Show all users whose realnames match the mask. When this
-        flag is set it overrides the meaning of the search-pattern,
-        which must contain a glob pattern intended to match GECOS
-        (realname) fields.
- m      Search for all users with a given set of user modes. When
-        this flag is set it overrides the meaning of the
-        search-pattern, which must contain the mode sequence to
-        search for, for example to find all users with +i and
-        without +s, issue the command WHO +i-s m (IRC operators only)
- t      Show users connected within this number of seconds
- M      Show all users who have metadata attached to them with
-        the given key name (IRC operators only)
+The following flags filter users by their status:
 
- f      Show only remote (far) users
- l      Show only local users
+ f     Only show users on remote (far) servers.
+ l     Only show users on the local server.
+ o     Only show server operators.
 
- h      Show real hostnames rather than masked hostnames (IRC
-        operators only)
- u      Unlimit the results past the maximum /who results value
-        (IRC operators only)
+The following flags modify the command output:
 
-You may combine multiple flags in one WHO command except where stated in the table above.">
+ h     Show real hostnames rather than display hostnames (server operators
+       only).
+
+You may combine one flag from the first group and multiple from the others in
+one WHO command.">
 
 <helpop key="motd" value="/MOTD [<server>]
 
