@@ -395,6 +395,10 @@ class ModuleCloaking : public Module
 		if (cloak)
 			return;
 
+		// TODO: decide how we are going to cloak AF_UNIX hostnames.
+		if (dest->client_sa.family() != AF_INET && dest->client_sa.family() != AF_INET6)
+			return;
+
 		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
 	}
 };

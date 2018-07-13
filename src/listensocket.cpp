@@ -108,8 +108,12 @@ ListenSocket::~ListenSocket()
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
 		SocketEngine::Shutdown(this, 2);
+
 		if (SocketEngine::Close(this) != 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
+
+		if (bind_sa.family() == AF_UNIX && unlink(bind_sa.un.sun_path))
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to unlink UNIX socket: %s", strerror(errno));
 	}
 }
 
@@ -162,6 +166,14 @@ void ListenSocket::OnEventHandlerRead()
 			server.in4.sin_port = sport;
 			memcpy(&server.in4.sin_addr.s_addr, server.in6.sin6_addr.s6_addr + 12, sizeof(uint32_t));
 		}
+	}
+	else if (client.family() == AF_UNIX)
+	{
+		// Clients connecting via UNIX sockets don't have paths so give them
+		// the server path as defined in RFC 1459 section 8.1.1.
+		//
+		// strcpy is safe here because sizeof(sockaddr_un.sun_path) is equal on both.
+		strcpy(client.un.sun_path, server.un.sun_path);
 	}
 
 	SocketEngine::NonBlocking(incomingSockfd);

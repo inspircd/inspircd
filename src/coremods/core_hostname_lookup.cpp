@@ -199,6 +199,13 @@ class ModuleHostnameLookup : public Module
 			return;
 		}
 
+		// Clients can't have a DNS hostname if they aren't connected via IPv4 or IPv6.
+		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+		{
+			user->WriteNotice("*** Skipping host resolution (connected via a non-IP socket)");
+			return;
+		}
+
 		user->WriteNotice("*** Looking up your hostname...");
 
 		UserResolver* res_reverse = new UserResolver(*this->DNS, this, user, user->GetIPString(), DNS::QUERY_PTR);

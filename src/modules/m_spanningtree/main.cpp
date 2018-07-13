@@ -203,7 +203,13 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
-	if (strchr(x->IPAddr.c_str(),':'))
+	if (x->IPAddr.find('/') != std::string::npos)
+	{
+		struct stat sb;
+		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode))
+			ipvalid = false;
+	}
+	if (x->IPAddr.find(':') != std::string::npos)
 	{
 		in6_addr n;
 		if (inet_pton(AF_INET6, x->IPAddr.c_str(), &n) < 1)

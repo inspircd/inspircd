@@ -185,6 +185,9 @@
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
 
+# EXPERIMENTAL: Listener that binds on a UNIX endpoint instead of a TCP/IP endpoint:
+#<bind path="/tmp/inspircd.sock" type="clients">
+
 # You can define a custom <sslprofile> tag which defines the SSL configuration
 # for this listener. See the wiki page for the SSL module you are using for
 # more details.

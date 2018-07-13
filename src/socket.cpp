@@ -23,57 +23,98 @@
 
 #include "inspircd.h"
 
-int InspIRCd::BindPorts(FailedPortList &failed_ports)
+bool InspIRCd::BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports)
+{
+	for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
+	{
+		if ((**n).bind_sa == sa)
+		{
+			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
+			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Replacing listener on %s from old tag at %s with new tag from %s",
+				sa.str().c_str(), (*n)->bind_tag->getTagLocation().c_str(), tag->getTagLocation().c_str());
+			(*n)->bind_tag = tag;
+			(*n)->ResetIOHookProvider();
+
+			old_ports.erase(n);
+			return true;
+		}
+	}
+	
+	ListenSocket* ll = new ListenSocket(tag, sa);
+	if (ll->GetFd() < 0)
+	{
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to listen on %s from tag at %s: %s",
+			sa.str().c_str(), tag->getTagLocation().c_str(), strerror(errno));
+		delete ll;
+		return false;
+	}
+
+	ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Added a listener on %s from tag at %s", sa.str().c_str(), tag->getTagLocation().c_str());
+	ports.push_back(ll);
+	return true;
+}
+
+int InspIRCd::BindPorts(FailedPortList& failed_ports)
 {
 	int bound = 0;
 	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		std::string porttag = tag->getString("port");
-		std::string Addr = tag->getString("address");
 
-		if (strncasecmp(Addr.c_str(), "::ffff:", 7) == 0)
-			this->Logs->Log("SOCKET", LOG_DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
-
-		irc::portparser portrange(porttag, false);
-		int portno = -1;
-		while (0 != (portno = portrange.GetToken()))
+		// Are we creating a TCP/IP listener?
+		const std::string address = tag->getString("address");
+		const std::string portlist = tag->getString("port");
+		if (!address.empty() || !portlist.empty())
 		{
-			irc::sockets::sockaddrs bindspec;
-			if (!irc::sockets::aptosa(Addr, portno, bindspec))
-				continue;
+			// InspIRCd supports IPv4 and IPv6 natively; no 4in6 required.
+			if (strncasecmp(address.c_str(), "::ffff:", 7) == 0)
+				this->Logs->Log("SOCKET", LOG_DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
-			bool skip = false;
-			for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
+			// A TCP listener with no ports is not very useful.
+			if (portlist.empty())
+				this->Logs->Log("SOCKET", LOG_DEFAULT, "TCP listener on %s at %s has no ports specified!",
+					address.empty() ? "*" : address.c_str(), tag->getTagLocation().c_str());
+
+			irc::portparser portrange(portlist, false);
+			for (int port; (port = portrange.GetToken()); )
 			{
-				if ((**n).bind_sa == bindspec)
-				{
-					(*n)->bind_tag = tag; // Replace tag, we know addr and port match, but other info (type, ssl) may not
-					(*n)->ResetIOHookProvider();
+				irc::sockets::sockaddrs bindspec;
+				if (!irc::sockets::aptosa(address, port, bindspec))
+					continue;
 
-					skip = true;
-					old_ports.erase(n);
-					break;
-				}
-			}
-			if (!skip)
-			{
-				ListenSocket* ll = new ListenSocket(tag, bindspec);
-
-				if (ll->GetFd() > -1)
-				{
-					bound++;
-					ports.push_back(ll);
-				}
-				else
-				{
+				if (!BindPort(tag, bindspec, old_ports))
 					failed_ports.push_back(std::make_pair(bindspec, errno));
-					delete ll;
-				}
+				else
+					bound++;
 			}
+			continue;
+		}
+
+		// Are we creating a UNIX listener?
+		const std::string path = tag->getString("path");
+		if (!path.empty())
+		{
+			// UNIX socket paths are length limited to less than PATH_MAX.
+			irc::sockets::sockaddrs bindspec;
+			if (path.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path)))
+			{
+				this->Logs->Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path that is too long!",
+					path.c_str(), tag->getTagLocation().c_str());
+				continue;
+			}
+
+			// Create the bindspec manually (aptosa doesn't work with AF_UNIX yet).
+			memset(&bindspec, 0, sizeof(bindspec));
+			bindspec.un.sun_family = AF_UNIX;
+			stpncpy(bindspec.un.sun_path, path.c_str(), sizeof(bindspec.un.sun_path) - 1);
+
+			if (!BindPort(tag, bindspec, old_ports))
+				failed_ports.push_back(std::make_pair(bindspec, errno));
+			else
+				bound++;
 		}
 	}
 
@@ -138,57 +179,89 @@ int irc::sockets::sockaddrs::family() const
 
 int irc::sockets::sockaddrs::port() const
 {
-	if (family() == AF_INET)
-		return ntohs(in4.sin_port);
-	if (family() == AF_INET6)
-		return ntohs(in6.sin6_port);
-	return -1;
+	switch (family())
+	{
+		case AF_INET:
+			return ntohs(in4.sin_port);
+
+		case AF_INET6:
+			return ntohs(in6.sin6_port);
+
+		case AF_UNIX:
+			return 0;
+	}
+
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::sockaddrs::port(): socket type %d is unknown!", family());
+	return 0;
 }
 
 std::string irc::sockets::sockaddrs::addr() const
 {
-	char addrv[INET6_ADDRSTRLEN+1];
-	if (family() == AF_INET)
+	switch (family())
 	{
-		if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, addrv, sizeof(addrv)))
-			return "";
-		return addrv;
+		case AF_INET:
+			char ip4addr[INET_ADDRSTRLEN];
+			if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, ip4addr, sizeof(ip4addr)))
+				return "0.0.0.0";
+			return ip4addr;
+
+		case AF_INET6:
+			char ip6addr[INET6_ADDRSTRLEN];
+			if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ip6addr, sizeof(ip6addr)))
+				return "0:0:0:0:0:0:0:0";
+			return ip6addr;
+
+		case AF_UNIX:
+			return un.sun_path;
 	}
-	else if (family() == AF_INET6)
-	{
-		if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, addrv, sizeof(addrv)))
-			return "";
-		return addrv;
-	}
-	return "";
+
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::sockaddrs::addr(): socket type %d is unknown!", family());
+	return "<unknown>";
 }
 
 std::string irc::sockets::sockaddrs::str() const
 {
-	if (family() == AF_INET)
+	switch (family())
 	{
-		char ipaddr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, (void*)&in4.sin_addr, ipaddr, sizeof(ipaddr));
-		return InspIRCd::Format("%s:%u", ipaddr, ntohs(in4.sin_port));
+		case AF_INET:
+			char ip4addr[INET_ADDRSTRLEN];
+			if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, ip4addr, sizeof(ip4addr)))
+				strcpy(ip4addr, "0.0.0.0");
+			return InspIRCd::Format("%s:%u", ip4addr, ntohs(in4.sin_port));
+
+		case AF_INET6:
+			char ip6addr[INET6_ADDRSTRLEN];
+			if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ip6addr, sizeof(ip6addr)))
+				strcpy(ip6addr, "0:0:0:0:0:0:0:0");
+			return InspIRCd::Format("[%s]:%u", ip6addr, ntohs(in6.sin6_port));
+
+		case AF_UNIX:
+			return un.sun_path;
 	}
 
-	if (family() == AF_INET6)
-	{
-		char ipaddr[INET6_ADDRSTRLEN];
-		inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ipaddr, sizeof(ipaddr));
-		return InspIRCd::Format("[%s]:%u", ipaddr, ntohs(in6.sin6_port));
-	}
-
-	// This should never happen.
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::sockaddrs::str(): socket type %d is unknown!", family());
 	return "<unknown>";
 }
 
 socklen_t irc::sockets::sockaddrs::sa_size() const
 {
-	if (family() == AF_INET)
-		return sizeof(in4);
-	if (family() == AF_INET6)
-		return sizeof(in6);
+	switch (family())
+	{
+		case AF_INET:
+			return sizeof(in4);
+
+		case AF_INET6:
+			return sizeof(in6);
+
+		case AF_UNIX:
+			return sizeof(un);
+	}
+
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::sockaddrs::sa_size(): socket type %d is unknown!", family());
 	return 0;
 }
 
@@ -196,10 +269,21 @@ bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) c
 {
 	if (family() != other.family())
 		return false;
-	if (family() ==  AF_INET)
-		return (in4.sin_port == other.in4.sin_port) && (in4.sin_addr.s_addr == other.in4.sin_addr.s_addr);
-	if (family() ==  AF_INET6)
-		return (in6.sin6_port == other.in6.sin6_port) && !memcmp(in6.sin6_addr.s6_addr, other.in6.sin6_addr.s6_addr, 16);
+
+	switch (family())
+	{
+		case AF_INET:
+			return (in4.sin_port == other.in4.sin_port) && (in4.sin_addr.s_addr == other.in4.sin_addr.s_addr);
+
+		case AF_INET6:
+			return (in6.sin6_port == other.in6.sin6_port) && !memcmp(in6.sin6_addr.s6_addr, other.in6.sin6_addr.s6_addr, 16);
+
+		case AF_UNIX:
+			return !strcmp(un.sun_path, other.un.sun_path);
+	}
+
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::sockaddrs::operator==(): socket type %d is unknown!", family());
 	return !memcmp(this, &other, sizeof(*this));
 }
 
@@ -207,31 +291,38 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 {
 	const unsigned char* base;
 	unsigned char target_byte;
-	cidr.type = sa.family();
 
 	memset(cidr.bits, 0, sizeof(cidr.bits));
 
-	if (cidr.type == AF_INET)
+	cidr.type = sa.family();
+	switch (cidr.type)
 	{
-		target_byte = sizeof(sa.in4.sin_addr);
-		base = (unsigned char*)&sa.in4.sin_addr;
-		if (range > 32)
-			range = 32;
+		case AF_UNIX:
+			// XXX: UNIX sockets don't support CIDR. This fix is non-ideal but I can't
+			// really think of another way to handle it.
+			cidr.length = 0;
+			return;
+
+		case AF_INET:
+			cidr.length = range > 32 ? 32 : range;
+			target_byte = sizeof(sa.in4.sin_addr);
+			base = (unsigned char*)&sa.in4.sin_addr;
+			break;
+
+		case AF_INET6:
+			cidr.length = range > 128 ? 128 : range;
+			target_byte = sizeof(sa.in6.sin6_addr);
+			base = (unsigned char*)&sa.in6.sin6_addr;
+			break;
+
+		default:
+			// If we have reached this point then we have encountered a bug.
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: sa2cidr(): socket type %d is unknown!", cidr.type);
+			cidr.length = 0;
+			return;
 	}
-	else if (cidr.type == AF_INET6)
-	{
-		target_byte = sizeof(sa.in6.sin6_addr);
-		base = (unsigned char*)&sa.in6.sin6_addr;
-		if (range > 128)
-			range = 128;
-	}
-	else
-	{
-		cidr.length = 0;
-		return;
-	}
-	cidr.length = range;
-	unsigned int border = range / 8;
+
+	unsigned int border = cidr.length / 8;
 	unsigned int bitmask = (0xFF00 >> (range & 7)) & 0xFF;
 	for(unsigned int i=0; i < target_byte; i++)
 	{
@@ -271,22 +362,31 @@ std::string irc::sockets::cidr_mask::str() const
 {
 	irc::sockets::sockaddrs sa;
 	sa.sa.sa_family = type;
+
 	unsigned char* base;
 	size_t len;
-	if (type == AF_INET)
+	switch (type)
 	{
-		base = (unsigned char*)&sa.in4.sin_addr;
-		len = 4;
+		case AF_INET:
+			base = (unsigned char*)&sa.in4.sin_addr;
+			len = 4;
+			break;
+
+		case AF_INET6:
+			base = (unsigned char*)&sa.in6.sin6_addr;
+			len = 16;
+
+		case AF_UNIX:
+			return sa.un.sun_path;
+
+		default:
+			// If we have reached this point then we have encountered a bug.
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: irc::sockets::cidr_mask::str(): socket type %d is unknown!", type);
+			return "<unknown>";
 	}
-	else if (type == AF_INET6)
-	{
-		base = (unsigned char*)&sa.in6.sin6_addr;
-		len = 16;
-	}
-	else
-		return "";
+
 	memcpy(base, bits, len);
-	return sa.addr() + "/" + ConvToStr((int)length);
+	return sa.addr() + "/" + ConvToStr(length);
 }
 
 bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const

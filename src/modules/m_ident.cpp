@@ -277,6 +277,10 @@ class ModuleIdent : public Module
 
 	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
 	{
+		// The ident protocol requires that clients are connecting over a protocol with ports.
+		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+			return;
+
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
 			return;
