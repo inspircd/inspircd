@@ -356,10 +356,9 @@ class SQLConnection : public SQL::Provider
 					// and one byte is the terminating null
 					std::vector<char> buffer(parm.length() * 2 + 1);
 
-					// The return value of mysql_escape_string() is the length of the encoded string,
+					// The return value of mysql_real_escape_string() is the length of the encoded string,
 					// not including the terminating null
-					unsigned long escapedsize = mysql_escape_string(&buffer[0], parm.c_str(), parm.length());
-//					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+					unsigned long escapedsize = mysql_real_escape_string(connection, &buffer[0], parm.c_str(), parm.length());
 					res.append(&buffer[0], escapedsize);
 				}
 			}
