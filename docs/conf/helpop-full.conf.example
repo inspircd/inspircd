@@ -226,49 +226,84 @@ given in the command and either the channel is not +t, or
 you are at least a halfoperator, the channel topic will be
 changed to the new one you provide.">
 
-<helpop key="who" value="/WHO <search pattern> [ohurmaiMplf]
+<helpop key="who" value="/WHO <pattern> [<flags>][%[<fields>[,<querytype>]]] <pattern>
 
-Looks up the information of users matching the range you provide.
-You may only /WHO nicknames in channels or on servers where you
-share a common channel with them, or ones which are not +i (unless
-you are an IRC operator). The search-pattern may be a special
-sequence of characters determined by the flags given below, or
-it may be one of a nickname, a channel, a hostmask, an ip address
-mask or a server mask.
+Looks up information about users matching the provided pattern. You can specify
+a flag specific pattern, a channel name, user hostname, a user server name, a
+user real name, or a user nickname. Matching users will only be included in the
+WHO response if:
+
+ 1) The specified pattern is an exact channel name that does not have the
+    private or secret channel modes set and the user does not have the invisible
+    user mode set.
+ 2) The specified pattern is an exact nickname.
+ 3) You share one or more common channels with the user.
+ 4) The user does not have the invisible user mode set.
+ 5) You are a server operator with the users/auspex privilege.
+
+If you specify any fields the response returned will be a WHOX response rather
+than a RFC 1459 WHO response.
 
 Valid WHO Flags
 ---------------
 
-The following flags after the mask have the following effects:
+The following flags use <pattern> to match against the specified user data:
 
- o      Show online IRC operators matching the mask
+ A     Show users who have an away message matching <pattern>.
+ a     Show users who have an account name matching <pattern>.
+ h     Show users who have a hostname matching <pattern>. If the 'x' modifier
+       is specified then this will match against the real hostname instead of
+       the display hostname.
+ i     Show users who have an IP address matching <pattern>.
+ m     Show users who have the modes listed in <pattern>. The pattern
+       should be in the same format as a mode change e.g. +ow-i (server
+       operators only).
+ n     Show users who have a nickname matching <pattern>.
+ p     Show users who are connected to a port in the <pattern> range (server
+       operators only).
+ r     Show users who have a real name matching <pattern>.
+ s     Show users who are on a server with a name matching <pattern>. If the 'x'
+       modifier is specified then this will match against the real server name
+       instead of the masked server name.
+ t     Show users who have connected in the last <pattern> seconds.
+ u     Show users who have an ident (username) matching <pattern>.
 
- a      Show all users who have an away message matching the given mask
- i      Show all users who have an ident (username) matching the given mask
- p      Show all users who are connected on the given port number (IRC
-        operators only)
- r      Show all users whose real name match the mask. When this
-        flag is set it overrides the meaning of the search-pattern,
-        which must contain a glob pattern intended to match the
-        real name.
- m      Search for all users with a given set of user modes. When
-        this flag is set it overrides the meaning of the
-        search-pattern, which must contain the mode sequence to
-        search for, for example to find all users with +i and
-        without +s, issue the command WHO +i-s m (IRC operators only)
- t      Show users connected within this number of seconds
- M      Show all users who have metadata attached to them with
-        the given key name (IRC operators only)
+The following flags filter users by their status:
 
- f      Show only remote (far) users
- l      Show only local users
+ f     Only show users on remote (far) servers.
+ l     Only show users on the local server.
+ o     Only show server operators.
 
- h      Show real hostnames rather than masked hostnames (IRC
-        operators only)
- u      Unlimit the results past the maximum /who results value
-        (IRC operators only)
+The following flags modify the command output:
 
-You may combine multiple flags in one WHO command except where stated in the table above.">
+ x     Show sensitive data like real user hostnames and, when hideserver is
+       enabled, real server hostnames.
+
+You may combine one flag from the first group and multiple from the others in
+one WHO command.
+
+Valid WHO Fields
+----------------
+
+ a     Include the user's account name in the response.
+ c     Include the first common channel name in the response.
+ d     Include the user's server distance from you in the response.
+ f     Include the user's away status, oper status, and highest channel prefix
+       in the response.
+ h     Include the user's hostname in the response. If the 'x' flag was
+       specified then this is the real host rather than the display host.
+ i     Include the user's IP address in the response.
+ l     Include the user's idle time in the response.
+ n     Include the user's nickname in the response.
+ o     Include the user's channel operator rank level in the response.
+ r     Include the user's real name in the response.
+ s     Include the user's server name in the response. If the 'x' flag was
+       specified then this is the real server name rather than the masked server
+       name.
+ t     Include the query type in the response.
+ u     Include the user's ident in the response.
+
+">
 
 <helpop key="motd" value="/MOTD [<server>]
 

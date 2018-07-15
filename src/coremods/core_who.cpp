@@ -346,7 +346,6 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 			match = InspIRCd::Match(user->nick, data.matchtext);
 	}
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "MATCH: %u", match);
 	return match;
 }
 
