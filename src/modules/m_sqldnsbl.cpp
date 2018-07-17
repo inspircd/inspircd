@@ -88,6 +88,7 @@ private:
 	LocalIntExt countExt;
     std::vector<SQLDNSBLList> List;
     int scans = 0;
+    int UpdateAfter = 1;
 protected:
     void UpdateLists();
     std::string GetReverseIP(LocalUser* user)
@@ -139,7 +140,7 @@ public:
     {
         scans++;
 
-        if (scans % 100 == 99) {
+        if (scans % UpdateAfter == UpdateAfter - 1) {
             UpdateLists();
         }
 
@@ -225,13 +226,23 @@ void ModuleSQLDNSBL::UpdateLists()
 {
     ConfigTag* tag = ServerInstance->Config->ConfValue("sqldnsbl");
     std::string dbid = tag->getString("dbid");
-    if (dbid.empty())
+    if (dbid.empty()) {
 	    SQL.SetProvider("SQL");
-	else
+	} else {
     	SQL.SetProvider("SQL/" + dbid);
+    }
     std::string dbtable = tag->getString("dbtable");
-    if (dbtable.empty())
+    if (dbtable.empty()) {
         dbtable = "dnsbl";
+    }
+    std::string updateafter = tag->getString("updateafter");
+    if (dbtable.empty()) {
+        updateafter = "1";
+    }
+    UpdateAfter = std::atoi(updateafter.c_str());
+    if (UpdateAfter < 1) {
+        UpdateAfter = 1;
+    }
     SQL->Submit(new SQLDNSBLQuery(this), "SELECT * FROM "+dbtable+" WHERE active=1 ORDER BY priority DESC");
 }
 
