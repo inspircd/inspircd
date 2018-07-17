@@ -232,7 +232,7 @@ void ModuleSQLDNSBL::UpdateLists()
     std::string dbtable = tag->getString("dbtable");
     if (dbtable.empty())
         dbtable = "dnsbl";
-    SQL->Submit(new SQLDNSBLQuery(this), "SELECT * FROM "+dbtable+" ORDER BY priority DESC");
+    SQL->Submit(new SQLDNSBLQuery(this), "SELECT * FROM "+dbtable+" WHERE active=1 ORDER BY priority DESC");
 }
 
 MODULE_INIT(ModuleSQLDNSBL)
