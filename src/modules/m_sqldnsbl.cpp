@@ -1,7 +1,6 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "modules/dns.h"
-#include "modules/stats.h"
 #include "modules/sql.h"
 #include "modules/regex.h"
 
