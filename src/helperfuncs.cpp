@@ -477,8 +477,11 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max)
 // This is overridden by a higher-quality algorithm when SSL support is loaded
 void InspIRCd::DefaultGenRandom(char* output, size_t max)
 {
-	for(unsigned int i=0; i < max; i++)
-#ifdef _WIN32
+#if defined HAS_ARC4RANDOM_BUF
+	arc4random_buf(output, max);
+#else
+	for (unsigned int i = 0; i < max; ++i)
+# ifdef _WIN32
 	{
 		unsigned int uTemp;
 		if(rand_s(&uTemp) != 0)
@@ -486,7 +489,8 @@ void InspIRCd::DefaultGenRandom(char* output, size_t max)
 		else
 			output[i] = uTemp;
 	}
-#else
+# else
 		output[i] = random();
+# endif
 #endif
 }
