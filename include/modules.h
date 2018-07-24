@@ -114,8 +114,8 @@ struct ModResult {
  * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
-	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
-	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
+	const Module::List& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
 		_next = _i+1; \
 		try \
@@ -137,8 +137,8 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
-	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
+	const Module::List& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
 		_next = _i+1; \
 		try \
@@ -244,9 +244,13 @@ class CoreExport Module : public classbase, public usecountbase
 	void DetachEvent(Implementation i);
 
  public:
+	/** A list of modules. */
+	typedef std::vector<Module*> List;
+
 	/** File that this module was loaded from
 	 */
 	std::string ModuleSourceFile;
+
 	/** Reference to the dlopen() value
 	 */
 	DLLManager* ModuleDLLManager;
@@ -963,10 +967,6 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnServiceDel(ServiceProvider& service);
 };
 
-/** A list of modules
- */
-typedef std::vector<Module*> IntModuleList;
-
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
@@ -1012,7 +1012,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	/** Event handler hooks.
 	 * This needs to be public to be used by FOREACH_MOD and friends.
 	 */
-	IntModuleList EventHandlers[I_END];
+	Module::List EventHandlers[I_END];
 
 	/** List of data services keyed by name */
 	std::multimap<std::string, ServiceProvider*> DataProviders;
