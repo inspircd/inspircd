@@ -77,35 +77,35 @@ void LogManager::OpenFileLogs()
 	{
 		ConfigTag* tag = i->second;
 		std::string method = tag->getString("method");
-		if (method != "file")
+		if (!stdalgo::string::equalsci(method, "file"))
 		{
 			continue;
 		}
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
 		LogLevel loglevel = LOG_DEFAULT;
-		if (level == "rawio")
+		if (stdalgo::string::equalsci(level, "rawio"))
 		{
 			loglevel = LOG_RAWIO;
 			ServerInstance->Config->RawLog = true;
 		}
-		else if (level == "debug")
+		else if (stdalgo::string::equalsci(level, "debug"))
 		{
 			loglevel = LOG_DEBUG;
 		}
-		else if (level == "verbose")
+		else if (stdalgo::string::equalsci(level, "verbose"))
 		{
 			loglevel = LOG_VERBOSE;
 		}
-		else if (level == "default")
+		else if (stdalgo::string::equalsci(level, "default"))
 		{
 			loglevel = LOG_DEFAULT;
 		}
-		else if (level == "sparse")
+		else if (stdalgo::string::equalsci(level, "sparse"))
 		{
 			loglevel = LOG_SPARSE;
 		}
-		else if (level == "none")
+		else if (stdalgo::string::equalsci(level, "none"))
 		{
 			loglevel = LOG_NONE;
 		}

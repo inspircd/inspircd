@@ -1231,7 +1231,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	for (ConfigItems::const_iterator piter = parentkeys.begin(); piter != parentkeys.end(); ++piter)
 	{
 		// The class name and parent name are not inherited
-		if (piter->first == "name" || piter->first == "parent")
+		if (stdalgo::string::equalsci(piter->first, "name") || stdalgo::string::equalsci(piter->first, "parent"))
 			continue;
 
 		// Store the item in the config tag. If this item also

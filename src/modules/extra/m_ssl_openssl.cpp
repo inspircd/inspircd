@@ -222,11 +222,11 @@ namespace OpenSSL
 
 			/* Set CRL mode */
 			unsigned long crlflags = X509_V_FLAG_CRL_CHECK;
-			if (crlmode == "chain")
+			if (stdalgo::string::equalsci(crlmode, "chain"))
 			{
 				crlflags |= X509_V_FLAG_CRL_CHECK_ALL;
 			}
-			else if (crlmode != "leaf")
+			else if (!stdalgo::string::equalsci(crlmode, "leaf"))
 			{
 				throw ModuleException("Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
 			}
@@ -963,7 +963,7 @@ class ModuleSSLOpenSSL : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			if (tag->getString("provider") != "openssl")
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
 				continue;
 
 			std::string name = tag->getString("name");

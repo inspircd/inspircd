@@ -406,7 +406,7 @@ class ModuleHttpServer : public Module
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		if (from->bind_tag->getString("type") != "httpd")
+		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "httpd"))
 			return MOD_RES_PASSTHRU;
 
 		sockets.push_front(new HttpServerSocket(nfd, client->addr(), from, client, server, timeoutsec));

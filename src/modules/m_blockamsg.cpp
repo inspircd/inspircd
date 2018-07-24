@@ -69,13 +69,13 @@ class ModuleBlockAmsg : public Module
 		ForgetDelay = tag->getDuration("delay", 3);
 		std::string act = tag->getString("action");
 
-		if (act == "notice")
+		if (stdalgo::string::equalsci(act, "notice"))
 			action = IBLOCK_NOTICE;
-		else if (act == "noticeopers")
+		else if (stdalgo::string::equalsci(act, "noticeopers"))
 			action = IBLOCK_NOTICEOPERS;
-		else if (act == "silent")
+		else if (stdalgo::string::equalsci(act, "silent"))
 			action = IBLOCK_SILENT;
-		else if (act == "kill")
+		else if (stdalgo::string::equalsci(act, "kill"))
 			action = IBLOCK_KILL;
 		else
 			action = IBLOCK_KILLOPERS;

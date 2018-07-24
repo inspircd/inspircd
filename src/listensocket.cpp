@@ -183,7 +183,7 @@ void ListenSocket::OnEventHandlerRead()
 	if (res == MOD_RES_PASSTHRU)
 	{
 		std::string type = bind_tag->getString("type", "clients");
-		if (type == "clients")
+		if (stdalgo::string::equalsci(type, "clients"))
 		{
 			ServerInstance->Users->AddUser(incomingSockfd, this, &client, &server);
 			res = MOD_RES_ALLOW;

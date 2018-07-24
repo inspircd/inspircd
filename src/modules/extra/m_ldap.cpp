@@ -258,9 +258,9 @@ class LDAPService : public LDAPProvider, public SocketThread
 		, con(NULL), config(tag), last_connect(0)
 	{
 		std::string scope = config->getString("searchscope");
-		if (scope == "base")
+		if (stdalgo::string::equalsci(scope, "base"))
 			searchscope = LDAP_SCOPE_BASE;
-		else if (scope == "onelevel")
+		else if (stdalgo::string::equalsci(scope, "onelevel"))
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else
 			searchscope = LDAP_SCOPE_SUBTREE;
@@ -533,7 +533,7 @@ class ModuleLDAP : public Module
 		{
 			const reference<ConfigTag>& tag = i->second;
 
-			if (tag->getString("module") != "ldap")
+			if (!stdalgo::string::equalsci(tag->getString("module"), "ldap"))
 				continue;
 
 			std::string id = tag->getString("id");

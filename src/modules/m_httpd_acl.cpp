@@ -67,16 +67,16 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 			while (sep.GetToken(type))
 			{
-				if (type == "password")
+				if (stdalgo::string::equalsci(type, "password"))
 				{
 					username = c->getString("username");
 					password = c->getString("password");
 				}
-				else if (type == "whitelist")
+				else if (stdalgo::string::equalsci(type, "whitelist"))
 				{
 					whitelist = c->getString("whitelist");
 				}
-				else if (type == "blacklist")
+				else if (stdalgo::string::equalsci(type, "blacklist"))
 				{
 					blacklist = c->getString("blacklist");
 				}

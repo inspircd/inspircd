@@ -33,7 +33,7 @@ SpanningTreeUtilities* Utils = NULL;
 
 ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	if (from->bind_tag->getString("type") != "servers")
+	if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "servers"))
 		return MOD_RES_PASSTHRU;
 
 	std::string incomingip = client->addr();

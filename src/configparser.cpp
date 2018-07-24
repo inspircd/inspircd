@@ -213,25 +213,25 @@ struct Parser
 			mandatory_tag.clear();
 		}
 
-		if (name == "include")
+		if (stdalgo::string::equalsci(name, "include"))
 		{
 			stack.DoInclude(tag, flags);
 		}
-		else if (name == "files")
+		else if (stdalgo::string::equalsci(name, "files"))
 		{
 			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, false);
 			}
 		}
-		else if (name == "execfiles")
+		else if (stdalgo::string::equalsci(name, "execfiles"))
 		{
 			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, true);
 			}
 		}
-		else if (name == "define")
+		else if (stdalgo::string::equalsci(name, "define"))
 		{
 			if (flags & FLAG_USE_COMPAT)
 				throw CoreException("<define> tags may only be used in XML-style config (add <config format=\"xml\">)");
@@ -241,12 +241,12 @@ struct Parser
 				throw CoreException("Variable definition must include variable name");
 			stack.vars[varname] = value;
 		}
-		else if (name == "config")
+		else if (stdalgo::string::equalsci(name, "config"))
 		{
 			std::string format = tag->getString("format");
-			if (format == "xml")
+			if (stdalgo::string::equalsci(format, "xml"))
 				flags &= ~FLAG_USE_COMPAT;
-			else if (format == "compat")
+			else if (stdalgo::string::equalsci(format, "compat"))
 				flags |= FLAG_USE_COMPAT;
 			else if (!format.empty())
 				throw CoreException("Unknown configuration format " + format);

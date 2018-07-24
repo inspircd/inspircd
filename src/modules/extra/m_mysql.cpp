@@ -427,7 +427,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 	ConfigTagList tags = ServerInstance->Config->ConfTags("database");
 	for(ConfigIter i = tags.first; i != tags.second; i++)
 	{
-		if (i->second->getString("module", "mysql") != "mysql")
+		if (!stdalgo::string::equalsci(i->second->getString("provider"), "mysql"))
 			continue;
 		std::string id = i->second->getString("id");
 		ConnMap::iterator curr = connections.find(id);

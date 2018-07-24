@@ -391,7 +391,7 @@ class ModuleDCCAllow : public Module
 							if (InspIRCd::Match(filename, bfl[i].filemask, ascii_case_insensitive_map))
 							{
 								/* We have a matching badfile entry, override whatever the default action is */
-								if (bfl[i].action == "allow")
+								if (stdalgo::string::equalsci(bfl[i].action, "allow"))
 									return MOD_RES_PASSTHRU;
 								else
 								{

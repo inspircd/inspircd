@@ -876,7 +876,7 @@ class ModuleSSLmbedTLS : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			if (tag->getString("provider") != "mbedtls")
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
 				continue;
 
 			std::string name = tag->getString("name");

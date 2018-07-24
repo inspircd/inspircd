@@ -74,19 +74,19 @@ public:
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
 		std::string regextype = Conf->getString("type", "ecmascript");
 
-		if(regextype == "bre")
+		if (stdalgo::string::equalsci(regextype, "bre"))
 			ref.regextype = std::regex::basic;
-		else if(regextype == "ere")
+		else if (stdalgo::string::equalsci(regextype, "ere"))
 			ref.regextype = std::regex::extended;
-		else if(regextype == "awk")
+		else if (stdalgo::string::equalsci(regextype, "awk"))
 			ref.regextype = std::regex::awk;
-		else if(regextype == "grep")
+		else if (stdalgo::string::equalsci(regextype, "grep"))
 			ref.regextype = std::regex::grep;
-		else if(regextype == "egrep")
+		else if (stdalgo::string::equalsci(regextype, "egrep"))
 			ref.regextype = std::regex::egrep;
 		else
 		{
-			if(regextype != "ecmascript")
+			if (!stdalgo::string::equalsci(regextype, "ecmascript"))
 				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Non-existent regex engine '%s' specified. Falling back to ECMAScript.", regextype.c_str());
 			ref.regextype = std::regex::ECMAScript;
 		}

@@ -84,7 +84,7 @@ class ModuleFlashPD : public Module
  public:
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		if (from->bind_tag->getString("type") != "flashpolicyd")
+		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "flashpolicyd"))
 			return MOD_RES_PASSTHRU;
 
 		if (policy_reply.empty())
@@ -123,7 +123,7 @@ class ModuleFlashPD : public Module
 		for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
 		{
 				ListenSocket* ls = *i;
-				if (ls->bind_tag->getString("type", "clients") != "clients" || ls->bind_tag->getString("ssl", "plaintext") != "plaintext")
+				if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients"), "clients") || !ls->bind_tag->getString("ssl").empty())
 					continue;
 
 				to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');

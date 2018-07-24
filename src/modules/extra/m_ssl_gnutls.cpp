@@ -184,12 +184,12 @@ namespace GnuTLS
 				throw Exception("Unknown hash type " + hashname);
 			gnutls_hash_deinit(is_digest, NULL);
 #else
-			if (hashname == "md5")
+			if (stdalgo::string::equalsci(hashname, "md5"))
 				hash = GNUTLS_DIG_MD5;
-			else if (hashname == "sha1")
+			else if (stdalgo::string::equalsci(hashname, "sha1"))
 				hash = GNUTLS_DIG_SHA1;
 #ifdef INSPIRCD_GNUTLS_ENABLE_SHA256_FINGERPRINT
-			else if (hashname == "sha256")
+			else if (stdalgo::string::equalsci(hashname, "sha256"))
 				hash = GNUTLS_DIG_SHA256;
 #endif
 			else
@@ -1298,7 +1298,7 @@ class ModuleSSLGnuTLS : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			if (tag->getString("provider") != "gnutls")
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
 				continue;
 
 			std::string name = tag->getString("name");

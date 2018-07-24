@@ -350,12 +350,12 @@ class ModuleCloaking : public Module
 		suffix = tag->getString("suffix", ".IP");
 
 		std::string modestr = tag->getString("mode");
-		if (modestr == "half")
+		if (stdalgo::string::equalsci(modestr, "half"))
 		{
 			mode = MODE_HALF_CLOAK;
 			domainparts = tag->getUInt("domainparts", 3, 1, 10);
 		}
-		else if (modestr == "full")
+		else if (stdalgo::string::equalsci(modestr, "full"))
 			mode = MODE_OPAQUE;
 		else
 			throw ModuleException("Bad value for <cloak:mode>; must be half or full");

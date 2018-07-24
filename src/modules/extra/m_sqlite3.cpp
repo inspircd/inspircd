@@ -254,7 +254,7 @@ class ModuleSQLite3 : public Module
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
-			if (i->second->getString("module", "sqlite") != "sqlite")
+			if (!stdalgo::string::equalsci(i->second->getString("provider"), "sqlite"))
 				continue;
 			SQLConn* conn = new SQLConn(this, i->second);
 			conns.insert(std::make_pair(i->second->getString("id"), conn));

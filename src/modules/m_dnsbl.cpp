@@ -278,7 +278,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			e->reason = tag->getString("reason");
 			e->domain = tag->getString("domain");
 
-			if (tag->getString("type") == "bitmask")
+			if (stdalgo::string::equalsci(tag->getString("type"), "bitmask"))
 			{
 				e->type = DNSBLConfEntry::A_BITMASK;
 				e->bitmask = tag->getUInt("bitmask", 0, 0, UINT_MAX);
