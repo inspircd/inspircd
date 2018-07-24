@@ -82,10 +82,6 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 /** Generic user list, used for exceptions */
 typedef std::set<User*> CUList;
 
-/** A set of strings.
- */
-typedef std::vector<std::string> string_list;
-
 /** Contains an ident and host split into two strings
  */
 typedef std::pair<std::string, std::string> IdentHostPair;
