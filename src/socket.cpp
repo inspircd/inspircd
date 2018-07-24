@@ -93,6 +93,7 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 			continue;
 		}
 
+#ifndef _WIN32
 		// Are we creating a UNIX listener?
 		const std::string path = tag->getString("path");
 		if (!path.empty())
@@ -109,13 +110,14 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 			// Create the bindspec manually (aptosa doesn't work with AF_UNIX yet).
 			memset(&bindspec, 0, sizeof(bindspec));
 			bindspec.un.sun_family = AF_UNIX;
-			stpncpy(bindspec.un.sun_path, path.c_str(), sizeof(bindspec.un.sun_path) - 1);
+			memcpy(&bindspec.un.sun_path, path.c_str(), sizeof(bindspec.un.sun_path));
 
 			if (!BindPort(tag, bindspec, old_ports))
 				failed_ports.push_back(std::make_pair(bindspec, errno));
 			else
 				bound++;
 		}
+#endif
 	}
 
 	std::vector<ListenSocket*>::iterator n = ports.begin();

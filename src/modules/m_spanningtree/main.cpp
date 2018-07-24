@@ -203,12 +203,14 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
+#ifndef _WIN32
 	if (x->IPAddr.find('/') != std::string::npos)
 	{
 		struct stat sb;
 		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode))
 			ipvalid = false;
 	}
+#endif
 	if (x->IPAddr.find(':') != std::string::npos)
 	{
 		in6_addr n;
