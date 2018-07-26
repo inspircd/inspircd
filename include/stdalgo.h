@@ -95,6 +95,25 @@ namespace stdalgo
 			return (!strcasecmp(tocstr(str1), tocstr(str2)));
 		}
 
+		/** Joins the contents of a vector to a string.
+		 * @param sequence Zero or more items to join.
+		 * @param separator The character to place between the items, defaults to ' ' (space).
+		 * @return The joined string.
+		 */
+		template<typename Collection>
+		inline std::string join(const Collection& sequence, char separator = ' ')
+		{
+			std::string joined;
+			if (sequence.empty())
+				return joined;
+
+			for (typename Collection::const_iterator iter = sequence.begin(); iter != sequence.end(); ++iter)
+				joined.append(ConvToStr(*iter)).push_back(separator);
+
+			joined.erase(joined.end() - 1);
+			return joined;
+		}
+
 		/** Replace first occurrence of a substring ('target') in a string ('str') with another string ('replacement').
 		 * @param str String to perform replacement in
 		 * @param target String to replace

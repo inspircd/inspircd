@@ -206,12 +206,8 @@ void TokenList::Remove(const std::string& token)
 
 std::string TokenList::ToString() const
 {
-	std::string buffer(permissive ? "*" : "-*");
-	for (insp::flat_set<std::string>::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
-	{
-		buffer.push_back(' ');
-		buffer.append(*iter);
-	}
+	std::string buffer(permissive ? "* " : "-* ");
+	buffer.append(stdalgo::string::join(tokens));
 	return buffer;
 }
 

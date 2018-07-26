@@ -68,7 +68,7 @@ class CommandSamode : public Command
 			// Viewing the modes of a user or a channel can also result in CMD_SUCCESS, but
 			// that is not possible with /SAMODE because we require at least 2 parameters.
 			const std::string& lastparse = ServerInstance->Modes.GetLastParse();
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? irc::stringjoiner(parameters) : lastparse));
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? stdalgo::string::join(parameters) : lastparse));
 		}
 
 		return CMD_SUCCESS;

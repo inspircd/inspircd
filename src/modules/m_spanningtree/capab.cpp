@@ -98,7 +98,7 @@ static std::string BuildModeList(ModeType type)
 		modes.push_back(mdesc);
 	}
 	std::sort(modes.begin(), modes.end());
-	return irc::stringjoiner(modes);
+	return stdalgo::string::join(modes);
 }
 
 void TreeSocket::SendCapabilities(int phase)

@@ -52,7 +52,7 @@ class ModuleOperLog : public Module
 			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
-				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + irc::stringjoiner(parameters);
+				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO->WriteGlobalSno('r', msg);

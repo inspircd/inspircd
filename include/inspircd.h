@@ -50,6 +50,7 @@
 #include "compat.h"
 #include "aligned_storage.h"
 #include "typedefs.h"
+#include "convto.h"
 #include "stdalgo.h"
 
 CoreExport extern InspIRCd* ServerInstance;
@@ -66,7 +67,6 @@ struct fakederef
 };
 
 #include "config.h"
-#include "convto.h"
 #include "dynref.h"
 #include "consolecolors.h"
 #include "cull_list.h"

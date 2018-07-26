@@ -108,13 +108,6 @@ namespace irc
 		bool CoreExport operator()(const std::string& a, const std::string& b) const;
 	};
 
-	/** Joins the contents of a vector to a string.
-	 * @param sequence Zero or more items to join.
-	 * @param separator The character to place between the items, defaults to ' ' (space).
-	 * @return Joined string.
-	 */
-   	std::string CoreExport stringjoiner(const std::vector<std::string>& sequence, char separator = ' ');
-
 	/** irc::sepstream allows for splitting token seperated lists.
 	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
