@@ -315,6 +315,12 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
+void UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
+{
+	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
+	user->SetClientIP(client);
+}
+
 void UserIOHandler::OnError(BufferedSocketError)
 {
 	ServerInstance->Users->QuitUser(user, getError());

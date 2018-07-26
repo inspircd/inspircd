@@ -865,6 +865,12 @@
 #<module name="globalload">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HAProxy module: Adds support for the HAProxy PROXY v2 protocol. To
+# use this module specify hook="haproxy" in the <bind> tag that HAProxy
+# has been configured to connect to.
+#<module name="haproxy">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
 #<module name="helpop">
 #

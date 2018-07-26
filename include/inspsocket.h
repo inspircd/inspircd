@@ -297,6 +297,12 @@ class CoreExport StreamSocket : public EventHandler
 	/** Called when the socket gets an error from socket engine or IO hook */
 	virtual void OnError(BufferedSocketError e) = 0;
 
+	/** Called when the endpoint addresses are changed.
+	 * @param local The new local endpoint.
+	 * @param remote The new remote endpoint.
+	 */
+	virtual void OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& remote) { }
+
 	/** Send the given data out the socket, either now or when writes unblock
 	 */
 	void WriteData(const std::string& data);
