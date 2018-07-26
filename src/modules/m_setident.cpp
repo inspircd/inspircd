@@ -33,7 +33,7 @@ class CommandSetident : public Command
 		flags_needed = 'o'; syntax = "<new-ident>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{

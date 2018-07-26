@@ -31,7 +31,7 @@ CommandGline::CommandGline(Module* parent)
 
 /** Handle /GLINE
  */
-CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandGline::Handle(User* user, const Params& parameters)
 {
 	std::string target = parameters[0];
 

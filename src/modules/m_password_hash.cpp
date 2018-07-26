@@ -32,7 +32,7 @@ class CommandMkpasswd : public Command
 		Penalty = 5;
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (!parameters[0].compare(0, 5, "hmac-", 5))
 		{

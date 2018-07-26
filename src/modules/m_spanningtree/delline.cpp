@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandDelLine::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandDelLine::Handle(User* user, Params& params)
 {
 	const std::string& setter = user->nick;
 

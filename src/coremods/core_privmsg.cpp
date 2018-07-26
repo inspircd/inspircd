@@ -52,9 +52,9 @@ class MessageCommandBase : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt);
+	CmdResult HandleMessage(User* user, const CommandBase::Params& parameters, MessageType mt);
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			// This is handled by the OnUserPostMessage hook to split the LoopCall pieces
@@ -75,7 +75,7 @@ void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType
 	}
 }
 
-CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt)
+CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Params& parameters, MessageType mt)
 {
 	User *dest;
 	Channel *chan;
@@ -271,9 +271,9 @@ class CommandMessage : public MessageCommandBase
 	{
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		return HandleMessage(parameters, user, MT);
+		return HandleMessage(user, parameters, MT);
 	}
 };
 

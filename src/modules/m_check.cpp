@@ -140,7 +140,7 @@ class CommandCheck : public Command
 		return ret;
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
 			return CMD_SUCCESS;
@@ -301,7 +301,7 @@ class CommandCheck : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[1]);

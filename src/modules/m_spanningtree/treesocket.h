@@ -149,7 +149,7 @@ class TreeSocket : public BufferedSocket
 	 * @param params Parameters they sent in the SERVER command
 	 * @return Link block for the remote server, or NULL if an error occurred
 	 */
-	Link* AuthRemote(const parameterlist& params);
+	Link* AuthRemote(const CommandBase::Params& params);
 
 	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
 	 * @param line Line to write without a new line character at the end
@@ -246,7 +246,7 @@ class TreeSocket : public BufferedSocket
 	void ListDifference(const std::string &one, const std::string &two, char sep,
 		std::string& mleft, std::string& mright);
 
-	bool Capab(const parameterlist &params);
+	bool Capab(const CommandBase::Params& params);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
@@ -277,25 +277,25 @@ class TreeSocket : public BufferedSocket
 	void WriteLine(const std::string& line);
 
 	/** Handle ERROR command */
-	void Error(parameterlist &params);
+	void Error(CommandBase::Params& params);
 
 	/** (local) -> SERVER
 	 */
-	bool Outbound_Reply_Server(parameterlist &params);
+	bool Outbound_Reply_Server(CommandBase::Params& params);
 
 	/** (local) <- SERVER
 	 */
-	bool Inbound_Server(parameterlist &params);
+	bool Inbound_Server(CommandBase::Params& params);
 
 	/** Handle IRC line split
 	 */
-	void Split(const std::string &line, std::string& prefix, std::string& command, parameterlist &params);
+	void Split(const std::string &line, std::string& prefix, std::string& command, CommandBase::Params& params);
 
 	/** Process complete line from buffer
 	 */
 	void ProcessLine(std::string &line);
 
-	void ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params);
+	void ProcessConnectedLine(std::string& prefix, std::string& command, CommandBase::Params& params);
 
 	/** Handle socket timeout from connect()
 	 */
@@ -306,5 +306,5 @@ class TreeSocket : public BufferedSocket
 
 	/** Fixes messages coming from old servers so the new command handlers understand them
 	 */
-	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params);
+	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params);
 };

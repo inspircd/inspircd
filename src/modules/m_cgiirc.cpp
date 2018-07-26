@@ -110,7 +110,7 @@ class CommandWebIRC : public SplitCommand
 		this->syntax = "password gateway hostname ip";
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (user->registered == REG_ALL)
 			return CMD_FAILURE;

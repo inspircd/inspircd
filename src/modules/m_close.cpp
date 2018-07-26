@@ -31,7 +31,7 @@ class CommandClose : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* src) CXX11_OVERRIDE
+	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
 	{
 		std::map<std::string,int> closed;
 

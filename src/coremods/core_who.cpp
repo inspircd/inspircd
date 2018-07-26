@@ -56,7 +56,7 @@ struct WhoData
 	// A user specified label for the WHOX response.
 	std::string whox_querytype;
 
-	WhoData(const std::vector<std::string>& parameters)
+	WhoData(const CommandBase::Params& parameters)
 		: whox(false)
 	{
 		// Find the matchtext and swap the 0 for a * so we can use InspIRCd::Match on it.
@@ -168,7 +168,7 @@ class CommandWho : public SplitCommand
 	/** Sends a WHO reply to a user. */
 	void SendWhoLine(LocalUser* user, const std::vector<std::string>& parameters, Membership* memb, User* u, WhoData& data);
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 template<> User* CommandWho::GetUser(UserManager::OperList::const_iterator& t) { return *t; }
@@ -539,7 +539,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		data.results.push_back(wholine);
 }
 
-CmdResult CommandWho::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	WhoData data(parameters);
 

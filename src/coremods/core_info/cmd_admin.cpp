@@ -30,7 +30,7 @@ CommandAdmin::CommandAdmin(Module* parent)
 
 /** Handle /ADMIN
  */
-CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandAdmin::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;

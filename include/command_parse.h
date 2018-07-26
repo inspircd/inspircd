@@ -65,7 +65,7 @@ class CoreExport CommandParser
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */
-	CmdResult CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd = NULL);
+	CmdResult CallHandler(const std::string& commandname, const CommandBase::Params& parameters, User* user, Command** cmd = NULL);
 
 	/** Get the handler function for a command.
 	 * @param commandname The command required. Always use uppercase for this parameter.
@@ -110,7 +110,7 @@ class CoreExport CommandParser
 	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,
 	 * otherwise it should continue into its main section of code.
 	 */
-	static bool LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
+	static bool LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
@@ -144,7 +144,7 @@ class CoreExport CommandParser
 	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
 	 * @return dest The output string
 	 */
-	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final = false, CommandBase* custom_translator = NULL);
+	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final = false, CommandBase* custom_translator = NULL);
 };
 
 /** A lookup table of values for multiplier characters used by

@@ -21,7 +21,7 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CmdResult CommandSInfo::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	const std::string& key = params.front();
 	const std::string& value = params.back();

@@ -42,7 +42,7 @@ class CommandLockserv : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (!locked.empty())
 		{
@@ -67,7 +67,7 @@ class CommandUnlockserv : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (locked.empty())
 		{

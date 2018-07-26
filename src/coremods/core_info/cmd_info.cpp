@@ -77,7 +77,7 @@ static const char* const lines[] = {
 
 /** Handle /INFO
  */
-CmdResult CommandInfo::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandInfo::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;

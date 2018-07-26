@@ -51,7 +51,7 @@ class CommandShowFile : public Command
 	{
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (method == SF_NUMERIC)
 		{

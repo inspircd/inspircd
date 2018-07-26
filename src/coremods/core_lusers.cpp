@@ -61,12 +61,12 @@ class CommandLusers : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /LUSERS
  */
-CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
 	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
 	ProtocolInterface::ServerList serverlist;

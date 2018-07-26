@@ -41,7 +41,7 @@ class ModuleOperLog : public Module
 		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)

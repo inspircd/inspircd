@@ -24,7 +24,7 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
+CmdResult CommandAddLine::Handle(User* usr, Params& params)
 {
 	XLineFactory* xlf = ServerInstance->XLines->GetFactory(params[0]);
 	const std::string& setter = usr->nick;

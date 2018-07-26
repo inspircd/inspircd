@@ -51,7 +51,7 @@ class CommandDie : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /KILL.
@@ -71,8 +71,8 @@ class CommandKill : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 
 	void EncodeParameter(std::string& param, unsigned int index) CXX11_OVERRIDE;
 };
@@ -91,7 +91,7 @@ class CommandOper : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /REHASH.
@@ -108,7 +108,7 @@ class CommandRehash : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /RESTART
@@ -125,5 +125,5 @@ class CommandRestart : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };

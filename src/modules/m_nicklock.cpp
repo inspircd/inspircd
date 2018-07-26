@@ -44,7 +44,7 @@ class CommandNicklock : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
@@ -84,7 +84,7 @@ class CommandNicklock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -104,7 +104,7 @@ class CommandNickunlock : public Command
 		TRANSLATE1(TR_NICK);
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
@@ -131,7 +131,7 @@ class CommandNickunlock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}

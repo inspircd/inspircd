@@ -31,7 +31,7 @@ class CommandClones : public Command
 		flags_needed = 'o'; syntax = "<limit>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 
 		std::string clonesstr = "CLONES ";

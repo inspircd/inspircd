@@ -32,7 +32,7 @@ CommandNames::CommandNames(Module* parent)
 
 /** Handle /NAMES
  */
-CmdResult CommandNames::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	Channel* c;
 

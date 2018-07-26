@@ -38,7 +38,7 @@ class CommandOjoin : public SplitCommand
 		active = false;
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0]))

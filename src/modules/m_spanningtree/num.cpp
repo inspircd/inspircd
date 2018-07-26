@@ -23,7 +23,7 @@
 #include "commands.h"
 #include "remoteuser.h"
 
-CmdResult CommandNum::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	User* const target = ServerInstance->FindUUID(params[1]);
 	if (!target)
@@ -42,7 +42,7 @@ CmdResult CommandNum::HandleServer(TreeServer* server, std::vector<std::string>&
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandNum::GetRouting(User* user, const std::vector<std::string>& params)
+RouteDescriptor CommandNum::GetRouting(User* user, const Params& params)
 {
 	return ROUTE_UNICAST(params[1]);
 }
@@ -52,10 +52,10 @@ CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Nu
 {
 	TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>(numeric.GetServer())) : Utils->TreeRoot);
 	push(server->GetID()).push(target->uuid).push(InspIRCd::Format("%03u", numeric.GetNumeric()));
-	const std::vector<std::string>& params = numeric.GetParams();
+	const CommandBase::Params& params = numeric.GetParams();
 	if (!params.empty())
 	{
-		for (std::vector<std::string>::const_iterator i = params.begin(); i != params.end()-1; ++i)
+		for (CommandBase::Params::const_iterator i = params.begin(); i != params.end()-1; ++i)
 			push(*i);
 		push_last(params.back());
 	}

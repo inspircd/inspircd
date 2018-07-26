@@ -98,15 +98,15 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 
 	/** Handle LINKS command
 	 */
-	void HandleLinks(const std::vector<std::string>& parameters, User* user);
+	void HandleLinks(const CommandBase::Params& parameters, User* user);
 
 	/** Handle SQUIT
 	 */
-	ModResult HandleSquit(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleSquit(const CommandBase::Params& parameters, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	ModResult HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleRemoteWhois(const CommandBase::Params& parameters, User* user);
 
 	/** Connect a server locally
 	 */
@@ -126,11 +126,11 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 
 	/** Handle remote VERSON
 	 */
-	ModResult HandleVersion(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleVersion(const CommandBase::Params& parameters, User* user);
 
 	/** Handle CONNECT
 	 */
-	ModResult HandleConnect(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleConnect(const CommandBase::Params& parameters, User* user);
 
 	/** Display a time as a human readable string
 	 */
@@ -142,8 +142,8 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
-	void OnPostCommand(Command*, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE;
+	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, const std::string& original_line) CXX11_OVERRIDE;
 	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
 	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE;
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) CXX11_OVERRIDE;

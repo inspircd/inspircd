@@ -56,13 +56,13 @@ class CommandList : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 
 /** Handle /LIST
  */
-CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandList::Handle(User* user, const Params& parameters)
 {
 	// C: Searching based on creation time, via the "C<val" and "C>val" modifiers
 	// to search for a channel creation time that is lower or higher than val

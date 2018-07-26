@@ -33,12 +33,12 @@ class CommandLoadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /LOADMODULE
  */
-CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 {
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
@@ -72,10 +72,10 @@ class CommandUnloadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
-CmdResult CommandUnloadmodule::Handle(const std::vector<std::string>& parameters, User* user)
+CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 {
 	if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 		InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))

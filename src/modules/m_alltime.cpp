@@ -29,7 +29,7 @@ class CommandAlltime : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
@@ -41,7 +41,7 @@ class CommandAlltime : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_BCAST;
 	}

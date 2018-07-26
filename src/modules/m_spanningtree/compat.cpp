@@ -320,7 +320,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 namespace
 {
-	bool InsertCurrentChannelTS(std::vector<std::string>& params, unsigned int chanindex = 0, unsigned int pos = 1)
+	bool InsertCurrentChannelTS(CommandBase::Params& params, unsigned int chanindex = 0, unsigned int pos = 1)
 	{
 		Channel* chan = ServerInstance->FindChan(params[chanindex]);
 		if (!chan)
@@ -332,7 +332,7 @@ namespace
 	}
 }
 
-bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params)
+bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
 	if ((cmd == "METADATA") && (params.size() >= 3) && (params[0][0] == '#'))
 	{
@@ -381,7 +381,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		if ((params.size() != 1) && (params.size() != 3))
 			return false;
 
-		parameterlist p;
+		CommandBase::Params p;
 		p.push_back(cmd.substr(0, 1));
 		p.push_back(params[0]);
 

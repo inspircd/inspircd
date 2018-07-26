@@ -201,7 +201,7 @@ public:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
@@ -234,7 +234,7 @@ public:
 			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		// There is a list in parameters[0] in two cases:
 		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,

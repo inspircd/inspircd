@@ -23,29 +23,36 @@
 
 #include "inspircd.h"
 
-CmdResult SplitCommand::Handle(const std::vector<std::string>& parms, User* u)
+CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 {
-	if (IS_LOCAL(u))
-		return HandleLocal(parms, IS_LOCAL(u));
-	if (IS_REMOTE(u))
-		return HandleRemote(parms, IS_REMOTE(u));
-	if (IS_SERVER(u))
-		return HandleServer(parms, IS_SERVER(u));
-	ServerInstance->Logs->Log("COMMAND", LOG_DEFAULT, "Unknown user type in command (uuid=%s)!", u->uuid.c_str());
+	switch (user->usertype)
+	{
+		case USERTYPE_LOCAL:
+			return HandleLocal(static_cast<LocalUser*>(user), parameters);
+
+		case USERTYPE_REMOTE:
+			return HandleRemote(static_cast<RemoteUser*>(user), parameters);
+
+		case USERTYPE_SERVER:
+			return HandleServer(static_cast<FakeUser*>(user), parameters);
+	}
+
+	ServerInstance->Logs->Log("COMMAND", LOG_DEFAULT, "Unknown user type %d in command (uuid=%s)!",
+		user->usertype, user->uuid.c_str());
 	return CMD_INVALID;
 }
 
-CmdResult SplitCommand::HandleLocal(const std::vector<std::string>&, LocalUser*)
+CmdResult SplitCommand::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	return CMD_INVALID;
 }
 
-CmdResult SplitCommand::HandleRemote(const std::vector<std::string>&, RemoteUser*)
+CmdResult SplitCommand::HandleRemote(RemoteUser* user, const Params& parameters)
 {
 	return CMD_INVALID;
 }
 
-CmdResult SplitCommand::HandleServer(const std::vector<std::string>&, FakeUser*)
+CmdResult SplitCommand::HandleServer(FakeUser* user, const Params& parameters)
 {
 	return CMD_INVALID;
 }

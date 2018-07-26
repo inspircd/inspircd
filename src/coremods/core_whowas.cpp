@@ -41,7 +41,7 @@ CommandWhowas::CommandWhowas( Module* parent)
 	Penalty = 2;
 }
 
-CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
+CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 {
 	/* if whowas disabled in config */
 	if (!manager.IsEnabled())

@@ -70,8 +70,8 @@ class CommandInvite : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /JOIN.
@@ -88,7 +88,7 @@ class CommandJoin : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /TOPIC.
@@ -109,7 +109,7 @@ class CommandTopic : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /NAMES.
@@ -130,7 +130,7 @@ class CommandNames : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 
 	/** Spool the NAMES list for a given channel to the given user
 	 * @param user User to spool the NAMES list to
@@ -154,8 +154,8 @@ class CommandKick : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Channel mode +b

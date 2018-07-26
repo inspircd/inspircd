@@ -21,7 +21,7 @@
 #include "inspircd.h"
 #include "commands.h"
 
-CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& params)
+CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 {
 	if (params[0] == "*")
 	{

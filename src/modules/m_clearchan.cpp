@@ -35,7 +35,7 @@ class CommandClearChan : public Command
 		force_manual_route = true;
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		Channel* chan = activechan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
@@ -79,7 +79,7 @@ class CommandClearChan : public Command
 			// The idea is that by the time our QUITs reach the next hop, it has already removed all their
 			// clients from the channel, meaning victims on other servers won't see the victims on this
 			// server quitting.
-			std::vector<std::string> eparams;
+			CommandBase::Params eparams;
 			eparams.push_back(chan->name);
 			eparams.push_back(method);
 			eparams.push_back(":");

@@ -68,7 +68,7 @@ class CommandTban : public Command
 		syntax = "<channel> <duration> <banmask>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (!channel)
@@ -129,7 +129,7 @@ class CommandTban : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

@@ -32,7 +32,7 @@
  * Some server somewhere in the network introducing another server.
  *	-- w
  */
-CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std::string>& params)
+CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 {
 	const std::string& servername = params[0];
 	const std::string& sid = params[1];
@@ -70,9 +70,9 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 	return CMD_SUCCESS;
 }
 
-void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::string>& params)
+void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 {
-	for (std::vector<std::string>::const_iterator i = params.begin() + 2; i != params.end() - 1; ++i)
+	for (CommandBase::Params::const_iterator i = params.begin() + 2; i != params.end() - 1; ++i)
 	{
 		const std::string& prop = *i;
 		std::string::size_type p = prop.find('=');
@@ -90,7 +90,7 @@ void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::st
 	}
 }
 
-Link* TreeSocket::AuthRemote(const parameterlist& params)
+Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 {
 	if (params.size() < 5)
 	{
@@ -148,7 +148,7 @@ Link* TreeSocket::AuthRemote(const parameterlist& params)
  * This is used after the other side of a connection has accepted our credentials.
  * They are then introducing themselves to us, BEFORE either of us burst. -- w
  */
-bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
+bool TreeSocket::Outbound_Reply_Server(CommandBase::Params& params)
 {
 	const Link* x = AuthRemote(params);
 	if (x)
@@ -200,7 +200,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
  * Someone else is attempting to connect to us if this is called. Validate their credentials etc.
  *		-- w
  */
-bool TreeSocket::Inbound_Server(parameterlist &params)
+bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 {
 	const Link* x = AuthRemote(params);
 	if (x)

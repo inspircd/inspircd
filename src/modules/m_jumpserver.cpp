@@ -48,7 +48,7 @@ class CommandJumpserver : public Command
 		redirect_new_users = false;
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		int n_done = 0;
 		reason = (parameters.size() < 4) ? "Please use this server/port instead" : parameters[3];

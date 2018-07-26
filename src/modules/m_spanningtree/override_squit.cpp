@@ -25,7 +25,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleSquit(const CommandBase::Params& parameters, User* user)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)

@@ -28,7 +28,7 @@ CommandPart::CommandPart(Module* parent)
 	syntax = "<channel>{,<channel>} [<reason>]";
 }
 
-CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandPart::Handle(User* user, const Params& parameters)
 {
 	std::string reason;
 	if (parameters.size() > 1)
@@ -59,7 +59,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandPart::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandPart::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

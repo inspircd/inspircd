@@ -27,7 +27,7 @@ CommandVersion::CommandVersion(Module* parent)
 	syntax = "[<servername>]";
 }
 
-CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 {
 	std::string version = ServerInstance->GetVersionString((user->IsOper()));
 	user->WriteNumeric(RPL_VERSION, version);

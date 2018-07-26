@@ -130,7 +130,7 @@ class OperQuery : public SQL::Query
 
 		if (oper_command)
 		{
-			std::vector<std::string> params;
+			CommandBase::Params params;
 			params.push_back(username);
 			params.push_back(password);
 
@@ -143,7 +143,7 @@ class OperQuery : public SQL::Query
 				return;
 
 			// Now handle /OPER.
-			oper_command->Handle(params, user);
+			oper_command->Handle(user, params);
 		}
 		else
 		{
@@ -195,7 +195,7 @@ public:
 		}
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		// If we are not in the middle of an existing /OPER and someone is trying to oper-up
 		if (validated && command == "OPER" && parameters.size() >= 2 && !active)

@@ -30,7 +30,7 @@ CommandRehash::CommandRehash(Module* parent)
 	syntax = "[<servermask>]";
 }
 
-CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 {
 	std::string param = parameters.size() ? parameters[0] : "";
 

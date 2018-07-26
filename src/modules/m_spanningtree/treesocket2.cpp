@@ -32,13 +32,13 @@
 #include "commands.h"
 
 /* Handle ERROR command */
-void TreeSocket::Error(parameterlist &params)
+void TreeSocket::Error(CommandBase::Params& params)
 {
 	std::string msg = params.size() ? params[0] : "";
 	SetError("received ERROR " + msg);
 }
 
-void TreeSocket::Split(const std::string& line, std::string& prefix, std::string& command, parameterlist& params)
+void TreeSocket::Split(const std::string& line, std::string& prefix, std::string& command, CommandBase::Params& params)
 {
 	irc::tokenstream tokens(line);
 
@@ -79,7 +79,7 @@ void TreeSocket::ProcessLine(std::string &line)
 {
 	std::string prefix;
 	std::string command;
-	parameterlist params;
+	CommandBase::Params params;
 
 	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 
@@ -263,7 +263,7 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 	return NULL;
 }
 
-void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params)
+void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command, CommandBase::Params& params)
 {
 	User* who = FindSource(prefix, command);
 	if (!who)
@@ -343,7 +343,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		res = scmd->Handle(who, params);
 	else
 	{
-		res = cmd->Handle(params, who);
+		res = cmd->Handle(who, params);
 		if (res == CMD_INVALID)
 			throw ProtocolException("Error in command handler");
 	}

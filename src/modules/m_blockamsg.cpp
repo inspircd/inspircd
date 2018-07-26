@@ -81,7 +81,7 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		// Don't do anything with unregistered users
 		if (user->registered != REG_ALL)

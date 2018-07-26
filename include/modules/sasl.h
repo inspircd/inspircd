@@ -29,5 +29,5 @@ class SASLEventListener : public Events::ModuleEventListener
 	{
 	}
 
-	virtual void OnSASLAuth(const parameterlist& params) = 0;
+	virtual void OnSASLAuth(const CommandBase::Params& params) = 0;
 };

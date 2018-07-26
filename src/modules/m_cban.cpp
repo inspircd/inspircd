@@ -85,7 +85,7 @@ class CommandCBan : public Command
 		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -132,7 +132,7 @@ class CommandCBan : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE

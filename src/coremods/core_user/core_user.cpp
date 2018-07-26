@@ -40,7 +40,7 @@ class CommandPass : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		// Check to make sure they haven't registered -- Fix by FCS
 		if (user->registered == REG_ALL)
@@ -73,7 +73,7 @@ class CommandPing : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		user->WriteServ("PONG %s :%s", ServerInstance->Config->ServerName.c_str(), parameters[0].c_str());
 		return CMD_SUCCESS;
@@ -99,7 +99,7 @@ class CommandPong : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		// set the user as alive so they survive to next ping
 		LocalUser* localuser = IS_LOCAL(user);

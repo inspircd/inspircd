@@ -28,7 +28,7 @@ CommandOper::CommandOper(Module* parent)
 	syntax = "<username> <password>";
 }
 
-CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
+CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	bool match_login = false;
 	bool match_pass = false;

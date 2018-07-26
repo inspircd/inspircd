@@ -21,7 +21,7 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>& params)
+CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 {
 	/**
 	 * There are two forms of IDLE: request and reply. Requests have one parameter,

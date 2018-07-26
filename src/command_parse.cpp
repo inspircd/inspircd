@@ -43,7 +43,7 @@ bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::s
 	return TimingSafeCompare(data, input);
 }
 
-bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
+bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
 		return false;
@@ -82,7 +82,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 	{
 		if ((!check_dupes) || (dupes.insert(item).second))
 		{
-			std::vector<std::string> new_parameters(parameters);
+			CommandBase::Params new_parameters(parameters);
 			new_parameters[splithere] = item;
 
 			if (extra >= 0)
@@ -93,7 +93,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 				new_parameters[extra] = item;
 			}
 
-			CmdResult result = handler->Handle(new_parameters, user);
+			CmdResult result = handler->Handle(user, new_parameters);
 			if (localuser)
 			{
 				// Run the OnPostCommand hook with the last parameter (original line) being empty
@@ -118,7 +118,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd)
+CmdResult CommandParser::CallHandler(const std::string& commandname, const CommandBase::Params& parameters, User* user, Command** cmd)
 {
 	CommandMap::iterator n = cmdlist.find(commandname);
 
@@ -152,7 +152,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const std::
 			{
 				if (cmd)
 					*cmd = n->second;
-				return n->second->Handle(parameters,user);
+				return n->second->Handle(user, parameters);
 			}
 		}
 	}
@@ -161,7 +161,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const std::
 
 void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 {
-	std::vector<std::string> command_p;
+	CommandBase::Params command_p;
 	irc::tokenstream tokens(cmd);
 	std::string command, token;
 	tokens.GetToken(command);
@@ -236,12 +236,12 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 */
 
 		// Iterator to the last parameter that will be kept
-		const std::vector<std::string>::iterator lastkeep = command_p.begin() + (handler->max_params - 1);
+		const CommandBase::Params::iterator lastkeep = command_p.begin() + (handler->max_params - 1);
 		// Iterator to the first excess parameter
-		const std::vector<std::string>::iterator firstexcess = lastkeep + 1;
+		const CommandBase::Params::iterator firstexcess = lastkeep + 1;
 
 		// Append all excess parameter(s) to the last parameter, seperated by spaces
-		for (std::vector<std::string>::const_iterator i = firstexcess; i != command_p.end(); ++i)
+		for (CommandBase::Params::const_iterator i = firstexcess; i != command_p.end(); ++i)
 		{
 			lastkeep->push_back(' ');
 			lastkeep->append(*i);
@@ -329,7 +329,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		/*
 		 * WARNING: be careful, the user may be deleted soon
 		 */
-		CmdResult result = handler->Handle(command_p, user);
+		CmdResult result = handler->Handle(user, command_p);
 
 		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result, cmd));
 	}
@@ -363,7 +363,7 @@ void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
 {
 }
 
-RouteDescriptor CommandBase::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_LOCALONLY;
 }

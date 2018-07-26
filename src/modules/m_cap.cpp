@@ -365,7 +365,7 @@ class CommandCap : public SplitCommand
 		works_before_reg = true;
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (user->registered != REG_ALL)
 			holdext.set(user, 1);

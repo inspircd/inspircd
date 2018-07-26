@@ -110,6 +110,8 @@ struct RouteDescriptor
 class CoreExport CommandBase : public ServiceProvider
 {
  public:
+	typedef std::vector<std::string> Params;
+
 	/** User flags needed to execute the command or 0
 	 */
 	unsigned char flags_needed;
@@ -168,7 +170,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
-	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	virtual RouteDescriptor GetRouting(User* user, const CommandBase::Params& parameters);
 
 	/** Encode a parameter for server->server transmission.
 	 * Used for parameters for which the translation type is TR_CUSTOM.
@@ -219,7 +221,7 @@ class CoreExport Command : public CommandBase
 	 * @param user The user who issued the command.
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
 	 */
-	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
+	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
 
 	/** Register this object in the CommandParser
 	 */
@@ -236,10 +238,10 @@ class CoreExport SplitCommand : public Command
  public:
 	SplitCommand(Module* me, const std::string &cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
 		: Command(me, cmd, minpara, maxpara) {}
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	virtual CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
-	virtual CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* user);
-	virtual CmdResult HandleServer(const std::vector<std::string>& parameters, FakeUser* user);
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	virtual CmdResult HandleLocal(LocalUser* user, const Params& parameters);
+	virtual CmdResult HandleRemote(RemoteUser* user, const Params& parameters);
+	virtual CmdResult HandleServer(FakeUser* user, const Params& parameters);
 };
 
 /** Shortcut macros for defining translation lists

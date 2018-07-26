@@ -34,7 +34,7 @@ CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 
 /** Handle /INVITE
  */
-CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 {
 	ModResult MOD_RESULT;
 
@@ -173,7 +173,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandInvite::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandInvite::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

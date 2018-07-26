@@ -27,7 +27,7 @@ CommandTime::CommandTime(Module* parent)
 	syntax = "[<servername>]";
 }
 
-CmdResult CommandTime::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandTime::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;

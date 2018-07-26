@@ -56,7 +56,7 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if (command == "PONG")
 		{

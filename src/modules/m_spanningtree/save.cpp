@@ -26,7 +26,7 @@
 /**
  * SAVE command - force nick change to UID on timestamp match
  */
-CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandSave::Handle(User* user, Params& params)
 {
 	User* u = ServerInstance->FindUUID(params[0]);
 	if (!u)

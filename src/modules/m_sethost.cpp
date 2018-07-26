@@ -35,7 +35,7 @@ class CommandSethost : public Command
 		flags_needed = 'o'; syntax = "<new-hostname>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
 		{

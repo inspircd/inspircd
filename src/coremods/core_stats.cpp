@@ -51,8 +51,8 @@ class CommandStats : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_UNICAST(parameters[1]);
@@ -375,7 +375,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	return;
 }
 
-CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandStats::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
 	{

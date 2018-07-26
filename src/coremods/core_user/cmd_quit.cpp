@@ -29,7 +29,7 @@ CommandQuit::CommandQuit(Module* parent)
 	syntax = "[<message>]";
 }
 
-CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandQuit::Handle(User* user, const Params& parameters)
 {
 	std::string quitmsg;
 	if (parameters.empty())
@@ -45,7 +45,7 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandQuit::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandQuit::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

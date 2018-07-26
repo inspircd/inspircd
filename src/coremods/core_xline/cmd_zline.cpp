@@ -30,7 +30,7 @@ CommandZline::CommandZline(Module* parent)
 	syntax = "<ipmask> [<duration> :<reason>]";
 }
 
-CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandZline::Handle(User* user, const Params& parameters)
 {
 	std::string target = parameters[0];
 

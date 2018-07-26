@@ -24,8 +24,6 @@
 
 class User;
 
-typedef std::vector<std::string> parameterlist;
-
 class ProtocolServer
 {
  public:
@@ -66,7 +64,7 @@ class CoreExport ProtocolInterface
 	 * and the message was sent, false if it was not found.
 	 * ENCAP (should) be used instead of creating new protocol messages for easier third party application support.
 	 */
-	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source = NULL) { return false; }
+	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source = NULL) { return false; }
 
 	/** Send an ENCAP message to all servers.
 	 * See the protocol documentation for the purpose of ENCAP.
@@ -76,7 +74,7 @@ class CoreExport ProtocolInterface
 	 * or NULL which is equivalent to the local server
 	 * @param omit If non-NULL the message won't be sent in the direction of this server, useful for forwarding messages
 	 */
-	virtual void BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source = NULL, User* omit = NULL) { }
+	virtual void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source = NULL, User* omit = NULL) { }
 
 	/** Send metadata for a channel to other linked servers.
 	 * @param chan The channel to send metadata for

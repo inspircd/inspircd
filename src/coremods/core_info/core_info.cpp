@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "core_info.h"
 
-RouteDescriptor ServerTargetCommand::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor ServerTargetCommand::GetRouting(User* user, const Params& parameters)
 {
 	// Parameter must be a server name, not a nickname or uuid
 	if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))

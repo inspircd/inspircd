@@ -32,7 +32,7 @@ CommandRSQuit::CommandRSQuit(Module* Creator)
 	syntax = "<target-server-mask> [reason]";
 }
 
-CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 {
 	TreeServer *server_target; // Server to squit
 
@@ -60,7 +60,7 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandRSQuit::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandRSQuit::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_UNICAST(parameters[0]);
 }

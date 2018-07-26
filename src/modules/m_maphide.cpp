@@ -28,7 +28,7 @@ class ModuleMapHide : public Module
 		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{

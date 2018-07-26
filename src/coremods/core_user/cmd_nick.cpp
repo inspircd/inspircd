@@ -36,7 +36,7 @@ CommandNick::CommandNick(Module* parent)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];

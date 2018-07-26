@@ -45,10 +45,10 @@ class LDAPOperBase : public LDAPInterface
 		if (!oper_command)
 			return;
 
-		std::vector<std::string> params;
+		CommandBase::Params params;
 		params.push_back(opername);
 		params.push_back(password);
-		oper_command->Handle(params, user);
+		oper_command->Handle(user, params);
 	}
 
 	void Fallback()
@@ -201,7 +201,7 @@ class ModuleLDAPAuth : public Module
 		attribute = tag->getString("attribute");
 	}
 
-	ModResult OnPreCommand(std::string& command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if (validated && command == "OPER" && parameters.size() >= 2)
 		{

@@ -145,7 +145,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 	SetError(errormessage);
 }
 
-CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	TreeServer* quitting = Utils->FindServer(params[0]);
 	if (!quitting)

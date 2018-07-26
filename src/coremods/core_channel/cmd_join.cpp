@@ -30,7 +30,7 @@ CommandJoin::CommandJoin(Module* parent)
 
 /** Handle /JOIN
  */
-CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
+CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	if (parameters.size() > 1)
 	{

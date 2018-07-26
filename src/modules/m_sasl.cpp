@@ -143,9 +143,9 @@ enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
 static Events::ModuleEventProvider* saslevprov;
 
-static void SendSASL(LocalUser* user, const std::string& agent, char mode, const parameterlist& parameters)
+static void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
 {
-	parameterlist params(parameters.size() + 3);
+	CommandBase::Params params(parameters.size() + 3);
 	params.push_back(user->uuid);
 	params.push_back(agent);
 	params.push_back(ConvToStr(mode));
@@ -171,7 +171,7 @@ class SaslAuthenticator
 
 	void SendHostIP()
 	{
-		parameterlist params;
+		std::vector<std::string> params;
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetIPString());
 		params.push_back(SSLIOHook::IsSSL(&user->eh) ? "S" : "P");
@@ -185,7 +185,7 @@ class SaslAuthenticator
 	{
 		SendHostIP();
 
-		parameterlist params;
+		std::vector<std::string> params;
 		params.push_back(method);
 
 		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
@@ -207,7 +207,7 @@ class SaslAuthenticator
 	}
 
 	/* checks for and deals with a state change. */
-	SaslState ProcessInboundMessage(const std::vector<std::string> &msg)
+	SaslState ProcessInboundMessage(const CommandBase::Params& msg)
 	{
 		switch (this->state)
 		{
@@ -304,7 +304,7 @@ class CommandAuthenticate : public SplitCommand
 		allow_empty_last_param = false;
 	}
 
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		{
 			if (!cap.get(user))
@@ -341,7 +341,7 @@ class CommandSASL : public Command
 		this->flags_needed = FLAG_SERVERONLY; // should not be called by users
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindUUID(parameters[1]);
 		if (!target)
@@ -363,7 +363,7 @@ class CommandSASL : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

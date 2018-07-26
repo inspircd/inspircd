@@ -99,7 +99,7 @@ class CommandSvshold : public Command
 		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -156,7 +156,7 @@ class CommandSvshold : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}

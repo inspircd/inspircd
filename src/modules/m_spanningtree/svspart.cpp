@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSPart::Handle(User* user, std::vector<std::string>& parameters)
+CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
 {
 	User* u = ServerInstance->FindUUID(parameters[0]);
 	if (!u)
@@ -40,7 +40,7 @@ CmdResult CommandSVSPart::Handle(User* user, std::vector<std::string>& parameter
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandSVSPart::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandSVSPart::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_OPT_UCAST(parameters[0]);
 }

@@ -28,7 +28,7 @@ class CommandModeNotice : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* src) CXX11_OVERRIDE
+	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
 	{
 		std::string msg = "*** From " + src->nick + ": " + parameters[1];
 		int mlen = parameters[0].length();
@@ -47,7 +47,7 @@ next_user:	;
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_BCAST;
 	}

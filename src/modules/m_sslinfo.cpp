@@ -99,7 +99,7 @@ class CommandSSLInfo : public Command
 		this->syntax = "<nick>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
 
@@ -179,7 +179,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		}
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if ((command == "OPER") && (validated))
 		{

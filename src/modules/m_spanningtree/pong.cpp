@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "utils.h"
 
-CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandPong::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	if (server->IsBursting())
 	{

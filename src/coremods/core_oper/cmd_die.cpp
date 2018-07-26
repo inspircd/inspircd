@@ -58,7 +58,7 @@ void DieRestart::SendError(const std::string& message)
 
 /** Handle /DIE
  */
-CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
 	if (DieRestart::CheckPass(user, parameters[0], "diepass"))
 	{

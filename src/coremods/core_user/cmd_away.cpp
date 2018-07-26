@@ -29,7 +29,7 @@ CommandAway::CommandAway(Module* parent)
 
 /** Handle /AWAY
  */
-CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandAway::Handle(User* user, const Params& parameters)
 {
 	ModResult MOD_RESULT;
 
@@ -59,7 +59,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandAway::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandAway::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

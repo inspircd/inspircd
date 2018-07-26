@@ -36,7 +36,7 @@ CommandCommands::CommandCommands(Module* parent)
 
 /** Handle /COMMANDS
  */
-CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 {
 	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
 	std::vector<std::string> list;

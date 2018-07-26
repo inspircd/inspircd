@@ -28,7 +28,7 @@ CommandRestart::CommandRestart(Module* parent)
 	syntax = "<server>";
 }
 
-CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Restart: %s", user->nick.c_str());
 	if (DieRestart::CheckPass(user, parameters[0], "restartpass"))

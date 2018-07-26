@@ -153,9 +153,9 @@ class CommandFilter : public Command
 		flags_needed = 'o';
 		this->syntax = "<filter-definition> <action> <flags> [<duration>] :<reason>";
 	}
-	CmdResult Handle(const std::vector<std::string>& , User* ) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -196,7 +196,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
@@ -204,7 +204,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	static std::string FilterActionToString(FilterAction fa);
 };
 
-CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User *user)
+CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() == 1)
 	{
@@ -413,7 +413,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line)
 {
 	if (validated)
 	{

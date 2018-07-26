@@ -23,11 +23,11 @@
 #include "main.h"
 
 /** ENCAP */
-CmdResult CommandEncap::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandEncap::Handle(User* user, Params& params)
 {
 	if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 	{
-		parameterlist plist(params.begin() + 2, params.end());
+		CommandBase::Params plist(params.begin() + 2, params.end());
 
 		// XXX: Workaround for SVS* commands provided by spanningtree not being registered in the core
 		if ((params[1] == "SVSNICK") || (params[1] == "SVSJOIN") || (params[1] == "SVSPART"))
@@ -48,7 +48,7 @@ CmdResult CommandEncap::Handle(User* user, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandEncap::GetRouting(User* user, const std::vector<std::string>& params)
+RouteDescriptor CommandEncap::GetRouting(User* user, const Params& params)
 {
 	if (params[0].find_first_of("*?") != std::string::npos)
 		return ROUTE_BROADCAST;

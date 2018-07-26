@@ -31,7 +31,7 @@ CommandEline::CommandEline(Module* parent)
 
 /** Handle /ELINE
  */
-CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandEline::Handle(User* user, const Params& parameters)
 {
 	std::string target = parameters[0];
 

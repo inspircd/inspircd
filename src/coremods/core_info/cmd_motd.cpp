@@ -29,7 +29,7 @@ CommandMotd::CommandMotd(Module* parent)
 
 /** Handle /MOTD
  */
-CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 	{

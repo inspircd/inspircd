@@ -26,7 +26,7 @@
 #include "treeserver.h"
 #include "remoteuser.h"
 
-CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::string>& params)
+CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params& params)
 {
 	/**
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
@@ -133,19 +133,19 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFHost::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
-{
+CmdResult CommandFHost::HandleRemote(RemoteUser* src, Params& params)
+{		
 	src->ChangeDisplayedHost(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFIdent::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
+CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeIdent(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFName::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
+CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeName(params[0]);
 	return CMD_SUCCESS;

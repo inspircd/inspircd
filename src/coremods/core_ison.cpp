@@ -37,7 +37,7 @@ class CommandIson : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class IsonReplyBuilder : public Numeric::Builder<' ', true>
@@ -58,7 +58,7 @@ class IsonReplyBuilder : public Numeric::Builder<' ', true>
 
 /** Handle /ISON
  */
-CmdResult CommandIson::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	IsonReplyBuilder reply(user);
 

@@ -22,7 +22,7 @@
 #include "commands.h"
 
 /** FMODE command - channel mode change with timestamp checks */
-CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
+CmdResult CommandFMode::Handle(User* who, Params& params)
 {
 	time_t TS = ServerCommand::ExtractTS(params[1]);
 

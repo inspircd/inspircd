@@ -35,7 +35,7 @@ CommandUser::CommandUser(Module* parent)
 	syntax = "<username> <localhost> <remotehost> <realname>";
 }
 
-CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
+CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))

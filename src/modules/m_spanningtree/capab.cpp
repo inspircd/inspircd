@@ -221,7 +221,7 @@ void TreeSocket::ListDifference(const std::string &one, const std::string &two, 
 	}
 }
 
-bool TreeSocket::Capab(const parameterlist &params)
+bool TreeSocket::Capab(const CommandBase::Params& params)
 {
 	if (params.size() < 1)
 	{

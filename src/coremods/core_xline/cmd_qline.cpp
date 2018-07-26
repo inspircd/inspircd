@@ -30,7 +30,7 @@ CommandQline::CommandQline(Module* parent)
 	syntax = "<nick> [<duration> :<reason>]";
 }
 
-CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandQline::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() >= 3)
 	{

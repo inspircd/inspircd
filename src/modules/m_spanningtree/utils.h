@@ -114,7 +114,7 @@ class SpanningTreeUtilities : public classbase
 	 */
 	~SpanningTreeUtilities();
 
-	void RouteCommand(TreeServer* origin, CommandBase* cmd, const parameterlist& parameters, User* user);
+	void RouteCommand(TreeServer* origin, CommandBase* cmd, const CommandBase::Params& parameters, User* user);
 
 	/** Send a message from this server to one other local or remote
 	 */

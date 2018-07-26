@@ -44,55 +44,55 @@ class CommandRConnect : public Command
 {
  public:
 	CommandRConnect(Module* Creator);
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandRSQuit : public Command
 {
  public:
 	CommandRSQuit(Module* Creator);
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandMap : public Command
 {
  public:
 	CommandMap(Module* Creator);
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandSVSJoin : public ServerCommand
 {
  public:
 	CommandSVSJoin(Module* Creator) : ServerCommand(Creator, "SVSJOIN", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandSVSPart : public ServerCommand
 {
  public:
 	CommandSVSPart(Module* Creator) : ServerCommand(Creator, "SVSPART", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandSVSNick : public ServerCommand
 {
  public:
 	CommandSVSNick(Module* Creator) : ServerCommand(Creator, "SVSNICK", 3) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandMetadata : public ServerCommand
 {
  public:
 	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
 
 	class Builder : public CmdBuilder
 	{
@@ -107,7 +107,7 @@ class CommandUID : public ServerOnlyServerCommand<CommandUID>
 {
  public:
 	CommandUID(Module* Creator) : ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& params);
+	CmdResult HandleServer(TreeServer* server, CommandBase::Params& params);
 
 	class Builder : public CmdBuilder
 	{
@@ -120,7 +120,7 @@ class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
 {
  public:
 	CommandOpertype(Module* Creator) : UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
 
 	class Builder : public CmdBuilder
 	{
@@ -149,8 +149,8 @@ class CommandFJoin : public ServerCommand
 	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
 
 	class Builder : public CmdBuilder
 	{
@@ -186,14 +186,14 @@ class CommandFMode : public ServerCommand
 {
  public:
 	CommandFMode(Module* Creator) : ServerCommand(Creator, "FMODE", 3) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
 };
 
 class CommandFTopic : public ServerCommand
 {
  public:
 	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 4, 5) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
 
 	class Builder : public CmdBuilder
 	{
@@ -207,43 +207,43 @@ class CommandFHost : public UserOnlyServerCommand<CommandFHost>
 {
  public:
 	CommandFHost(Module* Creator) : UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 1) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
 class CommandFIdent : public UserOnlyServerCommand<CommandFIdent>
 {
  public:
 	CommandFIdent(Module* Creator) : UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 1) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
 class CommandFName : public UserOnlyServerCommand<CommandFName>
 {
  public:
 	CommandFName(Module* Creator) : UserOnlyServerCommand<CommandFName>(Creator, "FNAME", 1) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
 class CommandIJoin : public UserOnlyServerCommand<CommandIJoin>
 {
  public:
 	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 2) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
 class CommandResync : public ServerOnlyServerCommand<CommandResync>
 {
  public:
 	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
 };
 
 class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::CommandAway>
 {
  public:
 	CommandAway(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandAway>(Creator, "AWAY", 0, 2) { }
-	CmdResult HandleRemote(::RemoteUser* user, std::vector<std::string>& parameters);
+	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 
 	class Builder : public CmdBuilder
 	{
@@ -258,7 +258,7 @@ class CommandAddLine : public ServerCommand
 {
  public:
 	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
 
 	class Builder : public CmdBuilder
 	{
@@ -271,46 +271,46 @@ class CommandDelLine : public ServerCommand
 {
  public:
 	CommandDelLine(Module* Creator) : ServerCommand(Creator, "DELLINE", 2, 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandEncap : public ServerCommand
 {
  public:
 	CommandEncap(Module* Creator) : ServerCommand(Creator, "ENCAP", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandIdle : public UserOnlyServerCommand<CommandIdle>
 {
  public:
 	CommandIdle(Module* Creator) : UserOnlyServerCommand<CommandIdle>(Creator, "IDLE", 1) { }
-	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	CmdResult HandleRemote(RemoteUser* user, Params& parameters);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class SpanningTree::CommandNick : public UserOnlyServerCommand<SpanningTree::CommandNick>
 {
  public:
 	CommandNick(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandNick>(Creator, "NICK", 2) { }
-	CmdResult HandleRemote(::RemoteUser* user, std::vector<std::string>& parameters);
+	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 };
 
 class SpanningTree::CommandPing : public ServerCommand
 {
  public:
 	CommandPing(Module* Creator) : ServerCommand(Creator, "PING", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::CommandPong>
 {
  public:
 	CommandPong(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandPong>(Creator, "PONG", 1) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class CommandSave : public ServerCommand
@@ -321,16 +321,16 @@ class CommandSave : public ServerCommand
 	static const time_t SavedTimestamp = 100;
 
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
 };
 
 class SpanningTree::CommandServer : public ServerOnlyServerCommand<SpanningTree::CommandServer>
 {
-	static void HandleExtra(TreeServer* newserver, const std::vector<std::string>& params);
+	static void HandleExtra(TreeServer* newserver, Params& params);
 
  public:
 	CommandServer(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandServer>(Creator, "SERVER", 3) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
 	class Builder : public CmdBuilder
 	{
@@ -347,28 +347,28 @@ class CommandSQuit : public ServerOnlyServerCommand<CommandSQuit>
 {
  public:
 	CommandSQuit(Module* Creator) : ServerOnlyServerCommand<CommandSQuit>(Creator, "SQUIT", 2) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
 };
 
 class CommandSNONotice : public ServerCommand
 {
  public:
 	CommandSNONotice(Module* Creator) : ServerCommand(Creator, "SNONOTICE", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
 };
 
 class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 {
  public:
 	CommandEndBurst(Module* Creator) : ServerOnlyServerCommand<CommandEndBurst>(Creator, "ENDBURST") { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
 };
 
 class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
 {
  public:
 	CommandSInfo(Module* Creator) : ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
 	class Builder : public CmdBuilder
 	{
@@ -381,8 +381,8 @@ class CommandNum : public ServerOnlyServerCommand<CommandNum>
 {
  public:
 	CommandNum(Module* Creator) : ServerOnlyServerCommand<CommandNum>(Creator, "NUM", 3) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE;
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 
 	class Builder : public CmdBuilder
 	{

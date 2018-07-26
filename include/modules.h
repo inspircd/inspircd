@@ -720,7 +720,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line);
+	virtual ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
@@ -733,7 +733,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line);
+	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, const std::string& original_line);
 
 	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
 	 * connect class, or accepting any commands.

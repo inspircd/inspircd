@@ -32,7 +32,7 @@ void ServerCommand::RegisterService()
 	st->CmdManager.AddCommand(this);
 }
 
-RouteDescriptor ServerCommand::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor ServerCommand::GetRouting(User* user, const Params& parameters)
 {
 	// Broadcast server-to-server commands unless overridden
 	return ROUTE_BROADCAST;

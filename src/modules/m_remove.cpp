@@ -47,7 +47,7 @@ class RemoveBase : public Command
 	{
 	}
 
-	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool fpart)
+	CmdResult HandleRMB(User* user, const CommandBase::Params& parameters,  bool fpart)
 	{
 		User* target;
 		Channel* channel;
@@ -102,7 +102,7 @@ class RemoveBase : public Command
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
-			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
+			  a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove people with >= protectedrank rank.
 			 */
 			unsigned int ulevel = channel->GetPrefixValue(user);
@@ -114,7 +114,7 @@ class RemoveBase : public Command
 				{
 					// Send an ENCAP REMOVE with parameters being in the old <user> <chan> order which is
 					// compatible with both 2.0 and 3.0. This also turns FPART into REMOVE.
-					std::vector<std::string> p;
+					CommandBase::Params p;
 					p.push_back(target->uuid);
 					p.push_back(channel->name);
 					if (parameters.size() > 2)
@@ -169,9 +169,9 @@ class CommandRemove : public RemoveBase
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		return HandleRMB(parameters, user, false);
+		return HandleRMB(user, parameters, false);
 	}
 };
 
@@ -187,9 +187,9 @@ class CommandFpart : public RemoveBase
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		return HandleRMB(parameters, user, true);
+		return HandleRMB(user, parameters, true);
 	}
 };
 

@@ -23,7 +23,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
+CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 {
 	Channel* chan = ServerInstance->FindChan(params[0]);
 	if (!chan)
@@ -55,7 +55,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandResync::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
 	Channel* chan = ServerInstance->FindChan(params[0]);

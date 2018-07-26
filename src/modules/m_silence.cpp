@@ -78,7 +78,7 @@ class CommandSVSSilence : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		/*
 		 * XXX: thought occurs to me
@@ -96,13 +96,14 @@ class CommandSVSSilence : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser.CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
+			CommandBase::Params params(parameters.begin() + 1, parameters.end());
+			ServerInstance->Parser.CallHandler("SILENCE", params, u);
 		}
 
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -121,7 +122,7 @@ class CommandSilence : public Command
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters.empty())
 		{

@@ -136,7 +136,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			InspIRCd::Format("%d %s", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc().c_str()));
 }
 
-void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
+void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
@@ -305,7 +305,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 	}
 }
 
-ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameters, User* user)
 {
 	// We've already confirmed that !parameters.empty(), so this is safe
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
@@ -332,7 +332,7 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameters, User* user)
 {
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{

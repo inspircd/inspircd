@@ -26,7 +26,7 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>& params)
+CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& params)
 {
 	const std::string& opertype = params[0];
 	if (!u->IsOper())

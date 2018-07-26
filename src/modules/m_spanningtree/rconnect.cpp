@@ -31,7 +31,7 @@ CommandRConnect::CommandRConnect (Module* Creator)
 	syntax = "<remote-server-mask> <target-server-mask>";
 }
 
-CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 {
 	/* First see if the server which is being asked to connect to another server in fact exists */
 	if (!Utils->FindServerMask(parameters[0]))
@@ -45,7 +45,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 	{
 		/* Yes, initiate the given connect */
 		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
-		std::vector<std::string> para;
+		CommandBase::Params para;
 		para.push_back(parameters[1]);
 		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);
 	}
@@ -67,7 +67,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandRConnect::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandRConnect::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_UNICAST(parameters[0]);
 }

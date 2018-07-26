@@ -561,7 +561,7 @@ void LocalUser::FullConnect()
 	/* Trigger MOTD and LUSERS output, give modules a chance too */
 	ModResult MOD_RESULT;
 	std::string command("LUSERS");
-	std::vector<std::string> parameters;
+	CommandBase::Params parameters;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->Parser.CallHandler(command, parameters, this);
@@ -825,7 +825,7 @@ void User::WriteCommand(const char* command, const std::string& text)
 
 namespace
 {
-	std::string BuildNumeric(const std::string& source, User* targetuser, unsigned int num, const std::vector<std::string>& params)
+	std::string BuildNumeric(const std::string& source, User* targetuser, unsigned int num, const Command::Params& params)
 	{
 		const char* const target = (targetuser->registered & REG_NICK ? targetuser->nick.c_str() : "*");
 		std::string raw = InspIRCd::Format(":%s %03u %s", source.c_str(), num, target);

@@ -29,13 +29,13 @@
 #include "commands.h"
 #include "treeserver.h"
 
-CmdResult CommandSNONotice::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandSNONotice::Handle(User* user, Params& params)
 {
 	ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandEndBurst::HandleServer(TreeServer* server, std::vector<std::string>& params)
+CmdResult CommandEndBurst::HandleServer(TreeServer* server, Params& params)
 {
 	server->FinishBurst();
 	return CMD_SUCCESS;

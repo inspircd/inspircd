@@ -55,7 +55,7 @@ class WhoisNoticeCmd : public Command
 			") did a /whois on you");
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (!dest)
@@ -114,7 +114,7 @@ class ModuleShowwhois : public Module, public Whois::EventListener
 		}
 		else
 		{
-			std::vector<std::string> params;
+			CommandBase::Params params;
 			params.push_back(dest->uuid);
 			params.push_back(source->uuid);
 			ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(), cmd.name, params);

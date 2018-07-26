@@ -53,7 +53,7 @@ class ModuleModesOnOper : public Module
 
 		std::string buf;
 		irc::spacesepstream ss(smodes);
-		std::vector<std::string> modes;
+		CommandBase::Params modes;
 
 		modes.push_back(u->nick);
 		// split into modes and mode params

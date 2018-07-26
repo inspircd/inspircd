@@ -38,7 +38,7 @@ CommandModules::CommandModules(Module* parent)
 
 /** Handle /MODULES
  */
-CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandModules::Handle(User* user, const Params& parameters)
 {
 	// Don't ask remote servers about their modules unless the local user asking is an oper
 	// 2.0 asks anyway, so let's handle that the same way

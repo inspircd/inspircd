@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSJoin::Handle(User* user, std::vector<std::string>& parameters)
+CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
 {
 	// Check for valid channel name
 	if (!ServerInstance->IsChannel(parameters[1]))
@@ -52,7 +52,7 @@ CmdResult CommandSVSJoin::Handle(User* user, std::vector<std::string>& parameter
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandSVSJoin::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandSVSJoin::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_OPT_UCAST(parameters[0]);
 }

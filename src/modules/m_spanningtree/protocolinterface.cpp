@@ -44,7 +44,7 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 	}
 }
 
-bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source)
+bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source)
 {
 	if (!source)
 		source = ServerInstance->FakeClient;
@@ -71,7 +71,7 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 	return true;
 }
 
-void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source, User* omit)
+void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source, User* omit)
 {
 	if (!source)
 		source = ServerInstance->FakeClient;

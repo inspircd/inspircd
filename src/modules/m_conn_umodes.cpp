@@ -49,7 +49,7 @@ class ModuleModesOnConnect : public Module
 			std::string buf;
 			irc::spacesepstream ss(ThisModes);
 
-			std::vector<std::string> modes;
+			CommandBase::Params modes;
 			modes.push_back(user->nick);
 
 			// split ThisUserModes into modes and mode params

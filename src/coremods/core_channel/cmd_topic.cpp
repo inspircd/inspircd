@@ -33,7 +33,7 @@ CommandTopic::CommandTopic(Module* parent)
 	Penalty = 2;
 }
 
-CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	if (!c)

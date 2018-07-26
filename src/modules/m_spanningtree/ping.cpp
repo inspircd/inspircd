@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "utils.h"
 
-CmdResult CommandPing::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandPing::Handle(User* user, Params& params)
 {
 	if (params[0] == ServerInstance->Config->GetSID())
 	{

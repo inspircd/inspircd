@@ -21,7 +21,7 @@
 #include "main.h"
 #include "commandbuilder.h"
 
-ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleRemoteWhois(const CommandBase::Params& parameters, User* user)
 {
 	User* remote = ServerInstance->FindNickOnly(parameters[1]);
 	if (remote && !IS_LOCAL(remote))

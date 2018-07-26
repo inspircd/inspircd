@@ -129,7 +129,7 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -328,7 +328,7 @@ class ModuleAlias : public Module
 		}
 
 		irc::tokenstream ss(result);
-		std::vector<std::string> pars;
+		CommandBase::Params pars;
 		std::string command, token;
 
 		ss.GetToken(command);

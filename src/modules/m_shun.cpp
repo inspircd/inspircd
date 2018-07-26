@@ -56,7 +56,7 @@ class CommandShun : public Command
 		flags_needed = 'o'; this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -125,7 +125,7 @@ class CommandShun : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
@@ -198,7 +198,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		affectopers = tag->getBool("affectopers", false);
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if (validated)
 			return MOD_RES_PASSTHRU;

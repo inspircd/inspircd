@@ -168,7 +168,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 	return map;
 }
 
-CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* user)
+CmdResult CommandMap::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0)
 	{
@@ -215,7 +215,7 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandMap::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandMap::GetRouting(User* user, const Params& parameters)
 {
 	if (!parameters.empty())
 		return ROUTE_UNICAST(parameters[0]);

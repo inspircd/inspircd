@@ -24,13 +24,13 @@
 #include "treeserver.h"
 #include "commandbuilder.h"
 
-void ModuleSpanningTree::OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line)
+void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, const std::string& original_line)
 {
 	if (result == CMD_SUCCESS)
 		Utils->RouteCommand(NULL, command, parameters, user);
 }
 
-void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscmd, const parameterlist& parameters, User* user)
+void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscmd, const CommandBase::Params& parameters, User* user)
 {
 	const std::string& command = thiscmd->name;
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);

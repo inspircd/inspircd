@@ -137,7 +137,7 @@ class CommandCloak : public Command
 		syntax = "<host>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class ModuleCloaking : public Module
@@ -403,7 +403,7 @@ class ModuleCloaking : public Module
 	}
 };
 
-CmdResult CommandCloak::Handle(const std::vector<std::string> &parameters, User *user)
+CmdResult CommandCloak::Handle(User* user, const Params& parameters)
 {
 	ModuleCloaking* mod = (ModuleCloaking*)(Module*)creator;
 	irc::sockets::sockaddrs sa;

@@ -42,7 +42,7 @@ class FwdFJoinBuilder : public CommandFJoin::Builder
 };
 
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
-CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
+CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 {
 	/* 1.1+ FJOIN works as follows:
 	 *

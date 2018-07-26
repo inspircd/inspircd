@@ -23,7 +23,7 @@
 #include "main.h"
 #include "commands.h"
 
-CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameters)
+CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 {
 	User* u = ServerInstance->FindNick(parameters[0]);
 
@@ -70,7 +70,7 @@ CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameter
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandSVSNick::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandSVSNick::GetRouting(User* user, const Params& parameters)
 {
 	return ROUTE_OPT_UCAST(parameters[0]);
 }

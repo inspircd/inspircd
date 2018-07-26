@@ -40,7 +40,7 @@ class CommandTitle : public Command
 		syntax = "<user> <password>";
 	}
 
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		const std::string userHost = user->ident + "@" + user->GetRealHost();
 		const std::string userIP = user->ident + "@" + user->GetIPString();

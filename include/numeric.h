@@ -34,7 +34,7 @@ class Numeric::Numeric
 
 	/** Parameters of the numeric
 	 */
-	std::vector<std::string> params;
+	CommandBase::Params params;
 
 	/** Source server of the numeric, if NULL (the default) then it is the local server
 	 */
@@ -78,10 +78,10 @@ class Numeric::Numeric
 	/** Get the parameters of the numeric
 	 * @return Parameters of the numeric as a const vector of strings
 	 */
-	const std::vector<std::string>& GetParams() const { return params; }
+	const CommandBase::Params& GetParams() const { return params; }
 
 	/** Get the parameters of the numeric
 	 * @return Parameters of the numeric as a vector of strings
 	 */
-	std::vector<std::string>& GetParams() { return params; }
+	CommandBase::Params& GetParams() { return params; }
 };

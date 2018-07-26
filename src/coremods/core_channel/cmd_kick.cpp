@@ -29,7 +29,7 @@ CommandKick::CommandKick(Module* parent)
 
 /** Handle /KICK
  */
-CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandKick::Handle(User* user, const Params& parameters)
 {
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u;
@@ -127,7 +127,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandKick::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandKick::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

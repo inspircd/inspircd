@@ -30,7 +30,7 @@ CommandMode::CommandMode(Module* parent)
 	memset(&sent, 0, sizeof(sent));
 }
 
-CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* user)
+CmdResult CommandMode::Handle(User* user, const Params& parameters)
 {
 	const std::string& target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
@@ -103,7 +103,7 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandMode::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandMode::GetRouting(User* user, const Params& parameters)
 {
 	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

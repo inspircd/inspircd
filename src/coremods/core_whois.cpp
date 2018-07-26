@@ -109,8 +109,8 @@ class CommandWhois : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user) CXX11_OVERRIDE;
-	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleRemote(RemoteUser* target, const Params& parameters) CXX11_OVERRIDE;
 };
 
 class WhoisNumericSink
@@ -267,7 +267,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	whois.SendLine(RPL_ENDOFWHOIS, "End of /WHOIS list.");
 }
 
-CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target)
+CmdResult CommandWhois::HandleRemote(RemoteUser* target, const Params& parameters)
 {
 	if (parameters.size() < 2)
 		return CMD_FAILURE;
@@ -287,7 +287,7 @@ CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters,
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
+CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	User *dest;
 	unsigned int userindex = 0;

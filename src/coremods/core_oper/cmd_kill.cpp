@@ -33,7 +33,7 @@ CommandKill::CommandKill(Module* parent)
 
 /** Handle /KILL
  */
-CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandKill::Handle(User* user, const Params& parameters)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
 	if (CommandParser::LoopCall(user, this, parameters, 0))
@@ -118,7 +118,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandKill::GetRouting(User* user, const std::vector<std::string>& parameters)
+RouteDescriptor CommandKill::GetRouting(User* user, const Params& parameters)
 {
 	// FindNick() doesn't work here because we quit the target user in Handle() which
 	// removes it from the nicklist, so we check lastuuid: if it's empty then this KILL
