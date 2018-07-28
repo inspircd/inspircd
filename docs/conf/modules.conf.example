@@ -1340,9 +1340,13 @@
 #<module name="nicklock">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No CTCP module: Adds the channel mode +C to block CTCPs and extban
-# 'C' to block CTCPs sent by specific users.
+# No CTCP module: Adds the channel mode +C and user mode +T to block
+# CTCPs and extban 'C' to block CTCPs sent by specific users.
 #<module name="noctcp">
+#
+# The +T user mode is not enabled by default to enable link compatibility
+# with 2.0 servers. You can enable it by uncommenting this:
+#<noctcp enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No kicks module: Adds the +Q channel mode and the Q: extban to deny
