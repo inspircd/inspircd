@@ -245,7 +245,7 @@ WhoWas::Entry::Entry(User* user)
 	, dhost(user->GetDisplayedHost())
 	, ident(user->ident)
 	, server(user->server->GetName())
-	, real(user->fullname)
+	, real(user->GetRealName())
 	, signon(user->signon)
 {
 }

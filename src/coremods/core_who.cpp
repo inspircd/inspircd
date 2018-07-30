@@ -304,7 +304,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 
 	// The source wants to match against users' real names.
 	else if (data.flags['r'])
-		match = InspIRCd::Match(user->fullname, data.matchtext, ascii_case_insensitive_map);
+		match = InspIRCd::Match(user->GetRealName(), data.matchtext, ascii_case_insensitive_map);
 
 	else if (data.flags['s'])
 	{
@@ -340,7 +340,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 		}
 
 		if (!match)
-			match = InspIRCd::Match(user->fullname, data.matchtext, ascii_case_insensitive_map);
+			match = InspIRCd::Match(user->GetRealName(), data.matchtext, ascii_case_insensitive_map);
 
 		if (!match)
 			match = InspIRCd::Match(user->nick, data.matchtext);
@@ -484,7 +484,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 		// Include the user's real name.
 		if (data.whox_fields['r'])
-			wholine.push(user->fullname);
+			wholine.push(user->GetRealName());
 	}
 	else
 	{
@@ -530,7 +530,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 		// Include the number of hops between the users and the user's real name.
 		wholine.push("0 ");
-		wholine.GetParams().back().append(user->fullname);
+		wholine.GetParams().back().append(user->GetRealName());
 	}
 
 	ModResult res;

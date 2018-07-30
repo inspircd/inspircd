@@ -108,7 +108,7 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 					if (!has_account)
 						line += "*";
 
-					line += " :" + memb->user->fullname;
+					line += " :" + memb->user->GetRealName();
 
 					// If the joining user received privileges from another module then we must send them as well,
 					// since silencing the normal join means the MODE will be silenced as well

@@ -63,8 +63,8 @@ class RLine : public XLine
 		if (lu && lu->exempt)
 			return false;
 
-		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->fullname;
-		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->fullname;
+		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
+		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->GetRealName();
 		return (regex->Matches(host) || regex->Matches(ip));
 	}
 

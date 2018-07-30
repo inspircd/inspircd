@@ -168,7 +168,7 @@ class CommandCheck : public Command
 			/* /check on a user */
 			context.Write("nuh", targuser->GetFullHost());
 			context.Write("realnuh", targuser->GetFullRealHost());
-			context.Write("realname", targuser->fullname);
+			context.Write("realname", targuser->GetRealName());
 			context.Write("modes", targuser->GetModeLetters());
 			context.Write("snomasks", GetSnomasks(targuser));
 			context.Write("server", targuser->server->GetName());
@@ -263,7 +263,7 @@ class CommandCheck : public Command
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
 				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
 					i->second->GetAllPrefixChars().c_str(), i->first->nick.c_str(),
-					i->first->ident.c_str(), i->first->GetDisplayedHost().c_str(), i->first->fullname.c_str()));
+					i->first->ident.c_str(), i->first->GetDisplayedHost().c_str(), i->first->GetRealName().c_str()));
 			}
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
@@ -284,13 +284,13 @@ class CommandCheck : public Command
 				if (InspIRCd::Match(a->second->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
+					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
 				}
 				/* IP address */
 				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
+					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
 				}
 			}
 

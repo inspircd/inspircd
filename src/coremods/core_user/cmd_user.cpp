@@ -30,6 +30,7 @@ enum
 CommandUser::CommandUser(Module* parent)
 	: SplitCommand(parent, "USER", 4, 4)
 {
+	allow_empty_last_param = false;
 	works_before_reg = true;
 	Penalty = 0;
 	syntax = "<username> <localhost> <remotehost> <realname>";
@@ -48,7 +49,7 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 		else
 		{
 			user->ChangeIdent(parameters[0]);
-			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxReal);
+			user->ChangeRealName(parameters[3]);
 			user->registered = (user->registered | REG_USER);
 		}
 	}

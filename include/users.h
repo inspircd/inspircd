@@ -250,6 +250,9 @@ class CoreExport User : public Extensible
 	/** The real hostname of this user. */
 	std::string realhost;
 
+	/** The real name of this user. */
+	std::string realname;
+
 	/** The user's mode list.
 	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
 	 * if (modes[modeid]) is set, then the mode is set.
@@ -307,10 +310,6 @@ class CoreExport User : public Extensible
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
 	std::string ident;
-
-	/** The users full name.
-	 */
-	std::string fullname;
 
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.
@@ -370,6 +369,9 @@ class CoreExport User : public Extensible
 
 	/** Retrieves this user's real hostname. */
 	const std::string& GetRealHost() const;
+
+	/** Retrieves this user's real name. */
+	const std::string& GetRealName() const;
 
 	/** Get CIDR mask, using default range, for this user
 	 */
@@ -704,9 +706,6 @@ class CoreExport User : public Extensible
 	bool ChangeIdent(const std::string& newident);
 
 	/** Change a users realname field.
-	 * ALWAYS use this function, rather than writing User::fullname directly,
-	 * as this triggers module events allowing the change to be syncronized to
-	 * remote servers.
 	 * @param real The user's new real name
 	 * @return True if the change succeeded, false if otherwise
 	 */

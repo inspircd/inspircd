@@ -586,7 +586,7 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
+		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -706,6 +706,11 @@ const std::string& User::GetDisplayedHost() const
 const std::string& User::GetRealHost() const
 {
 	return realhost;
+}
+
+const std::string& User::GetRealName() const
+{
+	return realname;
 }
 
 irc::sockets::cidr_mask User::GetCIDRMask()
@@ -997,7 +1002,7 @@ bool User::SharesChannelWith(User *other)
 
 bool User::ChangeRealName(const std::string& real)
 {
-	if (!this->fullname.compare(real))
+	if (!this->realname.compare(real))
 		return true;
 
 	if (IS_LOCAL(this))
@@ -1008,7 +1013,7 @@ bool User::ChangeRealName(const std::string& real)
 			return false;
 		FOREACH_MOD(OnChangeRealName, (this, real));
 	}
-	this->fullname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
+	this->realname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
 
 	return true;
 }

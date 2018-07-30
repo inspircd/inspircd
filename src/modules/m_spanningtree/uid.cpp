@@ -76,7 +76,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ident = params[5];
-	_new->fullname = params.back();
+	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;
@@ -126,7 +126,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->GetRealName().c_str());
 
 	FOREACH_MOD(OnPostConnect, (_new));
 
@@ -163,5 +163,5 @@ CommandUID::Builder::Builder(User* user)
 	push(user->GetIPString());
 	push_int(user->signon);
 	push(user->GetModeLetters(true));
-	push_last(user->fullname);
+	push_last(user->GetRealName());
 }
