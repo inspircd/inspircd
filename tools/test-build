@@ -58,19 +58,9 @@ foreach my $compiler (@compilers) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		if (!defined $ENV{TEST_BUILD_DYNAMIC}) {
-			$ENV{INSPIRCD_STATIC} = 1;
-			if (system 'make', '--jobs', get_cpu_count, 'install') {
-				say "Failed to compile with static modules using the $compiler compiler and the $socketengine socket engine!";
-				exit 1;
-			}
-		}
-		if (!defined $ENV{TEST_BUILD_STATIC}) {
-			delete $ENV{INSPIRCD_STATIC};
-			if (system 'make', '--jobs', get_cpu_count, 'install') {
-				say "Failed to compile with dynamic modules using the $compiler compiler and the $socketengine socket engine!";
-				exit 1;
-			}
+		if (system 'make', '--jobs', get_cpu_count, 'install') {
+			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
+			exit 1;
 		}
 		say "Building using the $compiler compiler and the $socketengine socket engine succeeded!";
 	}

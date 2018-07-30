@@ -37,11 +37,7 @@ chdir $ENV{BUILDPATH};
 my $type = shift;
 my $out = shift;
 
-if ($type eq 'gen-ld') {
-	do_static_find(@ARGV);
-} elsif ($type eq 'static-ld') {
-	do_static_link(@ARGV);
-} elsif ($type eq 'core-ld') {
+if ($type eq 'core-ld') {
 	do_core_link(@ARGV);
 } elsif ($type eq 'link-dir') {
 	do_link_dir(@ARGV);
@@ -69,36 +65,6 @@ sub rpath($) {
 	my $message = shift;
 	$message =~ s/-L(\S+)/-Wl,-rpath,$1 -L$1/g unless defined $ENV{INSPIRCD_DISABLE_RPATH};
 	return $message;
-}
-
-sub do_static_find {
-	my @flags;
-	for my $file (@ARGV) {
-		push @flags, rpath(get_directive($file, 'LinkerFlags', ''));
-	}
-	open F, '>', $out;
-	print F join ' ', @flags;
-	close F;
-	exit 0;
-}
-
-sub do_static_link {
-	my $execstr = "$ENV{CXX} -o $out $ENV{CORELDFLAGS}";
-	my $link_flags = '';
-	for (@ARGV) {
-		if (/\.cmd$/) {
-			open F, '<', $_;
-			my $libs = <F>;
-			chomp $libs;
-			$link_flags .= ' '.$libs;
-			close F;
-		} else {
-			$execstr .= ' '.$_;
-		}
-	}
-	$execstr .= ' '.$ENV{LDLIBS}.' '.$link_flags;
-	message 'LINK', $out, $execstr;
-	exec $execstr;
 }
 
 sub do_core_link {

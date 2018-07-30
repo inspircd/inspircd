@@ -120,10 +120,6 @@ ifndef INSPIRCD_VERBOSE
   MAKEFLAGS += --silent
 endif
 
-ifdef INSPIRCD_STATIC
-  CORECXXFLAGS += -DINSPIRCD_STATIC
-endif
-
 # Append any flags set in the environment after the base flags so
 # that they can be overridden if necessary.
 CORECXXFLAGS += $(CPPFLAGS) $(CXXFLAGS)
@@ -134,7 +130,6 @@ export BUILDPATH
 export CORECXXFLAGS
 export CORELDFLAGS
 export CXX
-export INSPIRCD_STATIC
 export INSPIRCD_VERBOSE
 export LDLIBS
 export PICLDFLAGS
@@ -178,10 +173,6 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
-ifdef INSPIRCD_STATIC
-	@echo 'Cannot build specific targets in pure-static build'
-	@exit 1
-endif
 	@echo 'Building specific targets:'
 
 mod-footer: target
@@ -227,9 +218,7 @@ install: target
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(SCRPATH)
 	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-ifndef INSPIRCD_STATIC
 	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
-endif
 	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)

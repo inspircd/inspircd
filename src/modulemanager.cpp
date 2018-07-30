@@ -25,8 +25,6 @@
 #include <dirent.h>
 #endif
 
-#ifndef INSPIRCD_STATIC
-
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
@@ -157,5 +155,3 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 		std::cout << std::endl;
 	}
 }
-
-#endif

@@ -71,12 +71,8 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-#ifdef INSPIRCD_STATIC
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, INSPIRCD_VERSION, flags, V.description);
-#else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();
 			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev.empty() ? "*" : srcrev, flags, V.description);
-#endif
 		}
 		else
 		{

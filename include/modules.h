@@ -1198,27 +1198,6 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 #define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
 #define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
 
-#ifdef INSPIRCD_STATIC
-
-struct AllCommandList {
-	typedef Command* (*fn)(Module*);
-	AllCommandList(fn cmd);
-};
-#define COMMAND_INIT(x) static Command* MK_ ## x(Module* m) { return new x(m); } \
-	static const AllCommandList PREP_ ## x(&MK_ ## x);
-
-struct AllModuleList {
-	typedef Module* (*fn)();
-	fn init;
-	std::string name;
-	AllModuleList(fn mod, const std::string& Name);
-};
-
-#define MODULE_INIT(x) static Module* MK_ ## x() { return new x; } \
-	static const AllModuleList PREP_ ## x(&MK_ ## x, MODNAME ".so");
-
-#else
-
 /** This definition is used as shorthand for the various classes
  * and functions needed to make a module loadable by the OS.
  * It defines the class factory and external init_module function.
@@ -1231,5 +1210,3 @@ struct AllModuleList {
 	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
-
-#endif
