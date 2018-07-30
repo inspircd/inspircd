@@ -493,7 +493,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
 }
 
-void ModuleSpanningTree::OnChangeName(User* user, const std::string& real)
+void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;

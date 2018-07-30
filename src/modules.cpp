@@ -119,7 +119,7 @@ void		Module::OnUserInvite(User*, User*, Channel*, time_t, unsigned int, CUList&
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
-void		Module::OnChangeName(User*, const std::string&) { DetachEvent(I_OnChangeName); }
+void		Module::OnChangeRealName(User*, const std::string&) { DetachEvent(I_OnChangeRealName); }
 void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
 void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }

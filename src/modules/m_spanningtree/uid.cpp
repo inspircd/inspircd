@@ -147,7 +147,7 @@ CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 
 CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 {
-	src->ChangeName(params[0]);
+	src->ChangeRealName(params[0]);
 	return CMD_SUCCESS;
 }
 

@@ -29,7 +29,7 @@ class CommandSetname : public Command
 	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
 	{
 		allow_empty_last_param = false;
-		syntax = "<newname>";
+		syntax = "<new real name>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
@@ -40,7 +40,7 @@ class CommandSetname : public Command
 			return CMD_FAILURE;
 		}
 
-		if (user->ChangeName(parameters[0]))
+		if (user->ChangeRealName(parameters[0]))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'", user->nick.c_str(), parameters[0].c_str());
 		}

@@ -152,7 +152,7 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE;
 	void OnChangeHost(User* user, const std::string &newhost) CXX11_OVERRIDE;
-	void OnChangeName(User* user, const std::string& real) CXX11_OVERRIDE;
+	void OnChangeRealName(User* user, const std::string& real) CXX11_OVERRIDE;
 	void OnChangeIdent(User* user, const std::string &ident) CXX11_OVERRIDE;
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE;
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE;

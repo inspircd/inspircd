@@ -995,7 +995,7 @@ bool User::SharesChannelWith(User *other)
 	return false;
 }
 
-bool User::ChangeName(const std::string& real)
+bool User::ChangeRealName(const std::string& real)
 {
 	if (!this->fullname.compare(real))
 		return true;
@@ -1006,7 +1006,7 @@ bool User::ChangeName(const std::string& real)
 		FIRST_MOD_RESULT(OnPreChangeRealName, MOD_RESULT, (IS_LOCAL(this), real));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
-		FOREACH_MOD(OnChangeName, (this, real));
+		FOREACH_MOD(OnChangeRealName, (this, real));
 	}
 	this->fullname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
 

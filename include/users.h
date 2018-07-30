@@ -710,7 +710,7 @@ class CoreExport User : public Extensible
 	 * @param real The user's new real name
 	 * @return True if the change succeeded, false if otherwise
 	 */
-	bool ChangeName(const std::string& real);
+	bool ChangeRealName(const std::string& real);
 
 	/** Change a user's nick
 	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.

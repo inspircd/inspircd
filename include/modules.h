@@ -216,7 +216,7 @@ enum Implementation
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
-	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
+	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
@@ -585,7 +585,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who's real name is being changed
 	 * @param name The new real name being set on the user
 	 */
-	virtual void OnChangeName(User* user, const std::string& real);
+	virtual void OnChangeRealName(User* user, const std::string& real);
 
 	/** Called whenever a user's IDENT is changed.
 	 * This event triggers after the name has been set.
