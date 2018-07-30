@@ -819,7 +819,7 @@
 #<module name="flashpolicyd">                                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Gecos (real name) ban: Implements extended ban 'r', which stops anyone
+# Real name ban: Implements extended ban 'r', which stops anyone
 # matching a mask like +b r:*realname?here* from joining a channel.
 #<module name="gecosban">
 

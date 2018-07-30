@@ -995,20 +995,20 @@ bool User::SharesChannelWith(User *other)
 	return false;
 }
 
-bool User::ChangeName(const std::string& gecos)
+bool User::ChangeName(const std::string& real)
 {
-	if (!this->fullname.compare(gecos))
+	if (!this->fullname.compare(real))
 		return true;
 
 	if (IS_LOCAL(this))
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (IS_LOCAL(this),gecos));
+		FIRST_MOD_RESULT(OnPreChangeRealName, MOD_RESULT, (IS_LOCAL(this), real));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
-		FOREACH_MOD(OnChangeName, (this,gecos));
+		FOREACH_MOD(OnChangeName, (this, real));
 	}
-	this->fullname.assign(gecos, 0, ServerInstance->Config->Limits.MaxGecos);
+	this->fullname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
 
 	return true;
 }

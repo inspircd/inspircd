@@ -48,7 +48,7 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 		else
 		{
 			user->ChangeIdent(parameters[0]);
-			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
+			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxReal);
 			user->registered = (user->registered | REG_USER);
 		}
 	}

@@ -30,7 +30,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 {
 	/**
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
-	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
+	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :real
 	 */
 	time_t age_t = ServerCommand::ExtractTS(params[1]);
 	time_t signon = ServerCommand::ExtractTS(params[7]);

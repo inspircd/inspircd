@@ -493,12 +493,12 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
 }
 
-void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
+void ModuleSpanningTree::OnChangeName(User* user, const std::string& real)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
-	CmdBuilder(user, "FNAME").push_last(gecos).Broadcast();
+	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)

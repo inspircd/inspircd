@@ -308,7 +308,7 @@ class CoreExport User : public Extensible
 	 */
 	std::string ident;
 
-	/** The users full name (GECOS).
+	/** The users full name.
 	 */
 	std::string fullname;
 
@@ -707,10 +707,10 @@ class CoreExport User : public Extensible
 	 * ALWAYS use this function, rather than writing User::fullname directly,
 	 * as this triggers module events allowing the change to be syncronized to
 	 * remote servers.
-	 * @param gecos The user's new realname
+	 * @param real The user's new real name
 	 * @return True if the change succeeded, false if otherwise
 	 */
-	bool ChangeName(const std::string& gecos);
+	bool ChangeName(const std::string& real);
 
 	/** Change a user's nick
 	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.

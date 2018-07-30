@@ -103,8 +103,8 @@ class ServerLimits
 	size_t MaxTopic;
 	/** Maximum kick message length */
 	size_t MaxKick;
-	/** Maximum GECOS (real name) length */
-	size_t MaxGecos;
+	/** Maximum real name length */
+	size_t MaxReal;
 	/** Maximum away message length */
 	size_t MaxAway;
 	/** Maximum line length */

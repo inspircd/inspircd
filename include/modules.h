@@ -222,7 +222,7 @@ enum Implementation
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
-	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
@@ -580,12 +580,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnChangeHost(User* user, const std::string &newhost);
 
-	/** Called whenever a user's GECOS (realname) is changed.
+	/** Called whenever a user's real name is changed.
 	 * This event triggers after the name has been set.
-	 * @param user The user who's GECOS is being changed
-	 * @param gecos The new GECOS being set on the user
+	 * @param user The user who's real name is being changed
+	 * @param name The new real name being set on the user
 	 */
-	virtual void OnChangeName(User* user, const std::string &gecos);
+	virtual void OnChangeName(User* user, const std::string& real);
 
 	/** Called whenever a user's IDENT is changed.
 	 * This event triggers after the name has been set.
@@ -841,13 +841,13 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnChangeLocalUserHost(LocalUser* user, const std::string &newhost);
 
-	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
-	 * return 1 to deny the name change, or 0 to allow it.
-	 * @param user The user whos GECOS will be changed
-	 * @param newhost The new GECOS
-	 * @return 1 to deny the GECOS change, 0 to allow
+	/** Called whenever a change of a local users real name is attempted.
+	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
+	 * @param user The user whos real name will be changed
+	 * @param newhost The new real name.
+	 * @return MOD_RES_DENY to deny the real name change, MOD_RES_ALLOW to allow
 	 */
-	virtual ModResult OnChangeLocalUserGECOS(LocalUser* user, const std::string &newhost);
+	virtual ModResult OnPreChangeRealName(LocalUser* user, const std::string &newhost);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

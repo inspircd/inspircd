@@ -260,7 +260,7 @@ inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
 	userinfo["nick"] = user->nick;
 	userinfo["host"] = user->GetRealHost();
 	userinfo["ip"] = user->GetIPString();
-	userinfo["gecos"] = user->fullname;
+	userinfo["real"] = user->fullname;
 	userinfo["ident"] = user->ident;
 	userinfo["server"] = user->server->GetName();
 	userinfo["uuid"] = user->uuid;

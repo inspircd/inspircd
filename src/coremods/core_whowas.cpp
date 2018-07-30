@@ -62,7 +62,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 		{
 			WhoWas::Entry* u = *i;
 
-			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->gecos);
+			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
 				user->WriteNumeric(RPL_WHOWASIP, parameters[0], InspIRCd::Format("was connecting from *@%s", u->host.c_str()));
@@ -245,7 +245,7 @@ WhoWas::Entry::Entry(User* user)
 	, dhost(user->GetDisplayedHost())
 	, ident(user->ident)
 	, server(user->server->GetName())
-	, gecos(user->fullname)
+	, real(user->fullname)
 	, signon(user->signon)
 {
 }

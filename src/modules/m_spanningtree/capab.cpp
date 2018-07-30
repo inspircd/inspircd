@@ -163,9 +163,12 @@ void TreeSocket::SendCapabilities(int phase)
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
-	// 2.0 needs this key
+	// 2.0 needs these keys.
 	if (proto_version == 1202)
+	{
 		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion));
+		extra.append(" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxReal));
+	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
@@ -175,7 +178,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXQUIT="+ConvToStr(ServerInstance->Config->Limits.MaxQuit)+
 			" MAXTOPIC="+ConvToStr(ServerInstance->Config->Limits.MaxTopic)+
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
-			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
+			" MAXREAL="+ConvToStr(ServerInstance->Config->Limits.MaxReal)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
 			" MAXHOST="+ConvToStr(ServerInstance->Config->Limits.MaxHost)+
 			extra+

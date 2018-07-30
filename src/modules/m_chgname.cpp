@@ -49,7 +49,7 @@ class CommandChgname : public Command
 			return CMD_FAILURE;
 		}
 
-		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
+		if (parameters[1].length() > ServerInstance->Config->Limits.MaxReal)
 		{
 			user->WriteNotice("*** CHGNAME: Real name is too long");
 			return CMD_FAILURE;

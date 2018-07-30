@@ -34,7 +34,7 @@ class CommandSetname : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
+		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
 		{
 			user->WriteNotice("*** SETNAME: Real name is too long");
 			return CMD_FAILURE;

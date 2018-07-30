@@ -45,9 +45,9 @@ namespace WhoWas
 		 */
 		const std::string server;
 
-		/** Full name (GECOS)
+		/** Real name
 		 */
-		const std::string gecos;
+		const std::string real;
 
 		/** Signon time
 		 */
