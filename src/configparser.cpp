@@ -477,7 +477,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	return false;
 }
 
-std::string ConfigTag::getString(const std::string& key, const std::string& def, const TR1NS::function<bool(const std::string&)>& validator)
+std::string ConfigTag::getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator)
 {
 	std::string res;
 	if (!readString(key, res))

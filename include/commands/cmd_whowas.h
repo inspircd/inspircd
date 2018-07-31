@@ -146,7 +146,7 @@ namespace WhoWas
 
 		/** Sets of users in the whowas system
 		 */
-		typedef TR1NS::unordered_map<std::string, WhoWas::Nick*, irc::insensitive, irc::StrHashComp> whowas_users;
+		typedef std::unordered_map<std::string, WhoWas::Nick*, irc::insensitive, irc::StrHashComp> whowas_users;
 
 		/** Primary container, links nicknames tracked by WHOWAS to a list of records
 		 */

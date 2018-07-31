@@ -542,7 +542,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 	/** Type of the container that maps mode names to ModeHandlers
 	 */
-	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
+	typedef std::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
  private:
 	/** Type of the container that maps mode names to ModeWatchers

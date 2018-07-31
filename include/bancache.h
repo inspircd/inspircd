@@ -51,7 +51,7 @@ class CoreExport BanCacheManager
 {
 	/** A container of ban cache items.
 	 */
-	typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string> > BanCacheHash;
+	typedef std::unordered_map<std::string, BanCacheHit*, std::hash<std::string> > BanCacheHash;
 
 	BanCacheHash BanHash;
 	bool RemoveIfExpired(BanCacheHash::iterator& it);

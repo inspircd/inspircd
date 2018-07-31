@@ -219,7 +219,7 @@ class ModuleNationalChars : public Module
 {
 	std::string charset;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	TR1NS::function<bool(const std::string&)> rememberer;
+	std::function<bool(const std::string&)> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 	unsigned char prev_map[256];
