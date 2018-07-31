@@ -1,7 +1,3 @@
-# m_regex_stdlib is supported by every version of Visual Studio we support,
-# so copy the file out of extra/
-file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_stdlib.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-
 file(GLOB INSPIRCD_MODULES "${INSPIRCD_BASE}/src/coremods/core_*" "${INSPIRCD_BASE}/src/modules/m_*")
 list(SORT INSPIRCD_MODULES)
 
