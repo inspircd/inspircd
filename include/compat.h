@@ -59,18 +59,6 @@
 #endif
 
 /**
- * This macro allows methods to be marked as deprecated. To use this, wrap the
- * method declaration in the header file with the macro.
- */
-#if defined __clang__ || defined __GNUC__
-# define DEPRECATED_METHOD(function) function __attribute__((deprecated))
-#elif defined _MSC_VER
-# define DEPRECATED_METHOD(function) __declspec(deprecated) function
-#else
-# define DEPRECATED_METHOD(function) function
-#endif
-
-/**
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.
  */
