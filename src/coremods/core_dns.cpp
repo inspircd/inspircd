@@ -342,7 +342,7 @@ class Packet : public Query
 
 class MyManager : public Manager, public Timer, public EventHandler
 {
-	typedef TR1NS::unordered_map<Question, Query, Question::hash> cache_map;
+	typedef std::unordered_map<Question, Query, Question::hash> cache_map;
 	cache_map cache;
 
 	irc::sockets::sockaddrs myserver;

@@ -146,7 +146,7 @@ class CoreExport ListenSocket : public EventHandler
 		}
 	};
 
-	typedef TR1NS::array<IOHookProvRef, 2> IOHookProvList;
+	typedef std::array<IOHookProvRef, 2> IOHookProvList;
 
 	/** IOHook providers for handling connections on this socket,
 	 * may be empty.

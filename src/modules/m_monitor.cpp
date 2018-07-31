@@ -191,7 +191,7 @@ class IRCv3::Monitor::Manager
 	}
 
  private:
- 	typedef TR1NS::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
+ 	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
 
 	Entry* Find(const std::string& nick)
 	{

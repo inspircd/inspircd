@@ -22,24 +22,6 @@
 #pragma once
 
 /**
- * Some implementations of the C++11 standard library are incomplete so we use
- * the implementation of the same types from C++ Technical Report 1 instead.
- */
-#if defined _LIBCPP_VERSION || defined _WIN32
-# define TR1NS std
-# include <array>
-# include <functional>
-# include <unordered_map>
-# include <type_traits>
-#else
-# define TR1NS std::tr1
-# include <tr1/array>
-# include <tr1/functional>
-# include <tr1/unordered_map>
-# include <tr1/type_traits>
-#endif
-
-/**
  * This macro enables the compile-time checking of printf format strings. This
  * makes the compiler show a warning if the format of a printf arguments are
  * incorrect.

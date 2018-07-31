@@ -30,19 +30,23 @@
 #include <cmath>
 #include <csignal>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
-#include <stdint.h>
 
 #include <algorithm>
+#include <array>
 #include <bitset>
 #include <deque>
+#include <functional>
 #include <list>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
+#include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 #include "intrusive_list.h"
@@ -338,7 +342,7 @@ class CoreExport InspIRCd
 	unsigned long GenRandomInt(unsigned long max);
 
 	/** Fill a buffer with random bits */
-	TR1NS::function<void(char*, size_t)> GenRandom;
+	std::function<void(char*, size_t)> GenRandom;
 
 	/** Fills the output buffer with the specified number of random characters.
 	 * This is the default function for InspIRCd::GenRandom.
@@ -382,7 +386,7 @@ class CoreExport InspIRCd
 	chan_hash& GetChans() { return chanlist; }
 
 	/** Determines whether an channel name is valid. */
-	TR1NS::function<bool(const std::string&)> IsChannel;
+	std::function<bool(const std::string&)> IsChannel;
 
 	/** Determines whether a channel name is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsChannel.
@@ -429,7 +433,7 @@ class CoreExport InspIRCd
 	static std::string Format(va_list& vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
 
 	/** Determines whether a nickname is valid. */
-	TR1NS::function<bool(const std::string&)> IsNick;
+	std::function<bool(const std::string&)> IsNick;
 
 	/** Determines whether a nickname is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsNick.
@@ -439,7 +443,7 @@ class CoreExport InspIRCd
 	static bool DefaultIsNick(const std::string& nick);
 
 	/** Determines whether an ident is valid. */
-	TR1NS::function<bool(const std::string&)> IsIdent;
+	std::function<bool(const std::string&)> IsIdent;
 
 	/** Determines whether a ident is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsIdent.

@@ -80,8 +80,8 @@ namespace ClientProtocol
 #include "hashcomp.h"
 #include "base.h"
 
-typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
-typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
+typedef std::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
+typedef std::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
 /** List of channels to consider when building the neighbor list of a user
  */

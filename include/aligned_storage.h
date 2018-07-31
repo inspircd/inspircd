@@ -27,7 +27,7 @@ namespace insp
 template <typename T>
 class insp::aligned_storage
 {
-	mutable typename TR1NS::aligned_storage<sizeof(T), TR1NS::alignment_of<T>::value>::type data;
+	mutable typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
 
  public:
 	aligned_storage()

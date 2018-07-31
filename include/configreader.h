@@ -43,7 +43,7 @@ class CoreExport ConfigTag : public refcountbase
 	const int src_line;
 
 	/** Get the value of an option, using def if it does not exist */
-	std::string getString(const std::string& key, const std::string& def, const TR1NS::function<bool(const std::string&)>& validator);
+	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator);
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "", size_t minlen = 0, size_t maxlen = UINT32_MAX);
 	/** Get the value of an option, using def if it does not exist */

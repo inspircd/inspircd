@@ -95,7 +95,7 @@ class ServerOnlyServerCommand : public ServerCommand
 
 class ServerCommandManager
 {
-	typedef TR1NS::unordered_map<std::string, ServerCommand*> ServerCommandMap;
+	typedef std::unordered_map<std::string, ServerCommand*> ServerCommandMap;
 	ServerCommandMap commands;
 
  public:

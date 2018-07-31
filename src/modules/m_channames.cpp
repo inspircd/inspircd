@@ -44,7 +44,7 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 
 class ModuleChannelNames : public Module
 {
-	TR1NS::function<bool(const std::string&)> rememberer;
+	std::function<bool(const std::string&)> rememberer;
 	bool badchan;
 	ChanModeReference permchannelmode;
 
