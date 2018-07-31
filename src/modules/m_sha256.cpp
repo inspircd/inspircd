@@ -20,15 +20,7 @@
  */
 
 /// $CompilerFlags: -Ivendor_directory("sha2")
-/// $CompilerFlags: require_compiler("GCC") -Wno-long-long
 
-
-// Fix warnings about the use of `long long` on C++03.
-#if defined __clang__
-# pragma clang diagnostic ignored "-Wc++11-long-long"
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wlong-long"
-#endif
 
 #include "inspircd.h"
 #include "modules/hash.h"

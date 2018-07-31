@@ -28,12 +28,8 @@
 #include "inspircd.h"
 #include "modules/regex.h"
 
-// Fix warnings about the use of `long long` on C++03 and
-// shadowing on GCC.
-#if defined __clang__
-# pragma clang diagnostic ignored "-Wc++11-long-long"
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wlong-long"
+// Fix warnings about shadowing on GCC.
+#if defined __GNUC__
 # pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
