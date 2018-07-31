@@ -200,9 +200,9 @@ namespace GnuTLS
 
 	 public:
 		/** Import */
-		static std::auto_ptr<DHParams> Import(const std::string& dhstr)
+		static std::shared_ptr<DHParams> Import(const std::string& dhstr)
 		{
-			std::auto_ptr<DHParams> dh(new DHParams);
+			std::shared_ptr<DHParams> dh(new DHParams);
 			int ret = gnutls_dh_params_import_pkcs3(dh->dh_params, Datum(dhstr).get(), GNUTLS_X509_FMT_PEM);
 			ThrowOnError(ret, "Unable to import DH params");
 			return dh;
@@ -414,7 +414,7 @@ namespace GnuTLS
 	{
 		/** DH parameters associated with these credentials
 		 */
-		std::auto_ptr<DHParams> dh;
+		std::shared_ptr<DHParams> dh;
 
 	 protected:
 		gnutls_certificate_credentials_t cred;
@@ -439,7 +439,7 @@ namespace GnuTLS
 
 		/** Set the given DH parameters to be used with these credentials
 		 */
-		void SetDH(std::auto_ptr<DHParams>& DH)
+		void SetDH(std::shared_ptr<DHParams>& DH)
 		{
 			dh = DH;
 			gnutls_certificate_set_dh_params(cred, dh->get());
@@ -458,11 +458,11 @@ namespace GnuTLS
 
 		/** Trusted CA, may be NULL
 		 */
-		std::auto_ptr<X509CertList> trustedca;
+		std::shared_ptr<X509CertList> trustedca;
 
 		/** Certificate revocation list, may be NULL
 		 */
-		std::auto_ptr<X509CRL> crl;
+		std::shared_ptr<X509CRL> crl;
 
 		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
 
@@ -485,7 +485,7 @@ namespace GnuTLS
 		/** Sets the trusted CA and the certificate revocation list
 		 * to use when verifying certificates
 		 */
-		void SetCA(std::auto_ptr<X509CertList>& certlist, std::auto_ptr<X509CRL>& CRL)
+		void SetCA(std::shared_ptr<X509CertList>& certlist, std::shared_ptr<X509CRL>& CRL)
 		{
 			// Do nothing if certlist is NULL
 			if (certlist.get())
@@ -619,12 +619,12 @@ namespace GnuTLS
 		{
 			std::string name;
 
-			std::auto_ptr<X509CertList> ca;
-			std::auto_ptr<X509CRL> crl;
+			std::shared_ptr<X509CertList> ca;
+			std::shared_ptr<X509CRL> crl;
 
 			std::string certstr;
 			std::string keystr;
-			std::auto_ptr<DHParams> dh;
+			std::shared_ptr<DHParams> dh;
 
 			std::string priostr;
 			unsigned int mindh;
