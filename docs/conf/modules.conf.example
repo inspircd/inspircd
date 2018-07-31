@@ -1691,12 +1691,6 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for C++11 std::regex regular expressions.
-# This module works on any fully compliant implementation of the C++11
-# std::regex container. Examples for such are Visual C++ 2010 and newer
-# but not libstdc++ (which GCC uses).
-# You should verify that std::regex is supported by your setup before
-# using this module, as it may compile normally but won't do anything
-# on some implementations.
 #<module name="regex_stdlib">
 #
 # Specify the regular expression engine to use here. Valid settings are
