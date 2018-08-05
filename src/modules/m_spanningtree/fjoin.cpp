@@ -276,7 +276,8 @@ void CommandFJoin::RemoveStatus(Channel* c)
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 {
 	if (Utils->AnnounceTSChange)
-		chan->WriteNotice(InspIRCd::Format("TS for %s changed from %lu to %lu", newname.c_str(), (unsigned long) chan->age, (unsigned long) TS));
+		chan->WriteNotice(InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
+			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str()));
 
 	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version
 	chan->name = newname;
