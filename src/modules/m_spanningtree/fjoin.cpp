@@ -133,7 +133,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 		time_t ourTS = chan->age;
 		if (TS != ourTS)
 		{
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
 				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (long)(ourTS - TS));
 			/* If our TS is less than theirs, we dont accept their modes */
 			if (ourTS < TS)
