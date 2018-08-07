@@ -336,6 +336,7 @@ class HttpServerSocket : public BufferedSocket
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		WriteData(n->str());
+		Close();
 	}
 };
 
