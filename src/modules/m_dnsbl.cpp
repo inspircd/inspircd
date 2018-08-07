@@ -74,7 +74,7 @@ class DNSBLResolver : public DNS::Request
 		// All replies should be in 127.0.0.0/8
 		if (ans_record->rdata.compare(0, 4, "127.") != 0)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
+			ServerInstance->SNO->WriteGlobalSno('d', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
 			ConfEntry->stats_misses++;
 			return;
 		}
@@ -200,7 +200,7 @@ class DNSBLResolver : public DNS::Request
 					break;
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+			ServerInstance->SNO->WriteGlobalSno('d', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 		}
 		else
 			ConfEntry->stats_misses++;
@@ -255,6 +255,11 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	{
 	}
 
+	void init() CXX11_OVERRIDE
+	{
+		ServerInstance->SNO->EnableSnomask('d', "DNSBL");
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides handling of DNS blacklists", VF_VENDOR);
@@ -302,29 +307,29 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): invalid bitmask", location.c_str());
+				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): invalid bitmask", location.c_str());
 			}
 			else if (e->name.empty())
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid name", location.c_str());
+				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid name", location.c_str());
 			}
 			else if (e->domain.empty())
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid domain", location.c_str());
+				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid domain", location.c_str());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction", location.c_str());
+				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid banaction", location.c_str());
 			}
 			else
 			{
 				if (e->reason.empty())
 				{
 					std::string location = tag->getTagLocation();
-					ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): empty reason, using defaults", location.c_str());
+					ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): empty reason, using defaults", location.c_str());
 					e->reason = "Your IP has been blacklisted.";
 				}
 
