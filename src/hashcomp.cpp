@@ -219,22 +219,6 @@ bool irc::tokenstream::GetToken(std::string &token)
 	return true;
 }
 
-bool irc::tokenstream::GetToken(int &token)
-{
-	std::string tok;
-	bool returnval = GetToken(tok);
-	token = ConvToInt(tok);
-	return returnval;
-}
-
-bool irc::tokenstream::GetToken(long &token)
-{
-	std::string tok;
-	bool returnval = GetToken(tok);
-	token = ConvToInt(tok);
-	return returnval;
-}
-
 irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
 	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
 {

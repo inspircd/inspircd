@@ -198,18 +198,6 @@ namespace irc
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
 		bool GetToken(std::string &token);
-
-		/** Fetch the next token from the stream as an integer
-		 * @param token The next token available, or undefined if none remain
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetToken(int &token);
-
-		/** Fetch the next token from the stream as a long integer
-		 * @param token The next token available, or undefined if none remain
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetToken(long &token);
 	};
 
 	/** The portparser class seperates out a port range into integers.

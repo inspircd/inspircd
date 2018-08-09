@@ -587,7 +587,10 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	if (c != 0)
 		throw ModuleException("Invalid flag: '" + std::string(1, c) + "'");
 
-	tokens.GetToken(res.duration);
+	std::string duration;
+	tokens.GetToken(duration);
+	res.duration = ConvToInt(duration);
+
 	tokens.GetToken(res.reason);
 
 	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
