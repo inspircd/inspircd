@@ -22,7 +22,7 @@
 
 #include "main.h"
 
-ModResult ModuleSpanningTree::OnPreCommand(std::string &command, CommandBase::Params& parameters, LocalUser *user, bool validated, const std::string &original_line)
+ModResult ModuleSpanningTree::OnPreCommand(std::string &command, CommandBase::Params& parameters, LocalUser *user, bool validated)
 {
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */
 	if (!validated)

@@ -142,8 +142,8 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE;
-	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, const std::string& original_line) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE;
+	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result) CXX11_OVERRIDE;
 	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
 	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE;
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) CXX11_OVERRIDE;

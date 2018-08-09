@@ -201,7 +201,7 @@ class ModuleLDAPAuth : public Module
 		attribute = tag->getString("attribute");
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		if (validated && command == "OPER" && parameters.size() >= 2)
 		{

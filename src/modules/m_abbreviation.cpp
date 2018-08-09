@@ -38,7 +38,7 @@ class ModuleAbbreviation : public Module
 		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
 		if (validated || command.empty() || *command.rbegin() != '.')

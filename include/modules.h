@@ -717,10 +717,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user the user issuing the command
 	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
 	 * You should only change the parameter list and command string if validated == false (e.g. before the command lookup occurs).
-	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line);
+	virtual ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
@@ -731,9 +730,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param parameters An array of array of characters containing the parameters for the command
 	 * @param user the user issuing the command
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
-	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, const std::string& original_line);
+	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result);
 
 	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
 	 * connect class, or accepting any commands.

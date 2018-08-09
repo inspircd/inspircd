@@ -129,7 +129,21 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	std::string CreateRFCMessage(const std::string& command, Command::Params& parameters)
+	{
+		std::string message(command);
+		for (CommandBase::Params::const_iterator iter = parameters.begin(); iter != parameters.end();)
+		{
+			const std::string& parameter = *++iter;
+			message.push_back(' ');
+			if (iter == parameters.end())
+				message.push_back(':');
+			message.append(parameter);
+		}
+		return message;
+	}
+
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -143,6 +157,7 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* The parameters for the command in their original form, with the command stripped off */
+		std::string original_line = CreateRFCMessage(command, parameters);
 		std::string compare(original_line, command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());

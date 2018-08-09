@@ -138,7 +138,7 @@ class OperQuery : public SQL::Query
 			ModResult MOD_RESULT;
 
 			std::string origin = "OPER";
-			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, localuser, true, origin));
+			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, localuser, true));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return;
 
@@ -195,7 +195,7 @@ public:
 		}
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		// If we are not in the middle of an existing /OPER and someone is trying to oper-up
 		if (validated && command == "OPER" && parameters.size() >= 2 && !active)

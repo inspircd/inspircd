@@ -562,13 +562,13 @@ void LocalUser::FullConnect()
 	ModResult MOD_RESULT;
 	std::string command("LUSERS");
 	CommandBase::Params parameters;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true));
 	if (!MOD_RESULT)
 		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	MOD_RESULT = MOD_RES_PASSTHRU;
 	command = "MOTD";
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true));
 	if (!MOD_RESULT)
 		ServerInstance->Parser.CallHandler(command, parameters, this);
 

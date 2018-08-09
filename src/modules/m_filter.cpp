@@ -196,7 +196,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
@@ -413,7 +413,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line)
+ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated)
 {
 	if (validated)
 	{

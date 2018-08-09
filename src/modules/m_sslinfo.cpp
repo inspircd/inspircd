@@ -179,7 +179,7 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		}
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		if ((command == "OPER") && (validated))
 		{

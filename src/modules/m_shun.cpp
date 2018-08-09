@@ -198,7 +198,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		affectopers = tag->getBool("affectopers", false);
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		if (validated)
 			return MOD_RES_PASSTHRU;

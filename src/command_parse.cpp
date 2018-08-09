@@ -99,7 +99,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 				// Run the OnPostCommand hook with the last parameter (original line) being empty
 				// to indicate that the command had more targets in its original form.
 				item.clear();
-				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, item));
+				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result));
 			}
 		}
 	}
@@ -202,7 +202,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if (!handler)
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 
@@ -256,7 +256,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	 * truncate to max_params if necessary. -- w00t
 	 */
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
@@ -322,7 +322,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		handler->use_count++;
 
 		/* module calls too */
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
+		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 
@@ -331,7 +331,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 */
 		CmdResult result = handler->Handle(user, command_p);
 
-		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result, cmd));
+		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result));
 	}
 }
 
