@@ -576,22 +576,22 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	std::string filteraction;
 	FilterResult res;
 	irc::tokenstream tokens(data);
-	tokens.GetToken(res.freeform);
-	tokens.GetToken(filteraction);
+	tokens.GetMiddle(res.freeform);
+	tokens.GetMiddle(filteraction);
 	if (!StringToFilterAction(filteraction, res.action))
 		throw ModuleException("Invalid action: " + filteraction);
 
 	std::string filterflags;
-	tokens.GetToken(filterflags);
+	tokens.GetMiddle(filterflags);
 	char c = res.FillFlags(filterflags);
 	if (c != 0)
 		throw ModuleException("Invalid flag: '" + std::string(1, c) + "'");
 
 	std::string duration;
-	tokens.GetToken(duration);
+	tokens.GetMiddle(duration);
 	res.duration = ConvToInt(duration);
 
-	tokens.GetToken(res.reason);
+	tokens.GetTrailing(res.reason);
 
 	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
 	for (std::string::iterator n = res.freeform.begin(); n != res.freeform.end(); n++)

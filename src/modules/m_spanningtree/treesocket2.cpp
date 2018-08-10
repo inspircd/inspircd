@@ -42,7 +42,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 {
 	irc::tokenstream tokens(line);
 
-	if (!tokens.GetToken(prefix))
+	if (!tokens.GetMiddle(prefix))
 		return;
 
 	if (prefix[0] == ':')
@@ -54,7 +54,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 			this->SendError("BUG (?) Empty prefix received: " + line);
 			return;
 		}
-		if (!tokens.GetToken(command))
+		if (!tokens.GetMiddle(command))
 		{
 			this->SendError("BUG (?) Empty command received: " + line);
 			return;
@@ -69,7 +69,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 		this->SendError("BUG (?) Empty command received: " + line);
 
 	std::string param;
-	while (tokens.GetToken(param))
+	while (tokens.GetTrailing(param))
 	{
 		params.push_back(param);
 	}

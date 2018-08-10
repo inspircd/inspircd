@@ -186,18 +186,30 @@ namespace irc
 	 * list will be ":item". This is to allow for parsing 'source' fields
 	 * from data.
 	 */
-	class CoreExport tokenstream : private spacesepstream
+	class CoreExport tokenstream
 	{
-	 public:
-		/** Create a tokenstream and fill it with the provided data
-		 */
-		tokenstream(const std::string &source);
+	private:
+		/** The message we are parsing tokens from. */
+		std::string message;
 
-		/** Fetch the next token from the stream as a std::string
-		 * @param token The next token available, or an empty string if none remain
+		/** The current position within the message. */
+		size_t position;
+
+	 public:
+		/** Create a tokenstream and fill it with the provided data. */
+		tokenstream(const std::string& msg, size_t start = 0);
+
+		/** Retrieve the next <middle> token in the token stream.
+		 * @param token The next token available, or an empty string if none remain.
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
-		bool GetToken(std::string &token);
+		bool GetMiddle(std::string& token);
+
+		/** Retrieve the next <trailing> token in the token stream.
+		 * @param token The next token available, or an empty string if none remain.
+		 * @return True if tokens are left to be read, false if the last token was just retrieved.
+		 */
+		bool GetTrailing(std::string& token);
 	};
 
 	/** The portparser class seperates out a port range into integers.

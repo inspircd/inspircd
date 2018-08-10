@@ -346,8 +346,8 @@ class ModuleAlias : public Module
 		CommandBase::Params pars;
 		std::string command, token;
 
-		ss.GetToken(command);
-		while (ss.GetToken(token))
+		ss.GetMiddle(command);
+		while (ss.GetTrailing(token))
 		{
 			pars.push_back(token);
 		}

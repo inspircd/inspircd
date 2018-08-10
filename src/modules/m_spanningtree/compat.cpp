@@ -512,11 +512,11 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		irc::tokenstream ts(params.back());
 
 		std::string srcstr;
-		ts.GetToken(srcstr);
+		ts.GetMiddle(srcstr);
 		srcstr.erase(0, 1);
 
 		std::string token;
-		ts.GetToken(token);
+		ts.GetMiddle(token);
 
 		// See if it's a numeric being sent to the target via PUSH
 		unsigned int numeric_number = 0;
@@ -545,10 +545,10 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			params.push_back(InspIRCd::Format("%03u", numeric_number));
 
 			// Ignore the nickname in the numeric in PUSH
-			ts.GetToken(token);
+			ts.GetMiddle(token);
 
 			// Rest of the tokens are the numeric parameters, add them to NUM
-			while (ts.GetToken(token))
+			while (ts.GetTrailing(token))
 				params.push_back(token);
 		}
 		else if ((token == "PRIVMSG") || (token == "NOTICE"))
@@ -557,7 +557,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			cmd.swap(token);
 
 			// Check if the PRIVMSG/NOTICE target is a nickname
-			ts.GetToken(token);
+			ts.GetMiddle(token);
 			if (token.c_str()[0] == '#')
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH %s to user %s from 1202 protocol server %s, target \"%s\"", cmd.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), token.c_str());
@@ -565,7 +565,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			}
 
 			// Replace second parameter with the message
-			ts.GetToken(params[1]);
+			ts.GetTrailing(params[1]);
 		}
 		else
 		{

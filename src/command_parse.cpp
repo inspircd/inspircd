@@ -164,7 +164,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	CommandBase::Params command_p;
 	irc::tokenstream tokens(cmd);
 	std::string command, token;
-	tokens.GetToken(command);
+	tokens.GetMiddle(command);
 
 	/* A client sent a nick prefix on their command (ick)
 	 * rhapsody and some braindead bouncers do this --
@@ -172,9 +172,9 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	 * discard it if they do.
 	 */
 	if (command[0] == ':')
-		tokens.GetToken(command);
+		tokens.GetMiddle(command);
 
-	while (tokens.GetToken(token))
+	while (tokens.GetTrailing(token))
 		command_p.push_back(token);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);

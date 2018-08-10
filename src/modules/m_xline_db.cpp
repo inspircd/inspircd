@@ -166,7 +166,7 @@ class ModuleXLineDB : public Module
 			std::string command_p[7];
 			std::string tmp;
 
-			while (tokens.GetToken(tmp) && (items < 7))
+			while (tokens.GetTrailing(tmp) && (items < 7))
 			{
 				command_p[items] = tmp;
 				items++;

@@ -193,30 +193,55 @@ size_t irc::insensitive::operator()(const std::string &s) const
 	return t;
 }
 
-irc::tokenstream::tokenstream(const std::string &source) : spacesepstream(source)
+irc::tokenstream::tokenstream(const std::string& msg, size_t start)
+	: message(msg, start)
+	, position(0)
 {
 }
 
-bool irc::tokenstream::GetToken(std::string &token)
+bool irc::tokenstream::GetMiddle(std::string& token)
 {
-	bool first = !pos;
-
-	if (!spacesepstream::GetToken(token))
-		return false;
-
-	/* This is the last parameter */
-	if (token[0] == ':' && !first)
+	// If we are past the end of the string we can't do anything.
+	if (position >= message.length())
 	{
-		token.erase(token.begin());
-		if (!StreamEnd())
-		{
-			token += ' ';
-			token += GetRemaining();
-		}
-		pos = tokens.length() + 1;
+		token.clear();
+		return false;
 	}
 
+	// If we can't find another separator this is the last token in the message.
+	size_t separator = message.find(' ', position);
+	if (separator == std::string::npos)
+	{
+		token.assign(message, position);
+		position = message.length();
+		return true;
+	}
+
+	token.assign(message, position, separator - position);
+	position = message.find_first_not_of(' ', separator);
 	return true;
+}
+
+bool irc::tokenstream::GetTrailing(std::string& token)
+{
+	// If we are past the end of the string we can't do anything.
+	if (position >= message.length())
+	{
+		token.clear();
+		return false;
+	}
+
+	// If this is true then we have a <trailing> token!
+	if (message[position] == ':')
+	{
+		token.assign(message, position + 1);
+		position = message.length();
+		ServerInstance->Logs->Log("HASHCOMP", LOG_DEBUG, "TRAILING %s next (none)", token.c_str());
+		return true;
+	}
+
+	// There is no <trailing> token so it must be a <middle> token.
+	return GetMiddle(token);
 }
 
 irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
