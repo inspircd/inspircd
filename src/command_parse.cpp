@@ -193,8 +193,12 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	 * the rfc says they shouldnt but also says the ircd should
 	 * discard it if they do.
 	 */
-	if (command[0] == ':')
-		tokens.GetToken(command);
+	if ((command.empty() || command[0] == ':') && !tokens.GetToken(command))
+	{
+		// Penalise the user to discourage them from spamming the server with trash.
+		user->CommandFloodPenalty += 2000;
+		return false;
+	}
 
 	while (tokens.GetToken(token) && (command_p.size() <= MAXPARAMETERS))
 		command_p.push_back(token);
