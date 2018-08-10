@@ -285,7 +285,7 @@ void UserIOHandler::OnDataReady()
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
-		ServerInstance->Parser.ProcessBuffer(line, user);
+		ServerInstance->Parser.ProcessBuffer(user, line);
 		if (user->quitting)
 			return;
 

@@ -34,10 +34,11 @@ class CoreExport CommandParser
 
  private:
 	/** Process a command from a user.
-	 * @param user The user to parse the command for
-	 * @param cmd The command string to process
+	 * @param user The user to parse the command for.
+	 * @param command The name of the command.
+	 * @param parameters The parameters to the command.
 	 */
-	void ProcessCommand(LocalUser* user, std::string& cmd);
+	void ProcessCommand(LocalUser* user, std::string& command, Command::Params& parameters);
 
 	/** Command list, a hash_map of command names to Command*
 	 */
@@ -116,7 +117,7 @@ class CoreExport CommandParser
 	 * @param buffer The buffer line to process
 	 * @param user The user to whom this line belongs
 	 */
-	void ProcessBuffer(std::string &buffer,LocalUser *user);
+	void ProcessBuffer(LocalUser* user, const std::string& buffer);
 
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list

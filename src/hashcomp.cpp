@@ -212,7 +212,7 @@ bool irc::tokenstream::GetMiddle(std::string& token)
 	size_t separator = message.find(' ', position);
 	if (separator == std::string::npos)
 	{
-		token.assign(message, position);
+		token.assign(message, position, std::string::npos);
 		position = message.length();
 		return true;
 	}
@@ -234,9 +234,8 @@ bool irc::tokenstream::GetTrailing(std::string& token)
 	// If this is true then we have a <trailing> token!
 	if (message[position] == ':')
 	{
-		token.assign(message, position + 1);
+		token.assign(message, position + 1, std::string::npos);
 		position = message.length();
-		ServerInstance->Logs->Log("HASHCOMP", LOG_DEBUG, "TRAILING %s next (none)", token.c_str());
 		return true;
 	}
 

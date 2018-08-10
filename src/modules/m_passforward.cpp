@@ -96,7 +96,7 @@ class ModulePassForward : public Module
 
 		tmp.clear();
 		FormatStr(tmp,forwardcmd, user);
-		ServerInstance->Parser.ProcessBuffer(tmp,user);
+		ServerInstance->Parser.ProcessBuffer(user, tmp);
 	}
 };
 
