@@ -179,7 +179,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	FwdFJoinBuilder fwdfjoin(chan, sourceserver);
 
 	// Process every member in the message
-	irc::tokenstream users(params.back());
+	irc::spacesepstream users(params.back());
 	std::string item;
 	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : NULL);
 	while (users.GetToken(item))

@@ -428,7 +428,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
 	{
-		irc::tokenstream capabs(params[1]);
+		irc::spacesepstream capabs(params[1]);
 		std::string item;
 		while (capabs.GetToken(item))
 		{
