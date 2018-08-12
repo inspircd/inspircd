@@ -79,7 +79,7 @@ class SSLCertExt : public ExtensionItem {
 		}
 	}
 
-	void free(void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) CXX11_OVERRIDE
 	{
 		ssl_cert* old = static_cast<ssl_cert*>(item);
 		if (old && old->refcount_dec())

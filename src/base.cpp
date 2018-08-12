@@ -186,7 +186,7 @@ void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >
 		ExtensibleStore::iterator e = extensions.find(item);
 		if (e != extensions.end())
 		{
-			item->free(e->second);
+			item->free(this, e->second);
 			extensions.erase(e);
 		}
 	}
@@ -208,7 +208,7 @@ void Extensible::FreeAllExtItems()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
-		i->first->free(i->second);
+		i->first->free(this, i->second);
 	}
 	extensions.clear();
 }
@@ -294,7 +294,7 @@ intptr_t LocalIntExt::set(Extensible* container, intptr_t value)
 		return reinterpret_cast<intptr_t>(unset_raw(container));
 }
 
-void LocalIntExt::free(void*)
+void LocalIntExt::free(Extensible* container, void* item)
 {
 }
 
@@ -337,7 +337,7 @@ void StringExtItem::unset(Extensible* container)
 	delete static_cast<std::string*>(old);
 }
 
-void StringExtItem::free(void* item)
+void StringExtItem::free(Extensible* container, void* item)
 {
 	delete static_cast<std::string*>(item);
 }

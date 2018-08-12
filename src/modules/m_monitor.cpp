@@ -79,7 +79,7 @@ class IRCv3::Monitor::Manager
 
 		void unset(Extensible* container)
 		{
-			free(unset_raw(container));
+			free(container, unset_raw(container));
 		}
 
 		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
@@ -101,7 +101,7 @@ class IRCv3::Monitor::Manager
 
 		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 
-		void free(void* item) CXX11_OVERRIDE
+		void free(Extensible* container, void* item) CXX11_OVERRIDE
 		{
 			delete static_cast<ExtData*>(item);
 		}
