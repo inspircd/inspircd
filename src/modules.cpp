@@ -71,7 +71,8 @@ void Module::DetachEvent(Implementation i)
 void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
-void		Module::OnUserQuit(User*, std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
+ModResult	Module::OnUserPreQuit(User*, std::string&) { DetachEvent(I_OnUserPreQuit); }
+void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
 void		Module::OnUserDisconnect(LocalUser*) { DetachEvent(I_OnUserDisconnect); }
 void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { DetachEvent(I_OnUserJoin); }
 void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }

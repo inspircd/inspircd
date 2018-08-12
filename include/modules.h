@@ -211,7 +211,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
  */
 enum Implementation
 {
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
+	I_OnUserConnect, I_OnUserPreQuit, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
@@ -304,6 +304,16 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserConnect(LocalUser* user);
 
+	/** Called when before a user quits.
+	 * The details of the exiting user are available to you in the parameter User *user
+	 * This event is only called when the user is fully registered when they quit. To catch
+	 * raw disconnections, use the OnUserDisconnect method.
+	 * @param user The user who is quitting
+	 * @param message The user's quit message (as seen by non-opers)
+	 * @param oper_message The user's quit message (as seen by opers)
+	 */
+	virtual ModResult OnUserPreQuit(User* user, std::string &message);
+
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User *user
 	 * This event is only called when the user is fully registered when they quit. To catch
@@ -312,7 +322,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(User* user, std::string &message, const std::string &oper_message);
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter User *user

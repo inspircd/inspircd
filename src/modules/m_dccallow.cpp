@@ -299,7 +299,7 @@ class ModuleDCCAllow : public Module
 	{
 	}
 
-	void OnUserQuit(User* user, std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
 	{
 		dccallowlist* udl = ext.get(user);
 

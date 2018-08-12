@@ -521,7 +521,7 @@ void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, 
 	}
 }
 
-void ModuleSpanningTree::OnUserQuit(User* user, std::string &reason, const std::string &oper_message)
+void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 {
 	if (IS_LOCAL(user))
 	{
