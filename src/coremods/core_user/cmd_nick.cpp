@@ -27,7 +27,7 @@ CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1, 1)
 {
 	works_before_reg = true;
-	syntax = "<newnick[:password]>";
+	syntax = "<newnick>";
 	Penalty = 0;
 }
 
@@ -41,16 +41,6 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];
 
-	// We allow to specify nick:password or nick!password (ircu style)
-	std::size_t pos = newnick.find(":");
-	if (pos == std::string::npos) {
-		pos = newnick.find("!");
-	}
-	if (pos != std::string::npos) {
-		user->password = newnick.substr(pos+1, std::string::npos);
-		newnick = newnick.substr(0, pos);
-	}
-
 	// anything except the initial NICK gets a flood penalty
 	if (user->registered == REG_ALL)
 		user->CommandFloodPenalty += 4000;
@@ -61,6 +51,9 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+
 	if (newnick == "0")
 	{
 		newnick = user->uuid;
@@ -70,9 +63,6 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
 		return CMD_FAILURE;
 	}
-
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
 
 	// If a module denied the change, abort now
 	if (MOD_RESULT == MOD_RES_DENY)
