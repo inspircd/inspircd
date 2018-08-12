@@ -21,9 +21,18 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-CommandAway::CommandAway(Module* parent)
-	: Command(parent, "AWAY", 0, 0)
+enum
 {
+	// From RFC 1459.
+	RPL_UNAWAY = 305,
+	RPL_NOWAWAY = 306
+};
+
+CommandAway::CommandAway(Module* parent)
+	: Command(parent, "AWAY", 0, 1)
+	, awayevprov(parent)
+{
+	allow_empty_last_param = false;
 	syntax = "[<message>]";
 }
 
@@ -31,29 +40,37 @@ CommandAway::CommandAway(Module* parent)
  */
 CmdResult CommandAway::Handle(User* user, const Params& parameters)
 {
+	LocalUser* luser = IS_LOCAL(user);
 	ModResult MOD_RESULT;
 
-	if ((!parameters.empty()) && (!parameters[0].empty()))
+	if (!parameters.empty())
 	{
-		FIRST_MOD_RESULT(OnSetAway, MOD_RESULT, (user, parameters[0]));
-
-		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
-			return CMD_FAILURE;
+		std::string message(parameters[0]);
+		if (luser)
+		{
+			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreAway, MOD_RESULT, (luser, message));
+			if (MOD_RESULT == MOD_RES_DENY)
+				return CMD_FAILURE;
+		}
 
 		user->awaytime = ServerInstance->Time();
-		user->awaymsg.assign(parameters[0], 0, ServerInstance->Config->Limits.MaxAway);
-
+		user->awaymsg.assign(message, 0, ServerInstance->Config->Limits.MaxAway);
 		user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
+		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (user));
 	}
 	else
 	{
-		FIRST_MOD_RESULT(OnSetAway, MOD_RESULT, (user, ""));
+		if (luser)
+		{
+			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreBack, MOD_RESULT, (luser));
+			if (MOD_RESULT == MOD_RES_DENY)
+				return CMD_FAILURE;
+		}
 
-		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
-			return CMD_FAILURE;
-
+		user->awaytime = 0;
 		user->awaymsg.clear();
 		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
+		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (user));
 	}
 
 	return CMD_SUCCESS;

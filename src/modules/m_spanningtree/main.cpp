@@ -37,7 +37,8 @@
 #include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: Stats::EventListener(this)
+	: Away::EventListener(this)
+	, Stats::EventListener(this)
 	, rconnect(this)
 	, rsquit(this)
 	, map(this)
@@ -718,12 +719,16 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	params.Broadcast();
 }
 
-ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
+void ModuleSpanningTree::OnUserAway(User* user)
 {
 	if (IS_LOCAL(user))
-		CommandAway::Builder(user, awaymsg).Broadcast();
+		CommandAway::Builder(user).Broadcast();
+}
 
-	return MOD_RES_PASSTHRU;
+void ModuleSpanningTree::OnUserBack(User* user)
+{
+	if (IS_LOCAL(user))
+		CommandAway::Builder(user).Broadcast();
 }
 
 void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags, const std::string& output_mode)

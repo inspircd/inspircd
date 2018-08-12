@@ -223,7 +223,7 @@ enum Implementation
 	I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
@@ -893,16 +893,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param server The server IP address and port
 	 */
 	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-
-	/** Called whenever a user sets away or returns from being away.
-	 * The away message is available as a parameter, but should not be modified.
-	 * At this stage, it has already been copied into the user record.
-	 * If awaymsg is empty, the user is returning from away.
-	 * @param user The user setting away
-	 * @param awaymsg The away message of the user, or empty if returning from away
-	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
-	 */
-	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be

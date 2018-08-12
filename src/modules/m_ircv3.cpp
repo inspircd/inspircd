@@ -18,10 +18,14 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/away.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
 
-class ModuleIRCv3 : public Module, public AccountEventListener
+class ModuleIRCv3
+	: public Module
+	, public AccountEventListener
+	, public Away::EventListener
 {
 	Cap::Capability cap_accountnotify;
 	Cap::Capability cap_awaynotify;
@@ -32,9 +36,10 @@ class ModuleIRCv3 : public Module, public AccountEventListener
  public:
 	ModuleIRCv3()
 		: AccountEventListener(this)
-		, cap_accountnotify(this, "account-notify"),
-					cap_awaynotify(this, "away-notify"),
-					cap_extendedjoin(this, "extended-join")
+		, Away::EventListener(this)
+		, cap_accountnotify(this, "account-notify")
+		, cap_awaynotify(this, "away-notify")
+		, cap_extendedjoin(this, "extended-join")
 	{
 	}
 
@@ -133,19 +138,24 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		}
 	}
 
-	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE
+	void OnUserAway(User* user) CXX11_OVERRIDE
 	{
-		if (cap_awaynotify.IsActive())
-		{
-			// Going away: n!u@h AWAY :reason
-			// Back from away: n!u@h AWAY
-			std::string line = ":" + user->GetFullHost() + " AWAY";
-			if (!awaymsg.empty())
-				line += " :" + awaymsg;
+		if (!cap_awaynotify.IsActive())
+			return;
 
-			IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
-		}
-		return MOD_RES_PASSTHRU;
+		// Going away: n!u@h AWAY :reason
+		const std::string line = ":" + user->GetFullHost() + " AWAY :" + user->awaymsg;
+		IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
+	}
+
+	void OnUserBack(User* user) CXX11_OVERRIDE
+	{
+		if (!cap_awaynotify.IsActive())
+			return;
+
+		// Back from away: n!u@h AWAY
+		const std::string line = ":" + user->GetFullHost() + " AWAY";
+		IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
 	}
 
 	void OnPostJoin(Membership *memb) CXX11_OVERRIDE

@@ -53,7 +53,10 @@ class Autoconnect;
 
 /** This is the main class for the spanningtree module
  */
-class ModuleSpanningTree : public Module, public Stats::EventListener
+class ModuleSpanningTree
+	: public Module
+	, public Away::EventListener
+	, public Stats::EventListener
 {
 	/** Client to server commands, registered in the core
 	 */
@@ -164,7 +167,8 @@ class ModuleSpanningTree : public Module, public Stats::EventListener
 	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
 	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
-	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE;
+	void OnUserAway(User* user) CXX11_OVERRIDE;
+	void OnUserBack(User* user) CXX11_OVERRIDE;
 	void OnLoadModule(Module* mod) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;

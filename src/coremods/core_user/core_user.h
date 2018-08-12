@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/away.h"
 
 class MessageWrapper
 {
@@ -53,6 +54,9 @@ class MessageWrapper
  */
 class CommandAway : public Command
 {
+ private:
+	Away::EventProvider awayevprov;
+
  public:
 	/** Constructor for away.
 	 */

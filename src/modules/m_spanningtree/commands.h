@@ -22,6 +22,7 @@
 #include "servercommand.h"
 #include "commandbuilder.h"
 #include "remoteuser.h"
+#include "modules/away.h"
 
 namespace SpanningTree
 {
@@ -241,15 +242,21 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
 
 class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::CommandAway>
 {
+ private:
+	Away::EventProvider awayevprov;
+
  public:
-	CommandAway(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandAway>(Creator, "AWAY", 0, 2) { }
+	CommandAway(Module* Creator)
+		: UserOnlyServerCommand<SpanningTree::CommandAway>(Creator, "AWAY", 0, 2)
+		, awayevprov(Creator)
+	{
+	}
 	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 
 	class Builder : public CmdBuilder
 	{
 	 public:
 		Builder(User* user);
-		Builder(User* user, const std::string& msg);
 	};
 };
 

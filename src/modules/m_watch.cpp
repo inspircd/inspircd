@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/away.h"
 
 #define INSPIRCD_MONITOR_MANAGER_ONLY
 #include "m_monitor.cpp"
@@ -179,7 +180,9 @@ class CommandWatch : public SplitCommand
 	}
 };
 
-class ModuleWatch : public Module
+class ModuleWatch
+	: public Module
+	, public Away::EventListener
 {
 	IRCv3::Monitor::Manager manager;
 	CommandWatch cmd;
@@ -211,7 +214,8 @@ class ModuleWatch : public Module
 
  public:
 	ModuleWatch()
-		: manager(this, "watch")
+		: Away::EventListener(this)
+		, manager(this, "watch")
 		, cmd(this, manager)
 	{
 	}
@@ -245,14 +249,14 @@ class ModuleWatch : public Module
 		Offline(user, user->nick);
 	}
 
-	ModResult OnSetAway(User* user, const std::string& awaymsg) CXX11_OVERRIDE
+	void OnUserAway(User* user) CXX11_OVERRIDE
 	{
-		if (awaymsg.empty())
-			SendAlert(user, user->nick, RPL_NOTAWAY, "is no longer away", ServerInstance->Time());
-		else
-			SendAlert(user, user->nick, RPL_GONEAWAY, awaymsg.c_str(), user->awaytime);
+		SendAlert(user, user->nick, RPL_GONEAWAY, user->awaymsg.c_str(), user->awaytime);
+	}
 
-		return MOD_RES_PASSTHRU;
+	void OnUserBack(User* user) CXX11_OVERRIDE
+	{
+		SendAlert(user, user->nick, RPL_NOTAWAY, "is no longer away", ServerInstance->Time());
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
