@@ -68,7 +68,7 @@ class ModuleHideOper : public Module, public Stats::EventListener, public Whois:
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
-	void OnUserQuit(User* user, const std::string&, const std::string&) CXX11_OVERRIDE
+	void OnUserQuit(User* user, std::string&, const std::string&) CXX11_OVERRIDE
 	{
 		if (user->IsModeSet(hm))
 			hm.opercount--;

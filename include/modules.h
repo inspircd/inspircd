@@ -312,7 +312,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message);
+	virtual void OnUserQuit(User* user, std::string &message, const std::string &oper_message);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter User *user

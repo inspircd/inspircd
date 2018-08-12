@@ -410,7 +410,7 @@ public:
 			RemoveFromAllAccepts(user);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		RemoveFromAllAccepts(user);
 	}

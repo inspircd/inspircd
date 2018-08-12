@@ -420,7 +420,7 @@ class ModuleMonitor : public Module
 		SendAlert(RPL_MONONLINE, user->nick);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		LocalUser* localuser = IS_LOCAL(user);
 		if (localuser)
