@@ -51,6 +51,9 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+
 	if (newnick == "0")
 	{
 		newnick = user->uuid;
@@ -60,9 +63,6 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
 		return CMD_FAILURE;
 	}
-
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
 
 	// If a module denied the change, abort now
 	if (MOD_RESULT == MOD_RES_DENY)
