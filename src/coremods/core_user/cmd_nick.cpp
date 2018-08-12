@@ -27,7 +27,7 @@ CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1, 1)
 {
 	works_before_reg = true;
-	syntax = "<newnick>";
+	syntax = "<newnick[:password]>";
 	Penalty = 0;
 }
 
@@ -40,6 +40,16 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];
+
+	// We allow to specify nick:password or nick!password (ircu style)
+	std::size_t pos = newnick.find(":");
+	if (pos == std::string::npos) {
+		pos = newnick.find("!");
+	}
+	if (pos != std::string::npos) {
+		user->password = newnick.substr(pos+1, std::string::npos);
+		newnick = newnick.substr(0, pos);
+	}
 
 	// anything except the initial NICK gets a flood penalty
 	if (user->registered == REG_ALL)
