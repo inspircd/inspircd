@@ -1037,8 +1037,8 @@
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 cap-notify module: Provides the cap-notify IRCv3.2 extension.
-# Required for IRCv3.2 conformance.
+# IRCv3 cap-notify module: Provides the cap-notify IRCv3 extension.
+# Required for IRCv3 conformance.
 #<module name="ircv3_capnotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1053,12 +1053,12 @@
 #<module name="ircv3_batch">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 cap-notify module: Provides the cap-notify IRCv3.2 extension.
-# Required for IRCv3.2 conformance.
+# IRCv3 cap-notify module: Provides the cap-notify IRCv3 extension.
+# Required for IRCv3 conformance.
 #<module name="ircv3_capnotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 chghost module: Provides the chghost IRCv3.2 extension which
+# IRCv3 chghost module: Provides the chghost IRCv3 extension which
 # allows capable clients to learn when the host/ident of another user
 # changes without cycling the user. This module is compatible with the
 # hostcycle module. If both are loaded, clients supporting the chghost
@@ -1066,14 +1066,14 @@
 #<module name="ircv3_chghost">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 echo-message module: Provides the echo-message IRCv3.2
+# IRCv3 echo-message module: Provides the echo-message IRCv3
 # extension which allows capable clients to get an acknowledgement when
 # their messages are delivered and learn what modifications, if any,
 # were applied to them.
 #<module name="ircv3_echomessage">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 invite-notify module: Provides the invite-notify IRCv3.2
+# IRCv3 invite-notify module: Provides the invite-notify IRCv3
 # extension which notifies supporting clients when a user invites
 # another user into a channel. This respects <options:announceinvites>.
 #<module name="ircv3_invitenotify">
@@ -1084,7 +1084,7 @@
 #<module name="ircv3_servertime">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 Strict Transport Security module: Provides the sts IRCv3.2
+# IRCv3 Strict Transport Security module: Provides the sts IRCv3
 # extension which allows clients connecting insecurely to upgrade their
 # connections to TLS.
 #<module name="ircv3_sts">

@@ -72,7 +72,7 @@ class ModuleIRCv3EchoMessage : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the echo-message IRCv3.2 extension", VF_VENDOR);
+		return Version("Provides the echo-message IRCv3 extension", VF_VENDOR);
 	}
 };
 

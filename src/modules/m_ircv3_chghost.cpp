@@ -54,7 +54,7 @@ class ModuleIRCv3ChgHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the chghost IRCv3.2 extension", VF_VENDOR);
+		return Version("Provides the chghost IRCv3 extension", VF_VENDOR);
 	}
 };
 

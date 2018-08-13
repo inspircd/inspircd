@@ -178,7 +178,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the cap-notify IRCv3.2 extension", VF_VENDOR);
+		return Version("Provides the cap-notify IRCv3 extension", VF_VENDOR);
 	}
 };
 
