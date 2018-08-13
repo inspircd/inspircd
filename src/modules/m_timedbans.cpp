@@ -107,7 +107,7 @@ class CommandTban : public Command
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
 		ServerInstance->Modes->Process(user, channel, NULL, setban);
-		if (ServerInstance->Modes->GetLastParse().empty())
+		if (ServerInstance->Modes->GetLastChangeList().empty())
 		{
 			user->WriteNotice("Invalid ban mask");
 			return CMD_FAILURE;

@@ -677,6 +677,10 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
 	static void CleanMask(std::string &mask);
+
+	/** Gets the last mode change to be processed. */
+	const Modes::ChangeList& GetLastChangeList() const { return LastChangeList; }
+
 	/** Get the last string to be processed, as it was sent to the user or channel.
 	 * Use this to display a string you just sent to be parsed, as the actual output
 	 * may be different to what you sent after it has been 'cleaned up' by the parser.
