@@ -1037,9 +1037,20 @@
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 cap-notify module: Provides the cap-notify IRCv3.2 extension.
+# Required for IRCv3.2 conformance.
+#<module name="ircv3_capnotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 account-tag module. Adds the 'account' tag which contains the
 # services account name of the message sender.
 #<module name="ircv3_accounttag">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 batch module: Provides the batch IRCv3 extension which allows
+# the server to inform a client that a group of messages are related to
+# each other.
+#<module name="ircv3_batch">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 cap-notify module: Provides the cap-notify IRCv3.2 extension.

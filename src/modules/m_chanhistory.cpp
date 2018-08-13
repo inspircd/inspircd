@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/ircv3_servertime.h"
+#include "modules/ircv3_batch.h"
 
 struct HistoryItem
 {
@@ -123,12 +124,18 @@ class ModuleChanHistory : public Module
 	bool sendnotice;
 	UserModeReference botmode;
 	bool dobots;
+	IRCv3::Batch::CapReference batchcap;
+	IRCv3::Batch::API batchmanager;
+	IRCv3::Batch::Batch batch;
 	IRCv3::ServerTime::API servertimemanager;
 
  public:
 	ModuleChanHistory()
 		: m(this)
 		, botmode(this, "bot")
+		, batchcap(this)
+		, batchmanager(this)
+		, batch("chathistory")
 		, servertimemanager(this)
 	{
 	}
@@ -172,12 +179,18 @@ class ModuleChanHistory : public Module
 		if (list->maxtime)
 			mintime = ServerInstance->Time() - list->maxtime;
 
-		if (sendnotice)
+		if ((sendnotice) && (!batchcap.get(localuser)))
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
 				message.append(" spanning up to " + ConvToStr(list->maxtime) + " seconds");
 			memb->WriteNotice(message);
+		}
+
+		if (batchmanager)
+		{
+			batchmanager->Start(batch);
+			batch.GetBatchStartMessage().PushParamRef(memb->chan->name);
 		}
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
@@ -188,9 +201,13 @@ class ModuleChanHistory : public Module
 				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, memb->chan, item.text);
 				if (servertimemanager)
 					servertimemanager->Set(msg, item.ts);
+				batch.AddToBatch(msg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}
 		}
+
+		if (batchmanager)
+			batchmanager->End(batch);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
