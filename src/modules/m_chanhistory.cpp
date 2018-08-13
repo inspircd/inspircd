@@ -22,8 +22,15 @@
 struct HistoryItem
 {
 	time_t ts;
-	std::string line;
-	HistoryItem(const std::string& Line) : ts(ServerInstance->Time()), line(Line) {}
+	std::string text;
+	std::string sourcemask;
+
+	HistoryItem(User* source, const std::string& Text)
+		: ts(ServerInstance->Time())
+		, text(Text)
+		, sourcemask(source->GetFullHost())
+	{
+	}
 };
 
 struct HistoryList
@@ -136,8 +143,7 @@ class ModuleChanHistory : public Module
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + details.text;
-				list->lines.push_back(HistoryItem(line));
+				list->lines.push_back(HistoryItem(user, details.text));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
@@ -146,7 +152,8 @@ class ModuleChanHistory : public Module
 
 	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
-		if (IS_REMOTE(memb->user))
+		LocalUser* localuser = IS_LOCAL(memb->user);
+		if (!localuser)
 			return;
 
 		if (memb->user->IsModeSet(botmode) && !dobots)
@@ -169,8 +176,12 @@ class ModuleChanHistory : public Module
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
-			if (i->ts >= mintime)
-				memb->user->Write(i->line);
+			const HistoryItem& item = *i;
+			if (item.ts >= mintime)
+			{
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, memb->chan, item.text);
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+			}
 		}
 	}
 

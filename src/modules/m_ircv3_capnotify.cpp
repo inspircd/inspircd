@@ -46,19 +46,53 @@ class CapNotify : public Cap::Capability
 	}
 };
 
+class CapNotifyMessage : public Cap::MessageBase
+{
+ public:
+	CapNotifyMessage(bool add, const std::string& capname)
+		: Cap::MessageBase((add ? "NEW" : "DEL"))
+	{
+		PushParamRef(capname);
+	}
+};
+
+class CapNotifyValueMessage : public Cap::MessageBase
+{
+	std::string s;
+	const std::string::size_type pos;
+
+ public:
+	CapNotifyValueMessage(const std::string& capname)
+		: Cap::MessageBase("NEW")
+		, s(capname)
+		, pos(s.size()+1)
+	{
+		s.push_back('=');
+		PushParamRef(s);
+	}
+
+	void SetCapValue(const std::string& capvalue)
+	{
+		s.erase(pos);
+		s.append(capvalue);
+		InvalidateCache();
+	}
+};
+
 class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public ReloadModule::EventListener
 {
 	CapNotify capnotify;
 	std::string reloadedmod;
 	std::vector<std::string> reloadedcaps;
+	ClientProtocol::EventProvider protoev;
 
 	void Send(const std::string& capname, Cap::Capability* cap, bool add)
 	{
-		std::string msg = (add ? "NEW :" : "DEL :");
-		msg.append(capname);
-		std::string msgwithval = msg;
-		msgwithval.push_back('=');
-		std::string::size_type msgpos = msgwithval.size();
+		CapNotifyMessage msg(add, capname);
+		CapNotifyValueMessage msgwithval(capname);
+
+		ClientProtocol::Event event(protoev, msg);
+		ClientProtocol::Event eventwithval(protoev, msgwithval);
 
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -73,13 +107,14 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 				const std::string* capvalue = cap->GetValue(user);
 				if ((capvalue) && (!capvalue->empty()))
 				{
-					msgwithval.append(*capvalue);
-					user->WriteCommand("CAP", msgwithval);
-					msgwithval.erase(msgpos);
+					msgwithval.SetUser(user);
+					msgwithval.SetCapValue(*capvalue);
+					user->Send(eventwithval);
 					continue;
 				}
 			}
-			user->WriteCommand("CAP", msg);
+			msg.SetUser(user);
+			user->Send(event);
 		}
 	}
 
@@ -88,6 +123,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		: Cap::EventListener(this)
 		, ReloadModule::EventListener(this)
 		, capnotify(this)
+		, protoev(this, "CAP_NOTIFY")
 	{
 	}
 

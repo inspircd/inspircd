@@ -39,7 +39,8 @@ static void QuitAll()
 
 void DieRestart::SendError(const std::string& message)
 {
-	const std::string unregline = "ERROR :" + message;
+	ClientProtocol::Messages::Error errormsg(message);
+	ClientProtocol::Event errorevent(ServerInstance->GetRFCEvents().error, errormsg);
 	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
@@ -51,7 +52,7 @@ void DieRestart::SendError(const std::string& message)
 		else
 		{
 			// Unregistered connections receive ERROR, not a NOTICE
-			user->Write(unregline);
+			user->Send(errorevent);
 		}
 	}
 }

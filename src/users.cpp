@@ -26,6 +26,8 @@
 #include "inspircd.h"
 #include "xline.h"
 
+ClientProtocol::MessageList LocalUser::sendmsglist;
+
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
@@ -87,6 +89,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
+	, serializer(NULL)
 	, bytes_in(0)
 	, bytes_out(0)
 	, cmds_in(0)
@@ -359,7 +362,16 @@ void User::Oper(OperInfo* info)
 
 	this->SetMode(opermh, true);
 	this->oper = info;
-	this->WriteCommand("MODE", "+o");
+
+	LocalUser* localuser = IS_LOCAL(this);
+	if (localuser)
+	{
+		Modes::ChangeList changelist;
+		changelist.push_add(opermh);
+		ClientProtocol::Events::Mode modemsg(ServerInstance->FakeClient, NULL, localuser, changelist);
+		localuser->Send(modemsg);
+	}
+
 	FOREACH_MOD(OnOper, (this, info->name));
 
 	std::string opername;
@@ -384,7 +396,7 @@ void User::Oper(OperInfo* info)
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
-	if (IS_LOCAL(this))
+	if (localuser)
 		oper->init();
 
 	FOREACH_MOD(OnPostOper, (this, oper->name, opername));
@@ -573,7 +585,10 @@ void LocalUser::FullConnect()
 		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	if (ServerInstance->Config->RawLog)
-		WriteServ("PRIVMSG %s :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", nick.c_str());
+	{
+		ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, this, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
+		this->Send(ServerInstance->GetRFCEvents().privmsg, rawlogmsg);
+	}
 
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
@@ -651,7 +666,11 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	}
 
 	if (this->registered == REG_ALL)
-		this->WriteCommon("NICK %s", newnick.c_str());
+	{
+		ClientProtocol::Messages::Nick nickmsg(this, newnick);
+		ClientProtocol::Event nickevent(ServerInstance->GetRFCEvents().nick, nickmsg);
+		this->WriteCommonRaw(nickevent, true);
+	}
 	const std::string oldnick = nick;
 	nick = newnick;
 
@@ -667,7 +686,10 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 
 void LocalUser::OverruleNick()
 {
-	this->WriteFrom(this, "NICK %s", this->uuid.c_str());
+	{
+		ClientProtocol::Messages::Nick nickmsg(this, this->uuid);
+		this->Send(ServerInstance->GetRFCEvents().nick, nickmsg);
+	}
 	this->WriteNumeric(ERR_NICKNAMEINUSE, this->nick, "Nickname overruled.");
 
 	// Clear the bit before calling ChangeNick() to make it NOT run the OnUserPostNick() hook
@@ -763,35 +785,24 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_elin
 	}
 }
 
-static std::string wide_newline("\r\n");
-
-void User::Write(const std::string& text)
-{
-}
-
-void User::Write(const char *text, ...)
-{
-}
-
-void LocalUser::Write(const std::string& text)
+void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 {
 	if (!SocketEngine::BoundsCheckFd(&eh))
 		return;
 
-	// The maximum size of an IRC message minus the terminating CR+LF.
-	const size_t maxmessage = ServerInstance->Config->Limits.MaxLine - 2;
-	if (text.length() > maxmessage)
+	if (ServerInstance->Config->RawLog)
 	{
-		// This should happen rarely or never. Crop the string at MaxLine and try again.
-		std::string try_again(text, 0, maxmessage);
-		Write(try_again);
-		return;
+		if (text.empty())
+			return;
+
+		std::string::size_type nlpos = text.find_first_of("\r\n", 0, 2);
+		if (nlpos == std::string::npos)
+			nlpos = text.length(); // TODO is this ok, test it
+
+		ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), (int) nlpos, text.c_str());
 	}
 
-	ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
-
 	eh.AddWriteBuf(text);
-	eh.AddWriteBuf(wide_newline);
 
 	const size_t bytessent = text.length() + 2;
 	ServerInstance->stats.Sent += bytessent;
@@ -799,53 +810,47 @@ void LocalUser::Write(const std::string& text)
 	this->cmds_out++;
 }
 
-/** Write()
- */
-void LocalUser::Write(const char *text, ...)
+void LocalUser::Send(ClientProtocol::Event& protoev)
 {
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->Write(textbuffer);
-}
+	if (!serializer)
+		return;
 
-void User::WriteServ(const std::string& text)
-{
-	this->Write(":%s %s",ServerInstance->Config->ServerName.c_str(),text.c_str());
-}
-
-/** WriteServ()
- *  Same as Write(), except `text' is prefixed with `:server.name '.
- */
-void User::WriteServ(const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteServ(textbuffer);
-}
-
-void User::WriteCommand(const char* command, const std::string& text)
-{
-	this->WriteServ(command + (this->registered & REG_NICK ? " " + this->nick : " *") + " " + text);
-}
-
-namespace
-{
-	std::string BuildNumeric(const std::string& source, User* targetuser, unsigned int num, const Command::Params& params)
+	// In the most common case a static LocalUser field, sendmsglist, is passed to the event to be
+	// populated. The list is cleared before returning.
+	// To handle re-enters, if sendmsglist is non-empty upon entering the method then a temporary
+	// list is used instead of the static one.
+	if (sendmsglist.empty())
 	{
-		const char* const target = (targetuser->registered & REG_NICK ? targetuser->nick.c_str() : "*");
-		std::string raw = InspIRCd::Format(":%s %03u %s", source.c_str(), num, target);
-		if (!params.empty())
-		{
-			for (std::vector<std::string>::const_iterator i = params.begin(); i != params.end()-1; ++i)
-				raw.append(1, ' ').append(*i);
-			raw.append(" :").append(params.back());
-		}
-		return raw;
+		Send(protoev, sendmsglist);
+		sendmsglist.clear();
+	}
+	else
+	{
+		ClientProtocol::MessageList msglist;
+		Send(protoev, msglist);
+	}
+}
+
+void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist)
+{
+	// Modules can personalize the messages sent per user for the event
+	protoev.GetMessagesForUser(this, msglist);
+	for (ClientProtocol::MessageList::const_iterator i = msglist.begin(); i != msglist.end(); ++i)
+	{
+		ClientProtocol::Message& curr = **i;
+		ModResult res;
+		FIRST_MOD_RESULT(OnUserWrite, res, (this, curr));
+		if (res != MOD_RES_DENY)
+			Write(serializer->SerializeForUser(this, curr));
 	}
 }
 
 void User::WriteNumeric(const Numeric::Numeric& numeric)
 {
+	LocalUser* const localuser = IS_LOCAL(this);
+	if (!localuser)
+		return;
+
 	ModResult MOD_RESULT;
 
 	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric));
@@ -853,24 +858,8 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
-	const std::string& servername = (numeric.GetServer() ? numeric.GetServer()->GetName() : ServerInstance->Config->ServerName);
-	this->Write(BuildNumeric(servername, this, numeric.GetNumeric(), numeric.GetParams()));
-}
-
-void User::WriteFrom(User *user, const std::string &text)
-{
-	const std::string message = ":" + user->GetFullHost() + " " + text;
-	this->Write(message);
-}
-
-
-/* write text from an originating user to originating user */
-
-void User::WriteFrom(User *user, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteFrom(user, textbuffer);
+	ClientProtocol::Messages::Numeric numericmsg(numeric, localuser);
+	localuser->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 }
 
 void User::WriteRemoteNotice(const std::string& text)
@@ -887,32 +876,24 @@ namespace
 {
 	class WriteCommonRawHandler : public User::ForEachNeighborHandler
 	{
-		const std::string& msg;
+		ClientProtocol::Event& ev;
 
 		void Execute(LocalUser* user) CXX11_OVERRIDE
 		{
-			user->Write(msg);
+			user->Send(ev);
 		}
 
 	 public:
-		WriteCommonRawHandler(const std::string& message)
-			: msg(message)
+		WriteCommonRawHandler(ClientProtocol::Event& protoev)
+			: ev(protoev)
 		{
 		}
 	};
 }
 
-void User::WriteCommon(const char* text, ...)
+void User::WriteCommonRaw(ClientProtocol::Event& protoev, bool include_self)
 {
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
-	this->WriteCommonRaw(textbuffer, true);
-}
-
-void User::WriteCommonRaw(const std::string &line, bool include_self)
-{
-	WriteCommonRawHandler handler(line);
+	WriteCommonRawHandler handler(protoev);
 	ForEachNeighbor(handler, include_self);
 }
 
@@ -1201,6 +1182,16 @@ void User::PurgeEmptyChannels()
 	}
 
 	this->UnOper();
+}
+
+void User::WriteNotice(const std::string& text)
+{
+	LocalUser* const localuser = IS_LOCAL(this);
+	if (!localuser)
+		return;
+
+	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, text, MSG_NOTICE);
+	localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 }
 
 const std::string& FakeUser::GetFullHost()

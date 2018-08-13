@@ -41,15 +41,22 @@ class CoreExport MessageDetails
 	/* The original message as sent by the user. */
 	const std::string originaltext;
 
+	/** IRCv3 message tags sent to the server by the user. */
+	const ClientProtocol::TagMap tags_in;
+
+	/** IRCv3 message tags sent out to users who get this message. */
+	ClientProtocol::TagMap tags_out;
+
 	/** The message which will be sent to clients. */
 	std::string text;
 
 	/** The type of message. */
 	const MessageType type;
 
-	MessageDetails(MessageType mt, const std::string& msg)
+	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
 		: echooriginal(false)
 		, originaltext(msg)
+		, tags_in(tags)
 		, text(msg)
 		, type(mt)
 	{

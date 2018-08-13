@@ -498,41 +498,10 @@ class CoreExport User : public Extensible
 	 */
 	void UnOper();
 
-	/** Write text to this user, appending CR/LF. Works on local users only.
-	 * @param text A std::string to send to the user
-	 */
-	virtual void Write(const std::string &text);
-
-	/** Write text to this user, appending CR/LF.
-	 * Works on local users only.
-	 * @param text The format string for text to send to the user
-	 * @param ... POD-type format arguments
-	 */
-	virtual void Write(const char *text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Write text to this user, appending CR/LF and prepending :server.name
-	 * Works on local users only.
-	 * @param text A std::string to send to the user
-	 */
-	void WriteServ(const std::string& text);
-
-	/** Write text to this user, appending CR/LF and prepending :server.name
-	 * Works on local users only.
-	 * @param text The format string for text to send to the user
-	 * @param ... POD-type format arguments
-	 */
-	void WriteServ(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Sends a command to this user.
-	 * @param command The command to be sent.
-	 * @param text The message to send.
-	 */
-	void WriteCommand(const char* command, const std::string& text);
-
 	/** Sends a server notice to this user.
 	 * @param text The contents of the message to send.
 	 */
-	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
+	void WriteNotice(const std::string& text);
 
 	/** Send a NOTICE message from the local server to the user.
 	 * @param text Text to send
@@ -643,30 +612,11 @@ class CoreExport User : public Extensible
 		WriteNumeric(n);
 	}
 
-	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
-	 * @param user The user to prepend the :nick!user\@host of
-	 * @param text A std::string to send to the user
-	 */
-	void WriteFrom(User *user, const std::string &text);
-
-	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
-	 * @param user The user to prepend the :nick!user\@host of
-	 * @param text The format string for text to send to the user
-	 * @param ... POD-type format arguments
-	 */
-	void WriteFrom(User *user, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
-	 * @param line A std::string to send to the users
+	 * @param protoev Protocol event to send, may contain any number of messages.
 	 * @param include_self Should the message be sent back to the author?
 	 */
-	void WriteCommonRaw(const std::string &line, bool include_self = true);
-
-	/** Write to all users that can see this user (including this user in the list), appending CR/LF
-	 * @param text The format string for text to send to the users
-	 * @param ... POD-type format arguments
-	 */
-	void WriteCommon(const char* text, ...) CUSTOM_PRINTF(2, 3);
+	void WriteCommonRaw(ClientProtocol::Event& protoev, bool include_self = true);
 
 	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
 	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
@@ -750,11 +700,31 @@ typedef unsigned int already_sent_t;
 
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
+	/** Add a serialized message to the send queue of the user.
+	 * @param serialized Bytes to add.
+	 */
+	void Write(const ClientProtocol::SerializedMessage& serialized);
+
+	/** Send a protocol event to the user, consisting of one or more messages.
+	 * @param protoev Event to send, may contain any number of messages.
+	 * @param msglist Message list used temporarily internally to pass to hooks and store messages
+	 * before Write().
+	 */
+	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
+
+	/** Message list, can be passed to the two parameter Send().
+	 */
+	static ClientProtocol::MessageList sendmsglist;
+
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull() CXX11_OVERRIDE;
 
 	UserIOHandler eh;
+
+	/** Serializer to use when communicating with the user
+	 */
+	ClientProtocol::Serializer* serializer;
 
 	/** Stats counter for bytes inbound
 	 */
@@ -850,9 +820,6 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
 	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true) CXX11_OVERRIDE;
 
-	void Write(const std::string& text) CXX11_OVERRIDE;
-	void Write(const char*, ...) CXX11_OVERRIDE CUSTOM_PRINTF(2, 3);
-
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.
 	 * @param text Text to send
@@ -890,6 +857,17 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * isn't registered.
 	 */
 	void OverruleNick();
+
+	/** Send a protocol event to the user, consisting of one or more messages.
+	 * @param protoev Event to send, may contain any number of messages.
+	 */
+	void Send(ClientProtocol::Event& protoev);
+
+	/** Send a single message to the user.
+	 * @param protoevprov Protocol event provider.
+	 * @param msg Message to send.
+	 */
+	void Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg);
 };
 
 class RemoteUser : public User

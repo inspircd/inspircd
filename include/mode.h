@@ -614,11 +614,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	ModeHandler::Id AllocateModeId(ModeType mt);
 
-	/** The string representing the last set of modes to be parsed.
-	 * Use GetLastParse() to get this value, to be used for  display purposes.
-	 */
-	std::string LastParse;
-
 	/** Cached mode list for use in 004 numeric
 	 */
 	TR1NS::array<std::string, 3> Cached004ModeList;
@@ -680,13 +675,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 	/** Gets the last mode change to be processed. */
 	const Modes::ChangeList& GetLastChangeList() const { return LastChangeList; }
-
-	/** Get the last string to be processed, as it was sent to the user or channel.
-	 * Use this to display a string you just sent to be parsed, as the actual output
-	 * may be different to what you sent after it has been 'cleaned up' by the parser.
-	 * @return Last parsed string, as seen by users.
-	 */
-	const std::string& GetLastParse() const { return LastParse; }
 
 	/** Add a mode to the mode parser.
 	 * Throws a ModuleException if the mode cannot be added.

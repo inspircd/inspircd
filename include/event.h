@@ -34,7 +34,12 @@ namespace Events
 class Events::ModuleEventProvider : public ServiceProvider, private dynamic_reference_base::CaptureHook
 {
  public:
-	typedef std::vector<ModuleEventListener*> SubscriberList;
+	struct Comp
+	{
+		bool operator()(ModuleEventListener* one, ModuleEventListener* two) const;
+	};
+
+	typedef insp::flat_multiset<ModuleEventListener*, Comp> SubscriberList;
 
 	/** Constructor
 	 * @param mod Module providing the event(s)
@@ -84,20 +89,25 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	 */
 	dynamic_reference_nocheck<ModuleEventProvider> prov;
 
+	const unsigned int eventpriority;
+
 	/** Called by the dynref when the event provider becomes available
 	 */
 	void OnCapture() CXX11_OVERRIDE
 	{
-		prov->subscribers.push_back(this);
+		prov->subscribers.insert(this);
 	}
 
  public:
+	static const unsigned int DefaultPriority = 100;
+
 	/** Constructor
 	 * @param mod Module subscribing
 	 * @param eventid Identifier of the event to subscribe to
 	 */
-	ModuleEventListener(Module* mod, const std::string& eventid)
+	ModuleEventListener(Module* mod, const std::string& eventid, unsigned int eventprio = DefaultPriority)
 		: prov(mod, eventid)
+		, eventpriority(eventprio)
 	{
 		prov.SetCaptureHook(this);
 		// If the dynamic_reference resolved at construction our capture handler wasn't called
@@ -108,9 +118,16 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	~ModuleEventListener()
 	{
 		if (prov)
-			stdalgo::erase(prov->subscribers, this);
+			prov->subscribers.erase(this);
 	}
+
+	friend struct ModuleEventProvider::Comp;
 };
+
+inline bool Events::ModuleEventProvider::Comp::operator()(Events::ModuleEventListener* one, Events::ModuleEventListener* two) const
+{
+	return (one->eventpriority < two->eventpriority);
+}
 
 /**
  * Run the given hook provided by a module
@@ -118,8 +135,8 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
  * FOREACH_MOD_CUSTOM(accountevprov, AccountEventListener, OnAccountChange, MOD_RESULT, (user, newaccount))
  */
 #define FOREACH_MOD_CUSTOM(prov, listenerclass, func, params) do { \
-	const Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
+	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
 	{ \
 		listenerclass* _t = static_cast<listenerclass*>(*_i); \
 		_t->func params ; \
@@ -135,8 +152,8 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
  */
 #define FIRST_MOD_RESULT_CUSTOM(prov, listenerclass, func, result, params) do { \
 	result = MOD_RES_PASSTHRU; \
-	const Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
+	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
 	{ \
 		listenerclass* _t = static_cast<listenerclass*>(*_i); \
 		result = _t->func params ; \

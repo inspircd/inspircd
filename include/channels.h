@@ -232,75 +232,22 @@ class CoreExport Channel : public Extensible
 	 */
 	Membership* ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
-	/** Write to a channel, from a user, using va_args for text
-	 * @param user User whos details to prefix the line with
-	 * @param text A printf-style format string which builds the output line without prefix
-	 * @param ... Zero or more POD types
-	 */
-	void WriteChannel(User* user, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
-	/** Write to a channel, from a user, using std::string for text
-	 * @param user User whos details to prefix the line with
-	 * @param text A std::string containing the output line without prefix
-	 */
-	void WriteChannel(User* user, const std::string &text);
-
-	/** Write to a channel, from a server, using va_args for text
-	 * @param ServName Server name to prefix the line with
-	 * @param text A printf-style format string which builds the output line without prefix
-	 * @param ... Zero or more POD type
-	 */
-	void WriteChannelWithServ(const std::string& ServName, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
-	/** Write to a channel, from a server, using std::string for text
-	 * @param ServName Server name to prefix the line with
-	 * @param text A std::string containing the output line without prefix
-	 */
-	void WriteChannelWithServ(const std::string& ServName, const std::string &text);
-
-	/** Write to all users on a channel except a specific user, using va_args for text.
-	 * Internally, this calls WriteAllExcept().
-	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
-	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user\@host of the user.
-	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param text A printf-style format string which builds the output line without prefix
-	 * @param ... Zero or more POD type
-	 */
-	void WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...) CUSTOM_PRINTF(5, 6);
-
-	/** Write to all users on a channel except a list of users, using va_args for text
-	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
-	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user\@host of the user.
-	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param except_list A list of users NOT to send the text to
-	 * @param text A printf-style format string which builds the output line without prefix
-	 * @param ... Zero or more POD type
-	 */
-	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...) CUSTOM_PRINTF(6, 7);
-
-	/** Write to all users on a channel except a specific user, using std::string for text.
-	 * Internally, this calls WriteAllExcept().
-	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
-	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user\@host of the user.
+	/** Write to all users on a channel except some users
+	 * @param protoev Event to send, may contain any number of messages.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A std::string containing the output line without prefix
+	 * @param except_list List of users not to send to
 	 */
-	void WriteAllExceptSender(User* user, bool serversource, char status, const std::string& text);
+	void Write(ClientProtocol::Event& protoev, char status = 0, const CUList& except_list = CUList());
 
-	/** Write to all users on a channel except a list of users, using std::string for text
-	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
-	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user\@host of the user.
+	/** Write to all users on a channel except some users.
+	 * @param protoevprov Protocol event provider for the message.
+	 * @param msg Message to send.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param except_list A list of users NOT to send the text to
 	 * @param text A std::string containing the output line without prefix
+	 * @param except_list List of users not to send to
 	 */
-	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
-	/** Write a line of text that already includes the source */
-	void RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
+	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = CUList());
 
 	/** Return the channel's modes with parameters.
 	 * @param showkey If this is set to true, the actual key is shown,

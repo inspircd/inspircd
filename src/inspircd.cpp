@@ -271,6 +271,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	srandom(TIME.tv_nsec ^ TIME.tv_sec);
 #endif
 
+	{
+		ServiceProvider* provs[] =
+		{
+			&rfcevents.numeric, &rfcevents.join, &rfcevents.part, &rfcevents.kick, &rfcevents.quit, &rfcevents.nick,
+			&rfcevents.mode, &rfcevents.topic, &rfcevents.privmsg, &rfcevents.invite, &rfcevents.ping, &rfcevents.pong,
+			&rfcevents.error
+		};
+		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
+	}
+
 	struct option longopts[] =
 	{
 		{ "nofork",	no_argument,		&do_nofork,	1	},

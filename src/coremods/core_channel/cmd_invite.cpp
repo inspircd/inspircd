@@ -114,10 +114,12 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			}
 		}
 
-		if (IS_LOCAL(u))
+		LocalUser* const localtargetuser = IS_LOCAL(u);
+		if (localtargetuser)
 		{
-			invapi.Create(IS_LOCAL(u), c, timeout);
-			u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
+			invapi.Create(localtargetuser, c, timeout);
+			ClientProtocol::Messages::Invite invitemsg(user, localtargetuser, c);
+			localtargetuser->Send(ServerInstance->GetRFCEvents().invite, invitemsg);
 		}
 
 		if (IS_LOCAL(user))
@@ -156,7 +158,11 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
 
 		if (announceinvites != Invite::ANNOUNCE_NONE)
-			c->WriteAllExcept(user, true, prefix, excepts, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
+		{
+			excepts.insert(user);
+			ClientProtocol::Messages::Privmsg privmsg(ServerInstance->FakeClient, c, InspIRCd::Format("*** %s invited %s into the channel", user->nick.c_str(), u->nick.c_str()), MSG_NOTICE);
+			c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, prefix, excepts);
+		}
 	}
 	else if (IS_LOCAL(user))
 	{

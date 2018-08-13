@@ -227,7 +227,7 @@ enum Implementation
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
-	I_OnServiceAdd, I_OnServiceDel,
+	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
 	I_END
 };
 
@@ -561,9 +561,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param changelist The changed modes.
 	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
 	 * for the possible flags.
-	 * @param output_mode Changed modes, including '+' and '-' characters, not including any parameters
 	 */
-	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -953,6 +952,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param service ServiceProvider being unregistered.
 	 */
 	virtual void OnServiceDel(ServiceProvider& service);
+
+	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
 };
 
 /** ModuleManager takes care of all things module-related

@@ -731,7 +731,7 @@ void ModuleSpanningTree::OnUserBack(User* user)
 		CommandAway::Builder(user).Broadcast();
 }
 
-void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags, const std::string& output_mode)
+void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags)
 {
 	if (processflags & ModeParser::MODE_LOCALONLY)
 		return;
@@ -743,7 +743,7 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 
 		CmdBuilder params(source, "MODE");
 		params.push(u->uuid);
-		params.push(output_mode);
+		params.push(ClientProtocol::Messages::Mode::ToModeLetters(modes));
 		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
 		params.Broadcast();
 	}
@@ -752,7 +752,7 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 		CmdBuilder params(source, "FMODE");
 		params.push(c->name);
 		params.push_int(c->age);
-		params.push(output_mode);
+		params.push(ClientProtocol::Messages::Mode::ToModeLetters(modes));
 		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
 		params.Broadcast();
 	}

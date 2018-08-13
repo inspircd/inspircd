@@ -54,6 +54,23 @@ class Modes::ChangeList
 	typedef std::vector<Change> List;
 
 	/** Add a new mode to be changed to this ChangeList
+	 * @param change Mode change to add
+	 */
+	void push(const Modes::Change& change)
+	{
+		items.push_back(change);
+	}
+
+	/** Insert multiple mode changes to the ChangeList
+	 * @param first Iterator to the first change to insert
+	 * @param last Iterator to the first change to not insert
+	 */
+	void push(List::const_iterator first, List::const_iterator last)
+	{
+		items.insert(items.end(), first, last);
+	}
+
+	/** Add a new mode to be changed to this ChangeList
 	 * @param mh Mode handler
 	 * @param adding True if this mode is being set, false if removed
 	 * @param param Mode parameter

@@ -49,6 +49,34 @@ class XLineFactory;
 struct ConnectClass;
 struct ModResult;
 
+namespace ClientProtocol
+{
+	class Event;
+	class EventProvider;
+	class Message;
+	class MessageTagProvider;
+	class Serializer;
+
+	typedef std::vector<Message*> MessageList;
+	typedef std::vector<std::string> ParamList;
+	typedef std::string SerializedMessage;
+
+	struct MessageTagData
+	{
+		MessageTagProvider* tagprov;
+		std::string value;
+		void* provdata;
+
+		MessageTagData(MessageTagProvider* prov, const std::string& val, void* data = NULL);
+	};
+
+	/** Map of message tag values and providers keyed by their name.
+	 * Sorted in descending order to ensure tag names beginning with symbols (such as '+') come later when iterating
+	 * the container than tags with a normal name.
+	 */
+	typedef insp::flat_map<std::string, MessageTagData, std::greater<std::string> > TagMap;
+}
+
 #include "hashcomp.h"
 #include "base.h"
 

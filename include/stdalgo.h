@@ -210,4 +210,86 @@ namespace stdalgo
 	{
 		return (std::find(cont.begin(), cont.end(), val) != cont.end());
 	}
+
+	namespace string
+	{
+		/**
+		 * Escape a string
+		 * @param str String to escape
+		 * @param out Output, must not be the same string as str
+		 */
+		template <char from, char to, char esc>
+		inline void escape(const std::string& str, std::string& out)
+		{
+			for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+			{
+				char c = *i;
+				if (c == esc)
+					out.append(2, esc);
+				else
+				{
+					if (c == from)
+					{
+						out.push_back(esc);
+						c = to;
+					}
+					out.push_back(c);
+				}
+			}
+		}
+
+		/**
+		 * Escape a string using the backslash character as the escape character
+		 * @param str String to escape
+		 * @param out Output, must not be the same string as str
+		 */
+		template <char from, char to>
+		inline void escape(const std::string& str, std::string& out)
+		{
+			escape<from, to, '\\'>(str, out);
+		}
+
+		/**
+		 * Unescape a string
+		 * @param str String to unescape
+		 * @param out Output, must not be the same string as str
+		 * @return True if the string was unescaped, false if an invalid escape sequence is present in the input in which case out will contain a partially unescaped string
+		 */
+		template<char from, char to, char esc>
+		inline bool unescape(const std::string& str, std::string& out)
+		{
+			for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+			{
+				char c = *i;
+				if (c == '\\')
+				{
+					++i;
+					if (i == str.end())
+						return false;
+
+					char nextc = *i;
+					if (nextc == esc)
+						c = esc;
+					else if (nextc != to)
+						return false; // Invalid escape sequence
+					else
+						c = from;
+				}
+				out.push_back(c);
+			}
+			return true;
+		}
+
+		/**
+		 * Unescape a string using the backslash character as the escape character
+		 * @param str String to unescape
+		 * @param out Output, must not be the same string as str
+		 * @return True if the string was unescaped, false if an invalid escape sequence is present in the input in which case out will contain a partially unescaped string
+		 */
+		template <char from, char to>
+		inline bool unescape(const std::string& str, std::string& out)
+		{
+			return unescape<from, to, '\\'>(str, out);
+		}
+	}
 }

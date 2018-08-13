@@ -38,7 +38,7 @@ class CoreExport CommandParser
 	 * @param command The name of the command.
 	 * @param parameters The parameters to the command.
 	 */
-	void ProcessCommand(LocalUser* user, std::string& command, Command::Params& parameters);
+	void ProcessCommand(LocalUser* user, std::string& command, CommandBase::Params& parameters);
 
 	/** Command list, a hash_map of command names to Command*
 	 */

@@ -63,13 +63,14 @@ class CommandShowFile : public Command
 
 			user->WriteRemoteNumeric(endnumeric, endtext.c_str());
 		}
-		else
+		else if (IS_LOCAL(user))
 		{
-			const char* msgcmd = (method == SF_MSG ? "PRIVMSG" : "NOTICE");
+			LocalUser* const localuser = IS_LOCAL(user);
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
 			{
 				const std::string& line = *i;
-				user->WriteCommand(msgcmd, ":" + line);
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, line, ((method == SF_MSG) ? MSG_PRIVMSG : MSG_NOTICE));
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}
 		}
 		return CMD_SUCCESS;

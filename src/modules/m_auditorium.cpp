@@ -32,6 +32,29 @@ class AuditoriumMode : public SimpleChannelModeHandler
 	}
 };
 
+class ModuleAuditorium;
+
+namespace
+{
+
+/** Hook handler for join client protocol events.
+ * This allows us to block join protocol events completely, including all associated messages (e.g. MODE, away-notify AWAY).
+ * This is not the same as OnUserJoin() because that runs only when a real join happens but this runs also when a module
+ * such as delayjoin or hostcycle generates a join.
+ */
+class JoinHook : public ClientProtocol::EventHook
+{
+	ModuleAuditorium* const parentmod;
+	bool active;
+
+ public:
+	JoinHook(ModuleAuditorium* mod);
+	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE;
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE;
+};
+
+}
+
 class ModuleAuditorium : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
@@ -39,11 +62,13 @@ class ModuleAuditorium : public Module
 	bool OpsVisible;
 	bool OpsCanSee;
 	bool OperCanSee;
+	JoinHook joinhook;
 
  public:
 	ModuleAuditorium()
 		: exemptionprov(this)
 		, aum(this)
+		, joinhook(this)
 	{
 	}
 
@@ -115,11 +140,6 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
-	{
-		BuildExcept(memb, excepts);
-	}
-
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
@@ -164,5 +184,26 @@ class ModuleAuditorium : public Module
 		return MOD_RES_DENY;
 	}
 };
+
+JoinHook::JoinHook(ModuleAuditorium* mod)
+	: ClientProtocol::EventHook(mod, "JOIN", 10)
+	, parentmod(mod)
+{
+}
+
+void JoinHook::OnEventInit(const ClientProtocol::Event& ev)
+{
+	const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
+	active = !parentmod->IsVisible(join.GetMember());
+}
+
+ModResult JoinHook::OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist)
+{
+	if (!active)
+		return MOD_RES_PASSTHRU;
+
+	const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
+	return ((parentmod->CanSee(user, join.GetMember())) ? MOD_RES_PASSTHRU : MOD_RES_DENY);
+}
 
 MODULE_INIT(ModuleAuditorium)

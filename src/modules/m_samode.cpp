@@ -26,6 +26,8 @@
  */
 class CommandSamode : public Command
 {
+	bool logged;
+
  public:
 	bool active;
 	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
@@ -55,23 +57,28 @@ class CommandSamode : public Command
 		Modes::ChangeList emptychangelist;
 		ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
 
+		logged = false;
 		this->active = true;
-		CmdResult result = ServerInstance->Parser.CallHandler("MODE", parameters, user);
+		ServerInstance->Parser.CallHandler("MODE", parameters, user);
 		this->active = false;
 
-		if (result == CMD_SUCCESS)
+		if (!logged)
 		{
-			// If lastparse is empty and the MODE command handler returned CMD_SUCCESS then
-			// the client queried the list of a listmode (e.g. /SAMODE #chan b), which was
-			// handled internally by the MODE command handler.
+			// If we haven't logged anything yet then the client queried the list of a listmode
+			// (e.g. /SAMODE #chan b), which was handled internally by the MODE command handler.
 			//
-			// Viewing the modes of a user or a channel can also result in CMD_SUCCESS, but
+			// Viewing the modes of a user or a channel could also result in this, but
 			// that is not possible with /SAMODE because we require at least 2 parameters.
-			const std::string& lastparse = ServerInstance->Modes.GetLastParse();
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? stdalgo::string::join(parameters) : lastparse));
+			LogUsage(user, stdalgo::string::join(parameters));
 		}
 
 		return CMD_SUCCESS;
+	}
+
+	void LogUsage(const User* user, const std::string& text)
+	{
+		logged = true;
+		ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + text);
 	}
 };
 
@@ -94,6 +101,25 @@ class ModuleSaMode : public Module
 		if (cmd.active)
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnMode(User* user, User* destuser, Channel* destchan, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE
+	{
+		if (!cmd.active)
+			return;
+
+		std::string logtext = (destuser ? destuser->nick : destchan->name);
+		logtext.push_back(' ');
+		logtext += ClientProtocol::Messages::Mode::ToModeLetters(modes);
+
+		for (Modes::ChangeList::List::const_iterator i = modes.getlist().begin(); i != modes.getlist().end(); ++i)
+		{
+			const Modes::Change& item = *i;
+			if (!item.param.empty())
+				logtext.append(1, ' ').append(item.param);
+		}
+
+		cmd.LogUsage(user, logtext);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

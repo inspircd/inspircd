@@ -46,8 +46,10 @@ class ModuleWaitPong : public Module
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		std::string pingrpl = ServerInstance->GenRandomStr(10);
-
-		user->Write("PING :%s", pingrpl.c_str());
+		{
+			ClientProtocol::Messages::Ping pingmsg(pingrpl);
+			user->Send(ServerInstance->GetRFCEvents().ping, pingmsg);
+		}
 
 		if(sendsnotice)
 			user->WriteNotice("*** If you are having problems connecting due to ping timeouts, please type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");

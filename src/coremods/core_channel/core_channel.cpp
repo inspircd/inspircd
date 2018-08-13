@@ -22,6 +22,71 @@
 #include "invite.h"
 #include "listmode.h"
 
+namespace
+{
+/** Hook that sends a MODE after a JOIN if the user in the JOIN has some modes prefix set.
+ * This happens e.g. when modules such as operprefix explicitly set prefix modes on the joining
+ * user, or when a member with prefix modes does a host cycle.
+ */
+class JoinHook : public ClientProtocol::EventHook
+{
+	ClientProtocol::Messages::Mode modemsg;
+	Modes::ChangeList modechangelist;
+	const User* joininguser;
+
+ public:
+	/** If true, MODE changes after JOIN will be sourced from the user, rather than the server
+	 */
+	bool modefromuser;
+
+	JoinHook(Module* mod)
+		: ClientProtocol::EventHook(mod, "JOIN")
+	{
+	}
+
+	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE
+	{
+		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
+		const Membership& memb = *join.GetMember();
+
+		modechangelist.clear();
+		for (std::string::const_iterator i = memb.modes.begin(); i != memb.modes.end(); ++i)
+		{
+			PrefixMode* const pm = ServerInstance->Modes.FindPrefixMode(*i);
+			if (!pm)
+				continue; // Shouldn't happen
+			modechangelist.push_add(pm, memb.user->nick);
+		}
+
+		if (modechangelist.empty())
+		{
+			// Member got no modes on join
+			joininguser = NULL;
+			return;
+		}
+
+		joininguser = memb.user;
+
+		// Prepare a mode protocol event that we can append to the message list in OnPreEventSend()
+		modemsg.SetParams(memb.chan, NULL, modechangelist);
+		if (modefromuser)
+			modemsg.SetSource(join);
+		else
+			modemsg.SetSourceUser(ServerInstance->FakeClient);
+	}
+
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	{
+		// If joininguser is NULL then they didn't get any modes on join, skip.
+		// Also don't show their own modes to them, they get that in the NAMES list not via MODE.
+		if ((joininguser) && (user != joininguser))
+			messagelist.push_back(&modemsg);
+		return MOD_RES_PASSTHRU;
+	}
+};
+
+}
+
 class CoreModChannel : public Module, public CheckExemption::EventListener
 {
 	Invite::APIImpl invapi;
@@ -30,6 +95,8 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	CommandKick cmdkick;
 	CommandNames cmdnames;
 	CommandTopic cmdtopic;
+	Events::ModuleEventProvider evprov;
+	JoinHook joinhook;
 
 	ModeChannelBan banmode;
 	SimpleChannelModeHandler inviteonlymode;
@@ -62,6 +129,8 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		, cmdkick(this)
 		, cmdnames(this)
 		, cmdtopic(this)
+		, evprov(this, "event/channel")
+		, joinhook(this)
 		, banmode(this)
 		, inviteonlymode(this, "inviteonly", 'i')
 		, keymode(this)
@@ -87,6 +156,8 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
 				ServerInstance->Modules.Detach(events[i], this);
 		}
+
+		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		std::string current;
 		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));

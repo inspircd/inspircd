@@ -79,7 +79,7 @@ void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnU
 void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
 void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag, const std::string&) { DetachEvent(I_OnMode); }
+void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag) { DetachEvent(I_OnMode); }
 void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { DetachEvent(I_OnPostOper); }
 void		Module::OnPostDeoper(User*) { DetachEvent(I_OnPostDeoper); }
@@ -138,6 +138,7 @@ ModResult	Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, M
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
+ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
 
 #ifdef INSPIRCD_ENABLE_TESTSUITE
 void		Module::OnRunTestSuite() { }

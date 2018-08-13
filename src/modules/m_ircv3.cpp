@@ -22,24 +22,110 @@
 #include "modules/cap.h"
 #include "modules/ircv3.h"
 
+class AwayMessage : public ClientProtocol::Message
+{
+ public:
+	AwayMessage(User* user)
+		: ClientProtocol::Message("AWAY", user)
+	{
+		SetParams(user, user->awaymsg);
+	}
+
+	AwayMessage()
+		: ClientProtocol::Message("AWAY")
+	{
+	}
+
+	void SetParams(User* user, const std::string& awaymsg)
+	{
+		// Going away: 1 parameter which is the away reason
+		// Back from away: no parameter
+		if (!awaymsg.empty())
+			PushParam(awaymsg);
+	}
+};
+
+class JoinHook : public ClientProtocol::EventHook
+{
+	ClientProtocol::Events::Join extendedjoinmsg;
+
+ public:
+ 	const std::string asterisk;
+	ClientProtocol::EventProvider awayprotoev;
+	AwayMessage awaymsg;
+ 	Cap::Capability extendedjoincap;
+	Cap::Capability awaycap;
+
+	JoinHook(Module* mod)
+		: ClientProtocol::EventHook(mod, "JOIN")
+		, asterisk(1, '*')
+		, awayprotoev(mod, "AWAY")
+		, extendedjoincap(mod, "extended-join")
+		, awaycap(mod, "away-notify")
+	{
+	}
+
+	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE
+	{
+		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
+
+		// An extended join has two extra parameters:
+		// First the account name of the joining user or an asterisk if the user is not logged in.
+		// The second parameter is the realname of the joining user.
+
+		Membership* const memb = join.GetMember();
+		const std::string* account = &asterisk;
+		const AccountExtItem* const accountext = GetAccountExtItem();
+		if (accountext)
+		{
+			const std::string* accountname = accountext->get(memb->user);
+			if (accountname)
+				account = accountname;
+		}
+
+		extendedjoinmsg.ClearParams();
+		extendedjoinmsg.SetSource(join);
+		extendedjoinmsg.PushParamRef(memb->chan->name);
+		extendedjoinmsg.PushParamRef(*account);
+		extendedjoinmsg.PushParamRef(memb->user->GetRealName());
+
+		awaymsg.ClearParams();
+		if ((memb->user->IsAway()) && (awaycap.IsActive()))
+		{
+			awaymsg.SetSource(join);
+			awaymsg.SetParams(memb->user, memb->user->awaymsg);
+		}
+	}
+
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	{
+		if (extendedjoincap.get(user))
+			messagelist.front() = &extendedjoinmsg;
+
+		if ((!awaymsg.GetParams().empty()) && (awaycap.get(user)))
+			messagelist.push_back(&awaymsg);
+
+		return MOD_RES_PASSTHRU;
+	}
+};
+
 class ModuleIRCv3
 	: public Module
 	, public AccountEventListener
 	, public Away::EventListener
 {
 	Cap::Capability cap_accountnotify;
-	Cap::Capability cap_awaynotify;
-	Cap::Capability cap_extendedjoin;
+	JoinHook joinhook;
 
-	CUList last_excepts;
+	ClientProtocol::EventProvider accountprotoev;
 
  public:
 	ModuleIRCv3()
 		: AccountEventListener(this)
 		, Away::EventListener(this)
 		, cap_accountnotify(this, "account-notify")
-		, cap_awaynotify(this, "away-notify")
-		, cap_extendedjoin(this, "extended-join")
+		, joinhook(this)
+		, accountprotoev(this, "ACCOUNT")
 	{
 	}
 
@@ -47,141 +133,41 @@ class ModuleIRCv3
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
-		cap_awaynotify.SetActive(conf->getBool("awaynotify", true));
-		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
+		joinhook.awaycap.SetActive(conf->getBool("awaynotify", true));
+		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));
 	}
 
 	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
 	{
-		// :nick!user@host ACCOUNT account
-		// or
-		// :nick!user@host ACCOUNT *
-		std::string line = ":" + user->GetFullHost() + " ACCOUNT ";
-		if (newaccount.empty())
-			line += "*";
-		else
-			line += newaccount;
-
-		IRCv3::WriteNeighborsWithCap(user, line, cap_accountnotify);
-	}
-
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
-	{
-		// Remember who is not going to see the JOIN because of other modules
-		if ((cap_awaynotify.IsActive()) && (memb->user->IsAway()))
-			last_excepts = excepts;
-
-		if (!cap_extendedjoin.IsActive())
-			return;
-
-		/*
-		 * Send extended joins to clients who have the extended-join capability.
-		 * An extended join looks like this:
-		 *
-		 * :nick!user@host JOIN #chan account :realname
-		 *
-		 * account is the joining user's account if he's logged in, otherwise it's an asterisk (*).
-		 */
-
-		std::string line;
-		std::string mode;
-
-		const Channel::MemberMap& userlist = memb->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
-		{
-			// Send the extended join line if the current member is local, has the extended-join cap and isn't excepted
-			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_extendedjoin.get(member)) && (excepts.find(member) == excepts.end()))
-			{
-				// Construct the lines we're going to send if we haven't constructed them already
-				if (line.empty())
-				{
-					bool has_account = false;
-					line = ":" + memb->user->GetFullHost() + " JOIN " + memb->chan->name + " ";
-					const AccountExtItem* accountext = GetAccountExtItem();
-					if (accountext)
-					{
-						std::string* accountname;
-						accountname = accountext->get(memb->user);
-						if (accountname)
-						{
-							line += *accountname;
-							has_account = true;
-						}
-					}
-
-					if (!has_account)
-						line += "*";
-
-					line += " :" + memb->user->GetRealName();
-
-					// If the joining user received privileges from another module then we must send them as well,
-					// since silencing the normal join means the MODE will be silenced as well
-					if (!memb->modes.empty())
-					{
-						const std::string& modefrom = ServerInstance->Config->CycleHostsFromUser ? memb->user->GetFullHost() : ServerInstance->Config->ServerName;
-						mode = ":" + modefrom + " MODE " + memb->chan->name + " +" + memb->modes;
-
-						for (unsigned int i = 0; i < memb->modes.length(); i++)
-							mode += " " + memb->user->nick;
-					}
-				}
-
-				// Write the JOIN and the MODE, if any
-				member->Write(line);
-				if ((!mode.empty()) && (member != memb->user))
-					member->Write(mode);
-
-				// Prevent the core from sending the JOIN and MODE to this user
-				excepts.insert(it->first);
-			}
-		}
+		// Logged in: 1 parameter which is the account name
+		// Logged out: 1 parameter which is a "*"
+		ClientProtocol::Message msg("ACCOUNT", user);
+		const std::string& param = (newaccount.empty() ? joinhook.asterisk : newaccount);
+		msg.PushParamRef(param);
+		ClientProtocol::Event accountevent(accountprotoev, msg);
+		IRCv3::WriteNeighborsWithCap(user, accountevent, cap_accountnotify);
 	}
 
 	void OnUserAway(User* user) CXX11_OVERRIDE
 	{
-		if (!cap_awaynotify.IsActive())
+		if (!joinhook.awaycap.IsActive())
 			return;
 
 		// Going away: n!u@h AWAY :reason
-		const std::string line = ":" + user->GetFullHost() + " AWAY :" + user->awaymsg;
-		IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
+		AwayMessage msg(user);
+		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
+		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
 	}
 
 	void OnUserBack(User* user) CXX11_OVERRIDE
 	{
-		if (!cap_awaynotify.IsActive())
+		if (!joinhook.awaycap.IsActive())
 			return;
 
 		// Back from away: n!u@h AWAY
-		const std::string line = ":" + user->GetFullHost() + " AWAY";
-		IRCv3::WriteNeighborsWithCap(user, line, cap_awaynotify);
-	}
-
-	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
-	{
-		if ((!cap_awaynotify.IsActive()) || (!memb->user->IsAway()))
-			return;
-
-		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;
-
-		const Channel::MemberMap& userlist = memb->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
-		{
-			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
-			User* member = IS_LOCAL(it->first);
-			if ((member) && (cap_awaynotify.get(member)) && (last_excepts.find(member) == last_excepts.end()) && (it->second != memb))
-			{
-				member->Write(line);
-			}
-		}
-
-		last_excepts.clear();
-	}
-
-	void Prioritize() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_LAST);
+		AwayMessage msg(user);
+		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
+		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

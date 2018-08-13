@@ -32,8 +32,8 @@ class ModuleIRCv3InviteNotify : public Module
 
 	void OnUserInvite(User* source, User* dest, Channel* chan, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE
 	{
-		std::string msg = "INVITE ";
-		msg.append(dest->nick).append(1, ' ').append(chan->name);
+		ClientProtocol::Messages::Invite invitemsg(source, dest, chan);
+		ClientProtocol::Event inviteevent(ServerInstance->GetRFCEvents().invite, invitemsg);
 		const Channel::MemberMap& users = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
@@ -47,8 +47,10 @@ class ModuleIRCv3InviteNotify : public Module
 			if (memb->getRank() < notifyrank)
 				continue;
 
+			// Caps are only set on local users
+			LocalUser* const localuser = static_cast<LocalUser*>(user);
 			// Send and add the user to the exceptions so they won't get the NOTICE invite announcement message
-			user->WriteFrom(source, msg);
+			localuser->Send(inviteevent);
 			notifyexcepts.insert(user);
 		}
 	}
