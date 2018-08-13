@@ -220,7 +220,7 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnChangeLocalUserHost, I_OnPreTopicChange,
+	I_OnPreChangeHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
@@ -824,7 +824,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual ModResult OnChangeLocalUserHost(LocalUser* user, const std::string &newhost);
+	virtual ModResult OnPreChangeHost(LocalUser* user, const std::string &newhost);
 
 	/** Called whenever a change of a local users real name is attempted.
 	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
