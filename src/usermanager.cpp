@@ -179,7 +179,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (user, reason));
-	if (MOD_RESULT != MOD_RES_ALLOW) {
+	if (MOD_RESULT == MOD_RES_DENY) {
 		return;
 	}
 
