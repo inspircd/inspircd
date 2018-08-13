@@ -85,7 +85,7 @@ CmdResult CommandInfo::Handle(User* user, const Params& parameters)
 	int i=0;
 	while (lines[i])
 		user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
-	FOREACH_MOD(OnInfo, (user));
+
 	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
 	return CMD_SUCCESS;
 }

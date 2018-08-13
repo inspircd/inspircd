@@ -212,7 +212,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
 enum Implementation
 {
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo,
+	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
@@ -456,18 +456,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who has deopered.
 	 */
 	virtual void OnPostDeoper(User* user);
-
-	/** Called whenever a user types /INFO.
-	 * The User will contain the information of the user who typed the command. Modules may use this
-	 * method to output their own credits in /INFO (which is the ircd's version of an about box).
-	 * It is purposefully not possible to modify any info that has already been output, or halt the list.
-	 * You must write a 371 numeric to the user, containing your info in the following format:
-	 *
-	 * &lt;nick&gt; :information here
-	 *
-	 * @param user The user issuing /INFO
-	 */
-	virtual void OnInfo(User* user);
 
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
