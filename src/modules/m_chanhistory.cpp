@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3_servertime.h"
 
 struct HistoryItem
 {
@@ -122,8 +123,13 @@ class ModuleChanHistory : public Module
 	bool sendnotice;
 	UserModeReference botmode;
 	bool dobots;
+	IRCv3::ServerTime::API servertimemanager;
+
  public:
-	ModuleChanHistory() : m(this), botmode(this, "bot")
+	ModuleChanHistory()
+		: m(this)
+		, botmode(this, "bot")
+		, servertimemanager(this)
 	{
 	}
 
@@ -180,6 +186,8 @@ class ModuleChanHistory : public Module
 			if (item.ts >= mintime)
 			{
 				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, memb->chan, item.text);
+				if (servertimemanager)
+					servertimemanager->Set(msg, item.ts);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}
 		}
