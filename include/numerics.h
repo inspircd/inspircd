@@ -159,7 +159,6 @@ enum
 	ERR_RESTRICTED                  = 484,
 
 	ERR_NOOPERHOST                  = 491,
-	ERR_DELAYREJOIN                 = 495, // insp-specific, XXX: we should use 'resource temporarily unavailable' from ircnet/ratbox or whatever
 	ERR_UNKNOWNSNOMASK              = 501, // insp-specific
 	ERR_USERSDONTMATCH              = 502,
 	ERR_CANTSENDTOUSER              = 531, // ???

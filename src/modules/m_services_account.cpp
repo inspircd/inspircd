@@ -64,7 +64,7 @@ class Channel_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteNumeric(500, "Only a server may modify the +r channel mode");
+			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
 		}
 		return MODEACTION_DENY;
 	}
@@ -90,7 +90,7 @@ class User_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteNumeric(500, "Only a server may modify the +r user mode");
+			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r user mode");
 		}
 		return MODEACTION_DENY;
 	}

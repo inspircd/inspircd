@@ -27,6 +27,11 @@
 
 enum
 {
+	// From ircd-ratbox.
+	RPL_HELPSTART = 704,
+	RPL_HELPTXT = 705,
+	RPL_ENDOFHELP = 706,
+
 	// InspIRCd-specific?
 	RPL_DCCALLOWSTART = 990,
 	RPL_DCCALLOWLIST = 991,
@@ -36,16 +41,11 @@ enum
 	RPL_DCCALLOWREMOVED = 995,
 	ERR_DCCALLOWINVALID = 996,
 	RPL_DCCALLOWEXPIRED = 997,
-	ERR_UNKNOWNDCCALLOWCMD = 998,
-	// TODO: These numerics are conflicting and should be removed
-	// and be replaced with helpop.
-	RPL_DCCALLOWHELP = 998,
-	RPL_ENDOFDCCALLOWHELP = 999
+	ERR_UNKNOWNDCCALLOWCMD = 998
 };
 
 static const char* const helptext[] =
 {
-	"DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]",
 	"You may allow DCCs from specific users by specifying a",
 	"DCC allow for the user you want to receive DCCs from.",
 	"For example, to allow the user Brain to send you inspircd.exe",
@@ -259,9 +259,10 @@ class CommandDccallow : public Command
 
 	void DisplayHelp(User* user)
 	{
+		user->WriteNumeric(RPL_HELPSTART, "*", "DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]");
 		for (size_t i = 0; i < sizeof(helptext)/sizeof(helptext[0]); i++)
-			user->WriteNumeric(RPL_DCCALLOWHELP, helptext[i]);
-		user->WriteNumeric(RPL_ENDOFDCCALLOWHELP, "End of DCCALLOW HELP");
+			user->WriteNumeric(RPL_HELPTXT, "*", helptext[i]);
+		user->WriteNumeric(RPL_ENDOFHELP, "*", "End of DCCALLOW HELP");
 
 		LocalUser* localuser = IS_LOCAL(user);
 		if (localuser)

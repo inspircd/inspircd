@@ -23,6 +23,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 2182.
+	ERR_UNAVAILRESOURCE = 437
+};
+
 // The number of seconds the channel will be closed for.
 static unsigned int duration;
 
@@ -145,7 +151,7 @@ class ModuleJoinFlood : public Module
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(609, chan->name, "This channel is temporarily unavailable (+j). Please try again later.");
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j). Please try again later.");
 				return MOD_RES_DENY;
 			}
 		}
