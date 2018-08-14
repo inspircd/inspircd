@@ -177,10 +177,13 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	std::string reason;
 	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (user, reason));
-	if (MOD_RESULT == MOD_RES_DENY) {
-		return;
+	if (IS_LOCAL(user))
+	{
+		LocalUser* lu = IS_LOCAL(user);
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (lu, reason));
+		if (MOD_RESULT == MOD_RES_DENY)
+			return;
 	}
 
 	if (!operreason)
