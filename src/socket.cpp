@@ -377,6 +377,7 @@ std::string irc::sockets::cidr_mask::str() const
 		case AF_INET6:
 			base = (unsigned char*)&sa.in6.sin6_addr;
 			len = 16;
+			break;
 
 		case AF_UNIX:
 			return sa.un.sun_path;
@@ -388,7 +389,7 @@ std::string irc::sockets::cidr_mask::str() const
 	}
 
 	memcpy(base, bits, len);
-	return sa.addr() + "/" + ConvToStr(length);
+	return sa.addr() + "/" + ConvToStr((int)length);
 }
 
 bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const
