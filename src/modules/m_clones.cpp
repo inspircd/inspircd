@@ -20,43 +20,64 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3_batch.h"
 
-/** Handle /CLONES
- */
-class CommandClones : public Command
+enum
 {
+	// InspIRCd-specific.
+	RPL_CLONES = 399
+};
+
+class CommandClones : public SplitCommand
+{
+ private:
+	IRCv3::Batch::API batchmanager;
+	IRCv3::Batch::Batch batch;
+
  public:
- 	CommandClones(Module* Creator) : Command(Creator,"CLONES", 1)
+ 	CommandClones(Module* Creator)
+		: SplitCommand(Creator,"CLONES", 1)
+		, batchmanager(Creator)
+		, batch("inspircd.org/clones")
 	{
-		flags_needed = 'o'; syntax = "<limit>";
+		flags_needed = 'o';
+		syntax = "<limit>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
+		unsigned int limit = ConvToNum<unsigned int>(parameters[0]);
 
-		std::string clonesstr = "CLONES ";
+		// Syntax of a CLONES reply:
+		// :irc.example.com BATCH +<id> inspircd.org/clones :<min-count>
+		// @batch=<id> :irc.example.com 399 <client> <local-count> <remote-count> <cidr-mask>
+		/// :irc.example.com BATCH :-<id>
 
-		unsigned long limit = strtoul(parameters[0].c_str(), NULL, 10);
+		if (batchmanager)
+		{
+			batchmanager->Start(batch);
+			batch.GetBatchStartMessage().PushParam(ConvToStr(limit));
+		}
 
-		/*
-		 * Syntax of a /clones reply:
-		 *  :server.name 304 target :CLONES START
-		 *  :server.name 304 target :CLONES <count> <ip>
-		 *  :server.name 304 target :CLONES END
-		 */
-
-		user->WriteNumeric(304, clonesstr + "START");
-
-		/* hostname or other */
 		const UserManager::CloneMap& clonemap = ServerInstance->Users->GetCloneMap();
 		for (UserManager::CloneMap::const_iterator i = clonemap.begin(); i != clonemap.end(); ++i)
 		{
 			const UserManager::CloneCounts& counts = i->second;
-			if (counts.global >= limit)
-				user->WriteNumeric(304, clonesstr + ConvToStr(counts.global) + " " + i->first.str());
+			if (counts.global < limit)
+				continue;
+
+			Numeric::Numeric numeric(RPL_CLONES);
+			numeric.push(counts.local);
+			numeric.push(counts.global);
+			numeric.push(i->first.str());
+
+			ClientProtocol::Messages::Numeric numericmsg(numeric, user);
+			batch.AddToBatch(numericmsg);
+			user->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 		}
 
-		user->WriteNumeric(304, clonesstr + "END");
+		if (batchmanager)
+			batchmanager->End(batch);
 
 		return CMD_SUCCESS;
 	}
@@ -64,9 +85,12 @@ class CommandClones : public Command
 
 class ModuleClones : public Module
 {
-	CommandClones cmd;
  public:
-	ModuleClones() : cmd(this)
+	CommandClones cmd;
+
+ public:
+	ModuleClones()
+		: cmd(this)
 	{
 	}
 
