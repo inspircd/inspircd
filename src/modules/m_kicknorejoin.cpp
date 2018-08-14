@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/invite.h"
 
 class KickRejoinData
 {
@@ -121,10 +122,12 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 class ModuleKickNoRejoin : public Module
 {
 	KickRejoin kr;
+	Invite::API invapi;
 
 public:
 	ModuleKickNoRejoin()
 		: kr(this)
+		, invapi(this)
 	{
 	}
 
@@ -133,7 +136,7 @@ public:
 		if (chan)
 		{
 			const KickRejoinData* data = kr.ext.get(chan);
-			if ((data) && (!data->canjoin(user)))
+			if ((data) && !invapi->IsInvited(chan, user) && (!data->canjoin(user)))
 			{
 				user->WriteNumeric(ERR_DELAYREJOIN, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J)", data->delay));
 				return MOD_RES_DENY;
