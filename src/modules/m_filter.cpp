@@ -365,7 +365,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 					user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 			}
 			else
-				details.echooriginal = true;
+				details.echo_original = true;
 		}
 		else if (f->action == FA_SILENT)
 		{
@@ -377,7 +377,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 					user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
 			}
 			else
-				details.echooriginal = true;
+				details.echo_original = true;
 		}
 		else if (f->action == FA_KILL)
 		{

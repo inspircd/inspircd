@@ -39,7 +39,7 @@ class ModuleQuietBan : public Module
 			bool notifyuser = ServerInstance->Config->ConfValue("muteban")->getBool("notifyuser", true);
 			if (!notifyuser)
 			{
-				details.echooriginal = true;
+				details.echo_original = true;
 				return MOD_RES_DENY;
 			}
 

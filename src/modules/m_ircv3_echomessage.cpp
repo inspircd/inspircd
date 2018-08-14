@@ -33,13 +33,13 @@ class ModuleIRCv3EchoMessage : public Module
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (!cap.get(user))
+		if (!cap.get(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
 		LocalUser* const localuser = static_cast<LocalUser*>(user);
 
-		const std::string& text = details.echooriginal ? details.originaltext : details.text;
+		const std::string& text = details.echo_original ? details.original_text : details.text;
 		if (target.type == MessageTarget::TYPE_USER)
 		{
 			User* destuser = target.Get<User>();
@@ -66,7 +66,7 @@ class ModuleIRCv3EchoMessage : public Module
 	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
 		// Prevent spammers from knowing that their spam was blocked.
-		if (details.echooriginal)
+		if (details.echo_original)
 			OnUserPostMessage(user, target, details);
 	}
 

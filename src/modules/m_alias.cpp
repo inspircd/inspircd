@@ -68,6 +68,9 @@ class ModuleAlias : public Module
 	bool AllowBots;
 	UserModeReference botmode;
 
+	// Whether we are actively executing an alias.
+	bool active;
+
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
@@ -174,6 +177,15 @@ class ModuleAlias : public Module
 		}
 
 		// If we made it here, no aliases actually matched.
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		// Don't echo anything which is caused by an alias.
+		if (active)
+			details.echo = false;
+
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -351,7 +363,10 @@ class ModuleAlias : public Module
 		{
 			pars.push_back(token);
 		}
+
+		active = true;
 		ServerInstance->Parser.CallHandler(command, pars, user);
+		active = false;
 	}
 
 	void Prioritize() CXX11_OVERRIDE

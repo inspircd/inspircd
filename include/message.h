@@ -32,14 +32,17 @@ enum MessageType
 class CoreExport MessageDetails
 {
  public:
+	/** Whether to echo the message at all. */
+	bool echo;
+
 	/* Whether to send the original message back to clients with echo-message support. */
-	bool echooriginal;
+	bool echo_original;
 
 	 /** The users who are exempted from receiving this message. */
 	CUList exemptions;
 
 	/* The original message as sent by the user. */
-	const std::string originaltext;
+	const std::string original_text;
 
 	/** IRCv3 message tags sent to the server by the user. */
 	const ClientProtocol::TagMap tags_in;
@@ -54,8 +57,9 @@ class CoreExport MessageDetails
 	const MessageType type;
 
 	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
-		: echooriginal(false)
-		, originaltext(msg)
+		: echo(true)
+		, echo_original(false)
+		, original_text(msg)
 		, tags_in(tags)
 		, text(msg)
 		, type(mt)
