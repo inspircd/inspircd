@@ -341,16 +341,35 @@ void Cap::ExtItem::unserialize(SerializeFormat format, Extensible* container, co
 	managerimpl->HandleReq(user, caplist);
 }
 
+class CapMessage : public Cap::MessageBase
+{
+ public:
+	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result)
+		: Cap::MessageBase(subcmd)
+	{
+		SetUser(user);
+		PushParamRef(result);
+	}
+};
+
 class CommandCap : public SplitCommand
 {
 	Events::ModuleEventProvider evprov;
 	Cap::ManagerImpl manager;
+	ClientProtocol::EventProvider protoevprov;
 
-	static void DisplayResult(LocalUser* user, std::string& result)
+	void DisplayResult(LocalUser* user, const std::string& subcmd, std::string& result)
 	{
 		if (*result.rbegin() == ' ')
 			result.erase(result.end()-1);
-		user->WriteCommand("CAP", result);
+		DisplayResult2(user, subcmd, result);
+	}
+
+	void DisplayResult2(LocalUser* user, const std::string& subcmd, const std::string& result)
+	{
+		CapMessage msg(user, subcmd, result);
+		ClientProtocol::Event ev(protoevprov, msg);
+		user->Send(ev);
 	}
 
  public:
@@ -360,6 +379,7 @@ class CommandCap : public SplitCommand
 		: SplitCommand(mod, "CAP", 1)
 		, evprov(mod, "event/cap")
 		, manager(mod, evprov)
+		, protoevprov(mod, name)
 		, holdext("cap_hold", ExtensionItem::EXT_USER, mod)
 	{
 		works_before_reg = true;
@@ -378,9 +398,8 @@ class CommandCap : public SplitCommand
 			if (parameters.size() < 2)
 				return CMD_FAILURE;
 
-			std::string result = (manager.HandleReq(user, parameters[1]) ? "ACK :" : "NAK :");
-			result.append(parameters[1]);
-			user->WriteCommand("CAP", result);
+			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
+			DisplayResult2(user, replysubcmd, parameters[1]);
 		}
 		else if (subcommand == "END")
 		{
@@ -392,16 +411,16 @@ class CommandCap : public SplitCommand
 			if ((is_ls) && (parameters.size() > 1) && (parameters[1] == "302"))
 				manager.Set302Protocol(user);
 
-			std::string result = subcommand + " :";
+			std::string result;
 			// Show values only if supports v3.2 and doing LS
 			manager.HandleList(result, user, is_ls, ((is_ls) && (manager.GetProtocol(user) != Cap::CAP_LEGACY)));
-			DisplayResult(user, result);
+			DisplayResult(user, subcommand, result);
 		}
 		else if ((subcommand == "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
 		{
-			std::string result = "ACK :";
+			std::string result;
 			manager.HandleClear(user, result);
-			DisplayResult(user, result);
+			DisplayResult(user, "ACK", result);
 		}
 		else
 		{

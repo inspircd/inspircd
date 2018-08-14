@@ -223,11 +223,11 @@ enum Implementation
 	I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
-	I_OnServiceAdd, I_OnServiceDel,
+	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
 	I_END
 };
 
@@ -571,9 +571,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param changelist The changed modes.
 	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
 	 * for the possible flags.
-	 * @param output_mode Changed modes, including '+' and '-' characters, not including any parameters
 	 */
-	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -904,16 +903,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Called whenever a user sets away or returns from being away.
-	 * The away message is available as a parameter, but should not be modified.
-	 * At this stage, it has already been copied into the user record.
-	 * If awaymsg is empty, the user is returning from away.
-	 * @param user The user setting away
-	 * @param awaymsg The away message of the user, or empty if returning from away
-	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
-	 */
-	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
-
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be
 	 * tidied up and freed by copying into a new item every so often. This
@@ -973,6 +962,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param service ServiceProvider being unregistered.
 	 */
 	virtual void OnServiceDel(ServiceProvider& service);
+
+	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
 };
 
 /** ModuleManager takes care of all things module-related

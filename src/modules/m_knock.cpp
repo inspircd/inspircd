@@ -81,7 +81,13 @@ class CommandKnock : public Command
 			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
 
 		if (sendnumeric)
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "710 %s %s %s :is KNOCKing: %s", c->name.c_str(), c->name.c_str(), user->GetFullHost().c_str(), parameters[1].c_str());
+		{
+			Numeric::Numeric numeric(710);
+			numeric.push(c->name).push(user->GetFullHost()).push("is KNOCKing: " + parameters[1]);
+
+			ClientProtocol::Messages::Numeric numericmsg(numeric, c->name);
+			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg);
+		}
 
 		user->WriteNotice("KNOCKing on " + c->name);
 		return CMD_SUCCESS;

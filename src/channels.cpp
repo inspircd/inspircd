@@ -49,7 +49,8 @@ void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const
 	if (this->topic != ntopic)
 	{
 		this->topic = ntopic;
-		this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+		ClientProtocol::Messages::Topic topicmsg(u, this, this->topic);
+		Write(ServerInstance->GetRFCEvents().topic, topicmsg);
 	}
 
 	// Always update setter and set time
@@ -287,18 +288,8 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	CUList except_list;
 	FOREACH_MOD(OnUserJoin, (memb, bursting, created_by_local, except_list));
 
-	this->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", this->name.c_str());
-
-	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
-	if ((GetUserCounter() > 1) && (!memb->modes.empty()))
-	{
-		std::string ms = memb->modes;
-		for(unsigned int i=0; i < memb->modes.length(); i++)
-			ms.append(" ").append(user->nick);
-
-		except_list.insert(user);
-		this->WriteAllExcept(user, !ServerInstance->Config->CycleHostsFromUser, 0, except_list, "MODE %s +%s", this->name.c_str(), ms.c_str());
-	}
+	ClientProtocol::Events::Join joinevent(memb);
+	this->Write(joinevent, 0, except_list);
 
 	FOREACH_MOD(OnPostJoin, (memb));
 	return memb;
@@ -397,7 +388,8 @@ bool Channel::PartUser(User* user, std::string& reason)
 	CUList except_list;
 	FOREACH_MOD(OnUserPart, (memb, reason, except_list));
 
-	WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
+	ClientProtocol::Messages::Part partmsg(memb, reason);
+	Write(ServerInstance->GetRFCEvents().part, partmsg, 0, except_list);
 
 	// Remove this channel from the user's chanlist
 	user->chans.erase(memb);
@@ -413,73 +405,14 @@ void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const s
 	CUList except_list;
 	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 
-	User* victim = memb->user;
-	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
+	ClientProtocol::Messages::Kick kickmsg(src, memb, reason);
+	Write(ServerInstance->GetRFCEvents().kick, kickmsg, 0, except_list);
 
-	victim->chans.erase(memb);
+	memb->user->chans.erase(memb);
 	this->DelUser(victimiter);
 }
 
-void Channel::WriteChannel(User* user, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteChannel(user, textbuffer);
-}
-
-void Channel::WriteChannel(User* user, const std::string &text)
-{
-	const std::string message = ":" + user->GetFullHost() + " " + text;
-
-	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
-	{
-		if (IS_LOCAL(i->first))
-			i->first->Write(message);
-	}
-}
-
-void Channel::WriteChannelWithServ(const std::string& ServName, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteChannelWithServ(ServName, textbuffer);
-}
-
-void Channel::WriteChannelWithServ(const std::string& ServName, const std::string &text)
-{
-	const std::string message = ":" + (ServName.empty() ? ServerInstance->Config->ServerName : ServName) + " " + text;
-
-	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
-	{
-		if (IS_LOCAL(i->first))
-			i->first->Write(message);
-	}
-}
-
-/* write formatted text from a source user to all users on a channel except
- * for the sender (for privmsg etc) */
-void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteAllExceptSender(user, serversource, status, textbuffer);
-}
-
-void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	textbuffer = ":" + (serversource ? ServerInstance->Config->ServerName : user->GetFullHost()) + " " + textbuffer;
-	this->RawWriteAllExcept(user, serversource, status, except_list, textbuffer);
-}
-
-void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)
-{
-	const std::string message = ":" + (serversource ? ServerInstance->Config->ServerName : user->GetFullHost()) + " " + text;
-	this->RawWriteAllExcept(user, serversource, status, except_list, message);
-}
-
-void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &out)
+void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& except_list)
 {
 	unsigned int minrank = 0;
 	if (status)
@@ -490,22 +423,16 @@ void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CULi
 	}
 	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
-		if (IS_LOCAL(i->first) && (except_list.find(i->first) == except_list.end()))
+		LocalUser* user = IS_LOCAL(i->first);
+		if ((user) && (!except_list.count(user)))
 		{
 			/* User doesn't have the status we're after */
 			if (minrank && i->second->getRank() < minrank)
 				continue;
 
-			i->first->Write(out);
+			user->Send(protoev);
 		}
 	}
-}
-
-void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const std::string& text)
-{
-	CUList except_list;
-	except_list.insert(user);
-	this->WriteAllExcept(user, serversource, status, except_list, std::string(text));
 }
 
 const char* Channel::ChanModes(bool showkey)
@@ -545,9 +472,8 @@ const char* Channel::ChanModes(bool showkey)
 
 void Channel::WriteNotice(const std::string& text)
 {
-	std::string rawmsg = "NOTICE ";
-	rawmsg.append(this->name).append(" :").append(text);
-	WriteChannelWithServ(ServerInstance->Config->ServerName, rawmsg);
+	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE);
+	Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
@@ -628,7 +554,10 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 
 void Membership::WriteNotice(const std::string& text) const
 {
-	std::string rawmsg = "NOTICE ";
-	rawmsg.append(chan->name).append(" :").append(text);
-	user->WriteServ(rawmsg);
+	LocalUser* const localuser = IS_LOCAL(user);
+	if (!localuser)
+		return;
+
+	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this->chan, text, MSG_NOTICE);
+	localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 }

@@ -115,7 +115,7 @@ class FlagExtItem : public ExtensionItem
 		unset_raw(container);
 	}
 
-	void free(void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) CXX11_OVERRIDE
 	{
 		// nothing to free
 	}

@@ -27,19 +27,19 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 {
 	if (!params.empty())
 	{
-		FOREACH_MOD(OnSetAway, (u, params.back()));
-
 		if (params.size() > 1)
 			u->awaytime = ConvToInt(params[0]);
 		else
 			u->awaytime = ServerInstance->Time();
 
 		u->awaymsg = params.back();
+		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (u));
 	}
 	else
 	{
-		FOREACH_MOD(OnSetAway, (u, ""));
+		u->awaytime = 0;
 		u->awaymsg.clear();
+		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (u));
 	}
 	return CMD_SUCCESS;
 }
@@ -47,12 +47,6 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 CommandAway::Builder::Builder(User* user)
 	: CmdBuilder(user, "AWAY")
 {
-	push_int(user->awaytime).push_last(user->awaymsg);
-}
-
-CommandAway::Builder::Builder(User* user, const std::string& msg)
-	: CmdBuilder(user, "AWAY")
-{
-	if (!msg.empty())
-		push_int(ServerInstance->Time()).push_last(msg);
+	if (user->awaymsg.empty())
+		push_int(user->awaytime).push_last(user->awaymsg);
 }

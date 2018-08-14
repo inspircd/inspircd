@@ -415,7 +415,6 @@ void ServerConfig::Fill()
 	HideULineKills = security->getBool("hideulinekills");
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");
-	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");

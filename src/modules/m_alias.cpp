@@ -129,7 +129,7 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	std::string CreateRFCMessage(const std::string& command, Command::Params& parameters)
+	std::string CreateRFCMessage(const std::string& command, CommandBase::Params& parameters)
 	{
 		std::string message(command);
 		for (CommandBase::Params::const_iterator iter = parameters.begin(); iter != parameters.end();)

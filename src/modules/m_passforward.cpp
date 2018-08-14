@@ -91,8 +91,8 @@ class ModulePassForward : public Module
 		}
 
 		std::string tmp;
-		FormatStr(tmp,forwardmsg, user);
-		user->WriteServ(tmp);
+		FormatStr(tmp, forwardmsg, user);
+		ServerInstance->Parser.ProcessBuffer(user, tmp);
 
 		tmp.clear();
 		FormatStr(tmp,forwardcmd, user);

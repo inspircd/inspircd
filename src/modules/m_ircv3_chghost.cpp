@@ -24,17 +24,21 @@
 class ModuleIRCv3ChgHost : public Module
 {
 	Cap::Capability cap;
+	ClientProtocol::EventProvider protoevprov;
 
 	void DoChgHost(User* user, const std::string& ident, const std::string& host)
 	{
-		std::string line(1, ':');
-		line.append(user->GetFullHost()).append(" CHGHOST ").append(ident).append(1, ' ').append(host);
-		IRCv3::WriteNeighborsWithCap(user, line, cap);
+		ClientProtocol::Message msg("CHGHOST", user);
+		msg.PushParamRef(ident);
+		msg.PushParamRef(host);
+		ClientProtocol::Event protoev(protoevprov, msg);
+		IRCv3::WriteNeighborsWithCap(user, protoev, cap);
 	}
 
  public:
 	ModuleIRCv3ChgHost()
 		: cap(this, "chghost")
+		, protoevprov(this, "CHGHOST")
 	{
 	}
 
@@ -50,7 +54,7 @@ class ModuleIRCv3ChgHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the chghost IRCv3.2 extension", VF_VENDOR);
+		return Version("Provides the chghost IRCv3 extension", VF_VENDOR);
 	}
 };
 

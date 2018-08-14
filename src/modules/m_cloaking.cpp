@@ -313,7 +313,13 @@ class ModuleCloaking : public Module
 		if (u->IsModeSet(cu) && !cu.active)
 		{
 			u->SetMode(cu, false);
-			u->WriteCommand("MODE", "-" + ConvToStr(cu.GetModeChar()));
+
+			if (!IS_LOCAL(u))
+				return;
+			Modes::ChangeList modechangelist;
+			modechangelist.push_remove(&cu);
+			ClientProtocol::Events::Mode modeevent(ServerInstance->FakeClient, NULL, u, modechangelist);
+			static_cast<LocalUser*>(u)->Send(modeevent);
 		}
 		cu.active = false;
 	}

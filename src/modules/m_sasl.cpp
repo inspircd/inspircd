@@ -145,7 +145,7 @@ static Events::ModuleEventProvider* saslevprov;
 
 static void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
 {
-	CommandBase::Params params(parameters.size() + 3);
+	CommandBase::Params params;
 	params.push_back(user->uuid);
 	params.push_back(agent);
 	params.push_back(ConvToStr(mode));
@@ -156,6 +156,8 @@ static void SendSASL(LocalUser* user, const std::string& agent, char mode, const
 		FOREACH_MOD_CUSTOM(*saslevprov, SASLEventListener, OnSASLAuth, (params));
 	}
 }
+
+static ClientProtocol::EventProvider* g_protoev;
 
 /**
  * Tracks SASL authentication state like charybdis does. --nenolod
@@ -223,7 +225,15 @@ class SaslAuthenticator
 				return this->state;
 
 			if (msg[2] == "C")
-				this->user->Write("AUTHENTICATE %s", msg[3].c_str());
+			{
+				ClientProtocol::Message authmsg("AUTHENTICATE");
+				authmsg.PushParamRef(msg[3]);
+
+				ClientProtocol::Event authevent(*g_protoev, authmsg);
+				LocalUser* const localuser = IS_LOCAL(user);
+				if (localuser)
+					localuser->Send(authevent);
+			}
 			else if (msg[2] == "D")
 			{
 				this->state = SASL_DONE;
@@ -377,6 +387,7 @@ class ModuleSASL : public Module
 	CommandAuthenticate auth;
 	CommandSASL sasl;
 	Events::ModuleEventProvider sasleventprov;
+	ClientProtocol::EventProvider protoev;
 
  public:
 	ModuleSASL()
@@ -386,8 +397,10 @@ class ModuleSASL : public Module
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, sasleventprov(this, "event/sasl")
+		, protoev(this, auth.name)
 	{
 		saslevprov = &sasleventprov;
+		g_protoev = &protoev;
 	}
 
 	void init() CXX11_OVERRIDE

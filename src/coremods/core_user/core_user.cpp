@@ -57,13 +57,13 @@ class CommandPass : public SplitCommand
 
 /** Handle /PING.
  */
-class CommandPing : public Command
+class CommandPing : public SplitCommand
 {
  public:
 	/** Constructor for ping.
 	 */
 	CommandPing(Module* parent)
-		: Command(parent, "PING", 1, 2)
+		: SplitCommand(parent, "PING", 1, 2)
 	{
 		syntax = "<servername> [:<servername>]";
 	}
@@ -73,9 +73,10 @@ class CommandPing : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		user->WriteServ("PONG %s :%s", ServerInstance->Config->ServerName.c_str(), parameters[0].c_str());
+		ClientProtocol::Messages::Pong pong(parameters[0]);
+		user->Send(ServerInstance->GetRFCEvents().pong, pong);
 		return CMD_SUCCESS;
 	}
 };

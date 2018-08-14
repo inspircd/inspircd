@@ -24,12 +24,28 @@
 
 CommandKill::CommandKill(Module* parent)
 	: Command(parent, "KILL", 2, 2)
+	, protoev(parent, name)
 {
 	flags_needed = 'o';
 	syntax = "<nickname> <reason>";
 	TRANSLATE2(TR_CUSTOM, TR_CUSTOM);
 }
 
+class KillMessage : public ClientProtocol::Message
+{
+ public:
+	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text)
+		: ClientProtocol::Message("KILL", NULL)
+	{
+		if (ServerInstance->Config->HideKillsServer.empty())
+			SetSourceUser(user);
+		else
+			SetSource(ServerInstance->Config->HideKillsServer);
+
+		PushParamRef(target->nick);
+		PushParamRef(text);
+	}
+};
 
 /** Handle /KILL
  */
@@ -100,10 +116,10 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 
 	if (IS_LOCAL(target))
 	{
-		target->Write(":%s KILL %s :%s",
-				ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
-				target->nick.c_str(),
-				parameters[1].c_str());
+		LocalUser* localu = IS_LOCAL(target);
+		KillMessage msg(protoev, user, localu, killreason);
+		ClientProtocol::Event killevent(protoev, msg);
+		localu->Send(killevent);
 
 		this->lastuuid.clear();
 	}

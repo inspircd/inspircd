@@ -92,7 +92,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 	else
 		ServerInstance->Modes->Process(user, targetchannel, targetuser, changelist, flags);
 
-	if ((ServerInstance->Modes.GetLastParse().empty()) && (targetchannel) && (parameters.size() == 2))
+	if ((ServerInstance->Modes.GetLastChangeList().empty()) && (targetchannel) && (parameters.size() == 2))
 	{
 		/* Special case for displaying the list for listmodes,
 		 * e.g. MODE #chan b, or MODE #chan +b without a parameter

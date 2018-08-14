@@ -48,7 +48,8 @@ class LDAPOperBase : public LDAPInterface
 		CommandBase::Params params;
 		params.push_back(opername);
 		params.push_back(password);
-		oper_command->Handle(user, params);
+		ClientProtocol::TagMap tags;
+		oper_command->Handle(user, CommandBase::Params(params, tags));
 	}
 
 	void Fallback()

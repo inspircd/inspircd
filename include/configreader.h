@@ -430,11 +430,6 @@ class CoreExport ServerConfig
 	 */
 	std::string CaseMapping;
 
-	/** If set to true, the CycleHosts mode change will be sourced from the user,
-	 * rather than the server
-	 */
-	bool CycleHostsFromUser;
-
 	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
 	 * for who set the topic last. If false, only the nick is shown.
 	 */

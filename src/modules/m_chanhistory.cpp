@@ -18,12 +18,21 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3_servertime.h"
+#include "modules/ircv3_batch.h"
 
 struct HistoryItem
 {
 	time_t ts;
-	std::string line;
-	HistoryItem(const std::string& Line) : ts(ServerInstance->Time()), line(Line) {}
+	std::string text;
+	std::string sourcemask;
+
+	HistoryItem(User* source, const std::string& Text)
+		: ts(ServerInstance->Time())
+		, text(Text)
+		, sourcemask(source->GetFullHost())
+	{
+	}
 };
 
 struct HistoryList
@@ -115,8 +124,19 @@ class ModuleChanHistory : public Module
 	bool sendnotice;
 	UserModeReference botmode;
 	bool dobots;
+	IRCv3::Batch::CapReference batchcap;
+	IRCv3::Batch::API batchmanager;
+	IRCv3::Batch::Batch batch;
+	IRCv3::ServerTime::API servertimemanager;
+
  public:
-	ModuleChanHistory() : m(this), botmode(this, "bot")
+	ModuleChanHistory()
+		: m(this)
+		, botmode(this, "bot")
+		, batchcap(this)
+		, batchmanager(this)
+		, batch("chathistory")
+		, servertimemanager(this)
 	{
 	}
 
@@ -136,8 +156,7 @@ class ModuleChanHistory : public Module
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + details.text;
-				list->lines.push_back(HistoryItem(line));
+				list->lines.push_back(HistoryItem(user, details.text));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
@@ -146,7 +165,8 @@ class ModuleChanHistory : public Module
 
 	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
-		if (IS_REMOTE(memb->user))
+		LocalUser* localuser = IS_LOCAL(memb->user);
+		if (!localuser)
 			return;
 
 		if (memb->user->IsModeSet(botmode) && !dobots)
@@ -159,7 +179,7 @@ class ModuleChanHistory : public Module
 		if (list->maxtime)
 			mintime = ServerInstance->Time() - list->maxtime;
 
-		if (sendnotice)
+		if ((sendnotice) && (!batchcap.get(localuser)))
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
@@ -167,11 +187,27 @@ class ModuleChanHistory : public Module
 			memb->WriteNotice(message);
 		}
 
+		if (batchmanager)
+		{
+			batchmanager->Start(batch);
+			batch.GetBatchStartMessage().PushParamRef(memb->chan->name);
+		}
+
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
-			if (i->ts >= mintime)
-				memb->user->Write(i->line);
+			const HistoryItem& item = *i;
+			if (item.ts >= mintime)
+			{
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, memb->chan, item.text);
+				if (servertimemanager)
+					servertimemanager->Set(msg, item.ts);
+				batch.AddToBatch(msg);
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+			}
 		}
+
+		if (batchmanager)
+			batchmanager->End(batch);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

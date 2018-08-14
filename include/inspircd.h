@@ -91,6 +91,7 @@ struct fakederef
 #include "filelogger.h"
 #include "message.h"
 #include "modules.h"
+#include "clientprotocol.h"
 #include "threadengine.h"
 #include "configreader.h"
 #include "inspstring.h"
@@ -192,6 +193,8 @@ class CoreExport InspIRCd
 	 * NOTE: update ValidateNetBufferSize if you change this
 	 */
 	char ReadBuffer[65535];
+
+	ClientProtocol::RFCEvents rfcevents;
 
 	/** Check we aren't running as root, and exit if we are
 	 * with exit code EXIT_STATUS_ROOT.
@@ -565,6 +568,8 @@ class CoreExport InspIRCd
 	{
 		return this->ReadBuffer;
 	}
+
+	ClientProtocol::RFCEvents& GetRFCEvents() { return rfcevents; }
 };
 
 ENTRYPOINT;
@@ -590,4 +595,18 @@ inline void stdalgo::culldeleter::operator()(classbase* item)
 		ServerInstance->GlobalCulls.AddItem(item);
 }
 
+inline void Channel::Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status, const CUList& except_list)
+{
+	ClientProtocol::Event event(protoevprov, msg);
+	Write(event, status, except_list);
+}
+
+inline void LocalUser::Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg)
+{
+	ClientProtocol::Event event(protoevprov, msg);
+	Send(event);
+}
+
 #include "numericbuilder.h"
+#include "clientprotocolmsg.h"
+#include "clientprotocolevent.h"

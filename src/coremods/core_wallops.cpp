@@ -25,6 +25,7 @@
 class CommandWallops : public Command
 {
 	SimpleUserModeHandler wallopsmode;
+	ClientProtocol::EventProvider protoevprov;
 
  public:
 	/** Constructor for wallops.
@@ -32,6 +33,7 @@ class CommandWallops : public Command
 	CommandWallops(Module* parent)
 		: Command(parent, "WALLOPS", 1, 1)
 		, wallopsmode(parent, "wallops", 'w')
+		, protoevprov(parent, name)
 	{
 		flags_needed = 'o';
 		syntax = "<any-text>";
@@ -52,15 +54,16 @@ class CommandWallops : public Command
 
 CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 {
-	std::string wallop("WALLOPS :");
-	wallop.append(parameters[0]);
+	ClientProtocol::Message msg("WALLOPS", user);
+	msg.PushParamRef(parameters[0]);
+	ClientProtocol::Event wallopsevent(protoevprov, msg);
 
 	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
-		User* t = *i;
-		if (t->IsModeSet(wallopsmode))
-			t->WriteFrom(user, wallop);
+		LocalUser* curr = *i;
+		if (curr->IsModeSet(wallopsmode))
+			curr->Send(wallopsevent);
 	}
 
 	return CMD_SUCCESS;

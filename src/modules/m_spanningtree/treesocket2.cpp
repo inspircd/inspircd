@@ -343,7 +343,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		res = scmd->Handle(who, params);
 	else
 	{
-		res = cmd->Handle(who, params);
+		ClientProtocol::TagMap tags;
+		res = cmd->Handle(who, CommandBase::Params(params, tags));
 		if (res == CMD_INVALID)
 			throw ProtocolException("Error in command handler");
 	}

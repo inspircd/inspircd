@@ -107,13 +107,12 @@ class CommandTban : public Command
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
 		ServerInstance->Modes->Process(user, channel, NULL, setban);
-		if (ServerInstance->Modes->GetLastParse().empty())
+		if (ServerInstance->Modes->GetLastChangeList().empty())
 		{
 			user->WriteNotice("Invalid ban mask");
 			return CMD_FAILURE;
 		}
 
-		CUList tmp;
 		T.mask = mask;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
 		T.chan = channel;
@@ -124,7 +123,8 @@ class CommandTban : public Command
 		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		channel->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, tmp, "NOTICE %s :%s", channel->name.c_str(), addban.c_str());
+		ClientProtocol::Messages::Privmsg notice(ServerInstance->FakeClient, channel, addban, MSG_NOTICE);
+		channel->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
 		ServerInstance->PI->SendChannelNotice(channel, pfxchar, addban);
 		return CMD_SUCCESS;
 	}
@@ -210,13 +210,13 @@ class ModuleTimedBans : public Module
 			std::string mask = i->mask;
 			Channel* cr = i->chan;
 			{
-				CUList empty;
 				const std::string expiry = "*** Timed ban on " + cr->name + " expired.";
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-				cr->WriteAllExcept(ServerInstance->FakeClient, true, pfxchar, empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+				ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, expiry, MSG_NOTICE);
+				cr->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
 				ServerInstance->PI->SendChannelNotice(cr, pfxchar, expiry);
 
 				Modes::ChangeList setban;

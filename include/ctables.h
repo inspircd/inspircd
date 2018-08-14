@@ -110,7 +110,40 @@ struct RouteDescriptor
 class CoreExport CommandBase : public ServiceProvider
 {
  public:
-	typedef std::vector<std::string> Params;
+	/** Encapsulates parameters to a command. */
+	class Params : public std::vector<std::string>
+	{
+	 private:
+		/* IRCv3 message tags. */
+		ClientProtocol::TagMap tags;
+
+	 public:
+		/** Initializes a new instance from parameter and tag references.
+		 * @param paramsref Message parameters.
+		 * @param tagsref IRCv3 message tags.
+		 */
+		Params(const std::vector<std::string>& paramsref, const ClientProtocol::TagMap& tagsref)
+			: std::vector<std::string>(paramsref)
+			, tags(tagsref)
+		{
+		}
+
+		/** Initializes a new instance from parameter iterators.
+		 * @param first The first element in the parameter array.
+		 * @param last The last element in the parameter array.
+		 */
+		template<typename Iterator>
+		Params(Iterator first, Iterator last)
+			: std::vector<std::string>(first, last)
+		{
+		}
+
+		/** Initializes a new empty instance. */
+		Params() { }
+
+		/** Retrieves the IRCv3 message tags. */
+		const ClientProtocol::TagMap& GetTags() const { return tags; }
+	};
 
 	/** User flags needed to execute the command or 0
 	 */

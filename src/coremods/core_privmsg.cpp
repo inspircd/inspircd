@@ -21,11 +21,6 @@
 
 #include "inspircd.h"
 
-namespace
-{
-	const char* MessageTypeString[] = { "PRIVMSG", "NOTICE" };
-}
-
 class MessageCommandBase : public Command
 {
 	ChanModeReference moderatedmode;
@@ -35,12 +30,13 @@ class MessageCommandBase : public Command
 	 * @param user User sending the message
 	 * @param msg The message to send
 	 * @param mt Type of the message (MSG_PRIVMSG or MSG_NOTICE)
+	 * @param tags Message tags to include in the outgoing protocol message
 	 */
-	static void SendAll(User* user, const std::string& msg, MessageType mt);
+	static void SendAll(User* user, const std::string& msg, MessageType mt, const ClientProtocol::TagMap& tags);
 
  public:
 	MessageCommandBase(Module* parent, MessageType mt)
-		: Command(parent, MessageTypeString[mt], 2, 2)
+		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, moderatedmode(parent, "moderated")
 		, noextmsgmode(parent, "noextmsg")
 	{
@@ -52,7 +48,7 @@ class MessageCommandBase : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleMessage(User* user, const CommandBase::Params& parameters, MessageType mt);
+	CmdResult HandleMessage(User* user, const Params& parameters, MessageType mt);
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
@@ -64,18 +60,22 @@ class MessageCommandBase : public Command
 	}
 };
 
-void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType mt)
+void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType mt, const ClientProtocol::TagMap& tags)
 {
-	const std::string message = ":" + user->GetFullHost() + " " + MessageTypeString[mt] + " $* :" + msg;
+	ClientProtocol::Messages::Privmsg message(ClientProtocol::Messages::Privmsg::nocopy, user, "$*", msg, mt);
+	message.AddTags(tags);
+	message.SetSideEffect(true);
+	ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
+
 	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		if ((*i)->registered == REG_ALL)
-			(*i)->Write(message);
+			(*i)->Send(messageevent);
 	}
 }
 
-CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Params& parameters, MessageType mt)
+CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters, MessageType mt)
 {
 	User *dest;
 	Channel *chan;
@@ -94,7 +94,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 
 		std::string servername(parameters[0], 1);
 		MessageTarget msgtarget(&servername);
-		MessageDetails msgdetails(mt, parameters[1]);
+		MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
 
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
@@ -107,7 +107,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
 		{
-			SendAll(user, msgdetails.text, mt);
+			SendAll(user, msgdetails.text, mt, msgdetails.tags_out);
 		}
 		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 		return CMD_SUCCESS;
@@ -153,7 +153,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 			}
 
 			MessageTarget msgtarget(chan, status);
-			MessageDetails msgdetails(mt, parameters[1]);
+			MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
 			msgdetails.exemptions.insert(user);
 
 			ModResult MOD_RESULT;
@@ -173,14 +173,10 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 
 			FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
-			if (status)
-			{
-				chan->WriteAllExcept(user, false, status, msgdetails.exemptions, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), msgdetails.text.c_str());
-			}
-			else
-			{
-				chan->WriteAllExcept(user, false, status, msgdetails.exemptions, "%s %s :%s", MessageTypeString[mt], chan->name.c_str(), msgdetails.text.c_str());
-			}
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, msgdetails.text, msgdetails.type, msgtarget.status);
+			privmsg.AddTags(msgdetails.tags_out);
+			privmsg.SetSideEffect(true);
+			chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, msgtarget.status, msgdetails.exemptions);
 
 			FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 		}
@@ -233,7 +229,8 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 		}
 
 		MessageTarget msgtarget(dest);
-		MessageDetails msgdetails(mt, parameters[1]);
+		MessageDetails msgdetails(mt, parameters[1], parameters.GetTags());
+
 
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
@@ -245,10 +242,14 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const CommandBase::Param
 
 		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
-		if (IS_LOCAL(dest))
+		LocalUser* const localtarget = IS_LOCAL(dest);
+		if (localtarget)
 		{
 			// direct write, same server
-			dest->WriteFrom(user, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), msgdetails.text.c_str());
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, localtarget->nick, msgdetails.text, mt);
+			privmsg.AddTags(msgdetails.tags_out);
+			privmsg.SetSideEffect(true);
+			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 		}
 
 		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));

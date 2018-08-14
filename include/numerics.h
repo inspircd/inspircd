@@ -70,9 +70,6 @@ enum
 	RPL_USERHOST                    = 302,
 	RPL_ISON                        = 303,
 
-	RPL_UNAWAY                      = 305,
-	RPL_NOWAWAY                     = 306,
-
 	RPL_WHOISSERVER                 = 312,
 	RPL_ENDOFWHOIS                  = 318,
 

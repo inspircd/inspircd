@@ -438,14 +438,9 @@ void ModeParser::Process(User* user, Channel* targetchannel, User* targetuser, M
 
 unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags, unsigned int beginindex)
 {
-	LastParse.clear();
 	LastChangeList.clear();
 
 	unsigned int modes_processed = 0;
-	std::string output_mode;
-	std::string output_parameters;
-
-	char output_pm = '\0'; // current output state, '+' or '-'
 	Modes::ChangeList::List& list = changelist.getlist();
 	for (Modes::ChangeList::List::iterator i = list.begin()+beginindex; i != list.end(); ++i)
 	{
@@ -478,43 +473,30 @@ unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User*
 		if (ma != MODEACTION_ALLOW)
 			continue;
 
-		char needed_pm = item.adding ? '+' : '-';
-		if (needed_pm != output_pm)
-		{
-			output_pm = needed_pm;
-			output_mode.append(1, output_pm);
-		}
-		output_mode.push_back(mh->GetModeChar());
-
-		if (!item.param.empty())
-		{
-			output_parameters.push_back(' ');
-			output_parameters.append(item.param);
-		}
 		LastChangeList.push(mh, item.adding, item.param);
 
-		if ((output_mode.length() + output_parameters.length() > 450)
-				|| (output_mode.length() > 100)
-				|| (LastChangeList.size() >= ServerInstance->Config->Limits.MaxModes))
+		if (LastChangeList.size() >= ServerInstance->Config->Limits.MaxModes)
 		{
 			/* mode sequence is getting too long */
 			break;
 		}
 	}
 
-	if (!output_mode.empty())
+	if (!LastChangeList.empty())
 	{
-		LastParse = targetchannel ? targetchannel->name : targetuser->nick;
-		LastParse.append(" ");
-		LastParse.append(output_mode);
-		LastParse.append(output_parameters);
-
+		ClientProtocol::Events::Mode modeevent(user, targetchannel, targetuser, LastChangeList);
 		if (targetchannel)
-			targetchannel->WriteChannel(user, "MODE " + LastParse);
+		{
+			targetchannel->Write(modeevent);
+		}
 		else
-			targetuser->WriteFrom(user, "MODE " + LastParse);
+		{
+			LocalUser* localtarget = IS_LOCAL(targetuser);
+			if (localtarget)
+				localtarget->Send(modeevent);
+		}
 
-		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastChangeList, flags, output_mode));
+		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastChangeList, flags));
 	}
 
 	return modes_processed;

@@ -70,7 +70,8 @@ class ModuleChanLog : public Module
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
-				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), snotice.c_str());
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->Config->ServerName, c, snotice);
+				c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				ServerInstance->PI->SendMessage(c, 0, snotice);
 			}
 		}

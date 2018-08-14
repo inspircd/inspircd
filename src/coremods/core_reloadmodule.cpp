@@ -24,18 +24,42 @@
 #include "modules/reload.h"
 
 static Events::ModuleEventProvider* reloadevprov;
+static ClientProtocol::Serializer* dummyserializer;
+
+class DummySerializer : public ClientProtocol::Serializer
+{
+ 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE
+ 	{
+ 		return false;
+ 	}
+
+	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const CXX11_OVERRIDE
+	{
+		return ClientProtocol::SerializedMessage();
+	}
+
+ public:
+	DummySerializer(Module* mod)
+		: ClientProtocol::Serializer(mod, "dummy")
+	{
+	}
+};
 
 class CommandReloadmodule : public Command
 {
 	Events::ModuleEventProvider evprov;
+	DummySerializer dummyser;
+
  public:
 	/** Constructor for reloadmodule.
 	 */
 	CommandReloadmodule(Module* parent)
 		: Command(parent, "RELOADMODULE", 1)
 		, evprov(parent, "event/reloadmodule")
+		, dummyser(parent)
 	{
 		reloadevprov = &evprov;
+		dummyserializer = &dummyser;
 		flags_needed = 'o';
 		syntax = "<modulename>";
 	}
@@ -62,6 +86,7 @@ class DataKeeper
 		{
 			ModeHandler* mh;
 			ExtensionItem* extitem;
+			ClientProtocol::Serializer* serializer;
 		};
 
 		ProviderInfo(ModeHandler* mode)
@@ -73,6 +98,12 @@ class DataKeeper
 		ProviderInfo(ExtensionItem* ei)
 			: itemname(ei->name)
 			, extitem(ei)
+		{
+		}
+
+		ProviderInfo(ClientProtocol::Serializer* ser)
+			: itemname(ser->name)
+			, serializer(ser)
 		{
 		}
 	};
@@ -143,7 +174,17 @@ class DataKeeper
 	};
 
 	// Data saved for each user
-	typedef OwnedModesExts UserData;
+	struct UserData : public OwnedModesExts
+	{
+		static const size_t UNUSED_INDEX = (size_t)-1;
+		size_t serializerindex;
+
+		UserData(User* user, size_t serializeridx)
+			: OwnedModesExts(user->uuid)
+			, serializerindex(serializeridx)
+		{
+		}
+	};
 
 	/** Module being reloaded
 	 */
@@ -156,6 +197,10 @@ class DataKeeper
 	/** Stores all extensions provided by the module
 	 */
 	std::vector<ProviderInfo> handledexts;
+
+	/** Stores all serializers provided by the module
+	 */
+	std::vector<ProviderInfo> handledserializers;
 
 	/** Stores all of the module data related to users
 	 */
@@ -172,6 +217,14 @@ class DataKeeper
 	void SaveExtensions(Extensible* extensible, std::vector<InstanceData>& extdatalist);
 	void SaveMemberData(Channel* chan, std::vector<ChanData::MemberData>& memberdatalist);
 	static void SaveListModes(Channel* chan, ListModeBase* lm, size_t index, ModesExts& currdata);
+	size_t SaveSerializer(User* user);
+
+	/** Get the index of a ProviderInfo representing the serializer in the handledserializers list.
+	 * If the serializer is not already in the list it is added.
+	 * @param serializer Serializer to get an index to.
+	 * @return Index of the ProviderInfo representing the serializer.
+	 */
+	size_t GetSerializerIndex(ClientProtocol::Serializer* serializer);
 
 	void CreateModeList(ModeType modetype);
 	void DoSaveUsers();
@@ -185,6 +238,10 @@ class DataKeeper
 	 * @param modetype Type of the modes to look for
 	 */
 	void LinkModes(ModeType modetype);
+
+	/** Link previously saved serializer names to currently available Serializers
+	 */
+	void LinkSerializers();
 
 	void DoRestoreUsers();
 	void DoRestoreChans();
@@ -212,6 +269,15 @@ class DataKeeper
 	 * @param modechange Mode change to populate with the modes
 	 */
 	void RestoreModes(const std::vector<InstanceData>& list, ModeType modetype, Modes::ChangeList& modechange);
+
+	/** Restore previously saved serializer on a User.
+	 * Quit the user if the serializer cannot be restored.
+	 * @param serializerindex Saved serializer index to restore.
+	 * @param user User whose serializer to restore. If not local then calling this method is a no-op.
+	 * @return True if the serializer didn't need restoring or was restored successfully.
+	 * False if the serializer should have been restored but the required serializer is unavailable and the user was quit.
+	 */
+	bool RestoreSerializer(size_t serializerindex, User* user);
 
 	/** Restore all modes and extensions of all members on a channel
 	 * @param chan Channel whose members are being restored
@@ -262,14 +328,42 @@ void DataKeeper::DoSaveUsers()
 		// Serialize all extensions attached to the User
 		SaveExtensions(user, currdata.extlist);
 
+		// Save serializer name if applicable and get an index to it
+		size_t serializerindex = SaveSerializer(user);
+
 		// Add to list if the user has any modes or extensions set that we are interested in, otherwise we don't
 		// have to do anything with this user when restoring
-		if (!currdata.empty())
+		if ((!currdata.empty()) || (serializerindex != UserData::UNUSED_INDEX))
 		{
-			userdatalist.push_back(UserData(user->uuid));
+			userdatalist.push_back(UserData(user, serializerindex));
 			userdatalist.back().swap(currdata);
 		}
 	}
+}
+
+size_t DataKeeper::GetSerializerIndex(ClientProtocol::Serializer* serializer)
+{
+	for (size_t i = 0; i < handledserializers.size(); i++)
+	{
+		if (handledserializers[i].serializer == serializer)
+			return i;
+	}
+
+	handledserializers.push_back(ProviderInfo(serializer));
+	return handledserializers.size()-1;
+}
+
+size_t DataKeeper::SaveSerializer(User* user)
+{
+	LocalUser* const localuser = IS_LOCAL(user);
+	if ((!localuser) || (!localuser->serializer))
+		return UserData::UNUSED_INDEX;
+	if (localuser->serializer->creator != mod)
+		return UserData::UNUSED_INDEX;
+
+	const size_t serializerindex = GetSerializerIndex(localuser->serializer);
+	localuser->serializer = dummyserializer;
+	return serializerindex;
 }
 
 void DataKeeper::SaveExtensions(Extensible* extensible, std::vector<InstanceData>& extdata)
@@ -456,6 +550,16 @@ void DataKeeper::LinkExtensions()
 	}
 }
 
+void DataKeeper::LinkSerializers()
+{
+	for (std::vector<ProviderInfo>::iterator i = handledserializers.begin(); i != handledserializers.end(); ++i)
+	{
+		ProviderInfo& item = *i;
+		item.serializer = ServerInstance->Modules.FindDataService<ClientProtocol::Serializer>(item.itemname);
+		VerifyServiceProvider(item.serializer, "Serializer");
+	}
+}
+
 void DataKeeper::Restore(Module* newmod)
 {
 	this->mod = newmod;
@@ -464,6 +568,7 @@ void DataKeeper::Restore(Module* newmod)
 	LinkExtensions();
 	LinkModes(MODETYPE_USER);
 	LinkModes(MODETYPE_CHANNEL);
+	LinkSerializers();
 
 	// Restore
 	DoRestoreUsers();
@@ -505,6 +610,30 @@ void DataKeeper::RestoreModes(const std::vector<InstanceData>& list, ModeType mo
 	}
 }
 
+bool DataKeeper::RestoreSerializer(size_t serializerindex, User* user)
+{
+	if (serializerindex == UserData::UNUSED_INDEX)
+		return true;
+
+	// The following checks are redundant
+	LocalUser* const localuser = IS_LOCAL(user);
+	if (!localuser)
+		return true;
+	if (localuser->serializer != dummyserializer)
+		return true;
+
+	const ProviderInfo& provinfo = handledserializers[serializerindex];
+	if (!provinfo.serializer)
+	{
+		// Users cannot exist without a serializer
+		ServerInstance->Users.QuitUser(user, "Serializer lost in reload");
+		return false;
+	}
+
+	localuser->serializer = provinfo.serializer;
+	return true;
+}
+
 void DataKeeper::DoRestoreUsers()
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restoring user data");
@@ -519,6 +648,10 @@ void DataKeeper::DoRestoreUsers()
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User %s is gone", userdata.owner.c_str());
 			continue;
 		}
+
+		// Attempt to restore serializer first, if it fails it's a fatal error and RestoreSerializer() quits them
+		if (!RestoreSerializer(userdata.serializerindex, user))
+			continue;
 
 		RestoreObj(userdata, user, MODETYPE_USER, modechange);
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, NULL, user, modechange, ModeParser::MODE_LOCALONLY);

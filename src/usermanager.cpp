@@ -28,21 +28,23 @@ namespace
 {
 	class WriteCommonQuit : public User::ForEachNeighborHandler
 	{
-		std::string line;
-		std::string operline;
+		ClientProtocol::Messages::Quit quitmsg;
+		ClientProtocol::Event quitevent;
+		ClientProtocol::Messages::Quit operquitmsg;
+		ClientProtocol::Event operquitevent;
 
 		void Execute(LocalUser* user) CXX11_OVERRIDE
 		{
-			user->Write(user->IsOper() ? operline : line);
+			user->Send(user->IsOper() ? operquitevent : quitevent);
 		}
 
 	 public:
 		WriteCommonQuit(User* user, const std::string& msg, const std::string& opermsg)
-			: line(":" + user->GetFullHost() + " QUIT :")
-			, operline(line)
+			: quitmsg(user, msg)
+			, quitevent(ServerInstance->GetRFCEvents().quit, quitmsg)
+			, operquitmsg(user, opermsg)
+			, operquitevent(ServerInstance->GetRFCEvents().quit, operquitmsg)
 		{
-			line += msg;
-			operline += opermsg;
 			user->ForEachNeighbor(*this, false);
 		}
 	};
@@ -177,11 +179,11 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	std::string reason;
 	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
 
-	if (IS_LOCAL(user))
+	LocalUser* const localuser = IS_LOCAL(user);
+	if (localuser)
 	{
-		LocalUser* lu = IS_LOCAL(user);
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (lu, reason));
+		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (localuser, reason));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 	}
@@ -190,9 +192,13 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		operreason = &reason;
 
 	user->quitting = true;
-
+	
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
-	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operreason ? operreason->c_str() : quitreason.c_str());
+	if (localuser)
+	{
+		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operreason ? operreason->c_str() : quitreason.c_str()));
+		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
+	}
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
@@ -274,12 +280,13 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 {
 	std::string message;
 	VAFORMAT(message, text, text);
-	message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + message;
+	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, ServerInstance->Config->ServerName, message, MSG_NOTICE);
+	ClientProtocol::Event msgevent(ServerInstance->GetRFCEvents().privmsg, msg);
 
 	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
-		User* t = *i;
-		t->WriteServ(message);
+		LocalUser* user = *i;
+		user->Send(msgevent);
 	}
 }
 
@@ -330,8 +337,8 @@ void UserManager::DoBackgroundUserStuff()
 						this->QuitUser(curr, message);
 						continue;
 					}
-
-					curr->Write("PING :" + ServerInstance->Config->ServerName);
+					ClientProtocol::Messages::Ping ping;
+					curr->Send(ServerInstance->GetRFCEvents().ping, ping);
 					curr->lastping = 0;
 					curr->nping = ServerInstance->Time() + curr->MyClass->GetPingTime();
 				}

@@ -21,8 +21,6 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-static const char* MessageTypeStringSp[] = { "PRIVMSG ", "NOTICE " };
-
 class ModuleIRCv3EchoMessage : public Module
 {
 	Cap::Capability cap;
@@ -38,27 +36,31 @@ class ModuleIRCv3EchoMessage : public Module
 		if (!cap.get(user))
 			return;
 
-		std::string msg = MessageTypeStringSp[details.type];
+		// Caps are only set on local users
+		LocalUser* const localuser = static_cast<LocalUser*>(user);
+
+		const std::string& text = details.echooriginal ? details.originaltext : details.text;
 		if (target.type == MessageTarget::TYPE_USER)
 		{
 			User* destuser = target.Get<User>();
-			msg.append(destuser->nick);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
+			privmsg.AddTags(details.tags_in);
+			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 		}
 		else if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			if (target.status)
-				msg.push_back(target.status);
-
 			Channel* chan = target.Get<Channel>();
-			msg.append(chan->name);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
+			privmsg.AddTags(details.tags_in);
+			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 		}
 		else
 		{
 			const std::string* servername = target.Get<std::string>();
-			msg.append(*servername);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
+			privmsg.AddTags(details.tags_in);
+			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 		}
-		msg.append(" :").append(details.echooriginal ? details.originaltext : details.text);
-		user->WriteFrom(user, msg);
 	}
 
 	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
@@ -70,7 +72,7 @@ class ModuleIRCv3EchoMessage : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the echo-message IRCv3.2 extension", VF_VENDOR);
+		return Version("Provides the echo-message IRCv3 extension", VF_VENDOR);
 	}
 };
 

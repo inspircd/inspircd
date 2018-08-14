@@ -33,14 +33,50 @@ class DelayJoinMode : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 
+
+namespace
+{
+
+/** Hook handler for join client protocol events.
+ * This allows us to block join protocol events completely, including all associated messages (e.g. MODE, away-notify AWAY).
+ * This is not the same as OnUserJoin() because that runs only when a real join happens but this runs also when a module
+ * such as hostcycle generates a join.
+ */
+class JoinHook : public ClientProtocol::EventHook
+{
+	const LocalIntExt& unjoined;
+
+ public:
+	JoinHook(Module* mod, const LocalIntExt& unjoinedref)
+		: ClientProtocol::EventHook(mod, "JOIN", 10)
+		, unjoined(unjoinedref)
+	{
+	}
+
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	{
+		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
+		const User* const u = join.GetMember()->user;
+		if ((unjoined.get(u)) && (u != user))
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
+	}
+};
+
+}
+
 class ModuleDelayJoin : public Module
 {
 	DelayJoinMode djm;
+	void RevealUser(User* user, Channel* chan);
  public:
 	LocalIntExt unjoined;
+	JoinHook joinhook;
+
 	ModuleDelayJoin()
 		: djm(this)
 		, unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
+		, joinhook(this, unjoined)
 	{
 	}
 
@@ -68,7 +104,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * they remain permanently invisible on this channel!
 		 */
 		MessageTarget msgtarget(channel, 0);
-		MessageDetails msgdetails(MSG_PRIVMSG, "");
+		MessageDetails msgdetails(MSG_PRIVMSG, "", ClientProtocol::TagMap());
 		const Channel::MemberMap& users = channel->GetUsers();
 		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 		{
@@ -111,10 +147,7 @@ static void populate(CUList& except, Membership* memb)
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
-	{
 		unjoined.set(memb, 1);
-		populate(except, memb);
-	}
 }
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
@@ -147,20 +180,20 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 		return;
 
 	Channel* channel = target.Get<Channel>();
+	RevealUser(user, channel);
+}
 
-	Membership* memb = channel->GetUser(user);
+void ModuleDelayJoin::RevealUser(User* user, Channel* chan)
+{
+	Membership* memb = chan->GetUser(user);
 	if (!memb || !unjoined.set(memb, 0))
 		return;
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
-	channel->WriteAllExceptSender(user, false, 0, "JOIN %s", channel->name.c_str());
-
-	std::string ms = memb->modes;
-	for(unsigned int i=0; i < memb->modes.length(); i++)
-		ms.append(" ").append(user->nick);
-
-	if (ms.length() > 0)
-		channel->WriteAllExceptSender(user, false, 0, "MODE %s +%s", channel->name.c_str(), ms.c_str());
+	CUList except_list;
+	except_list.insert(user);
+	ClientProtocol::Events::Join joinevent(memb);
+	chan->Write(joinevent, 0, except_list);
 }
 
 /* make the user visible if he receives any mode change */
@@ -182,9 +215,7 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* 
 	if (!dest)
 		return MOD_RES_PASSTHRU;
 
-	Membership* memb = channel->GetUser(dest);
-	if (memb && unjoined.set(memb, 0))
-		channel->WriteAllExceptSender(dest, false, 0, "JOIN %s", channel->name.c_str());
+	RevealUser(dest, channel);
 	return MOD_RES_PASSTHRU;
 }
 

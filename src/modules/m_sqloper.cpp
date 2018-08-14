@@ -143,7 +143,8 @@ class OperQuery : public SQL::Query
 				return;
 
 			// Now handle /OPER.
-			oper_command->Handle(user, params);
+			ClientProtocol::TagMap tags;
+			oper_command->Handle(user, CommandBase::Params(params, tags));
 		}
 		else
 		{

@@ -24,13 +24,16 @@
 class ModuleHostCycle : public Module
 {
 	Cap::Reference chghostcap;
+	const std::string quitmsghost;
+	const std::string quitmsgident;
 
 	/** Send fake quit/join/mode messages for host or ident cycle.
 	 */
-	void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const char* quitmsg)
+	void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const std::string& reason)
 	{
-		// GetFullHost() returns the original data at the time this function is called
-		const std::string quitline = ":" + user->GetFullHost() + " QUIT :" + quitmsg;
+		// The user has the original ident/host at the time this function is called
+		ClientProtocol::Messages::Quit quitmsg(user, reason);
+		ClientProtocol::Event quitevent(ServerInstance->GetRFCEvents().quit, quitmsg);
 
 		already_sent_t silent_id = ServerInstance->Users.NextAlreadySentId();
 		already_sent_t seen_id = ServerInstance->Users.NextAlreadySentId();
@@ -50,7 +53,7 @@ class ModuleHostCycle : public Module
 				if (i->second)
 				{
 					u->already_sent = seen_id;
-					u->Write(quitline);
+					u->Send(quitevent);
 				}
 				else
 				{
@@ -65,17 +68,8 @@ class ModuleHostCycle : public Module
 		{
 			Membership* memb = *i;
 			Channel* c = memb->chan;
-			const std::string joinline = ":" + newfullhost + " JOIN " + c->name;
-			std::string modeline;
 
-			if (!memb->modes.empty())
-			{
-				modeline = ":" + (ServerInstance->Config->CycleHostsFromUser ? newfullhost : ServerInstance->Config->ServerName)
-					+ " MODE " + c->name + " +" + memb->modes;
-
-				for (size_t j = 0; j < memb->modes.length(); j++)
-					modeline.append(" ").append(user->nick);
-			}
+			ClientProtocol::Events::Join joinevent(memb, newfullhost);
 
 			const Channel::MemberMap& ulist = c->GetUsers();
 			for (Channel::MemberMap::const_iterator j = ulist.begin(); j != ulist.end(); ++j)
@@ -90,13 +84,11 @@ class ModuleHostCycle : public Module
 
 				if (u->already_sent != seen_id)
 				{
-					u->Write(quitline);
+					u->Send(quitevent);
 					u->already_sent = seen_id;
 				}
 
-				u->Write(joinline);
-				if (!memb->modes.empty())
-					u->Write(modeline);
+				u->Send(joinevent);
 			}
 		}
 	}
@@ -104,17 +96,19 @@ class ModuleHostCycle : public Module
  public:
 	ModuleHostCycle()
 		: chghostcap(this, "chghost")
+		, quitmsghost("Changing host")
+		, quitmsgident("Changing ident")
 	{
 	}
 
 	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
 	{
-		DoHostCycle(user, newident, user->GetDisplayedHost(), "Changing ident");
+		DoHostCycle(user, newident, user->GetDisplayedHost(), quitmsgident);
 	}
 
 	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE
 	{
-		DoHostCycle(user, user->ident, newhost, "Changing host");
+		DoHostCycle(user, user->ident, newhost, quitmsghost);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

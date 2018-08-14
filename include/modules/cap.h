@@ -313,4 +313,23 @@ namespace Cap
 			return false;
 		}
 	};
+
+	class MessageBase : public ClientProtocol::Message
+	{
+	 public:
+		MessageBase(const std::string& subcmd)
+			: ClientProtocol::Message("CAP", ServerInstance->Config->ServerName)
+		{
+			PushParamPlaceholder();
+			PushParam(subcmd);
+		}
+
+		void SetUser(LocalUser* user)
+		{
+			if (user->registered & REG_NICK)
+				ReplaceParamRef(0, user->nick);
+			else
+				ReplaceParam(0, "*");
+		}
+	};
 }

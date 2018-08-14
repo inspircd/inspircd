@@ -93,7 +93,8 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 				new_parameters[extra] = item;
 			}
 
-			CmdResult result = handler->Handle(user, new_parameters);
+			CommandBase::Params params(new_parameters, parameters.GetTags());
+			CmdResult result = handler->Handle(user, params);
 			if (localuser)
 			{
 				// Run the OnPostCommand hook with the last parameter (original line) being empty
@@ -152,14 +153,16 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 			{
 				if (cmd)
 					*cmd = n->second;
-				return n->second->Handle(user, parameters);
+
+				ClientProtocol::TagMap tags;
+				return n->second->Handle(user, CommandBase::Params(parameters, tags));
 			}
 		}
 	}
 	return CMD_INVALID;
 }
 
-void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Command::Params& command_p)
+void CommandParser::ProcessCommand(LocalUser* user, std::string& command, CommandBase::Params& command_p)
 {
 	/* find the command, check it exists */
 	Command* handler = GetHandler(command);
@@ -369,44 +372,14 @@ void Command::RegisterService()
 
 void CommandParser::ProcessBuffer(LocalUser* user, const std::string& buffer)
 {
-	size_t start = buffer.find_first_not_of(" ");
-	if (start == std::string::npos)
-	{
-		// Discourage the user from flooding the server.
-		user->CommandFloodPenalty += 2000;
+	ClientProtocol::ParseOutput parseoutput;
+	if (!user->serializer->Parse(user, buffer, parseoutput))
 		return;
-	}
 
-	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), buffer.c_str());
-
-	irc::tokenstream tokens(buffer, start);
-	std::string command;
-	CommandBase::Params parameters;
-
-	// Get the command name. This will always exist because of the check
-	// at the start of the function.
-	tokens.GetMiddle(command);
-
-	// If this exists then the client sent a prefix as part of their
-	// message. Section 2.3 of RFC 1459 technically says we should only
-	// allow the nick of the client here but in practise everyone just
-	// ignores it so we will copy them.
-	if (command[0] == ':' && !tokens.GetMiddle(command))
-	{
-		// Discourage the user from flooding the server.
-		user->CommandFloodPenalty += 2000;
-		return;
-	}
-
-	// We upper-case the command name to ensure consistency internally.
+	std::string& command = parseoutput.cmd;
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
-	// Build the parameter map. We intentionally do not respect the RFC 1459
-	// thirteen parameter limit here.
-	std::string parameter;
-	while (tokens.GetTrailing(parameter))
-		parameters.push_back(parameter);
-
+	CommandBase::Params parameters(parseoutput.params, parseoutput.tags);
 	ProcessCommand(user, command, parameters);
 }
 
@@ -425,7 +398,7 @@ CommandParser::CommandParser()
 {
 }
 
-std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final, CommandBase* custom_translator)
+std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final, CommandBase* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();
 	std::string dest;

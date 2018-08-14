@@ -60,6 +60,7 @@ class CommandKill : public Command
 {
 	std::string lastuuid;
 	std::string killreason;
+	ClientProtocol::EventProvider protoev;
 
  public:
 	/** Constructor for kill.
@@ -67,8 +68,8 @@ class CommandKill : public Command
 	CommandKill(Module* parent);
 
 	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
+	 * @param user User issuing the command
+	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
@@ -87,8 +88,8 @@ class CommandOper : public SplitCommand
 	CommandOper(Module* parent);
 
 	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
+	 * @param user User issuing the command
+	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
@@ -104,8 +105,8 @@ class CommandRehash : public Command
 	CommandRehash(Module* parent);
 
 	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
+	 * @param user User issuing the command
+	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
@@ -121,8 +122,8 @@ class CommandRestart : public Command
 	CommandRestart(Module* parent);
 
 	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
+	 * @param user User issuing the command
+	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
