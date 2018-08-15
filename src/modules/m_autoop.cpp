@@ -52,7 +52,7 @@ class AutoOpList : public ListModeBase
 
 		if (adding && !mh)
 		{
-			source->WriteNumeric(415, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
+			source->WriteNumeric(ERR_UNKNOWNMODE, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
 			return MOD_RES_DENY;
 		}
 		else if (!mh)

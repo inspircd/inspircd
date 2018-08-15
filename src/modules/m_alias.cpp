@@ -68,6 +68,9 @@ class ModuleAlias : public Module
 	bool AllowBots;
 	UserModeReference botmode;
 
+	// Whether we are actively executing an alias.
+	bool active;
+
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
@@ -134,9 +137,9 @@ class ModuleAlias : public Module
 		std::string message(command);
 		for (CommandBase::Params::const_iterator iter = parameters.begin(); iter != parameters.end();)
 		{
-			const std::string& parameter = *++iter;
+			const std::string& parameter = *iter++;
 			message.push_back(' ');
-			if (iter == parameters.end())
+			if (iter == parameters.end() && (parameter.empty() || parameter.find(' ') != std::string::npos))
 				message.push_back(':');
 			message.append(parameter);
 		}
@@ -174,6 +177,15 @@ class ModuleAlias : public Module
 		}
 
 		// If we made it here, no aliases actually matched.
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		// Don't echo anything which is caused by an alias.
+		if (active)
+			details.echo = false;
+
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -351,7 +363,10 @@ class ModuleAlias : public Module
 		{
 			pars.push_back(token);
 		}
+
+		active = true;
 		ServerInstance->Parser.CallHandler(command, pars, user);
+		active = false;
 	}
 
 	void Prioritize() CXX11_OVERRIDE

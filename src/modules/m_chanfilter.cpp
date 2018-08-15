@@ -116,7 +116,7 @@ class ModuleChanFilter : public Module
 				{
 					if (!notifyuser)
 					{
-						details.echooriginal = true;
+						details.echo_original = true;
 						return MOD_RES_DENY;
 					}
 

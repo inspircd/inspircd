@@ -1004,10 +1004,11 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 	if (GetDisplayedHost() == shost)
 		return true;
 
-	if (IS_LOCAL(this))
+	LocalUser* luser = IS_LOCAL(this);
+	if (luser)
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserHost, MOD_RESULT, (IS_LOCAL(this),shost));
+		FIRST_MOD_RESULT(OnPreChangeHost, MOD_RESULT, (luser, shost));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 	}

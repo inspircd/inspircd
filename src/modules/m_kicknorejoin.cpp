@@ -25,6 +25,13 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 2182.
+	ERR_UNAVAILRESOURCE = 437
+};
+
+
 class KickRejoinData
 {
 	struct KickedUser
@@ -135,7 +142,7 @@ public:
 			const KickRejoinData* data = kr.ext.get(chan);
 			if ((data) && (!data->canjoin(user)))
 			{
-				user->WriteNumeric(ERR_DELAYREJOIN, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J)", data->delay));
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J)", data->delay));
 				return MOD_RES_DENY;
 			}
 		}

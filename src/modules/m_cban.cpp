@@ -24,6 +24,12 @@
 #include "xline.h"
 #include "modules/stats.h"
 
+enum
+{
+	// InspIRCd-specific.
+	ERR_BADCHANNEL = 926
+};
+
 /** Holds a CBAN item
  */
 class CBan : public XLine
@@ -180,7 +186,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteNumeric(384, cname, InspIRCd::Format("Cannot join channel, CBANed (%s)", rl->reason.c_str()));
+			user->WriteNumeric(ERR_BADCHANNEL, cname, InspIRCd::Format("Channel %s is CBANed: %s", cname.c_str(), rl->reason.c_str()));
 			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
 				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
