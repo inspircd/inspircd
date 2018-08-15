@@ -349,6 +349,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		WriteData(n->str());
+		Close();
 	}
 
 	void AddToCull()
