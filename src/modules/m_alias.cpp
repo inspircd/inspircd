@@ -134,9 +134,9 @@ class ModuleAlias : public Module
 		std::string message(command);
 		for (CommandBase::Params::const_iterator iter = parameters.begin(); iter != parameters.end();)
 		{
-			const std::string& parameter = *++iter;
+			const std::string& parameter = *iter++;
 			message.push_back(' ');
-			if (iter == parameters.end())
+			if (iter == parameters.end() && (parameter.empty() || parameter.find(' ') != std::string::npos))
 				message.push_back(':');
 			message.append(parameter);
 		}
