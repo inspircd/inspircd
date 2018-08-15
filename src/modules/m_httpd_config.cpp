@@ -32,78 +32,40 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 	{
 	}
 
-	std::string Sanitize(const std::string &str)
+	ModResult OnHTTPRequest(HTTPRequest& request) CXX11_OVERRIDE
 	{
-		std::string ret;
+		if ((request.GetURI() != "/config") && (request.GetURI() != "/config/"))
+			return MOD_RES_PASSTHRU;
 
-		for (std::string::const_iterator x = str.begin(); x != str.end(); ++x)
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");
+		std::stringstream buffer;
+
+		ConfigDataHash& config = ServerInstance->Config->config_data;
+		for (ConfigDataHash::const_iterator citer = config.begin(); citer != config.end(); ++citer)
 		{
-			switch (*x)
+			// Show the location of the tag in a comment.
+			ConfigTag* tag = citer->second;
+			buffer << "# " << tag->getTagLocation() << std::endl
+				<< '<' << tag->tag << ' ';
+
+			// Print out the tag with all keys aligned vertically.
+			const std::string indent(tag->tag.length() + 2, ' ');
+			const ConfigItems& items = tag->getItems();
+			for (ConfigItems::const_iterator kiter = items.begin(); kiter != items.end(); )
 			{
-				case '<':
-					ret += "&lt;";
-				break;
-				case '>':
-					ret += "&gt;";
-				break;
-				case '&':
-					ret += "&amp;";
-				break;
-				case '"':
-					ret += "&quot;";
-				break;
-				default:
-					if (*x < 32 || *x > 126)
-					{
-						int n = *x;
-						ret += ("&#" + ConvToStr(n) + ";");
-					}
-					else
-						ret += *x;
-				break;
+				ConfigItems::const_iterator curr = kiter++;
+				buffer << curr->first << "=\"" << ServerConfig::Escape(curr->second) << '"';
+				if (kiter != items.end())
+					buffer << std::endl << indent;
 			}
+			buffer << '>' << std::endl << std::endl;
 		}
-		return ret;
-	}
 
-	ModResult HandleRequest(HTTPRequest* http)
-	{
-		std::stringstream data("");
-
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
-
-			if ((http->GetURI() == "/config") || (http->GetURI() == "/config/"))
-			{
-				data << "<html><head><title>InspIRCd Configuration</title></head><body>";
-				data << "<h1>InspIRCd Configuration</h1><p>";
-
-				for (ConfigDataHash::iterator x = ServerInstance->Config->config_data.begin(); x != ServerInstance->Config->config_data.end(); ++x)
-				{
-					data << "&lt;" << x->first << " ";
-					const ConfigItems& items = x->second->getItems();
-					for (ConfigItems::const_iterator j = items.begin(); j != items.end(); j++)
-					{
-						data << Sanitize(j->first) << "=&quot;" << Sanitize(j->second) << "&quot; ";
-					}
-					data << "&gt;<br>";
-				}
-
-				data << "</body></html>";
-				/* Send the document back to m_httpd */
-				HTTPDocumentResponse response(this, *http, &data, 200);
-				response.headers.SetHeader("X-Powered-By", MODNAME);
-				response.headers.SetHeader("Content-Type", "text/html");
-				API->SendResponse(response);
-				return MOD_RES_DENY; // Handled
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
-	{
-		return HandleRequest(&req);
+		HTTPDocumentResponse response(this, request, &buffer, 200);
+		response.headers.SetHeader("X-Powered-By", MODNAME);
+		response.headers.SetHeader("Content-Type", "text/plain");
+		API->SendResponse(response);
+		return MOD_RES_DENY;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
