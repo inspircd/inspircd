@@ -203,7 +203,7 @@ class MySQLresult : public SQL::Result
 		result.assign(colnames.begin(), colnames.end());
 	}
 
-	bool HasColumn(const std::string& column, size_t& index)
+	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
 	{
 		for (size_t i = 0; i < colnames.size(); ++i)
 		{

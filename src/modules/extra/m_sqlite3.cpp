@@ -83,7 +83,7 @@ class SQLite3Result : public SQL::Result
 		result.assign(columns.begin(), columns.end());
 	}
 
-	bool HasColumn(const std::string& column, size_t& index)
+	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
 	{
 		for (size_t i = 0; i < columns.size(); ++i)
 		{

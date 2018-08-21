@@ -103,7 +103,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
 	{
 		irc::sepstream stream(parameter, ':');
 		AntiCapsMethod method;
