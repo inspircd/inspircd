@@ -35,13 +35,6 @@
  */
 enum
 {
-	/*
-	 * Reply range of numerics.
-	 */
-	RPL_WELCOME                     = 1, // 2812, not 1459
-	RPL_YOURHOSTIS                  = 2, // 2812, not 1459
-	RPL_SERVERCREATED               = 3, // 2812, not 1459
-	RPL_SERVERVERSION               = 4, // 2812, not 1459
 	RPL_ISUPPORT                    = 5, // not RFC, extremely common though (defined as RPL_BOUNCE in 2812, widely ignored)
 
 	RPL_SNOMASKIS                   = 8, // unrealircd

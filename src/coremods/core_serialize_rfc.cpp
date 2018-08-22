@@ -213,7 +213,7 @@ class ModuleCoreRFCSerializer : public Module
 			user->serializer = &rfcserializer;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("RFC client protocol serializer and unserializer", VF_CORE|VF_VENDOR);
 	}

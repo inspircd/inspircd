@@ -122,7 +122,7 @@ class PgSQLresult : public SQL::Result
 		result = colnames;
 	}
 
-	bool HasColumn(const std::string& column, size_t& index)
+	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
 	{
 		if (colnames.empty())
 			getColNames();

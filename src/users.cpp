@@ -557,45 +557,15 @@ void LocalUser::FullConnect()
 	if (quitting)
 		return;
 
-	this->WriteNumeric(RPL_WELCOME, InspIRCd::Format("Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str()));
-	this->WriteNumeric(RPL_YOURHOSTIS, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
-	this->WriteNumeric(RPL_SERVERCREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
-
-	const TR1NS::array<std::string, 3>& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, ServerInstance->Config->ServerName, INSPIRCD_BRANCH, modelist[0], modelist[1], modelist[2]);
-
-	ServerInstance->ISupport.SendTo(this);
-
-	/* Now registered */
-	if (ServerInstance->Users->unregistered_count)
-		ServerInstance->Users->unregistered_count--;
-
-	/* Trigger MOTD and LUSERS output, give modules a chance too */
-	ModResult MOD_RESULT;
-	std::string command("LUSERS");
-	CommandBase::Params parameters;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true));
-	if (!MOD_RESULT)
-		ServerInstance->Parser.CallHandler(command, parameters, this);
-
-	MOD_RESULT = MOD_RES_PASSTHRU;
-	command = "MOTD";
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true));
-	if (!MOD_RESULT)
-		ServerInstance->Parser.CallHandler(command, parameters, this);
-
-	if (ServerInstance->Config->RawLog)
-	{
-		ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, this, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
-		this->Send(ServerInstance->GetRFCEvents().privmsg, rawlogmsg);
-	}
-
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
 	 * for a user that doesn't exist yet.
 	 */
 	FOREACH_MOD(OnUserConnect, (this));
 
+	/* Now registered */
+	if (ServerInstance->Users->unregistered_count)
+		ServerInstance->Users->unregistered_count--;
 	this->registered = REG_ALL;
 
 	FOREACH_MOD(OnPostConnect, (this));

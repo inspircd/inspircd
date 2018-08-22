@@ -43,10 +43,11 @@
 #elif defined __GNUC__
 # if __GNUC__ < 6
 #  pragma GCC diagnostic ignored "-pedantic"
-# else
-#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
 #endif
+
+// Fix warnings about using std::auto_ptr on C++11 or newer.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
