@@ -161,6 +161,12 @@ class ModuleJumpServer : public Module
 	{
 	}
 
+	void OnModuleRehash(User* user, const std::string& param) CXX11_OVERRIDE
+	{
+		if (irc::equals(param, "jumpserver") && js.redirect_new_users)
+			js.redirect_new_users = false;
+	}
+
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (js.redirect_new_users)

@@ -100,6 +100,12 @@ class ModuleLockserv : public Module
 			locked.clear();
 	}
 
+	void OnModuleRehash(User* user, const std::string& param) CXX11_OVERRIDE
+	{
+		if (irc::equals(param, "lockserv") && !locked.empty())
+			locked.clear();
+	}
+
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (!locked.empty())
