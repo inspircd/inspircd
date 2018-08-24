@@ -24,7 +24,7 @@
 .BR
 
 .SH "SYNOPSIS"
-\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--runasroot] [--version] 
+\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--nopid] [--runasroot] [--version] 
 
 .SH "OPTIONS"
 .TP
@@ -43,6 +43,10 @@ Don't fork into the background after starting up.
 .B "--nolog"
 .br
 Don't write to log files.
+.TP
+.B "--nopid"
+.br
+Don't write to the PID file.
 .TP
 .B "--runasroot"
 .br
@@ -99,6 +103,6 @@ The server exited because it was unable to load a module on first run.
 The server exited because it received SIGTERM.
 
 .SH "SUPPORT"
-IRC support for InspIRCd can be found at irc://irc.inspircd.org/inspircd.
+IRC support for InspIRCd can be found at ircs://irc.inspircd.org/inspircd.
 
 Bug reports and feature requests can be filed at https://github.com/inspircd/inspircd/issues.
