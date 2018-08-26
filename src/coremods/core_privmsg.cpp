@@ -148,10 +148,6 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 	User *dest;
 	Channel *chan;
 
-	LocalUser* localuser = IS_LOCAL(user);
-	if (localuser)
-		localuser->idle_lastmsg = ServerInstance->Time();
-
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
@@ -195,7 +191,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 
 		if (chan)
 		{
-			if (localuser && chan->GetPrefixValue(user) < VOICE_VALUE)
+			if (IS_LOCAL(user) && chan->GetPrefixValue(user) < VOICE_VALUE)
 			{
 				if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
 				{
@@ -259,7 +255,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 
 	const char* destnick = parameters[0].c_str();
 
-	if (localuser)
+	if (IS_LOCAL(user))
 	{
 		const char* targetserver = strchr(destnick, '@');
 
@@ -355,6 +351,20 @@ class ModuleCoreMessage : public Module
 	ModuleCoreMessage()
 		: CommandPrivmsg(this), CommandNotice(this)
 	{
+	}
+
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	{
+		// We only handle the idle times of local users.
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser)
+			return;
+
+		// We don't update the idle time when a CTCP reply is sent.
+		if (details.type == MSG_NOTICE && details.IsCTCP())
+			return;
+
+		luser->idle_lastmsg = ServerInstance->Time();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
