@@ -56,6 +56,24 @@ class CoreExport MessageDetails
 	/** The type of message. */
 	const MessageType type;
 
+	/** Determines whether the specified message is a CTCP. If the specified message
+	 * is a CTCP then the CTCP name and CTCP body are extracted and stored in the
+	 * name and body references.
+	 * @param name The location to store the parsed CTCP name.
+	 * @param body The location to store the parsed CTCP body.
+	 */
+	virtual bool IsCTCP(std::string& name, std::string& body) const = 0;
+	
+	/** Determines whether the specified message is a CTCP. If the specified message
+	 * is a CTCP then the CTCP name is extracted and stored in the name reference.
+	 * @param name The location to store the parsed CTCP name.
+	 */
+	virtual bool IsCTCP(std::string& name) const = 0;
+
+	/** Determines whether the specified message is a CTCP. */
+	virtual bool IsCTCP() const = 0;
+
+ protected:
 	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
 		: echo(true)
 		, echo_original(false)

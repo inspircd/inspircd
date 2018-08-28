@@ -1047,9 +1047,10 @@ Note that all /STATS use is broadcast to online IRC operators.">
  A      Allows receipt of remote announcement messages.
  c      Allows receipt of local connect messages.
  C      Allows receipt of remote connect messages.
- d      Allows recript of local DNSBL messages.
- D      Allows recript of remote DNSBL messages.
- f      Allows receipt of flooding notices.
+ d      Allows receipt of local DNSBL messages (requires the dnsbl module).
+ D      Allows receipt of remote DNSBL messages (requires the dnsbl module).
+ f      Allows receipt of local filter messages (requires the filter module).
+ F      Allows receipt of remote filter messages (requires the filter module).
  g      Allows receipt of globops (requires the globops module).
  j      Allows receipt of channel creation notices (requires the chancreate module).
  J      Allows receipt of remote channel creation notices (requires the chancreate module).

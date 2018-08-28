@@ -60,31 +60,26 @@ public:
 			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet(bc)))
 			{
 				// If the message is a CTCP then we skip it unless it is
-				// an ACTION in which case we strip the prefix and suffix.
-				std::string::const_iterator text_begin = details.text.begin();
-				std::string::const_iterator text_end = details.text.end();
-				if (details.text[0] == '\1')
+				// an ACTION in which case we just check against the body.
+				std::string ctcpname;
+				std::string message(details.text);
+				if (details.IsCTCP(ctcpname, message))
 				{
 					// If the CTCP is not an action then skip it.
-					if (details.text.compare(0, 8, "\1ACTION ", 8))
+					if (!irc::equals(ctcpname, "ACTION"))
 						return MOD_RES_PASSTHRU;
-
-					// Skip the CTCP message characters.
-					text_begin += 8;
-					if (*details.text.rbegin() == '\1')
-						text_end -= 1;
 				}
 
 				// If the message is shorter than the minimum length
 				// then we don't need to do anything else.
-				size_t length = std::distance(text_begin, text_end);
+				size_t length = message.length();
 				if (length < minlen)
 					return MOD_RES_PASSTHRU;
 
 				// Count the characters to see how many upper case and
 				// ignored (non upper or lower) characters there are.
 				size_t upper = 0;
-				for (std::string::const_iterator iter = text_begin; iter != text_end; ++iter)
+				for (std::string::const_iterator iter = message.begin(); iter != message.end(); ++iter)
 				{
 					unsigned char chr = static_cast<unsigned char>(*iter);
 					if (uppercase.test(chr))
