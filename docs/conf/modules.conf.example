@@ -357,11 +357,17 @@
 # address in the ident sent by the user. This is not recommended as it
 # only works with IPv4 connections.
 #
-# When using this method you must specify a wildcard mask or CIDR range to
-# allow gateway connections from.
+# When using this method you must specify a wildcard mask or CIDR range to allow
+# gateway connections from. You can also optionally configure the static value
+# that replaces the IP in the ident to avoid leaking the real IP address of
+# gateway clients (defaults to "gateway" if not set).
 #
-# <cgihost type="ident" mask="198.51.100.0/24">
-# <cgihost type="ident" mask="*.ident.gateway.example.com">
+# <cgihost type="ident"
+#          mask="198.51.100.0/24"
+#          newident="wibble">
+# <cgihost type="ident"
+#          mask="*.ident.gateway.example.com"
+#          newident="wobble">
 #
 # By default gateway connections are logged to the +w snomask. If you
 # do not want this to happen then you can uncomment this to disable it.
