@@ -192,7 +192,13 @@ class ModuleCgiIRC : public Module
 	static void ChangeIP(LocalUser* user, const std::string& newip)
 	{
 		ServerInstance->Users->RemoveCloneCounts(user);
+		const std::string oldip(user->GetIPString());
 		user->SetClientIP(newip.c_str());
+		user->InvalidateCache();
+		if (user->host == oldip)
+			user->host = user->GetIPString();
+		if (user->dhost == oldip)
+			user->dhost = user->GetIPString();
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
 	}
