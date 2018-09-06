@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
 class DelayJoinMode : public ModeHandler
 {
@@ -72,7 +73,9 @@ class JoinHook : public ClientProtocol::EventHook
 
 }
 
-class ModuleDelayJoin : public Module
+class ModuleDelayJoin 
+	: public Module
+	, public CTCTags::EventListener
 {
  public:
 	LocalIntExt unjoined;
@@ -80,7 +83,8 @@ class ModuleDelayJoin : public Module
 	DelayJoinMode djm;
 
 	ModuleDelayJoin()
-		: unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
+		: CTCTags::EventListener(this)
+		, unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
 		, joinhook(this, unjoined)
 		, djm(this, unjoined)
 	{
@@ -94,6 +98,7 @@ class ModuleDelayJoin : public Module
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
 	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE;
+	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) CXX11_OVERRIDE;
 	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
@@ -174,6 +179,15 @@ void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include
 		else
 			++i;
 	}
+}
+
+void ModuleDelayJoin::OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details)
+{
+	if (target.type != MessageTarget::TYPE_CHANNEL)
+		return;
+
+	Channel* channel = target.Get<Channel>();
+	djm.RevealUser(user, channel);
 }
 
 void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details)

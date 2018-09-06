@@ -32,7 +32,7 @@ class RFCSerializer : public ClientProtocol::Serializer
 	static const std::string::size_type MAX_CLIENT_MESSAGE_TAG_LENGTH = 4095;
 
 	/** The maximum size of server-originated message tags in an outgoing message including the `@`. */
-	static const std::string::size_type MAX_SERVER_MESSAGE_TAG_LENGTH = 511;
+	static const std::string::size_type MAX_SERVER_MESSAGE_TAG_LENGTH = 4095;
 
 	static void SerializeTags(const ClientProtocol::TagMap& tags, const ClientProtocol::TagSelection& tagwl, std::string& line);
 

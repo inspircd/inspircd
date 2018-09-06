@@ -1113,6 +1113,12 @@
 #<module name="ircv3_chghost">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 client-to-client tags module: Provides the message-tags IRCv3
+# extension which allows clients to add extra data to their messages.
+# This is used to support new IRCv3 features such as replies and ids.
+#<module name="ircv3_ctctags">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 echo-message module: Provides the echo-message IRCv3
 # extension which allows capable clients to get an acknowledgement when
 # their messages are delivered and learn what modifications, if any,

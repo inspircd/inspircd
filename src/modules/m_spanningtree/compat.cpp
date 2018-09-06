@@ -309,6 +309,11 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					push.append(line, 26, std::string::npos);
 					push.swap(line);
 				}
+				else if (command == "TAGMSG")
+				{
+					// Drop IRCv3 tag messages as v2 has no message tag support.
+					return;
+				}
 			}
 			WriteLineNoCompat(line);
 			return;
