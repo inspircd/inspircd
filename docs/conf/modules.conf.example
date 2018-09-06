@@ -35,7 +35,7 @@
 # this module being loaded to function.
 #
 #<module name="md5">
-#
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SHA256 module: Allows other modules to generate SHA256 hashes,
 # usually for cryptographic uses and security.
@@ -47,13 +47,6 @@
 # be enhanced (for example the addition of HMAC authentication).
 #
 #<module name="sha256">
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# RIPEMD160 module: Allows other modules to generate RIPEMD160 hashes,
-# usually for cryptographic uses and security.
-#
-# IMPORTANT:
-# Other modules may rely on this module being loaded to function.
-#<module name="ripemd160">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la
