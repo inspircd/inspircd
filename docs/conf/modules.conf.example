@@ -906,6 +906,14 @@
 #<hidelist mode="invex" rank="0">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hide mode module: Allows for hiding mode changes from users who do not
+# have sufficient channel privileges.
+#<module name="hidemode">
+#
+# Hide bans (+b) from people who are not voiced:
+#<hidemode mode="ban" rank="10000">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide oper module: Allows opers to hide their oper status from non-
 # opers by setting user mode +H on themselves.
 # This module is oper-only.
