@@ -97,10 +97,10 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 			CmdResult result = handler->Handle(user, params);
 			if (localuser)
 			{
-				// Run the OnPostCommand hook with the last parameter (original line) being empty
-				// to indicate that the command had more targets in its original form.
+				// Run the OnPostCommand hook with the last parameter being true to indicate
+				// that the event is being called in a loop.
 				item.clear();
-				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result));
+				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, true));
 			}
 		}
 	}
@@ -316,7 +316,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		 */
 		CmdResult result = handler->Handle(user, command_p);
 
-		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result));
+		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result, false));
 	}
 }
 
