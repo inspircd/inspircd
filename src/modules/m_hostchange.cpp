@@ -20,141 +20,216 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
-/** Holds information on a host set by m_hostchange
- */
-class Host
+// Holds information about a <hostchange> rule.
+class HostRule
 {
  public:
 	enum HostChangeAction
 	{
-		HCA_SET,
-		HCA_SUFFIX,
-		HCA_ADDNICK
+		// Add the user's account name to their hostname.
+		HCA_ADDACCOUNT,
+
+		// Add the user's nickname to their hostname.
+		HCA_ADDNICK,
+
+		// Set the user's hostname to the specific value. 
+		HCA_SET
 	};
 
+ private:
 	HostChangeAction action;
-	std::string newhost;
-	std::string ports;
+	std::string host;
+	std::string mask;
+	insp::flat_set<int> ports;
+	std::string prefix;
+	std::string suffix;
 
-	Host(HostChangeAction Action, const std::string& Newhost, const std::string& Ports) :
-		action(Action), newhost(Newhost), ports(Ports) {}
+ public:
+	HostRule(const std::string& Host, const std::string& Mask, const insp::flat_set<int>& Ports)
+		: action(HCA_SET)
+		, host(Host)
+		, mask(Mask)
+		, ports(Ports)
+	{
+	}
+
+	HostRule(HostChangeAction Action, const std::string& Mask, const insp::flat_set<int>& Ports, const std::string& Prefix, const std::string& Suffix)
+		: action(Action)
+		, mask(Mask)
+		, ports(Ports)
+		, prefix(Prefix)
+		, suffix(Suffix)
+	{
+	}
+
+	HostChangeAction GetAction() const
+	{
+		return action;
+	}
+
+	const std::string& GetHost() const
+	{
+		return host;
+	}
+
+	bool Matches(LocalUser* user) const
+	{
+		if (!ports.empty() && !ports.count(user->GetServerPort()))
+			return false;
+
+		if (InspIRCd::MatchCIDR(user->MakeHost(), mask))
+			return true;
+
+		return InspIRCd::MatchCIDR(user->MakeHostIP(), mask);
+	}
+
+	void Wrap(const std::string& value, std::string& out) const
+	{
+		if (!prefix.empty())
+			out.append(prefix);
+
+		out.append(value);
+
+		if (!suffix.empty())
+			out.append(suffix);
+	}
 };
 
-typedef std::vector<std::pair<std::string, Host> > hostchanges_t;
+typedef std::vector<HostRule> HostRules;
 
 class ModuleHostChange : public Module
 {
-	hostchanges_t hostchanges;
-	std::string MySuffix;
-	std::string MyPrefix;
-	std::string MySeparator;
+private:
+	std::bitset<UCHAR_MAX> hostmap;
+	HostRules hostrules;
+
+	std::string CleanName(const std::string& name)
+	{
+		std::string buffer;
+		buffer.reserve(name.length());
+		for (std::string::const_iterator iter = name.begin(); iter != name.end(); ++iter)
+		{
+			if (hostmap.test(static_cast<unsigned char>(*iter)))
+			{
+				buffer.push_back(*iter);
+			}
+		}
+		return buffer;
+	}
 
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* host = ServerInstance->Config->ConfValue("host");
-		MySuffix = host->getString("suffix");
-		MyPrefix = host->getString("prefix");
-		MySeparator = host->getString("separator", ".");
-		hostchanges.clear();
+		HostRules rules;
 
-		std::set<std::string> dupecheck;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("hostchange");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			std::string mask = tag->getString("mask");
-			if (!dupecheck.insert(mask).second)
-				throw ModuleException("Duplicate hostchange entry: " + mask);
 
-			Host::HostChangeAction act;
-			std::string newhost;
-			std::string action = tag->getString("action");
-			if (!strcasecmp(action.c_str(), "set"))
+			// Ensure that we have the <hostchange:mask> parameter.
+			const std::string mask = tag->getString("mask");
+			if (mask.empty())
+				throw ModuleException("<hostchange:mask> is a mandatory field, at " + tag->getTagLocation());
+
+			insp::flat_set<int> ports;
+			const std::string portlist = tag->getString("ports");
+			if (!ports.empty())
 			{
-				act = Host::HCA_SET;
-				newhost = tag->getString("value");
+				irc::portparser portrange(portlist, false);
+				while (int port = portrange.GetToken())
+					ports.insert(port);
 			}
-			else if (!strcasecmp(action.c_str(), "suffix"))
-				act = Host::HCA_SUFFIX;
-			else if (!strcasecmp(action.c_str(), "addnick"))
-				act = Host::HCA_ADDNICK;
-			else
-				throw ModuleException("Invalid hostchange action: " + action);
 
-			hostchanges.push_back(std::make_pair(mask, Host(act, newhost, tag->getString("ports"))));
+			// Determine what type of host rule this is.
+			const std::string action = tag->getString("action");
+			if (stdalgo::string::equalsci(action, "addaccount"))
+			{
+				// The hostname is in the format [prefix]<account>[suffix].
+				rules.push_back(HostRule(HostRule::HCA_ADDACCOUNT, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+			}
+			else if (stdalgo::string::equalsci(action, "addnick"))
+			{
+				// The hostname is in the format [prefix]<nick>[suffix].
+				rules.push_back(HostRule(HostRule::HCA_ADDNICK, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+			}
+			else if (stdalgo::string::equalsci(action, "set"))
+			{
+				// Ensure that we have the <hostchange:value> parameter.
+				const std::string value = tag->getString("value");
+				if (value.empty())
+					throw ModuleException("<hostchange:value> is a mandatory field when using the 'set' action, at " + tag->getTagLocation());
+
+				// The hostname is in the format <value>.
+				rules.push_back(HostRule(mask, value, ports));
+				continue;
+			}
+			else
+			{
+				throw ModuleException(action + " is an invalid <hostchange:action> type, at " + tag->getTagLocation()); 
+			}
 		}
+
+		const std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
+		hostmap.reset();
+		for (std::string::const_iterator iter = hmap.begin(); iter != hmap.end(); ++iter)
+			hostmap.set(static_cast<unsigned char>(*iter));
+		hostrules.swap(rules);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		// returns the version number of the module to be
-		// listed in /MODULES
-		return Version("Provides masking of user hostnames in a different way to m_cloaking", VF_VENDOR);
+		return Version("Provides rule-based masking of user hostnames", VF_VENDOR);
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
+		for (HostRules::const_iterator iter = hostrules.begin(); iter != hostrules.end(); ++iter)
 		{
-			if (((InspIRCd::MatchCIDR(user->MakeHost(), i->first)) || (InspIRCd::MatchCIDR(user->MakeHostIP(), i->first))))
+			const HostRule& rule = *iter;
+			if (!rule.Matches(user))
+				continue;
+
+			std::string newhost;
+			if (rule.GetAction() == HostRule::HCA_ADDACCOUNT)
 			{
-				const Host& h = i->second;
+				// Retrieve the account name.
+				const AccountExtItem* accountext = GetAccountExtItem();
+				const std::string* accountptr = accountext ? accountext->get(user) : NULL;
+				if (!accountptr)
+					continue;
 
-				if (!h.ports.empty())
-				{
-					irc::portparser portrange(h.ports, false);
-					long portno = -1;
-					bool foundany = false;
+				// Remove invalid hostname characters.
+				std::string accountname = CleanName(*accountptr);
+				if (accountname.empty())
+					continue;
 
-					while ((portno = portrange.GetToken()))
-						if (portno == user->GetServerPort())
-							foundany = true;
+				// Create the hostname.
+				rule.Wrap(accountname, newhost);
+			}
+			else if (rule.GetAction() == HostRule::HCA_ADDNICK)
+			{
+				// Remove invalid hostname characters.
+				const std::string nickname = CleanName(user->nick);
+				if (nickname.empty())
+					continue;
 
-					if (!foundany)
-						continue;
-				}
+				// Create the hostname.
+				rule.Wrap(nickname, newhost);
+			}
+			else if (rule.GetAction() == HostRule::HCA_SET)
+			{
+				newhost.assign(rule.GetHost());
+			}
 
-				// host of new user matches a hostchange tag's mask
-				std::string newhost;
-				if (h.action == Host::HCA_SET)
-				{
-					newhost = h.newhost;
-				}
-				else if (h.action == Host::HCA_SUFFIX)
-				{
-					newhost = MySuffix;
-				}
-				else if (h.action == Host::HCA_ADDNICK)
-				{
-					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
-					std::string complete;
-					for (std::string::const_iterator j = user->nick.begin(); j != user->nick.end(); ++j)
-					{
-						if  (((*j >= 'A') && (*j <= 'Z')) ||
-						    ((*j >= 'a') && (*j <= 'z')) ||
-						    ((*j >= '0') && (*j <= '9')) ||
-						    (*j == '-'))
-						{
-							complete = complete + *j;
-						}
-					}
-					if (complete.empty())
-						complete = "i-have-a-lame-nick";
-
-					if (!MyPrefix.empty())
-						newhost = MyPrefix + MySeparator + complete;
-					else
-						newhost = complete + MySeparator + MySuffix;
-				}
-				if (!newhost.empty())
-				{
-					user->WriteNotice("Setting your virtual host: " + newhost);
-					if (!user->ChangeDisplayedHost(newhost))
-						user->WriteNotice("Could not set your virtual host: " + newhost);
-					return;
-				}
+			if (!newhost.empty())
+			{
+				user->WriteNotice("Setting your virtual host: " + newhost);
+				if (!user->ChangeDisplayedHost(newhost))
+					user->WriteNotice("Could not set your virtual host: " + newhost);
+				return;
 			}
 		}
 	}
