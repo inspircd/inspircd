@@ -24,7 +24,7 @@
 #include "treeserver.h"
 #include "commandbuilder.h"
 
-void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result)
+void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop)
 {
 	if (result == CMD_SUCCESS)
 		Utils->RouteCommand(NULL, command, parameters, user);

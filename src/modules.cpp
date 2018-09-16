@@ -95,7 +95,7 @@ void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
 void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
 void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
 ModResult	Module::OnPreCommand(std::string&, CommandBase::Params&, LocalUser*, bool) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult) { DetachEvent(I_OnPostCommand); }
+void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool) { DetachEvent(I_OnPostCommand); }
 void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
 ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }

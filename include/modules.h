@@ -727,8 +727,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param parameters An array of array of characters containing the parameters for the command
 	 * @param user the user issuing the command
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
+	 * @param loop Whether the command is being called from LoopCall or directly.
 	 */
-	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result);
+	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
 
 	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
 	 * connect class, or accepting any commands.
