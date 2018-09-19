@@ -22,31 +22,47 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
+class NoCTCPUser : public SimpleUserModeHandler
+{
+public:
+	NoCTCPUser(Module* Creator)
+		: SimpleUserModeHandler(Creator, "u_noctcp", 'T')
+	{
+		if (!ServerInstance->Config->ConfValue("noctcp")->getBool("enableumode"))
+			DisableAutoRegister();
+	}
+};
+
 class ModuleNoCTCP : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nc;
+	NoCTCPUser ncu;
 
  public:
 	ModuleNoCTCP()
 		: exemptionprov(this)
 		, nc(this, "noctcp", 'C')
+		, ncu(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);
+		return Version("Provides user mode +T and channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
-		{
-			std::string ctcpname;
-			if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
-				return MOD_RES_PASSTHRU;
+		if (!IS_LOCAL(user))
+			return MOD_RES_PASSTHRU;
 
+		std::string ctcpname;
+		if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
+			return MOD_RES_PASSTHRU;
+
+		if (target.type == MessageTarget::TYPE_CHANNEL)
+		{
 			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
 			if (res == MOD_RES_ALLOW)
@@ -56,6 +72,15 @@ class ModuleNoCTCP : public Module
 			{
 				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C set)");
 				return MOD_RES_DENY;
+			}
+		}
+		else if (target.type == MessageTarget::TYPE_USER)
+		{
+			User* u = target.Get<User>();
+			if (u->IsModeSet(ncu))
+			{
+				user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T set)");
+				return MOD_RES_PASSTHRU;
 			}
 		}
 		return MOD_RES_PASSTHRU;

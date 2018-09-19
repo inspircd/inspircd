@@ -34,12 +34,55 @@ enum
 };
 
 // We need this method up here so that it can be accessed from anywhere
-static void ChangeIP(User* user, const std::string& newip)
+static void ChangeIP(LocalUser* user, const irc::sockets::sockaddrs& sa)
 {
+	// Set the users IP address and make sure they are in the right clone pool.
 	ServerInstance->Users->RemoveCloneCounts(user);
-	user->SetClientIP(newip);
+	user->SetClientIP(sa);
 	ServerInstance->Users->AddClone(user);
+	if (user->quitting)
+		return;
+
+	// Recheck the connect class.
+	user->MyClass = NULL;
+	user->SetClass();
+	user->CheckClass();
+	if (user->quitting)
+		return;
+
+	// Check if this user matches any XLines.
+	user->CheckLines(true);
+	if (user->quitting)
+		return;
 }
+
+// Encapsulates information about an ident host.
+class IdentHost
+{
+ private:
+	std::string hostmask;
+	std::string newident;
+
+ public:
+	IdentHost(const std::string& mask, const std::string& ident)
+		: hostmask(mask)
+		, newident(ident)
+	{
+	}
+
+	const std::string& GetIdent() const
+	{
+		return newident;
+	}
+
+	bool Matches(LocalUser* user) const
+	{
+		if (!InspIRCd::Match(user->GetRealHost(), hostmask, ascii_case_insensitive_map))
+			return false;
+
+		return InspIRCd::MatchCIDR(user->GetIPString(), hostmask, ascii_case_insensitive_map);
+	}
+};
 
 // Encapsulates information about a WebIRC host.
 class WebIRCHost
@@ -112,11 +155,11 @@ class CommandWebIRC : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		if (user->registered == REG_ALL)
+		if (user->registered == REG_ALL || realhost.get(user))
 			return CMD_FAILURE;
 
 		irc::sockets::sockaddrs ipaddr;
-		if (!irc::sockets::aptosa(parameters[3], 0, ipaddr))
+		if (!irc::sockets::aptosa(parameters[3], user->client_sa.port(), ipaddr))
 		{
 			user->CommandFloodPenalty += 5000;
 			WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
@@ -140,7 +183,7 @@ class CommandWebIRC : public SplitCommand
 
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
-			ChangeIP(user, parameters[3]);
+			ChangeIP(user, ipaddr);
 			return CMD_SUCCESS;
 		}
 
@@ -166,28 +209,47 @@ class CommandWebIRC : public SplitCommand
 
 class ModuleCgiIRC : public Module, public Whois::EventListener
 {
+ private:
 	CommandWebIRC cmd;
-	std::vector<std::string> hosts;
+	std::vector<IdentHost> hosts;
 
-	static void RecheckClass(LocalUser* user)
+	static bool ParseIdent(LocalUser* user, irc::sockets::sockaddrs& out)
 	{
-		user->MyClass = NULL;
-		user->SetClass();
-		user->CheckClass();
+		const char* ident = NULL;
+		if (user->ident.length() == 8)
+		{
+			// The ident is an IPv4 address encoded in hexadecimal with two characters
+			// per address segment.
+			ident = user->ident.c_str();
+		}
+		else if (user->ident.length() == 9 && user->ident[0] == '~')
+		{
+			// The same as above but m_ident got to this user before we did. Strip the
+			// ident prefix and continue as normal.
+			ident = user->ident.c_str() + 1;
+		}
+		else
+		{
+			// The user either does not have an IPv4 in their ident or the gateway server
+			// is also running an identd. In the latter case there isn't really a lot we
+			// can do so we just assume that the client in question is not connecting via
+			// an ident gateway.
+			return false;
+		}
+
+		// Try to convert the IP address to a string. If this fails then the user
+		// does not have an IPv4 address in their ident.
+		errno = 0;
+		unsigned long address = strtoul(ident, NULL, 16);
+		if (errno)
+			return false;
+
+		out.in4.sin_family = AF_INET;
+		out.in4.sin_addr.s_addr = htonl(address);
+		return true;
 	}
 
-	void HandleIdent(LocalUser* user, const std::string& newip)
-	{
-		cmd.realhost.set(user, user->GetRealHost());
-		cmd.realip.set(user, user->GetIPString());
-
-		cmd.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s.",
-			user->uuid.c_str(), user->GetIPString().c_str(), newip.c_str());
-		ChangeIP(user, newip);
-		RecheckClass(user);
-	}
-
-public:
+ public:
 	ModuleCgiIRC()
 		: Whois::EventListener(this)
 		, cmd(this)
@@ -201,7 +263,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		std::vector<std::string> identhosts;
+		std::vector<IdentHost> identhosts;
 		std::vector<WebIRCHost> webirchosts;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
@@ -219,7 +281,8 @@ public:
 			if (stdalgo::string::equalsci(type, "ident"))
 			{
 				// The IP address should be looked up from the hex IP address.
-				identhosts.push_back(mask);
+				const std::string newident = tag->getString("newident", "gateway", ServerInstance->IsIdent);
+				identhosts.push_back(IdentHost(mask, newident));
 			}
 			else if (stdalgo::string::equalsci(type, "webirc"))
 			{
@@ -247,22 +310,6 @@ public:
 		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
-	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
-	{
-		if (!cmd.realip.get(user))
-			return MOD_RES_PASSTHRU;
-
-		RecheckClass(user);
-		if (user->quitting)
-			return MOD_RES_DENY;
-
-		user->CheckLines(true);
-		if (user->quitting)
-			return MOD_RES_DENY;
-
-		return MOD_RES_PASSTHRU;
-	}
-
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		// If <connect:webirc> is not set then we have nothing to do.
@@ -283,14 +330,33 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		for (std::vector<std::string>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
+		// There is no need to check for gateways if one is already being used.
+		if (cmd.realhost.get(user))
+			return MOD_RES_PASSTHRU;
+
+		for (std::vector<IdentHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
-			if (!InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map) && !InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+			// If we don't match the host then skip to the next host.
+			if (!iter->Matches(user))
 				continue;
 
-			CheckIdent(user); // Nothing on failure.
-			user->CheckLines(true);
-			break;
+			// We have matched an <cgihost> block! Try to parse the encoded IPv4 address
+			// out of the ident.
+			irc::sockets::sockaddrs address(user->client_sa);
+			if (!ParseIdent(user, address))
+				return MOD_RES_PASSTHRU;
+
+			// Store the hostname and IP of the gateway for later use.
+			cmd.realhost.set(user, user->GetRealHost());
+			cmd.realip.set(user, user->GetIPString());
+
+			const std::string& newident = iter->GetIdent();
+			cmd.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
+				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
+
+			user->ChangeIdent(newident);
+			ChangeIP(user, address);
+			break; 
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -311,31 +377,6 @@ public:
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an ident gateway");
-	}
-
-	bool CheckIdent(LocalUser* user)
-	{
-		const char* ident;
-		in_addr newip;
-
-		if (user->ident.length() == 8)
-			ident = user->ident.c_str();
-		else if (user->ident.length() == 9 && user->ident[0] == '~')
-			ident = user->ident.c_str() + 1;
-		else
-			return false;
-
-		errno = 0;
-		unsigned long ipaddr = strtoul(ident, NULL, 16);
-		if (errno)
-			return false;
-		newip.s_addr = htonl(ipaddr);
-		std::string newipstr(inet_ntoa(newip));
-
-		user->ident = "~cgiirc";
-		HandleIdent(user, newipstr);
-
-		return true;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
