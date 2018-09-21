@@ -108,6 +108,7 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 			throw CoreException("<"+tag+":"+key+"> missing at " + ctag->getTagLocation());
 		std::string reason = ctag->getString("reason", "<Config>");
 		XLine* xl = make->Generate(ServerInstance->Time(), 0, "<Config>", reason, mask);
+		xl->from_config = true;
 		if (!ServerInstance->XLines->AddLine(xl, NULL))
 			delete xl;
 	}
@@ -446,6 +447,7 @@ void ServerConfig::Fill()
 			SocketEngine::Close(socktest);
 	}
 
+	ServerInstance->XLines->ClearConfigLines();
 	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));
 	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));
 	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));

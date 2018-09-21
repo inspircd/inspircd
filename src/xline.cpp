@@ -518,7 +518,7 @@ void XLine::Apply(User* u)
 
 bool XLine::IsBurstable()
 {
-	return true;
+	return !from_config;
 }
 
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
@@ -746,4 +746,25 @@ XLineFactory* XLineManager::GetFactory(const std::string &type)
 		return NULL;
 
 	return n->second;
+}
+
+void XLineManager::ClearConfigLines()
+{
+	// Nothing to do.
+	if (lookup_lines.empty())
+		return;
+
+	ServerInstance->SNO->WriteToSnoMask('x', "Server rehashing; expiring lines defined in the server config ...");
+	for (ContainerIter type = lookup_lines.begin(); type != lookup_lines.end(); ++type)
+	{
+		for (LookupIter xline = type->second.begin(); xline != type->second.end(); )
+		{
+			// We cache this to avoid iterator invalidation.
+			LookupIter cachedxline = xline++;
+			if (cachedxline->second->from_config)
+			{
+				ExpireLine(type, cachedxline);
+			}
+		}
+	}
 }

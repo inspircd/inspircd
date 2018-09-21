@@ -50,7 +50,12 @@ class CoreExport XLine : public classbase
 	 * @param t The line type, should be set by the derived class constructor
 	 */
 	XLine(time_t s_time, long d, std::string src, std::string re, const std::string &t)
-		: set_time(s_time), duration(d), source(src), reason(re), type(t)
+		: set_time(s_time)
+		, duration(d)
+		, source(src)
+		, reason(re)
+		, type(t)
+		, from_config(false)
 	{
 		expiry = set_time + duration;
 	}
@@ -139,6 +144,9 @@ class CoreExport XLine : public classbase
 	 * type of line this is.
 	 */
 	const std::string type;
+
+	// Whether this XLine was loaded from the server config.
+	bool from_config;
 
 	virtual bool IsBurstable();
 };
@@ -523,4 +531,7 @@ class CoreExport XLineManager
 	 * @param stats Stats context
 	 */
 	void InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats);
+
+	/** Clears any XLines which were added by the server configuration. */
+	void ClearConfigLines();
 };
