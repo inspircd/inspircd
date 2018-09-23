@@ -69,4 +69,21 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandWallops)
+class CoreModWallops : public Module
+{
+ private:
+	CommandWallops cmd;
+
+ public:
+	CoreModWallops()
+		: cmd(this)
+	{
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the WALLOPS command", VF_CORE | VF_VENDOR);
+	}
+};
+
+MODULE_INIT(CoreModWallops)
