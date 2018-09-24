@@ -574,21 +574,6 @@ class CoreExport InspIRCd
 
 ENTRYPOINT;
 
-template<class Cmd>
-class CommandModule : public Module
-{
-	Cmd cmd;
- public:
-	CommandModule() : cmd(this)
-	{
-	}
-
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version(cmd.name, VF_VENDOR|VF_CORE);
-	}
-};
-
 inline void stdalgo::culldeleter::operator()(classbase* item)
 {
 	if (item)

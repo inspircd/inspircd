@@ -1196,5 +1196,3 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 		return new y; \
 	} \
 	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;
-
-#define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)

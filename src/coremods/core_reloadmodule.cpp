@@ -765,4 +765,21 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	}
 }
 
-COMMAND_INIT(CommandReloadmodule)
+class CoreModReloadmodule : public Module
+{
+ private:
+	CommandReloadmodule cmd;
+
+ public:
+	CoreModReloadmodule()
+		: cmd(this)
+	{
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the RELOADMODULE command", VF_CORE | VF_VENDOR);
+	}
+};
+
+MODULE_INIT(CoreModReloadmodule)

@@ -82,4 +82,21 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandUserhost)
+class CoreModUserhost : public Module
+{
+ private:
+	CommandUserhost cmd;
+
+ public:
+	CoreModUserhost()
+		: cmd(this)
+	{
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the USERHOST command", VF_CORE | VF_VENDOR);
+	}
+};
+
+MODULE_INIT(CoreModUserhost)

@@ -77,5 +77,21 @@ CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
+class CoreModIson : public Module
+{
+ private:
+	CommandIson cmd;
 
-COMMAND_INIT(CommandIson)
+ public:
+	CoreModIson()
+		: cmd(this)
+	{
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the ISON command", VF_CORE | VF_VENDOR);
+	}
+};
+
+MODULE_INIT(CoreModIson)
