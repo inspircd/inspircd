@@ -53,6 +53,7 @@ class FilterResult
 	std::string reason;
 	FilterAction action;
 	long duration;
+	bool from_config;
 
 	bool flag_no_opers;
 	bool flag_part_message;
@@ -61,11 +62,12 @@ class FilterResult
 	bool flag_notice;
 	bool flag_strip_color;
 
-	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla)
+	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla, bool cfg)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
 		, duration(gt)
+		, from_config(cfg)
 	{
 		if (!RegexEngine)
 			throw ModuleException("Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
@@ -618,7 +620,11 @@ void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 {
 	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
-		server.SendMetaData("filter", EncodeFilter(&(*i)));
+		FilterResult& filter = *i;
+		if (filter.from_config)
+			continue;
+
+		server.SendMetaData("filter", EncodeFilter(&filter));
 	}
 }
 
@@ -689,7 +695,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 	try
 	{
-		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs));
+		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs, false));
 	}
 	catch (ModuleException &e)
 	{
@@ -734,12 +740,24 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 
 void ModuleFilter::ReadFilters()
 {
+	for (std::vector<FilterResult>::iterator filter = filters.begin(); filter != filters.end(); )
+	{
+		if (filter->from_config)
+		{
+			ServerInstance->SNO->WriteGlobalSno('f', "FILTER: removing filter '" + filter->freeform + "' due to config rehash.");
+			delete filter->regex;
+			filter = filters.erase(filter);
+			continue;
+		}
+
+		// The filter is not from the config.
+		filter++;
+	}
+
 	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		std::string pattern = i->second->getString("pattern");
-		this->DeleteFilter(pattern);
-
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
@@ -753,7 +771,7 @@ void ModuleFilter::ReadFilters()
 
 		try
 		{
-			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, duration, flgs));
+			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, duration, flgs, true));
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)

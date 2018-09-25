@@ -722,21 +722,31 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 
 bool User::SetClientIP(const std::string& address, bool recheck_eline)
 {
-	this->InvalidateCache();
-	return irc::sockets::aptosa(address, 0, client_sa);
+	irc::sockets::sockaddrs sa;
+	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
+		return false;
+
+	User::SetClientIP(sa, recheck_eline);
+	return true;
 }
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 {
-	this->InvalidateCache();
+	const std::string oldip(GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
+	this->InvalidateCache();
+
+	// If the users hostname was their IP then update it.
+	if (GetRealHost() == oldip)
+		ChangeRealHost(GetIPString(), false);
+	if (GetDisplayedHost() == oldip)
+		ChangeDisplayedHost(GetIPString());
 }
 
 bool LocalUser::SetClientIP(const std::string& address, bool recheck_eline)
 {
 	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(address, 0, sa))
-		// Invalid
+	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
 	LocalUser::SetClientIP(sa, recheck_eline);
