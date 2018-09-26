@@ -117,7 +117,11 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
 			if (!ServerInstance->Config->MoronBanner.empty())
 				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner.c_str());
-			this->QuitUser(New, b->Reason);
+
+			if (ServerInstance->Config->HideBans)
+				this->QuitUser(New, b->Type + "-Lined", b->Reason.c_str());
+			else
+				this->QuitUser(New, b->Reason);
 			return;
 		}
 		else
