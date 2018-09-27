@@ -546,7 +546,7 @@ class ModulePgSQL : public Module
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
-			if (!stdalgo::string::equalsci(i->second->getString("provider"), "pgsql"))
+			if (!stdalgo::string::equalsci(i->second->getString("module"), "pgsql"))
 				continue;
 			std::string id = i->second->getString("id");
 			ConnMap::iterator curr = connections.find(id);
