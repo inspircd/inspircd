@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "modules/ircv3_servertime.h"
 #include "modules/ircv3_batch.h"
+#include "modules/server.h"
 
 struct HistoryItem
 {
@@ -118,7 +119,9 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 	}
 };
 
-class ModuleChanHistory : public Module
+class ModuleChanHistory
+	: public Module
+	, public ServerEventListener
 {
 	HistoryMode m;
 	bool sendnotice;
@@ -131,7 +134,8 @@ class ModuleChanHistory : public Module
 
  public:
 	ModuleChanHistory()
-		: m(this)
+		: ServerEventListener(this)
+		, m(this)
 		, botmode(this, "bot")
 		, batchcap(this)
 		, batchmanager(this)
@@ -146,6 +150,11 @@ class ModuleChanHistory : public Module
 		m.maxlines = tag->getUInt("maxlines", 50, 1);
 		sendnotice = tag->getBool("notice", true);
 		dobots = tag->getBool("bots", true);
+	}
+
+	ModResult OnBroadcastMessage(Channel* channel, const Server* server) CXX11_OVERRIDE
+	{
+		return channel->IsModeSet(m) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE

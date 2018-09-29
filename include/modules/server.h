@@ -29,6 +29,14 @@ class ServerEventListener : public Events::ModuleEventListener
 	{
 	}
 
+	/** Fired when a channel message is being broadcast across the network.
+	 * @param channel The channel which is having a message sent to it.
+	 * @param server The server which might have a message broadcast to it.
+	 * @return Either MOD_RES_ALLOW to always send the message to the server, MOD_RES_DENY to never
+	 *         send the message to the server or MOD_RES_PASSTHRU if no module handled the event.
+	 */
+	virtual ModResult OnBroadcastMessage(Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
+
 	/** Fired when a server finishes burst
 	 * @param server Server that recently linked and finished burst
 	 */
