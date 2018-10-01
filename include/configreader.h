@@ -397,10 +397,6 @@ class CoreExport ServerConfig
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;
 
-	/** Set to a non empty string to obfuscate nicknames prepended to a KILL.
-	 */
-	std::string HideKillsServer;
-
 	/** Set to hide kills from clients of ulined servers in snotices.
 	 */
 	bool HideULineKills;

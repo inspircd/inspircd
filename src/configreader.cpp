@@ -412,7 +412,6 @@ void ServerConfig::Fill()
 	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
 	HideServer = security->getString("hideserver", security->getString("hidewhois"));
-	HideKillsServer = security->getString("hidekills");
 	HideULineKills = security->getBool("hideulinekills");
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");

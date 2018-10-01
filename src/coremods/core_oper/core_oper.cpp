@@ -46,6 +46,12 @@ class CoreModOper : public Module
 	{
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		cmdkill.hidenick = security->getString("hidekills");
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR|VF_CORE);

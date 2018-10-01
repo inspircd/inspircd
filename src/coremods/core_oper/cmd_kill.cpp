@@ -34,13 +34,13 @@ CommandKill::CommandKill(Module* parent)
 class KillMessage : public ClientProtocol::Message
 {
  public:
-	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text)
+	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text, const std::string& hidenick)
 		: ClientProtocol::Message("KILL", NULL)
 	{
-		if (ServerInstance->Config->HideKillsServer.empty())
+		if (hidenick.empty())
 			SetSourceUser(user);
 		else
-			SetSource(ServerInstance->Config->HideKillsServer);
+			SetSource(hidenick);
 
 		PushParamRef(target->nick);
 		PushParamRef(text);
@@ -87,10 +87,10 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 			return CMD_FAILURE;
 
 		killreason = "Killed (";
-		if (!ServerInstance->Config->HideKillsServer.empty())
+		if (!hidenick.empty())
 		{
 			// hidekills is on, use it
-			killreason += ServerInstance->Config->HideKillsServer;
+			killreason += hidenick;
 		}
 		else
 		{
@@ -117,7 +117,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	if (IS_LOCAL(target))
 	{
 		LocalUser* localu = IS_LOCAL(target);
-		KillMessage msg(protoev, user, localu, killreason);
+		KillMessage msg(protoev, user, localu, killreason, hidenick);
 		ClientProtocol::Event killevent(protoev, msg);
 		localu->Send(killevent);
 
