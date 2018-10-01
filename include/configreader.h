@@ -256,11 +256,16 @@ class CoreExport ServerConfig
 	 */
 	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
 
-	/** Get a configuration tag
-	 * @param tag The name of the tag to get
+	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
+	 * @param tag The name of the tag to get.
+	 * @returns Either a tag from the config or EmptyTag.
 	 */
 	ConfigTag* ConfValue(const std::string& tag);
 
+	/** Get a list of configuration tags by name.
+	 * @param tag The name of the tags to get.
+	 * @returns Either a list of tags from the config or an empty ConfigTagList.
+	 */
 	ConfigTagList ConfTags(const std::string& tag);
 
 	/** An empty configuration tag. */
