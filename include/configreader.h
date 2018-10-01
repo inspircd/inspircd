@@ -396,11 +396,6 @@ class CoreExport ServerConfig
 	 */
 	ClassVector Classes;
 
-	/** STATS characters in this list are available
-	 * only to operators.
-	 */
-	std::string UserStats;
-
 	/** Default channel modes
 	 */
 	std::string DefaultModes;

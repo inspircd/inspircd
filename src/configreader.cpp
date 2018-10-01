@@ -407,7 +407,6 @@ void ServerConfig::Fill()
 	Network = server->getString("network", "Network");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
-	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
 	HideServer = security->getString("hideserver", security->getString("hidewhois"));

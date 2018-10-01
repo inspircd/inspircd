@@ -36,8 +36,9 @@ class CommandStats : public Command
 	void DoStats(Stats::Context& stats);
 
  public:
-	/** Constructor for stats.
-	 */
+	/** STATS characters which non-opers can request. */
+	std::string userstats;
+
 	CommandStats(Module* Creator)
 		: Command(Creator, "STATS", 1, 2)
 		, statsevprov(Creator, "event/stats")
@@ -77,7 +78,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	User* const user = stats.GetSource();
 	const char statschar = stats.GetSymbol();
 
-	bool isPublic = ServerInstance->Config->UserStats.find(statschar) != std::string::npos;
+	bool isPublic = userstats.find(statschar) != std::string::npos;
 	bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
 	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 
@@ -406,6 +407,12 @@ class CoreModStats : public Module
 	CoreModStats()
 		: cmd(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		cmd.userstats = security->getString("userstats");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
