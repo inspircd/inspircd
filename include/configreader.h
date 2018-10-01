@@ -344,12 +344,6 @@ class CoreExport ServerConfig
 	 */
 	std::bitset<64> DisabledCModes;
 
-	/** If set to true, then all opers on this server are
-	 * shown with a generic 'is an IRC operator' line rather
-	 * than the oper type. Oper types are still used internally.
-	 */
-	bool GenericOper;
-
 	/** How to treat a user in a channel who is banned. */
 	BannedUserTreatment RestrictBannedUsers;
 
