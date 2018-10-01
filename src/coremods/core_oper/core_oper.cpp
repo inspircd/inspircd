@@ -50,6 +50,7 @@ class CoreModOper : public Module
 	{
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
+		cmdkill.hideuline = security->getBool("hideulinekills");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

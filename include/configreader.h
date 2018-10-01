@@ -397,10 +397,6 @@ class CoreExport ServerConfig
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;
 
-	/** Set to hide kills from clients of ulined servers in snotices.
-	 */
-	bool HideULineKills;
-
 	/** The full pathname and filename of the PID
 	 * file as defined in the configuration.
 	 */
