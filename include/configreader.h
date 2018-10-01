@@ -376,10 +376,6 @@ class CoreExport ServerConfig
 	 */
 	unsigned int MaxTargets;
 
-	/** True if we're going to hide netsplits as *.net *.split for non-opers
-	 */
-	bool HideSplits;
-
 	/** True if we're going to hide ban reasons for non-opers (e.g. G-Lines,
 	 * K-Lines, Z-Lines)
 	 */

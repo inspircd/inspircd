@@ -241,6 +241,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	ConfigTag* options = ServerInstance->Config->ConfValue("options");
 	FlatLinks = security->getBool("flatlinks");
 	HideULines = security->getBool("hideulines");
+	HideSplits = security->getBool("hidesplits");
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");
 	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");

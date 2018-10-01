@@ -212,7 +212,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 
 unsigned int TreeServer::QuitUsers(const std::string& reason)
 {
-	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;
+	std::string publicreason = Utils->HideSplits ? "*.net *.split" : reason;
 
 	const user_hash& users = ServerInstance->Users->GetUsers();
 	unsigned int original_size = users.size();

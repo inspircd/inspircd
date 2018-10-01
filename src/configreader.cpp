@@ -409,7 +409,6 @@ void ServerConfig::Fill()
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion");
-	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
 	HideServer = security->getString("hideserver", security->getString("hidewhois"));
 	SyntaxHints = options->getBool("syntaxhints");
