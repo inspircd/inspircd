@@ -56,8 +56,9 @@ class JoinHook : public ClientProtocol::EventHook
 	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
 	{
 		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
-		const User* const u = join.GetMember()->user;
-		if ((unjoined.get(u)) && (u != user))
+		const Membership* const memb = join.GetMember();
+		const User* const u = memb->user;
+		if ((unjoined.get(memb)) && (u != user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
