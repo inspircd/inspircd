@@ -24,13 +24,19 @@
 
 class DelayJoinMode : public ModeHandler
 {
+ private:
+	LocalIntExt& unjoined;
+
  public:
-	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
+	DelayJoinMode(Module* Parent, LocalIntExt& ext)
+		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
+		, unjoined(ext)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
+	void RevealUser(User* user, Channel* chan);
 };
 
 
@@ -68,16 +74,15 @@ class JoinHook : public ClientProtocol::EventHook
 
 class ModuleDelayJoin : public Module
 {
-	DelayJoinMode djm;
-	void RevealUser(User* user, Channel* chan);
  public:
 	LocalIntExt unjoined;
 	JoinHook joinhook;
+	DelayJoinMode djm;
 
 	ModuleDelayJoin()
-		: djm(this)
-		, unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
+		: unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
 		, joinhook(this, unjoined)
+		, djm(this, unjoined)
 	{
 	}
 
@@ -92,16 +97,6 @@ class ModuleDelayJoin : public Module
 	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
-// TODO: make RevealUser accessible from DelayJoinMode and get rid of this.
-class DummyMessageDetails : public MessageDetails
-{
-public:
-	DummyMessageDetails() : MessageDetails(MSG_PRIVMSG, "", ClientProtocol::TagMap()) { }
-	bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE { return false; }
-	bool IsCTCP(std::string&) const CXX11_OVERRIDE { return false; }
-	bool IsCTCP() const CXX11_OVERRIDE { return false; }
-};
-
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* no change */
@@ -114,13 +109,9 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * Make all users visible, as +D is being removed. If we don't do this,
 		 * they remain permanently invisible on this channel!
 		 */
-		MessageTarget msgtarget(channel, 0);
-		DummyMessageDetails msgdetails;
 		const Channel::MemberMap& users = channel->GetUsers();
 		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
-		{
-			creator->OnUserMessage(n->first, msgtarget, msgdetails);
-		}
+			RevealUser(n->first, channel);
 	}
 	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
@@ -191,10 +182,10 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 		return;
 
 	Channel* channel = target.Get<Channel>();
-	RevealUser(user, channel);
+	djm.RevealUser(user, channel);
 }
 
-void ModuleDelayJoin::RevealUser(User* user, Channel* chan)
+void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
 	if (!memb || !unjoined.set(memb, 0))
@@ -226,7 +217,7 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* 
 	if (!dest)
 		return MOD_RES_PASSTHRU;
 
-	RevealUser(dest, channel);
+	djm.RevealUser(dest, channel);
 	return MOD_RES_PASSTHRU;
 }
 
