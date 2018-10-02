@@ -256,11 +256,16 @@ class CoreExport ServerConfig
 	 */
 	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
 
-	/** Get a configuration tag
-	 * @param tag The name of the tag to get
+	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
+	 * @param tag The name of the tag to get.
+	 * @returns Either a tag from the config or EmptyTag.
 	 */
 	ConfigTag* ConfValue(const std::string& tag);
 
+	/** Get a list of configuration tags by name.
+	 * @param tag The name of the tags to get.
+	 * @returns Either a list of tags from the config or an empty ConfigTagList.
+	 */
 	ConfigTagList ConfTags(const std::string& tag);
 
 	/** An empty configuration tag. */
@@ -339,12 +344,6 @@ class CoreExport ServerConfig
 	 */
 	std::bitset<64> DisabledCModes;
 
-	/** If set to true, then all opers on this server are
-	 * shown with a generic 'is an IRC operator' line rather
-	 * than the oper type. Oper types are still used internally.
-	 */
-	bool GenericOper;
-
 	/** How to treat a user in a channel who is banned. */
 	BannedUserTreatment RestrictBannedUsers;
 
@@ -377,10 +376,6 @@ class CoreExport ServerConfig
 	 */
 	unsigned int MaxTargets;
 
-	/** True if we're going to hide netsplits as *.net *.split for non-opers
-	 */
-	bool HideSplits;
-
 	/** True if we're going to hide ban reasons for non-opers (e.g. G-Lines,
 	 * K-Lines, Z-Lines)
 	 */
@@ -392,14 +387,6 @@ class CoreExport ServerConfig
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;
 
-	/** Set to a non empty string to obfuscate nicknames prepended to a KILL.
-	 */
-	std::string HideKillsServer;
-
-	/** Set to hide kills from clients of ulined servers in snotices.
-	 */
-	bool HideULineKills;
-
 	/** The full pathname and filename of the PID
 	 * file as defined in the configuration.
 	 */
@@ -408,11 +395,6 @@ class CoreExport ServerConfig
 	/** The connect classes in use by the IRC server.
 	 */
 	ClassVector Classes;
-
-	/** STATS characters in this list are available
-	 * only to operators.
-	 */
-	std::string UserStats;
 
 	/** Default channel modes
 	 */

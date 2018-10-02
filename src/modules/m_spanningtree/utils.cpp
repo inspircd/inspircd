@@ -28,6 +28,7 @@
 #include "treesocket.h"
 #include "resolvers.h"
 #include "commandbuilder.h"
+#include "modules/server.h"
 
 SpanningTreeUtilities* Utils = NULL;
 
@@ -144,6 +145,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 			minrank = mh->GetPrefixRank();
 	}
 
+	TreeServer::ChildServers children = TreeRoot->GetChildren();
 	const Channel::MemberMap& ulist = c->GetUsers();
 	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 	{
@@ -157,9 +159,22 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 		{
 			TreeServer* best = TreeServer::Get(i->first);
 			list.insert(best->GetSocket());
+
+			TreeServer::ChildServers::iterator citer = std::find(children.begin(), children.end(), best);
+			if (citer != children.end())
+				children.erase(citer);
 		}
 	}
-	return;
+
+	// Check whether the servers which do not have users in the channel might need this message. This
+	// is used to keep the chanhistory module synchronised between servers.
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
+	{
+		ModResult result;
+		FIRST_MOD_RESULT_CUSTOM(Creator->GetEventProvider(), ServerEventListener, OnBroadcastMessage, result, (c, *i));
+		if (result == MOD_RES_ALLOW)
+			list.insert((*i)->GetSocket());
+	}
 }
 
 void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeServer* omitroute)
@@ -226,6 +241,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	ConfigTag* options = ServerInstance->Config->ConfValue("options");
 	FlatLinks = security->getBool("flatlinks");
 	HideULines = security->getBool("hideulines");
+	HideSplits = security->getBool("hidesplits");
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");
 	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");

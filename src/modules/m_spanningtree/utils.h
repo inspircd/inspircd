@@ -57,6 +57,11 @@ class SpanningTreeUtilities : public classbase
 	/** Flatten links and /MAP for non-opers
 	 */
 	bool FlatLinks;
+
+	/** True if we're going to hide netsplits as *.net *.split for non-opers
+	 */
+	bool HideSplits;
+
 	/** Hide U-Lined servers in /MAP and /LINKS
 	 */
 	bool HideULines;

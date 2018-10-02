@@ -63,6 +63,12 @@ class CommandKill : public Command
 	ClientProtocol::EventProvider protoev;
 
  public:
+	/** Set to a non empty string to obfuscate nicknames prepended to a KILL. */
+	std::string hidenick;
+
+	/** Set to hide kills from clients of ulined servers in snotices. */
+	bool hideuline;
+
 	/** Constructor for kill.
 	 */
 	CommandKill(Module* parent);

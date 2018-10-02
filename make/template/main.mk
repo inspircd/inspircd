@@ -214,6 +214,7 @@ install: target
 	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/services
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/sql
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
 	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(SCRPATH)
@@ -232,6 +233,7 @@ endif
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/services/*.example $(CONPATH)/examples/services
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/sql/*.sql $(CONPATH)/examples/sql
 	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
