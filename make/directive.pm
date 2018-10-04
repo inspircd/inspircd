@@ -222,6 +222,22 @@ sub __function_find_linker_flags {
 	__error $file, "unable to find the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|>!";
 }
 
+sub __function_require_compiler {
+	my ($file, $name, $minimum, $maximum) =  @_;
+
+	# Look up information about the compiler.
+	return undef unless $ENV{CXX};
+	my %compiler = get_compiler_info($ENV{CXX});
+
+	# Check whether the current compiler is suitable.
+	return undef unless $compiler{NAME} eq $name;
+	return undef if defined $minimum && $compiler{VERSION} < $minimum;
+	return undef if defined $maximum && $compiler{VERSION} > $maximum;
+
+	# Requirement directives don't change anything directly.
+	return "";
+}
+
 sub __function_require_system {
 	my ($file, $name, $minimum, $maximum) = @_;
 	my ($system, $version);

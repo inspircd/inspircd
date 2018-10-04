@@ -4,10 +4,20 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 ## bcrypt
 
-**Name** &mdash; Openwall bcrypt
+**Author** &mdash; Solar Designer &lt;solar@openwall.com&gt;
 
 **Last Updated** &mdash; 2018-08-14 (v1.3)
 
 **License** &mdash; Public Domain
 
 **Website** &mdash; [http://openwall.com/crypt/](http://openwall.com/crypt/)
+
+## sha256
+
+**Author** &mdash; Olivier Gay &lt;olivier.gay@a3.epfl.ch&gt;
+
+**Last Updated** &mdash; 2018-09-06 (2007-02-02)
+
+**License** &mdash; 3-clause BSD
+
+**Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
