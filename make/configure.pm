@@ -34,12 +34,13 @@ use warnings FATAL => qw(all);
 use Cwd                   qw(getcwd);
 use Exporter              qw(import);
 use File::Basename        qw(basename dirname);
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catdir catfile);
 
 use make::common;
 use make::console;
 
-use constant CONFIGURE_DIRECTORY     => '.configure';
+use constant CONFIGURE_ROOT          => dirname dirname __FILE__; 
+use constant CONFIGURE_DIRECTORY     => catdir(CONFIGURE_ROOT, '.configure');
 use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
 use constant CONFIGURE_CACHE_VERSION => '1';
 use constant CONFIGURE_ERROR_PIPE    => $ENV{INSPIRCD_VERBOSE} ? '' : '1>/dev/null 2>/dev/null';
@@ -201,7 +202,7 @@ sub test_file($$;$) {
 	my ($compiler, $file, $args) = @_;
 	my $status = 0;
 	$args //= '';
-	$status ||= system "$compiler -o __test_$file make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
+	$status ||= system "$compiler -o __test_$file ${\CONFIGURE_ROOT}/make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
 	$status ||= system "./__test_$file ${\CONFIGURE_ERROR_PIPE}";
 	unlink "./__test_$file";
 	return !$status;
@@ -230,7 +231,7 @@ sub write_configure_cache(%) {
 sub get_compiler_info($) {
 	my $binary = shift;
 	my %info = (NAME => 'Unknown', VERSION => '0.0');
-	return %info if system "$binary -o __compiler_info make/test/compiler_info.cpp ${\CONFIGURE_ERROR_PIPE}";
+	return %info if system "$binary -o __compiler_info ${\CONFIGURE_ROOT}/make/test/compiler_info.cpp ${\CONFIGURE_ERROR_PIPE}";
 	open(my $fh, '-|', './__compiler_info 2>/dev/null');
 	while (my $line = <$fh>) {
 		$info{$1} = $2 if $line =~ /^([A-Z]+)\s(.+)$/;
