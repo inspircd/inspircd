@@ -118,7 +118,8 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	long maxbans = chan->GetMaxBans();
 	if (IS_LOCAL(user) && ((unsigned)chan->bans.size() >= (unsigned)maxbans))
 	{
-		user->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str(), maxbans);
+		user->WriteServ("478 %s %s %c :Channel ban list for %s is full (maximum entries for this channel is %ld)",
+			user->nick.c_str(), chan->name.c_str(), mode, chan->name.c_str(), maxbans);
 		dest.clear();
 		return dest;
 	}
