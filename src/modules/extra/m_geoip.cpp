@@ -53,15 +53,24 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 {
 	StringExtItem ext;
 	bool extban;
-	GeoIP* gi;
+	GeoIP* ipv4db;
+	GeoIP* ipv6db;
 
 	std::string* SetExt(User* user)
 	{
-		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
-		if (!c)
-			c = "UNK";
+		const char* code = NULL;
+		switch (user->client_sa.family())
+		{
+			case AF_INET:
+				code = GeoIP_country_code_by_addr(ipv4db, user->GetIPString().c_str());
+				break;
 
-		ext.set(user, c);
+			case AF_INET6:
+				code = GeoIP_country_code_by_addr_v6(ipv6db, user->GetIPString().c_str());
+				break;
+		}
+
+		ext.set(user, code ? code : "UNK");
 		return ext.get(user);
 	}
 
@@ -71,15 +80,20 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 		, Whois::EventListener(this)
 		, ext("geoip_cc", ExtensionItem::EXT_USER, this)
 		, extban(true)
-		, gi(NULL)
+		, ipv4db(NULL)
+		, ipv6db(NULL)
 	{
 	}
 
 	void init() CXX11_OVERRIDE
 	{
-		gi = GeoIP_new(GEOIP_STANDARD);
-		if (gi == NULL)
-				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
+		ipv4db = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD);
+		if (!ipv4db)
+			throw ModuleException("Unable to load the IPv4 GeoIP database. Are you missing GeoIP.dat?");
+
+		ipv6db = GeoIP_open_type(GEOIP_COUNTRY_EDITION_V6, GEOIP_STANDARD);
+		if (!ipv6db)
+			throw ModuleException("Unable to load the IPv6 GeoIP database. Are you missing GeoIPv6.dat?");
 
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -94,8 +108,11 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 
 	~ModuleGeoIP()
 	{
-		if (gi)
-			GeoIP_delete(gi);
+		if (ipv4db)
+			GeoIP_delete(ipv4db);
+
+		if (ipv6db)
+			GeoIP_delete(ipv6db);
 	}
 
 	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
