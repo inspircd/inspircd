@@ -2167,6 +2167,12 @@
 # WebSocket connections. Compatible with SSL/TLS.
 # Requires SHA-1 hash support available in the sha1 module.
 #<module name="websocket">
+#
+# If you use the websocket module you MUST specify one or more origins
+# which are allowed to connect to the server. You should set this as
+# strict as possible to prevent malicious webpages from connecting to
+# your server.
+# <wsorigin allow="https://webchat.example.com/*">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
