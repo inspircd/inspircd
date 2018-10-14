@@ -680,8 +680,8 @@ void ELine::OnAdd()
 void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
-	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago)",
-		type.c_str(), (onechar ? "-Line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
+	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago): %s",
+		type.c_str(), (onechar ? "-Line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
 }
 
 const std::string& ELine::Displayable()
