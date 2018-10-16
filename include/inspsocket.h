@@ -219,6 +219,13 @@ class CoreExport StreamSocket : public EventHandler
 		size_t nbytes;
 	};
 
+	/** The type of socket this IOHook represents. */
+	enum Type
+	{
+		SS_UNKNOWN,
+		SS_USER
+	};
+
  private:
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook;
@@ -264,7 +271,12 @@ class CoreExport StreamSocket : public EventHandler
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : iohook(NULL) { }
+	const Type type;
+	StreamSocket(Type sstype = SS_UNKNOWN)
+		: iohook(NULL)
+		, type(sstype)
+	{
+	}
 	IOHook* GetIOHook() const;
 	void AddIOHook(IOHook* hook);
 	void DelIOHook();
