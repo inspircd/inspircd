@@ -58,8 +58,8 @@ public:
 	{
 		if (!silent)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
-				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
+			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago): %s",
+				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
 		}
 	}
 
