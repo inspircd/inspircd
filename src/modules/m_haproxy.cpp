@@ -19,9 +19,13 @@
 
 #include "inspircd.h"
 #include "iohook.h"
+#include "modules/ssl.h"
 
 enum
 {
+	// The SSL TLV flag for a client being connected over SSL.
+	PP2_CLIENT_SSL = 0x01,
+
 	// The family for TCP over IPv4.
 	PP2_FAMILY_IPV4 = 0x11,
 
@@ -45,6 +49,15 @@ enum
 
 	// The length of the PROXY protocol header.
 	PP2_HEADER_LENGTH = 16,
+
+	// The minimum length of a Type-Length-Value entry.
+	PP2_TLV_LENGTH = 3,
+
+	// The identifier for a SSL TLV entry.
+	PP2_TYPE_SSL = 0x20,
+
+	// The minimum length of a PP2_TYPE_SSL TLV entry.
+	PP2_TYPE_SSL_LENGTH = 5,
 
 	// The length of the PROXY protocol signature.
 	PP2_SIGNATURE_LENGTH = 12,
@@ -94,9 +107,13 @@ struct HAProxyHeader
 
 class HAProxyHookProvider : public IOHookProvider
 {
+ private:
+	 UserCertificateAPI sslapi;
+
  public:
 	HAProxyHookProvider(Module* mod)
 		: IOHookProvider(mod, "haproxy", IOHookProvider::IOH_UNKNOWN, true)
+		, sslapi(mod)
 	{
 	}
 
@@ -126,8 +143,81 @@ class HAProxyHook : public IOHookMiddle
 	// The endpoint the client is connected to.
 	irc::sockets::sockaddrs server;
 
+	// The API for interacting with user SSL internals.
+	UserCertificateAPI& sslapi;
+
 	// The current state of the PROXY parser.
 	HAProxyState state;
+
+	size_t ReadProxyTLV(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
+	{
+		// A TLV must at least consist of a type (uint8_t) and a length (uint16_t).
+		if (buffer_length < PP2_TLV_LENGTH)
+		{
+			sock->SetError("Truncated HAProxy PROXY TLV type and/or length");
+			return 0;
+		}
+
+		// Check that the length can actually contain the TLV value.
+		std::string& recvq = GetRecvQ();
+		uint16_t length = ntohs(recvq[start_index + 1] | (recvq[start_index + 2] << 8));
+		if (buffer_length < PP2_TLV_LENGTH + length)
+		{
+			sock->SetError("Truncated HAProxy PROXY TLV value");
+			return 0;
+		}
+
+		// What type of TLV are we parsing?
+		switch (recvq[start_index])
+		{
+			case PP2_TYPE_SSL:
+				if (!ReadProxyTLVSSL(sock, start_index + PP2_TLV_LENGTH, length))
+					return 0;
+				break;
+		}
+
+		return PP2_TLV_LENGTH + length;
+	}
+
+	bool ReadProxyTLVSSL(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
+	{
+		// A SSL TLV must at least consist of client info (uint8_t) and verification info (uint32_t).
+		if (buffer_length < PP2_TYPE_SSL_LENGTH)
+		{
+			sock->SetError("Truncated HAProxy PROXY SSL TLV");
+			return false;
+		}
+
+		// If the socket is not a user socket we don't have to do
+		// anything with this TLVs information.
+		if (sock->type != StreamSocket::SS_USER)
+			return true;
+
+		// If the sslinfo module is not loaded we can't
+		// do anything with this TLV.
+		if (!sslapi)
+			return true;
+
+		// If the client is not connecting via SSL the rest of this TLV is irrelevant.
+		std::string& recvq = GetRecvQ();
+		if ((recvq[start_index] & PP2_CLIENT_SSL) == 0)
+			return true;
+
+		// Create a fake ssl_cert for the user. Ideally we should use the user's
+		// SSL client certificate here but as of 2018-10-16 this is not forwarded
+		// by HAProxy.
+		ssl_cert* cert = new ssl_cert;
+		cert->error = "HAProxy does not forward client SSL certificates";
+		cert->invalid = true;
+		cert->revoked = true;
+		cert->trusted = false;
+		cert->unknownsigner = true;
+
+		// Extract the user for this socket and set their certificate.
+		LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
+		sslapi->SetCertificate(luser, cert);
+		return true;
+	}
 
 	int ReadProxyAddress(StreamSocket* sock)
 	{
@@ -145,6 +235,7 @@ class HAProxyHook : public IOHookMiddle
 
 			case HPC_PROXY:
 				// Store the endpoint information.
+				size_t tlv_index = 0;
 				switch (client.family())
 				{
 					case AF_INET:
@@ -152,6 +243,7 @@ class HAProxyHook : public IOHookMiddle
 						memcpy(&server.in4.sin_addr.s_addr, &recvq[4], 8);
 						memcpy(&client.in4.sin_port, &recvq[8], 2);
 						memcpy(&server.in4.sin_port, &recvq[10], 2);
+						tlv_index = 12;
 						break;
 
 					case AF_INET6:
@@ -159,19 +251,29 @@ class HAProxyHook : public IOHookMiddle
 						memcpy(server.in6.sin6_addr.s6_addr, &recvq[16], 16);
 						memcpy(&client.in6.sin6_port, &recvq[32], 2);
 						memcpy(&server.in6.sin6_port, &recvq[34], 2);
+						tlv_index = 36;
 						break;
 
 					case AF_UNIX:
 						memcpy(client.un.sun_path, &recvq[0], 108);
 						memcpy(client.un.sun_path, &recvq[108], 108);
+						tlv_index = 216;
 						break;
 				}
 
 				sock->OnSetEndPoint(server, client);
 
-				// XXX: HAProxy's PROXY v2 specification defines Type-Length-Values that
-				// could appear here but as of 2018-07-25 it does not send anything. We
-				// should revisit this in the future to see if they actually send them.
+				// Parse any available TLVs.
+				while (tlv_index < address_length)
+				{
+					size_t length = ReadProxyTLV(sock, tlv_index, address_length - tlv_index);
+					if (!length)
+						return -1;
+
+					tlv_index += length;
+				}
+
+				// Erase the processed proxy information from the receive queue.
 				recvq.erase(0, address_length);
 		}
 
@@ -260,8 +362,9 @@ class HAProxyHook : public IOHookMiddle
 	}
 
  public:
-	HAProxyHook(IOHookProvider* Prov, StreamSocket* sock)
+	HAProxyHook(IOHookProvider* Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
+		, sslapi(api)
 		, state(HPS_WAITING_FOR_HEADER)
 	{
 		sock->AddIOHook(this);
@@ -303,7 +406,7 @@ class HAProxyHook : public IOHookMiddle
 
 void HAProxyHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new HAProxyHook(this, sock);
+	new HAProxyHook(this, sock, sslapi);
 }
 
 class ModuleHAProxy : public Module
