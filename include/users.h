@@ -916,7 +916,7 @@ inline FakeUser* IS_SERVER(User* u)
 
 inline bool User::IsModeSet(const ModeHandler* mh) const
 {
-	return (modes[mh->GetId()]);
+	return ((mh->GetId() != ModeParser::MODEID_MAX) && (modes[mh->GetId()]));
 }
 
 inline bool User::IsModeSet(UserModeReference& moderef) const
