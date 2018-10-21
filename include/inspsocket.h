@@ -301,7 +301,7 @@ class CoreExport StreamSocket : public EventHandler
 	 * @param local The new local endpoint.
 	 * @param remote The new remote endpoint.
 	 */
-	virtual void OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& remote) { }
+	virtual void OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) { }
 
 	/** Send the given data out the socket, either now or when writes unblock
 	 */

@@ -348,9 +348,9 @@ class CoreExport InspIRCd
 	static void DefaultGenRandom(char* output, size_t max);
 
 	/** Bind to a specific port from a config tag.
-	 * @param Tag the tag that contains bind information.
+	 * @param tag the tag that contains bind information.
 	 * @param sa The endpoint to listen on.
-	 * @params old_ports Previously listening ports that may be on the same endpoint.
+	 * @param old_ports Previously listening ports that may be on the same endpoint.
 	 */
 	bool BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports);
 

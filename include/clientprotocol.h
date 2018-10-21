@@ -467,7 +467,7 @@ class ClientProtocol::Event
 
  public:
 	/** Constructor.
-	 * @param protoevent Protocol event provider the event is an instance of.
+	 * @param protoeventprov Protocol event provider the event is an instance of.
 	 */
 	Event(EventProvider& protoeventprov)
 		: event(&protoeventprov)
@@ -478,7 +478,7 @@ class ClientProtocol::Event
 	}
 
 	/** Constructor.
-	 * @param protoevent Protocol event provider the event is an instance of.
+	 * @param protoeventprov Protocol event provider the event is an instance of.
  	 * @param msg Message to include in this event by default.
 	 */
 	Event(EventProvider& protoeventprov, ClientProtocol::Message& msg)
@@ -544,7 +544,7 @@ class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
 	/** Called for each tag that the server receives from a client in a message.
 	 * @param user User that sent the tag.
 	 * @param tagname Name of the tag.
-	 * @param value Value of the tag, empty string if the tag has no value. May be modified.
+	 * @param tagvalue Value of the tag, empty string if the tag has no value. May be modified.
 	 * @return MOD_RES_ALLOW to accept the tag with the value in 'value', MOD_RES_DENY to reject the tag and act as if it wasn't sent,
 	 * MOD_RES_PASSTHRU to make no decision. If no hooks accept a tag, the tag is rejected.
 	 * The default implementation returns MOD_RES_PASSTHRU.

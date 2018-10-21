@@ -104,6 +104,7 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	/** Constructor
 	 * @param mod Module subscribing
 	 * @param eventid Identifier of the event to subscribe to
+	 * @param eventprio The priority to give this event listener
 	 */
 	ModuleEventListener(Module* mod, const std::string& eventid, unsigned int eventprio = DefaultPriority)
 		: prov(mod, eventid)

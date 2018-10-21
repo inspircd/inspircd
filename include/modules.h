@@ -570,7 +570,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Called whenever a user's real name is changed.
 	 * This event triggers after the name has been set.
 	 * @param user The user who's real name is being changed
-	 * @param name The new real name being set on the user
+	 * @param real The new real name being set on the user
 	 */
 	virtual void OnChangeRealName(User* user, const std::string& real);
 
