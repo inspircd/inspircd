@@ -235,7 +235,6 @@ class CoreExport Channel : public Extensible
 	/** Write to all users on a channel except some users
 	 * @param protoev Event to send, may contain any number of messages.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param text A std::string containing the output line without prefix
 	 * @param except_list List of users not to send to
 	 */
 	void Write(ClientProtocol::Event& protoev, char status = 0, const CUList& except_list = CUList());
@@ -244,7 +243,6 @@ class CoreExport Channel : public Extensible
 	 * @param protoevprov Protocol event provider for the message.
 	 * @param msg Message to send.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param text A std::string containing the output line without prefix
 	 * @param except_list List of users not to send to
 	 */
 	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = CUList());

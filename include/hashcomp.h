@@ -199,13 +199,13 @@ namespace irc
 		/** Create a tokenstream and fill it with the provided data. */
 		tokenstream(const std::string& msg, size_t start = 0);
 
-		/** Retrieve the next <middle> token in the token stream.
+		/** Retrieve the next \<middle> token in the token stream.
 		 * @param token The next token available, or an empty string if none remain.
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
 		bool GetMiddle(std::string& token);
 
-		/** Retrieve the next <trailing> token in the token stream.
+		/** Retrieve the next \<trailing> token in the token stream.
 		 * @param token The next token available, or an empty string if none remain.
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */

@@ -484,7 +484,7 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 
 	/** Constructor, string source, string target, copies text.
 	 * @param source Source user.
-	 * @param targetuser Target user.
+	 * @param target Target string.
 	 * @param text Privmsg text, will be copied.
 	 * @param mt Message type.
 	 */
@@ -524,7 +524,7 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 
 	/** Constructor, user source, string target, copies text.
 	 * @param source Source user.
-	 * @param targetuser Target string.
+	 * @param target Target string.
 	 * @param text Privmsg text, will not be copied.
 	 * @param mt Message type.
 	 */
@@ -564,7 +564,7 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 
 	/** Constructor, string source, string target, does not copy text.
 	 * @param source Source string.
-	 * @param targetuser Target string.
+	 * @param target Target string.
 	 * @param text Privmsg text, will not be copied.
 	 * @param mt Message type.
 	 */
@@ -591,7 +591,7 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 
 	/** Constructor, string source, user target, does not copy text.
 	 * @param source Source string.
-	 * @param targetchan Target user.
+	 * @param targetuser Target user.
 	 * @param text Privmsg text, will not be copied.
 	 * @param mt Message type.
 	 */
