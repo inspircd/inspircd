@@ -31,15 +31,12 @@
 #include "xline.h"
 #include "exitcodes.h"
 #include <iostream>
-
-#ifdef HAS_CXX11_RANDOM
 #include <random>
 
 inline auto cxx11_rng() -> std::default_random_engine& {
 	thread_local std::default_random_engine e{std::random_device{}()};
 	return e;
 }
-#endif
 
 /* Find a user record by nickname and return a pointer to it */
 User* InspIRCd::FindNick(const std::string &nick)
@@ -474,18 +471,10 @@ std::string InspIRCd::GenRandomStr(unsigned int length, bool printable)
 	return rv;
 }
 
-// NOTE: this has a slight bias for lower values if max is not a power of 2.
-// Don't use it if that matters.
 unsigned long InspIRCd::GenRandomInt(unsigned long max)
 {
-	unsigned long rv;
-	GenRandom((char*)&rv, sizeof(rv));
-#if defined HAS_CXX11_RANDOM
 	thread_local std::uniform_int_distribution<unsigned long> u(0, max);
 	return u(cxx11_rng());
-#else
-	return rv % max;
-#endif
 }
 
 // This is overridden by a higher-quality algorithm when SSL support is loaded
@@ -495,20 +484,8 @@ void InspIRCd::DefaultGenRandom(char* output, size_t max)
 	arc4random_buf(output, max);
 #else
 	for (unsigned int i = 0; i < max; ++i)
-# ifdef _WIN32
 	{
-		unsigned int uTemp;
-		if(rand_s(&uTemp) != 0)
-			output[i] = rand();
-		else
-			output[i] = uTemp;
-	}
-# else
-#  if defined HAS_CXX11_RANDOM
 		output[i] = cxx11_rng()();
-#   else
-		output[i] = random();
-#  endif
-# endif
+	}
 #endif
 }
