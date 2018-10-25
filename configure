@@ -160,6 +160,7 @@ unless ($config{CXX}) {
 my %compiler = get_compiler_info($config{CXX});
 
 $config{HAS_ARC4RANDOM_BUF} = run_test 'arc4random_buf()', test_file($config{CXX}, 'arc4random_buf.cpp');
+$config{HAS_CXX11_RANDOM} = run_test 'C++11 random', test_file($config{CXX}, 'has_cxx11_random.cpp', '-std=c++11');
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', $^O eq 'darwin' ? undef : '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
 

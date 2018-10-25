@@ -29,6 +29,7 @@
 
 #ifndef _WIN32
  %target include/config.h
+ %define HAS_CXX11_RANDOM
  %define HAS_ARC4RANDOM_BUF
  %define HAS_CLOCK_GETTIME
  %define HAS_EVENTFD
