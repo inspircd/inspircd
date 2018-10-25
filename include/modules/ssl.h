@@ -277,6 +277,12 @@ class UserCertificateAPIBase : public DataProvider
 	 */
 	virtual ssl_cert* GetCertificate(User* user) = 0;
 
+	/** Set the SSL certificate of a user.
+	 * @param user The user whose certificate to set.
+	 * @param cert The SSL certificate to set for the user.
+	 */
+	virtual void SetCertificate(User* user, ssl_cert* cert) = 0;
+
 	/** Get the key fingerprint from a user's certificate
 	 * @param user The user whose key fingerprint to get, user may be remote
 	 * @return The key fingerprint from the user's SSL certificate or an empty string

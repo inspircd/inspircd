@@ -147,6 +147,11 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
  	{
  		return ext.get(user);
  	}
+
+	void SetCertificate(User* user, ssl_cert* cert) CXX11_OVERRIDE
+	{
+		ext.set(user, cert);
+	}
 };
 
 class ModuleSSLInfo : public Module, public Whois::EventListener

@@ -683,7 +683,11 @@ class CoreExport UserIOHandler : public StreamSocket
 {
  public:
 	LocalUser* const user;
-	UserIOHandler(LocalUser* me) : user(me) {}
+	UserIOHandler(LocalUser* me)
+		: StreamSocket(StreamSocket::SS_USER)
+		, user(me)
+	{
+	}
 	void OnDataReady() CXX11_OVERRIDE;
 	void OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
 	void OnError(BufferedSocketError error) CXX11_OVERRIDE;

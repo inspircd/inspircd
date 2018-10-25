@@ -46,22 +46,40 @@ class ModuleCensor : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		bool active = false;
+		int numeric = 0;
+		const char* targetname = NULL;
 
-		if (target.type == MessageTarget::TYPE_USER)
-			active = target.Get<User>()->IsModeSet(cu);
-		else if (target.type == MessageTarget::TYPE_CHANNEL)
+		switch (target.type)
 		{
-			Channel* c = target.Get<Channel>();
-			active = c->IsModeSet(cc);
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "censor");
+			case MessageTarget::TYPE_USER:
+			{
+				User* targuser = target.Get<User>();
+				if (!targuser->IsModeSet(cu))
+					return MOD_RES_PASSTHRU;
 
-			if (res == MOD_RES_ALLOW)
+				numeric = ERR_CANTSENDTOUSER;
+				targetname = targuser->nick.c_str();
+				break;
+			}
+
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* targchan = target.Get<Channel>();
+				if (!targchan->IsModeSet(cc))
+					return MOD_RES_PASSTHRU;
+
+				ModResult result = CheckExemption::Call(exemptionprov, user, targchan, "censor");
+				if (result == MOD_RES_ALLOW)
+					return MOD_RES_PASSTHRU;
+
+				numeric = ERR_CANNOTSENDTOCHAN;
+				targetname = targchan->name.c_str();
+				break;
+			}
+
+			default:
 				return MOD_RES_PASSTHRU;
 		}
-
-		if (!active)
-			return MOD_RES_PASSTHRU;
 
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
 		{
@@ -70,8 +88,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					const std::string targname = target.type == MessageTarget::TYPE_CHANNEL ? target.Get<Channel>()->name : target.Get<User>()->nick;
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, targname, "Your message contained a censored word (" + index->first + "), and was blocked");
+					user->WriteNumeric(numeric, targetname, "Your message contained a censored word (" + index->first + "), and was blocked");
 					return MOD_RES_DENY;
 				}
 
