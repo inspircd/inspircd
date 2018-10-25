@@ -450,7 +450,7 @@ namespace GnuTLS
 		 */
 		void SetDH(std::unique_ptr<DHParams>& DH)
 		{
-            dh = std::move(DH);
+			dh = std::move(DH);
 			gnutls_certificate_set_dh_params(cred, dh->get());
 		}
 	};
