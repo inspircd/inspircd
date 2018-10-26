@@ -55,7 +55,7 @@ INSTMODE_LIB = 0640
 ifneq ($(COMPILER), ICC)
   CORECXXFLAGS += -Woverloaded-virtual -Wshadow
 ifneq ($(SYSTEM), openbsd)
-    CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute
+    CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute -Wno-format-nonliteral
 endif
 endif
 

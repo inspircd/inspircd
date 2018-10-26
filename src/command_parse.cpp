@@ -452,7 +452,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 			}
 			// If no custom translator was given, fall through
 		}
-		case TR_TEXT:
+		/*@fallthrough@*/
 		default:
 			/* Do nothing */
 			dest.append(item);

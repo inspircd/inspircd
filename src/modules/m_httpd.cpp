@@ -32,7 +32,11 @@
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
 #elif defined __GNUC__
-# pragma GCC diagnostic ignored "-pedantic"
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
+#  pragma GCC diagnostic ignored "-Wpedantic"
+# else
+#  pragma GCC diagnostic ignored "-pedantic"
+# endif
 #endif
 
 // Fix warnings about shadowing in http_parser.

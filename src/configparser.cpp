@@ -286,7 +286,8 @@ struct Parser
 						break;
 					case 0xFE:
 					case 0xFF:
-						stack.errstr << "Do not save your files as UTF-16; use ASCII!\n";
+						stack.errstr << "Do not save your files as UTF-16 or UTF-32, use UTF-8!\n";
+						/*@fallthrough@*/
 					default:
 						throw CoreException("Syntax error - start of tag expected");
 				}
