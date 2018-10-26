@@ -1044,11 +1044,6 @@
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 cap-notify module: Provides the cap-notify IRCv3 extension.
-# Required for IRCv3 conformance.
-#<module name="ircv3_capnotify">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 account-tag module. Adds the 'account' tag which contains the
 # services account name of the message sender.
 #<module name="ircv3_accounttag">
