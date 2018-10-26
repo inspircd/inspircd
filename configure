@@ -244,7 +244,8 @@ affect the running of your server. It is recommended that you use a stable
 version instead.
 
 You can obtain the latest stable version from http://www.inspircd.org/ or by
-running `git checkout insp20` if you are installing from Git.
+running `<|GREEN git checkout $(git describe --abbrev=0 --tags insp20)|>` if you are
+installing from Git.
 EOW
 	if (!prompt_bool $interactive, 'I understand this warning and want to continue anyway.', $opt_development // 0) {
 		say STDERR 'If you understand this warning and still want to continue pass the --development flag.' unless $interactive;
