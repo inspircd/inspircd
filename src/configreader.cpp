@@ -334,35 +334,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 }
 
-/** Represents a deprecated configuration tag.
- */
-struct DeprecatedConfig
-{
-	/** Tag name. */
-	std::string tag;
-
-	/** Attribute key. */
-	std::string key;
-
-	/** Attribute value. */
-	std::string value;
-
-	/** Reason for deprecation. */
-	std::string reason;
-};
-
-static const DeprecatedConfig ChangedConfig[] = {
-	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
-	{ "die",         "value",       "",                 "you need to reread your config" },
-	{ "gnutls",      "starttls",    "",                 "has been replaced with m_starttls as of 3.0" },
-	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
-	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
-	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 3.0" },
-	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 3.0" },
-	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 3.0" },
-	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 3.0" }
-};
-
 void ServerConfig::Fill()
 {
 	ConfigTag* options = ConfValue("options");
@@ -513,26 +484,16 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-		for (unsigned long index = 0; index * sizeof(DeprecatedConfig) < sizeof(ChangedConfig); index++)
+		// Ensure the user has actually edited ther config.
+		ConfigTagList dietags = ConfTags("die");
+		if (dietags.first != dietags.second)
 		{
-			std::string value;
-			ConfigTagList tags = ConfTags(ChangedConfig[index].tag);
-			for(ConfigIter i = tags.first; i != tags.second; ++i)
+			errstr << "Your configuration has not been edited correctly!" << std::endl;
+			for (ConfigIter iter = dietags.first; iter != dietags.second; ++iter)
 			{
-				if (i->second->readString(ChangedConfig[index].key, value, true)
-					&& (ChangedConfig[index].value.empty() || value == ChangedConfig[index].value))
-				{
-					errstr << "Your configuration contains a deprecated value: <"  << ChangedConfig[index].tag;
-					if (ChangedConfig[index].value.empty())
-					{
-						errstr << ':' << ChangedConfig[index].key;
-					}
-					else
-					{
-						errstr << ' ' << ChangedConfig[index].key << "=\"" << ChangedConfig[index].value << "\"";
-					}
-					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")" << std::endl;
-				}
+				ConfigTag* tag = iter->second;
+				const std::string reason = tag->getString("reason", "You left a <die> tag in your config", 1);
+				errstr << reason <<  " (at " << tag->getTagLocation() << ")" << std::endl;
 			}
 		}
 

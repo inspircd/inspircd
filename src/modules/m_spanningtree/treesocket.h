@@ -238,6 +238,11 @@ class TreeSocket : public BufferedSocket
 	 */
 	std::string MyModules(int filter);
 
+	/** Returns mode list as a string, filtered by type.
+	 * @param type The type of modes to return.
+	 */
+	std::string BuildModeList(ModeType type);
+
 	/** Send my capabilities to the remote side
 	 */
 	void SendCapabilities(int phase);

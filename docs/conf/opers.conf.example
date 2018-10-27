@@ -167,3 +167,7 @@
       # type: Which type of operator this person is; see the block
       # above for the list of types. NOTE: This is case-sensitive as well.
       type="Helper">
+
+# Once you have edited this file you can remove this line. This is just to
+# ensure that you don't hastily include the file without reading it.
+<die reason="Using opers.conf.example without editing it is a security risk">

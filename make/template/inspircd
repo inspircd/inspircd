@@ -59,7 +59,7 @@ my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
 
-if (!("--runasroot" ~~ @ARGV) && ($< == 0 || $> == 0)) {
+if (!(grep { $_ eq '--runasroot' } @ARGV) && ($< == 0 || $> == 0)) {
 	if ($uid !~ /^\d+$/) {
 		# Named UID, look it up
 		$uid = getpwnam $uid;
