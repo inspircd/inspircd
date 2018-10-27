@@ -118,3 +118,7 @@
 # to opers on the network.                                            #
 #                                                                     #
 <uline server="services.example.com" silent="yes">
+
+# Once you have edited this file you can remove this line. This is just to
+# ensure that you don't hastily include the file without reading it.
+<die reason="Using links.conf.example without editing it is a security risk">

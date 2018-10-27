@@ -529,16 +529,6 @@
 #                                                                     #
 #<disabled commands="TOPIC MODE" usermodes="" chanmodes="" fakenonexistant="yes">
 
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-#   Just remove this... Its here to make you read ALL of the config   #
-#   file options ;)                                                   #
-
-<die value="You should probably edit your config *PROPERLY* and try again.">
-
-
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   Settings to define which features are usable on your server.      #
@@ -992,13 +982,6 @@
         # if you have a 1000 user network, a ban will not be allowed if it
         # will be banning 955 or more users.
         trigger="95.5">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-#   You should already know what to do here :)                        #
-
-<die value="User error. You didn't edit your config properly. Go back and try again.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-# MODULES #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
