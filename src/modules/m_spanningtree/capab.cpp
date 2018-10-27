@@ -79,10 +79,10 @@ std::string TreeSocket::MyModules(int filter)
 	return capabilities;
 }
 
-std::string TreeSocket::BuildModeList(ModeType type)
+std::string TreeSocket::BuildModeList(ModeType mtype)
 {
 	std::vector<std::string> modes;
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(type);
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(mtype);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
 		const ModeHandler* const mh = i->second;
