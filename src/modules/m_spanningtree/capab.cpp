@@ -86,11 +86,12 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
 		const ModeHandler* const mh = i->second;
+		const PrefixMode* const pm = mh->IsPrefixMode();
 		std::string mdesc;
 		if (proto_version != 1202)
 		{
-			if (mh->IsPrefixMode())
-				mdesc.append("prefix:");
+			if (pm)
+				mdesc.append("prefix:").append(ConvToStr(pm->GetPrefixRank())).push_back(':');
 			else if (mh->IsListMode())
 				mdesc.append("list:");
 			else if (mh->NeedsParam(true))
@@ -100,7 +101,6 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		}
 		mdesc.append(mh->name);
 		mdesc.push_back('=');
-		const PrefixMode* const pm = mh->IsPrefixMode();
 		if (pm)
 		{
 			if (pm->GetPrefix())
