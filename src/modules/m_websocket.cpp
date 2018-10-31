@@ -242,15 +242,29 @@ class WebSocketHook : public IOHookMiddle
 			return 0;
 
 		unsigned char opcode = (unsigned char)GetRecvQ().c_str()[0];
-		opcode &= ~WS_FINBIT;
-
-		switch (opcode)
+		switch (opcode & ~WS_FINBIT)
 		{
 			case OP_CONTINUATION:
 			case OP_TEXT:
 			case OP_BINARY:
 			{
-				return HandleAppData(sock, destrecvq, true);
+				std::string appdata;
+				const int result = HandleAppData(sock, appdata, true);
+				if (result != 1)
+					return result;
+
+				// Strip out any CR+LF which may have been erroneously sent.
+				for (std::string::const_iterator iter = appdata.begin(); iter != appdata.end(); ++iter)
+				{
+					if (*iter != '\r' && *iter != '\n')
+						destrecvq.push_back(*iter);
+				}
+
+				// If we are on the final message of this block append a line terminator.
+				if (opcode & WS_FINBIT)
+					destrecvq.append("\r\n");
+
+				return 1;
 			}
 
 			case OP_PING:
@@ -361,11 +375,31 @@ class WebSocketHook : public IOHookMiddle
 		if (state != STATE_ESTABLISHED)
 			return (mysendq.empty() ? 0 : 1);
 
-		if (!uppersendq.empty())
+		std::string message;
+		for (StreamSocket::SendQueue::const_iterator elem = uppersendq.begin(); elem != uppersendq.end(); ++elem)
 		{
-			StreamSocket::SendQueue::Element elem = PrepareSendQElem(uppersendq.bytes(), OP_BINARY);
-			mysendq.push_back(elem);
-			mysendq.moveall(uppersendq);
+			for (StreamSocket::SendQueue::Element::const_iterator chr = elem->begin(); chr != elem->end(); ++chr)
+			{
+				if (*chr == '\n')
+				{
+					// We have found an entire message. Send it in its own frame.
+					mysendq.push_back(PrepareSendQElem(message.length(), OP_BINARY));
+					mysendq.push_back(message);
+					message.clear();
+				}
+				else if (*chr != '\r')
+				{
+					message.push_back(*chr);
+				}
+			}
+		}
+
+		// Empty the upper send queue and push whatever is left back onto it.
+		uppersendq.clear();
+		if (!message.empty())
+		{
+			uppersendq.push_back(message);
+			return 0;
 		}
 
 		return 1;
