@@ -12,22 +12,22 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [http://openwall.com/crypt/](http://openwall.com/crypt/)
 
-## sha256
-
-**Author** &mdash; Olivier Gay &lt;olivier.gay@a3.epfl.ch&gt;
-
-**Last Updated** &mdash; 2018-09-06 (2007-02-02)
-
-**License** &mdash; 3-clause BSD
-
-**Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
-
 ## http_parser
 
 **Author** &mdash; Joyent, Inc. and other Node contributors
 
 **Last Updated** &mdash; 2018-10-04 (77310eeb839c4251c07184a5db8885a572a08352)
 
-**License** &mdash; MIT
+**License** &mdash; MIT License
 
-**Website** &mdash; [https://github.com/nodejs/http-parser]
+**Website** &mdash; (https://github.com/nodejs/http-parser  )[https://github.com/nodejs/http-parser]
+
+## sha256
+
+**Author** &mdash; Olivier Gay &lt;olivier.gay@a3.epfl.ch&gt;
+
+**Last Updated** &mdash; 2018-09-06 (2007-02-02)
+
+**License** &mdash; 3-clause BSD License
+
+**Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
