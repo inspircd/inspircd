@@ -31,3 +31,13 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **License** &mdash; 3-clause BSD License
 
 **Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
+
+## utfcpp
+
+**Author** &mdash; Nemanja Trifunovic
+
+**Last Updated** &mdash; 2018-09-17 (0a238813416e0ac8ea998b8814f00611a00f0735)
+
+**License** &mdash; Boost Software License
+
+**Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)

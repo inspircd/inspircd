@@ -2163,6 +2163,12 @@
 # Requires SHA-1 hash support available in the sha1 module.
 #<module name="websocket">
 #
+# Whether to re-encode messages as UTF-8 before sending to WebSocket
+# clients. This is recommended as the WebSocket protocol requires all
+# text frames to be sent as UTF-8. If you do not have this enabled
+# messages will be sent as binary frames instead.
+#<websocket sendastext="yes">
+#
 # If you use the websocket module you MUST specify one or more origins
 # which are allowed to connect to the server. You should set this as
 # strict as possible to prevent malicious webpages from connecting to

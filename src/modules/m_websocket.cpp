@@ -16,10 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: -Ivendor_directory("utfcpp")
+
 
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/hash.h"
+
+#include <utf8.h>
 
 typedef std::vector<std::string> OriginList;
 
@@ -31,6 +35,7 @@ class WebSocketHookProvider : public IOHookProvider
 {
  public:
 	OriginList allowedorigins;
+	bool sendastext;
 
 	WebSocketHookProvider(Module* mod)
 		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
@@ -106,6 +111,7 @@ class WebSocketHook : public IOHookMiddle
 	State state;
 	time_t lastpingpong;
 	OriginList& allowedorigins;
+	bool& sendastext;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
 	{
@@ -358,11 +364,12 @@ class WebSocketHook : public IOHookMiddle
 	}
 
  public:
-	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, OriginList& AllowedOrigins)
+	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, OriginList& AllowedOrigins, bool& SendAsText)
 		: IOHookMiddle(Prov)
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
 		, allowedorigins(AllowedOrigins)
+		, sendastext(SendAsText)
 	{
 		sock->AddIOHook(this);
 	}
@@ -383,8 +390,21 @@ class WebSocketHook : public IOHookMiddle
 				if (*chr == '\n')
 				{
 					// We have found an entire message. Send it in its own frame.
-					mysendq.push_back(PrepareSendQElem(message.length(), OP_BINARY));
-					mysendq.push_back(message);
+					if (sendastext)
+					{
+						// If we send messages as text then we need to ensure they are valid UTF-8.
+						std::string encoded;
+						utf8::replace_invalid(message.begin(), message.end(), std::back_inserter(encoded));
+
+						mysendq.push_back(PrepareSendQElem(encoded.length(), OP_TEXT));
+						mysendq.push_back(encoded);
+					}
+					else
+					{
+						// Otherwise, send the raw message as a binary frame.
+						mysendq.push_back(PrepareSendQElem(message.length(), OP_BINARY));
+						mysendq.push_back(message);
+					}
 					message.clear();
 				}
 				else if (*chr != '\r')
@@ -431,7 +451,7 @@ class WebSocketHook : public IOHookMiddle
 
 void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new WebSocketHook(this, sock, allowedorigins);
+	new WebSocketHook(this, sock, allowedorigins, sendastext);
 }
 
 class ModuleWebSocket : public Module
@@ -465,6 +485,9 @@ class ModuleWebSocket : public Module
 
 			allowedorigins.push_back(allow);
 		}
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
+		hookprov->sendastext = tag->getBool("sendastext", true);
 		hookprov->allowedorigins.swap(allowedorigins);
 	}
 
