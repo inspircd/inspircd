@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/ssl.h"
+#include "modules/webirc.h"
 #include "modules/whois.h"
 
 enum
@@ -47,6 +48,12 @@ class SSLCertExt : public ExtensionItem {
 		ssl_cert* old = static_cast<ssl_cert*>(set_raw(item, value));
 		if (old && old->refcount_dec())
 			delete old;
+	}
+
+	void unset(Extensible* container)
+	{
+		void* old = unset_raw(container);
+		delete static_cast<std::string*>(old);
 	}
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
@@ -154,14 +161,18 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	}
 };
 
-class ModuleSSLInfo : public Module, public Whois::EventListener
+class ModuleSSLInfo
+	: public Module
+	, public WebIRC::EventListener
+	, public Whois::EventListener
 {
 	CommandSSLInfo cmd;
 	UserCertificateAPIImpl APIImpl;
 
  public:
 	ModuleSSLInfo()
-		: Whois::EventListener(this)
+		: WebIRC::EventListener(this)
+		, Whois::EventListener(this)
 		, cmd(this)
 		, APIImpl(this, cmd.CertExt)
 	{
@@ -276,6 +287,37 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		if (!ok)
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
+	{
+		// We are only interested in connection flags. If none have been
+		// given then we have nothing to do.
+		if (!flags)
+			return;
+
+		// We only care about the tls connection flag if the connection
+		// between the gateway and the server is secure.
+		if (!cmd.CertExt.get(user))
+			return;
+
+		WebIRC::FlagMap::const_iterator iter = flags->find("secure");
+		if (iter == flags->end())
+		{
+			// If this is not set then the connection between the client and
+			// the gateway is not secure.
+			cmd.CertExt.unset(user);
+			return;
+		}
+
+		// Create a fake ssl_cert for the user.
+		ssl_cert* cert = new ssl_cert;
+		cert->error = "WebIRC users can not specify valid certs yet";
+		cert->invalid = true;
+		cert->revoked = true;
+		cert->trusted = false;
+		cert->unknownsigner = true;
+		cmd.CertExt.set(user, cert);
 	}
 };
 

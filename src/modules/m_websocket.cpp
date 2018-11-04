@@ -16,10 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: -Ivendor_directory("utfcpp")
+
 
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/hash.h"
+
+#include <utf8.h>
 
 typedef std::vector<std::string> OriginList;
 
@@ -31,6 +35,7 @@ class WebSocketHookProvider : public IOHookProvider
 {
  public:
 	OriginList allowedorigins;
+	bool sendastext;
 
 	WebSocketHookProvider(Module* mod)
 		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
@@ -106,6 +111,7 @@ class WebSocketHook : public IOHookMiddle
 	State state;
 	time_t lastpingpong;
 	OriginList& allowedorigins;
+	bool& sendastext;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
 	{
@@ -242,15 +248,29 @@ class WebSocketHook : public IOHookMiddle
 			return 0;
 
 		unsigned char opcode = (unsigned char)GetRecvQ().c_str()[0];
-		opcode &= ~WS_FINBIT;
-
-		switch (opcode)
+		switch (opcode & ~WS_FINBIT)
 		{
 			case OP_CONTINUATION:
 			case OP_TEXT:
 			case OP_BINARY:
 			{
-				return HandleAppData(sock, destrecvq, true);
+				std::string appdata;
+				const int result = HandleAppData(sock, appdata, true);
+				if (result != 1)
+					return result;
+
+				// Strip out any CR+LF which may have been erroneously sent.
+				for (std::string::const_iterator iter = appdata.begin(); iter != appdata.end(); ++iter)
+				{
+					if (*iter != '\r' && *iter != '\n')
+						destrecvq.push_back(*iter);
+				}
+
+				// If we are on the final message of this block append a line terminator.
+				if (opcode & WS_FINBIT)
+					destrecvq.append("\r\n");
+
+				return 1;
 			}
 
 			case OP_PING:
@@ -344,11 +364,12 @@ class WebSocketHook : public IOHookMiddle
 	}
 
  public:
-	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, OriginList& AllowedOrigins)
+	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, OriginList& AllowedOrigins, bool& SendAsText)
 		: IOHookMiddle(Prov)
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
 		, allowedorigins(AllowedOrigins)
+		, sendastext(SendAsText)
 	{
 		sock->AddIOHook(this);
 	}
@@ -361,11 +382,44 @@ class WebSocketHook : public IOHookMiddle
 		if (state != STATE_ESTABLISHED)
 			return (mysendq.empty() ? 0 : 1);
 
-		if (!uppersendq.empty())
+		std::string message;
+		for (StreamSocket::SendQueue::const_iterator elem = uppersendq.begin(); elem != uppersendq.end(); ++elem)
 		{
-			StreamSocket::SendQueue::Element elem = PrepareSendQElem(uppersendq.bytes(), OP_BINARY);
-			mysendq.push_back(elem);
-			mysendq.moveall(uppersendq);
+			for (StreamSocket::SendQueue::Element::const_iterator chr = elem->begin(); chr != elem->end(); ++chr)
+			{
+				if (*chr == '\n')
+				{
+					// We have found an entire message. Send it in its own frame.
+					if (sendastext)
+					{
+						// If we send messages as text then we need to ensure they are valid UTF-8.
+						std::string encoded;
+						utf8::replace_invalid(message.begin(), message.end(), std::back_inserter(encoded));
+
+						mysendq.push_back(PrepareSendQElem(encoded.length(), OP_TEXT));
+						mysendq.push_back(encoded);
+					}
+					else
+					{
+						// Otherwise, send the raw message as a binary frame.
+						mysendq.push_back(PrepareSendQElem(message.length(), OP_BINARY));
+						mysendq.push_back(message);
+					}
+					message.clear();
+				}
+				else if (*chr != '\r')
+				{
+					message.push_back(*chr);
+				}
+			}
+		}
+
+		// Empty the upper send queue and push whatever is left back onto it.
+		uppersendq.clear();
+		if (!message.empty())
+		{
+			uppersendq.push_back(message);
+			return 0;
 		}
 
 		return 1;
@@ -397,7 +451,7 @@ class WebSocketHook : public IOHookMiddle
 
 void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new WebSocketHook(this, sock, allowedorigins);
+	new WebSocketHook(this, sock, allowedorigins, sendastext);
 }
 
 class ModuleWebSocket : public Module
@@ -431,6 +485,9 @@ class ModuleWebSocket : public Module
 
 			allowedorigins.push_back(allow);
 		}
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
+		hookprov->sendastext = tag->getBool("sendastext", true);
 		hookprov->allowedorigins.swap(allowedorigins);
 	}
 

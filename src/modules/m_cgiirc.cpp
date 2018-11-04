@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/ssl.h"
+#include "modules/webirc.h"
 #include "modules/whois.h"
 
 enum
@@ -141,16 +142,18 @@ class CommandWebIRC : public SplitCommand
 	StringExtItem gateway;
 	StringExtItem realhost;
 	StringExtItem realip;
+	Events::ModuleEventProvider webircevprov;
 
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
 		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
 		, realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
 		, realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
+		, webircevprov(Creator, "event/webirc")
 	{
 		allow_empty_last_param = false;
 		works_before_reg = true;
-		this->syntax = "password gateway hostname ip";
+		this->syntax = "<password> <gateway> <hostname> <ip> [flags]";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
@@ -181,6 +184,33 @@ class CommandWebIRC : public SplitCommand
 			WriteLog("Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
 				user->uuid.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
 
+			// If we have custom flags then deal with them.
+			WebIRC::FlagMap flags;
+			const bool hasflags = (parameters.size() > 4);
+			if (hasflags)
+			{
+				// Parse the flags.
+				irc::spacesepstream flagstream(parameters[4]);
+				for (std::string flag; flagstream.GetToken(flag); )
+				{
+					// Does this flag have a value?
+					const size_t separator = flag.find('=');
+					if (separator == std::string::npos)
+					{
+						flags[flag];
+						continue;
+					}
+
+					// The flag has a value!
+					const std::string key = flag.substr(0, separator);
+					const std::string value = flag.substr(separator + 1);
+					flags[key] = value;
+				}
+			}
+
+			// Inform modules about the WebIRC attempt.
+			FOREACH_MOD_CUSTOM(webircevprov, WebIRC::EventListener, OnWebIRCAuth, (user, (hasflags ? &flags : NULL)));
+
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
 			ChangeIP(user, ipaddr);
@@ -207,7 +237,10 @@ class CommandWebIRC : public SplitCommand
 	}
 };
 
-class ModuleCgiIRC : public Module, public Whois::EventListener
+class ModuleCgiIRC
+	: public Module
+	, public WebIRC::EventListener
+	, public Whois::EventListener
 {
  private:
 	CommandWebIRC cmd;
@@ -251,7 +284,8 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 
  public:
 	ModuleCgiIRC()
-		: Whois::EventListener(this)
+		: WebIRC::EventListener(this)
+		, Whois::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -359,6 +393,66 @@ class ModuleCgiIRC : public Module, public Whois::EventListener
 			break; 
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
+	{
+		// We are only interested in connection flags. If none have been
+		// given then we have nothing to do.
+		if (!flags)
+			return;
+
+		WebIRC::FlagMap::const_iterator cport = flags->find("remote-port");
+		if (cport == flags->end())
+		{
+			// If we can't parse the port then just give up.
+			uint16_t port = ConvToNum<uint16_t>(cport->second);
+			if (port)
+			{
+				switch (user->client_sa.family())
+				{
+					case AF_INET:
+						user->client_sa.in4.sin_port = htons(port);
+						break;
+
+					case AF_INET6:
+						user->client_sa.in6.sin6_port = htons(port);
+						break;
+
+					default:
+						// If we have reached this point then we have encountered a bug.
+						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+							user->uuid.c_str(), user->client_sa.family());
+						return;
+				}
+			}
+		}
+
+		WebIRC::FlagMap::const_iterator sport = flags->find("local-port");
+		if (sport == flags->end())
+		{
+			// If we can't parse the port then just give up.
+			uint16_t port = ConvToNum<uint16_t>(sport->second);
+			if (port)
+			{
+				switch (user->server_sa.family())
+				{
+					case AF_INET:
+						user->server_sa.in4.sin_port = htons(port);
+						break;
+
+					case AF_INET6:
+						user->server_sa.in6.sin6_port = htons(port);
+						break;
+
+					default:
+						// If we have reached this point then we have encountered a bug.
+						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+							user->uuid.c_str(), user->server_sa.family());
+						return;
+				}
+			}
+		}
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
