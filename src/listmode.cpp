@@ -227,7 +227,7 @@ void ListModeBase::OnParameterMissing(User*, User*, Channel*)
 
 void ListModeBase::TellListTooLong(User* source, Channel* channel, std::string& parameter)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, "Channel ban list is full");
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, "Channel ban list is full");
 }
 
 void ListModeBase::TellAlreadyOnList(User*, Channel*, std::string&)

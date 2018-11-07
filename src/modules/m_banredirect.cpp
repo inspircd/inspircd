@@ -82,7 +82,7 @@ class BanRedirect : public ModeWatcher
 			ListModeBase::ModeList* list = banlm->GetList(channel);
 			if ((list) && (adding) && (maxbans <= list->size()))
 			{
-				source->WriteNumeric(ERR_BANLISTFULL, channel->name, InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), maxbans));
+				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), maxbans));
 				return false;
 			}
 
