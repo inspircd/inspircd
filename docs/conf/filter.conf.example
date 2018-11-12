@@ -27,6 +27,11 @@
 #               other glines, omitting the duration or setting it to 0 makes
 #               any glines set by this filter be permanent.
 #
+# zline         Z-LINE the user for 'duration' length of time. Durations may
+#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               other zlines, omitting the duration or setting it to 0 makes
+#               any zlines set by this filter be permanent.
+#
 # You can add filters from IRC using the /FILTER command. If you do this, they
 # will be set globally to your entire network.
 #
