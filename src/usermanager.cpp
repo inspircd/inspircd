@@ -130,7 +130,11 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
-			this->QuitUser(New, b->Reason);
+
+			if (ServerInstance->Config->HideBans)
+				this->QuitUser(New, b->Type + "-Lined", &b->Reason);
+			else
+				this->QuitUser(New, b->Reason);
 			return;
 		}
 		else

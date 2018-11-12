@@ -38,6 +38,7 @@ enum FilterFlags
 enum FilterAction
 {
 	FA_GLINE,
+	FA_ZLINE,
 	FA_BLOCK,
 	FA_SILENT,
 	FA_KILL,
@@ -239,13 +240,13 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
 				if (ServerInstance->XLines->GetFactory("SHUN"))
-					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent', 'kill', and 'shun'.");
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'block', 'silent', 'kill', and 'shun'.");
 				else
-					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent', and 'kill'.");
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'block', 'silent', and 'kill'.");
 				return CMD_FAILURE;
 			}
 
-			if (type == FA_GLINE || type == FA_SHUN)
+			if (type == FA_GLINE || type == FA_ZLINE || type == FA_SHUN)
 			{
 				if (parameters.size() >= 5)
 				{
@@ -254,7 +255,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				}
 				else
 				{
-					user->WriteNotice("*** Not enough parameters: When setting a gline or shun type filter, a duration must be specified as the third parameter.");
+					user->WriteNotice("*** Not enough parameters: When setting a '" + parameters[1] + "' type filter, a duration must be specified as the third parameter.");
 					return CMD_FAILURE;
 				}
 			}
@@ -418,6 +419,18 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			else
 				delete gl;
 		}
+		else if (f->action == FA_ZLINE)
+		{
+			ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was zlined because their message to %s matched %s (%s)",
+				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+			if (ServerInstance->XLines->AddLine(zl,NULL))
+			{
+				ServerInstance->XLines->ApplyLines();
+			}
+			else
+				delete zl;
+		}
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
@@ -493,6 +506,19 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				}
 				else
 					delete gl;
+			}
+			if (f->action == FA_ZLINE)
+			{
+				ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was zlined because their %s message matched %s (%s)",
+					user->nick.c_str(), command.c_str(), f->freeform.c_str(), f->reason.c_str()));
+
+				if (ServerInstance->XLines->AddLine(zl,NULL))
+				{
+					ServerInstance->XLines->ApplyLines();
+				}
+				else
+					delete zl;
 			}
 			else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 			{
@@ -709,6 +735,8 @@ bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa
 {
 	if (stdalgo::string::equalsci(str, "gline"))
 		fa = FA_GLINE;
+	else if (stdalgo::string::equalsci(str, "zline"))
+		fa = FA_ZLINE;
 	else if (stdalgo::string::equalsci(str, "block"))
 		fa = FA_BLOCK;
 	else if (stdalgo::string::equalsci(str, "silent"))
@@ -730,6 +758,7 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 	switch (fa)
 	{
 		case FA_GLINE:  return "gline";
+		case FA_ZLINE:  return "zline";
 		case FA_BLOCK:  return "block";
 		case FA_SILENT: return "silent";
 		case FA_KILL:   return "kill";

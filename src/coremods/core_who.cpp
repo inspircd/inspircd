@@ -162,7 +162,7 @@ class CommandWho : public SplitCommand
 		, invisiblemode(parent, "invisible")
 	{
 		allow_empty_last_param = false;
-		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
+		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
 	}
 
 	/** Sends a WHO reply to a user. */
