@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "modules/stats.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 /** Handles user mode +H
@@ -50,13 +51,20 @@ class HideOper : public SimpleUserModeHandler
 	}
 };
 
-class ModuleHideOper : public Module, public Stats::EventListener, public Whois::LineEventListener
+class ModuleHideOper
+	: public Module
+	, public Stats::EventListener
+	, public Who::EventListener
+	, public Whois::LineEventListener
 {
+ private:
 	HideOper hm;
 	bool active;
+
  public:
 	ModuleHideOper()
 		: Stats::EventListener(this)
+		, Who::EventListener(this)
 		, Whois::LineEventListener(this)
 		, hm(this)
 		, active(false)
@@ -107,20 +115,37 @@ class ModuleHideOper : public Module, public Stats::EventListener, public Whois:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{
 			// Hide the line completely if doing a "/who * o" query
-			if ((params.size() > 1) && (params[1].find('o') != std::string::npos))
+			if (request.flags['o'])
 				return MOD_RES_DENY;
+
+			size_t flag_index = 5;
+			if (request.whox)
+			{
+				// We only need to fiddle with the flags if they are present.
+				if (!request.whox_fields['f'])
+					return MOD_RES_PASSTHRU;
+
+				// WHOX makes this a bit tricky as we need to work out the parameter which the flags are in.
+				flag_index = 0;
+				static const char* flags = "tcuihsn";
+				for (size_t i = 0; i < strlen(flags); ++i)
+				{
+					if (request.whox_fields[flags[i]])
+						flag_index += 1;
+				}
+			}
 
 			// hide the "*" that marks the user as an oper from the /WHO line
 			// #chan ident localhost insp22.test nick H@ :0 Attila
-			if (numeric.GetParams().size() < 6)
+			if (numeric.GetParams().size() <= flag_index)
 				return MOD_RES_PASSTHRU;
 
-			std::string& param = numeric.GetParams()[5];
+			std::string& param = numeric.GetParams()[flag_index];
 			const std::string::size_type pos = param.find('*');
 			if (pos != std::string::npos)
 				param.erase(pos, 1);

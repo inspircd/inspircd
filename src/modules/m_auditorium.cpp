@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/who.h"
 
 class AuditoriumMode : public SimpleChannelModeHandler
 {
@@ -55,7 +56,9 @@ class JoinHook : public ClientProtocol::EventHook
 
 }
 
-class ModuleAuditorium : public Module
+class ModuleAuditorium
+	: public Module
+	, public Who::EventListener
 {
 	CheckExemption::EventProvider exemptionprov;
 	AuditoriumMode aum;
@@ -66,7 +69,8 @@ class ModuleAuditorium : public Module
 
  public:
 	ModuleAuditorium()
-		: exemptionprov(this)
+		: Who::EventListener(this)
+		, exemptionprov(this)
 		, aum(this)
 		, joinhook(this)
 	{
@@ -173,7 +177,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if (!memb)
 			return MOD_RES_PASSTHRU;

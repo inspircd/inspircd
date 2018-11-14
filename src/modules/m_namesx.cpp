@@ -22,12 +22,19 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/who.h"
 
-class ModuleNamesX : public Module
+class ModuleNamesX
+	: public Module
+	, public Who::EventListener
 {
+ private:
 	Cap::Capability cap;
+
  public:
-	ModuleNamesX() : cap(this, "multi-prefix")
+	ModuleNamesX()
+		: Who::EventListener(this)
+		, cap(this, "multi-prefix")
 	{
 	}
 
@@ -67,7 +74,7 @@ class ModuleNamesX : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
 		if ((!memb) || (!cap.get(source)))
 			return MOD_RES_PASSTHRU;
@@ -77,11 +84,28 @@ class ModuleNamesX : public Module
 		if (prefixes.length() <= 1)
 			return MOD_RES_PASSTHRU;
 
+		size_t flag_index = 5;
+		if (request.whox)
+		{
+			// We only need to fiddle with the flags if they are present.
+			if (!request.whox_fields['f'])
+				return MOD_RES_PASSTHRU;
+
+			// WHOX makes this a bit tricky as we need to work out the parameter which the flags are in.
+			flag_index = 0;
+			static const char* flags = "tcuihsn";
+			for (size_t i = 0; i < strlen(flags); ++i)
+			{
+				if (request.whox_fields[flags[i]])
+					flag_index += 1;
+			}
+		}
+
 		// #chan ident localhost insp22.test nick H@ :0 Attila
-		if (numeric.GetParams().size() < 6)
+		if (numeric.GetParams().size() <= flag_index)
 			return MOD_RES_PASSTHRU;
 
-		numeric.GetParams()[5].append(prefixes, 1, std::string::npos);
+		numeric.GetParams()[flag_index].append(prefixes, 1, std::string::npos);
 		return MOD_RES_PASSTHRU;
 	}
 };

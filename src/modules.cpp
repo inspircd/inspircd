@@ -133,7 +133,6 @@ void 		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&)
 ModResult	Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Membership*, Numeric::Numeric&) { DetachEvent(I_OnSendWhoLine); return MOD_RES_PASSTHRU; }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }

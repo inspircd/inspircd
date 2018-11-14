@@ -226,7 +226,7 @@ enum Implementation
 	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
-	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
+	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
 	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
 	I_END
 };
@@ -915,16 +915,6 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
-
-	/** Called whenever a result from /WHO is about to be returned
-	 * @param source The user running the /WHO query
-	 * @param params The parameters to the /WHO query
-	 * @param user The user that this line of the query is about
-	 * @param memb The member shown in this line, NULL if no channel is in this line
-	 * @param numeric Numeric to send; modifiable.
-	 * @return MOD_RES_PASSTHRU to allow the line to be displayed, MOD_RES_DENY to hide it
-	 */
-	virtual ModResult OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, Numeric::Numeric& numeric);
 
 	/** Called whenever a local user's IP is set for the first time, or when a local user's IP changes due to
 	 * a module like m_cgiirc changing it.
