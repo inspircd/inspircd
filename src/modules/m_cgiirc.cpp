@@ -403,7 +403,7 @@ class ModuleCgiIRC
 			return;
 
 		WebIRC::FlagMap::const_iterator cport = flags->find("remote-port");
-		if (cport == flags->end())
+		if (cport != flags->end())
 		{
 			// If we can't parse the port then just give up.
 			uint16_t port = ConvToNum<uint16_t>(cport->second);
@@ -429,7 +429,7 @@ class ModuleCgiIRC
 		}
 
 		WebIRC::FlagMap::const_iterator sport = flags->find("local-port");
-		if (sport == flags->end())
+		if (sport != flags->end())
 		{
 			// If we can't parse the port then just give up.
 			uint16_t port = ConvToNum<uint16_t>(sport->second);

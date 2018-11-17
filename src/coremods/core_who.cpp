@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/who.h"
 
 enum
 {
@@ -33,31 +34,9 @@ enum
 	RPL_WHOSPCRPL = 354
 };
 
-struct WhoData
+struct WhoData : public Who::Request
 {
-	// The flags for matching users to include.
-	std::bitset<UCHAR_MAX> flags;
-
-	// Whether we are matching using a wildcard or a flag.
-	bool fuzzy_match;
-
-	// The text to match against.
-	std::string matchtext;
-
-	// The WHO/WHOX responses we will send to the source.
-	std::vector<Numeric::Numeric> results;
-
-	// Whether the source requested a WHOX response.
-	bool whox;
-
-	// The fields to include in the WHOX response.
-	std::bitset<UCHAR_MAX> whox_fields;
-
-	// A user specified label for the WHOX response.
-	std::string whox_querytype;
-
 	WhoData(const CommandBase::Params& parameters)
-		: whox(false)
 	{
 		// Find the matchtext and swap the 0 for a * so we can use InspIRCd::Match on it.
 		matchtext = parameters.size() > 2 ? parameters[2] : parameters[0];
@@ -105,6 +84,7 @@ class CommandWho : public SplitCommand
 	ChanModeReference privatemode;
 	UserModeReference hidechansmode;
 	UserModeReference invisiblemode;
+	Events::ModuleEventProvider whoevprov;
 
 	/** Determines whether a user can view the users of a channel. */
 	bool CanView(Channel* chan, User* user)
@@ -137,7 +117,7 @@ class CommandWho : public SplitCommand
 	}
 
 	/** Determines whether WHO flags match a specific channel user. */
-	static bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
+	bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
 
 	/** Determines whether WHO flags match a specific user. */
 	static bool MatchUser(LocalUser* source, User* target, WhoData& data);
@@ -160,6 +140,7 @@ class CommandWho : public SplitCommand
 		, privatemode(parent, "private")
 		, hidechansmode(parent, "hidechans")
 		, invisiblemode(parent, "invisible")
+		, whoevprov(parent, "event/who")
 	{
 		allow_empty_last_param = false;
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
@@ -534,7 +515,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 	}
 
 	ModResult res;
-	FIRST_MOD_RESULT(OnSendWhoLine, res, (source, parameters, user, memb, wholine));
+	FIRST_MOD_RESULT_CUSTOM(whoevprov, Who::EventListener, OnWhoLine, res, (data, source, user, memb, wholine));
 	if (res != MOD_RES_DENY)
 		data.results.push_back(wholine);
 }

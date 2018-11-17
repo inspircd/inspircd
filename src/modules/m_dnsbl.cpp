@@ -218,7 +218,10 @@ class DNSBLResolver : public DNS::Request
 			countExt.set(them, i - 1);
 
 		if (q->error == DNS::ERROR_NO_RECORDS || q->error == DNS::ERROR_DOMAIN_NOT_FOUND)
+		{
 			ConfEntry->stats_misses++;
+			return;
+		}
 
 		ServerInstance->SNO->WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
 			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), this->manager->GetErrorStr(q->error).c_str());
