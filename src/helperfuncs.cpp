@@ -159,7 +159,7 @@ void InspIRCd::ProcessColors(file_cache& input)
 		special_chars("\\s", "\x1E"), // Strikethrough
 		special_chars("\\u", "\x1F"), // Underline
 		special_chars("\\x", "\x0F"), // Reset
-		special_chars("\\", "")
+		special_chars("", "")
 	};
 
 	for(file_cache::iterator it = input.begin(), it_end = input.end(); it != it_end; it++)
