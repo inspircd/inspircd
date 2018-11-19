@@ -516,7 +516,8 @@
 #                                                                     #
 # To use cloaking, you must define a cloak key, and optionally a      #
 # cloak prefix as shown below. The cloak key must be shared across    #
-# the network for correct cloaking.                                   #
+# the network for consistent cloaking and must be at least thirty     #
+# characters long.                                                    #
 #                                                                     #
 # There are two methods of cloaking:                                  #
 #                                                                     #
@@ -532,11 +533,20 @@
 #                                                                     #
 # The methods use a single key that can be any length of text.        #
 # An optional prefix may be specified to mark cloaked hosts.          #
+#                                                                     #
+# IMPORTANT: Changing these details will break all of your existing   #
+# bans. If you do not want this to happen you can define multiple     #
+# cloak tags. The first will be used for cloaking and the rest will   #
+# be used for checking if a user is banned in a channel.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
-#       key="secret"
+#       key="changeme"
 #       domainparts="3"
+#       prefix="net-">
+#
+#<cloak mode="full"
+#       key="changeme"
 #       prefix="net-">
 
 #-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

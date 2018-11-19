@@ -30,6 +30,7 @@ enum CloakMode
 {
 	/** 2.0 cloak of "half" of the hostname plus the full IP hash */
 	MODE_HALF_CLOAK,
+
 	/** 2.0 cloak of IP hash, split at 2 common CIDR range points */
 	MODE_OPAQUE
 };
@@ -37,13 +38,45 @@ enum CloakMode
 // lowercase-only encoding similar to base64, used for hash output
 static const char base32[] = "0123456789abcdefghijklmnopqrstuv";
 
+// The minimum length of a cloak key.
+static const size_t minkeylen = 30;
+
+struct CloakInfo
+{
+	// The method used for cloaking users.
+	CloakMode mode;
+
+	// The number of parts of the hostname shown when using half cloaking.
+	unsigned int domainparts;
+
+	// The secret used for generating cloaks.
+	std::string key;
+
+	// The prefix for cloaks (e.g. MyNet-).
+	std::string prefix;
+
+	// The suffix for IP cloaks (e.g. .IP).
+	std::string suffix;
+
+	CloakInfo(CloakMode Mode, const std::string& Key, const std::string& Prefix, const std::string& Suffix, unsigned int DomainParts = 0)
+		: mode(Mode)
+		, domainparts(DomainParts)
+		, key(Key)
+		, prefix(Prefix)
+		, suffix(Suffix)
+	{
+	}
+};
+
+typedef std::vector<std::string> CloakList;
+
 /** Handles user mode +x
  */
 class CloakUser : public ModeHandler
 {
  public:
 	bool active;
-	LocalStringExt ext;
+	SimpleExtItem<CloakList> ext;
 	std::string debounce_uid;
 	time_t debounce_ts;
 	int debounce_count;
@@ -99,17 +132,18 @@ class CloakUser : public ModeHandler
 			if (user->registered != REG_ALL && user->GetRealHost() != user->GetDisplayedHost())
 				return MODEACTION_DENY;
 
-			std::string* cloak = ext.get(user);
-
-			if (!cloak)
+			CloakList* cloaks = ext.get(user);
+			if (!cloaks)
 			{
 				/* Force creation of missing cloak */
 				creator->OnUserConnect(user);
-				cloak = ext.get(user);
+				cloaks = ext.get(user);
 			}
-			if (cloak)
+
+			// If we have a cloak then set the hostname.
+			if (cloaks && !cloaks->empty())
 			{
-				user->ChangeDisplayedHost(*cloak);
+				user->ChangeDisplayedHost(cloaks->front());
 				user->SetMode(this, true);
 				return MODEACTION_ALLOW;
 			}
@@ -144,51 +178,61 @@ class ModuleCloaking : public Module
 {
  public:
 	CloakUser cu;
-	CloakMode mode;
 	CommandCloak ck;
-	std::string prefix;
-	std::string suffix;
-	std::string key;
-	unsigned int domainparts;
+	std::vector<CloakInfo> cloaks;
 	dynamic_reference<HashProvider> Hash;
 
 	ModuleCloaking()
 		: cu(this)
-		, mode(MODE_OPAQUE)
 		, ck(this)
 		, Hash(this, "hash/md5")
 	{
 	}
 
-	/** This function takes a domain name string and returns just the last two domain parts,
-	 * or the last domain part if only two are available. Failing that it just returns what it was given.
+	/** Takes a domain name and retrieves the subdomain which should be visible.
+	 * This is usually the last \p domainparts labels but if not enough are
+	 * present then all but the most specific label are used. If the domain name
+	 * consists of one label only then none are used.
 	 *
-	 * For example, if it is passed "svn.inspircd.org" it will return ".inspircd.org".
-	 * If it is passed "brainbox.winbot.co.uk" it will return ".co.uk",
-	 * and if it is passed "localhost.localdomain" it will return ".localdomain".
+	 * Here are some examples for how domain names will be shortened assuming
+	 * \p domainparts is set to the default of 3.
 	 *
-	 * This is used to ensure a significant part of the host is always cloaked (see Bug #216)
+	 *   "this.is.an.example.com"  =>  ".an.example.com"
+	 *   "an.example.com"          =>  ".example.com"
+	 *   "example.com"             =>  ".com"
+	 *   "localhost"               =>  ""
+	 *
+	 * @param host The hostname to cloak.
+	 * @param domainparts The number of domain labels that should be visible.
+	 * @return The visible segment of the hostname.
 	 */
-	std::string LastTwoDomainParts(const std::string &host)
+	std::string VisibleDomainParts(const std::string& host, unsigned int domainparts)
 	{
-		unsigned int dots = 0;
-		std::string::size_type splitdot = host.length();
-
-		for (std::string::size_type x = host.length() - 1; x; --x)
+		// The position at which we found the last dot.
+		std::string::const_reverse_iterator dotpos;
+	
+		// The number of dots we have seen so far.
+		unsigned int seendots = 0;
+	
+		for (std::string::const_reverse_iterator iter = host.rbegin(); iter != host.rend(); ++iter)
 		{
-			if (host[x] == '.')
-			{
-				splitdot = x;
-				dots++;
-			}
-			if (dots >= domainparts)
+			if (*iter != '.')
+				continue;
+	
+			// We have found a dot!
+			dotpos = iter;
+			seendots += 1;
+	
+			// Do we have enough segments to stop?
+			if (seendots >= domainparts)
 				break;
 		}
-
-		if (splitdot == host.length())
+	
+		// We only returns a domain part if more than one label is
+		// present. See above for a full explanation.
+		if (!seendots)
 			return "";
-		else
-			return host.substr(splitdot);
+		return std::string(dotpos.base() - 1, host.end());
 	}
 
 	/**
@@ -197,12 +241,12 @@ class ModuleCloaking : public Module
 	 * @param id A unique ID for this type of item (to make it unique if the item matches)
 	 * @param len The length of the output. Maximum for MD5 is 16 characters.
 	 */
-	std::string SegmentCloak(const std::string& item, char id, size_t len)
+	std::string SegmentCloak(const CloakInfo& info, const std::string& item, char id, size_t len)
 	{
 		std::string input;
-		input.reserve(key.length() + 3 + item.length());
+		input.reserve(info.key.length() + 3 + item.length());
 		input.append(1, id);
-		input.append(key);
+		input.append(info.key);
 		input.append(1, '\0'); // null does not terminate a C++ string
 		input.append(item);
 
@@ -217,7 +261,7 @@ class ModuleCloaking : public Module
 		return rv;
 	}
 
-	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full)
+	std::string SegmentIP(const CloakInfo& info, const irc::sockets::sockaddrs& ip, bool full)
 	{
 		std::string bindata;
 		size_t hop1, hop2, hop3;
@@ -233,7 +277,7 @@ class ModuleCloaking : public Module
 			len2 = 4;
 			// pfx s1.s2.s3. (xxxx.xxxx or s4) sfx
 			//     6  4  4    9/6
-			rv.reserve(prefix.length() + 26 + suffix.length());
+			rv.reserve(info.prefix.length() + 26 + info.suffix.length());
 		}
 		else
 		{
@@ -243,27 +287,27 @@ class ModuleCloaking : public Module
 			hop3 = 2;
 			len1 = len2 = 3;
 			// pfx s1.s2. (xxx.xxx or s3) sfx
-			rv.reserve(prefix.length() + 15 + suffix.length());
+			rv.reserve(info.prefix.length() + 15 + info.suffix.length());
 		}
 
-		rv.append(prefix);
-		rv.append(SegmentCloak(bindata, 10, len1));
+		rv.append(info.prefix);
+		rv.append(SegmentCloak(info, bindata, 10, len1));
 		rv.append(1, '.');
 		bindata.erase(hop1);
-		rv.append(SegmentCloak(bindata, 11, len2));
+		rv.append(SegmentCloak(info, bindata, 11, len2));
 		if (hop2)
 		{
 			rv.append(1, '.');
 			bindata.erase(hop2);
-			rv.append(SegmentCloak(bindata, 12, len2));
+			rv.append(SegmentCloak(info, bindata, 12, len2));
 		}
 
 		if (full)
 		{
 			rv.append(1, '.');
 			bindata.erase(hop3);
-			rv.append(SegmentCloak(bindata, 13, 6));
-			rv.append(suffix);
+			rv.append(SegmentCloak(info, bindata, 13, 6));
+			rv.append(info.suffix);
 		}
 		else
 		{
@@ -271,12 +315,12 @@ class ModuleCloaking : public Module
 			{
 				rv.append(InspIRCd::Format(".%02x%02x.%02x%02x%s",
 					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
-					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], suffix.c_str()));
+					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], info.suffix.c_str()));
 			}
 			else
 			{
 				const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
-				rv.append(InspIRCd::Format(".%d.%d%s", ip4[1], ip4[0], suffix.c_str()));
+				rv.append(InspIRCd::Format(".%d.%d%s", ip4[1], ip4[0], info.suffix.c_str()));
 			}
 		}
 		return rv;
@@ -288,14 +332,24 @@ class ModuleCloaking : public Module
 		if (!lu)
 			return MOD_RES_PASSTHRU;
 
+		// Force the creation of cloaks if not already set.
 		OnUserConnect(lu);
-		std::string* cloak = cu.ext.get(user);
-		/* Check if they have a cloaked host, but are not using it */
-		if (cloak && *cloak != user->GetDisplayedHost())
+
+		// If the user has no cloaks (i.e. UNIX socket) then we do nothing here.
+		CloakList* cloaklist = cu.ext.get(user);
+		if (!cloaklist || cloaklist->empty())
+			return MOD_RES_PASSTHRU;
+
+		// Check if they have a cloaked host but are not using it.
+		for (CloakList::const_iterator iter = cloaklist->begin(); iter != cloaklist->end(); ++iter)
 		{
-			const std::string cloakMask = user->nick + "!" + user->ident + "@" + *cloak;
-			if (InspIRCd::Match(cloakMask, mask))
-				return MOD_RES_DENY;
+			const std::string& cloak = *iter;
+			if (cloak != user->GetDisplayedHost())
+			{
+				const std::string cloakMask = user->nick + "!" + user->ident + "@" + cloak;
+				if (InspIRCd::Match(cloakMask, mask))
+					return MOD_RES_DENY;
+			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -327,23 +381,24 @@ class ModuleCloaking : public Module
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		std::string testcloak = "broken";
-		if (Hash)
+		if (Hash && !cloaks.empty())
 		{
-			switch (mode)
+			const CloakInfo& info = cloaks.front();
+			switch (info.mode)
 			{
 				case MODE_HALF_CLOAK:
 					// Use old cloaking verification to stay compatible with 2.0
 					// But verify domainparts when use 3.0-only features
-					if (domainparts == 3)
-						testcloak = prefix + SegmentCloak("*", 3, 8) + suffix;
+					if (info.domainparts == 3)
+						testcloak = info.prefix + SegmentCloak(info, "*", 3, 8) + info.suffix;
 					else
 					{
 						irc::sockets::sockaddrs sa;
-						testcloak = GenCloak(sa, "", testcloak + ConvToStr(domainparts));
+						testcloak = GenCloak(info, sa, "", testcloak + ConvToStr(info.domainparts));
 					}
 					break;
 				case MODE_OPAQUE:
-					testcloak = prefix + SegmentCloak("*", 4, 8) + suffix;
+					testcloak = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix;
 			}
 		}
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
@@ -351,77 +406,96 @@ class ModuleCloaking : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
-		prefix = tag->getString("prefix");
-		suffix = tag->getString("suffix", ".IP");
+		ConfigTagList tags = ServerInstance->Config->ConfTags("cloak");
+		if (tags.first == tags.second)
+			throw ModuleException("You have loaded the cloaking module but not configured any <cloak> tags!");
 
-		std::string modestr = tag->getString("mode");
-		if (stdalgo::string::equalsci(modestr, "half"))
+		std::vector<CloakInfo> newcloaks;
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			mode = MODE_HALF_CLOAK;
-			domainparts = tag->getUInt("domainparts", 3, 1, 10);
-		}
-		else if (stdalgo::string::equalsci(modestr, "full"))
-			mode = MODE_OPAQUE;
-		else
-			throw ModuleException("Bad value for <cloak:mode>; must be half or full");
+			ConfigTag* tag = i->second;
 
-		key = tag->getString("key");
-		if (key.empty() || key == "secret")
-			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
+			// Ensure that we have the <cloak:key> parameter.
+			const std::string key = tag->getString("key");
+			if (key.empty())
+				throw ModuleException("You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->getTagLocation());
+
+			// If we are the first cloak method then mandate a strong key.
+			if (i == tags.first && key.length() < minkeylen)
+				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->getTagLocation());
+
+			const std::string mode = tag->getString("mode");
+			const std::string prefix = tag->getString("prefix");
+			const std::string suffix = tag->getString("suffix", ".IP");
+			if (stdalgo::string::equalsci(mode, "half"))
+			{
+				unsigned int domainparts = tag->getUInt("domainparts", 3, 1, 10);
+				newcloaks.push_back(CloakInfo(MODE_HALF_CLOAK, key, prefix, suffix, domainparts));
+			}
+			else if (stdalgo::string::equalsci(mode, "full"))
+				newcloaks.push_back(CloakInfo(MODE_OPAQUE, key, prefix, suffix));
+			else
+				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->getTagLocation()); 
+		}
+
+		// The cloak configuration was valid so we can apply it.
+		cloaks.swap(newcloaks);
 	}
 
-	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
+	std::string GenCloak(const CloakInfo& info, const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
 	{
 		std::string chost;
 
 		irc::sockets::sockaddrs hostip;
 		bool host_is_ip = irc::sockets::aptosa(host, ip.port(), hostip) && hostip == ip;
 
-		switch (mode)
+		switch (info.mode)
 		{
 			case MODE_HALF_CLOAK:
 			{
 				if (!host_is_ip)
-					chost = prefix + SegmentCloak(host, 1, 6) + LastTwoDomainParts(host);
+					chost = info.prefix + SegmentCloak(info, host, 1, 6) + VisibleDomainParts(host, info.domainparts);
 				if (chost.empty() || chost.length() > 50)
-					chost = SegmentIP(ip, false);
+					chost = SegmentIP(info, ip, false);
 				break;
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = SegmentIP(ip, true);
+				chost = SegmentIP(info, ip, true);
 		}
 		return chost;
 	}
 
 	void OnUserConnect(LocalUser* dest) CXX11_OVERRIDE
 	{
-		std::string* cloak = cu.ext.get(dest);
-		if (cloak)
+		if (cu.ext.get(dest))
 			return;
 
 		// TODO: decide how we are going to cloak AF_UNIX hostnames.
 		if (dest->client_sa.family() != AF_INET && dest->client_sa.family() != AF_INET6)
 			return;
 
-		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
+		CloakList cloaklist;
+		for (std::vector<CloakInfo>::const_iterator iter = cloaks.begin(); iter != cloaks.end(); ++iter)
+			cloaklist.push_back(GenCloak(*iter, dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
+		cu.ext.set(dest, cloaklist);
 	}
 };
 
 CmdResult CommandCloak::Handle(User* user, const Params& parameters)
 {
 	ModuleCloaking* mod = (ModuleCloaking*)(Module*)creator;
+
+	// If we're cloaking an IP address we pass it in the IP field too.
 	irc::sockets::sockaddrs sa;
-	std::string cloak;
+	const char* ipaddr = irc::sockets::aptosa(parameters[0], 0, sa) ? parameters[0].c_str() : "";
 
-	if (irc::sockets::aptosa(parameters[0], 0, sa))
-		cloak = mod->GenCloak(sa, parameters[0], parameters[0]);
-	else
-		cloak = mod->GenCloak(sa, "", parameters[0]);
-
-	user->WriteNotice("*** Cloak for " + parameters[0] + " is " + cloak);
-
+	unsigned int id = 0;
+	for (std::vector<CloakInfo>::const_iterator iter = mod->cloaks.begin(); iter != mod->cloaks.end(); ++iter)
+	{
+		const std::string cloak = mod->GenCloak(*iter, sa, ipaddr, parameters[0]);
+		user->WriteNotice(InspIRCd::Format("*** Cloak #%u for %s is %s", ++id, parameters[0].c_str(), cloak.c_str()));
+	}
 	return CMD_SUCCESS;
 }
 
