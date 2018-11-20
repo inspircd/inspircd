@@ -324,6 +324,7 @@
          # Italic:        \i
          # Monospace:     \m  (not widely supported)
          # Reset:         \x
+         # Reverse:       \r
          # Strikethrough: \s  (not widely supported)
          # Underline:     \u
          # See https://defs.ircdocs.horse/info/formatting.html for more information
