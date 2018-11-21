@@ -55,17 +55,11 @@ class ModuleBlockColor : public Module
 			{
 				for (std::string::iterator i = details.text.begin(); i != details.text.end(); i++)
 				{
-					switch (*i)
+					// Block all control codes except \001 for CTCP
+					if ((*i >= 0) && (*i < 32) && (*i != 1))
 					{
-						case 2:
-						case 3:
-						case 15:
-						case 21:
-						case 22:
-						case 31:
-							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c set)");
-							return MOD_RES_DENY;
-						break;
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c set)");
+						return MOD_RES_DENY;
 					}
 				}
 			}
