@@ -487,11 +487,14 @@ Valid FILTER Actions
 --------------------
 
 None    Does nothing
+Warn    Lets the message through and informs +s IRCops of the message
+        and all relevant info
 Block   Blocks message and informs +s IRCops of the blocked message
         and all relevant info
 Silent  Blocks message, but does not notify IRCops
 Kill    Kills the user
 Gline   Glines the user for the specified duration
+Zline   Zlines the user for the specified duration
 Shun    Shuns the user for the specified duration (requires the shun module)
 
 Valid FILTER Flags

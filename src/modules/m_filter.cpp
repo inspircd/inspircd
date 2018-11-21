@@ -39,6 +39,7 @@ enum FilterAction
 {
 	FA_GLINE,
 	FA_ZLINE,
+	FA_WARN,
 	FA_BLOCK,
 	FA_SILENT,
 	FA_KILL,
@@ -240,9 +241,9 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
 				if (ServerInstance->XLines->GetFactory("SHUN"))
-					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'block', 'silent', 'kill', and 'shun'.");
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'warn', 'block', 'silent', 'kill', and 'shun'.");
 				else
-					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'block', 'silent', and 'kill'.");
+					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'warn', 'block', 'silent', and 'kill'.");
 				return CMD_FAILURE;
 			}
 
@@ -363,6 +364,12 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 			target = t->name;
 		}
+		if (f->action == FA_WARN)
+		{
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's message to %s matched %s (%s)",
+				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+			return MOD_RES_PASSTHRU;
+		}
 		if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
@@ -478,10 +485,10 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
 		parameters[parting ? 1 : 0] = "Reason filtered";
 
-		/* We're blocking, OR theyre quitting and its a KILL action
+		/* We're warning or blocking, OR theyre quitting and its a KILL action
 		 * (we cant kill someone whos already quitting, so filter them anyway)
 		 */
-		if ((f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
+		if ((f->action == FA_WARN) || (f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
 		{
 			return MOD_RES_PASSTHRU;
 		}
@@ -737,6 +744,8 @@ bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa
 		fa = FA_GLINE;
 	else if (stdalgo::string::equalsci(str, "zline"))
 		fa = FA_ZLINE;
+	else if (stdalgo::string::equalsci(str, "warn"))
+		fa = FA_WARN;
 	else if (stdalgo::string::equalsci(str, "block"))
 		fa = FA_BLOCK;
 	else if (stdalgo::string::equalsci(str, "silent"))
@@ -759,6 +768,7 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 	{
 		case FA_GLINE:  return "gline";
 		case FA_ZLINE:  return "zline";
+		case FA_WARN:   return "warn";
 		case FA_BLOCK:  return "block";
 		case FA_SILENT: return "silent";
 		case FA_KILL:   return "kill";
