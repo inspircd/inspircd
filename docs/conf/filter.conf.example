@@ -10,6 +10,9 @@
 #
 # Valid actions for 'action' are:
 #
+# warn          This allows the line and sends out a notice to all opers
+#               with +s.
+#
 # block         This blocks the line, sends out a notice to all opers with
 #               +s and informs the user that their message was blocked.
 #
