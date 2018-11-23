@@ -161,20 +161,20 @@ class CommandWebIRC : public SplitCommand
 		if (user->registered == REG_ALL || realhost.get(user))
 			return CMD_FAILURE;
 
-		irc::sockets::sockaddrs ipaddr;
-		if (!irc::sockets::aptosa(parameters[3], user->client_sa.port(), ipaddr))
-		{
-			user->CommandFloodPenalty += 5000;
-			WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
-				user->uuid.c_str(), user->GetIPString().c_str());
-			return CMD_FAILURE;
-		}
-
 		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
 			// If we don't match the host then skip to the next host.
 			if (!iter->Matches(user, parameters[0]))
 				continue;
+
+			irc::sockets::sockaddrs ipaddr;
+			if (!irc::sockets::aptosa(parameters[3], user->client_sa.port(), ipaddr))
+			{
+				WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
+					user->uuid.c_str(), user->GetIPString().c_str());
+				ServerInstance->Users->QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
+				return CMD_FAILURE;
+			}
 
 			// The user matched a WebIRC block!
 			gateway.set(user, parameters[1]);
@@ -217,9 +217,9 @@ class CommandWebIRC : public SplitCommand
 			return CMD_SUCCESS;
 		}
 
-		user->CommandFloodPenalty += 5000;
 		WriteLog("Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
 			user->uuid.c_str(), user->GetIPString().c_str());
+		ServerInstance->Users->QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
 		return CMD_FAILURE;
 	}
 
