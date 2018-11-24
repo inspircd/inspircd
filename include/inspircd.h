@@ -502,6 +502,12 @@ class CoreExport InspIRCd
 	 */
 	static unsigned long Duration(const std::string& str);
 
+	/** Determines whether a string contains a valid duration.
+	 * @param str A string containing a time in the form 1y2w3d4h6m5s
+	 * @return True if the string is a valid duration; otherwise, false.
+	 */
+	static bool IsValidDuration(const std::string& str);
+
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
 	 * against possible hashed equivalents in the input string.

@@ -349,9 +349,33 @@ void InspIRCd::CheckRoot()
 #endif
 }
 
-/** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
- * lookups and pointer maths.
+/** A lookup table of values for multiplier characters used by
+ * InspIRCd::Duration(). In this lookup table, the indexes for
+ * the ascii values 'm' and 'M' have the value '60', the indexes
+ * for the ascii values 'D' and 'd' have a value of '86400', etc.
  */
+static const int duration_multi[] =
+{
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 86400, 1, 1, 1, 3600,
+	1, 1, 1, 1, 60, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	604800, 1, 31557600, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 86400, 1, 1, 1, 3600, 1, 1, 1, 1, 60,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 604800, 1, 31557600,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+};
+
 unsigned long InspIRCd::Duration(const std::string &str)
 {
 	unsigned char multiplier = 0;
@@ -390,6 +414,20 @@ unsigned long InspIRCd::Duration(const std::string &str)
 	}
 	/* Any trailing values built up are treated as raw seconds */
 	return total + subtotal;
+}
+
+bool InspIRCd::IsValidDuration(const std::string& duration)
+{
+	for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
+	{
+		unsigned char c = *i;
+		if (((c >= '0') && (c <= '9')) || (c == 's') || (c == 'S'))
+			continue;
+
+		if (duration_multi[c] == 1)
+			return false;
+	}
+	return true;
 }
 
 std::string InspIRCd::Format(va_list& vaList, const char* formatString)

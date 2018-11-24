@@ -147,30 +147,3 @@ class CoreExport CommandParser
 	 */
 	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final = false, CommandBase* custom_translator = NULL);
 };
-
-/** A lookup table of values for multiplier characters used by
- * InspIRCd::Duration(). In this lookup table, the indexes for
- * the ascii values 'm' and 'M' have the value '60', the indexes
- * for the ascii values 'D' and 'd' have a value of '86400', etc.
- */
-const int duration_multi[] =
-{
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 86400, 1, 1, 1, 3600,
-	1, 1, 1, 1, 60, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	604800, 1, 31557600, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 86400, 1, 1, 1, 3600, 1, 1, 1, 1, 60,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 604800, 1, 31557600,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
