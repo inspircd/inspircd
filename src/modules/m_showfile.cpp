@@ -55,13 +55,13 @@ class CommandShowFile : public Command
 	{
 		if (method == SF_NUMERIC)
 		{
-			if (!introtext.empty() || !intronumeric)
+			if (!introtext.empty() && intronumeric)
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
 				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format("- %s", i->c_str()));
 
-			if (!endtext.empty() || !endnumeric)
+			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
 		}
 		else if (IS_LOCAL(user))
