@@ -535,6 +535,13 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	if (!readString(key, duration))
 		return def;
 
+	if (!InspIRCd::IsValidDuration(duration))
+	{
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			" is not a duration; value set to " + ConvToStr(def) + ".");
+		return def;
+	}
+
 	unsigned long ret = InspIRCd::Duration(duration);
 	CheckRange(tag, key, ret, def, min, max);
 	return ret;
