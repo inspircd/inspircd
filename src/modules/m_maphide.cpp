@@ -41,7 +41,7 @@ class ModuleMapHide : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Hide /MAP and /LINKS in the same form as ircu (mostly useless)", VF_VENDOR);
+		return Version("Replaces the output of /MAP and /LINKS with an URL.", VF_VENDOR);
 	}
 };
 
