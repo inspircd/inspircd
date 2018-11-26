@@ -32,18 +32,6 @@ enum
 	ERR_ALLMUSTSSL = 490
 };
 
-namespace
-{
-	bool IsSSLUser(UserCertificateAPI& api, User* user)
-	{
-		if (!api)
-			return false;
-
-		ssl_cert* cert = api->GetCertificate(user);
-		return (cert != NULL);
-	}
-}
-
 /** Handle channel mode +z
  */
 class SSLMode : public ModeHandler
@@ -67,7 +55,10 @@ class SSLMode : public ModeHandler
 				if (IS_LOCAL(source))
 				{
 					if (!API)
+					{
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via SSL");
 						return MODEACTION_DENY;
+					}
 
 					const Channel::MemberMap& userlist = channel->GetUsers();
 					for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
@@ -123,7 +114,7 @@ class SSLModeUser : public ModeHandler
 		{
 			if (!dest->IsModeSet(this))
 			{
-				if (!IsSSLUser(API, user))
+				if (!API || !API->GetCertificate(user))
 					return MODEACTION_DENY;
 
 				dest->SetMode(this, true);
@@ -163,17 +154,13 @@ class ModuleSSLModes : public Module
 		if(chan && chan->IsModeSet(sslm))
 		{
 			if (!api)
+			{
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a SSL user (+z)");
 				return MOD_RES_DENY;
-
-			ssl_cert* cert = api->GetCertificate(user);
-			if (cert)
-			{
-				// Let them in
-				return MOD_RES_PASSTHRU;
 			}
-			else
+
+			if (!api->GetCertificate(user))
 			{
-				// Deny
 				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z)");
 				return MOD_RES_DENY;
 			}
@@ -196,7 +183,7 @@ class ModuleSSLModes : public Module
 		/* If the target is +z */
 		if (target->IsModeSet(sslquery))
 		{
-			if (!IsSSLUser(api, user))
+			if (!api || !api->GetCertificate(user))
 			{
 				/* The sending user is not on an SSL connection */
 				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z set)");
@@ -206,7 +193,7 @@ class ModuleSSLModes : public Module
 		/* If the user is +z */
 		else if (user->IsModeSet(sslquery))
 		{
-			if (!IsSSLUser(api, target))
+			if (!api || !api->GetCertificate(target))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove usermode 'z' before you are able to send private messages to a non-ssl user.");
 				return MOD_RES_DENY;
@@ -220,11 +207,8 @@ class ModuleSSLModes : public Module
 	{
 		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
 		{
-			if (!api)
-				return MOD_RES_DENY;
-
-			ssl_cert* cert = api->GetCertificate(user);
-			if (cert && InspIRCd::Match(cert->GetFingerprint(), mask.substr(2)))
+			const std::string fp = api ? api->GetFingerprint(user) : "";
+			if (!fp.empty() && InspIRCd::Match(fp, mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

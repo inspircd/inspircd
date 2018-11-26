@@ -31,7 +31,8 @@ enum
 	RPL_WHOISSECURE = 671
 };
 
-class SSLCertExt : public ExtensionItem {
+class SSLCertExt : public ExtensionItem
+{
  public:
 	SSLCertExt(Module* parent)
 		: ExtensionItem("ssl_cert", ExtensionItem::EXT_USER, parent)
@@ -42,6 +43,7 @@ class SSLCertExt : public ExtensionItem {
 	{
 		return static_cast<ssl_cert*>(get_raw(item));
 	}
+
 	void set(Extensible* item, ssl_cert* value)
 	{
 		value->refcount_inc();
@@ -94,14 +96,53 @@ class SSLCertExt : public ExtensionItem {
 	}
 };
 
-/** Handle /SSLINFO
- */
+class UserCertificateAPIImpl : public UserCertificateAPIBase
+{
+ public:
+	LocalIntExt nosslext;
+	SSLCertExt sslext;
+
+	UserCertificateAPIImpl(Module* mod)
+		: UserCertificateAPIBase(mod)
+		, nosslext("no_ssl_cert", ExtensionItem::EXT_USER, mod)
+		, sslext(mod)
+	{
+	}
+
+	ssl_cert* GetCertificate(User* user) CXX11_OVERRIDE
+	{
+		ssl_cert* cert = sslext.get(user);
+		if (cert)
+			return cert;
+
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser || nosslext.get(luser))
+			return NULL;
+
+		cert = SSLClientCert::GetCertificate(&luser->eh);
+		if (!cert)
+			return NULL;
+
+		SetCertificate(user, cert);
+		return cert;
+	}
+
+	void SetCertificate(User* user, ssl_cert* cert) CXX11_OVERRIDE
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting SSL certificate for %s: %s",
+			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
+		sslext.set(user, cert);
+	}
+};
+
 class CommandSSLInfo : public Command
 {
  public:
-	SSLCertExt CertExt;
+	UserCertificateAPIImpl sslapi;
 
-	CommandSSLInfo(Module* Creator) : Command(Creator, "SSLINFO", 1), CertExt(Creator)
+	CommandSSLInfo(Module* Creator)
+		: Command(Creator, "SSLINFO", 1)
+		, sslapi(Creator)
 	{
 		this->syntax = "<nick>";
 	}
@@ -121,7 +162,7 @@ class CommandSSLInfo : public Command
 			user->WriteNotice("*** You cannot view SSL certificate information for other users");
 			return CMD_FAILURE;
 		}
-		ssl_cert* cert = CertExt.get(target);
+		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
 			user->WriteNotice("*** No SSL certificate for this user");
@@ -140,41 +181,19 @@ class CommandSSLInfo : public Command
 	}
 };
 
-class UserCertificateAPIImpl : public UserCertificateAPIBase
-{
-	SSLCertExt& ext;
-
- public:
-	UserCertificateAPIImpl(Module* mod, SSLCertExt& certext)
-		: UserCertificateAPIBase(mod), ext(certext)
-	{
-	}
-
- 	ssl_cert* GetCertificate(User* user) CXX11_OVERRIDE
- 	{
- 		return ext.get(user);
- 	}
-
-	void SetCertificate(User* user, ssl_cert* cert) CXX11_OVERRIDE
-	{
-		ext.set(user, cert);
-	}
-};
-
 class ModuleSSLInfo
 	: public Module
 	, public WebIRC::EventListener
 	, public Whois::EventListener
 {
+ private:
 	CommandSSLInfo cmd;
-	UserCertificateAPIImpl APIImpl;
 
  public:
 	ModuleSSLInfo()
 		: WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, cmd(this)
-		, APIImpl(this, cmd.CertExt)
 	{
 	}
 
@@ -185,7 +204,7 @@ class ModuleSSLInfo
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = cmd.CertExt.get(whois.GetTarget());
+		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
 		if (cert)
 		{
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
@@ -203,7 +222,7 @@ class ModuleSSLInfo
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
 				OperInfo* ifo = i->second;
-				ssl_cert* cert = cmd.CertExt.get(user);
+				ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
@@ -224,13 +243,6 @@ class ModuleSSLInfo
 
 		// Let core handle it for extra stuff
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
-		if (cert)
-			cmd.CertExt.set(user, cert);
 	}
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE
@@ -298,7 +310,7 @@ class ModuleSSLInfo
 
 		// We only care about the tls connection flag if the connection
 		// between the gateway and the server is secure.
-		if (!cmd.CertExt.get(user))
+		if (!cmd.sslapi.GetCertificate(user))
 			return;
 
 		WebIRC::FlagMap::const_iterator iter = flags->find("secure");
@@ -306,7 +318,8 @@ class ModuleSSLInfo
 		{
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
-			cmd.CertExt.unset(user);
+			cmd.sslapi.nosslext.set(user, 1);
+			cmd.sslapi.sslext.unset(user);
 			return;
 		}
 
@@ -317,7 +330,7 @@ class ModuleSSLInfo
 		cert->revoked = true;
 		cert->trusted = false;
 		cert->unknownsigner = true;
-		cmd.CertExt.set(user, cert);
+		cmd.sslapi.SetCertificate(user, cert);
 	}
 };
 

@@ -103,15 +103,15 @@ class WebIRCHost
 	{
 	}
 
-	bool Matches(LocalUser* user, const std::string& pass) const
+	bool Matches(LocalUser* user, const std::string& pass, UserCertificateAPI& sslapi) const
 	{
 		// Did the user send a valid password?
 		if (!password.empty() && !ServerInstance->PassCompare(user, password, pass, passhash))
 			return false;
 
 		// Does the user have a valid fingerprint?
-		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
-		if (!fingerprint.empty() && fp != fingerprint)
+		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
+		if (!fingerprint.empty() && !InspIRCd::TimingSafeCompare(fp, fingerprint))
 			return false;
 
 		// Does the user's hostname match our hostmask?
@@ -142,6 +142,7 @@ class CommandWebIRC : public SplitCommand
 	StringExtItem gateway;
 	StringExtItem realhost;
 	StringExtItem realip;
+	UserCertificateAPI sslapi;
 	Events::ModuleEventProvider webircevprov;
 
 	CommandWebIRC(Module* Creator)
@@ -149,6 +150,7 @@ class CommandWebIRC : public SplitCommand
 		, gateway("cgiirc_gateway", ExtensionItem::EXT_USER, Creator)
 		, realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
 		, realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
+		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{
 		allow_empty_last_param = false;
@@ -164,7 +166,7 @@ class CommandWebIRC : public SplitCommand
 		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
 			// If we don't match the host then skip to the next host.
-			if (!iter->Matches(user, parameters[0]))
+			if (!iter->Matches(user, parameters[0], sslapi))
 				continue;
 
 			irc::sockets::sockaddrs ipaddr;

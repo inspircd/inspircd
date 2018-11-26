@@ -171,26 +171,28 @@ class SaslAuthenticator
 	SaslResult result;
 	bool state_announced;
 
-	void SendHostIP()
+	void SendHostIP(UserCertificateAPI& sslapi)
 	{
 		std::vector<std::string> params;
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetIPString());
-		params.push_back(SSLIOHook::IsSSL(&user->eh) ? "S" : "P");
+		params.push_back(sslapi && sslapi->GetCertificate(user) ? "S" : "P");
 
 		SendSASL(user, "*", 'H', params);
 	}
 
  public:
-	SaslAuthenticator(LocalUser* user_, const std::string& method)
-		: user(user_), state(SASL_INIT), state_announced(false)
+	SaslAuthenticator(LocalUser* user_, const std::string& method, UserCertificateAPI& sslapi)
+		: user(user_)
+		, state(SASL_INIT)
+		, state_announced(false)
 	{
-		SendHostIP();
+		SendHostIP(sslapi);
 
 		std::vector<std::string> params;
 		params.push_back(method);
 
-		const std::string fp = SSLClientCert::GetFingerprint(&user->eh);
+		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
 		if (fp.size())
 			params.push_back(fp);
 
@@ -305,10 +307,13 @@ class CommandAuthenticate : public SplitCommand
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	Cap::Capability& cap;
+	UserCertificateAPI sslapi;
+
 	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
 		: SplitCommand(Creator, "AUTHENTICATE", 1)
 		, authExt(ext)
 		, cap(Cap)
+		, sslapi(Creator)
 	{
 		works_before_reg = true;
 		allow_empty_last_param = false;
@@ -331,7 +336,7 @@ class CommandAuthenticate : public SplitCommand
 
 			SaslAuthenticator *sasl = authExt.get(user);
 			if (!sasl)
-				authExt.set(user, new SaslAuthenticator(user, parameters[0]));
+				authExt.set(user, new SaslAuthenticator(user, parameters[0], sslapi));
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 			{
 				sasl->AnnounceState();

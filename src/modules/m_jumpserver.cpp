@@ -38,8 +38,11 @@ class CommandJumpserver : public Command
 	std::string reason;
 	int port;
 	int sslport;
+	UserCertificateAPI sslapi;
 
-	CommandJumpserver(Module* Creator) : Command(Creator, "JUMPSERVER", 0, 4)
+	CommandJumpserver(Module* Creator)
+		: Command(Creator, "JUMPSERVER", 0, 4)
+		, sslapi(Creator)
 	{
 		flags_needed = 'o';
 		syntax = "[<server> <port>[:<sslport>] <+/-an> <reason>]";
@@ -146,7 +149,7 @@ class CommandJumpserver : public Command
 
 	int GetPort(LocalUser* user)
 	{
-		int p = (SSLIOHook::IsSSL(&user->eh) ? sslport : port);
+		int p = (sslapi && sslapi->GetCertificate(user) ? sslport : port);
 		if (p == 0)
 			p = user->GetServerPort();
 		return p;

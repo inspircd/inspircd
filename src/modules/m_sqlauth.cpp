@@ -116,6 +116,7 @@ class ModuleSQLAuth : public Module
 {
 	LocalIntExt pendingExt;
 	dynamic_reference<SQL::Provider> SQL;
+	UserCertificateAPI sslapi;
 
 	std::string freeformquery;
 	std::string killreason;
@@ -129,6 +130,7 @@ class ModuleSQLAuth : public Module
 	ModuleSQLAuth()
 		: pendingExt("sqlauth-wait", ExtensionItem::EXT_USER, this)
 		, SQL(this, "SQL")
+		, sslapi(this)
 	{
 	}
 
@@ -179,6 +181,7 @@ class ModuleSQLAuth : public Module
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
+		userinfo["certfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
 
 		for (std::vector<std::string>::const_iterator it = hash_algos.begin(); it != hash_algos.end(); ++it)
 		{
@@ -186,9 +189,6 @@ class ModuleSQLAuth : public Module
 			if (hashprov && !hashprov->IsKDF())
 				userinfo[*it + "pass"] = hashprov->Generate(user->password);
 		}
-
-		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
-		userinfo["certfp"] = certfp;
 
 		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
 
