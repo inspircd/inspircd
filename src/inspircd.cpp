@@ -644,14 +644,15 @@ void InspIRCd::Run()
 			}
 #endif
 
-			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */
-			if (TIME.tv_sec < OLDTIME - 2)
+			if (Config->TimeSkipWarn)
 			{
-				SNO->WriteToSnoMask('a', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)(OLDTIME-TIME.tv_sec));
-			}
-			else if (TIME.tv_sec > OLDTIME + 2)
-			{
-				SNO->WriteToSnoMask('a', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)(TIME.tv_sec - OLDTIME));
+				time_t timediff = TIME.tv_sec - OLDTIME;
+
+				if (timediff > Config->TimeSkipWarn)
+					SNO->WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by %lu seconds!", timediff);
+
+				else if (timediff < -Config->TimeSkipWarn)
+					SNO->WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by %lu seconds!", labs(timediff));
 			}
 
 			OLDTIME = TIME.tv_sec;

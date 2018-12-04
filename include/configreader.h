@@ -376,6 +376,9 @@ class CoreExport ServerConfig
 	 */
 	unsigned int MaxTargets;
 
+	/** The number of seconds that the server clock can skip by before server operators are warned. */
+	time_t TimeSkipWarn;
+
 	/** True if we're going to hide ban reasons for non-opers (e.g. G-Lines,
 	 * K-Lines, Z-Lines)
 	 */

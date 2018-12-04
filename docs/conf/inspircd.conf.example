@@ -695,6 +695,10 @@
              # Default value is true
              clonesonconnect="true"
 
+             # timeskipwarn: The time period that a server clock can jump by before
+             # operators will be warned that the server is having performance issues.
+             timeskipwarn="2s"
+
              # quietbursts: When syncing or splitting from a network, a server
              # can generate a lot of connect and quit messages to opers with
              # +C and +Q snomasks. Setting this to yes squelches those messages,
