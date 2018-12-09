@@ -6,7 +6,7 @@
 
 <alias text="HELP" replace="HELPOP $2-">
 
-<helpmsg missing="There is no help for the topic you searched for. Please try again.">
+<helpmsg nohelp="There is no help for the topic you searched for. Please try again.">
 
 <helpop key="start" value="InspIRCd Help System
 
