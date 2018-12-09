@@ -51,16 +51,6 @@ class ExemptChanOps : public ListModeBase
 
 		return true;
 	}
-
-	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
-	{
-		user->WriteNumeric(957, chan->name, InspIRCd::Format("The word %s is already on the exemptchanops list", word.c_str()));
-	}
-
-	void TellNotSet(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
-	{
-		user->WriteNumeric(958, chan->name, "No such exemptchanops word is set");
-	}
 };
 
 class ExemptHandler : public CheckExemption::EventListener

@@ -158,6 +158,8 @@ enum
 
 	RPL_SYNTAX                      = 650, // insp-specific
 	ERR_INVALIDMODEPARAM            = 696, // insp-specific
+	ERR_LISTMODEALREADYSET          = 697, // insp-specific
+	ERR_LISTMODENOTSET              = 698, // insp-specific
 
 	RPL_OTHERUMODEIS                = 803, // insp-specific
 	RPL_OTHERSNOMASKIS              = 804, // insp-specific
