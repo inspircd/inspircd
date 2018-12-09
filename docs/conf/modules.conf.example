@@ -287,14 +287,14 @@
 #<module name="callerid">
 #
 #-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
-# maxaccepts     - Maximum number of entries a user can add to his    #
+# maxaccepts     - Maximum number of entries a user can add to their  #
 #                  /ACCEPT list. Default is 30 entries.               #
-# tracknick      - Preserve /accept entries when a user changes nick? #
+# tracknick      - Preserve /ACCEPT entries when a user changes nick? #
 #                  If no (the default), the user is removed from      #
-#                  everyone's accept list if he changes nickname.     #
+#                  everyone's accept list if their nickname changes.  #
 # cooldown       - Amount of time that must pass since the last       #
-#                  notification sent to a user before he can be sent  #
-#                  another. Default is 1 minute.                      #
+#                  notification sent to a user before they can be     #
+#                  sent another. Default is 1 minute.                 #
 #<callerid maxaccepts="30"
 #          tracknick="no"
 #          cooldown="1m">
