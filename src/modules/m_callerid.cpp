@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/callerid.h"
 
 enum
 {
@@ -324,9 +325,30 @@ public:
 	}
 };
 
+class CallerIDAPIImpl : public CallerID::APIBase
+{
+ private:
+	CallerIDExtInfo& ext;
+
+ public:
+	CallerIDAPIImpl(Module* Creator, CallerIDExtInfo& Ext)
+		: CallerID::APIBase(Creator)
+		, ext(Ext)
+	{
+	}
+
+	bool IsOnAcceptList(User* source, User* target) CXX11_OVERRIDE
+	{
+		callerid_data* dat = ext.get(target, true);
+		return dat->accepting.count(source);
+	}
+};
+
+
 class ModuleCallerID : public Module
 {
 	CommandAccept cmd;
+	CallerIDAPIImpl api;
 	SimpleUserModeHandler myumode;
 
 	// Configuration variables:
@@ -359,6 +381,7 @@ class ModuleCallerID : public Module
 public:
 	ModuleCallerID()
 		: cmd(this)
+		, api(this, cmd.extInfo)
 		, myumode(this, "callerid", 'g')
 	{
 	}
