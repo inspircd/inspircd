@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/callerid.h"
 #include "modules/exemption.h"
 #include "modules/whois.h"
 
@@ -137,6 +138,8 @@ class AccountExtItemImpl : public AccountExtItem
 
 class ModuleServicesAccount : public Module, public Whois::EventListener
 {
+ private:
+	CallerID::API calleridapi;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler m1;
 	SimpleChannelModeHandler m2;
@@ -145,9 +148,11 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 	User_r m5;
 	AccountExtItemImpl accountname;
 	bool checking_ban;
+
  public:
 	ModuleServicesAccount()
 		: Whois::EventListener(this)
+		, calleridapi(this)
 		, exemptionprov(this)
 		, m1(this, "reginvite", 'R')
 		, m2(this, "regmoderated", 'M')
@@ -199,26 +204,30 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 
 		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			Channel* c = target.Get<Channel>();
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "regmoderated");
+			Channel* targchan = target.Get<Channel>();
 
-			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
-			{
-				// user messaging a +M channel and is not registered
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, c->name, "You need to be identified to a registered account to message this channel");
-				return MOD_RES_DENY;
-			}
+			if (!targchan->IsModeSet(m2) || is_registered)
+				return MOD_RES_PASSTHRU;
+
+			if (CheckExemption::Call(exemptionprov, user, targchan, "regmoderated") == MOD_RES_ALLOW)
+				return MOD_RES_PASSTHRU;
+
+			// User is messaging a +M channel and is not registered or exempt.
+			user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
+			return MOD_RES_DENY;
 		}
 		else if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* u = target.Get<User>();
+			User* targuser = target.Get<User>();
+			if (!targuser->IsModeSet(m3)  || is_registered)
+				return MOD_RES_PASSTHRU;
 
-			if (u->IsModeSet(m3) && !is_registered)
-			{
-				// user messaging a +R user and is not registered
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, u->nick, "You need to be identified to a registered account to message this user");
-				return MOD_RES_DENY;
-			}
+			if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
+				return MOD_RES_PASSTHRU;
+
+			// User is messaging a +R user and is not registered or on an accept list.
+			user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
