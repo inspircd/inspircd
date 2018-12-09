@@ -21,13 +21,87 @@
 #include <fstream>
 #include "configparser.h"
 
+enum ParseFlags
+{
+	// Legacy config parsing should be used.
+	FLAG_USE_COMPAT = 1,
+
+	// Executable includes are disabled.
+	FLAG_NO_EXEC = 2,
+
+	// All includes are disabled.
+	FLAG_NO_INC = 4
+};
+
+// Represents the position within a config file.
+struct FilePosition
+{
+	// The name of the file which is being read.
+	std::string name;
+
+	// The line of the file that this position points to.
+	unsigned int line;
+
+	// The column of the file that this position points to.
+	unsigned int column;
+
+	FilePosition(const std::string& Name)
+		: name(Name)
+		, line(1)
+		, column(1)
+	{
+	}
+
+	/** Returns a string that represents this file position. */
+	std::string str()
+	{
+		return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
+	}
+};
+
+// RAII wrapper for FILE* which closes the file when it goes out of scope.
+class FileWrapper
+{
+ private:
+	// Whether this file handle should be closed with pclose.
+	bool close_with_pclose;
+
+	// The file handle which is being wrapped.
+	FILE* const file;
+
+ public:
+	FileWrapper(FILE* File, bool CloseWithPClose = false)
+		: close_with_pclose(CloseWithPClose)
+		, file(File)
+	{
+	}
+
+	// Operator which determines whether the file is open.
+	operator bool() { return (file != NULL); }
+
+	// Operator which retrieves the underlying FILE pointer.
+	operator FILE*() { return file; }
+
+	~FileWrapper()
+	{
+		if (!file)
+			return;
+
+		if (close_with_pclose)
+			pclose(file);
+		else
+			fclose(file);
+	}
+};
+
+
 struct Parser
 {
 	ParseStack& stack;
 	int flags;
 	FILE* const file;
-	fpos current;
-	fpos last_tag;
+	FilePosition current;
+	FilePosition last_tag;
 	reference<ConfigTag> tag;
 	int ungot;
 	std::string mandatory_tag;
@@ -52,11 +126,11 @@ struct Parser
 		else if (ch == '\n')
 		{
 			current.line++;
-			current.col = 0;
+			current.column = 0;
 		}
 		else
 		{
-			current.col++;
+			current.column++;
 		}
 		return ch;
 	}
@@ -200,7 +274,7 @@ struct Parser
 			throw CoreException("Empty tag name");
 
 		ConfigItems* items;
-		tag = ConfigTag::create(name, current.filename, current.line, items);
+		tag = ConfigTag::create(name, current.name, current.line, items);
 
 		while (kv(items))
 		{

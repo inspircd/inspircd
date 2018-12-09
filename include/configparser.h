@@ -19,25 +19,6 @@
 
 #pragma once
 
-struct fpos
-{
-	std::string filename;
-	int line;
-	int col;
-	fpos(const std::string& name, int l = 1, int c = 1) : filename(name), line(l), col(c) {}
-	std::string str()
-	{
-		return filename + ":" + ConvToStr(line) + ":" + ConvToStr(col);
-	}
-};
-
-enum ParseFlags
-{
-	FLAG_USE_COMPAT = 1,
-	FLAG_NO_EXEC = 2,
-	FLAG_NO_INC = 4
-};
-
 struct ParseStack
 {
 	std::vector<std::string> reading;
@@ -56,24 +37,4 @@ struct ParseStack
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(ConfigTag* includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
-};
-
-/** RAII wrapper on FILE* to close files on exceptions */
-struct FileWrapper
-{
-	FILE* const f;
-	bool close_with_pclose;
-	FileWrapper(FILE* file, bool use_pclose = false) : f(file), close_with_pclose(use_pclose) {}
-	operator bool() { return (f != NULL); }
-	operator FILE*() { return f; }
-	~FileWrapper()
-	{
-		if (f)
-		{
-			if (close_with_pclose)
-				pclose(f);
-			else
-				fclose(f);
-		}
-	}
 };
