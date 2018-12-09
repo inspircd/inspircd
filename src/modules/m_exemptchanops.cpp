@@ -52,11 +52,6 @@ class ExemptChanOps : public ListModeBase
 		return true;
 	}
 
-	void TellListTooLong(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
-	{
-		user->WriteNumeric(959, chan->name, word, "Channel exemptchanops list is full");
-	}
-
 	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		user->WriteNumeric(957, chan->name, InspIRCd::Format("The word %s is already on the exemptchanops list", word.c_str()));

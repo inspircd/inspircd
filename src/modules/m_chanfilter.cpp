@@ -31,8 +31,7 @@ enum
 {
 	// InspIRCd-specific.
 	ERR_ALREADYCHANFILTERED = 937,
-	ERR_NOSUCHCHANFILTER = 938,
-	ERR_CHANFILTERFULL = 939
+	ERR_NOSUCHCHANFILTER = 938
 };
 
 /** Handles channel mode +g
@@ -53,11 +52,6 @@ class ChanFilter : public ListModeBase
 		}
 
 		return true;
-	}
-
-	void TellListTooLong(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
-	{
-		user->WriteNumeric(ERR_CHANFILTERFULL, chan->name, word, "Channel spamfilter list is full");
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
