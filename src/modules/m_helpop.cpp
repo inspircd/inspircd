@@ -27,7 +27,13 @@
 enum
 {
 	// From UnrealIRCd.
-	RPL_WHOISHELPOP = 310
+	RPL_WHOISHELPOP = 310,
+
+	// From ircd-ratbox.
+	ERR_HELPNOTFOUND = 524,
+	RPL_HELPSTART = 704,
+	RPL_HELPTXT = 705,
+	RPL_ENDOFHELP = 706
 };
 
 typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
@@ -48,8 +54,12 @@ class Helpop : public SimpleUserModeHandler
  */
 class CommandHelpop : public Command
 {
+ private:
 	const std::string startkey;
+
  public:
+	std::string nohelp;
+
 	CommandHelpop(Module* Creator)
 		: Command(Creator, "HELPOP", 0)
 		, startkey("start")
@@ -64,38 +74,34 @@ class CommandHelpop : public Command
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteNumeric(290, "HELPOP topic index");
+			user->WriteNumeric(RPL_HELPSTART, parameter, "HELPOP topic index");
 			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-				user->WriteNumeric(292, InspIRCd::Format("  %s", iter->first.c_str()));
-			user->WriteNumeric(292, "*** End of HELPOP topic index");
+				user->WriteNumeric(RPL_HELPTXT, parameter, InspIRCd::Format("  %s", iter->first.c_str()));
+			user->WriteNumeric(RPL_ENDOFHELP, parameter, "*** End of HELPOP topic index");
 		}
 		else
 		{
-			user->WriteNumeric(290, InspIRCd::Format("*** HELPOP for %s", parameter.c_str()));
-			user->WriteNumeric(292, " -");
-
 			HelpopMap::const_iterator iter = helpop_map.find(parameter);
-
 			if (iter == helpop_map.end())
 			{
-				iter = helpop_map.find("nohelp");
+				user->WriteNumeric(ERR_HELPNOTFOUND, parameter, nohelp);
+				return CMD_FAILURE;
 			}
 
 			const std::string& value = iter->second;
-			irc::sepstream stream(value, '\n');
+			irc::sepstream stream(value, '\n', true);
 			std::string token = "*";
 
+			user->WriteNumeric(RPL_HELPSTART, parameter, InspIRCd::Format("*** HELPOP for %s", parameter.c_str()));
 			while (stream.GetToken(token))
 			{
 				// Writing a blank line will not work with some clients
 				if (token.empty())
-					user->WriteNumeric(292, ' ');
+					user->WriteNumeric(RPL_HELPTXT, parameter, ' ');
 				else
-					user->WriteNumeric(292, token);
+					user->WriteNumeric(RPL_HELPTXT, parameter, token);
 			}
-
-			user->WriteNumeric(292, " -");
-			user->WriteNumeric(292, "*** End of HELPOP");
+			user->WriteNumeric(RPL_ENDOFHELP, parameter, "*** End of HELPOP");
 		}
 		return CMD_SUCCESS;
 	}
@@ -139,13 +145,11 @@ class ModuleHelpop : public Module, public Whois::EventListener
 				// error!
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'start'. Please check the example conf.");
 			}
-			else if (help.find("nohelp") == help.end())
-			{
-				// error!
-				throw ModuleException("m_helpop: Helpop file is missing important entry 'nohelp'. Please check the example conf.");
-			}
 
 			helpop_map.swap(help);
+
+			ConfigTag* tag = ServerInstance->Config->ConfValue("helpmsg");
+			cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
 		}
 
 		void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

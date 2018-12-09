@@ -6,6 +6,8 @@
 
 <alias text="HELP" replace="HELPOP $2-">
 
+<helpmsg missing="There is no help for the topic you searched for. Please try again.">
+
 <helpop key="start" value="InspIRCd Help System
 
 This system provides help for commands and modes.
@@ -18,9 +20,6 @@ parameter for this command.
 /HELPOP CHMODES  -      To see a list of channel modes
 /HELPOP SNOMASKS -      To see a list of oper snotice masks
 /HELPOP EXTBANS  -      To see a list of extended bans">
-
-<helpop key="nohelp" value="There is no help for the topic
-you searched for. Please try again.">
 
 #####################
 #   User Commands   #
