@@ -566,16 +566,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	errstr.clear();
 	errstr.str(std::string());
 
-	// Re-parse our MOTD and RULES files for colors -- Justasic
-	for (ClassVector::const_iterator it = this->Classes.begin(), it_end = this->Classes.end(); it != it_end; ++it)
-	{
-		ConfigTag *tag = (*it)->config;
-
-		ConfigFileCache::iterator file = this->Files.find(tag->getString("motd", "motd"));
-		if (file != this->Files.end())
-			InspIRCd::ProcessColors(file->second);
-	}
-
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
 	{

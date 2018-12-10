@@ -122,6 +122,8 @@ class CommandModules : public ServerTargetCommand
 class CommandMotd : public ServerTargetCommand
 {
  public:
+	ConfigFileCache motds;
+
 	/** Constructor for motd.
 	 */
 	CommandMotd(Module* parent);

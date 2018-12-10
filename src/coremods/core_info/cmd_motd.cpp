@@ -45,8 +45,8 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 	if (localuser)
 		tag = localuser->GetClass()->config;
 	std::string motd_name = tag->getString("motd", "motd");
-	ConfigFileCache::iterator motd = ServerInstance->Config->Files.find(motd_name);
-	if (motd == ServerInstance->Config->Files.end())
+	ConfigFileCache::iterator motd = motds.find(motd_name);
+	if (motd == motds.end())
 	{
 		user->WriteRemoteNumeric(ERR_NOMOTD, "Message of the day file is missing.");
 		return CMD_SUCCESS;

@@ -103,6 +103,26 @@ class CoreModInfo : public Module
 		cmdadmin.AdminName = tag->getString("name");
 		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
 		cmdadmin.AdminNick = tag->getString("nick", "admin");
+
+		// Process the escape codes in the MOTDs.
+		cmdmotd.motds.clear();
+		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
+		{
+			// Don't process the file if it has already been processed.
+			const std::string motd = (*iter)->config->getString("motd", "motd");
+			if (cmdmotd.motds.find(motd) != cmdmotd.motds.end())
+				continue;
+
+			// We can't process the file if it doesn't exist.
+			ConfigFileCache::iterator file = ServerInstance->Config->Files.find(motd);
+			if (file == ServerInstance->Config->Files.end())
+				continue;
+
+			// Process escape codes.
+			cmdmotd.motds[file->first] = file->second;
+			InspIRCd::ProcessColors(cmdmotd.motds[file->first]);
+		}
+
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
