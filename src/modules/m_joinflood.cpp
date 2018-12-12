@@ -109,8 +109,8 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 		}
 
 		/* Set up the flood parameters for this channel */
-		unsigned int njoins = ConvToInt(parameter.substr(0, colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		unsigned int njoins = ConvToNum<unsigned int>(parameter.substr(0, colon));
+		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
 		if ((njoins<1) || (nsecs<1))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));

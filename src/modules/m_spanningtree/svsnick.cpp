@@ -47,7 +47,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		// won't happen because the timestamps won't match.
 		if (parameters.size() > 3)
 		{
-			time_t ExpectedTS = ConvToInt(parameters[3]);
+			time_t ExpectedTS = ConvToNum<time_t>(parameters[3]);
 			if (u->age != ExpectedTS)
 				return CMD_FAILURE; // Ignore SVSNICK
 		}
@@ -56,7 +56,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		if (isdigit(nick[0]))
 			nick = u->uuid;
 
-		time_t NickTS = ConvToInt(parameters[2]);
+		time_t NickTS = ConvToNum<time_t>(parameters[2]);
 		if (NickTS <= 0)
 			return CMD_FAILURE;
 

@@ -83,8 +83,8 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 
 		/* Set up the flood parameters for this channel */
 		bool ban = (parameter[0] == '*');
-		unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
 
 		if ((nlines<2) || (nsecs<1))
 		{

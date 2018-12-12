@@ -99,7 +99,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		irc::commasepstream s(value);
 		std::string tok;
 		if (s.GetToken(tok))
-			dat->lastnotify = ConvToInt(tok);
+			dat->lastnotify = ConvToNum<time_t>(tok);
 
 		while (s.GetToken(tok))
 		{

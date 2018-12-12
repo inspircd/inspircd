@@ -38,14 +38,14 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	XLine* xl = NULL;
 	try
 	{
-		xl = xlf->Generate(ServerInstance->Time(), ConvToInt(params[4]), params[2], params[5], params[1]);
+		xl = xlf->Generate(ServerInstance->Time(), ConvToNum<long>(params[4]), params[2], params[5], params[1]);
 	}
 	catch (ModuleException &e)
 	{
 		ServerInstance->SNO->WriteToSnoMask('x',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
 		return CMD_FAILURE;
 	}
-	xl->SetCreateTime(ConvToInt(params[3]));
+	xl->SetCreateTime(ConvToNum<time_t>(params[3]));
 	if (ServerInstance->XLines->AddLine(xl, NULL))
 	{
 		if (xl->duration)

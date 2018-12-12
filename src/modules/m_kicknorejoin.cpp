@@ -101,14 +101,14 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
 	{
-		int v = ConvToInt(parameter);
+		unsigned int v = ConvToNum<unsigned int>(parameter);
 		if (v <= 0)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 
-		if ((IS_LOCAL(source) && ((unsigned int)v > max)))
+		if (IS_LOCAL(source) && v > max)
 			v = max;
 
 		ext.set(channel, new KickRejoinData(v));

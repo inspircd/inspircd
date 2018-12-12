@@ -71,7 +71,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 			return MODEACTION_DENY;
 		}
 
-		unsigned int len = ConvToInt(parameter.substr(0, colon));
+		unsigned int len = ConvToNum<unsigned int>(parameter.substr(0, colon));
 		unsigned int time = InspIRCd::Duration(duration);
 		if (len == 0 || (len > maxlines && IS_LOCAL(source)))
 		{

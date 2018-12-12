@@ -43,7 +43,7 @@ class PBKDF2Hash
 		std::string tok;
 
 		ss.GetToken(tok);
-		this->iterations = ConvToInt(tok);
+		this->iterations = ConvToNum<unsigned int>(tok);
 
 		ss.GetToken(tok);
 		this->hash = Base64ToBin(tok);

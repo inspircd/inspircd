@@ -162,7 +162,7 @@ void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value)
 	{
 		Channel* chan = ServerInstance->FindChan(channame);
 		if (chan)
-			Create(user, chan, ConvToInt(exptime));
+			Create(user, chan, ConvToNum<time_t>(exptime));
 	}
 }
 

@@ -100,8 +100,8 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 		}
 
 		/* Set up the flood parameters for this channel */
-		unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
-		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		unsigned int nnicks = ConvToNum<unsigned int>(parameter.substr(0, colon));
+		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
 
 		if ((nnicks<1) || (nsecs<1))
 		{

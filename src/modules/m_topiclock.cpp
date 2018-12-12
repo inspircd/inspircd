@@ -48,7 +48,7 @@ class CommandSVSTOPIC : public Command
 		if (parameters.size() == 4)
 		{
 			// 4 parameter version, set all topic data on the channel to the ones given in the parameters
-			time_t topicts = ConvToInt(parameters[1]);
+			time_t topicts = ConvToNum<time_t>(parameters[1]);
 			if (!topicts)
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");

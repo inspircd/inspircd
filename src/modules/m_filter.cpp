@@ -637,7 +637,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 
 	std::string duration;
 	tokens.GetMiddle(duration);
-	res.duration = ConvToInt(duration);
+	res.duration = ConvToNum<long>(duration);
 
 	tokens.GetTrailing(res.reason);
 

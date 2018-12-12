@@ -33,7 +33,7 @@ CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& para
 	if (!localtarget)
 		return CMD_SUCCESS;
 
-	Numeric::Numeric numeric(ConvToInt(params[2]));
+	Numeric::Numeric numeric(ConvToNum<unsigned int>(params[2]));
 	// Passing NULL is ok, in that case the numeric source becomes this server
 	numeric.SetServer(Utils->FindServerID(params[0]));
 	numeric.GetParams().insert(numeric.GetParams().end(), params.begin()+3, params.end());

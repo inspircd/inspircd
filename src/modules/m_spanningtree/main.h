@@ -40,8 +40,8 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1205;
-const long MinCompatProtocol = 1202;
+const unsigned int ProtocolVersion = 1205;
+const unsigned int MinCompatProtocol = 1202;
 
 /** Forward declarations
  */

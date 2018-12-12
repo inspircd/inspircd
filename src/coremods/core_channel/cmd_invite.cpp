@@ -53,7 +53,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			if (IS_LOCAL(user))
 				timeout = ServerInstance->Time() + InspIRCd::Duration(parameters[2]);
 			else if (parameters.size() > 3)
-				timeout = ConvToInt(parameters[3]);
+				timeout = ConvToNum<time_t>(parameters[3]);
 		}
 
 		if (!c)
@@ -75,7 +75,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				return CMD_INVALID;
 
 			// Drop the invite if our channel TS is lower
-			time_t RemoteTS = ConvToInt(parameters[2]);
+			time_t RemoteTS = ConvToNum<time_t>(parameters[2]);
 			if (c->age < RemoteTS)
 				return CMD_FAILURE;
 		}

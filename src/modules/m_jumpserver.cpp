@@ -103,8 +103,8 @@ class CommandJumpserver : public Command
 			}
 
 			size_t delimpos = parameters[1].find(':');
-			port = ConvToInt(parameters[1].substr(0, delimpos ? delimpos : std::string::npos));
-			sslport = (delimpos == std::string::npos ? 0 : ConvToInt(parameters[1].substr(delimpos + 1)));
+			port = ConvToNum<int>(parameters[1].substr(0, delimpos ? delimpos : std::string::npos));
+			sslport = (delimpos == std::string::npos ? 0 : ConvToNum<int>(parameters[1].substr(delimpos + 1)));
 
 			if (parameters[1].find_first_not_of("0123456789:") != std::string::npos
 				|| parameters[1].rfind(':') != delimpos

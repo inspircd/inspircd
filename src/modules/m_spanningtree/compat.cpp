@@ -521,7 +521,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		// See if it's a numeric being sent to the target via PUSH
 		unsigned int numeric_number = 0;
 		if (token.length() == 3)
-			numeric_number = ConvToInt(token);
+			numeric_number = ConvToNum<unsigned int>(token);
 
 		if ((numeric_number > 0) && (numeric_number < 1000))
 		{

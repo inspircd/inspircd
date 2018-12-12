@@ -40,7 +40,7 @@ RouteDescriptor ServerCommand::GetRouting(User* user, const Params& parameters)
 
 time_t ServerCommand::ExtractTS(const std::string& tsstr)
 {
-	time_t TS = ConvToInt(tsstr);
+	time_t TS = ConvToNum<time_t>(tsstr);
 	if (!TS)
 		throw ProtocolException("Invalid TS");
 	return TS;

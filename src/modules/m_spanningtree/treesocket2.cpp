@@ -148,7 +148,7 @@ void TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size())
 				{
-					time_t them = ConvToInt(params[0]);
+					time_t them = ConvToNum<time_t>(params[0]);
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{

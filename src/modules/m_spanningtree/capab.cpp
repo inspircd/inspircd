@@ -249,7 +249,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		capab->OptModuleList.clear();
 		capab->CapKeys.clear();
 		if (params.size() > 1)
-			proto_version = ConvToInt(params[1]);
+			proto_version = ConvToNum<unsigned int>(params[1]);
 
 		if (proto_version < MinCompatProtocol)
 		{

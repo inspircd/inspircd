@@ -89,17 +89,8 @@ template <class T> inline std::string ConvToStr(const T& in)
 	return tmp.str();
 }
 
-/** Template function to convert any input type to any other type
- * (usually an integer or numeric type)
+/** Template function to convert a std::string to any numeric type.
  */
-template<typename T> inline long ConvToInt(const T& in)
-{
-	std::stringstream tmp;
-	if (!(tmp << in))
-		return 0;
-	return atol(tmp.str().c_str());
-}
-
 template<typename TOut> inline TOut ConvToNum(const std::string& in)
 {
 	TOut ret;

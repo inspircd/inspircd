@@ -38,7 +38,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) CXX11_OVERRIDE;
 	void OnUnset(User* source, Channel* chan);
 
-	void SerializeParam(Channel* chan, int n, std::string& out)
+	void SerializeParam(Channel* chan, intptr_t n, std::string& out)
 	{
 		out += ConvToStr(n);
 	}
@@ -62,8 +62,8 @@ class ModuleDelayMsg : public Module
 ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
 {
 	// Setting a new limit, sanity check
-	unsigned int limit = ConvToInt(parameter);
-	if (limit == 0)
+	intptr_t limit = ConvToNum<intptr_t>(parameter);
+	if (limit <= 0)
 		limit = 1;
 
 	ext.set(chan, limit);

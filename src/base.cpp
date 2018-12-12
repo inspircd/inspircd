@@ -278,7 +278,7 @@ std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* con
 void LocalIntExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 {
 	if (format != FORMAT_NETWORK)
-		set(container, ConvToInt(value));
+		set(container, ConvToNum<intptr_t>(value));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container) const

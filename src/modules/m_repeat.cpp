@@ -274,7 +274,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		else
 			settings.Action = ChannelSettings::ACT_KICK;
 
-		if ((settings.Lines = ConvToInt(item)) == 0)
+		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
 			return false;
 
 		if ((!stream.GetToken(item)) || ((settings.Seconds = InspIRCd::Duration(item)) == 0))
@@ -286,13 +286,13 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (stream.GetToken(item))
 		{
 			// There is a diff parameter, see if it's valid (> 0)
-			if ((settings.Diff = ConvToInt(item)) == 0)
+			if ((settings.Diff = ConvToNum<unsigned int>(item)) == 0)
 				return false;
 
 			if (stream.GetToken(item))
 			{
 				// There is a backlog parameter, see if it's valid
-				if ((settings.Backlog = ConvToInt(item)) == 0)
+				if ((settings.Backlog = ConvToNum<unsigned int>(item)) == 0)
 					return false;
 
 				// If there are still tokens, then it's invalid because we allow only 4

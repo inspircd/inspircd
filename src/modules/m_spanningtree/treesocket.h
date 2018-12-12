@@ -95,7 +95,7 @@ class TreeSocket : public BufferedSocket
 	ServerState LinkState;			/* Link state */
 	CapabData* capab;			/* Link setup data (held until burst is sent) */
 	TreeServer* MyRoot;			/* The server we are talking to */
-	int proto_version;			/* Remote protocol version */
+	unsigned int proto_version;			/* Remote protocol version */
 
 	/** True if we've sent our burst.
 	 * This only changes the behavior of message translation for 1202 protocol servers and it can be
