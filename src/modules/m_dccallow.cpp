@@ -213,9 +213,10 @@ class CommandDccallow : public Command
 					{
 						length = InspIRCd::Duration(default_length);
 					}
-					else if (!atoi(parameters[1].c_str()))
+					else if (!InspIRCd::IsValidDuration(parameters[1]))
 					{
-						length = 0;
+						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is not a valid DCCALLOW duration", parameters[1].c_str()));
+						return CMD_FAILURE;
 					}
 					else
 					{
