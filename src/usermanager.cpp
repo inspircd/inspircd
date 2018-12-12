@@ -221,6 +221,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();
+	user->UnOper();
 }
 
 void UserManager::AddClone(User* user)

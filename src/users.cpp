@@ -357,10 +357,12 @@ CullResult FakeUser::cull()
 void User::Oper(OperInfo* info)
 {
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
-	if (this->IsModeSet(opermh))
-		this->UnOper();
-
-	this->SetMode(opermh, true);
+	if (opermh)
+	{
+		if (this->IsModeSet(opermh))
+			this->UnOper();
+		this->SetMode(opermh, true);
+	}
 	this->oper = info;
 
 	LocalUser* localuser = IS_LOCAL(this);
@@ -474,7 +476,8 @@ void User::UnOper()
 	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
 
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
-	this->SetMode(opermh, false);
+	if (opermh)
+		this->SetMode(opermh, false);
 	FOREACH_MOD(OnPostDeoper, (this));
 }
 
@@ -1161,8 +1164,6 @@ void User::PurgeEmptyChannels()
 		++i;
 		c->DelUser(this);
 	}
-
-	this->UnOper();
 }
 
 void User::WriteNotice(const std::string& text)

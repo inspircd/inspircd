@@ -33,7 +33,8 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 		ServerInstance->Users->all_opers.push_back(u);
 
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
-	u->SetMode(opermh, true);
+	if (opermh)
+		u->SetMode(opermh, true);
 
 	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
 	if (iter != ServerInstance->Config->OperTypes.end())
