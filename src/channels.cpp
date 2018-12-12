@@ -40,7 +40,8 @@ Channel::Channel(const std::string &cname, time_t ts)
 
 void Channel::SetMode(ModeHandler* mh, bool on)
 {
-	modes[mh->GetId()] = on;
+	if (mh && mh->GetId() != ModeParser::MODEID_MAX)
+		modes[mh->GetId()] = on;
 }
 
 void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const std::string* setter)

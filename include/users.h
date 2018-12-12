@@ -932,5 +932,6 @@ inline bool User::IsModeSet(UserModeReference& moderef) const
 
 inline void User::SetMode(ModeHandler* mh, bool value)
 {
-	modes[mh->GetId()] = value;
+	if (mh && mh->GetId() != ModeParser::MODEID_MAX)
+		modes[mh->GetId()] = value;
 }
