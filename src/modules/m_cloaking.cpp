@@ -466,6 +466,24 @@ class ModuleCloaking : public Module
 		return chost;
 	}
 
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	{
+		// Connecting users are handled in OnUserConnect not here.
+		if (user->registered != REG_ALL)
+			return;
+
+		// Remove the cloaks and generate new ones.
+		cu.ext.unset(user);
+		OnUserConnect(user);
+
+		// If a user is using a cloak then update it.
+		if (user->IsModeSet(cu))
+		{
+			CloakList* cloaklist = cu.ext.get(user);
+			user->ChangeDisplayedHost(cloaklist->front());
+		}
+	}
+
 	void OnUserConnect(LocalUser* dest) CXX11_OVERRIDE
 	{
 		if (cu.ext.get(dest))
