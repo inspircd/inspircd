@@ -33,7 +33,7 @@ class Shun : public XLine
 	 * @param re The reason of the xline
 	 * @param shunmask Mask to match
 	 */
-	Shun(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& shunmask)
+	Shun(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& shunmask)
 		: XLine(s_time, d, src, re, "SHUN")
 		, matchtext(shunmask)
 	{

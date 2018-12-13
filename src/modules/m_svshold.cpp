@@ -36,7 +36,7 @@ class SVSHold : public XLine
 public:
 	std::string nickname;
 
-	SVSHold(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& nick)
+	SVSHold(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& nick)
 		: XLine(s_time, d, src, re, "SVSHOLD")
 	{
 		this->nickname = nick;
@@ -78,7 +78,7 @@ class SVSHoldFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
 	}

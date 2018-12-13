@@ -38,7 +38,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	XLine* xl = NULL;
 	try
 	{
-		xl = xlf->Generate(ServerInstance->Time(), ConvToNum<long>(params[4]), params[2], params[5], params[1]);
+		xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(params[4]), params[2], params[5], params[1]);
 	}
 	catch (ModuleException &e)
 	{

@@ -38,7 +38,7 @@ private:
 	std::string matchtext;
 
 public:
-	CBan(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& ch)
+	CBan(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ch)
 		: XLine(s_time, d, src, re, "CBAN")
 		, matchtext(ch)
 	{
@@ -70,7 +70,7 @@ class CBanFactory : public XLineFactory
 
 	/** Generate a CBAN
  	*/
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new CBan(set_time, duration, source, reason, xline_specific_mask);
 	}

@@ -35,7 +35,7 @@ class ShunFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new Shun(set_time, duration, source, reason, xline_specific_mask);
 	}

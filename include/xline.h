@@ -49,7 +49,7 @@ class CoreExport XLine : public classbase
 	 * @param re The reason of the xline
 	 * @param t The line type, should be set by the derived class constructor
 	 */
-	XLine(time_t s_time, long d, std::string src, std::string re, const std::string &t)
+	XLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& t)
 		: set_time(s_time)
 		, duration(d)
 		, source(src)
@@ -126,7 +126,7 @@ class CoreExport XLine : public classbase
 
 	/** The duration of the ban, or 0 if permenant
 	 */
-	long duration;
+	unsigned long duration;
 
 	/** Source of the ban. This can be a servername or an oper nickname
 	 */
@@ -165,7 +165,7 @@ class CoreExport KLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	KLine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+	KLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
 		: XLine(s_time, d, src, re, "K"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
@@ -211,7 +211,7 @@ class CoreExport GLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	GLine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+	GLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
 		: XLine(s_time, d, src, re, "G"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
@@ -255,7 +255,7 @@ class CoreExport ELine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	ELine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+	ELine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
 		: XLine(s_time, d, src, re, "E"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
@@ -298,7 +298,7 @@ class CoreExport ZLine : public XLine
 	 * @param re The reason of the xline
 	 * @param ip IP to match
 	 */
-	ZLine(time_t s_time, long d, std::string src, std::string re, std::string ip)
+	ZLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ip)
 		: XLine(s_time, d, src, re, "Z"), ipaddr(ip)
 	{
 	}
@@ -334,7 +334,7 @@ class CoreExport QLine : public XLine
 	 * @param re The reason of the xline
 	 * @param nickname Nickname to match
 	 */
-	QLine(time_t s_time, long d, std::string src, std::string re, std::string nickname)
+	QLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& nickname)
 		: XLine(s_time, d, src, re, "Q"), nick(nickname)
 	{
 	}
@@ -390,7 +390,7 @@ class CoreExport XLineFactory
 	 * @param xline_specific_mask The mask string for the line, specific to the XLine type being created.
 	 * @return A specialized XLine class of the given type for this factory.
 	 */
-	virtual XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) = 0;
+	virtual XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) = 0;
 
 	virtual bool AutoApplyToUserList(XLine* x) { return true; }
 

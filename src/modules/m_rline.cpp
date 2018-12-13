@@ -40,7 +40,7 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& regexs, dynamic_reference<RegexFactory>& rxfactory)
+	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, dynamic_reference<RegexFactory>& rxfactory)
 		: XLine(s_time, d, src, re, "R")
 		, matchtext(regexs)
 	{
@@ -114,7 +114,7 @@ class RLineFactory : public XLineFactory
 
 	/** Generate a RLine
 	 */
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		if (!rxfactory)
 		{

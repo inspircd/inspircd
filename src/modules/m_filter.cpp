@@ -54,7 +54,7 @@ class FilterResult
 	std::string freeform;
 	std::string reason;
 	FilterAction action;
-	long duration;
+	unsigned long duration;
 	bool from_config;
 
 	bool flag_no_opers;
@@ -64,7 +64,7 @@ class FilterResult
 	bool flag_notice;
 	bool flag_strip_color;
 
-	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla, bool cfg)
+	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
@@ -193,7 +193,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
-	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
+	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags);
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
@@ -236,7 +236,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			FilterAction type;
 			const std::string& flags = parameters[2];
 			unsigned int reasonindex;
-			long duration = 0;
+			unsigned long duration = 0;
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
@@ -637,7 +637,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 
 	std::string duration;
 	tokens.GetMiddle(duration);
-	res.duration = ConvToNum<long>(duration);
+	res.duration = ConvToNum<unsigned long>(duration);
 
 	tokens.GetTrailing(res.reason);
 
@@ -716,7 +716,7 @@ bool ModuleFilter::DeleteFilter(const std::string &freeform)
 	return false;
 }
 
-std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flgs)
+std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flgs)
 {
 	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
