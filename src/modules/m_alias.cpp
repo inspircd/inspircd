@@ -75,10 +75,10 @@ class ModuleAlias : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
-		AllowBots = fantasy->getBool("allowbots", false);
-		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
+		bool bots = fantasy->getBool("allowbots", false);
+		std::string pfx = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
 
-		Aliases.clear();
+		AliasMap newAliases;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
@@ -93,8 +93,12 @@ class ModuleAlias : public Module
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
-			Aliases.insert(std::make_pair(a.AliasedCommand, a));
+			newAliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
+
+		AllowBots = bots;
+		fprefix = pfx;
+		Aliases.swap(newAliases);
 	}
 
 	ModuleAlias()

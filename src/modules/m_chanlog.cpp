@@ -33,8 +33,7 @@ class ModuleChanLog : public Module
 	{
 		std::string snomasks;
 		std::string channel;
-
-		logstreams.clear();
+		ChanLogTargets newlogs;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("chanlog");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -50,10 +49,11 @@ class ModuleChanLog : public Module
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
-				logstreams.insert(std::make_pair(*it, channel));
+				newlogs.insert(std::make_pair(*it, channel));
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
+		logstreams.swap(newlogs);
 
 	}
 

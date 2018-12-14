@@ -338,12 +338,13 @@ class ModuleCgiIRC
 			}
 		}
 
-		// The host configuration was valid so we can apply it.
+		// Do we send an oper notice when a m_cgiirc client has their IP changed?
+		bool notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+
+		// The configuration was valid so we can apply it.
 		hosts.swap(identhosts);
 		cmd.hosts.swap(webirchosts);
-
-		// Do we send an oper notice when a m_cgiirc client has their IP changed?
-		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		cmd.notify = notify;
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE

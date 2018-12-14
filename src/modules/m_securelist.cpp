@@ -22,9 +22,11 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
+typedef std::vector<std::string> AllowList;
+
 class ModuleSecureList : public Module
 {
-	std::vector<std::string> allowlist;
+	AllowList allowlist;
 	bool exemptregistered;
 	unsigned int WaitTime;
 
@@ -36,15 +38,19 @@ class ModuleSecureList : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		allowlist.clear();
+		AllowList newallows;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
-			allowlist.push_back(i->second->getString("exception"));
+			newallows.push_back(i->second->getString("exception"));
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
-		exemptregistered = tag->getBool("exemptregistered");
-		WaitTime = tag->getDuration("waittime", 60, 1);
+		bool exreg = tag->getBool("exemptregistered");
+		unsigned long wait = tag->getDuration("waittime", 60, 1);
+
+		exemptregistered = exreg;
+		WaitTime = wait;
+		allowlist.swap(newallows);
 	}
 
 

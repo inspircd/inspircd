@@ -37,7 +37,7 @@ class Settings
 
 	void Load()
 	{
-		rankstosee.clear();
+		RanksToSeeMap newranks;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("hidemode");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -48,9 +48,10 @@ class Settings
 			if (!modename.empty() && rank)
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
-				rankstosee.insert(std::make_pair(modename, rank));
+				newranks.insert(std::make_pair(modename, rank));
 			}
 		}
+		rankstosee.swap(newranks);
 	}
 };
 

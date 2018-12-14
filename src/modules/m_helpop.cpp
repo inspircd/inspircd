@@ -146,10 +146,9 @@ class ModuleHelpop : public Module, public Whois::EventListener
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'start'. Please check the example conf.");
 			}
 
-			helpop_map.swap(help);
-
 			ConfigTag* tag = ServerInstance->Config->ConfValue("helpmsg");
 			cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
+			helpop_map.swap(help);
 		}
 
 		void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
