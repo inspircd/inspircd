@@ -23,7 +23,14 @@
 #include "core_oper.h"
 
 CommandDie::CommandDie(Module* parent)
-	: Command(parent, "DIE", 1)
+	: Command(parent, "DIE", 1, 1)
+{
+	flags_needed = 'o';
+	syntax = "<server>";
+}
+
+CommandDie::CommandDie(Module* parent, const std::string& cmd)
+	: Command(parent, cmd, 1, 1)
 {
 	flags_needed = 'o';
 	syntax = "<server>";
@@ -61,7 +68,7 @@ void DieRestart::SendError(const std::string& message)
  */
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
-	if (DieRestart::CheckPass(user, parameters[0], "diepass"))
+	if (CheckPass(user, parameters[0]))
 	{
 		{
 			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
@@ -79,4 +86,9 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;
+}
+
+bool CommandDie::CheckPass(User* user, const std::string& inputpass) const
+{
+	return ServerInstance->PassCompare(user, password, inputpass, hash);
 }

@@ -22,7 +22,7 @@
 #include "core_oper.h"
 
 CommandRestart::CommandRestart(Module* parent)
-	: Command(parent, "RESTART", 1, 1)
+	: CommandDie(parent, "RESTART")
 {
 	flags_needed = 'o';
 	syntax = "<server>";
@@ -31,7 +31,7 @@ CommandRestart::CommandRestart(Module* parent)
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Restart: %s", user->nick.c_str());
-	if (DieRestart::CheckPass(user, parameters[0], "restartpass"))
+	if (CheckPass(user, parameters[0]))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 

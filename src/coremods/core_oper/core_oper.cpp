@@ -20,18 +20,6 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-namespace DieRestart
-{
-	bool CheckPass(User* user, const std::string& inputpass, const char* confentry)
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
-		// The hash method for *BOTH* the die and restart passwords
-		const std::string hash = tag->getString("hash");
-		const std::string correctpass = tag->getString(confentry,  ServerInstance->Config->ServerName);
-		return ServerInstance->PassCompare(user, correctpass, inputpass, hash);
-	}
-}
-
 class CoreModOper : public Module
 {
 	CommandDie cmddie;
@@ -49,13 +37,28 @@ class CoreModOper : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
-		cmdkill.hidenick = security->getString("hidekills");
-		cmdkill.hideuline = security->getBool("hideulinekills");
+		std::string hidenick = security->getString("hidekills");
+		bool hideuline = security->getBool("hideulinekills");
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
+		// The hash method for *BOTH* the die and restart passwords
+		const std::string hash = tag->getString("hash");
+		const std::string diepass = tag->getString("diepass", ServerInstance->Config->ServerName);
+		const std::string restartpass = tag->getString("restartpass", ServerInstance->Config->ServerName);
+
+		cmddie.hash = hash;
+		cmddie.password = diepass;
+
+		cmdrestart.hash = hash;
+		cmdrestart.password = restartpass;
+
+		cmdkill.hidenick = hidenick;
+		cmdkill.hideuline = hideuline;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR|VF_CORE);
+		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);
 	}
 };
 
