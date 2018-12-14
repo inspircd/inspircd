@@ -37,13 +37,14 @@ class CommandDie : public Command
 	bool CheckPass(User* user, const std::string& inputpass) const;
 
  public:
-	std::string hash, password;
+	std::string& hash;
+	std::string password;
 
 	/** Constructor for die.
 	 */
-	CommandDie(Module* parent);
+	CommandDie(Module* parent, std::string& hashref);
 
-	CommandDie(Module* parent, const std::string& cmd);
+	CommandDie(Module* parent, const std::string& cmd, std::string& hashref);
 
 	/** Handle command.
 	 * @param parameters The parameters to the command
@@ -125,7 +126,7 @@ class CommandRestart : public CommandDie
  public:
 	/** Constructor for restart.
 	 */
-	CommandRestart(Module* parent);
+	CommandRestart(Module* parent, std::string& hashref);
 
 	/** Handle command.
 	 * @param user User issuing the command

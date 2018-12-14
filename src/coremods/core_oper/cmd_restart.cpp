@@ -21,8 +21,8 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-CommandRestart::CommandRestart(Module* parent)
-	: CommandDie(parent, "RESTART")
+CommandRestart::CommandRestart(Module* parent, std::string& hashref)
+	: CommandDie(parent, "RESTART", hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";

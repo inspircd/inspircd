@@ -22,6 +22,8 @@
 
 class CoreModOper : public Module
 {
+	std::string powerhash;
+
 	CommandDie cmddie;
 	CommandKill cmdkill;
 	CommandOper cmdoper;
@@ -30,7 +32,11 @@ class CoreModOper : public Module
 
  public:
 	CoreModOper()
-		: cmddie(this), cmdkill(this), cmdoper(this), cmdrehash(this), cmdrestart(this)
+		: cmddie(this, powerhash)
+		, cmdkill(this)
+		, cmdoper(this)
+		, cmdrehash(this)
+		, cmdrestart(this, powerhash)
 	{
 	}
 
@@ -46,10 +52,9 @@ class CoreModOper : public Module
 		const std::string diepass = tag->getString("diepass", ServerInstance->Config->ServerName);
 		const std::string restartpass = tag->getString("restartpass", ServerInstance->Config->ServerName);
 
-		cmddie.hash = hash;
-		cmddie.password = diepass;
+		powerhash = hash;
 
-		cmdrestart.hash = hash;
+		cmddie.password = diepass;
 		cmdrestart.password = restartpass;
 
 		cmdkill.hidenick = hidenick;

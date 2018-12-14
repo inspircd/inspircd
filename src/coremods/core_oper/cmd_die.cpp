@@ -22,15 +22,17 @@
 #include "exitcodes.h"
 #include "core_oper.h"
 
-CommandDie::CommandDie(Module* parent)
+CommandDie::CommandDie(Module* parent, std::string& hashref)
 	: Command(parent, "DIE", 1, 1)
+	, hash(hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";
 }
 
-CommandDie::CommandDie(Module* parent, const std::string& cmd)
+CommandDie::CommandDie(Module* parent, const std::string& cmd, std::string& hashref)
 	: Command(parent, cmd, 1, 1)
+	, hash(hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";
