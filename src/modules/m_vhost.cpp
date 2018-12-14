@@ -24,10 +24,16 @@
 
 struct CustomVhost
 {
-	const std::string name, password, hash, vhost;
+	const std::string name;
+	const std::string password;
+	const std::string hash;
+	const std::string vhost;
 
 	CustomVhost(const std::string& n, const std::string& p, const std::string& h, const std::string& v)
-			: name(n), password(p), hash(h), vhost(v)
+		: name(n)
+		, password(p)
+		, hash(h)
+		, vhost(v)
 	{
 	}
 
@@ -47,7 +53,8 @@ class CommandVhost : public Command
  public:
 	CustomVhostMap vhosts;
 
-	CommandVhost(Module* Creator) : Command(Creator, "VHOST", 2)
+	CommandVhost(Module* Creator)
+		: Command(Creator, "VHOST", 2)
 	{
 		syntax = "<username> <password>";
 	}
@@ -77,7 +84,8 @@ class ModuleVHost : public Module
 	CommandVhost cmd;
 
  public:
-	ModuleVHost() : cmd(this)
+	ModuleVHost()
+		: cmd(this)
 	{
 	}
 
@@ -102,7 +110,7 @@ class ModuleVHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
+		return Version("Provides masking of user hostnames via traditional /VHOST command", VF_VENDOR);
 	}
 };
 

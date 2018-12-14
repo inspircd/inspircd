@@ -59,10 +59,12 @@ class CommandUnloadmodule : public Command
 {
  public:
 	bool allowcoreunload;
+
 	/** Constructor for unloadmodule.
 	 */
 	CommandUnloadmodule(Module* parent)
-		: Command(parent,"UNLOADMODULE", 1), allowcoreunload(false)
+		: Command(parent, "UNLOADMODULE", 1)
+		, allowcoreunload(false)
 	{
 		flags_needed = 'o';
 		syntax = "<modulename>";
@@ -121,7 +123,7 @@ class CoreModLoadModule : public Module
 		return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
 	}
 
-	void ReadConfig(ConfigStatus &status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("security");
 		cmdunloadmod.allowcoreunload = tag->getBool("allowcoreunload");

@@ -30,10 +30,20 @@ enum
 
 struct CustomTitle
 {
-	const std::string name, password, hash, host, title, vhost;
+	const std::string name;
+	const std::string password;
+	const std::string hash;
+	const std::string host;
+	const std::string title;
+	const std::string vhost;
 
 	CustomTitle(const std::string& n, const std::string& p, const std::string& h, const std::string& hst, const std::string& t, const std::string& v)
-		: name(n), password(p), hash(h), host(hst), title(t), vhost(v)
+		: name(n)
+		, password(p)
+		, hash(h)
+		, host(hst)
+		, title(t)
+		, vhost(v)
 	{
 	}
 
@@ -106,7 +116,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 	{
 	}
 
-	void ReadConfig(ConfigStatus &status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
 		CustomVhostMap newtitles;
