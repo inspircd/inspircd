@@ -139,39 +139,64 @@ class PBKDF2Provider : public HashProvider
 	}
 };
 
+struct ProviderConfig
+{
+	unsigned long iterations, dkey_length;
+};
+
+typedef std::map<std::string, ProviderConfig> ProviderConfigMap;
+
 class ModulePBKDF2 : public Module
 {
 	std::vector<PBKDF2Provider*> providers;
+	ProviderConfig globalconfig;
+	ProviderConfigMap providerconfigs;
+
+	ProviderConfig GetConfigForProvider(const std::string& name) const
+	{
+		ProviderConfigMap::const_iterator it = providerconfigs.find(name);
+		if (it == providerconfigs.end())
+			return globalconfig;
+
+		return it->second;
+	}
+
+	void ConfigureProviders()
+	{
+		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
+		{
+			PBKDF2Provider* pi = *i;
+			ProviderConfig config = GetConfigForProvider(pi->name);
+			pi->iterations = config.iterations;
+			pi->dkey_length = config.dkey_length;
+		}
+	}
 
 	void GetConfig()
 	{
 		// First set the common values
 		ConfigTag* tag = ServerInstance->Config->ConfValue("pbkdf2");
-		unsigned int global_iterations = tag->getUInt("iterations", 12288, 1);
-		unsigned int global_dkey_length = tag->getUInt("length", 32, 1, 1024);
-		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
-		{
-			PBKDF2Provider* pi = *i;
-			pi->iterations = global_iterations;
-			pi->dkey_length = global_dkey_length;
-		}
+		ProviderConfig newglobal;
+		newglobal.iterations = tag->getUInt("iterations", 12288, 1);
+		newglobal.dkey_length = tag->getUInt("length", 32, 1, 1024);
 
 		// Then the specific values
+		ProviderConfigMap newconfigs;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("pbkdf2prov");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			tag = i->second;
 			std::string hash_name = "hash/" + tag->getString("hash");
-			for (std::vector<PBKDF2Provider*>::iterator j = providers.begin(); j != providers.end(); ++j)
-			{
-				PBKDF2Provider* pi = *j;
-				if (pi->provider->name != hash_name)
-					continue;
+			ProviderConfig config;
 
-				pi->iterations = tag->getUInt("iterations", global_iterations, 1);
-				pi->dkey_length = tag->getUInt("length", global_dkey_length, 1, 1024);
-			}
+			config.iterations = tag->getUInt("iterations", newglobal.iterations, 1);
+			config.dkey_length = tag->getUInt("length", newglobal.dkey_length, 1, 1024);
 		}
+
+		// Config is valid, apply it
+		providerconfigs.swap(newconfigs);
+		std::swap(globalconfig, newglobal);
+		ConfigureProviders();
 	}
 
  public:
@@ -194,7 +219,7 @@ class ModulePBKDF2 : public Module
 		providers.push_back(prov);
 		ServerInstance->Modules.AddService(*prov);
 
-		GetConfig();
+		ConfigureProviders();
 	}
 
 	void OnServiceDel(ServiceProvider& prov) CXX11_OVERRIDE
