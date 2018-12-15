@@ -150,7 +150,7 @@ class CoreModInfo : public Module
 
 		if (ServerInstance->Config->RawLog)
 		{
-			ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on user server. All messages, passwords, and commands are being recorded.");
+			ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 			user->Send(ServerInstance->GetRFCEvents().privmsg, rawlogmsg);
 		}
 	}
