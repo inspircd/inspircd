@@ -70,7 +70,7 @@ void DieRestart::SendError(const std::string& message)
  */
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
-	if (CheckPass(user, parameters[0]))
+	if (ServerInstance->PassCompare(user, password, parameters[0], hash))
 	{
 		{
 			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
@@ -88,9 +88,4 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;
-}
-
-bool CommandDie::CheckPass(User* user, const std::string& inputpass) const
-{
-	return ServerInstance->PassCompare(user, password, inputpass, hash);
 }

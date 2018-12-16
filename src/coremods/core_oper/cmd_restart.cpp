@@ -31,7 +31,7 @@ CommandRestart::CommandRestart(Module* parent, std::string& hashref)
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Restart: %s", user->nick.c_str());
-	if (CheckPass(user, parameters[0]))
+	if (ServerInstance->PassCompare(user, password, parameters[0], hash))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 

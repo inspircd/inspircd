@@ -33,9 +33,6 @@ namespace DieRestart
  */
 class CommandDie : public Command
 {
- protected:
-	bool CheckPass(User* user, const std::string& inputpass) const;
-
  public:
 	std::string& hash;
 	std::string password;
