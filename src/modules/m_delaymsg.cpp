@@ -36,7 +36,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 	}
 
 	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) CXX11_OVERRIDE;
-	void OnUnset(User* source, Channel* chan);
+	void OnUnset(User* source, Channel* chan) CXX11_OVERRIDE;
 
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out)
 	{

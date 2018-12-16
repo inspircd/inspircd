@@ -31,7 +31,7 @@ class CoreExport ParamModeBase : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE;
 
 	// Does nothing by default
-	void OnUnset(User* source, Channel* chan) { }
+	virtual void OnUnset(User* source, Channel* chan) { }
 	virtual ModeAction OnSet(User* source, Channel* chan, std::string& param) = 0;
 	virtual void GetParameter(Channel* chan, std::string& out) = 0;
 };
@@ -62,8 +62,7 @@ class ParamMode : public ParamModeBase
 
 	void OnUnsetInternal(User* source, Channel* chan) CXX11_OVERRIDE
 	{
-		T* mh = static_cast<T*>(this);
-		mh->OnUnset(source, chan);
+		this->OnUnset(source, chan);
 		ext.unset(chan);
 	}
 
