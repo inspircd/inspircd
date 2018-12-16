@@ -49,8 +49,8 @@ class CoreModOper : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
 		// The hash method for *BOTH* the die and restart passwords
 		const std::string hash = tag->getString("hash");
-		const std::string diepass = tag->getString("diepass", ServerInstance->Config->ServerName);
-		const std::string restartpass = tag->getString("restartpass", ServerInstance->Config->ServerName);
+		const std::string diepass = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
+		const std::string restartpass = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
 
 		powerhash = hash;
 
