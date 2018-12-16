@@ -35,7 +35,11 @@ class ModuleRestrictChans : public Module
 		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			newallows.insert(i->second->getString("name"));
+			const std::string name = i->second->getString("name");
+			if (name.empty())
+				throw ModuleException("Empty <allowchannel:name> at " + i->second->getTagLocation());
+
+			newallows.insert(name);
 		}
 		allowchans.swap(newallows);
 	}
