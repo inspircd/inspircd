@@ -22,7 +22,8 @@
 #include "core_oper.h"
 
 CommandRestart::CommandRestart(Module* parent, std::string& hashref)
-	: CommandDie(parent, "RESTART", hashref)
+	: Command(parent, "RESTART", 1, 1)
+	, hash(hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";

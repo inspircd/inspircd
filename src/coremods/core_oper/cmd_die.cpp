@@ -30,14 +30,6 @@ CommandDie::CommandDie(Module* parent, std::string& hashref)
 	syntax = "<server>";
 }
 
-CommandDie::CommandDie(Module* parent, const std::string& cmd, std::string& hashref)
-	: Command(parent, cmd, 1, 1)
-	, hash(hashref)
-{
-	flags_needed = 'o';
-	syntax = "<server>";
-}
-
 static void QuitAll()
 {
 	const std::string quitmsg = "Server shutdown";

@@ -41,8 +41,6 @@ class CommandDie : public Command
 	 */
 	CommandDie(Module* parent, std::string& hashref);
 
-	CommandDie(Module* parent, const std::string& cmd, std::string& hashref);
-
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
@@ -118,9 +116,12 @@ class CommandRehash : public Command
 
 /** Handle /RESTART
  */
-class CommandRestart : public CommandDie
+class CommandRestart : public Command
 {
  public:
+	std::string& hash;
+	std::string password;
+
 	/** Constructor for restart.
 	 */
 	CommandRestart(Module* parent, std::string& hashref);
