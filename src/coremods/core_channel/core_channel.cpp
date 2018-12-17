@@ -148,8 +148,6 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
-		bool bypassmodes = optionstag->getBool("invitebypassmodes", true);
-		bool modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		std::string current;
 		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
@@ -193,10 +191,10 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		exemptions.swap(exempts);
 		limitmode.minlimit = minlimit;
 		cmdinvite.announceinvites = newstate;
-		joinhook.modefromuser = modefromuser;
+		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
-		if (bypassmodes)
+		if (optionstag->getBool("invitebypassmodes", true))
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
 		{
