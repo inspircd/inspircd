@@ -187,7 +187,7 @@ class ModulePBKDF2 : public Module
 		{
 			tag = i->second;
 			std::string hash_name = "hash/" + tag->getString("hash");
-			ProviderConfig config;
+			ProviderConfig& config = newconfigs[hash_name];
 
 			config.iterations = tag->getUInt("iterations", newglobal.iterations, 1);
 			config.dkey_length = tag->getUInt("length", newglobal.dkey_length, 1, 1024);
