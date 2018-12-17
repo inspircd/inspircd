@@ -216,7 +216,10 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			if (!buffer.empty())
 				buffer.push_back(',');
 
-			buffer.append(iter->second);
+			std::string modes(iter->second);
+			std::sort(modes.begin(), modes.end());
+
+			buffer.append(modes);
 			buffer.push_back(':');
 			buffer.append(ConvToStr(iter->first));
 		}
