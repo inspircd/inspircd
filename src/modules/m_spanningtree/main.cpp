@@ -582,9 +582,6 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 {
-	if (loopCall)
-		return; // Don't generate a REHASH here if we're in the middle of processing a message that generated this one
-
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnPreRehash called with param %s", parameter.c_str());
 
 	// Send out to other servers
