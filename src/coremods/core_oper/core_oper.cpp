@@ -43,22 +43,15 @@ class CoreModOper : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
-		std::string hidenick = security->getString("hidekills");
-		bool hideuline = security->getBool("hideulinekills");
-
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
 		// The hash method for *BOTH* the die and restart passwords
-		const std::string hash = tag->getString("hash");
-		const std::string diepass = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
-		const std::string restartpass = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
+		powerhash = tag->getString("hash");
 
-		powerhash = hash;
+		cmddie.password = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
+		cmdrestart.password = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
 
-		cmddie.password = diepass;
-		cmdrestart.password = restartpass;
-
-		cmdkill.hidenick = hidenick;
-		cmdkill.hideuline = hideuline;
+		cmdkill.hidenick = security->getString("hidekills");
+		cmdkill.hideuline = security->getBool("hideulinekills");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

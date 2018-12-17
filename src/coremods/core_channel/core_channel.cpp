@@ -179,17 +179,15 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		else
 			throw ModuleException(announceinvites + " is an invalid <security:announceinvites> value, at " + securitytag->getTagLocation());
 
-		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
-		// and will be removed in the next major release.
-		size_t minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;
-
 		// Config is valid, apply it
 
 		// Validates and applies <banlist> tags, so do it first
 		banmode.DoRehash();
 
 		exemptions.swap(exempts);
-		limitmode.minlimit = minlimit;
+		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
+		// and will be removed in the next major release.
+		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
 		cmdinvite.announceinvites = newstate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 

@@ -45,11 +45,9 @@ class ModuleSecureList : public Module
 			newallows.push_back(i->second->getString("exception"));
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
-		bool exreg = tag->getBool("exemptregistered");
-		unsigned long wait = tag->getDuration("waittime", 60, 1);
 
-		exemptregistered = exreg;
-		WaitTime = wait;
+		exemptregistered = tag->getBool("exemptregistered");
+		WaitTime = tag->getDuration("waittime", 60, 1);
 		allowlist.swap(newallows);
 	}
 

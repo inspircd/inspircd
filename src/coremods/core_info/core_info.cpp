@@ -99,12 +99,6 @@ class CoreModInfo : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("admin");
-		std::string name, email, nick;
-		name = tag->getString("name");
-		email = tag->getString("email", "null@example.com");
-		nick = tag->getString("nick", "admin");
-
 		// Process the escape codes in the MOTDs.
 		ConfigFileCache newmotds;
 		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
@@ -125,9 +119,11 @@ class CoreModInfo : public Module
 		}
 
 		cmdmotd.motds.swap(newmotds);
-		cmdadmin.AdminName = name;
-		cmdadmin.AdminEmail = email;
-		cmdadmin.AdminNick = nick;
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("admin");
+		cmdadmin.AdminName = tag->getString("name");
+		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
+		cmdadmin.AdminNick = tag->getString("nick", "admin");
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE

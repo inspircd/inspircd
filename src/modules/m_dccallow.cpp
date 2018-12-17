@@ -507,9 +507,6 @@ class ModuleDCCAllow : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
-		unsigned long maxentries = tag->getUInt("maxentries", 20);
-
 		bannedfilelist newbfl;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -521,7 +518,8 @@ class ModuleDCCAllow : public Module
 		}
 
 		bfl.swap(newbfl);
-		cmd.maxentries = maxentries;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
+		cmd.maxentries = tag->getUInt("maxentries", 20);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
