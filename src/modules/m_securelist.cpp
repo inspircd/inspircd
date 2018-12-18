@@ -42,7 +42,12 @@ class ModuleSecureList : public Module
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
-			newallows.push_back(i->second->getString("exception"));
+		{
+			std::string host = i->second->getString("exception");
+			if (host.empty())
+				throw ModuleException("<securehost:exception> is a requirewd field! at " + i->second->getTagLocation());
+			newallows.push_back(host);
+		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
 

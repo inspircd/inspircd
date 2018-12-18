@@ -81,8 +81,14 @@ class ModuleAlias : public Module
 			ConfigTag* tag = i->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text");
+			if (a.AliasedCommand.empty())
+				throw ModuleException("<alias:text> is empty! at " + tag->getTagLocation());
+
 			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			tag->readString("replace", a.ReplaceFormat, true);
+			if (a.ReplaceFormat.empty())
+				throw ModuleException("<alias:replace> is empty! at " + tag->getTagLocation());
+
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
 			a.ChannelCommand = tag->getBool("channelcommand", false);

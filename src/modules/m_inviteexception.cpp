@@ -82,8 +82,8 @@ public:
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 		ie.DoRehash();
+		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

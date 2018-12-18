@@ -97,7 +97,6 @@ class ModuleFlashPD : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("flashpolicyd");
-		timeout = tag->getDuration("timeout", 5, 1);
 		std::string file = tag->getString("file");
 
 		if (!file.empty())
@@ -113,6 +112,7 @@ class ModuleFlashPD : public Module
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, error_message);
 				ServerInstance->SNO->WriteGlobalSno('a', error_message);
 				policy_reply.clear();
+				throw ModuleException(error_message + " at " + tag->getTagLocation());
 			}
 			return;
 		}
@@ -144,6 +144,7 @@ class ModuleFlashPD : public Module
 <site-control permitted-cross-domain-policies=\"master-only\"/>\
 <allow-access-from domain=\"*\" to-ports=\"" + to_ports + "\" />\
 </cross-domain-policy>";
+		timeout = tag->getDuration("timeout", 5, 1);
 	}
 
 	CullResult cull() CXX11_OVERRIDE

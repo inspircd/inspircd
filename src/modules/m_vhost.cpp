@@ -96,9 +96,15 @@ class ModuleVHost : public Module
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			std::string mask = tag->getString("host", "", 1);
+			std::string mask = tag->getString("host");
+			if (mask.empty())
+				throw ModuleException("<vhost:host> is empty! at " + tag->getTagLocation());
 			std::string username = tag->getString("user");
+			if (username.empty())
+				throw ModuleException("<vhost:user> is empty! at " + tag->getTagLocation());
 			std::string pass = tag->getString("pass");
+			if (pass.empty())
+				throw ModuleException("<vhost:pass> is empty! at " + tag->getTagLocation());
 			std::string hash = tag->getString("hash");
 
 			CustomVhost vhost(username, pass, hash, mask);

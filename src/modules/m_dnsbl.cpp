@@ -315,23 +315,19 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			/* yeah, logic here is a little messy */
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): invalid bitmask", location.c_str());
+				throw ModuleException("Invalid <dnsbl:bitmask> at " + tag->getTagLocation());
 			}
 			else if (e->name.empty())
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid name", location.c_str());
+				throw ModuleException("Empty <dnsbl:name> at " + tag->getTagLocation());
 			}
 			else if (e->domain.empty())
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid domain", location.c_str());
+				throw ModuleException("Empty <dnsbl:domain> at " + tag->getTagLocation());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid banaction", location.c_str());
+				throw ModuleException("Unknown <dnsbl:action> at " + tag->getTagLocation());
 			}
 			else
 			{

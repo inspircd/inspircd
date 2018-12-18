@@ -112,7 +112,7 @@ class ModuleCensor : public Module
 			ConfigTag* tag = i->second;
 			const std::string text = tag->getString("text");
 			if (text.empty())
-				continue;
+				throw ModuleException("<badword:text> is empty! at " + tag->getTagLocation());
 
 			const std::string replace = tag->getString("replace");
 			newcensors[text] = replace;

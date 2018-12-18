@@ -125,7 +125,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 			reference<ConfigTag> tag = i->second;
 			std::string name = tag->getString("name", "", 1);
 			if (name.empty())
-				continue;
+				throw ModuleException("<title:name> is empty! at " + tag->getTagLocation());
 
 			std::string pass = tag->getString("password");
 			std::string hash = tag->getString("hash");

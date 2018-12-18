@@ -103,15 +103,16 @@ class CoreModInfo : public Module
 		ConfigFileCache newmotds;
 		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
 		{
+			ConfigTag* tag = (*iter)->config;
 			// Don't process the file if it has already been processed.
-			const std::string motd = (*iter)->config->getString("motd", "motd");
+			const std::string motd = tag->getString("motd", "motd");
 			if (newmotds.find(motd) != newmotds.end())
 				continue;
 
 			// We can't process the file if it doesn't exist.
 			ConfigFileCache::iterator file = ServerInstance->Config->Files.find(motd);
 			if (file == ServerInstance->Config->Files.end())
-				continue;
+				throw ModuleException(InspIRCd::Format("MOTD file %s not specified in <files>, at %s", motd.c_str(), tag->getTagLocation().c_str()));
 
 			// Process escape codes.
 			newmotds[file->first] = file->second;

@@ -70,8 +70,13 @@ void ListModeBase::DoRehash()
 		ConfigTag* c = i->second;
 		ListLimit limit(c->getString("chan"), c->getUInt("limit", 0));
 
-		if (limit.mask.size() && limit.limit > 0)
-			newlimits.push_back(limit);
+		if (limit.mask.empty())
+			throw ModuleException(InspIRCd::Format("<%s:chan> is empty at %s", configtag.c_str(), c->getTagLocation().c_str()));
+
+		if (limit.limit <= 0)
+			throw ModuleException(InspIRCd::Format("<%s:limit> must be greater than 0, at %s", configtag.c_str(), c->getTagLocation().c_str()));
+
+		newlimits.push_back(limit);
 	}
 
 	// Add the default entry. This is inserted last so if the user specifies a
