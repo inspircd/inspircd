@@ -167,15 +167,15 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 
 		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
 		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic");
-		Invite::AnnounceState newstate;
+		Invite::AnnounceState newannouncestate;
 		if (stdalgo::string::equalsci(announceinvites, "none"))
-			newstate = Invite::ANNOUNCE_NONE;
+			newannouncestate = Invite::ANNOUNCE_NONE;
 		else if (stdalgo::string::equalsci(announceinvites, "all"))
-			newstate = Invite::ANNOUNCE_ALL;
+			newannouncestate = Invite::ANNOUNCE_ALL;
 		else if (stdalgo::string::equalsci(announceinvites, "ops"))
-			newstate = Invite::ANNOUNCE_OPS;
+			newannouncestate = Invite::ANNOUNCE_OPS;
 		else if (stdalgo::string::equalsci(announceinvites, "dynamic"))
-			newstate = Invite::ANNOUNCE_DYNAMIC;
+			newannouncestate = Invite::ANNOUNCE_DYNAMIC;
 		else
 			throw ModuleException(announceinvites + " is an invalid <security:announceinvites> value, at " + securitytag->getTagLocation());
 
@@ -188,7 +188,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
 		// and will be removed in the next major release.
 		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
-		cmdinvite.announceinvites = newstate;
+		cmdinvite.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
