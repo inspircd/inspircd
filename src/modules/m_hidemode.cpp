@@ -45,6 +45,12 @@ class Settings
 			ConfigTag* tag = i->second;
 			std::string modename = tag->getString("mode");
 			unsigned int rank = tag->getInt("rank", 0, 0);
+			if (modename.empty())
+				throw ModuleException("<hidemode:mode> is empty at " + tag->getTagLocation());
+
+			if (rank <= 0)
+				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->getTagLocation());
+
 			if (!modename.empty() && rank)
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
