@@ -106,6 +106,7 @@ class CommandDccallow : public Command
 
  public:
 	unsigned int maxentries;
+	unsigned long defaultlength;
 	CommandDccallow(Module* parent, DCCAllowExt& Ext)
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
@@ -206,12 +207,10 @@ class CommandDccallow : public Command
 					}
 
 					std::string mask = target->nick+"!"+target->ident+"@"+target->GetDisplayedHost();
-					std::string default_length = ServerInstance->Config->ConfValue("dccallow")->getString("length");
-
 					unsigned long length;
 					if (parameters.size() < 2)
 					{
-						length = InspIRCd::Duration(default_length);
+						length = defaultlength;
 					}
 					else if (!InspIRCd::IsValidDuration(parameters[1]))
 					{
@@ -520,6 +519,7 @@ class ModuleDCCAllow : public Module
 		bfl.swap(newbfl);
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
 		cmd.maxentries = tag->getUInt("maxentries", 20);
+		cmd.defaultlength = tag->getDuration("length", 0);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
