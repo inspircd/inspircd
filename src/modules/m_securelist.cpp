@@ -45,7 +45,7 @@ class ModuleSecureList : public Module
 		{
 			std::string host = i->second->getString("exception");
 			if (host.empty())
-				throw ModuleException("<securehost:exception> is a requirewd field! at " + i->second->getTagLocation());
+				throw ModuleException("<securehost:exception> is a required field at " + i->second->getTagLocation());
 			newallows.push_back(host);
 		}
 
