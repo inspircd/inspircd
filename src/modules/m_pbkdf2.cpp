@@ -141,7 +141,8 @@ class PBKDF2Provider : public HashProvider
 
 struct ProviderConfig
 {
-	unsigned long iterations, dkey_length;
+	unsigned long dkey_length;
+	unsigned long iterations;
 };
 
 typedef std::map<std::string, ProviderConfig> ProviderConfigMap;
