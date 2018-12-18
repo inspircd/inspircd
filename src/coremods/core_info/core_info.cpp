@@ -112,7 +112,7 @@ class CoreModInfo : public Module
 			// We can't process the file if it doesn't exist.
 			ConfigFileCache::iterator file = ServerInstance->Config->Files.find(motd);
 			if (file == ServerInstance->Config->Files.end())
-				throw ModuleException(InspIRCd::Format("MOTD file %s not specified in <files>, at %s", motd.c_str(), tag->getTagLocation().c_str()));
+				continue;
 
 			// Process escape codes.
 			newmotds[file->first] = file->second;
