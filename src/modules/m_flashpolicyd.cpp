@@ -108,11 +108,7 @@ class ModuleFlashPD : public Module
 			}
 			catch (CoreException&)
 			{
-				const std::string error_message = "A file was specified for FlashPD, but it could not be loaded.";
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, error_message);
-				ServerInstance->SNO->WriteGlobalSno('a', error_message);
-				policy_reply.clear();
-				throw ModuleException(error_message + " at " + tag->getTagLocation());
+				throw ModuleException("A file was specified for FlashPD, but it could not be loaded at " + tag->getTagLocation());
 			}
 			return;
 		}
