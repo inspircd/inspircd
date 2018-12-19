@@ -292,11 +292,14 @@ class ModuleDCCAllow : public Module
 {
 	DCCAllowExt ext;
 	CommandDccallow cmd;
+	bool blockchat;
+	std::string defaultaction;
 
  public:
 	ModuleDCCAllow()
 		: ext("dccallow", ExtensionItem::EXT_USER, this)
 		, cmd(this, ext)
+		, blockchat(false)
 	{
 	}
 
@@ -355,9 +358,6 @@ class ModuleDCCAllow : public Module
 
 					const std::string type = buf.substr(0, s);
 
-					ConfigTag* conftag = ServerInstance->Config->ConfValue("dccallow");
-					bool blockchat = conftag->getBool("blockchat");
-
 					if (stdalgo::string::equalsci(type, "SEND"))
 					{
 						size_t first;
@@ -383,7 +383,6 @@ class ModuleDCCAllow : public Module
 						if (s == std::string::npos)
 							return MOD_RES_PASSTHRU;
 
-						std::string defaultaction = conftag->getString("action");
 						std::string filename = buf.substr(first, s);
 
 						bool found = false;
@@ -520,6 +519,8 @@ class ModuleDCCAllow : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
 		cmd.maxentries = tag->getUInt("maxentries", 20);
 		cmd.defaultlength = tag->getDuration("length", 0);
+		blockchat = tag->getBool("blockchat");
+		defaultaction = tag->getString("action");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
