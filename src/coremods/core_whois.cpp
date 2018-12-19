@@ -369,7 +369,6 @@ class CoreModWhois : public Module
 
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
-		// So set the rest of the config after it since that is already validated
 		cmd.splitwhois = newsplitstate;
 	}
 

@@ -42,14 +42,16 @@ class CoreModOper : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
+	
 		// The hash method for *BOTH* the die and restart passwords
 		powerhash = tag->getString("hash");
 
 		cmddie.password = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
 		cmdrestart.password = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
 
+		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
 		cmdkill.hideuline = security->getBool("hideulinekills");
 	}

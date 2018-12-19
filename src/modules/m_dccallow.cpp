@@ -514,8 +514,8 @@ class ModuleDCCAllow : public Module
 			bf.action = i->second->getString("action");
 			newbfl.push_back(bf);
 		}
-
 		bfl.swap(newbfl);
+
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
 		cmd.maxentries = tag->getUInt("maxentries", 20);
 		cmd.defaultlength = tag->getDuration("length", 0);

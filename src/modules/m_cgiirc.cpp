@@ -338,7 +338,7 @@ class ModuleCgiIRC
 			}
 		}
 
-		// The configuration was valid so we can apply it.
+		// The host configuration was valid so we can apply it.
 		hosts.swap(identhosts);
 		cmd.hosts.swap(webirchosts);
 

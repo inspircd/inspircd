@@ -84,7 +84,6 @@ class ModuleAlias : public Module
 			if (a.AliasedCommand.empty())
 				throw ModuleException("<alias:text> is empty! at " + tag->getTagLocation());
 
-			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			tag->readString("replace", a.ReplaceFormat, true);
 			if (a.ReplaceFormat.empty())
 				throw ModuleException("<alias:replace> is empty! at " + tag->getTagLocation());
@@ -95,6 +94,8 @@ class ModuleAlias : public Module
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
+
+			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			newAliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
 
