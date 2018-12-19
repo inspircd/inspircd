@@ -19,10 +19,12 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag)
-	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST),
-	listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
-	configtag(ctag)
+ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string& eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy)
+	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
+	, listnumeric(lnum)
+	, endoflistnumeric(eolnum)
+	, endofliststring(eolstr)
+	, tidy(autotidy)
 	, extItem("listbase_mode_" + name + "_list", ExtensionItem::EXT_CHANNEL, Creator)
 {
 	list = true;
@@ -60,21 +62,23 @@ void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 
 void ListModeBase::DoRehash()
 {
-	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
-
+	ConfigTagList tags = ServerInstance->Config->ConfTags("maxlist");
 	limitlist newlimits;
-
 	for (ConfigIter i = tags.first; i != tags.second; i++)
 	{
-		// For each <banlist> tag
 		ConfigTag* c = i->second;
-		ListLimit limit(c->getString("chan"), c->getUInt("limit", 0));
+
+		const std::string mname = c->getString("mode");
+		if (!mname.empty() && !stdalgo::string::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
+			continue;
+
+		ListLimit limit(c->getString("chan", "*"), c->getUInt("limit", 0));
 
 		if (limit.mask.empty())
-			throw ModuleException(InspIRCd::Format("<%s:chan> is empty at %s", configtag.c_str(), c->getTagLocation().c_str()));
+			throw ModuleException(InspIRCd::Format("<maxlist:chan> is empty, at %s", c->getTagLocation().c_str()));
 
 		if (limit.limit <= 0)
-			throw ModuleException(InspIRCd::Format("<%s:limit> must be greater than 0, at %s", configtag.c_str(), c->getTagLocation().c_str()));
+			throw ModuleException(InspIRCd::Format("<maxlist:limit> must be non-zero, at %s", c->getTagLocation().c_str()));
 
 		newlimits.push_back(limit);
 	}

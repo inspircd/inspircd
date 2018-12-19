@@ -86,20 +86,21 @@ class CoreExport ListModeBase : public ModeHandler
 	/** Numeric to use when outputting the list
 	 */
 	unsigned int listnumeric;
+
 	/** Numeric to indicate end of list
 	 */
 	unsigned int endoflistnumeric;
+
 	/** String to send for end of list
 	 */
 	std::string endofliststring;
+
 	/** Automatically tidy up entries
 	 */
 	bool tidy;
-	/** Config tag to check for max items per channel
-	 */
-	std::string configtag;
-	/** Limits on a per-channel basis read from the tag
-	 * specified in ListModeBase::configtag
+
+	/** Limits on a per-channel basis read from the <listmode>
+	 * config tag.
 	 */
 	limitlist chanlimits;
 
@@ -116,9 +117,8 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
 	 * @param autotidy Automatically tidy list entries on add
-	 * @param ctag Configuration tag to get limits from
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist");
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string& eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy);
 
 	/** Get limit of this mode on a channel
 	 * @param channel The channel to inspect

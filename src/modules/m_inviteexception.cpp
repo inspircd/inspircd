@@ -39,7 +39,10 @@
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(Module* Creator) : ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true) { }
+	InviteException(Module* Creator)
+		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true)
+	{
+	}
 };
 
 class ModuleInviteException : public Module

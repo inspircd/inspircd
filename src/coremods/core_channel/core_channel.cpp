@@ -181,7 +181,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 
 		// Config is valid, apply it
 
-		// Validates and applies <banlist> tags, so do it first
+		// Validates and applies <maxlist> tags, so do it first
 		banmode.DoRehash();
 
 		exemptions.swap(exempts);

@@ -26,7 +26,8 @@
 class AutoOpList : public ListModeBase
 {
  public:
-	AutoOpList(Module* Creator) : ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
+	AutoOpList(Module* Creator)
+		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		tidy = false;

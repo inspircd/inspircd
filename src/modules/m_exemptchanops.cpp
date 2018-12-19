@@ -26,9 +26,13 @@
 class ExemptChanOps : public ListModeBase
 {
  public:
-	ExemptChanOps(Module* Creator) : ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false, "exemptchanops") { }
+	ExemptChanOps(Module* Creator)
+		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false)
+	{
+	}
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE	{
+	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
+	{
 		std::string::size_type p = word.find(':');
 		if (p == std::string::npos)
 		{

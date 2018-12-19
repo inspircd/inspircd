@@ -498,18 +498,27 @@
 
 #<pid file="/path/to/inspircd.pid">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-#- LIST MODE LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Use these tags to customise the ban limits on a per channel basis.  #
-# The tags are read from top to bottom, and any tag found which       #
-# matches the channels name applies the banlimit to that channel.     #
+# The <maxlist> tag is used customise the maximum number of each list #
+# mode that can be set on a channel.                                  #
+# The tags are read from top to bottom and the list mode limit from   #
+# the first tag found which matches the channel name and mode type is #
+# applied to that channel.                                            #
 # It is advisable to put an entry with the channel as '*' at the      #
-# bottom of the list. If none are specified or no maxbans tag is      #
+# bottom of the list. If none are specified or no maxlist tag is      #
 # matched, the banlist size defaults to 100 entries.                  #
 #                                                                     #
 
-<banlist chan="#largechan" limit="200">
-<banlist chan="*" limit="100">
+# Allows #largechan to have up to 200 ban entries.
+#<maxlist mode="ban" chan="#largechan" limit="200">
+
+# Allows #largechan to have up to 200 invex entries.
+#<maxlist mode="e" chan="#largechan" limit="200">
+
+# Allows all channels and list modes not previously matched to have
+# up to 100 entries.
+<maxlist chan="*" limit="100">
 
 #-#-#-#-#-#-#-#-#-#-#-  DISABLED FEATURES  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

@@ -34,7 +34,10 @@ class ChanFilter : public ListModeBase
  public:
 	unsigned long maxlen;
 
-	ChanFilter(Module* Creator) : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
+	ChanFilter(Module* Creator)
+		: ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false)
+	{
+	}
 
 	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{

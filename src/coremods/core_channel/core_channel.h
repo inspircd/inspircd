@@ -164,7 +164,7 @@ class ModeChannelBan : public ListModeBase
 {
  public:
 	ModeChannelBan(Module* Creator)
-		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", 367, 368, true, "maxbans")
+		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", 367, 368, true)
 	{
 	}
 };
