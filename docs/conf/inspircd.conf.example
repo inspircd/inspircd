@@ -513,7 +513,7 @@
 # Allows #largechan to have up to 200 ban entries.
 #<maxlist mode="ban" chan="#largechan" limit="200">
 
-# Allows #largechan to have up to 200 invex entries.
+# Allows #largechan to have up to 200 ban exception entries.
 #<maxlist mode="e" chan="#largechan" limit="200">
 
 # Allows all channels and list modes not previously matched to have
