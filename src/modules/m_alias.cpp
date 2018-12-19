@@ -74,27 +74,35 @@ class ModuleAlias : public Module
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
-		AllowBots = fantasy->getBool("allowbots", false);
-		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
-
-		Aliases.clear();
+		AliasMap newAliases;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text");
-			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
+			if (a.AliasedCommand.empty())
+				throw ModuleException("<alias:text> is empty! at " + tag->getTagLocation());
+
 			tag->readString("replace", a.ReplaceFormat, true);
+			if (a.ReplaceFormat.empty())
+				throw ModuleException("<alias:replace> is empty! at " + tag->getTagLocation());
+
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
 			a.ChannelCommand = tag->getBool("channelcommand", false);
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
-			Aliases.insert(std::make_pair(a.AliasedCommand, a));
+
+			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
+			newAliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
+
+		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
+		AllowBots = fantasy->getBool("allowbots", false);
+		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
+		Aliases.swap(newAliases);
 	}
 
 	ModuleAlias()

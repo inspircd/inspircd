@@ -37,20 +37,24 @@ class Settings
 
 	void Load()
 	{
-		rankstosee.clear();
+		RanksToSeeMap newranks;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("hidemode");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			std::string modename = tag->getString("mode");
-			unsigned int rank = tag->getInt("rank", 0, 0);
-			if (!modename.empty() && rank)
-			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
-				rankstosee.insert(std::make_pair(modename, rank));
-			}
+			const std::string modename = tag->getString("mode");
+			if (modename.empty())
+				throw ModuleException("<hidemode:mode> is empty at " + tag->getTagLocation());
+
+			unsigned int rank = tag->getUInt("rank", 0);
+			if (!rank)
+				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->getTagLocation());
+
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
+			newranks.insert(std::make_pair(modename, rank));
 		}
+		rankstosee.swap(newranks);
 	}
 };
 

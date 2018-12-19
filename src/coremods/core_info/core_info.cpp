@@ -99,18 +99,14 @@ class CoreModInfo : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("admin");
-		cmdadmin.AdminName = tag->getString("name");
-		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
-		cmdadmin.AdminNick = tag->getString("nick", "admin");
-
 		// Process the escape codes in the MOTDs.
-		cmdmotd.motds.clear();
+		ConfigFileCache newmotds;
 		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
 		{
+			ConfigTag* tag = (*iter)->config;
 			// Don't process the file if it has already been processed.
-			const std::string motd = (*iter)->config->getString("motd", "motd");
-			if (cmdmotd.motds.find(motd) != cmdmotd.motds.end())
+			const std::string motd = tag->getString("motd", "motd");
+			if (newmotds.find(motd) != newmotds.end())
 				continue;
 
 			// We can't process the file if it doesn't exist.
@@ -119,10 +115,16 @@ class CoreModInfo : public Module
 				continue;
 
 			// Process escape codes.
-			cmdmotd.motds[file->first] = file->second;
-			InspIRCd::ProcessColors(cmdmotd.motds[file->first]);
+			newmotds[file->first] = file->second;
+			InspIRCd::ProcessColors(newmotds[file->first]);
 		}
 
+		cmdmotd.motds.swap(newmotds);
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("admin");
+		cmdadmin.AdminName = tag->getString("name");
+		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
+		cmdadmin.AdminNick = tag->getString("nick", "admin");
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE

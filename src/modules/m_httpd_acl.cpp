@@ -51,7 +51,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		acl_list.clear();
+		std::vector<HTTPACL> new_acls;
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
 		for (ConfigIter i = acls.first; i != acls.second; i++)
 		{
@@ -89,8 +89,9 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
 					password.c_str(), whitelist.c_str(), blacklist.c_str());
 
-			acl_list.push_back(HTTPACL(path, username, password, whitelist, blacklist));
+			new_acls.push_back(HTTPACL(path, username, password, whitelist, blacklist));
 		}
+		acl_list.swap(new_acls);
 	}
 
 	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")

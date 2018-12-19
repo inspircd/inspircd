@@ -357,17 +357,19 @@ class CoreModWhois : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
 		const std::string splitwhois = tag->getString("splitwhois", "no");
+		SplitWhoisState newsplitstate;
 		if (stdalgo::string::equalsci(splitwhois, "no"))
-			cmd.splitwhois = SPLITWHOIS_NONE;
+			newsplitstate = SPLITWHOIS_NONE;
 		else if (stdalgo::string::equalsci(splitwhois, "split"))
-			cmd.splitwhois = SPLITWHOIS_SPLIT;
+			newsplitstate = SPLITWHOIS_SPLIT;
 		else if (stdalgo::string::equalsci(splitwhois, "splitmsg"))
-			cmd.splitwhois = SPLITWHOIS_SPLITMSG;
+			newsplitstate = SPLITWHOIS_SPLITMSG;
 		else
 			throw ModuleException(splitwhois + " is an invalid <security:splitwhois> value, at " + tag->getTagLocation()); 
 
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
+		cmd.splitwhois = newsplitstate;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

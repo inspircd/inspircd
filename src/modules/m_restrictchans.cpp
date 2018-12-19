@@ -22,21 +22,26 @@
 
 #include "inspircd.h"
 
+typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
+
 class ModuleRestrictChans : public Module
 {
-	insp::flat_set<std::string, irc::insensitive_swo> allowchans;
+	AllowChans allowchans;
 
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		allowchans.clear();
+		AllowChans newallows;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = i->second;
-			std::string txt = tag->getString("name");
-			allowchans.insert(txt);
+			const std::string name = i->second->getString("name");
+			if (name.empty())
+				throw ModuleException("Empty <allowchannel:name> at " + i->second->getTagLocation());
+
+			newallows.insert(name);
 		}
+		allowchans.swap(newallows);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

@@ -23,14 +23,6 @@
 
 namespace DieRestart
 {
-	/** Checks a die or restart password
-	 * @param user The user executing /DIE or /RESTART
-	 * @param inputpass The password given by the user
-	 * @param confkey The name of the key in the power tag containing the correct password
-	 * @return True if the given password was correct, false if it was not
-	 */
-	bool CheckPass(User* user, const std::string& inputpass, const char* confkey);
-
 	/** Send an ERROR to unregistered users and a NOTICE to all registered local users
 	 * @param message Message to send
 	 */
@@ -42,9 +34,12 @@ namespace DieRestart
 class CommandDie : public Command
 {
  public:
+	std::string& hash;
+	std::string password;
+
 	/** Constructor for die.
 	 */
-	CommandDie(Module* parent);
+	CommandDie(Module* parent, std::string& hashref);
 
 	/** Handle command.
 	 * @param parameters The parameters to the command
@@ -79,6 +74,7 @@ class CommandKill : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 
 	void EncodeParameter(std::string& param, unsigned int index) CXX11_OVERRIDE;
@@ -123,9 +119,12 @@ class CommandRehash : public Command
 class CommandRestart : public Command
 {
  public:
+	std::string& hash;
+	std::string password;
+
 	/** Constructor for restart.
 	 */
-	CommandRestart(Module* parent);
+	CommandRestart(Module* parent, std::string& hashref);
 
 	/** Handle command.
 	 * @param user User issuing the command

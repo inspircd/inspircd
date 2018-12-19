@@ -104,7 +104,7 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		censors.clear();
+		censor_t newcensors;
 
 		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
 		for (ConfigIter i = badwords.first; i != badwords.second; ++i)
@@ -112,11 +112,12 @@ class ModuleCensor : public Module
 			ConfigTag* tag = i->second;
 			const std::string text = tag->getString("text");
 			if (text.empty())
-				continue;
+				throw ModuleException("<badword:text> is empty! at " + tag->getTagLocation());
 
 			const std::string replace = tag->getString("replace");
-			censors[text] = replace;
+			newcensors[text] = replace;
 		}
+		censors.swap(newcensors);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

@@ -22,35 +22,55 @@
 
 #include "inspircd.h"
 
+struct CustomVhost
+{
+	const std::string name;
+	const std::string password;
+	const std::string hash;
+	const std::string vhost;
+
+	CustomVhost(const std::string& n, const std::string& p, const std::string& h, const std::string& v)
+		: name(n)
+		, password(p)
+		, hash(h)
+		, vhost(v)
+	{
+	}
+
+	bool CheckPass(User* user, const std::string& pass) const
+	{
+		return ServerInstance->PassCompare(user, password, pass, hash);
+	}
+};
+
+typedef std::multimap<std::string, CustomVhost> CustomVhostMap;
+typedef std::pair<CustomVhostMap::iterator, CustomVhostMap::iterator> MatchingConfigs;
+
 /** Handle /VHOST
  */
 class CommandVhost : public Command
 {
  public:
-	CommandVhost(Module* Creator) : Command(Creator,"VHOST", 2)
+	CustomVhostMap vhosts;
+
+	CommandVhost(Module* Creator)
+		: Command(Creator, "VHOST", 2)
 	{
 		syntax = "<username> <password>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
-		for(ConfigIter i = tags.first; i != tags.second; ++i)
-		{
-			ConfigTag* tag = i->second;
-			std::string mask = tag->getString("host");
-			std::string username = tag->getString("user");
-			std::string pass = tag->getString("pass");
-			std::string hash = tag->getString("hash");
+		MatchingConfigs matching = vhosts.equal_range(parameters[0]);
 
-			if (parameters[0] == username && ServerInstance->PassCompare(user, pass, parameters[1], hash))
+		for (MatchingConfigs::first_type i = matching.first; i != matching.second; ++i)
+		{
+			CustomVhost config = i->second;
+			if (config.CheckPass(user, parameters[1]))
 			{
-				if (!mask.empty())
-				{
-					user->WriteNotice("Setting your VHost: " + mask);
-					user->ChangeDisplayedHost(mask);
-					return CMD_SUCCESS;
-				}
+				user->WriteNotice("Setting your VHost: " + config.vhost);
+				user->ChangeDisplayedHost(config.vhost);
+				return CMD_SUCCESS;
 			}
 		}
 
@@ -64,13 +84,39 @@ class ModuleVHost : public Module
 	CommandVhost cmd;
 
  public:
-	ModuleVHost() : cmd(this)
+	ModuleVHost()
+		: cmd(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		CustomVhostMap newhosts;
+		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			std::string mask = tag->getString("host");
+			if (mask.empty())
+				throw ModuleException("<vhost:host> is empty! at " + tag->getTagLocation());
+			std::string username = tag->getString("user");
+			if (username.empty())
+				throw ModuleException("<vhost:user> is empty! at " + tag->getTagLocation());
+			std::string pass = tag->getString("pass");
+			if (pass.empty())
+				throw ModuleException("<vhost:pass> is empty! at " + tag->getTagLocation());
+			std::string hash = tag->getString("hash");
+
+			CustomVhost vhost(username, pass, hash, mask);
+			newhosts.insert(std::make_pair(username, vhost));
+		}
+
+		cmd.vhosts.swap(newhosts);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
+		return Version("Provides masking of user hostnames via traditional /VHOST command", VF_VENDOR);
 	}
 };
 

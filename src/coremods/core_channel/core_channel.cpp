@@ -148,16 +148,6 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
-		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
-		if (optionstag->getBool("invitebypassmodes", true))
-			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
-		else
-		{
-			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
-				ServerInstance->Modules.Detach(events[i], this);
-		}
-
-		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		std::string current;
 		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
@@ -174,26 +164,41 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Exempting prefix %c from %s", prefix, restriction.c_str());
 			exempts[restriction] = prefix;
 		}
-		exemptions.swap(exempts);
 
 		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
 		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic");
+		Invite::AnnounceState newannouncestate;
 		if (stdalgo::string::equalsci(announceinvites, "none"))
-			cmdinvite.announceinvites = Invite::ANNOUNCE_NONE;
+			newannouncestate = Invite::ANNOUNCE_NONE;
 		else if (stdalgo::string::equalsci(announceinvites, "all"))
-			cmdinvite.announceinvites = Invite::ANNOUNCE_ALL;
+			newannouncestate = Invite::ANNOUNCE_ALL;
 		else if (stdalgo::string::equalsci(announceinvites, "ops"))
-			cmdinvite.announceinvites = Invite::ANNOUNCE_OPS;
+			newannouncestate = Invite::ANNOUNCE_OPS;
 		else if (stdalgo::string::equalsci(announceinvites, "dynamic"))
-			cmdinvite.announceinvites = Invite::ANNOUNCE_DYNAMIC;
+			newannouncestate = Invite::ANNOUNCE_DYNAMIC;
 		else
 			throw ModuleException(announceinvites + " is an invalid <security:announceinvites> value, at " + securitytag->getTagLocation());
 
+		// Config is valid, apply it
+
+		// Validates and applies <banlist> tags, so do it first
+		banmode.DoRehash();
+
+		exemptions.swap(exempts);
 		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
 		// and will be removed in the next major release.
-		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;
+		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
+		cmdinvite.announceinvites = newannouncestate;
+		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
-		banmode.DoRehash();
+		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
+		if (optionstag->getBool("invitebypassmodes", true))
+			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
+		else
+		{
+			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
+				ServerInstance->Modules.Detach(events[i], this);
+		}
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

@@ -22,8 +22,9 @@
 #include "exitcodes.h"
 #include "core_oper.h"
 
-CommandDie::CommandDie(Module* parent)
-	: Command(parent, "DIE", 1)
+CommandDie::CommandDie(Module* parent, std::string& hashref)
+	: Command(parent, "DIE", 1, 1)
+	, hash(hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";
@@ -61,7 +62,7 @@ void DieRestart::SendError(const std::string& message)
  */
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
-	if (DieRestart::CheckPass(user, parameters[0], "diepass"))
+	if (ServerInstance->PassCompare(user, password, parameters[0], hash))
 	{
 		{
 			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";

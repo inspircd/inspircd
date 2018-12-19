@@ -62,8 +62,7 @@ void ListModeBase::DoRehash()
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
 
-	limitlist oldlimits = chanlimits;
-	chanlimits.clear();
+	limitlist newlimits;
 
 	for (ConfigIter i = tags.first; i != tags.second; i++)
 	{
@@ -71,17 +70,24 @@ void ListModeBase::DoRehash()
 		ConfigTag* c = i->second;
 		ListLimit limit(c->getString("chan"), c->getUInt("limit", 0));
 
-		if (limit.mask.size() && limit.limit > 0)
-			chanlimits.push_back(limit);
+		if (limit.mask.empty())
+			throw ModuleException(InspIRCd::Format("<%s:chan> is empty at %s", configtag.c_str(), c->getTagLocation().c_str()));
+
+		if (limit.limit <= 0)
+			throw ModuleException(InspIRCd::Format("<%s:limit> must be greater than 0, at %s", configtag.c_str(), c->getTagLocation().c_str()));
+
+		newlimits.push_back(limit);
 	}
 
 	// Add the default entry. This is inserted last so if the user specifies a
 	// wildcard record in the config it will take precedence over this entry.
-	chanlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
+	newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
 
 	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
-	if (oldlimits == chanlimits)
+	if (chanlimits == newlimits)
 		return;
+
+	chanlimits.swap(newlimits);
 
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)

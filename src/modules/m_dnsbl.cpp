@@ -228,9 +228,11 @@ class DNSBLResolver : public DNS::Request
 	}
 };
 
+typedef std::vector<reference<DNSBLConfEntry> > DNSBLConfList;
+
 class ModuleDNSBL : public Module, public Stats::EventListener
 {
-	std::vector<reference<DNSBLConfEntry> > DNSBLConfEntries;
+	DNSBLConfList DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;
 	LocalStringExt nameExt;
 	LocalIntExt countExt;
@@ -276,7 +278,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	 */
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		DNSBLConfEntries.clear();
+		DNSBLConfList newentries;
 
 		ConfigTagList dnsbls = ServerInstance->Config->ConfTags("dnsbl");
 		for(ConfigIter i = dnsbls.first; i != dnsbls.second; ++i)
@@ -313,23 +315,19 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			/* yeah, logic here is a little messy */
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): invalid bitmask", location.c_str());
+				throw ModuleException("Invalid <dnsbl:bitmask> at " + tag->getTagLocation());
 			}
 			else if (e->name.empty())
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid name", location.c_str());
+				throw ModuleException("Empty <dnsbl:name> at " + tag->getTagLocation());
 			}
 			else if (e->domain.empty())
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid domain", location.c_str());
+				throw ModuleException("Empty <dnsbl:domain> at " + tag->getTagLocation());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): Invalid banaction", location.c_str());
+				throw ModuleException("Unknown <dnsbl:action> at " + tag->getTagLocation());
 			}
 			else
 			{
@@ -341,9 +339,11 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 				}
 
 				/* add it, all is ok */
-				DNSBLConfEntries.push_back(e);
+				newentries.push_back(e);
 			}
 		}
+
+		DNSBLConfEntries.swap(newentries);
 	}
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
