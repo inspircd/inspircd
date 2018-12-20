@@ -147,7 +147,12 @@ class CommandRLine : public Command
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
-			unsigned long duration = InspIRCd::Duration(parameters[1]);
+			unsigned long duration;
+			if (!InspIRCd::Duration(parameters[1], duration))
+			{
+				user->WriteNotice("*** Invalid duration");
+				return CMD_FAILURE;
+			}
 			XLine *r = NULL;
 
 			try

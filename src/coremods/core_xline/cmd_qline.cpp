@@ -44,7 +44,12 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 			return CMD_FAILURE;
 		}
 
-		unsigned long duration = InspIRCd::Duration(parameters[1]);
+		unsigned long duration;
+		if (!InspIRCd::Duration(parameters[1], duration))
+		{
+			user->WriteNotice("*** Invalid duration");
+			return CMD_FAILURE;
+		}
 		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 		if (ServerInstance->XLines->AddLine(ql,user))
 		{

@@ -72,8 +72,8 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 		}
 
 		unsigned int len = ConvToNum<unsigned int>(parameter.substr(0, colon));
-		unsigned int time = InspIRCd::Duration(duration);
-		if (len == 0 || (len > maxlines && IS_LOCAL(source)))
+		unsigned long time;
+		if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;

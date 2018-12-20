@@ -62,7 +62,12 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, "Z", "ipmasks"))
 			return CMD_FAILURE;
 
-		unsigned long duration = InspIRCd::Duration(parameters[1]);
+		unsigned long duration;
+		if (!InspIRCd::Duration(parameters[1], duration))
+		{
+			user->WriteNotice("*** Invalid duration");
+			return CMD_FAILURE;
+		}
 		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{

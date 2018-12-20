@@ -90,7 +90,11 @@ class CommandShun : public Command
 			std::string expr;
 			if (parameters.size() > 2)
 			{
-				duration = InspIRCd::Duration(parameters[1]);
+				if (!InspIRCd::Duration(parameters[1], duration))
+				{
+					user->WriteNotice("*** Invalid duration");
+					return CMD_FAILURE;
+				}
 				expr = parameters[2];
 			}
 			else

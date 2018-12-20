@@ -111,7 +111,12 @@ class CommandCBan : public Command
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			unsigned long duration = InspIRCd::Duration(parameters[1]);
+			unsigned long duration;
+			if (!InspIRCd::Duration(parameters[1], duration))
+			{
+				user->WriteNotice("*** Invalid duration");
+				return CMD_FAILURE;
+			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 

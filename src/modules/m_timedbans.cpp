@@ -84,13 +84,13 @@ class CommandTban : public Command
 		}
 
 		TimedBan T;
-		unsigned long duration = InspIRCd::Duration(parameters[1]);
-		unsigned long expire = duration + ServerInstance->Time();
-		if (duration < 1)
+		unsigned long duration;
+		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("Invalid ban time");
 			return CMD_FAILURE;
 		}
+		unsigned long expire = duration + ServerInstance->Time();
 		std::string mask = parameters[2];
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
 		if (!isextban && !InspIRCd::IsValidMask(mask))

@@ -64,7 +64,12 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 			return CMD_FAILURE;
 		}
 
-		unsigned long duration = InspIRCd::Duration(parameters[1]);
+		unsigned long duration;
+		if (!InspIRCd::Duration(parameters[1], duration))
+		{
+			user->WriteNotice("*** Invalid duration");
+			return CMD_FAILURE;
+		}
 		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
