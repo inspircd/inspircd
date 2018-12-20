@@ -609,7 +609,7 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	if (!readString(key, duration))
 		return def;
 
-	unsigned long ret = def;
+	unsigned long ret;
 	if (!InspIRCd::Duration(duration, ret))
 	{
 		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
