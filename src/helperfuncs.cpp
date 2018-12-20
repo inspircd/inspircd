@@ -374,7 +374,7 @@ static const int duration_multi[] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-bool InspIRCd::Duration(const std::string &str, unsigned long& duration)
+bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 {
 	long total = 0;
 	long subtotal = 0;
@@ -393,7 +393,7 @@ bool InspIRCd::Duration(const std::string &str, unsigned long& duration)
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */
-			int multiplier = duration_multi[*i];
+			int multiplier = duration_multi[static_cast<unsigned char>(*i)];
 			if (multiplier == 0)
 				return false;
 
