@@ -489,9 +489,19 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		params[1].swap(params[3]);
 		params.erase(params.begin()+2, params.begin()+4);
 
-		// If the source of this SERVER message is not bursting, then new servers it introduces are bursting
-		TreeServer* server = TreeServer::Get(who);
-		if (!server->IsBursting())
+		// If the source of this SERVER message or any of its parents are bursting, then new servers it
+		// introduces are not bursting.
+		bool bursting = false;
+		for (TreeServer* server = TreeServer::Get(who); server; server = server->GetParent())
+		{
+			if (server->IsBursting())
+			{
+				bursting = true;
+				break;
+			}
+		}
+
+		if (!bursting)
 			params.insert(params.begin()+2, "burst=" + ConvToStr(((uint64_t)ServerInstance->Time())*1000));
 	}
 	else if (cmd == "BURST")
