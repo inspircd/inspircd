@@ -423,7 +423,7 @@ bool InspIRCd::IsValidDuration(const std::string& duration)
 		if (((c >= '0') && (c <= '9')))
 			continue;
 
-		if (duration_multi[c] == 0)
+		if (!duration_multi[c])
 			return false;
 	}
 	return true;
