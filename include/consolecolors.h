@@ -19,7 +19,46 @@
 
 #include <ostream>
 
-#ifdef _WIN32
+inline std::ostream& con_green(std::ostream &s);
+inline std::ostream& con_red(std::ostream &s);
+inline std::ostream& con_white(std::ostream &s);
+inline std::ostream& con_white_bright(std::ostream &s);
+inline std::ostream& con_bright(std::ostream &s);
+inline std::ostream& con_reset(std::ostream &s);
+
+#ifdef INSPIRCD_DISABLE_COLORS
+
+inline std::ostream& con_green(std::ostream &s)
+{
+	return s;
+}
+
+inline std::ostream& con_red(std::ostream &s)
+{
+	return s;
+}
+
+inline std::ostream& con_white(std::ostream &s)
+{
+	return s;
+}
+
+inline std::ostream& con_white_bright(std::ostream &s)
+{
+	return s;
+}
+
+inline std::ostream& con_bright(std::ostream &s)
+{
+	return s;
+}
+
+inline std::ostream& con_reset(std::ostream &s)
+{
+	return s;
+}
+
+#elif defined _WIN32
 
 #include <windows.h>
 
