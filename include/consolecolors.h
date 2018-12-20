@@ -65,33 +65,53 @@ inline std::ostream& con_reset(std::ostream &s)
 
 #else
 
+#include <unistd.h>   // for isatty()
+#include <stdio.h>    // for fileno()
+
+static inline bool IsRunningInteractive()
+{
+	return isatty(fileno(stdout));
+}
+
 inline std::ostream& con_green(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[1;32m";
 }
 
 inline std::ostream& con_red(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[1;31m";
 }
 
 inline std::ostream& con_white(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[0m";
 }
 
 inline std::ostream& con_white_bright(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[1m";
 }
 
 inline std::ostream& con_bright(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[1m";
 }
 
 inline std::ostream& con_reset(std::ostream &s)
 {
+	if (!IsRunningInteractive())
+		return s;
 	return s << "\033[0m";
 }
 
