@@ -354,7 +354,7 @@ void InspIRCd::CheckRoot()
  * the ascii values 'm' and 'M' have the value '60', the indexes
  * for the ascii values 'D' and 'd' have a value of '86400', etc.
  */
-static const int duration_multi[] =
+static const unsigned int duration_multi[] =
 {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -376,8 +376,8 @@ static const int duration_multi[] =
 
 bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 {
-	long total = 0;
-	long subtotal = 0;
+	unsigned long total = 0;
+	unsigned long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
 	for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
@@ -393,7 +393,7 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */
-			int multiplier = duration_multi[static_cast<unsigned char>(*i)];
+			unsigned int multiplier = duration_multi[static_cast<unsigned char>(*i)];
 			if (multiplier == 0)
 				return false;
 
