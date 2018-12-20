@@ -92,7 +92,7 @@ class CommandShun : public Command
 			{
 				if (!InspIRCd::Duration(parameters[1], duration))
 				{
-					user->WriteNotice("*** Invalid duration");
+					user->WriteNotice("*** Invalid duration for SHUN");
 					return CMD_FAILURE;
 				}
 				expr = parameters[2];

@@ -55,7 +55,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				unsigned long duration;
 				if (!InspIRCd::Duration(parameters[2], duration))
 				{
-					user->WriteNotice("*** Invalid duration");
+					user->WriteNotice("*** Invalid duration for invite");
 					return CMD_FAILURE;
 				}
 				timeout = ServerInstance->Time() + duration;

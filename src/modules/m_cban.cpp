@@ -114,7 +114,7 @@ class CommandCBan : public Command
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration");
+				user->WriteNotice("*** Invalid duration for CBan");
 				return CMD_FAILURE;
 			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";

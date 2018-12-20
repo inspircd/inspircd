@@ -150,7 +150,7 @@ class CommandRLine : public Command
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration");
+				user->WriteNotice("*** Invalid duration for R-line");
 				return CMD_FAILURE;
 			}
 			XLine *r = NULL;

@@ -221,7 +221,7 @@ class CommandDccallow : public Command
 					{
 						if (!InspIRCd::Duration(parameters[1], length))
 						{
-							user->WriteNotice("*** Invalid duration");
+							user->WriteNotice("*** Invalid duration for DCC allow");
 							return CMD_FAILURE;
 						}
 					}

@@ -65,7 +65,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration");
+			user->WriteNotice("*** Invalid duration for Z-line");
 			return CMD_FAILURE;
 		}
 		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);

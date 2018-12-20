@@ -253,7 +253,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				{
 					if (!InspIRCd::Duration(parameters[3], duration))
 					{
-						user->WriteNotice("*** Invalid duration");
+						user->WriteNotice("*** Invalid duration for filter");
 						return CMD_FAILURE;
 					}
 					reasonindex = 4;

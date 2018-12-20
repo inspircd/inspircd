@@ -61,7 +61,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration");
+			user->WriteNotice("*** Invalid duration for E-line");
 			return CMD_FAILURE;
 		}
 		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
