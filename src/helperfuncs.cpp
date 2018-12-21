@@ -354,43 +354,38 @@ void InspIRCd::CheckRoot()
  * the ascii values 'm' and 'M' have the value '60', the indexes
  * for the ascii values 'D' and 'd' have a value of '86400', etc.
  */
-static const int duration_multi[] =
+static const unsigned int duration_multi[] =
 {
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 86400, 1, 1, 1, 3600,
-	1, 1, 1, 1, 60, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	604800, 1, 31557600, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 86400, 1, 1, 1, 3600, 1, 1, 1, 1, 60,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 604800, 1, 31557600,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 86400, 0, 0, 0, 3600, 0, 0, 0, 0, 60, 0, 0,
+	0, 0, 0, 1, 0, 0, 0, 604800, 0, 31557600, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 86400, 0, 0, 0, 3600, 0, 0, 0, 0, 60, 0, 0,
+	0, 0, 0, 1, 0, 0, 0, 604800, 0, 31557600, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-unsigned long InspIRCd::Duration(const std::string &str)
+bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 {
-	unsigned char multiplier = 0;
-	long total = 0;
-	long times = 1;
-	long subtotal = 0;
+	unsigned long total = 0;
+	unsigned long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
-	for (std::string::const_reverse_iterator i = str.rbegin(); i != str.rend(); ++i)
+	for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
 	{
 		/* Found a number, queue it onto the current number */
 		if ((*i >= '0') && (*i <= '9'))
 		{
-			subtotal = subtotal + ((*i - '0') * times);
-			times = times * 10;
+			subtotal = (subtotal * 10) + (*i - '0');
 		}
 		else
 		{
@@ -398,22 +393,26 @@ unsigned long InspIRCd::Duration(const std::string &str)
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */
-			if (subtotal)
-				total += subtotal * duration_multi[multiplier];
+			unsigned int multiplier = duration_multi[static_cast<unsigned char>(*i)];
+			if (multiplier == 0)
+				return false;
+
+			total += subtotal * multiplier;
 
 			/* Next subtotal please */
 			subtotal = 0;
-			multiplier = *i;
-			times = 1;
 		}
 	}
-	if (multiplier)
-	{
-		total += subtotal * duration_multi[multiplier];
-		subtotal = 0;
-	}
 	/* Any trailing values built up are treated as raw seconds */
-	return total + subtotal;
+	duration = total + subtotal;
+	return true;
+}
+
+unsigned long InspIRCd::Duration(const std::string& str)
+{
+	unsigned long out = 0;
+	InspIRCd::Duration(str, out);
+	return out;
 }
 
 bool InspIRCd::IsValidDuration(const std::string& duration)
@@ -421,10 +420,10 @@ bool InspIRCd::IsValidDuration(const std::string& duration)
 	for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
 	{
 		unsigned char c = *i;
-		if (((c >= '0') && (c <= '9')) || (c == 's') || (c == 'S'))
+		if (((c >= '0') && (c <= '9')))
 			continue;
 
-		if (duration_multi[c] == 1)
+		if (!duration_multi[c])
 			return false;
 	}
 	return true;

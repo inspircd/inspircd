@@ -51,7 +51,15 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		if (parameters.size() >= 3)
 		{
 			if (IS_LOCAL(user))
-				timeout = ServerInstance->Time() + InspIRCd::Duration(parameters[2]);
+			{
+				unsigned long duration;
+				if (!InspIRCd::Duration(parameters[2], duration))
+				{
+					user->WriteNotice("*** Invalid duration for invite");
+					return CMD_FAILURE;
+				}
+				timeout = ServerInstance->Time() + duration;
+			}
 			else if (parameters.size() > 3)
 				timeout = ConvToNum<time_t>(parameters[3]);
 		}

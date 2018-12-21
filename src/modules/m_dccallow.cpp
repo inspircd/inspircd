@@ -219,7 +219,11 @@ class CommandDccallow : public Command
 					}
 					else
 					{
-						length = InspIRCd::Duration(parameters[1]);
+						if (!InspIRCd::Duration(parameters[1], length))
+						{
+							user->WriteNotice("*** Invalid duration for DCC allow");
+							return CMD_FAILURE;
+						}
 					}
 
 					if (!InspIRCd::IsValidMask(mask))

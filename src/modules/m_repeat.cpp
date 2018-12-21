@@ -34,7 +34,7 @@ class ChannelSettings
 	unsigned int Backlog;
 	unsigned int Lines;
 	unsigned int Diff;
-	unsigned int Seconds;
+	unsigned long Seconds;
 
 	void serialize(std::string& out) const
 	{
@@ -277,7 +277,10 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
 			return false;
 
-		if ((!stream.GetToken(item)) || ((settings.Seconds = InspIRCd::Duration(item)) == 0))
+		if (!InspIRCd::Duration(item, settings.Seconds))
+			return false;
+
+		if ((!stream.GetToken(item)) || (settings.Seconds == 0))
 			// Required parameter missing
 			return false;
 

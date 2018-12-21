@@ -40,8 +40,8 @@ class CommandSetidle : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		int idle = InspIRCd::Duration(parameters[0]);
-		if (idle < 1)
+		unsigned long idle;
+		if (!InspIRCd::Duration(parameters[0], idle))
 		{
 			user->WriteNumeric(ERR_INVALIDIDLETIME, "Invalid idle time.");
 			return CMD_FAILURE;

@@ -251,7 +251,11 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			{
 				if (parameters.size() >= 5)
 				{
-					duration = InspIRCd::Duration(parameters[3]);
+					if (!InspIRCd::Duration(parameters[3], duration))
+					{
+						user->WriteNotice("*** Invalid duration for filter");
+						return CMD_FAILURE;
+					}
 					reasonindex = 4;
 				}
 				else
