@@ -16,11 +16,11 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Joyent, Inc. and other Node contributors
 
-**Last Updated** &mdash; 2018-10-04 (77310eeb839c4251c07184a5db8885a572a08352)
+**Last Updated** &mdash; 2010-01-01 (v2.9.0)
 
 **License** &mdash; MIT License
 
-**Website** &mdash; (https://github.com/nodejs/http-parser  )[https://github.com/nodejs/http-parser]
+**Website** &mdash; (https://github.com/nodejs/http-parser)[https://github.com/nodejs/http-parser]
 
 ## sha256
 
