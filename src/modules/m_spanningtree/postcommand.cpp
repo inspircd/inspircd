@@ -101,7 +101,10 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 				return;
 			// TODO OnBuildExemptList hook was here
 			CUList exempts;
-			SendChannelMessage(user->uuid, c, parameters[1], pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
+			std::string message;
+			if (parameters.size() >= 2)
+				message.assign(parameters[1]);
+			SendChannelMessage(user->uuid, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{

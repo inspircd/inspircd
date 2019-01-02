@@ -359,7 +359,9 @@ void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channe
 	msg.push_raw(' ');
 	if (status != 0)
 		msg.push_raw(status);
-	msg.push_raw(target->name).push_last(text);
+	msg.push_raw(target->name);
+	if (!text.empty())
+		msg.push_last(text);
 
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
