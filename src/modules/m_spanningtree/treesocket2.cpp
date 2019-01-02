@@ -38,52 +38,61 @@ void TreeSocket::Error(CommandBase::Params& params)
 	SetError("received ERROR " + msg);
 }
 
-void TreeSocket::Split(const std::string& line, std::string& prefix, std::string& command, CommandBase::Params& params)
+void TreeSocket::Split(const std::string& line, std::string& tags, std::string& prefix, std::string& command, CommandBase::Params& params)
 {
+	std::string token;
 	irc::tokenstream tokens(line);
 
-	if (!tokens.GetMiddle(prefix))
+	if (!tokens.GetMiddle(token))
 		return;
 
-	if (prefix[0] == ':')
+	if (token[0] == '@')
 	{
-		prefix.erase(prefix.begin());
-
-		if (prefix.empty())
+		if (token.length() <= 1)
 		{
-			this->SendError("BUG (?) Empty prefix received: " + line);
+			this->SendError("BUG: Received a message with empty tags: " + line);
 			return;
 		}
-		if (!tokens.GetMiddle(command))
+
+		tags.assign(token, 1, std::string::npos);
+		if (!tokens.GetMiddle(token))
 		{
-			this->SendError("BUG (?) Empty command received: " + line);
+			this->SendError("BUG: Received a message with no command: " + line);
 			return;
 		}
 	}
-	else
-	{
-		command = prefix;
-		prefix.clear();
-	}
-	if (command.empty())
-		this->SendError("BUG (?) Empty command received: " + line);
 
-	std::string param;
-	while (tokens.GetTrailing(param))
+	if (token[0] == ':')
 	{
-		params.push_back(param);
+		if (token.length() <= 1)
+		{
+			this->SendError("BUG: Received a message with an empty prefix: " + line);
+			return;
+		}
+
+		prefix.assign(token, 1, std::string::npos);
+		if (!tokens.GetMiddle(token))
+		{
+			this->SendError("BUG: Received a message with no command: " + line);
+			return;
+		}
 	}
+
+	command.assign(token);
+	while (tokens.GetTrailing(token))
+		params.push_back(token);
 }
 
 void TreeSocket::ProcessLine(std::string &line)
 {
+	std::string tags;
 	std::string prefix;
 	std::string command;
 	CommandBase::Params params;
 
 	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 
-	Split(line, prefix, command, params);
+	Split(line, tags, prefix, command, params);
 
 	if (command.empty())
 		return;
@@ -207,7 +216,7 @@ void TreeSocket::ProcessLine(std::string &line)
 			 *  Credentials have been exchanged, we've gotten their 'BURST' (or sent ours).
 			 *  Anything from here on should be accepted a little more reasonably.
 			 */
-			this->ProcessConnectedLine(prefix, command, params);
+			this->ProcessConnectedLine(tags, prefix, command, params);
 		break;
 		case DYING:
 		break;
@@ -263,7 +272,35 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 	return NULL;
 }
 
-void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command, CommandBase::Params& params)
+void TreeSocket::ProcessTag(User* source, const std::string& tag, ClientProtocol::TagMap& tags)
+{
+	std::string tagkey;
+	std::string tagval;
+	const std::string::size_type p = tag.find('=');
+	if (p != std::string::npos)
+	{
+		// Tag has a value
+		tagkey.assign(tag, 0, p);
+		tagval.assign(tag, p + 1, std::string::npos);
+	}
+	else
+	{
+		tagkey.assign(tag);
+	}
+
+	const Events::ModuleEventProvider::SubscriberList& list = Utils->Creator->tagevprov.GetSubscribers();
+	for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
+		const ModResult res = tagprov->OnClientProtocolProcessTag(source, tagkey, tagval);
+		if (res == MOD_RES_ALLOW)
+			tags.insert(std::make_pair(tagkey, ClientProtocol::MessageTagData(tagprov, tagval)));
+		else if (res == MOD_RES_DENY)
+			break;
+	}
+}
+
+void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix, std::string& command, CommandBase::Params& params)
 {
 	User* who = FindSource(prefix, command);
 	if (!who)
@@ -344,6 +381,10 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else
 	{
 		ClientProtocol::TagMap tags;
+		std::string tag;
+		irc::sepstream tagstream(taglist, ';');
+		while (tagstream.GetToken(tag))
+			ProcessTag(who, tag, tags);
 		res = cmd->Handle(who, CommandBase::Params(params, tags));
 		if (res == CMD_INVALID)
 			throw ProtocolException("Error in command handler");

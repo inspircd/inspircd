@@ -83,6 +83,9 @@ class ModuleSpanningTree
  public:
 	dynamic_reference<DNS::Manager> DNS;
 
+	/** Event provider for message tags. */
+	Events::ModuleEventProvider tagevprov;
+
 	ServerCommandManager CmdManager;
 
 	/** Set to true if inside a spanningtree call, to prevent sending

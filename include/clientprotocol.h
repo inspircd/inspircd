@@ -549,7 +549,7 @@ class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
 	 * MOD_RES_PASSTHRU to make no decision. If no hooks accept a tag, the tag is rejected.
 	 * The default implementation returns MOD_RES_PASSTHRU.
 	 */
-	virtual ModResult OnClientProtocolProcessTag(LocalUser* user, const std::string& tagname, std::string& tagvalue)
+	virtual ModResult OnClientProtocolProcessTag(User* user, const std::string& tagname, std::string& tagvalue)
 	{
 		return MOD_RES_PASSTHRU;
 	}

@@ -119,6 +119,30 @@ class CmdBuilder
 		return *this;
 	}
 
+	CmdBuilder& push_tags(const ClientProtocol::TagMap& tags)
+	{
+		if (!tags.empty())
+		{
+			char separator = '@';
+			std::string taglist;
+			for (ClientProtocol::TagMap::const_iterator iter = tags.begin(); iter != tags.end(); ++iter)
+			{
+				taglist.push_back(separator);
+				separator = ';';
+
+				taglist.append(iter->first);
+				if (!iter->second.value.empty())
+				{
+					taglist.push_back('=');
+					taglist.append(iter->second.value);
+				}
+			}
+			taglist.push_back(' ');
+			content.insert(0, taglist);
+		}
+		return *this;
+	}
+
 	template<typename T>
 	CmdBuilder& insert(const T& cont)
 	{

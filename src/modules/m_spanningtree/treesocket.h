@@ -294,13 +294,17 @@ class TreeSocket : public BufferedSocket
 
 	/** Handle IRC line split
 	 */
-	void Split(const std::string &line, std::string& prefix, std::string& command, CommandBase::Params& params);
+	void Split(const std::string& line, std::string& tags, std::string& prefix, std::string& command, CommandBase::Params& params);
 
 	/** Process complete line from buffer
 	 */
 	void ProcessLine(std::string &line);
 
-	void ProcessConnectedLine(std::string& prefix, std::string& command, CommandBase::Params& params);
+	/** Process message tags received from a remote server. */
+	void ProcessTag(User* source, const std::string& tag, ClientProtocol::TagMap& tags);
+
+	/** Process a message for a fully connected server. */
+	void ProcessConnectedLine(std::string& tags, std::string& prefix, std::string& command, CommandBase::Params& params);
 
 	/** Handle socket timeout from connect()
 	 */

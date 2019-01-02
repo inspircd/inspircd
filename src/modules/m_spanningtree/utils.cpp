@@ -352,9 +352,10 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	return NULL;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
+void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
 {
 	CmdBuilder msg(prefix, message_type);
+	msg.push_tags(tags);
 	msg.push_raw(' ');
 	if (status != 0)
 		msg.push_raw(status);

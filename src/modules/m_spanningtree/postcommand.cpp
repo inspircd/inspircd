@@ -39,6 +39,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 	const bool encap = ((routing.type == ROUTE_TYPE_OPT_BCAST) || (routing.type == ROUTE_TYPE_OPT_UCAST));
 	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
+	params.push_tags(parameters.GetTags());
 	TreeServer* sdest = NULL;
 
 	if (routing.type == ROUTE_TYPE_OPT_BCAST)
@@ -100,7 +101,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 				return;
 			// TODO OnBuildExemptList hook was here
 			CUList exempts;
-			SendChannelMessage(user->uuid, c, parameters[1], pfx, exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
+			SendChannelMessage(user->uuid, c, parameters[1], pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{

@@ -46,6 +46,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, currmembid(0)
 	, eventprov(this, "event/server")
 	, DNS(this, "DNS")
+	, tagevprov(this, "event/messagetag")
 	, loopCall(false)
 {
 }
@@ -410,6 +411,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		if (!IS_LOCAL(d))
 		{
 			CmdBuilder params(user, message_type);
+			params.push_tags(details.tags_out);
 			params.push_back(d->uuid);
 			params.push_last(details.text);
 			params.Unicast(d);
@@ -417,12 +419,13 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 	}
 	else if (target.type == MessageTarget::TYPE_CHANNEL)
 	{
-		Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.exemptions, message_type);
+		Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.tags_out, details.exemptions, message_type);
 	}
 	else if (target.type == MessageTarget::TYPE_SERVER)
 	{
 		const std::string* serverglob = target.Get<std::string>();
 		CmdBuilder par(user, message_type);
+		par.push_tags(details.tags_out);
 		par.push_back(*serverglob);
 		par.push_last(details.text);
 		par.Broadcast();
