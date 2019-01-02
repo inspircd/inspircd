@@ -39,6 +39,12 @@ void TreeSocket::WriteLine(const std::string& original_line)
 		{
 			std::string line = original_line;
 			std::string::size_type a = line.find(' ');
+			if (line[0] == '@')
+			{
+				// The line contains tags which the 1202 protocol can't handle.
+				line.erase(0, a);
+				a = line.find(' ');
+			}
 			std::string::size_type b = line.find(' ', a + 1);
 			std::string command(line, a + 1, b-a-1);
 			// now try to find a translation entry
