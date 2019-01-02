@@ -35,12 +35,6 @@ void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState == CONNECTED)
 	{
-		if (original_line.c_str()[0] != ':')
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Sending line without server prefix!");
-			WriteLine(":" + ServerInstance->Config->GetSID() + " " + original_line);
-			return;
-		}
 		if (proto_version != ProtocolVersion)
 		{
 			std::string line = original_line;
