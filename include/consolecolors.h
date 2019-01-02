@@ -107,9 +107,12 @@ inline std::ostream& con_reset(std::ostream &s)
 #include <unistd.h>   // for isatty()
 #include <stdio.h>    // for fileno()
 
-static inline bool IsRunningInteractive()
+namespace
 {
-	return isatty(fileno(stdout));
+	inline bool IsRunningInteractive()
+	{
+		return isatty(fileno(stdout));
+	}
 }
 
 inline std::ostream& con_green(std::ostream &s)
