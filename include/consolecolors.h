@@ -18,27 +18,19 @@
 #pragma once
 
 #include <ostream>
-#include <stdio.h> // for fileno()
+#include <stdio.h>
 
 #ifdef _WIN32
-#include <io.h>
-
-#define isatty(x) _isatty((x))
-#define fileno(x) _fileno((x))
+# include <io.h>
+# define isatty(x) _isatty((x))
+# define fileno(x) _fileno((x))
 #else
-#include <unistd.h>   // for isatty()
+# include <unistd.h>
 #endif
-
-inline std::ostream& con_green(std::ostream &s);
-inline std::ostream& con_red(std::ostream &s);
-inline std::ostream& con_white(std::ostream &s);
-inline std::ostream& con_white_bright(std::ostream &s);
-inline std::ostream& con_bright(std::ostream &s);
-inline std::ostream& con_reset(std::ostream &s);
 
 namespace
 {
-	inline bool IsRunningInteractive()
+	inline bool CanUseColors()
 	{
 #ifdef INSPIRCD_DISABLE_COLORS
 		return false;
@@ -58,42 +50,42 @@ extern HANDLE g_hStdout;
 
 inline std::ostream& con_green(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
 	return s;
 }
 
 inline std::ostream& con_red(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_INTENSITY|g_wBackgroundColor);
 	return s;
 }
 
 inline std::ostream& con_white(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|g_wBackgroundColor);
 	return s;
 }
 
 inline std::ostream& con_white_bright(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
 	return s;
 }
 
 inline std::ostream& con_bright(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_INTENSITY|g_wBackgroundColor);
 	return s;
 }
 
 inline std::ostream& con_reset(std::ostream &s)
 {
-	if (IsRunningInteractive())
+	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, g_wOriginalColors);
 	return s;
 }
@@ -102,42 +94,42 @@ inline std::ostream& con_reset(std::ostream &s)
 
 inline std::ostream& con_green(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[1;32m";
 }
 
 inline std::ostream& con_red(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[1;31m";
 }
 
 inline std::ostream& con_white(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[0m";
 }
 
 inline std::ostream& con_white_bright(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[1m";
 }
 
 inline std::ostream& con_bright(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[1m";
 }
 
 inline std::ostream& con_reset(std::ostream &s)
 {
-	if (!IsRunningInteractive())
+	if (!CanUseColors())
 		return s;
 	return s << "\033[0m";
 }
