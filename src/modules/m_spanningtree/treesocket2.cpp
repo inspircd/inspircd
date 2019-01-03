@@ -359,7 +359,7 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 				return;
 			}
 
-			throw ProtocolException("Unknown command");
+			throw ProtocolException("Unknown command: " + command);
 		}
 		cmdbase = cmd;
 	}
