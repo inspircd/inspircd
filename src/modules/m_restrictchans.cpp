@@ -21,18 +21,19 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
 typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 
 class ModuleRestrictChans : public Module
 {
 	AllowChans allowchans;
-	UserModeReference regmode;
 	bool allowregistered;
 
 	bool CanCreateChannel(LocalUser* user, const std::string& name)
 	{
-		if (allowregistered && user->IsModeSet(regmode))
+		const AccountExtItem* accountext = GetAccountExtItem();
+		if (allowregistered && accountext->get(user))
 			return true;
 
 		if (user->HasPrivPermission("channels/restricted-create"))
@@ -49,8 +50,7 @@ class ModuleRestrictChans : public Module
 
  public:
 	ModuleRestrictChans()
-		: regmode(this, "u_registered")
-		, allowregistered(false)
+		: allowregistered(false)
 	{
 	}
 
