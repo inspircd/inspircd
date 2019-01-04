@@ -46,8 +46,8 @@ class ModuleRestrictChans : public Module
 
  public:
 	ModuleRestrictChans()
-		: allowregistered(false)
-		, regmode(this, "u_registered")
+		: regmode(this, "u_registered")
+		, allowregistered(false)
 	{
 	}
 
