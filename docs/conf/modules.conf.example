@@ -1671,14 +1671,6 @@
 #<module name="regex_tre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Registered users only channel creation module. If enabled, only
-# registered users and opers can create new channels.
-#
-# You probably *DO NOT* want to load this module on a public network.
-#
-#<module name="regonlycreate">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Remove module: Adds the /REMOVE command which is a peaceful
 # alternative to /KICK.
 #<module name="remove">
@@ -1710,11 +1702,16 @@
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restricted channels module: Allows only opers to create channels.
+# Restricted channels module: Allows only opers or registered users to create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
 #<module name="restrictchans">
+
+#<restrictchans allowregistered="false">
+
+# Allow any channel matching #user-* to be created, bypassing restrictchans checks
+#<allowchannel name="#user-*">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restrict message module: Allows users to only message opers.
