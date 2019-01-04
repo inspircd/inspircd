@@ -35,7 +35,7 @@ class ModuleRestrictChans : public Module
 		if (allowregistered && user->IsModeSet(regmode))
 			return true;
 
-		if (user->IsOper())
+		if (user->HasPrivPermission("channels/restricted-create"))
 			return true;
 
 		if (allowchans.count(name))
