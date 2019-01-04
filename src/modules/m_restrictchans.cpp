@@ -38,8 +38,11 @@ class ModuleRestrictChans : public Module
 		if (user->HasPrivPermission("channels/restricted-create"))
 			return true;
 
-		if (allowchans.count(name))
-			return true;
+		for (AllowChans::const_iterator it = allowchans.begin(), it_end = allowchans.end(); it != it_end; ++it)
+		{
+			if (InspIRCd::Match(name, *it))
+				return true;
+		}
 
 		return false;
 	}
