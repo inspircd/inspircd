@@ -33,7 +33,7 @@ class ModuleRestrictChans : public Module
 	bool CanCreateChannel(LocalUser* user, const std::string& name)
 	{
 		const AccountExtItem* accountext = GetAccountExtItem();
-		if (allowregistered && accountext->get(user))
+		if (allowregistered && accountext && accountext->get(user))
 			return true;
 
 		if (user->HasPrivPermission("channels/restricted-create"))
