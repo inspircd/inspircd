@@ -21,19 +21,44 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
 typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 
 class ModuleRestrictChans : public Module
 {
 	AllowChans allowchans;
+	bool allowregistered;
+
+	bool CanCreateChannel(LocalUser* user, const std::string& name)
+	{
+		const AccountExtItem* accountext = GetAccountExtItem();
+		if (allowregistered && accountext && accountext->get(user))
+			return true;
+
+		if (user->HasPrivPermission("channels/restricted-create"))
+			return true;
+
+		for (AllowChans::const_iterator it = allowchans.begin(), it_end = allowchans.end(); it != it_end; ++it)
+		{
+			if (InspIRCd::Match(name, *it))
+				return true;
+		}
+
+		return false;
+	}
 
  public:
+	ModuleRestrictChans()
+		: allowregistered(false)
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		AllowChans newallows;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
-		for(ConfigIter i = tags.first; i != tags.second; ++i)
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			const std::string name = i->second->getString("name");
 			if (name.empty())
@@ -42,26 +67,24 @@ class ModuleRestrictChans : public Module
 			newallows.insert(name);
 		}
 		allowchans.swap(newallows);
+
+		// Global config
+		ConfigTag* tag = ServerInstance->Config->ConfValue("restrictchans");
+		allowregistered = tag->getBool("allowregistered", false);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
-		if (!chan)
-		{
-			// user is not an oper and its not in the allow list
-			if ((!user->IsOper()) && (allowchans.find(cname) == allowchans.end()))
-			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "Only IRC operators may create new channels");
-				return MOD_RES_DENY;
-			}
-		}
+		if (!chan && !CanCreateChannel(user, cname))
+			return MOD_RES_DENY;
+
 		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR);
+		return Version("Allows restricting who can create channels", VF_VENDOR);
 	}
 };
 
