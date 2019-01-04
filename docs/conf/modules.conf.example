@@ -1702,7 +1702,8 @@
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restricted channels module: Allows only opers or registered users to create channels.
+# Restricted channels module: Allows only opers or registered users to
+# create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
