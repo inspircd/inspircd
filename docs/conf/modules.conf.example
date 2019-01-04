@@ -1709,7 +1709,9 @@
 #
 #<module name="restrictchans">
 
-#<restrictchans allowregistered="false">
+# Configure the restrictchans module
+#   allowregistered: should registered users be allowed to bypass the restrictions?
+#<restrictchans allowregistered="no">
 
 # Allow any channel matching #user-* to be created, bypassing restrictchans checks
 #<allowchannel name="#user-*">
