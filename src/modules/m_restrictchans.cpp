@@ -27,13 +27,35 @@ typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 class ModuleRestrictChans : public Module
 {
 	AllowChans allowchans;
+	UserModeReference regmode;
+	bool allowregistered;
+
+	bool CanCreateChannel(LocalUser* user, const std::string& name)
+	{
+		if (allowregistered && user->IsModeSet(regmode))
+			return true;
+
+		if (user->IsOper())
+			return true;
+
+		if (allowchans.count(name))
+			return true;
+
+		return false;
+	}
 
  public:
+	ModuleRestrictChans()
+		: allowregistered(false)
+		, regmode(this, "u_registered")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		AllowChans newallows;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
-		for(ConfigIter i = tags.first; i != tags.second; ++i)
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			const std::string name = i->second->getString("name");
 			if (name.empty())
@@ -42,26 +64,24 @@ class ModuleRestrictChans : public Module
 			newallows.insert(name);
 		}
 		allowchans.swap(newallows);
+
+		// Global config
+		ConfigTag* tag = ServerInstance->Config->ConfValue("restrictchans");
+		allowregistered = tag->getBool("allowregistered", false);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
-		if (!chan)
-		{
-			// user is not an oper and its not in the allow list
-			if ((!user->IsOper()) && (allowchans.find(cname) == allowchans.end()))
-			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "Only IRC operators may create new channels");
-				return MOD_RES_DENY;
-			}
-		}
+		if (!chan && !CanCreateChannel(user, cname))
+			return MOD_RES_DENY;
+
 		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR);
+		return Version("Only opers may create new channels if this module is loaded", VF_VENDOR);
 	}
 };
 
