@@ -26,7 +26,7 @@
 enum
 {
 	// InspIRCd-specific.
-	RPL_UNINVITED = 493
+	RPL_UNINVITED = 653
 };
 
 /** Handle /UNINVITE
