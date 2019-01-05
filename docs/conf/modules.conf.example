@@ -2183,7 +2183,7 @@
 # which are allowed to connect to the server. You should set this as
 # strict as possible to prevent malicious webpages from connecting to
 # your server.
-# <wsorigin allow="https://webchat.example.com/*">
+# <wsorigin allow="https://*.example.com/">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
