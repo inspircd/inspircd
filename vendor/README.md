@@ -16,7 +16,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Joyent, Inc. and other Node contributors
 
-**Last Updated** &mdash; 2010-01-01 (v2.9.0)
+**Last Updated** &mdash; 2019-01-01 (v2.9.0)
 
 **License** &mdash; MIT License
 
