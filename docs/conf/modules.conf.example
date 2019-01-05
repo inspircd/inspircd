@@ -1708,11 +1708,10 @@
 # You probably *DO NOT* want to load this module on a public network.
 #
 #<module name="restrictchans">
-
-# Configure the restrictchans module
-#   allowregistered: should registered users be allowed to bypass the restrictions?
+#
+# allowregistered: should registered users be allowed to bypass the restrictions?
 #<restrictchans allowregistered="no">
-
+#
 # Allow any channel matching #user-* to be created, bypassing restrictchans checks
 #<allowchannel name="#user-*">
 
