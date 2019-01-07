@@ -99,7 +99,13 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 			else
 				mdesc.append("simple:");
 		}
-		mdesc.append(mh->name);
+		// In the 2.0 inspircd-extras module m_override_umode
+		// it is called permitoverride
+		if (mh->creator->ModuleSourceFile == "m_override.so" && mh->name == "override" && proto_version == 1202)
+			mdesc.append("permitoverride");
+		else
+			mdesc.append(mh->name);
+
 		mdesc.push_back('=');
 		if (pm)
 		{
