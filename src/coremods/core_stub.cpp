@@ -21,6 +21,13 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_SUMMONDISABLED = 445,
+	ERR_USERSDISABLED = 446
+};
+
 
 /** Handle /CONNECT.
  */
@@ -134,22 +141,61 @@ class CommandSquit : public Command
 	}
 };
 
+class CommandSummon
+	: public SplitCommand
+{
+ public:
+	CommandSummon(Module* Creator)
+		: SplitCommand(Creator, "SUMMON", 1)
+	{
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	{
+		user->WriteNumeric(ERR_SUMMONDISABLED, "SUMMON has been disabled");
+		return CMD_SUCCESS;
+	}
+};
+
+class CommandUsers
+	: public SplitCommand
+{
+ public:
+	CommandUsers(Module* Creator)
+		: SplitCommand(Creator, "USERS")
+	{
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	{
+		user->WriteNumeric(ERR_USERSDISABLED, "USERS has been disabled");
+		return CMD_SUCCESS;
+	}
+};
+
 class CoreModStub : public Module
 {
 	CommandConnect cmdconnect;
 	CommandLinks cmdlinks;
 	CommandServer cmdserver;
 	CommandSquit cmdsquit;
+	CommandSummon cmdsummon;
+	CommandUsers cmdusers;
 
  public:
 	CoreModStub()
-		: cmdconnect(this), cmdlinks(this), cmdserver(this), cmdsquit(this)
+		: cmdconnect(this)
+		, cmdlinks(this)
+		, cmdserver(this)
+		, cmdsquit(this)
+		, cmdsummon(this)
+		, cmdusers(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the stub commands CONNECT, LINKS, SERVER and SQUIT", VF_VENDOR|VF_CORE);
+		return Version("Provides stubs for unimplemented commands", VF_VENDOR|VF_CORE);
 	}
 };
 
