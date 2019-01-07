@@ -20,8 +20,6 @@ If you encounter any bugs then [please file an issue](https://github.com/inspirc
 
 ## Installation
 
-**The `master` branch contains the latest development version. If you are running a server then you probably want the `insp20` branch. You can obtain this from [the releases page](https://github.com/inspircd/inspircd/releases) or by running `git checkout $(git describe --abbrev=0 --tags insp20)` if you are installing via Git.**
-
 Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd wiki](https://wiki.inspircd.org/Installation_From_Source).
 
 Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/master/win/README.txt) if you wish to do this.
