@@ -467,11 +467,12 @@ class CoreExport XLineManager
 	/** Delete an XLine
 	 * @param hostmask The xline-specific string identifying the line, e.g. "*@foo"
 	 * @param type The type of xline
+	 * @param reason The xline reason, if it is being removed successfully
 	 * @param user The user removing the line or NULL if its the local server
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelLine(const char* hostmask, const std::string &type, User* user, bool simulate = false);
+	bool DelLine(const char* hostmask, const std::string& type, std::string& reason, User* user, bool simulate = false);
 
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,
