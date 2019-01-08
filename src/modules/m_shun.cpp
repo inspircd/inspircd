@@ -92,7 +92,7 @@ class CommandShun : public Command
 			{
 				if (!InspIRCd::Duration(parameters[1], duration))
 				{
-					user->WriteNotice("*** Invalid duration for SHUN");
+					user->WriteNotice("*** Invalid duration for SHUN.");
 					return CMD_FAILURE;
 				}
 				expr = parameters[2];
@@ -122,7 +122,7 @@ class CommandShun : public Command
 			else
 			{
 				delete r;
-				user->WriteNotice("*** Shun for " + target + " already exists");
+				user->WriteNotice("*** Shun for " + target + " already exists.");
 				return CMD_FAILURE;
 			}
 		}

@@ -32,7 +32,7 @@ class RLine : public XLine
 {
  public:
 
-	/** Create a R-Line.
+	/** Create a R-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -81,7 +81,7 @@ class RLine : public XLine
 			if (ServerInstance->XLines->AddLine(zl, NULL))
 			{
 				std::string timestr = InspIRCd::TimeString(zl->expiry);
-				ServerInstance->SNO->WriteToSnoMask('x', "Z-line added due to R-line match on *@%s%s%s: %s",
+				ServerInstance->SNO->WriteToSnoMask('x', "Z-line added due to R-line match on %s%s%s: %s",
 					zl->ipaddr.c_str(), zl->duration ? " to expire on " : "", zl->duration ? timestr.c_str() : "", zl->reason.c_str());
 				added_zline = true;
 			}
@@ -150,7 +150,7 @@ class CommandRLine : public Command
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration for R-line");
+				user->WriteNotice("*** Invalid duration for R-line.");
 				return CMD_FAILURE;
 			}
 			XLine *r = NULL;
@@ -184,7 +184,7 @@ class CommandRLine : public Command
 				else
 				{
 					delete r;
-					user->WriteNotice("*** R-Line for " + parameters[0] + " already exists");
+					user->WriteNotice("*** R-line for " + parameters[0] + " already exists.");
 				}
 			}
 		}
@@ -196,7 +196,7 @@ class CommandRLine : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** R-Line " + parameters[0] + " not found in list, try /stats R.");
+				user->WriteNotice("*** R-line " + parameters[0] + " not found in list, try /stats R.");
 			}
 		}
 
@@ -279,15 +279,15 @@ class ModuleRLine : public Module, public Stats::EventListener
 		if (!rxfactory)
 		{
 			if (newrxengine.empty())
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: No regex engine loaded - R-Line functionality disabled until this is corrected.");
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
 			else
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", newrxengine.c_str());
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
 
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
 		else if ((!initing) && (rxfactory.operator->() != factory))
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Regex engine has changed, removing all R-Lines");
+			ServerInstance->SNO->WriteToSnoMask('a', "Regex engine has changed, removing all R-lines.");
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
 
@@ -331,7 +331,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
-		// If the regex engine became unavailable or has changed, remove all rlines
+		// If the regex engine became unavailable or has changed, remove all R-lines.
 		if (!rxfactory)
 		{
 			ServerInstance->XLines->DelAll(f.GetType());

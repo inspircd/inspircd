@@ -50,7 +50,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 
 		if (ih.first.empty())
 		{
-			user->WriteNotice("*** Target not found");
+			user->WriteNotice("*** Target not found.");
 			return CMD_FAILURE;
 		}
 
@@ -61,7 +61,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration for E-line");
+			user->WriteNotice("*** Invalid duration for E-line.");
 			return CMD_FAILURE;
 		}
 		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
@@ -82,7 +82,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		else
 		{
 			delete el;
-			user->WriteNotice("*** E-Line for " + target + " already exists");
+			user->WriteNotice("*** E-line for " + target + " already exists.");
 		}
 	}
 	else
@@ -93,7 +93,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** E-Line " + target + " not found in list, try /stats e");
+			user->WriteNotice("*** E-line " + target + " not found in list, try /stats e.");
 		}
 	}
 

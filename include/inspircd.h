@@ -284,7 +284,7 @@ class CoreExport InspIRCd
 	 */
 	TimerManager Timers;
 
-	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
+	/** X-line manager. Handles G/K/Q/E-line setting, removal and matching
 	 */
 	XLineManager* XLines;
 
