@@ -148,7 +148,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(kl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
+						ServerInstance->SNO->WriteGlobalSno('x', "K-line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -166,7 +166,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(gl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
+						ServerInstance->SNO->WriteGlobalSno('x', "G-line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -184,7 +184,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(zl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on %s to expire on %s: %s",
+						ServerInstance->SNO->WriteGlobalSno('x', "Z-line added due to DNSBL match on %s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}

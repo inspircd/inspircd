@@ -76,7 +76,7 @@ class SVSHoldFactory : public XLineFactory
  public:
 	SVSHoldFactory() : XLineFactory("SVSHOLD") { }
 
-	/** Generate a shun
+	/** Generate an SVSHOLD
  	*/
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
@@ -130,7 +130,7 @@ class CommandSvshold : public Command
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration for SVSHOLD");
+				user->WriteNotice("*** Invalid duration for SVSHOLD.");
 				return CMD_FAILURE;
 			}
 			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
@@ -221,7 +221,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
+		return Version("Implements SVSHOLD. Like Q-lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
 	}
 };
 

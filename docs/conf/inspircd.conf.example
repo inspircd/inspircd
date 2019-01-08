@@ -748,7 +748,7 @@
           # when a remote whois (/WHOIS <nick> <nick>) is used.
           #hideserver="*.example.com"
 
-          # hidebans: If this value is set to yes, when a user is banned ([gkz]lined)
+          # hidebans: If this value is set to yes, when a user is banned ([KGZ]-lined)
           # only opers will see the ban message when the user is removed
           # from the server.
           hidebans="no"
@@ -960,7 +960,7 @@
 <badhost host="root@*" reason="Don't IRC as root!">
 <badhost host="*@198.51.100.0/24" reason="This subnet is bad.">
 
-# exception: Hosts that are exempt from [kgz]lines.
+# exception: Hosts that are exempt from [KGZ]-lines.
 <exception
            # host: ident@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
@@ -971,14 +971,14 @@
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# This optional tag allows you to specify how wide a gline, eline,    #
-# kline, zline or qline can be before it is forbidden from being      #
-# set. By setting hostmasks="yes", you can allow all G, K, E lines,   #
+# This optional tag allows you to specify how wide a G-line, E-line,  #
+# K-line, Z-line or Q-line can be before it is forbidden from being   #
+# set. By setting hostmasks="yes", you can allow all G-, K-, E-lines, #
 # no matter how many users the ban would cover. This is not           #
-# recommended! By setting ipmasks="yes", you can allow all Z lines,   #
+# recommended! By setting ipmasks="yes", you can allow all Z-lines,   #
 # no matter how many users these cover too. Needless to say we        #
 # don't recommend you do this, or, set nickmasks="yes", which will    #
-# allow any qline.                                                    #
+# allow any Q-line.                                                   #
 #                                                                     #
 
 <insane
