@@ -107,6 +107,7 @@ class ModuleAlias : public Module
 
 	ModuleAlias()
 		: botmode(this, "bot")
+		, active(false)
 	{
 	}
 
