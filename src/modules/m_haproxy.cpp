@@ -256,7 +256,7 @@ class HAProxyHook : public IOHookMiddle
 
 					case AF_UNIX:
 						memcpy(client.un.sun_path, &recvq[0], 108);
-						memcpy(client.un.sun_path, &recvq[108], 108);
+						memcpy(server.un.sun_path, &recvq[108], 108);
 						tlv_index = 216;
 						break;
 				}
