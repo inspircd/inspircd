@@ -240,7 +240,7 @@ class HAProxyHook : public IOHookMiddle
 				{
 					case AF_INET:
 						memcpy(&client.in4.sin_addr.s_addr, &recvq[0], 4);
-						memcpy(&server.in4.sin_addr.s_addr, &recvq[4], 8);
+						memcpy(&server.in4.sin_addr.s_addr, &recvq[4], 4);
 						memcpy(&client.in4.sin_port, &recvq[8], 2);
 						memcpy(&server.in4.sin_port, &recvq[10], 2);
 						tlv_index = 12;
