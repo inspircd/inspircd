@@ -420,10 +420,14 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		std::string dnsbl;
 		if (!myclass->config->readString("dnsbl", dnsbl))
 			return MOD_RES_PASSTHRU;
+
 		std::string* match = nameExt.get(user);
-		std::string myname = match ? *match : "";
-		if (dnsbl == myname)
+		if (!match)
 			return MOD_RES_PASSTHRU;
+
+		if (InspIRCd::Match(*match, dnsbl))
+			return MOD_RES_PASSTHRU;
+
 		return MOD_RES_DENY;
 	}
 
