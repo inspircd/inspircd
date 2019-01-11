@@ -292,6 +292,10 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
+
+		if (myclass->config->getBool("requirenoaccount") && accountname.get(user))
+			return MOD_RES_DENY;
+
 		return MOD_RES_PASSTHRU;
 	}
 
