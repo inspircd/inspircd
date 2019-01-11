@@ -1021,7 +1021,6 @@
 # the timeout for ident lookups here. If not defined, it will default #
 # to 5 seconds. This is a non-blocking timeout which holds the user   #
 # in a 'connecting' state until the lookup is complete.               #
-# The bind value indicates which IP to bind outbound requests to.     #
 # nolookupprefix: If on, the idents of users being in a connect class #
 # with ident lookups disabled (i.e. <connect useident="off">) will be #
 # prefixed with a "~". If off, the ident of those users will not be   #
