@@ -312,6 +312,7 @@ class CoreExport StreamSocket : public EventHandler
 	/** Called when the endpoint addresses are changed.
 	 * @param local The new local endpoint.
 	 * @param remote The new remote endpoint.
+	 * @return true if the connection is still open, false if it has been closed
 	 */
 	virtual bool OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote);
 
