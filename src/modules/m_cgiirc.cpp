@@ -34,15 +34,6 @@ enum
 	RPL_WHOISGATEWAY = 350
 };
 
-// We need this method up here so that it can be accessed from anywhere
-static void ChangeIP(LocalUser* user, const irc::sockets::sockaddrs& sa)
-{
-	// Set the users IP address and make sure they are in the right clone pool.
-	user->SetClientIP(sa);
-	if (user->quitting)
-		return;
-}
-
 // Encapsulates information about an ident host.
 class IdentHost
 {
@@ -201,7 +192,7 @@ class CommandWebIRC : public SplitCommand
 
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
-			ChangeIP(user, ipaddr);
+			user->SetClientIP(ipaddr);
 			return CMD_SUCCESS;
 		}
 
@@ -377,7 +368,7 @@ class ModuleCgiIRC
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 
 			user->ChangeIdent(newident);
-			ChangeIP(user, address);
+			user->SetClientIP(address);
 			break; 
 		}
 		return MOD_RES_PASSTHRU;
