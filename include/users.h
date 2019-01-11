@@ -689,7 +689,7 @@ class CoreExport UserIOHandler : public StreamSocket
 	{
 	}
 	void OnDataReady() CXX11_OVERRIDE;
-	void OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
+	bool OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
 	void OnError(BufferedSocketError error) CXX11_OVERRIDE;
 
 	/** Adds to the user's write buffer.

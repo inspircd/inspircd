@@ -38,21 +38,7 @@ enum
 static void ChangeIP(LocalUser* user, const irc::sockets::sockaddrs& sa)
 {
 	// Set the users IP address and make sure they are in the right clone pool.
-	ServerInstance->Users->RemoveCloneCounts(user);
 	user->SetClientIP(sa);
-	ServerInstance->Users->AddClone(user);
-	if (user->quitting)
-		return;
-
-	// Recheck the connect class.
-	user->MyClass = NULL;
-	user->SetClass();
-	user->CheckClass();
-	if (user->quitting)
-		return;
-
-	// Check if this user matches any XLines.
-	user->CheckLines(true);
 	if (user->quitting)
 		return;
 }
