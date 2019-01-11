@@ -724,17 +724,17 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const std::string& address, bool recheck_eline)
+bool User::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	User::SetClientIP(sa, recheck_eline);
+	User::SetClientIP(sa);
 	return true;
 }
 
-void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
 	const std::string oldip(GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
@@ -747,17 +747,17 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 		ChangeDisplayedHost(GetIPString());
 }
 
-bool LocalUser::SetClientIP(const std::string& address, bool recheck_eline)
+bool LocalUser::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	LocalUser::SetClientIP(sa, recheck_eline);
+	LocalUser::SetClientIP(sa);
 	return true;
 }
 
-void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
 	if (sa == client_sa)
 		return;
@@ -765,8 +765,7 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_elin
 	ServerInstance->Users->RemoveCloneCounts(this);
 
 	User::SetClientIP(sa);
-	if (recheck_eline)
-		this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
+	this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
 
 	FOREACH_MOD(OnSetUserIP, (this));
 
