@@ -64,6 +64,15 @@ class CoreModXLine : public Module
 	{
 	}
 
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->quitting)
+			return;
+
+		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		user->CheckLines(true);
+	}
+
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
 		// Check Q-lines (for local nick changes only, remote servers have our Q-lines to enforce themselves)

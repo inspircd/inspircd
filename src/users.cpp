@@ -765,7 +765,6 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 	ServerInstance->Users->RemoveCloneCounts(this);
 
 	User::SetClientIP(sa);
-	this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
 
 	FOREACH_MOD(OnSetUserIP, (this));
 
@@ -775,12 +774,6 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 	this->MyClass = NULL;
 	this->SetClass();
 	this->CheckClass();
-
-	if (this->quitting)
-		return;
-
-	// Check if this user matches any XLines.
-	this->CheckLines(true);
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
