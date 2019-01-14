@@ -47,7 +47,7 @@ class HostRule
 	std::string suffix;
 
  public:
-	HostRule(const std::string& Host, const std::string& Mask, const insp::flat_set<int>& Ports)
+	HostRule(const std::string& Mask, const std::string& Host, const insp::flat_set<int>& Ports)
 		: action(HCA_SET)
 		, host(Host)
 		, mask(Mask)
