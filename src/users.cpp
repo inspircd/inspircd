@@ -318,10 +318,11 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
-void UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
+bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
 {
 	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
 	user->SetClientIP(client);
+	return !user->quitting;
 }
 
 void UserIOHandler::OnError(BufferedSocketError)
@@ -723,17 +724,17 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const std::string& address, bool recheck_eline)
+bool User::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	User::SetClientIP(sa, recheck_eline);
+	User::SetClientIP(sa);
 	return true;
 }
 
-void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
 	const std::string oldip(GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
@@ -746,26 +747,33 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 		ChangeDisplayedHost(GetIPString());
 }
 
-bool LocalUser::SetClientIP(const std::string& address, bool recheck_eline)
+bool LocalUser::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	LocalUser::SetClientIP(sa, recheck_eline);
+	LocalUser::SetClientIP(sa);
 	return true;
 }
 
-void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
-	if (sa != client_sa)
-	{
-		User::SetClientIP(sa);
-		if (recheck_eline)
-			this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
+	if (sa == client_sa)
+		return;
 
-		FOREACH_MOD(OnSetUserIP, (this));
-	}
+	ServerInstance->Users->RemoveCloneCounts(this);
+
+	User::SetClientIP(sa);
+
+	FOREACH_MOD(OnSetUserIP, (this));
+
+	ServerInstance->Users->AddClone(this);
+
+	// Recheck the connect class.
+	this->MyClass = NULL;
+	this->SetClass();
+	this->CheckClass();
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)

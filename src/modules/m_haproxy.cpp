@@ -261,7 +261,8 @@ class HAProxyHook : public IOHookMiddle
 						break;
 				}
 
-				sock->OnSetEndPoint(server, client);
+				if (!sock->OnSetEndPoint(server, client))
+					return -1;
 
 				// Parse any available TLVs.
 				while (tlv_index < address_length)

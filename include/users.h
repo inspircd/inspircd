@@ -380,9 +380,9 @@ class CoreExport User : public Extensible
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	virtual bool SetClientIP(const std::string& address, bool recheck_eline = true);
+	virtual bool SetClientIP(const std::string& address);
 
-	virtual void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
+	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
 
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
@@ -689,7 +689,7 @@ class CoreExport UserIOHandler : public StreamSocket
 	{
 	}
 	void OnDataReady() CXX11_OVERRIDE;
-	void OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
+	bool OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
 	void OnError(BufferedSocketError error) CXX11_OVERRIDE;
 
 	/** Adds to the user's write buffer.
@@ -820,9 +820,9 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const std::string& address, bool recheck_eline = true) CXX11_OVERRIDE;
+	bool SetClientIP(const std::string& address) CXX11_OVERRIDE;
 
-	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true) CXX11_OVERRIDE;
+	void SetClientIP(const irc::sockets::sockaddrs& sa) CXX11_OVERRIDE;
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.
