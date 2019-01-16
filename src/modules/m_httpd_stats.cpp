@@ -25,34 +25,41 @@
 #include "modules/httpd.h"
 #include "xline.h"
 
-class ModuleHttpStats : public Module, public HTTPRequestEventListener
+namespace Stats
 {
-	static const insp::flat_map<char, char const*>& entities;
-	HTTPdAPI API;
-
- public:
-	ModuleHttpStats()
-		: HTTPRequestEventListener(this)
-		, API(this)
+	struct Entities
 	{
+		static const insp::flat_map<char, char const*>& entities;
+	};
+
+	static const insp::flat_map<char, char const*>& init_entities()
+	{
+		static insp::flat_map<char, char const*> entities;
+		entities['<'] = "lt";
+		entities['>'] = "gt";
+		entities['&'] = "amp";
+		entities['"'] = "quot";
+		return entities;
 	}
 
-	std::string Sanitize(const std::string &str)
+	const insp::flat_map<char, char const*>& Entities::entities = init_entities();
+
+	std::string Sanitize(const std::string& str)
 	{
 		std::string ret;
 		ret.reserve(str.length() * 2);
 
 		for (std::string::const_iterator x = str.begin(); x != str.end(); ++x)
 		{
-			insp::flat_map<char, char const*>::const_iterator it = entities.find(*x);
+			insp::flat_map<char, char const*>::const_iterator it = Entities::entities.find(*x);
 
-			if (it != entities.end())
+			if (it != Entities::entities.end())
 			{
 				ret += '&';
 				ret += it->second;
 				ret += ';';
 			}
-			else if (*x == 0x09 ||  *x == 0x0A || *x == 0x0D || ((*x >= 0x20) && (*x <= 0x7e)))
+			else if (*x == 0x09 || *x == 0x0A || *x == 0x0D || ((*x >= 0x20) && (*x <= 0x7e)))
 			{
 				// The XML specification defines the following characters as valid inside an XML document:
 				// Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
@@ -73,10 +80,10 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		return ret;
 	}
 
-	void DumpMeta(std::stringstream& data, Extensible* ext)
+	void DumpMeta(std::ostream& data, Extensible* ext)
 	{
 		data << "<metadata>";
-		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
+		for (Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
@@ -88,156 +95,241 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		data << "</metadata>";
 	}
 
-	ModResult HandleRequest(HTTPRequest* http)
+	std::ostream& ServerInfo(std::ostream& data)
 	{
-		std::stringstream data("");
+		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><description>"
+			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
+			<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
+	}
 
+	std::ostream& ISupport(std::ostream& data)
+	{
+		data << "<isupport>";
+		const std::vector<Numeric::Numeric>& isupport = ServerInstance->ISupport.GetLines();
+		for (std::vector<Numeric::Numeric>::const_iterator i = isupport.begin(); i != isupport.end(); ++i)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+			const Numeric::Numeric& num = *i;
+			for (std::vector<std::string>::const_iterator j = num.GetParams().begin(); j != num.GetParams().end() - 1; ++j)
+				data << "<token>" << Sanitize(*j) << "</token>";
+		}
+		return data << "</isupport>";
+	}
 
-			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
+	std::ostream& General(std::ostream& data)
+	{
+		data << "<general>";
+		data << "<usercount>" << ServerInstance->Users->GetUsers().size() << "</usercount>";
+		data << "<localusercount>" << ServerInstance->Users->GetLocalUsers().size() << "</localusercount>";
+		data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
+		data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
+		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
+		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
+
+		data << ISupport;
+		return data << "</general>";
+	}
+
+	std::ostream& XLines(std::ostream& data)
+	{
+		data << "<xlines>";
+		std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
+		for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
+		{
+			XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
+
+			if (!lookup)
+				continue;
+			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
-				data << "<inspircdstats><server><name>" << ServerInstance->Config->ServerName << "</name><description>"
-					<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
-					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
-
-				data << "<general>";
-				data << "<usercount>" << ServerInstance->Users->GetUsers().size() << "</usercount>";
-				data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
-				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
-				data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
-				data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
-
-				data << "<isupport>";
-				const std::vector<Numeric::Numeric>& isupport = ServerInstance->ISupport.GetLines();
-				for (std::vector<Numeric::Numeric>::const_iterator i = isupport.begin(); i != isupport.end(); ++i)
-				{
-					const Numeric::Numeric& num = *i;
-					for (std::vector<std::string>::const_iterator j = num.GetParams().begin(); j != num.GetParams().end()-1; ++j)
-						data << "<token>" << Sanitize(*j) << "</token>" << std::endl;
-				}
-				data << "</isupport></general><xlines>";
-				std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
-				for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
-				{
-					XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
-
-					if (!lookup)
-						continue;
-					for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
-					{
-						data << "<xline type=\"" << it->c_str() << "\"><mask>"
-							<< Sanitize(i->second->Displayable()) << "</mask><settime>"
-							<< i->second->set_time << "</settime><duration>" << i->second->duration
-							<< "</duration><reason>" << Sanitize(i->second->reason)
-							<< "</reason></xline>";
-					}
-				}
-
-				data << "</xlines><modulelist>";
-				const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
-
-				for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
-				{
-					Version v = i->second->GetVersion();
-					data << "<module><name>" << i->first << "</name><description>" << Sanitize(v.description) << "</description></module>";
-				}
-				data << "</modulelist><channellist>";
-
-				const chan_hash& chans = ServerInstance->GetChans();
-				for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
-				{
-					Channel* c = i->second;
-
-					data << "<channel>";
-					data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
-					data << "<channeltopic>";
-					data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
-					data << "<setby>" << Sanitize(c->setby) << "</setby>";
-					data << "<settime>" << c->topicset << "</settime>";
-					data << "</channeltopic>";
-					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
-
-					const Channel::MemberMap& ulist = c->GetUsers();
-					for (Channel::MemberMap::const_iterator x = ulist.begin(); x != ulist.end(); ++x)
-					{
-						Membership* memb = x->second;
-						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
-							<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
-							<< memb->modes << "</modes>";
-						DumpMeta(data, memb);
-						data << "</channelmember>";
-					}
-
-					DumpMeta(data, c);
-
-					data << "</channel>";
-				}
-
-				data << "</channellist><userlist>";
-
-				const user_hash& users = ServerInstance->Users->GetUsers();
-				for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
-				{
-					User* u = i->second;
-
-					data << "<user>";
-					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-						<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
-						<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server>";
-					if (u->IsAway())
-						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
-					if (u->IsOper())
-						data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
-					data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
-					LocalUser* lu = IS_LOCAL(u);
-					if (lu)
-						data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
-							<< lu->server_sa.str() << "</servaddr>";
-					data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
-
-					DumpMeta(data, u);
-
-					data << "</user>";
-				}
-
-				data << "</userlist><serverlist>";
-
-				ProtocolInterface::ServerList sl;
-				ServerInstance->PI->GetServerList(sl);
-
-				for (ProtocolInterface::ServerList::const_iterator b = sl.begin(); b != sl.end(); ++b)
-				{
-					data << "<server>";
-					data << "<servername>" << b->servername << "</servername>";
-					data << "<parentname>" << b->parentname << "</parentname>";
-					data << "<description>" << Sanitize(b->description) << "</description>";
-					data << "<usercount>" << b->usercount << "</usercount>";
-// This is currently not implemented, so, commented out.
-//					data << "<opercount>" << b->opercount << "</opercount>";
-					data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
-					data << "</server>";
-				}
-
-				data << "</serverlist><commandlist>";
-
-				const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-				for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
-				{
-					data << "<command><name>" << i->second->name << "</name><usecount>" << i->second->use_count << "</usecount></command>";
-				}
-
-				data << "</commandlist></inspircdstats>";
-
-				/* Send the document back to m_httpd */
-				HTTPDocumentResponse response(this, *http, &data, 200);
-				response.headers.SetHeader("X-Powered-By", MODNAME);
-				response.headers.SetHeader("Content-Type", "text/xml");
-				API->SendResponse(response);
-				return MOD_RES_DENY; // Handled
+				data << "<xline type=\"" << it->c_str() << "\"><mask>"
+					<< Sanitize(i->second->Displayable()) << "</mask><settime>"
+					<< i->second->set_time << "</settime><duration>" << i->second->duration
+					<< "</duration><reason>" << Sanitize(i->second->reason)
+					<< "</reason></xline>";
 			}
 		}
-		return MOD_RES_PASSTHRU;
+		return data << "</xlines>";
+	}
+
+	std::ostream& Modules(std::ostream& data)
+	{
+		data << "<modulelist>";
+		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+
+		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+		{
+			Version v = i->second->GetVersion();
+			data << "<module><name>" << i->first << "</name><description>" << Sanitize(v.description) << "</description></module>";
+		}
+		return data << "</modulelist>";
+	}
+
+	std::ostream& Channels(std::ostream& data)
+	{
+		data << "<channellist>";
+
+		const chan_hash& chans = ServerInstance->GetChans();
+		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+		{
+			Channel* c = i->second;
+
+			data << "<channel>";
+			data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
+			data << "<channeltopic>";
+			data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
+			data << "<setby>" << Sanitize(c->setby) << "</setby>";
+			data << "<settime>" << c->topicset << "</settime>";
+			data << "</channeltopic>";
+			data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
+
+			const Channel::MemberMap& ulist = c->GetUsers();
+			for (Channel::MemberMap::const_iterator x = ulist.begin(); x != ulist.end(); ++x)
+			{
+				Membership* memb = x->second;
+				data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
+					<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
+					<< memb->modes << "</modes>";
+				DumpMeta(data, memb);
+				data << "</channelmember>";
+			}
+
+			DumpMeta(data, c);
+
+			data << "</channel>";
+		}
+
+		return data << "</channellist>";
+	}
+
+	std::ostream& Users(std::ostream& data)
+	{
+		data << "<userlist>";
+		const user_hash& users = ServerInstance->Users->GetUsers();
+		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+		{
+			User* u = i->second;
+
+			data << "<user>";
+			data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
+				<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
+				<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server>";
+			if (u->IsAway())
+				data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
+			if (u->IsOper())
+				data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
+			data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
+			LocalUser* lu = IS_LOCAL(u);
+			if (lu)
+				data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
+					<< lu->server_sa.str() << "</servaddr>";
+			data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
+
+			DumpMeta(data, u);
+
+			data << "</user>";
+		}
+		return data << "</userlist>";
+	}
+
+	std::ostream& Servers(std::ostream& data)
+	{
+		data << "<serverlist>";
+
+		ProtocolInterface::ServerList sl;
+		ServerInstance->PI->GetServerList(sl);
+
+		for (ProtocolInterface::ServerList::const_iterator b = sl.begin(); b != sl.end(); ++b)
+		{
+			data << "<server>";
+			data << "<servername>" << b->servername << "</servername>";
+			data << "<parentname>" << b->parentname << "</parentname>";
+			data << "<description>" << Sanitize(b->description) << "</description>";
+			data << "<usercount>" << b->usercount << "</usercount>";
+// This is currently not implemented, so, commented out.
+//					data << "<opercount>" << b->opercount << "</opercount>";
+			data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
+			data << "</server>";
+		}
+
+		return data << "</serverlist>";
+	}
+
+	std::ostream& Commands(std::ostream& data)
+	{
+		data << "<commandlist>";
+
+		const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+		for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
+		{
+			data << "<command><name>" << i->second->name << "</name><usecount>" << i->second->use_count << "</usecount></command>";
+		}
+		return data << "</commandlist>";
+	}
+}
+
+class ModuleHttpStats : public Module, public HTTPRequestEventListener
+{
+	HTTPdAPI API;
+
+ public:
+	ModuleHttpStats()
+		: HTTPRequestEventListener(this)
+		, API(this)
+	{
+	}
+
+	ModResult HandleRequest(HTTPRequest* http)
+	{
+		std::string uri = http->GetURI();
+
+		if (uri != "/stats" && uri.substr(0, 7) != "/stats/")
+			return MOD_RES_PASSTHRU;
+
+		if (uri[uri.size() - 1] == '/')
+			uri.erase(uri.size() - 1, 1);
+
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+
+		bool found = true;
+		std::stringstream data;
+		data << "<inspircdstats>";
+
+		if (uri == "/stats")
+		{
+			data << Stats::ServerInfo << Stats::General
+				<< Stats::XLines << Stats::Modules
+				<< Stats::Channels << Stats::Users
+				<< Stats::Servers << Stats::Commands;
+		}
+		else if (uri == "/stats/general")
+		{
+			data << Stats::General;
+		}
+		else if (uri == "/stats/users")
+		{
+			data << Stats::Users;
+		}
+		else
+		{
+			found = false;
+		}
+
+		if (found)
+		{
+			data << "</inspircdstats>";
+		}
+		else
+		{
+			data.clear();
+			data.str(std::string());
+		}
+
+		/* Send the document back to m_httpd */
+		HTTPDocumentResponse response(this, *http, &data, found ? 200 : 404);
+		response.headers.SetHeader("X-Powered-By", MODNAME);
+		response.headers.SetHeader("Content-Type", "text/xml");
+		API->SendResponse(response);
+		return MOD_RES_DENY; // Handled
 	}
 
 	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
@@ -250,17 +342,5 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		return Version("Provides statistics over HTTP via m_httpd", VF_VENDOR);
 	}
 };
-
-static const insp::flat_map<char, char const*>& init_entities()
-{
-	static insp::flat_map<char, char const*> entities;
-	entities['<'] = "lt";
-	entities['>'] = "gt";
-	entities['&'] = "amp";
-	entities['"'] = "quot";
-	return entities;
-}
-
-const insp::flat_map<char, char const*>& ModuleHttpStats::entities = init_entities();
 
 MODULE_INIT(ModuleHttpStats)
