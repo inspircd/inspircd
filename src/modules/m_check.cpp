@@ -200,7 +200,7 @@ class CommandCheck : public Command
 					opcmdlist.Add(oper->AllowedOperCommands.ToString());
 					opcmdlist.Flush();
 					CheckContext::List privlist(context, "permissions");
-					opcmdlist.Add(oper->AllowedPrivs.ToString());
+					privlist.Add(oper->AllowedPrivs.ToString());
 					privlist.Flush();
 				}
 			}
