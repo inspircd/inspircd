@@ -254,9 +254,29 @@ class IdentRequestSocket : public EventHandler
 
 class ModuleIdent : public Module
 {
+ private:
 	int RequestTimeout;
 	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
+
+	static void PrefixIdent(LocalUser* user)
+	{
+		// Check that they haven't been prefixed already.
+		if (user->ident[0] == '~')
+			return;
+		
+		// All invalid usernames are prefixed with a tilde.
+		std::string newident(user->ident);
+		newident.insert(newident.begin(), '~');
+
+		// If the username is too long then truncate it.
+		if (newident.length() > ServerInstance->Config->Limits.IdentMax)
+			newident.erase(ServerInstance->Config->Limits.IdentMax);
+
+		// Apply the new username.
+		user->ChangeIdent(newident);
+	}
+
  public:
 	ModuleIdent()
 		: ext("ident_socket", ExtensionItem::EXT_USER, this)
@@ -320,8 +340,8 @@ class ModuleIdent : public Module
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
 		{
-			if ((NoLookupPrefix) && (user->ident[0] != '~'))
-				user->ident.insert(user->ident.begin(), 1, '~');
+			if (NoLookupPrefix)
+				PrefixIdent(user);
 			return MOD_RES_PASSTHRU;
 		}
 
@@ -343,7 +363,7 @@ class ModuleIdent : public Module
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())
 		{
-			user->ident.insert(user->ident.begin(), 1, '~');
+			PrefixIdent(user);
 			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else
