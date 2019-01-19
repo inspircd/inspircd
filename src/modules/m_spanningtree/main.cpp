@@ -324,8 +324,12 @@ ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameter
 		// If it's empty it might be that the server is still syncing (full version hasn't arrived yet)
 		// or the server is a 2.0 server and does not send a full version.
 		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
-		const std::string& Version = (showfull ? found->GetFullVersion() : found->GetVersion());
-		user->WriteNumeric(RPL_VERSION, Version);
+
+		Numeric::Numeric numeric(RPL_VERSION);
+		irc::tokenstream tokens(showfull ? found->GetFullVersion() : found->GetVersion());
+		for (std::string token; tokens.GetTrailing(token); )
+			numeric.push(token);
+		user->WriteNumeric(numeric);
 	}
 	else
 	{

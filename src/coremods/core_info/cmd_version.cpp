@@ -29,8 +29,12 @@ CommandVersion::CommandVersion(Module* parent)
 
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 {
-	std::string version = ServerInstance->GetVersionString((user->IsOper()));
-	user->WriteNumeric(RPL_VERSION, version);
+	Numeric::Numeric numeric(RPL_VERSION);
+	irc::tokenstream tokens(ServerInstance->GetVersionString(user->IsOper()));
+	for (std::string token; tokens.GetTrailing(token); )
+		numeric.push(token);
+	user->WriteNumeric(numeric);
+
 	LocalUser *lu = IS_LOCAL(user);
 	if (lu != NULL)
 	{
