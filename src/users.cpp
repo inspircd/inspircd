@@ -804,7 +804,11 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
+	{
+		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "BUG: LocalUser::Send() called on %s who does not have a serializer!",
+			GetFullRealHost().c_str());
 		return;
+	}
 
 	// In the most common case a static LocalUser field, sendmsglist, is passed to the event to be
 	// populated. The list is cleared before returning.
