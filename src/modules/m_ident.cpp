@@ -275,10 +275,22 @@ class ModuleIdent : public Module
 		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
-	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
+		IdentRequestSocket* isock = ext.get(user);
+		if (isock)
+		{
+			// If an ident lookup request was in progress then cancel it.
+			isock->Close();
+			ext.unset(user);
+		}
+
 		// The ident protocol requires that clients are connecting over a protocol with ports.
 		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+			return;
+
+		// We don't want to look this up once the user has connected.
+		if (user->registered == REG_ALL)
 			return;
 
 		ConfigTag* tag = user->MyClass->config;
@@ -289,7 +301,7 @@ class ModuleIdent : public Module
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(user);
+			isock = new IdentRequestSocket(user);
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)
