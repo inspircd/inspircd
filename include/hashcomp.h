@@ -197,7 +197,10 @@ namespace irc
 
 	 public:
 		/** Create a tokenstream and fill it with the provided data. */
-		tokenstream(const std::string& msg, size_t start = 0);
+		tokenstream(const std::string& msg, size_t start = 0, size_t end = std::string::npos);
+
+		/** Retrieves the underlying message. */
+		std::string& GetMessage() { return message; }
 
 		/** Retrieve the next \<middle> token in the token stream.
 		 * @param token The next token available, or an empty string if none remain.

@@ -367,11 +367,11 @@
 
          # softsendq: amount of data in a client's send queue before the server
          # begins delaying their commands in order to allow the sendq to drain
-         softsendq="8192"
+         softsendq="10240"
 
          # recvq: amount of data allowed in a client's queue before they are dropped.
-         # Entering "8K" is equivalent to "8192", see above.
-         recvq="8K"
+         # Entering "10K" is equivalent to "10240", see above.
+         recvq="10K"
 
          # threshold: This specifies the amount of command penalty a user is allowed to have
          # before being quit or fakelagged due to flood. Normal commands have a penalty of 1,

@@ -681,10 +681,13 @@ class CoreExport User : public Extensible
 
 class CoreExport UserIOHandler : public StreamSocket
 {
+ private:
+	 size_t checked_until;
  public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me)
 		: StreamSocket(StreamSocket::SS_USER)
+		, checked_until(0)
 		, user(me)
 	{
 	}

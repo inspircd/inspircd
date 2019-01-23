@@ -239,23 +239,30 @@ void UserIOHandler::OnDataReady()
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
 		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
 
-	// The maximum size of an IRC message minus the terminating CR+LF.
-	const size_t maxmessage = ServerInstance->Config->Limits.MaxLine - 2;
+	// The cleaned message sent by the user or empty if not found yet.
 	std::string line;
-	line.reserve(maxmessage);
 
-	bool eol_found;
+	// The position of the most \n character or npos if not found yet.
+	std::string::size_type eolpos;
+
+	// The position within the recvq of the current character.
 	std::string::size_type qpos;
 
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
-		qpos = 0;
-		eol_found = false;
-
-		const size_t qlen = recvq.length();
-		while (qpos < qlen)
+		// Check the newly received data for an EOL.
+		eolpos = recvq.find('\n', checked_until);
+		if (eolpos == std::string::npos)
 		{
-			char c = recvq[qpos++];
+			checked_until = recvq.length();
+			return;
+		}
+
+		// We've found a line! Clean it up and move it to the line buffer.
+		line.reserve(eolpos);
+		for (qpos = 0; qpos < eolpos; ++qpos)
+		{
+			char c = recvq[qpos];
 			switch (c)
 			{
 				case '\0':
@@ -263,25 +270,14 @@ void UserIOHandler::OnDataReady()
 					break;
 				case '\r':
 					continue;
-				case '\n':
-					eol_found = true;
-					break;
 			}
 
-			if (eol_found)
-				break;
-
-			if (line.length() < maxmessage)
-				line.push_back(c);
+			line.push_back(c);
 		}
 
-		// if we return here, we haven't found a newline and make no modifications to recvq
-		// so we can wait for more data
-		if (!eol_found)
-			return;
-
 		// just found a newline. Terminate the string, and pull it out of recvq
-		recvq.erase(0, qpos);
+		recvq.erase(0, eolpos + 1);
+		checked_until = 0;
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats.Recv += qpos;
