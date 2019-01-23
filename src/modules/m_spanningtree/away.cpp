@@ -47,6 +47,6 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 CommandAway::Builder::Builder(User* user)
 	: CmdBuilder(user, "AWAY")
 {
-	if (user->awaymsg.empty())
+	if (!user->awaymsg.empty())
 		push_int(user->awaytime).push_last(user->awaymsg);
 }
