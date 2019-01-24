@@ -87,9 +87,11 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(target.c_str(), "E", user))
+		std::string reason;
+
+		if (ServerInstance->XLines->DelLine(target.c_str(), "E", reason, user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s removed E-line on %s",user->nick.c_str(),target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x', "%s removed E-line on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
 		}
 		else
 		{
