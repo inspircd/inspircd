@@ -34,9 +34,9 @@ class AntiCapsSettings
  public:
 	const AntiCapsMethod method;
 	const uint16_t minlen;
-	const uint8_t percent;
+	const uint16_t percent;
 
-	AntiCapsSettings(const AntiCapsMethod& Method, const uint16_t& MinLen, const uint8_t& Percent)
+	AntiCapsSettings(const AntiCapsMethod& Method, const uint16_t& MinLen, const uint16_t& Percent)
 		: method(Method)
 		, minlen(MinLen)
 		, percent(Percent)
@@ -83,13 +83,13 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		return true;
 	}
 
-	bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
+	bool ParsePercent(irc::sepstream& stream, uint16_t& percent)
 	{
 		std::string percentstr;
 		if (!stream.GetToken(percentstr))
 			return false;
 
-		uint8_t result = ConvToNum<uint8_t>(percentstr);
+		uint16_t result = ConvToNum<uint16_t>(percentstr);
 		if (result < 1 || result > 100)
 			return false;
 
@@ -108,7 +108,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		irc::sepstream stream(parameter, ':');
 		AntiCapsMethod method;
 		uint16_t minlen;
-		uint8_t percent;
+		uint16_t percent;
 
 		// Attempt to parse the method.
 		if (!ParseMethod(stream, method) || !ParseMinimumLength(stream, minlen) || !ParsePercent(stream, percent))
