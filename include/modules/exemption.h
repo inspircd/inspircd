@@ -41,8 +41,8 @@ class CheckExemption::EventListener
 	: public Events::ModuleEventListener
 {
  protected:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/exemption")
+	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/exemption", eventprio)
 	{
 	}
 
