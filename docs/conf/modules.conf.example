@@ -312,16 +312,21 @@
 #<module name="cban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Censor module: Adds channel and user mode +G.
+# Censor module: Adds channel and user mode +G which block phrases that
+# are listed in the server bad words list.
 #<module name="censor">
 #
 #-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the censor module, then you must   #
-# specify some censor tags. See also:                                 #
-# https://wiki.inspircd.org/Modules/3.0/censor                        #
-#
-#<include file="examples/censor.conf.example">
+# If you have the censor module loaded you should specify one or more #
+# phrases to replace/block in user messages. The config for this is   #
+# formatted as follows:                                               #
+#                                                                     #
+# Replaces "eggplant" with "aubergine" within messages:               #
+# <badword text="eggplant" replace="aubergine">                       #
+#                                                                     #
+# Blocks messages that contain "fluffy capybaras":                    #
+#<badword text="fluffy capybaras">                                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Enables forwarding the real IP address of a user from
