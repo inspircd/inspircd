@@ -421,7 +421,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_GLINE)
 		{
 			GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
-			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was glined because their message to %s matched %s (%s)",
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was G-lined because their message to %s matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
@@ -433,7 +433,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_ZLINE)
 		{
 			ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
-			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was zlined because their message to %s matched %s (%s)",
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was Z-lined because their message to %s matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(zl,NULL))
 			{
@@ -506,9 +506,9 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			}
 			if (f->action == FA_GLINE)
 			{
-				/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
+				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
 				GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
-				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was glined because their %s message matched %s (%s)",
+				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was G-lined because their %s message matched %s (%s)",
 					user->nick.c_str(), command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
 				if (ServerInstance->XLines->AddLine(gl,NULL))
@@ -521,7 +521,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_ZLINE)
 			{
 				ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
-				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was zlined because their %s message matched %s (%s)",
+				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s was Z-lined because their %s message matched %s (%s)",
 					user->nick.c_str(), command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
 				if (ServerInstance->XLines->AddLine(zl,NULL))

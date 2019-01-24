@@ -19,11 +19,20 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From ircu.
+	ERR_INPUTTOOLONG = 417
+};
+
 class RFCSerializer : public ClientProtocol::Serializer
 {
-	/** Maximum size of the message tags portion of the message, including the `@` and the trailing space characters.
-	 */
-	static const std::string::size_type MAX_MESSAGE_TAG_LENGTH = 512;
+
+	/** The maximum size of client-originated message tags in an incoming message including the `@`. */
+	static const std::string::size_type MAX_CLIENT_MESSAGE_TAG_LENGTH = 4095;
+
+	/** The maximum size of server-originated message tags in an outgoing message including the `@`. */
+	static const std::string::size_type MAX_SERVER_MESSAGE_TAG_LENGTH = 511;
 
 	static void SerializeTags(const ClientProtocol::TagMap& tags, const ClientProtocol::TagSelection& tagwl, std::string& line);
 
@@ -47,15 +56,32 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 		return false;
 	}
 
-	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), line.c_str());
+	// Work out how long the message can actually be.
+	size_t maxline = ServerInstance->Config->Limits.MaxLine - start - 2;
+	if (line[start] == '@')
+		maxline += MAX_CLIENT_MESSAGE_TAG_LENGTH + 1; 
 
-	irc::tokenstream tokens(line, start);
-	std::string token;
+	irc::tokenstream tokens(line, start, maxline);
+	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), tokens.GetMessage().c_str());
 
 	// This will always exist because of the check at the start of the function.
+	std::string token;
 	tokens.GetMiddle(token);
 	if (token[0] == '@')
 	{
+		// Check that the client tags fit within the client tag space.
+		if (token.length() > MAX_CLIENT_MESSAGE_TAG_LENGTH)
+		{
+			user->WriteNumeric(ERR_INPUTTOOLONG, "Input line was too long");
+			user->CommandFloodPenalty += 2000;
+			return false;
+		}
+
+		// Truncate the RFC part of the message if it is too long.
+		size_t maxrfcline = token.length() + ServerInstance->Config->Limits.MaxLine - 1;
+		if (tokens.GetMessage().length() > maxrfcline)
+			tokens.GetMessage().erase(maxrfcline);
+
 		// Line begins with message tags, parse them.
 		std::string tagval;
 		irc::sepstream ss(token.substr(1), ';');
@@ -77,7 +103,6 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 
 			HandleTag(user, token, tagval, parseoutput.tags);
 		}
-
 
 		// Try to read the prefix or command name.
 		if (!tokens.GetMiddle(token))
@@ -114,17 +139,29 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 	return true;
 }
 
+namespace
+{
+	void CheckTagLength(std::string& line, size_t prevsize, size_t& length, size_t maxlength)
+	{
+		const std::string::size_type diffsize = line.size() - prevsize;
+		if (length + diffsize > maxlength)
+			line.erase(prevsize);
+		else
+			length += diffsize;
+	}
+}
+
 void RFCSerializer::SerializeTags(const ClientProtocol::TagMap& tags, const ClientProtocol::TagSelection& tagwl, std::string& line)
 {
-	char prefix = '@'; // First tag name is prefixed with a '@'
+	size_t client_tag_length = 0;
+	size_t server_tag_length = 0;
 	for (ClientProtocol::TagMap::const_iterator i = tags.begin(); i != tags.end(); ++i)
 	{
 		if (!tagwl.IsSelected(tags, i))
 			continue;
 
 		const std::string::size_type prevsize = line.size();
-		line.push_back(prefix);
-		prefix = ';'; // Remaining tags are prefixed with ';'
+		line.push_back(prevsize ? ';' : '@');
 		line.append(i->first);
 		const std::string& val = i->second.value;
 		if (!val.empty())
@@ -133,16 +170,14 @@ void RFCSerializer::SerializeTags(const ClientProtocol::TagMap& tags, const Clie
 			line.append(val);
 		}
 
-		// The tags part of the message mustn't grow longer than what is allowed by the spec. If it does,
-		// remove last tag and stop adding more tags.
-		//
-		// One is subtracted from the limit before comparing because there must be a ' ' char after the last tag
-		// which also counts towards the limit.
-		if (line.size() > MAX_MESSAGE_TAG_LENGTH-1)
-		{
-			line.erase(prevsize);
-			break;
-		}
+		// The tags part of the message must not contain more client and server tags than allowed by the
+		// message tags specification. This is complicated by the tag space having separate limits for
+		// both server-originated and client-originated tags. If either of the tag limits is exceeded then
+		// the most recently added tag is removed.
+		if (i->first[0] == '+')
+			CheckTagLength(line, prevsize, client_tag_length, MAX_CLIENT_MESSAGE_TAG_LENGTH);
+		else
+			CheckTagLength(line, prevsize, server_tag_length, MAX_SERVER_MESSAGE_TAG_LENGTH);
 	}
 
 	if (!line.empty())

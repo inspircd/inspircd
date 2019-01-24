@@ -475,8 +475,8 @@ numeric lists)">
 
 This command will add a filter when more than one parameter is given,
 for messages of the types specified by the flags, with the given
-filter definition, action, duration (when the action is 'gline' or 'shun'),
-and reason.
+filter definition, action, duration (when the action is 'gline',
+'zline' or 'shun'), and reason.
 
 The filter will take effect when a message of any type specified by
 the flags and matching the definition is sent to the server, and
@@ -492,8 +492,8 @@ Block   Blocks message and informs +s IRCops of the blocked message
         and all relevant info
 Silent  Blocks message, but does not notify IRCops
 Kill    Kills the user
-Gline   Glines the user for the specified duration
-Zline   Zlines the user for the specified duration
+Gline   G-lines the user for the specified duration
+Zline   Z-lines the user for the specified duration
 Shun    Shuns the user for the specified duration (requires the shun module)
 
 Valid FILTER Flags
@@ -513,8 +513,8 @@ The reason for the filter will be used as the reason for the action,
 unless the action is 'none', and is sent to the user when their text is
 blocked by 'block' and 'silent' actions.
 
-A gline duration may be specified in seconds, or in the format
-1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours, 5
+A G-line, Z-line or shun duration may be specified in seconds, or in the
+format 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours, 5
 minutes and 6 seconds. All fields in this format are optional.
 
 When only one parameter is provided (the filter pattern) the provided
@@ -721,7 +721,7 @@ Unloads and reloads a module on all linked servers.">
 
 <helpop key="kline" value="/KLINE <user@host> [<duration> :<reason>]
 
-Sets or removes a k-line (local host based ban) on a host and ident mask.
+Sets or removes a K-line (local host based ban) on a host and ident mask.
 You must specify all three parameters to add a ban, and one parameter
 to remove a ban (just the user@host section).
 
@@ -731,7 +731,7 @@ The duration may be specified in seconds, or in the format
 
 <helpop key="zline" value="/ZLINE <ipmask> [<duration> :<reason>]
 
-Sets or removes a z-line (ip based ban) on an ip range mask.
+Sets or removes a Z-line (ip based ban) on an ip range mask.
 You must specify all three parameters to add a ban, and one parameter
 to remove a ban (just the ipmask).
 
@@ -741,7 +741,7 @@ The duration may be specified in seconds, or in the format
 
 <helpop key="qline" value="/QLINE <nickmask> [<duration> :<reason>]
 
-Sets or removes a q-line (nick based ban) on a nick mask.
+Sets or removes a Q-line (nick based ban) on a nick mask.
 You must specify all three parameters to add a ban, and one parameter
 to remove a ban (just the nickmask).
 
@@ -751,7 +751,7 @@ The duration may be specified in seconds, or in the format
 
 <helpop key="gline" value="/GLINE <user@host> [<duration> :<reason>]
 
-Sets or removes a g-line (host based ban) on host mask.
+Sets or removes a G-line (host based ban) on host mask.
 You must specify all three parameters to add a ban, and one
 parameter to remove a ban (just the user@host section).
 
@@ -761,7 +761,7 @@ The duration may be specified in seconds, or in the format
 
 <helpop key="eline" value="/ELINE <user@host> [<duration> :<reason>]
 
-Sets or removes a e-line (global ban exception) on host mask.
+Sets or removes a E-line (global ban exception) on host mask.
 You must specify at least 3 parameters to add an exception, and one
 parameter to remove an exception (just the user@host section).
 
@@ -770,9 +770,9 @@ The duration may be specified in seconds, or in the format
 5 minutes and 6 seconds. All fields in this format are optional.
 
 This command has a few important limitations. Bans on *@<ip> can only
-be negated by an eline on *@<ip>, bans on *@<host> can be negated by
-elines on *@<ip>, or *@<host>, and bans on <ident>@* or <ident>@<host>
-can be negated by any eline that matches.">
+be negated by an E-line on *@<ip>, bans on *@<host> can be negated by
+E-lines on *@<ip>, or *@<host>, and bans on <ident>@* or <ident>@<host>
+can be negated by any E-line that matches.">
 
 <helpop key="wallops" value="/WALLOPS <message>
 
@@ -780,9 +780,9 @@ Sends a message to all +w users.">
 
 <helpop key="rline" value="/RLINE <regex> [<duration> :<reason>]
 
-Sets or removes an r-line (regex line) on a n!u@h\srealname mask. You
-must specify all three parameters to add an rline, and one parameter
-to remove an rline (just the regex).
+Sets or removes an R-line (regex line) on a n!u@h\srealname mask. You
+must specify all three parameters to add an R-line, and one parameter
+to remove an R-line (just the regex).
 
 The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
@@ -794,11 +794,11 @@ Closes all unregistered connections to the local server.">
 
 <helpop key="clearchan" value="/CLEARCHAN <channel> [<KILL|KICK|G|Z>] [<reason>]
 
-Quits or kicks all non-opers from a channel, optionally G/Z-Lines them.
+Quits or kicks all non-opers from a channel, optionally G/Z-lines them.
 Useful for quickly nuking bot channels.
 
 The default method, KILL, simply disconnects the victims from the server,
-while methods G and Z also add G/Z-Lines for all the targets.
+while methods G and Z also add G/Z-lines for all the targets.
 
 When used, the victims won't see each other getting kicked or quitting.">
 
@@ -1070,8 +1070,8 @@ Note that all /STATS use is broadcast to online IRC operators.">
  R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires the override module).
- x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
- X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
+ x      Allows receipt of local X-line notices (G/Z/Q/K/E/R/SHUN/CBan).
+ X      Allows receipt of remote X-line notices (G/Z/Q/K/E/R/SHUN/CBan).">
 
 ######################
 #      EXTBANS       #

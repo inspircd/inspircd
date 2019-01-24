@@ -38,7 +38,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 	{
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteNotice("*** You cannot include a nickname in a zline, a zline must ban only an IP mask");
+			user->WriteNotice("*** You cannot include a nickname in a Z-line, a Z-line must ban only an IP mask.");
 			return CMD_FAILURE;
 		}
 
@@ -65,7 +65,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration for Z-line");
+			user->WriteNotice("*** Invalid duration for Z-line.");
 			return CMD_FAILURE;
 		}
 		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
@@ -87,7 +87,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		else
 		{
 			delete zl;
-			user->WriteNotice("*** Z-Line for " + std::string(ipaddr) + " already exists");
+			user->WriteNotice("*** Z-line for " + std::string(ipaddr) + " already exists.");
 		}
 	}
 	else
@@ -98,7 +98,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Z-Line " + target + " not found in list, try /stats Z.");
+			user->WriteNotice("*** Z-line " + target + " not found in list, try /stats Z.");
 			return CMD_FAILURE;
 		}
 	}

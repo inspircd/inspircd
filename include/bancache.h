@@ -62,7 +62,7 @@ class CoreExport BanCacheManager
 	 * @param ip The IP the item is for.
 	 * @param type The type of ban cache item. std::string. .empty() means it's a negative match (user is allowed freely).
 	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
-	 * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as glines/etc expire.
+	 * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as G-lines/etc expire.
 	 */
 	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds = 0);
 	BanCacheHit *GetHit(const std::string &ip);

@@ -193,8 +193,8 @@ size_t irc::insensitive::operator()(const std::string &s) const
 	return t;
 }
 
-irc::tokenstream::tokenstream(const std::string& msg, size_t start)
-	: message(msg, start)
+irc::tokenstream::tokenstream(const std::string& msg, size_t start, size_t end)
+	: message(msg, start, end)
 	, position(0)
 {
 }

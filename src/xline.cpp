@@ -329,7 +329,7 @@ void ELine::Unset()
 	ServerInstance->XLines->CheckELines();
 }
 
-// returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
+// returns a pointer to the reason if a nickname matches a Q-line, NULL if it didn't match
 
 XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 {
@@ -523,13 +523,13 @@ bool XLine::IsBurstable()
 
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
-	const std::string banReason = line + "-Lined: " + reason;
+	const std::string banReason = line + "-lined: " + reason;
 
 	if (!ServerInstance->Config->XLineMessage.empty())
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users->QuitUser(u, line + "-Lined", &banReason);
+		ServerInstance->Users->QuitUser(u, line + "-lined", &banReason);
 	else
 		ServerInstance->Users->QuitUser(u, banReason);
 
@@ -629,7 +629,7 @@ bool QLine::Matches(User *u)
 
 void QLine::Apply(User* u)
 {
-	/* Force to uuid on apply of qline, no need to disconnect any more :) */
+	/* Force to uuid on apply of Q-line, no need to disconnect anymore :) */
 	u->ChangeNick(u->uuid);
 }
 
@@ -667,7 +667,7 @@ bool GLine::Matches(const std::string &str)
 
 void ELine::OnAdd()
 {
-	/* When adding one eline, only check the one eline */
+	/* When adding one E-line, only check the one E-line */
 	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
@@ -681,7 +681,7 @@ void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
 	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago): %s",
-		type.c_str(), (onechar ? "-Line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
+		type.c_str(), (onechar ? "-line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
 }
 
 const std::string& ELine::Displayable()

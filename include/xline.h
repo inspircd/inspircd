@@ -22,7 +22,7 @@
 
 #pragma once
 
-/** XLine is the base class for ban lines such as G lines and K lines.
+/** XLine is the base class for ban lines such as G-lines and K-lines.
  * Modules may derive from this, and their xlines will automatically be
  * handled as expected by any protocol modules (e.g. m_spanningtree will
  * propogate them using AddLine). The process of translating a type+pattern
@@ -67,7 +67,7 @@ class CoreExport XLine : public classbase
 	}
 
 	/** Change creation time of an xline. Updates expiry
-	 * to be after the creation time
+	 * to be after the creation time.
 	 */
 	virtual void SetCreateTime(time_t created)
 	{
@@ -102,7 +102,7 @@ class CoreExport XLine : public classbase
 	virtual void Unset() { }
 
 	/** Called when the expiry message is to be displayed for the
-	 * line. Usually a line in the form 'expiring Xline blah, set by...'
+	 * line. Usually a line in the form 'expiring X-line blah, set by...'
 	 * see the DisplayExpiry methods of GLine, ELine etc.
 	 */
 	virtual void DisplayExpiry();
@@ -111,7 +111,7 @@ class CoreExport XLine : public classbase
 	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
-	 * ident and host parts seperately but will still return ident\@host
+	 * ident and host parts separately but will still return ident\@host
 	 * for its Displayable() method).
 	 */
 	virtual const std::string& Displayable() = 0;
@@ -157,7 +157,7 @@ class CoreExport KLine : public XLine
 {
   public:
 
-	/** Create a K-Line.
+	/** Create a K-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -203,7 +203,7 @@ class CoreExport KLine : public XLine
 class CoreExport GLine : public XLine
 {
   public:
-	/** Create a G-Line.
+	/** Create a G-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -247,7 +247,7 @@ class CoreExport GLine : public XLine
 class CoreExport ELine : public XLine
 {
   public:
-	/** Create an E-Line.
+	/** Create an E-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -291,7 +291,7 @@ class CoreExport ELine : public XLine
 class CoreExport ZLine : public XLine
 {
   public:
-	/** Create a Z-Line.
+	/** Create a Z-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -327,7 +327,7 @@ class CoreExport ZLine : public XLine
 class CoreExport QLine : public XLine
 {
   public:
-	/** Create a G-Line.
+	/** Create a Q-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
@@ -399,7 +399,7 @@ class CoreExport XLineFactory
 	virtual ~XLineFactory() { }
 };
 
-/** XLineManager is a class used to manage glines, klines, elines, zlines and qlines,
+/** XLineManager is a class used to manage G-lines, K-lines, E-lines, Z-lines and Q-lines,
  * or any other line created by a module. It also manages XLineFactory classes which
  * can generate a specialized XLine for use by another module.
  */
@@ -436,7 +436,7 @@ class CoreExport XLineManager
 	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);
 
-	/** Checks what users match e:lines and sets their ban exempt flag accordingly.
+	/** Checks what users match E-lines and sets their ban exempt flag accordingly.
 	 */
 	void CheckELines();
 
@@ -476,7 +476,7 @@ class CoreExport XLineManager
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,
 	 * will generate a new XLine specialized to that type. For example if you
-	 * pass the XLineFactory that handles glines some data it will return a
+	 * pass the XLineFactory that handles G-lines some data it will return a
 	 * pointer to a GLine, polymorphically represented as XLine. This is used where
 	 * you do not know the full details of the item you wish to create, e.g. in a
 	 * server protocol module like m_spanningtree, when you receive xlines from other

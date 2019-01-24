@@ -312,16 +312,21 @@
 #<module name="cban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Censor module: Adds channel and user mode +G.
+# Censor module: Adds channel and user mode +G which block phrases that
+# are listed in the server bad words list.
 #<module name="censor">
 #
 #-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the censor module, then you must   #
-# specify some censor tags. See also:                                 #
-# https://wiki.inspircd.org/Modules/3.0/censor                        #
-#
-#<include file="examples/censor.conf.example">
+# If you have the censor module loaded you should specify one or more #
+# phrases to replace/block in user messages. The config for this is   #
+# formatted as follows:                                               #
+#                                                                     #
+# Replaces "eggplant" with "aubergine" within messages:               #
+# <badword text="eggplant" replace="aubergine">                       #
+#                                                                     #
+# Blocks messages that contain "fluffy capybaras":                    #
+#<badword text="fluffy capybaras">                                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Enables forwarding the real IP address of a user from
@@ -500,8 +505,8 @@
 #<module name="classban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Clear chan module: Allows opers to masskick, masskill or mass-G/ZLine
-# all users on a channel using /CLEARCHAN.
+# Clear chan module: Allows opers to masskick, masskill or
+# mass G/Z-line all users on a channel using /CLEARCHAN.
 #<module name="clearchan">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -619,7 +624,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connectban: Provides IP connection throttling. Any IP range that
-# connects too many times (configurable) in an hour is Z-Lined for a
+# connects too many times (configurable) in an hour is Z-lined for a
 # (configurable) duration, and their count resets to 0.
 #<module name="connectban">
 #
@@ -763,6 +768,43 @@
 # a badchan tag specifies it would be denied:                         #
 #<goodchan name="#funtimes">                                          #
 # Glob masks are accepted here also.                                  #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Disable module: Provides support for disabling commands and modes.  #
+#<module name="disable">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- DISABLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the disable module loaded then you need to specify the  #
+# commands and modes that you want disabled. Users who have not fully #
+# connected yet are exempt from this module so you can e.g. disable   #
+# the NICK command but still allow users to connect to the server.    #
+#                                                                     #
+# commands - A space-delimited list of commands that can not be used  #
+#            by users. You can exempt server operators from this with #
+#            the servers/use-disabled-commands privilege.             #
+#                                                                     #
+# chanmodes - One or more channel modes that can not be added/removed #
+#             by users. You can exempt server operators from this     #
+#             with the servers/use-disabled-commands privilege.       #
+#                                                                     #
+# usermodes - One or more user modes that can not be added/removed by #
+#             users. You can exempt server operators from this with   #
+#             the servers/use-disabled-commands privilege.            #
+#                                                                     #
+# fakenonexistent - Whether to pretend that a disabled command/mode   #
+#                   does not exist when executed/changed by a user.   #
+#                   Defaults to no.                                   #
+#                                                                     #
+# notifyopers - Whether to send a notice to snomask `a` when a user   #
+#               is prevented from using a disabled command/mode.      #
+#               Defaults to no.                                       #
+#                                                                     #
+#<disabled commands="KICK TOPIC"                                      #
+#          chanmodes="kp"                                             #
+#          usermodes="iw"                                             #
+#          fakenonexistent="yes"                                      #
+#          notifyopers="no">                                          #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DNS blacklist module: Provides support for looking up IPs on one or #
@@ -1021,7 +1063,6 @@
 # the timeout for ident lookups here. If not defined, it will default #
 # to 5 seconds. This is a non-blocking timeout which holds the user   #
 # in a 'connecting' state until the lookup is complete.               #
-# The bind value indicates which IP to bind outbound requests to.     #
 # nolookupprefix: If on, the idents of users being in a connect class #
 # with ident lookups disabled (i.e. <connect useident="off">) will be #
 # prefixed with a "~". If off, the ident of those users will not be   #
@@ -1621,7 +1662,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for glob or wildcard (?/*) matching.
-# You must have at least 1 provider loaded to use the filter or rline
+# You must have at least 1 provider loaded to use the filter or R-line
 # modules. This module has no additional requirements, as it uses the
 # matching already present in InspIRCd core.
 #<module name="regex_glob">
@@ -1630,7 +1671,7 @@
 # Regular expression provider for PCRE (Perl-Compatible Regular
 # Expressions). You need libpcre installed to compile and load this
 # module. You must have at least 1 provider loaded to use the filter or
-# rline modules.
+# R-line modules.
 #<module name="regex_pcre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1643,7 +1684,7 @@
 # Regular expression provider for POSIX regular expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (i.e.: any Linux, BSD, but not Windows). You must have at
-# least 1 provider loaded to use filter or rline.
+# least 1 provider loaded to use the filter or R-line modules.
 # On POSIX-compliant systems, regex syntax can be found by using the
 # command: 'man 7 regex'.
 #<module name="regex_posix">
@@ -1723,7 +1764,7 @@
 #<module name="restrictmsg">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# R-Line module: Ban users through regular expression patterns.
+# R-line module: Ban users through regular expression patterns.
 #<module name="rline">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- RLINE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1732,15 +1773,15 @@
 # useful under some situations, but *can* also use CPU with more users
 # on a server) then set 'matchonnickchange' to yes.
 # Also, this is where you set what Regular Expression engine is to be
-# used. If you ever change it while running, all of your R-Lines will
-# be wiped. This is the regex engine used by all R-Lines set, and
+# used. If you ever change it while running, all of your R-lines will
+# be wiped. This is the regex engine used by all R-lines set, and
 # regex_<engine> must be loaded, or rline will be non-functional
 # until you load it or change the engine to one that is loaded.
 #
 #<rline matchonnickchange="yes" engine="pcre">
 #
-# Generally, you will NOT want to use 'glob' here, as this turns
-# rline into just another gline. The exceptions are that rline will
+# Generally, you will NOT want to use 'glob' here, as this turns an
+# R-line into just another G-line. The exceptions are that R-lines will
 # always use the full "nick!user@host realname" string, rather than only
 # user@host, but beware that only the ? and * wildcards are available,
 # and are the only way to specify where the space can occur if you do
@@ -2089,7 +2130,7 @@
 #<module name="starttls">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SVSHold module: Implements SVSHOLD. Like Q:Lines, but can only be   #
+# SVSHold module: Implements SVSHOLD. Like Q-lines, but can only be   #
 # added/removed by Services.                                          #
 #<module name="svshold">
 # SVSHOLD does not generate server notices by default, you can turn
@@ -2185,7 +2226,7 @@
 # <wsorigin allow="https://*.example.com/">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
+# XLine database: Stores all *-lines (G/Z/K/R/any added by other modules)
 # in a file which is re-loaded on restart. This is useful
 # for two reasons: it keeps bans so users may not evade them, and on
 # bigger networks, server connections will take less time as there will

@@ -380,9 +380,9 @@ class CoreExport User : public Extensible
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	virtual bool SetClientIP(const std::string& address, bool recheck_eline = true);
+	virtual bool SetClientIP(const std::string& address);
 
-	virtual void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
+	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
 
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
@@ -681,15 +681,18 @@ class CoreExport User : public Extensible
 
 class CoreExport UserIOHandler : public StreamSocket
 {
+ private:
+	 size_t checked_until;
  public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me)
 		: StreamSocket(StreamSocket::SS_USER)
+		, checked_until(0)
 		, user(me)
 	{
 	}
 	void OnDataReady() CXX11_OVERRIDE;
-	void OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
+	bool OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote) CXX11_OVERRIDE;
 	void OnError(BufferedSocketError error) CXX11_OVERRIDE;
 
 	/** Adds to the user's write buffer.
@@ -784,7 +787,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	unsigned int lastping:1;
 
-	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
+	/** This is true if the user matched an exception (E-line). It is used to save time on ban checks.
 	 */
 	unsigned int exempt:1;
 
@@ -803,14 +806,14 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
 	already_sent_t already_sent;
 
-	/** Check if the user matches a G or K line, and disconnect them if they do.
-	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
+	/** Check if the user matches a G- or K-line, and disconnect them if they do.
+	 * @param doZline True if Z-lines should be checked (if IP has changed since initial connect)
 	 * Returns true if the user matched a ban, false else.
 	 */
 	bool CheckLines(bool doZline = false);
 
 	/** Use this method to fully connect a user.
-	 * This will send the message of the day, check G/K/E lines, etc.
+	 * This will send the message of the day, check G/K/E-lines, etc.
 	 */
 	void FullConnect();
 
@@ -820,9 +823,9 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const std::string& address, bool recheck_eline = true) CXX11_OVERRIDE;
+	bool SetClientIP(const std::string& address) CXX11_OVERRIDE;
 
-	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true) CXX11_OVERRIDE;
+	void SetClientIP(const irc::sockets::sockaddrs& sa) CXX11_OVERRIDE;
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.

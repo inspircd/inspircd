@@ -70,7 +70,7 @@ class InsaneBan
 class CommandEline : public Command
 {
  public:
-	/** Constructor for eline.
+	/** Constructor for E-line.
 	 */
 	CommandEline(Module* parent);
 
@@ -87,7 +87,7 @@ class CommandEline : public Command
 class CommandGline : public Command
 {
  public:
-	/** Constructor for gline.
+	/** Constructor for G-line.
 	 */
 	CommandGline(Module* parent);
 
@@ -104,7 +104,7 @@ class CommandGline : public Command
 class CommandKline : public Command
 {
  public:
-	/** Constructor for kline.
+	/** Constructor for K-line.
 	 */
 	CommandKline(Module* parent);
 
@@ -127,7 +127,7 @@ class CommandQline : public Command
 	};
 
  public:
-	/** Constructor for qline.
+	/** Constructor for Q-line.
 	 */
 	CommandQline(Module* parent);
 
@@ -150,7 +150,7 @@ class CommandZline : public Command
 	};
 
  public:
-	/** Constructor for zline.
+	/** Constructor for Z-line.
 	 */
 	CommandZline(Module* parent);
 
