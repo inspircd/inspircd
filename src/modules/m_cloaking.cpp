@@ -210,24 +210,24 @@ class ModuleCloaking : public Module
 	{
 		// The position at which we found the last dot.
 		std::string::const_reverse_iterator dotpos;
-	
+
 		// The number of dots we have seen so far.
 		unsigned int seendots = 0;
-	
+
 		for (std::string::const_reverse_iterator iter = host.rbegin(); iter != host.rend(); ++iter)
 		{
 			if (*iter != '.')
 				continue;
-	
+
 			// We have found a dot!
 			dotpos = iter;
 			seendots += 1;
-	
+
 			// Do we have enough segments to stop?
 			if (seendots >= domainparts)
 				break;
 		}
-	
+
 		// We only returns a domain part if more than one label is
 		// present. See above for a full explanation.
 		if (!seendots)
@@ -435,7 +435,7 @@ class ModuleCloaking : public Module
 			else if (stdalgo::string::equalsci(mode, "full"))
 				newcloaks.push_back(CloakInfo(MODE_OPAQUE, key, prefix, suffix));
 			else
-				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->getTagLocation()); 
+				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->getTagLocation());
 		}
 
 		// The cloak configuration was valid so we can apply it.

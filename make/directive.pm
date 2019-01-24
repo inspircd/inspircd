@@ -164,7 +164,7 @@ sub __function_execute {
 		return $defaults;
 	}
 
-	# Executing the command failed and we don't have any defaults so give up. 
+	# Executing the command failed and we don't have any defaults so give up.
 	__error $file, "`<|GREEN $command|>` exited with a non-zero exit code!";
 }
 

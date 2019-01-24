@@ -42,9 +42,8 @@ class CoreModOper : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
-	
+
 		// The hash method for *BOTH* the die and restart passwords
 		powerhash = tag->getString("hash");
 

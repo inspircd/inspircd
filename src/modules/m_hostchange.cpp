@@ -34,7 +34,7 @@ class HostRule
 		// Add the user's nickname to their hostname.
 		HCA_ADDNICK,
 
-		// Set the user's hostname to the specific value. 
+		// Set the user's hostname to the specific value.
 		HCA_SET
 	};
 
@@ -168,7 +168,7 @@ private:
 			}
 			else
 			{
-				throw ModuleException(action + " is an invalid <hostchange:action> type, at " + tag->getTagLocation()); 
+				throw ModuleException(action + " is an invalid <hostchange:action> type, at " + tag->getTagLocation());
 			}
 		}
 

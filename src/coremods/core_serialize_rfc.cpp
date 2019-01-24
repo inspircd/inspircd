@@ -59,7 +59,7 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 	// Work out how long the message can actually be.
 	size_t maxline = ServerInstance->Config->Limits.MaxLine - start - 2;
 	if (line[start] == '@')
-		maxline += MAX_CLIENT_MESSAGE_TAG_LENGTH + 1; 
+		maxline += MAX_CLIENT_MESSAGE_TAG_LENGTH + 1;
 
 	irc::tokenstream tokens(line, start, maxline);
 	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I %s", user->uuid.c_str(), tokens.GetMessage().c_str());

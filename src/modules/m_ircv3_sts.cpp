@@ -130,7 +130,7 @@ class ModuleIRCv3STS : public Module
 		for (std::vector<ListenSocket*>::const_iterator iter = ServerInstance->ports.begin(); iter != ServerInstance->ports.end(); ++iter)
 		{
 			ListenSocket* ls = *iter;
-			
+
 			// Is this listener on the right port?
 			unsigned int saport = ls->bind_sa.port();
 			if (saport != port)

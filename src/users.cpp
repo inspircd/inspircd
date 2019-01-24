@@ -1026,7 +1026,7 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 	const bool changehost = (realhost != host);
 	if (!changehost && !resetdisplay)
 		return;
-	
+
 	// If the displayhost is not set and we are not resetting it then
 	// we need to copy it to the displayhost field.
 	if (displayhost.empty() && !resetdisplay)

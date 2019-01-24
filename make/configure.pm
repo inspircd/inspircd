@@ -39,7 +39,7 @@ use File::Spec::Functions qw(catdir catfile);
 use make::common;
 use make::console;
 
-use constant CONFIGURE_ROOT          => dirname dirname __FILE__; 
+use constant CONFIGURE_ROOT          => dirname dirname __FILE__;
 use constant CONFIGURE_DIRECTORY     => catdir(CONFIGURE_ROOT, '.configure');
 use constant CONFIGURE_CACHE_FILE    => catfile(CONFIGURE_DIRECTORY, 'cache.cfg');
 use constant CONFIGURE_CACHE_VERSION => '1';

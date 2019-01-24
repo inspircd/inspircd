@@ -39,7 +39,7 @@ bool InspIRCd::BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::
 			return true;
 		}
 	}
-	
+
 	ListenSocket* ll = new ListenSocket(tag, sa);
 	if (ll->GetFd() < 0)
 	{

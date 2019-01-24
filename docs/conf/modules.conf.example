@@ -498,7 +498,7 @@
 #<module name="chgname">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connection class ban module: Adds support for extban 'n' which 
+# Connection class ban module: Adds support for extban 'n' which
 # matches against the class name of the user's connection.
 # This module assumes that connection classes are named in a uniform
 # way on all servers of the network.
@@ -1532,7 +1532,7 @@
 # Oper modes module: Allows you to specify modes to add/remove on oper.
 # Specify the modes as the 'modes' parameter of the <type> tag
 # and/or as the 'modes' parameter of the <oper> tag.
-# This module is oper-only. For the user equivalent, see the 
+# This module is oper-only. For the user equivalent, see the
 # conn_umodes module.
 #<module name="opermodes">
 

@@ -112,7 +112,7 @@ END
 			}
 		}
 	}
-	
+
 	my $core_mk = join ' ', @core_deps;
 	my $mods = join ' ', @modlist;
 	print MAKE <<END;

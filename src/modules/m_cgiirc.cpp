@@ -311,7 +311,7 @@ class ModuleCgiIRC
 			}
 			else
 			{
-				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->getTagLocation()); 
+				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->getTagLocation());
 			}
 		}
 
@@ -369,7 +369,7 @@ class ModuleCgiIRC
 
 			user->ChangeIdent(newident);
 			user->SetClientIP(address);
-			break; 
+			break;
 		}
 		return MOD_RES_PASSTHRU;
 	}
