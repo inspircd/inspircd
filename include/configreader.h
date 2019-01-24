@@ -332,18 +332,6 @@ class CoreExport ServerConfig
 	 */
 	std::string ServerDesc;
 
-	/** Pretend disabled commands don't exist.
-	 */
-	bool DisabledDontExist;
-
-	/** This variable identifies which usermodes have been diabled.
-	 */
-	std::bitset<64> DisabledUModes;
-
-	/** This variable identifies which chanmodes have been disabled.
-	 */
-	std::bitset<64> DisabledCModes;
-
 	/** How to treat a user in a channel who is banned. */
 	BannedUserTreatment RestrictBannedUsers;
 
@@ -465,9 +453,6 @@ class CoreExport ServerConfig
 	void ApplyModules(User* user);
 
 	void Fill();
-
-	/** Disables the commands specified in <disabled:commands>. */
-	bool ApplyDisabledCommands();
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.

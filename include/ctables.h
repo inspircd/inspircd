@@ -163,10 +163,6 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	unsigned long use_count;
 
-	/** True if the command is disabled to non-opers
-	 */
-	bool disabled;
-
 	/** True if the command can be issued before registering
 	 */
 	bool works_before_reg;
@@ -211,23 +207,6 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param index The parameter index (0 == first parameter).
 	 */
 	virtual void EncodeParameter(std::string& parameter, unsigned int index);
-
-	/** Disable or enable this command.
-	 * @param setting True to disable the command.
-	 */
-	void Disable(bool setting)
-	{
-		disabled = setting;
-	}
-
-	/** Obtain this command's disable state.
-	 * @return true if the command is currently disabled
-	 * (disabled commands can be used only by operators)
-	 */
-	bool IsDisabled()
-	{
-		return disabled;
-	}
 
 	/** @return true if the command works before registration.
 	 */

@@ -765,6 +765,43 @@
 # Glob masks are accepted here also.                                  #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Disable module: Provides support for disabling commands and modes.  #
+#<module name="disable">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- DISABLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the disable module loaded then you need to specify the  #
+# commands and modes that you want disabled. Users who have not fully #
+# connected yet are exempt from this module so you can e.g. disable   #
+# the NICK command but still allow users to connect to the server.    #
+#                                                                     #
+# commands - A space-delimited list of commands that can not be used  #
+#            by users. You can exempt server operators from this with #
+#            the servers/use-disabled-commands privilege.             #
+#                                                                     #
+# chanmodes - One or more channel modes that can not be added/removed #
+#             by users. You can exempt server operators from this     #
+#             with the servers/use-disabled-commands privilege.       #
+#                                                                     #
+# usermodes - One or more user modes that can not be added/removed by #
+#             users. You can exempt server operators from this with   #
+#             the servers/use-disabled-commands privilege.            #
+#                                                                     #
+# fakenonexistent - Whether to pretend that a disabled command/mode   #
+#                   does not exist when executed/changed by a user.   #
+#                   Defaults to no.                                   #
+#                                                                     #
+# notifyopers - Whether to send a notice to snomask `a` when a user   #
+#               is prevented from using a disabled command/mode.      #
+#               Defaults to no.                                       #
+#                                                                     #
+#<disabled commands="KICK TOPIC"                                      #
+#          chanmodes="kp"                                             #
+#          usermodes="iw"                                             #
+#          fakenonexistent="yes"                                      #
+#          notifyopers="no">                                          #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DNS blacklist module: Provides support for looking up IPs on one or #
 # more blacklists.                                                    #
 #<module name="dnsbl">                                                #

@@ -124,6 +124,9 @@ class ModuleSaMode : public Module
 
 	void Prioritize() CXX11_OVERRIDE
 	{
+		Module* disabled = ServerInstance->Modules->Find("m_disabled.so");
+		ServerInstance->Modules->SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disabled);
+
 		Module *override = ServerInstance->Modules->Find("m_override.so");
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
 	}

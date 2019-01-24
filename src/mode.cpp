@@ -312,17 +312,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		}
 	}
 
-	if (IS_LOCAL(user) && !user->IsOper())
-	{
-		const std::bitset<64>& disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
-		if (disabled.test(modechar - 'A'))
-		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c has been locked by the administrator",
-				type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
-			return MODEACTION_DENY;
-		}
-	}
-
 	if ((adding) && (IS_LOCAL(user)) && (mh->NeedsOper()) && (!user->HasModePermission(mh)))
 	{
 		/* It's an oper only mode, and they don't have access to it. */

@@ -520,25 +520,6 @@
 # up to 100 entries.
 <maxlist chan="*" limit="100">
 
-#-#-#-#-#-#-#-#-#-#-#-  DISABLED FEATURES  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# This tag is optional, and specifies one or more features which are  #
-# not available to non-operators.                                     #
-#                                                                     #
-# For example you may wish to disable NICK and prevent non-opers from #
-# changing their nicknames.                                           #
-# Note that any disabled commands take effect only after the user has #
-# 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
-# so for example disabling NICK will not cripple your network.        #
-#                                                                     #
-# You can also define if you want to disable any channelmodes         #
-# or usermodes from your users.                                       #
-#                                                                     #
-# `fakenonexistant' will make the ircd pretend that nonexistant       #
-# commands simply don't exist to non-opers ("no such command").       #
-#                                                                     #
-#<disabled commands="TOPIC MODE" usermodes="" chanmodes="" fakenonexistant="yes">
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   Settings to define which features are usable on your server.      #
