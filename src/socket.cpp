@@ -107,6 +107,14 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 				continue;
 			}
 
+			// Check for characters which are problematic in the IRC message format.
+			if (path.find_first_of("\n\r\t!@: ") != std::string::npos)
+			{
+				this->Logs->Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path containing invalid characters!",
+					path.c_str(), tag->getTagLocation().c_str());
+				continue;
+			}
+
 			// Create the bindspec manually (aptosa doesn't work with AF_UNIX yet).
 			memset(&bindspec, 0, sizeof(bindspec));
 			bindspec.un.sun_family = AF_UNIX;
