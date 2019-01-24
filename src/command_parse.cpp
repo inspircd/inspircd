@@ -266,24 +266,6 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		}
 	}
 
-	if ((user->registered == REG_ALL) && (!user->IsOper()) && (handler->IsDisabled()))
-	{
-		/* command is disabled! */
-		user->CommandFloodPenalty += failpenalty;
-		if (ServerInstance->Config->DisabledDontExist)
-		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
-		}
-		else
-		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "This command has been disabled.");
-		}
-
-		ServerInstance->SNO->WriteToSnoMask('a', "%s denied for %s (%s@%s)",
-				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
-		return;
-	}
-
 	if ((!command_p.empty()) && (command_p.back().empty()) && (!handler->allow_empty_last_param))
 		command_p.pop_back();
 
@@ -333,7 +315,6 @@ CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpa
 	, min_params(minpara)
 	, max_params(maxpara)
 	, use_count(0)
-	, disabled(false)
 	, works_before_reg(false)
 	, allow_empty_last_param(true)
 	, Penalty(1)

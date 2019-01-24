@@ -54,8 +54,7 @@ class SSLCertExt : public ExtensionItem
 
 	void unset(Extensible* container)
 	{
-		void* old = unset_raw(container);
-		delete static_cast<std::string*>(old);
+		free(container, unset_raw(container));
 	}
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE

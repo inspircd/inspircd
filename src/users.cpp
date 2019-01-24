@@ -239,23 +239,30 @@ void UserIOHandler::OnDataReady()
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
 		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
 
-	// The maximum size of an IRC message minus the terminating CR+LF.
-	const size_t maxmessage = ServerInstance->Config->Limits.MaxLine - 2;
+	// The cleaned message sent by the user or empty if not found yet.
 	std::string line;
-	line.reserve(maxmessage);
 
-	bool eol_found;
+	// The position of the most \n character or npos if not found yet.
+	std::string::size_type eolpos;
+
+	// The position within the recvq of the current character.
 	std::string::size_type qpos;
 
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
-		qpos = 0;
-		eol_found = false;
-
-		const size_t qlen = recvq.length();
-		while (qpos < qlen)
+		// Check the newly received data for an EOL.
+		eolpos = recvq.find('\n', checked_until);
+		if (eolpos == std::string::npos)
 		{
-			char c = recvq[qpos++];
+			checked_until = recvq.length();
+			return;
+		}
+
+		// We've found a line! Clean it up and move it to the line buffer.
+		line.reserve(eolpos);
+		for (qpos = 0; qpos < eolpos; ++qpos)
+		{
+			char c = recvq[qpos];
 			switch (c)
 			{
 				case '\0':
@@ -263,25 +270,14 @@ void UserIOHandler::OnDataReady()
 					break;
 				case '\r':
 					continue;
-				case '\n':
-					eol_found = true;
-					break;
 			}
 
-			if (eol_found)
-				break;
-
-			if (line.length() < maxmessage)
-				line.push_back(c);
+			line.push_back(c);
 		}
 
-		// if we return here, we haven't found a newline and make no modifications to recvq
-		// so we can wait for more data
-		if (!eol_found)
-			return;
-
 		// just found a newline. Terminate the string, and pull it out of recvq
-		recvq.erase(0, qpos);
+		recvq.erase(0, eolpos + 1);
+		checked_until = 0;
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats.Recv += qpos;
@@ -318,10 +314,11 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
-void UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
+bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
 {
 	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
 	user->SetClientIP(client);
+	return !user->quitting;
 }
 
 void UserIOHandler::OnError(BufferedSocketError)
@@ -723,17 +720,17 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const std::string& address, bool recheck_eline)
+bool User::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	User::SetClientIP(sa, recheck_eline);
+	User::SetClientIP(sa);
 	return true;
 }
 
-void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
 	const std::string oldip(GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
@@ -746,26 +743,33 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 		ChangeDisplayedHost(GetIPString());
 }
 
-bool LocalUser::SetClientIP(const std::string& address, bool recheck_eline)
+bool LocalUser::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
 		return false;
 
-	LocalUser::SetClientIP(sa, recheck_eline);
+	LocalUser::SetClientIP(sa);
 	return true;
 }
 
-void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
+void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
-	if (sa != client_sa)
-	{
-		User::SetClientIP(sa);
-		if (recheck_eline)
-			this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
+	if (sa == client_sa)
+		return;
 
-		FOREACH_MOD(OnSetUserIP, (this));
-	}
+	ServerInstance->Users->RemoveCloneCounts(this);
+
+	User::SetClientIP(sa);
+
+	FOREACH_MOD(OnSetUserIP, (this));
+
+	ServerInstance->Users->AddClone(this);
+
+	// Recheck the connect class.
+	this->MyClass = NULL;
+	this->SetClass();
+	this->CheckClass();
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
@@ -796,7 +800,11 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
+	{
+		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "BUG: LocalUser::Send() called on %s who does not have a serializer!",
+			GetFullRealHost().c_str());
 		return;
+	}
 
 	// In the most common case a static LocalUser field, sendmsglist, is passed to the event to be
 	// populated. The list is cleared before returning.

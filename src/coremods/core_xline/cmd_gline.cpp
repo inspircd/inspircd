@@ -50,7 +50,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 
 		if (ih.first.empty())
 		{
-			user->WriteNotice("*** Target not found");
+			user->WriteNotice("*** Target not found.");
 			return CMD_FAILURE;
 		}
 
@@ -60,14 +60,14 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 
 		else if (target.find('!') != std::string::npos)
 		{
-			user->WriteNotice("*** G-Line cannot operate on nick!user@host masks");
+			user->WriteNotice("*** G-line cannot operate on nick!user@host masks.");
 			return CMD_FAILURE;
 		}
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration for G-line");
+			user->WriteNotice("*** Invalid duration for G-line.");
 			return CMD_FAILURE;
 		}
 		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
@@ -90,7 +90,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		else
 		{
 			delete gl;
-			user->WriteNotice("** G-Line for " + target + " already exists");
+			user->WriteNotice("** G-line for " + target + " already exists.");
 		}
 
 	}
@@ -102,7 +102,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** G-Line " + target + " not found in list, try /stats g.");
+			user->WriteNotice("*** G-line " + target + " not found in list, try /stats g.");
 		}
 	}
 

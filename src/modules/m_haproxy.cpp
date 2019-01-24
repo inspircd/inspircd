@@ -240,7 +240,7 @@ class HAProxyHook : public IOHookMiddle
 				{
 					case AF_INET:
 						memcpy(&client.in4.sin_addr.s_addr, &recvq[0], 4);
-						memcpy(&server.in4.sin_addr.s_addr, &recvq[4], 8);
+						memcpy(&server.in4.sin_addr.s_addr, &recvq[4], 4);
 						memcpy(&client.in4.sin_port, &recvq[8], 2);
 						memcpy(&server.in4.sin_port, &recvq[10], 2);
 						tlv_index = 12;
@@ -256,12 +256,13 @@ class HAProxyHook : public IOHookMiddle
 
 					case AF_UNIX:
 						memcpy(client.un.sun_path, &recvq[0], 108);
-						memcpy(client.un.sun_path, &recvq[108], 108);
+						memcpy(server.un.sun_path, &recvq[108], 108);
 						tlv_index = 216;
 						break;
 				}
 
-				sock->OnSetEndPoint(server, client);
+				if (!sock->OnSetEndPoint(server, client))
+					return -1;
 
 				// Parse any available TLVs.
 				while (tlv_index < address_length)

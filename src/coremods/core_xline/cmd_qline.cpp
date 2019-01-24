@@ -40,14 +40,14 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)
 		{
-			user->WriteNotice("*** A Q-Line only bans a nick pattern, not a nick!user@host pattern.");
+			user->WriteNotice("*** A Q-line only bans a nick pattern, not a nick!user@host pattern.");
 			return CMD_FAILURE;
 		}
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration for Q-line");
+			user->WriteNotice("*** Invalid duration for Q-line.");
 			return CMD_FAILURE;
 		}
 		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
@@ -69,7 +69,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		else
 		{
 			delete ql;
-			user->WriteNotice("*** Q-Line for " + parameters[0] + " already exists");
+			user->WriteNotice("*** Q-line for " + parameters[0] + " already exists.");
 		}
 	}
 	else
@@ -80,7 +80,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Q-Line " + parameters[0] + " not found in list, try /stats q.");
+			user->WriteNotice("*** Q-line " + parameters[0] + " not found in list, try /stats q.");
 			return CMD_FAILURE;
 		}
 	}

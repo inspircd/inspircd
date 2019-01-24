@@ -50,7 +50,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 
 		if (ih.first.empty())
 		{
-			user->WriteNotice("*** Target not found");
+			user->WriteNotice("*** Target not found.");
 			return CMD_FAILURE;
 		}
 
@@ -60,14 +60,14 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteNotice("*** K-Line cannot operate on nick!user@host masks");
+			user->WriteNotice("*** K-line cannot operate on nick!user@host masks.");
 			return CMD_FAILURE;
 		}
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
-			user->WriteNotice("*** Invalid duration for K-line");
+			user->WriteNotice("*** Invalid duration for K-line.");
 			return CMD_FAILURE;
 		}
 		KLine* kl = new KLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
@@ -90,7 +90,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		else
 		{
 			delete kl;
-			user->WriteNotice("*** K-Line for " + target + " already exists");
+			user->WriteNotice("*** K-line for " + target + " already exists.");
 		}
 	}
 	else
@@ -101,7 +101,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** K-Line " + target + " not found in list, try /stats k.");
+			user->WriteNotice("*** K-line " + target + " not found in list, try /stats k.");
 		}
 	}
 

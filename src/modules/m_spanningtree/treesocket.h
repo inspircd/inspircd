@@ -259,7 +259,7 @@ class TreeSocket : public BufferedSocket
 	 */
 	void SendFJoins(Channel* c);
 
-	/** Send G, Q, Z and E lines */
+	/** Send G-, Q-, Z- and E-lines */
 	void SendXLines();
 
 	/** Send all known information about a channel */

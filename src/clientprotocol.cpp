@@ -35,7 +35,7 @@ bool ClientProtocol::Serializer::HandleTag(LocalUser* user, const std::string& t
 	for (::Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		MessageTagProvider* const tagprov = static_cast<MessageTagProvider*>(*i);
-		const ModResult res = tagprov->OnClientProtocolProcessTag(user, tagname, tagvalue);
+		const ModResult res = tagprov->OnProcessTag(user, tagname, tagvalue);
 		if (res == MOD_RES_ALLOW)
 			return tags.insert(std::make_pair(tagname, MessageTagData(tagprov, tagvalue))).second;
 		else if (res == MOD_RES_DENY)

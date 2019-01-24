@@ -95,12 +95,24 @@ class MessageCommandBase : public Command
 	ChanModeReference noextmsgmode;
 
 	/** Send a PRIVMSG or NOTICE message to all local users from the given user
-	 * @param user User sending the message
-	 * @param msg The message to send
-	 * @param mt Type of the message (MSG_PRIVMSG or MSG_NOTICE)
-	 * @param tags Message tags to include in the outgoing protocol message
+	 * @param source The user sending the message.
+	 * @param msg The details of the message to send.
 	 */
-	static void SendAll(User* user, const std::string& msg, MessageType mt, const ClientProtocol::TagMap& tags);
+	static void SendAll(User* source, const MessageDetails& details)
+	{
+		ClientProtocol::Messages::Privmsg message(ClientProtocol::Messages::Privmsg::nocopy, source, "$*", details.text, details.type);
+		message.AddTags(details.tags_out);
+		message.SetSideEffect(true);
+		ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
+
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+		{
+			LocalUser* user = *i;
+			if ((user->registered == REG_ALL) && (!details.exemptions.count(user)))
+				user->Send(messageevent);
+		}
+	}
 
  public:
 	MessageCommandBase(Module* parent, MessageType mt)
@@ -127,21 +139,6 @@ class MessageCommandBase : public Command
 			return ROUTE_MESSAGE(parameters[0]);
 	}
 };
-
-void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType mt, const ClientProtocol::TagMap& tags)
-{
-	ClientProtocol::Messages::Privmsg message(ClientProtocol::Messages::Privmsg::nocopy, user, "$*", msg, mt);
-	message.AddTags(tags);
-	message.SetSideEffect(true);
-	ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
-
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		if ((*i)->registered == REG_ALL)
-			(*i)->Send(messageevent);
-	}
-}
 
 CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters, MessageType mt)
 {
@@ -171,7 +168,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
 		{
-			SendAll(user, msgdetails.text, mt, msgdetails.tags_out);
+			SendAll(user, msgdetails);
 		}
 		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
 		return CMD_SUCCESS;

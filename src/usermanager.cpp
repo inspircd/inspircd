@@ -76,6 +76,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	this->clientlist[New->nick] = New;
 	this->AddClone(New);
 	this->local_users.push_front(New);
+	FOREACH_MOD(OnUserInit, (New));
 
 	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
@@ -132,7 +133,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 			if (ServerInstance->Config->HideBans)
-				this->QuitUser(New, b->Type + "-Lined", &b->Reason);
+				this->QuitUser(New, b->Type + "-lined", &b->Reason);
 			else
 				this->QuitUser(New, b->Reason);
 			return;
@@ -162,8 +163,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	FOREACH_MOD(OnSetUserIP, (New));
 	if (New->quitting)
 		return;
-
-	FOREACH_MOD(OnUserInit, (New));
 }
 
 void UserManager::QuitUser(User* user, const std::string& quitreason, const std::string* operreason)

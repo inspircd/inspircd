@@ -442,7 +442,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
-	Config->ApplyDisabledCommands();
 
 	if (!pl.empty())
 	{

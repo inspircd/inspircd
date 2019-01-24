@@ -72,31 +72,6 @@ ServerConfig::~ServerConfig()
 	delete EmptyTag;
 }
 
-bool ServerConfig::ApplyDisabledCommands()
-{
-	// Enable everything first.
-	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-	for (CommandParser::CommandMap::const_iterator x = commands.begin(); x != commands.end(); ++x)
-		x->second->Disable(false);
-
-	// Now disable the commands specified in the config.
-	std::string command;
-	irc::spacesepstream commandlist(ConfValue("disabled")->getString("commands"));
-	while (commandlist.GetToken(command))
-	{
-		Command* handler = ServerInstance->Parser.GetHandler(command);
-		if (!handler)
-		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Unable to disable the %s command as it does not exist!", command.c_str());
-			continue;
-		}
-
-		ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "The %s command has been disabled", command.c_str());
-		handler->Disable(true);
-	}
-	return true;
-}
-
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
 {
 	ConfigTagList tags = conf->ConfTags(tag);
@@ -378,7 +353,6 @@ void ServerConfig::Fill()
 	ServerDesc = server->getString("description", "Configure Me");
 	Network = server->getString("network", "Network");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
-	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
 	HideServer = security->getString("hideserver", security->getString("hidewhois"));
@@ -429,25 +403,6 @@ void ServerConfig::Fill()
 		RestrictBannedUsers =  ServerConfig::BUT_RESTRICT_NOTIFY;
 	else
 		throw CoreException(restrictbannedusers + " is an invalid <options:restrictbannedusers> value, at " + options->getTagLocation());
-
-	DisabledUModes.reset();
-	std::string modes = ConfValue("disabled")->getString("usermodes");
-	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
-	{
-		// Complain when the character is not a valid mode character.
-		if (!ModeParser::IsModeChar(*p))
-			throw CoreException("Invalid usermode " + std::string(1, *p) + " was found.");
-		DisabledUModes.set(*p - 'A');
-	}
-
-	DisabledCModes.reset();
-	modes = ConfValue("disabled")->getString("chanmodes");
-	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
-	{
-		if (!ModeParser::IsModeChar(*p))
-			throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
-		DisabledCModes.set(*p - 'A');
-	}
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it
@@ -723,7 +678,6 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		Config->ApplyDisabledCommands();
 		User* user = ServerInstance->FindNick(TheUserUID);
 
 		ConfigStatus status(user);

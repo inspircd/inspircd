@@ -312,17 +312,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		}
 	}
 
-	if (IS_LOCAL(user) && !user->IsOper())
-	{
-		const std::bitset<64>& disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
-		if (disabled.test(modechar - 'A'))
-		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c has been locked by the administrator",
-				type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
-			return MODEACTION_DENY;
-		}
-	}
-
 	if ((adding) && (IS_LOCAL(user)) && (mh->NeedsOper()) && (!user->HasModePermission(mh)))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
@@ -587,7 +576,8 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeType mt)
 void ModeParser::AddMode(ModeHandler* mh)
 {
 	if (!ModeParser::IsModeChar(mh->GetModeChar()))
-		throw ModuleException("Invalid letter for mode " + mh->name);
+		throw ModuleException(InspIRCd::Format("Mode letter for %s is invalid: %c",
+			mh->name.c_str(), mh->GetModeChar()));
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -597,15 +587,19 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (pm->GetPrefix() == '#'))
-			throw ModuleException("Invalid prefix for mode " + mh->name);
+			throw ModuleException(InspIRCd::Format("Mode prefix for %s is invalid: %c",
+				mh->name.c_str(), pm->GetPrefix()));
 
-		if (FindPrefix(pm->GetPrefix()))
-			throw ModuleException("Prefix already exists for mode " + mh->name);
+		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
+		if (otherpm)
+			throw ModuleException(InspIRCd::Format("Mode prefix for %s already by used by %s from %s: %c",
+				mh->name.c_str(), otherpm->name.c_str(), otherpm->creator->ModuleSourceFile.c_str(), pm->GetPrefix()));
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
 	if (slot)
-		throw ModuleException("Letter is already in use for mode " + mh->name);
+		throw ModuleException(InspIRCd::Format("Mode letter for %s already by used by %s from %s: %c",
+			mh->name.c_str(), slot->name.c_str(), slot->creator->ModuleSourceFile.c_str(), mh->GetModeChar()));
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
 	// Otherwise (for listmodes and prefix modes) the id remains MODEID_MAX, which is invalid.
@@ -613,8 +607,13 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
 		modeid = AllocateModeId(mh->GetModeType());
 
-	if (!modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)).second)
-		throw ModuleException("Mode name already in use: " + mh->name);
+	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)); 
+	if (!res.second)
+	{
+		ModeHandler* othermh = res.first->second;
+		throw ModuleException(InspIRCd::Format("Mode name %s already used by %c from %s",
+			mh->name.c_str(), othermh->GetModeChar(), othermh->creator->ModuleSourceFile.c_str()));
+	}
 
 	// Everything is fine, add the mode
 

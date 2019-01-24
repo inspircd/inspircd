@@ -358,6 +358,11 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 		}
 }
 
+bool StreamSocket::OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote)
+{
+	return false;
+}
+
 void StreamSocket::WriteData(const std::string &data)
 {
 	if (fd < 0)

@@ -257,8 +257,8 @@ help channel if you have any questions.">
  R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires the override module).
- x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
- X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
+ x      Allows receipt of local X-line notices (G/Z/Q/K/E/R/SHUN/CBan).
+ X      Allows receipt of remote X-line notices (G/Z/Q/K/E/R/SHUN/CBan).">
 
 <helpop key="extbans" value="Extended Bans
 ----------

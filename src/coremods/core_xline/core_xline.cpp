@@ -64,18 +64,27 @@ class CoreModXLine : public Module
 	{
 	}
 
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->quitting)
+			return;
+
+		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		user->CheckLines(true);
+	}
+
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		// Check Q-Lines (for local nick changes only, remote servers have our Q-Lines to enforce themselves)
+		// Check Q-lines (for local nick changes only, remote servers have our Q-lines to enforce themselves)
 
 		XLine* xline = ServerInstance->XLines->MatchesLine("Q", newnick);
 		if (!xline)
 			return MOD_RES_PASSTHRU; // No match
 
-		// A Q-Line matched the new nick, tell opers if the user is registered
+		// A Q-line matched the new nick, tell opers if the user is registered
 		if (user->registered == REG_ALL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
+			ServerInstance->SNO->WriteGlobalSno('a', "Q-lined nickname %s from %s: %s",
 				newnick.c_str(), user->GetFullRealHost().c_str(), xline->reason.c_str());
 		}
 

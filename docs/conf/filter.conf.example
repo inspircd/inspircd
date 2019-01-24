@@ -6,7 +6,7 @@
 #               reason="reason for filtering"
 #               action="action to take"
 #               flags="filter flags"
-#               duration="optional length of gline">
+#               duration="optional duration of the G-line, Z-line or shun">
 #
 # Valid actions for 'action' are:
 #
@@ -25,15 +25,21 @@
 # kill          This disconnects the user, with the 'reason' parameter as
 #               the kill reason.
 #
-# gline         G-LINE the user for 'duration' length of time. Durations may
+# gline         G-line the user for 'duration' length of time. Durations may
 #               be specified using the notation 1y2d3h4m6s in a similar way to
-#               other glines, omitting the duration or setting it to 0 makes
-#               any glines set by this filter be permanent.
+#               other G-lines, omitting the duration or setting it to 0 makes
+#               any G-lines set by this filter be permanent.
 #
-# zline         Z-LINE the user for 'duration' length of time. Durations may
+# zline         Z-line the user for 'duration' length of time. Durations may
 #               be specified using the notation 1y2d3h4m6s in a similar way to
-#               other zlines, omitting the duration or setting it to 0 makes
-#               any zlines set by this filter be permanent.
+#               other Z-lines, omitting the duration or setting it to 0 makes
+#               any Z-lines set by this filter be permanent.
+#
+# shun          Shun the user for 'duration' length of time. Durations may
+#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               other X-lines, omitting the duration or setting it to 0 makes
+#               any shuns set by this filter be permanent.
+#               Requires the shun module to be loaded.
 #
 # You can add filters from IRC using the /FILTER command. If you do this, they
 # will be set globally to your entire network.

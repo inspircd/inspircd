@@ -114,7 +114,7 @@ class CommandCBan : public Command
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration for CBan");
+				user->WriteNotice("*** Invalid duration for CBan.");
 				return CMD_FAILURE;
 			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
@@ -202,7 +202,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Gives /cban, aka C:lines. Think Q:lines, for channels.", VF_COMMON | VF_VENDOR);
+		return Version("Gives /cban, aka C-lines. Think Q-lines, for channels.", VF_COMMON | VF_VENDOR);
 	}
 };
 
