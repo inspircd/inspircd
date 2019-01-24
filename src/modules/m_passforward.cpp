@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 
 class ModulePassForward : public Module
 {
@@ -81,6 +82,13 @@ class ModulePassForward : public Module
 		// If the connect class requires a password, don't forward it
 		if (!user->MyClass->config->getString("password").empty())
 			return;
+
+		AccountExtItem* actext = GetAccountExtItem();
+		if (actext && actext->get(user))
+		{
+			// User is logged in already (probably via SASL) don't forward the password
+			return;
+		}
 
 		if (!nickrequired.empty())
 		{
