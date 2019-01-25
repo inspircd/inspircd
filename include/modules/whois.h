@@ -97,45 +97,11 @@ class Whois::Context
 
 	/** Send a line of WHOIS data to the source of the WHOIS
 	 */
-	template <typename T1>
-	void SendLine(unsigned int numeric, T1 p1)
+	template <typename... Param>
+	void SendLine(unsigned int numeric, Param... p)
 	{
 		Numeric::Numeric n(numeric);
-		n.push(target->nick);
-		n.push(p1);
-		SendLine(n);
-	}
-
-	template <typename T1, typename T2>
-	void SendLine(unsigned int numeric, T1 p1, T2 p2)
-	{
-		Numeric::Numeric n(numeric);
-		n.push(target->nick);
-		n.push(p1);
-		n.push(p2);
-		SendLine(n);
-	}
-
-	template <typename T1, typename T2, typename T3>
-	void SendLine(unsigned int numeric, T1 p1, T2 p2, T3 p3)
-	{
-		Numeric::Numeric n(numeric);
-		n.push(target->nick);
-		n.push(p1);
-		n.push(p2);
-		n.push(p3);
-		SendLine(n);
-	}
-
-	template <typename T1, typename T2, typename T3, typename T4>
-	void SendLine(unsigned int numeric, T1 p1, T2 p2, T3 p3, T4 p4)
-	{
-		Numeric::Numeric n(numeric);
-		n.push(target->nick);
-		n.push(p1);
-		n.push(p2);
-		n.push(p3);
-		n.push(p4);
+		n.push(std::forward<Param>(p)...);
 		SendLine(n);
 	}
 
