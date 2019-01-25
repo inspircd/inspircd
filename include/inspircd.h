@@ -467,6 +467,9 @@ class CoreExport InspIRCd
 	static bool MatchCIDR(const std::string& str, const std::string& mask, unsigned const char* map = NULL);
 	static bool MatchCIDR(const char* str, const char* mask, unsigned const char* map = NULL);
 
+	static bool MatchAny(const std::string& str, const std::string& values);
+	static bool MatchAny(const std::string& str, irc::sepstream values);
+
 	/** Matches a hostname and IP against a space delimited list of hostmasks.
 	 * @param masks The space delimited masks to match against.
 	 * @param hostname The hostname to try and match.

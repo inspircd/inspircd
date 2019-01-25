@@ -231,7 +231,7 @@ class ModuleSSLInfo
 				}
 
 				std::string fingerprint;
-				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
+				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || !InspIRCd::MatchAny(cert->GetFingerprint(), fingerprint)))
 				{
 					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
@@ -275,7 +275,7 @@ class ModuleSSLInfo
 		{
 			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (fp == cert->fingerprint && ifo->oper_block->getBool("autologin"))
+			if (InspIRCd::MatchAny(cert->GetFingerprint(), fp) && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);
 		}
 	}
