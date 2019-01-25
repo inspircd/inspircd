@@ -560,8 +560,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	{
 		ConfigTag* tag = i->second;
 
-		// If "target" is not found, try the old "channel" key to keep compatibility with 2.0 configs
-		const std::string target = tag->getString("target", tag->getString("channel"));
+		const std::string target = tag->getString("target");
 		if (!target.empty())
 		{
 			if (target[0] == '#')

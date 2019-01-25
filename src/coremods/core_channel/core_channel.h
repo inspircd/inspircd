@@ -186,7 +186,6 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 {
  public:
-	size_t minlimit;
 	ModeChannelLimit(Module* Creator);
 	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);

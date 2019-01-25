@@ -185,9 +185,6 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		banmode.DoRehash();
 
 		exemptions.swap(exempts);
-		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
-		// and will be removed in the next major release.
-		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
 		cmdinvite.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
@@ -228,6 +225,16 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			buffer.push_back(':');
 			buffer.append(ConvToStr(iter->first));
 		}
+
+		// Generate the CHANLIMIT token.
+		unsigned int maxchans = 20;
+		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
+		{
+			unsigned int value = (*iter)->maxchans;
+			if (value < maxchans)
+				maxchans = value;
+		}
+		tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", maxchans);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string&, std::string&, const std::string& keygiven) override
