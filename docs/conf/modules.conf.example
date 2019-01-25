@@ -170,10 +170,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anticaps module: Adds channel mode +B which allows you to punish
-# users that send overly capitalised messages to channels. Unlike the
-# blockcaps module this module is more flexible as it has more options
-# for punishment and allows channels to configure their own punishment
-# policies.
+# users that send overly capitalised messages to channels.
 #<module name="anticaps">
 #
 # You may also configure the characters which anticaps considers to be
@@ -245,32 +242,6 @@
 #                    a user uses /amsg or /ame.                       #
 #
 #<blockamsg delay="3" action="killopers">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block CAPS module: Adds channel mode +B, blocks all-CAPS messages.
-#
-# NOTE: This module is deprecated and will be removed in a future version
-# of InspIRCd. You should use the anticaps module shown above instead.
-#<module name="blockcaps">
-#
-#-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# percent        - The percentage of a message which must be upper    #
-#                  case before it will be blocked.                    #
-#                                                                     #
-# minlen         - The minimum length a message must be before it     #
-#                  will be blocked.                                   #
-#                                                                     #
-# lowercase      - The characters which will be considered lower      #
-#                  case.                                              #
-#                                                                     #
-# uppercase      - The characters which will be considered upper      #
-#                  case.                                              #
-#
-#<blockcaps percent="50"
-#           minlen="5"
-#           lowercase="abcdefghijklmnopqrstuvwxyz"
-#           uppercase="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block color module: Blocking color-coded messages with chan mode +c.
