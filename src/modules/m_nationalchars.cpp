@@ -255,7 +255,7 @@ class ModuleNationalChars : public Module
 
 	void init() override
 	{
-		memcpy(m_lower, rfc_case_insensitive_map, 256);
+		memcpy(m_lower, ascii_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 
 		ServerInstance->IsNick = &lwbNickHandler::Call;
@@ -337,7 +337,7 @@ class ModuleNationalChars : public Module
 			memset(tables[n], 0, 256);
 		}
 
-		memcpy(m_lower, rfc_case_insensitive_map, 256);
+		memcpy(m_lower, ascii_case_insensitive_map, 256);
 
 		for (unsigned char n = 0; n < cnt; n++)
 		{

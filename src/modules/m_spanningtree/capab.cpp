@@ -77,14 +77,6 @@ std::string TreeSocket::MyModules(int filter)
 		}
 	}
 
-	// If we are linked in a 2.0 server and have an ascii casemapping
-	// advertise it as m_ascii.so from inspircd-extras
-	if ((filter & VF_COMMON) && ServerInstance->Config->CaseMapping == "ascii" && proto_version == 1202)
-	{
-		if (!capabilities.empty())
-			capabilities += "m_ascii.so";
-	}
-
 	return capabilities;
 }
 
