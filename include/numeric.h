@@ -53,6 +53,12 @@ class Numeric::Numeric
 	/** Add a parameter to the numeric. The parameter will be converted to a string first with ConvToStr().
 	 * @param x Parameter to add
 	 */
+	template <typename T1, typename... T2>
+	Numeric& push(const T1& x1, T2... x2)
+	{
+		return push(x1).push(std::forward<T2>(x2)...);
+	}
+
 	template <typename T>
 	Numeric& push(const T& x)
 	{
