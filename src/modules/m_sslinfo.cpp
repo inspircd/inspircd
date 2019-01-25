@@ -251,7 +251,7 @@ class ModuleSSLInfo
 			return;
 
 		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
-		if (!ssliohook)
+		if (!ssliohook || cmd.sslapi.nosslext.get(localuser))
 			return;
 
 		ssl_cert* const cert = ssliohook->GetCertificate();
