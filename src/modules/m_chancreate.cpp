@@ -24,17 +24,17 @@
 class ModuleChanCreate : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent",VF_VENDOR);
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override
 	{
 		if ((created) && (IS_LOCAL(memb->user)))
 		{

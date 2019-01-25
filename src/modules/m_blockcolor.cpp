@@ -36,12 +36,12 @@ class ModuleBlockColor : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('c');
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
@@ -67,7 +67,7 @@ class ModuleBlockColor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel mode +c to block color",VF_VENDOR);
 	}

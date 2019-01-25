@@ -46,7 +46,7 @@ class CommandDie : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /KILL.
@@ -73,11 +73,11 @@ class CommandKill : public Command
 	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
-	void EncodeParameter(std::string& param, unsigned int index) CXX11_OVERRIDE;
+	void EncodeParameter(std::string& param, unsigned int index) override;
 };
 
 /** Handle /OPER.
@@ -94,7 +94,7 @@ class CommandOper : public SplitCommand
 	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 /** Handle /REHASH.
@@ -111,7 +111,7 @@ class CommandRehash : public Command
 	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /RESTART
@@ -131,5 +131,5 @@ class CommandRestart : public Command
 	 * @param parameters Parameters to the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };

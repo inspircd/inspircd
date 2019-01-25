@@ -38,7 +38,7 @@
 class HashSHA256 : public HashProvider
 {
  public:
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
+	std::string GenerateRaw(const std::string& data) override
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
 		sha256((unsigned char*)data.data(), data.length(),  bytes);
@@ -59,7 +59,7 @@ class ModuleSHA256 : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements SHA-256 hashing", VF_VENDOR);
 	}

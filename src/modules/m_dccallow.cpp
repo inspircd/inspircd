@@ -115,7 +115,7 @@ class CommandDccallow : public Command
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
 		if (!parameters.size())
@@ -256,7 +256,7 @@ class CommandDccallow : public Command
 		return CMD_FAILURE;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -307,7 +307,7 @@ class ModuleDCCAllow : public Module
 	{
 	}
 
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) override
 	{
 		dccallowlist* udl = ext.get(user);
 
@@ -320,12 +320,12 @@ class ModuleDCCAllow : public Module
 		RemoveNick(user);
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string &oldnick) override
 	{
 		RemoveNick(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -507,7 +507,7 @@ class ModuleDCCAllow : public Module
 		}
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		bannedfilelist newbfl;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
@@ -527,7 +527,7 @@ class ModuleDCCAllow : public Module
 		defaultaction = tag->getString("action");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the /DCCALLOW command", VF_COMMON | VF_VENDOR);
 	}

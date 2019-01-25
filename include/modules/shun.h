@@ -39,7 +39,7 @@ class Shun : public XLine
 	{
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE
+	bool Matches(User* u) override
 	{
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu && lu->exempt)
@@ -54,12 +54,12 @@ class Shun : public XLine
 		return false;
 	}
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE
+	bool Matches(const std::string& str) override
 	{
 		return (matchtext == str);
 	}
 
-	const std::string& Displayable() CXX11_OVERRIDE
+	const std::string& Displayable() override
 	{
 		return matchtext;
 	}

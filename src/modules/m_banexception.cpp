@@ -54,12 +54,12 @@ class ModuleBanException : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
-	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE
+	ModResult OnExtBanCheck(User *user, Channel *chan, char type) override
 	{
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
@@ -80,7 +80,7 @@ class ModuleBanException : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
+	ModResult OnCheckChannelBan(User* user, Channel* chan) override
 	{
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
@@ -100,12 +100,12 @@ class ModuleBanException : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		be.DoRehash();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the +e channel mode", VF_VENDOR);
 	}

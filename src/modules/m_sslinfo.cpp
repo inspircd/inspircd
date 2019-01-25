@@ -57,12 +57,12 @@ class SSLCertExt : public ExtensionItem
 		free(container, unset_raw(container));
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
 	{
 		ssl_cert* cert = new ssl_cert;
 		set(container, cert);
@@ -87,7 +87,7 @@ class SSLCertExt : public ExtensionItem
 		}
 	}
 
-	void free(Extensible* container, void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) override
 	{
 		ssl_cert* old = static_cast<ssl_cert*>(item);
 		if (old && old->refcount_dec())
@@ -108,7 +108,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	{
 	}
 
-	ssl_cert* GetCertificate(User* user) CXX11_OVERRIDE
+	ssl_cert* GetCertificate(User* user) override
 	{
 		ssl_cert* cert = sslext.get(user);
 		if (cert)
@@ -126,7 +126,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 		return cert;
 	}
 
-	void SetCertificate(User* user, ssl_cert* cert) CXX11_OVERRIDE
+	void SetCertificate(User* user, ssl_cert* cert) override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting SSL certificate for %s: %s",
 			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
@@ -146,7 +146,7 @@ class CommandSSLInfo : public Command
 		this->syntax = "<nick>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
 
@@ -196,12 +196,12 @@ class ModuleSSLInfo
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
 		if (cert)
@@ -213,7 +213,7 @@ class ModuleSSLInfo
 		}
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		if ((command == "OPER") && (validated))
 		{
@@ -244,7 +244,7 @@ class ModuleSSLInfo
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
+	void OnPostConnect(User* user) override
 	{
 		LocalUser* const localuser = IS_LOCAL(user);
 		if (!localuser)
@@ -280,7 +280,7 @@ class ModuleSSLInfo
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
 		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
 		bool ok = true;
@@ -300,7 +300,7 @@ class ModuleSSLInfo
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
 	{
 		// We are only interested in connection flags. If none have been
 		// given then we have nothing to do.

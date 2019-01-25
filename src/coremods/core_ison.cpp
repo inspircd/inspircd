@@ -37,7 +37,7 @@ class CommandIson : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 class IsonReplyBuilder : public Numeric::Builder<' ', true>
@@ -88,7 +88,7 @@ class CoreModIson : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the ISON command", VF_CORE | VF_VENDOR);
 	}

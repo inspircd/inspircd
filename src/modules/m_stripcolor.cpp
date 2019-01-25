@@ -36,12 +36,12 @@ class ModuleStripColor : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('S');
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -71,7 +71,7 @@ class ModuleStripColor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) CXX11_OVERRIDE
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
 	{
 		User* user = memb->user;
 		Channel* channel = memb->chan;
@@ -88,7 +88,7 @@ class ModuleStripColor : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel +S mode (strip ansi color)", VF_VENDOR);
 	}

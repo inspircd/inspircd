@@ -33,7 +33,7 @@ class CommandSVSTOPIC : public Command
 		flags_needed = FLAG_SERVERONLY;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (!user->server->IsULine())
 		{
@@ -67,7 +67,7 @@ class CommandSVSTOPIC : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -86,7 +86,7 @@ class FlagExtItem : public ExtensionItem
 		return (get_raw(container) != NULL);
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
 	{
 		if (format == FORMAT_USER)
 			return "true";
@@ -94,7 +94,7 @@ class FlagExtItem : public ExtensionItem
 		return "1";
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
 	{
 		if (value == "1")
 			set_raw(container, this);
@@ -115,7 +115,7 @@ class FlagExtItem : public ExtensionItem
 		unset_raw(container);
 	}
 
-	void free(Extensible* container, void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) override
 	{
 		// nothing to free
 	}
@@ -132,7 +132,7 @@ class ModuleTopicLock : public Module
 	{
 	}
 
-	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) override
 	{
 		// Only fired for local users currently, but added a check anyway
 		if ((IS_LOCAL(user)) && (topiclock.get(chan)))
@@ -144,7 +144,7 @@ class ModuleTopicLock : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements server-side topic locks and the server-to-server command SVSTOPIC", VF_COMMON | VF_VENDOR);
 	}

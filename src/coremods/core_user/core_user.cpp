@@ -40,7 +40,7 @@ class CommandPass : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		// Check to make sure they haven't registered -- Fix by FCS
 		if (user->registered == REG_ALL)
@@ -73,7 +73,7 @@ class CommandPing : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		ClientProtocol::Messages::Pong pong(parameters[0]);
 		user->Send(ServerInstance->GetRFCEvents().pong, pong);
@@ -100,7 +100,7 @@ class CommandPong : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// set the user as alive so they survive to next ping
 		LocalUser* localuser = IS_LOCAL(user);
@@ -169,13 +169,13 @@ class CoreModUser : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
 		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the AWAY, MODE, NICK, PART, PASS, PING, PONG, QUIT and USER commands", VF_VENDOR|VF_CORE);
 	}

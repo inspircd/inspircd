@@ -63,7 +63,7 @@ class PingTimer : public Timer
 	 * @param currtime Time now
 	 * @return Always false, we reschedule ourselves instead
 	 */
-	bool Tick(time_t currtime) CXX11_OVERRIDE;
+	bool Tick(time_t currtime) override;
 
  public:
 	/** Construct the timer. This doesn't schedule the timer.

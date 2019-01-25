@@ -90,7 +90,7 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
@@ -132,13 +132,13 @@ class ModuleNickFlood : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus&) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nickflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
 	}
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
 		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
@@ -174,7 +174,7 @@ class ModuleNickFlood : public Module
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string &oldnick) override
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
@@ -200,7 +200,7 @@ class ModuleNickFlood : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Channel mode F - nick flood protection", VF_VENDOR);
 	}

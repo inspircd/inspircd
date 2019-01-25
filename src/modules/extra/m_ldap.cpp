@@ -84,7 +84,7 @@ class LDAPBind : public LDAPRequest
 		type = QUERY_BIND;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPSearch : public LDAPRequest
@@ -103,7 +103,7 @@ class LDAPSearch : public LDAPRequest
 		type = QUERY_SEARCH;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPAdd : public LDAPRequest
@@ -120,7 +120,7 @@ class LDAPAdd : public LDAPRequest
 		type = QUERY_ADD;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPDel : public LDAPRequest
@@ -135,7 +135,7 @@ class LDAPDel : public LDAPRequest
 		type = QUERY_DELETE;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPModify : public LDAPRequest
@@ -152,7 +152,7 @@ class LDAPModify : public LDAPRequest
 		type = QUERY_MODIFY;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPCompare : public LDAPRequest
@@ -169,7 +169,7 @@ class LDAPCompare : public LDAPRequest
 		type = QUERY_COMPARE;
 	}
 
-	int run() CXX11_OVERRIDE;
+	int run() override;
 };
 
 class LDAPService : public LDAPProvider, public SocketThread
@@ -330,20 +330,20 @@ class LDAPService : public LDAPProvider, public SocketThread
 		}
 	}
 
-	void BindAsManager(LDAPInterface* i) CXX11_OVERRIDE
+	void BindAsManager(LDAPInterface* i) override
 	{
 		std::string binddn = config->getString("binddn");
 		std::string bindauth = config->getString("bindauth");
 		this->Bind(i, binddn, bindauth);
 	}
 
-	void Bind(LDAPInterface* i, const std::string& who, const std::string& pass) CXX11_OVERRIDE
+	void Bind(LDAPInterface* i, const std::string& who, const std::string& pass) override
 	{
 		LDAPBind* b = new LDAPBind(this, i, who, pass);
 		QueueRequest(b);
 	}
 
-	void Search(LDAPInterface* i, const std::string& base, const std::string& filter) CXX11_OVERRIDE
+	void Search(LDAPInterface* i, const std::string& base, const std::string& filter) override
 	{
 		if (i == NULL)
 			throw LDAPException("No interface");
@@ -352,25 +352,25 @@ class LDAPService : public LDAPProvider, public SocketThread
 		QueueRequest(s);
 	}
 
-	void Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) CXX11_OVERRIDE
+	void Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) override
 	{
 		LDAPAdd* add = new LDAPAdd(this, i, dn, attributes);
 		QueueRequest(add);
 	}
 
-	void Del(LDAPInterface* i, const std::string& dn) CXX11_OVERRIDE
+	void Del(LDAPInterface* i, const std::string& dn) override
 	{
 		LDAPDel* del = new LDAPDel(this, i, dn);
 		QueueRequest(del);
 	}
 
-	void Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) CXX11_OVERRIDE
+	void Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) override
 	{
 		LDAPModify* mod = new LDAPModify(this, i, base, attributes);
 		QueueRequest(mod);
 	}
 
-	void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) CXX11_OVERRIDE
+	void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) override
 	{
 		LDAPCompare* comp = new LDAPCompare(this, i, dn, attr, val);
 		QueueRequest(comp);
@@ -476,7 +476,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 	}
 
  public:
-	void Run() CXX11_OVERRIDE
+	void Run() override
 	{
 		while (!this->GetExitFlag())
 		{
@@ -489,7 +489,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		}
 	}
 
-	void OnNotify() CXX11_OVERRIDE
+	void OnNotify() override
 	{
 		query_queue r;
 
@@ -524,7 +524,7 @@ class ModuleLDAP : public Module
 	ServiceMap LDAPServices;
 
  public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ServiceMap conns;
 
@@ -566,7 +566,7 @@ class ModuleLDAP : public Module
 		LDAPServices.swap(conns);
 	}
 
-	void OnUnloadModule(Module* m) CXX11_OVERRIDE
+	void OnUnloadModule(Module* m) override
 	{
 		for (ServiceMap::iterator it = this->LDAPServices.begin(); it != this->LDAPServices.end(); ++it)
 		{
@@ -615,7 +615,7 @@ class ModuleLDAP : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("LDAP support", VF_VENDOR);
 	}

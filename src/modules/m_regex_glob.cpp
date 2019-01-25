@@ -28,7 +28,7 @@ public:
 	{
 	}
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
+	bool Matches(const std::string& text) override
 	{
 		return InspIRCd::Match(text, this->regex_string);
 	}
@@ -37,7 +37,7 @@ public:
 class GlobFactory : public RegexFactory
 {
  public:
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
+	Regex* Create(const std::string& expr) override
 	{
 		return new GlobRegex(expr);
 	}
@@ -54,7 +54,7 @@ public:
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
 	}

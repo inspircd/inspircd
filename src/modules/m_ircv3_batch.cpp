@@ -62,7 +62,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
  	BatchList active_batches;
 	bool unloading;
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
 		if (!cap.get(user))
 			return false;
@@ -133,7 +133,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		}
 	}
 
-	void Start(Batch& batch) CXX11_OVERRIDE
+	void Start(Batch& batch) override
 	{
 		if (unloading)
 			return;
@@ -154,7 +154,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		active_batches.push_back(&batch);
 	}
 
-	void End(Batch& batch) CXX11_OVERRIDE
+	void End(Batch& batch) override
 	{
 		if (!batch.IsRunning())
 			return;
@@ -190,24 +190,24 @@ class ModuleIRCv3Batch : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		manager.Init();
 	}
 
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
+	void OnUnloadModule(Module* mod) override
 	{
 		if (mod == this)
 			manager.Shutdown();
 	}
 
-	void OnUserDisconnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserDisconnect(LocalUser* user) override
 	{
 		// Remove the user from all internal lists
 		manager.RemoveFromAll(user);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the batch IRCv3 extension", VF_VENDOR);
 	}

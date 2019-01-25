@@ -65,7 +65,7 @@ class JoinHook : public ClientProtocol::EventHook
 	{
 	}
 
-	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE
+	void OnEventInit(const ClientProtocol::Event& ev) override
 	{
 		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
 
@@ -97,7 +97,7 @@ class JoinHook : public ClientProtocol::EventHook
 		}
 	}
 
-	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override
 	{
 		if (extendedjoincap.get(user))
 			messagelist.front() = &extendedjoinmsg;
@@ -129,7 +129,7 @@ class ModuleIRCv3
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
@@ -137,7 +137,7 @@ class ModuleIRCv3
 		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));
 	}
 
-	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
+	void OnAccountChange(User* user, const std::string& newaccount) override
 	{
 		// Logged in: 1 parameter which is the account name
 		// Logged out: 1 parameter which is a "*"
@@ -148,7 +148,7 @@ class ModuleIRCv3
 		IRCv3::WriteNeighborsWithCap(user, accountevent, cap_accountnotify);
 	}
 
-	void OnUserAway(User* user) CXX11_OVERRIDE
+	void OnUserAway(User* user) override
 	{
 		if (!joinhook.awaycap.IsActive())
 			return;
@@ -159,7 +159,7 @@ class ModuleIRCv3
 		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
 	}
 
-	void OnUserBack(User* user) CXX11_OVERRIDE
+	void OnUserBack(User* user) override
 	{
 		if (!joinhook.awaycap.IsActive())
 			return;
@@ -170,7 +170,7 @@ class ModuleIRCv3
 		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for extended-join, away-notify and account-notify CAP capabilities", VF_VENDOR);
 	}

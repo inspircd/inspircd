@@ -38,12 +38,12 @@ public:
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Connection throttle", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
@@ -59,7 +59,7 @@ public:
 		first = ServerInstance->Time();
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		if (user->exempt)
 			return MOD_RES_PASSTHRU;

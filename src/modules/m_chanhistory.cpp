@@ -55,7 +55,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if (colon == std::string::npos)
@@ -130,7 +130,7 @@ class ModuleChanHistory
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getUInt("maxlines", 50, 1);
@@ -138,12 +138,12 @@ class ModuleChanHistory
 		dobots = tag->getBool("bots", true);
 	}
 
-	ModResult OnBroadcastMessage(Channel* channel, const Server* server) CXX11_OVERRIDE
+	ModResult OnBroadcastMessage(Channel* channel, const Server* server) override
 	{
 		return channel->IsModeSet(m) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (details.type == MSG_PRIVMSG))
 		{
@@ -158,7 +158,7 @@ class ModuleChanHistory
 		}
 	}
 
-	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
+	void OnPostJoin(Membership* memb) override
 	{
 		LocalUser* localuser = IS_LOCAL(memb->user);
 		if (!localuser)
@@ -205,7 +205,7 @@ class ModuleChanHistory
 			batchmanager->End(batch);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel history replayed on join", VF_VENDOR);
 	}

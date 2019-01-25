@@ -157,9 +157,9 @@ class CommandFilter : public Command
 		flags_needed = 'o';
 		this->syntax = "<filter-definition> <action> <flags> [<duration>] :<reason>";
 	}
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -188,21 +188,21 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	ExemptTargetSet exemptednicks;
 
 	ModuleFilter();
-	void init() CXX11_OVERRIDE;
-	CullResult cull() CXX11_OVERRIDE;
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
+	void init() override;
+	CullResult cull() override;
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags);
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
-	Version GetVersion() CXX11_OVERRIDE;
+	void ReadConfig(ConfigStatus& status) override;
+	Version GetVersion() override;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE;
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
+	void OnSyncNetwork(ProtocolInterface::Server& server) override;
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) override;
+	ModResult OnStats(Stats::Context& stats) override;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
+	void OnUnloadModule(Module* mod) override;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);

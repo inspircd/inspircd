@@ -66,8 +66,8 @@ class CommandAway : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandMode : public Command
@@ -99,9 +99,9 @@ class CommandMode : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 /** Handle /NICK.
@@ -118,7 +118,7 @@ class CommandNick : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 /** Handle /PART.
@@ -137,8 +137,8 @@ class CommandPart : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 /** Handle /QUIT.
@@ -160,9 +160,9 @@ class CommandQuit : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 /** Handle /USER.
@@ -179,7 +179,7 @@ class CommandUser : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
 	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after an unregistered user
 	 * successfully executes the USER or the NICK command.
@@ -206,14 +206,14 @@ class ModeUserServerNoticeMask : public ModeHandler
 
  public:
 	ModeUserServerNoticeMask(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
-	void OnParameterMissing(User* user, User* dest, Channel* channel) CXX11_OVERRIDE;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) override;
+	void OnParameterMissing(User* user, User* dest, Channel* channel) override;
 
 	/** Create a displayable mode string of the snomasks set on a given user
 	 * @param user The user whose notice masks to format
 	 * @return The notice mask character sequence
 	 */
-	std::string GetUserParameter(const User* user) const CXX11_OVERRIDE;
+	std::string GetUserParameter(const User* user) const override;
 };
 
 /** User mode +o
@@ -222,5 +222,5 @@ class ModeUserOperator : public ModeHandler
 {
  public:
 	ModeUserOperator(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) override;
 };

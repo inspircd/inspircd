@@ -140,7 +140,7 @@ class IdentRequestSocket : public EventHandler
 		}
 	}
 
-	void OnEventHandlerWrite() CXX11_OVERRIDE
+	void OnEventHandlerWrite() override
 	{
 		SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
@@ -179,7 +179,7 @@ class IdentRequestSocket : public EventHandler
 		return done;
 	}
 
-	void OnEventHandlerRead() CXX11_OVERRIDE
+	void OnEventHandlerRead() override
 	{
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
@@ -239,13 +239,13 @@ class IdentRequestSocket : public EventHandler
 		}
 	}
 
-	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	void OnEventHandlerError(int errornum) override
 	{
 		Close();
 		done = true;
 	}
 
-	CullResult cull() CXX11_OVERRIDE
+	CullResult cull() override
 	{
 		Close();
 		return EventHandler::cull();
@@ -263,19 +263,19 @@ class ModuleIdent : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
 		RequestTimeout = tag->getDuration("timeout", 5, 1);
 		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
-	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* user) override
 	{
 		IdentRequestSocket* isock = ext.get(user);
 		if (isock)
@@ -314,7 +314,7 @@ class ModuleIdent : public Module
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser *user) override
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
@@ -358,7 +358,7 @@ class ModuleIdent : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
 		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
 			return MOD_RES_DENY;

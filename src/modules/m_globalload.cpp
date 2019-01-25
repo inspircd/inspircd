@@ -35,7 +35,7 @@ class CommandGloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
@@ -57,7 +57,7 @@ class CommandGloadmodule : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -74,7 +74,7 @@ class CommandGunloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
@@ -109,7 +109,7 @@ class CommandGunloadmodule : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -125,7 +125,7 @@ class CommandGreloadmodule : public Command
 		flags_needed = 'o'; syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
@@ -149,7 +149,7 @@ class CommandGreloadmodule : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -167,7 +167,7 @@ class ModuleGlobalLoad : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
 	}

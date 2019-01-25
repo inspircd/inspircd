@@ -33,7 +33,7 @@ class CommandChgname : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
@@ -64,7 +64,7 @@ class CommandChgname : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -79,7 +79,7 @@ public:
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
 	}

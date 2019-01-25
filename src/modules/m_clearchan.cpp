@@ -35,7 +35,7 @@ class CommandClearChan : public Command
 		force_manual_route = true;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		Channel* chan = activechan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
@@ -150,13 +150,13 @@ class ModuleClearChan : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		// Only attached while we are working; don't react to events otherwise
 		ServerInstance->Modules->DetachAll(this);
 	}
 
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override
 	{
 		bool found = false;
 		for (IncludeChanList::iterator i = include.begin(); i != include.end(); ++i)
@@ -196,7 +196,7 @@ class ModuleClearChan : public Module
 		}
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) CXX11_OVERRIDE
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
 	{
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;
@@ -209,7 +209,7 @@ class ModuleClearChan : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Adds /CLEARCHAN that allows opers to masskick, masskill or mass G/Z-line users on a channel.", VF_VENDOR|VF_OPTCOMMON);
 	}

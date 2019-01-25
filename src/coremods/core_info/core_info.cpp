@@ -97,7 +97,7 @@ class CoreModInfo : public Module
 		numeric004.push(INSPIRCD_BRANCH);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// Process the escape codes in the MOTDs.
 		ConfigFileCache newmotds;
@@ -127,7 +127,7 @@ class CoreModInfo : public Module
 		cmdadmin.AdminNick = tag->getString("nick", "admin");
 	}
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserConnect(LocalUser* user) override
 	{
 		user->WriteNumeric(RPL_WELCOME, InspIRCd::Format("Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), user->GetFullRealHost().c_str()));
 		user->WriteNumeric(RPL_YOURHOST, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
@@ -157,22 +157,22 @@ class CoreModInfo : public Module
 		}
 	}
 
-	void OnServiceAdd(ServiceProvider& service) CXX11_OVERRIDE
+	void OnServiceAdd(ServiceProvider& service) override
 	{
 		OnServiceChange(service);
 	}
 
-	void OnServiceDel(ServiceProvider& service) CXX11_OVERRIDE
+	void OnServiceDel(ServiceProvider& service) override
 	{
 		OnServiceChange(service);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME and VERSION commands", VF_VENDOR|VF_CORE);
 	}

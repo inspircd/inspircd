@@ -109,14 +109,14 @@ class PBKDF2Provider : public HashProvider
 		return output;
 	}
 
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
+	std::string GenerateRaw(const std::string& data) override
 	{
 		PBKDF2Hash hs(this->iterations, this->dkey_length, ServerInstance->GenRandomStr(dkey_length, false));
 		hs.hash = PBKDF2(data, hs.salt, this->iterations, this->dkey_length);
 		return hs.ToString();
 	}
 
-	bool Compare(const std::string& input, const std::string& hash) CXX11_OVERRIDE
+	bool Compare(const std::string& input, const std::string& hash) override
 	{
 		PBKDF2Hash hs(hash);
 		if (!hs.IsValid())
@@ -126,7 +126,7 @@ class PBKDF2Provider : public HashProvider
 		return (cmp == hs.hash);
 	}
 
-	std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE
+	std::string ToPrintable(const std::string& raw) override
 	{
 		return raw;
 	}
@@ -206,7 +206,7 @@ class ModulePBKDF2 : public Module
 		stdalgo::delete_all(providers);
 	}
 
-	void OnServiceAdd(ServiceProvider& provider) CXX11_OVERRIDE
+	void OnServiceAdd(ServiceProvider& provider) override
 	{
 		// Check if it's a hash provider
 		if (provider.name.compare(0, 5, "hash/"))
@@ -223,7 +223,7 @@ class ModulePBKDF2 : public Module
 		ConfigureProviders();
 	}
 
-	void OnServiceDel(ServiceProvider& prov) CXX11_OVERRIDE
+	void OnServiceDel(ServiceProvider& prov) override
 	{
 		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
 		{
@@ -238,12 +238,12 @@ class ModulePBKDF2 : public Module
 		}
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		GetConfig();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements PBKDF2 hashing", VF_VENDOR);
 	}

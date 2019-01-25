@@ -59,7 +59,7 @@ class CommandVhost : public Command
 		syntax = "<username> <password>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		MatchingConfigs matching = vhosts.equal_range(parameters[0]);
 
@@ -89,7 +89,7 @@ class ModuleVHost : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		CustomVhostMap newhosts;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
@@ -114,7 +114,7 @@ class ModuleVHost : public Module
 		cmd.vhosts.swap(newhosts);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides masking of user hostnames via traditional /VHOST command", VF_VENDOR);
 	}

@@ -117,9 +117,9 @@ class HAProxyHookProvider : public IOHookProvider
 	{
 	}
 
-	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
+	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
 
-	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
+	void OnConnect(StreamSocket* sock) override
 	{
 		// We don't need to implement this.
 	}
@@ -371,14 +371,14 @@ class HAProxyHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
 	{
 		// We don't need to implement this.
 		GetSendQ().moveall(uppersendq);
 		return 1;
 	}
 
-	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) CXX11_OVERRIDE
+	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
 	{
 		switch (state)
 		{
@@ -399,7 +399,7 @@ class HAProxyHook : public IOHookMiddle
 		return -1;
 	}
 
-	void OnStreamSocketClose(StreamSocket* sock) CXX11_OVERRIDE
+	void OnStreamSocketClose(StreamSocket* sock) override
 	{
 		// We don't need to implement this.
 	}
@@ -421,7 +421,7 @@ class ModuleHAProxy : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the HAProxy PROXY protocol", VF_VENDOR);
 	}

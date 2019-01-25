@@ -170,7 +170,7 @@ class SHA1HashProvider : public HashProvider
 	{
 	}
 
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
+	std::string GenerateRaw(const std::string& data) override
 	{
 		SHA1Context ctx;
 		ctx.Update(reinterpret_cast<const unsigned char*>(data.data()), data.length());
@@ -190,7 +190,7 @@ class ModuleSHA1 : public Module
 		big_endian = (htonl(1337) == 1337);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements SHA-1 hashing", VF_VENDOR);
 	}

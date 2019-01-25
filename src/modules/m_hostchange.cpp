@@ -120,7 +120,7 @@ private:
 	}
 
  public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		HostRules rules;
 
@@ -179,12 +179,12 @@ private:
 		hostrules.swap(rules);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides rule-based masking of user hostnames", VF_VENDOR);
 	}
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserConnect(LocalUser* user) override
 	{
 		for (HostRules::const_iterator iter = hostrules.begin(); iter != hostrules.end(); ++iter)
 		{

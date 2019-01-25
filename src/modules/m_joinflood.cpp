@@ -99,7 +99,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
@@ -138,13 +138,13 @@ class ModuleJoinFlood : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus&) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (chan)
 		{
@@ -158,7 +158,7 @@ class ModuleJoinFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override
 	{
 		/* We arent interested in JOIN events caused by a network burst */
 		if (sync)
@@ -179,7 +179,7 @@ class ModuleJoinFlood : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel mode +j (join flood protection)", VF_VENDOR);
 	}

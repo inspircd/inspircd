@@ -31,12 +31,12 @@ class ModuleConnectBan : public Module
 	std::string banmessage;
 
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
@@ -47,7 +47,7 @@ class ModuleConnectBan : public Module
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 	}
 
-	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* u) override
 	{
 		if (u->exempt)
 			return;
@@ -95,7 +95,7 @@ class ModuleConnectBan : public Module
 		}
 	}
 
-	void OnGarbageCollect() CXX11_OVERRIDE
+	void OnGarbageCollect() override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Clearing map.");
 		connects.clear();

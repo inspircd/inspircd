@@ -28,7 +28,7 @@ class User_d : public ModeHandler
  public:
 	User_d(Module* Creator) : ModeHandler(Creator, "deaf", 'd', PARAM_NONE, MODETYPE_USER) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
 		if (adding == dest->IsModeSet(this))
 			return MODEACTION_DENY;
@@ -53,14 +53,14 @@ class ModuleDeaf : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
 		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -101,7 +101,7 @@ class ModuleDeaf : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides usermode +d to block channel messages and channel notices", VF_VENDOR);
 	}

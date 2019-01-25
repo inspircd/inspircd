@@ -33,7 +33,7 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 	const Cap::Capability& cap;
 	ClientProtocol::Event& protoev;
 
-	void Execute(LocalUser* user) CXX11_OVERRIDE
+	void Execute(LocalUser* user) override
 	{
 		if (cap.get(user))
 			user->Send(protoev);
@@ -70,12 +70,12 @@ class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 	Cap::Capability cap;
 	const std::string tagname;
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
 		return cap.get(user);
 	}
 
-	void OnClientProtocolPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
+	void OnClientProtocolPopulateTags(ClientProtocol::Message& msg) override
 	{
 		T& tag = static_cast<T&>(*this);
 		const std::string* const val = tag.GetValue(msg);

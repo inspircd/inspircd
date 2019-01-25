@@ -44,7 +44,7 @@ class JoinHook : public ClientProtocol::EventHook
 	{
 	}
 
-	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE
+	void OnEventInit(const ClientProtocol::Event& ev) override
 	{
 		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
 		const Membership& memb = *join.GetMember();
@@ -75,7 +75,7 @@ class JoinHook : public ClientProtocol::EventHook
 			modemsg.SetSourceUser(ServerInstance->FakeClient);
 	}
 
-	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override
 	{
 		// If joininguser is NULL then they didn't get any modes on join, skip.
 		// Also don't show their own modes to them, they get that in the NAMES list not via MODE.
@@ -145,7 +145,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
 
@@ -201,7 +201,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
 
@@ -230,7 +230,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string&, std::string&, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string&, std::string&, const std::string& keygiven) override
 	{
 		if (!chan)
 			return MOD_RES_PASSTHRU;
@@ -277,7 +277,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
+	void OnPostJoin(Membership* memb) override
 	{
 		Channel* const chan = memb->chan;
 		LocalUser* const localuser = IS_LOCAL(memb->user);
@@ -294,42 +294,42 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 	}
 
-	ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven) override
 	{
 		// Hook only runs when being invited bypasses +bkl
 		return IsInvited(user, chan);
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
+	ModResult OnCheckChannelBan(User* user, Channel* chan) override
 	{
 		// Hook only runs when being invited bypasses +bkl
 		return IsInvited(user, chan);
 	}
 
-	ModResult OnCheckLimit(User* user, Channel* chan) CXX11_OVERRIDE
+	ModResult OnCheckLimit(User* user, Channel* chan) override
 	{
 		// Hook only runs when being invited bypasses +bkl
 		return IsInvited(user, chan);
 	}
 
-	ModResult OnCheckInvite(User* user, Channel* chan) CXX11_OVERRIDE
+	ModResult OnCheckInvite(User* user, Channel* chan) override
 	{
 		// Hook always runs
 		return IsInvited(user, chan);
 	}
 
-	void OnUserDisconnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserDisconnect(LocalUser* user) override
 	{
 		invapi.RemoveAll(user);
 	}
 
-	void OnChannelDelete(Channel* chan) CXX11_OVERRIDE
+	void OnChannelDelete(Channel* chan) override
 	{
 		// Make sure the channel won't appear in invite lists from now on, don't wait for cull to unset the ext
 		invapi.RemoveAll(chan);
 	}
 
-	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) CXX11_OVERRIDE
+	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override
 	{
 		if (!exemptions.count(restriction))
 			return MOD_RES_PASSTHRU;
@@ -345,13 +345,13 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnPostJoin, PRIORITY_FIRST);
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_LAST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands", VF_VENDOR|VF_CORE);
 	}

@@ -869,7 +869,7 @@ namespace
 	{
 		ClientProtocol::Event& ev;
 
-		void Execute(LocalUser* user) CXX11_OVERRIDE
+		void Execute(LocalUser* user) override
 		{
 			user->Send(ev);
 		}

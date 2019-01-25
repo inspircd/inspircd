@@ -37,7 +37,7 @@ class CommandSamode : public Command
 		active = false;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters[0].c_str()[0] != '#')
 		{
@@ -91,19 +91,19 @@ class ModuleSaMode : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnMode(User* user, User* destuser, Channel* destchan, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE
+	void OnMode(User* user, User* destuser, Channel* destchan, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override
 	{
 		if (!cmd.active)
 			return;
@@ -122,7 +122,7 @@ class ModuleSaMode : public Module
 		cmd.LogUsage(user, logtext);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		Module* disabled = ServerInstance->Modules->Find("m_disabled.so");
 		ServerInstance->Modules->SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disabled);

@@ -88,13 +88,13 @@ class ModuleOverride : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 		UmodeEnabled = ServerInstance->Config->ConfValue("override")->getBool("enableumode");
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// re-read our config options
 		ConfigTag* tag = ServerInstance->Config->ConfValue("override");
@@ -102,7 +102,7 @@ class ModuleOverride : public Module
 		RequireKey = tag->getBool("requirekey");
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["OVERRIDE"];
 	}
@@ -119,7 +119,7 @@ class ModuleOverride : public Module
 	}
 
 
-	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic) CXX11_OVERRIDE
+	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic) override
 	{
 		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
@@ -135,7 +135,7 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
 	{
 		if (source->IsOper() && CanOverride(source,"KICK"))
 		{
@@ -150,7 +150,7 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
@@ -192,7 +192,7 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (user->IsOper())
 		{
@@ -218,7 +218,7 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for allowing opers to override certain things",VF_VENDOR);
 	}

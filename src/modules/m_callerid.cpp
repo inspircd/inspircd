@@ -74,7 +74,7 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
 	{
 		std::string ret;
 		if (format != FORMAT_NETWORK)
@@ -85,7 +85,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		return ret;
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
 	{
 		if (format == FORMAT_NETWORK)
 			return;
@@ -126,7 +126,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		return dat;
 	}
 
-	void free(Extensible* container, void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) override
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
@@ -183,7 +183,7 @@ public:
 		TRANSLATE1(TR_CUSTOM);
 	}
 
-	void EncodeParameter(std::string& parameter, unsigned int index) CXX11_OVERRIDE
+	void EncodeParameter(std::string& parameter, unsigned int index) override
 	{
 		// Send lists as-is (part of 2.0 compat)
 		if (parameter.find(',') != std::string::npos)
@@ -202,7 +202,7 @@ public:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
@@ -235,7 +235,7 @@ public:
 			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		// There is a list in parameters[0] in two cases:
 		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,
@@ -337,7 +337,7 @@ class CallerIDAPIImpl : public CallerID::APIBase
 	{
 	}
 
-	bool IsOnAcceptList(User* source, User* target) CXX11_OVERRIDE
+	bool IsOnAcceptList(User* source, User* target) override
 	{
 		callerid_data* dat = ext.get(target, true);
 		return dat->accepting.count(source);
@@ -386,18 +386,18 @@ public:
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["ACCEPT"] = ConvToStr(cmd.maxaccepts);
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
@@ -427,18 +427,18 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
 		RemoveFromAllAccepts(user);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getUInt("maxaccepts", 30);
@@ -446,7 +446,7 @@ public:
 		notify_cooldown = tag->getDuration("cooldown", 60);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// Want to be after modules like silence or services_account
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);

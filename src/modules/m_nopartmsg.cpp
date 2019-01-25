@@ -22,12 +22,12 @@
 class ModulePartMsgBan : public Module
 {
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements extban +b p: - part message bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override
 	{
 		if (!IS_LOCAL(memb->user))
 			return;
@@ -36,7 +36,7 @@ class ModulePartMsgBan : public Module
 			partmessage.clear();
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('p');
 	}

@@ -50,7 +50,7 @@ class CommandKnock : public Command
 		Penalty = 5;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (!c)
@@ -93,7 +93,7 @@ class CommandKnock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_BCAST;
 	}
@@ -111,7 +111,7 @@ class ModuleKnock : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
 		if (stdalgo::string::equalsci(knocknotify, "numeric"))
@@ -131,7 +131,7 @@ class ModuleKnock : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for /KNOCK and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}

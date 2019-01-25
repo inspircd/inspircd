@@ -45,55 +45,55 @@ class CommandRConnect : public Command
 {
  public:
 	CommandRConnect(Module* Creator);
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandRSQuit : public Command
 {
  public:
 	CommandRSQuit(Module* Creator);
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandMap : public Command
 {
  public:
 	CommandMap(Module* Creator);
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandSVSJoin : public ServerCommand
 {
  public:
 	CommandSVSJoin(Module* Creator) : ServerCommand(Creator, "SVSJOIN", 2) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandSVSPart : public ServerCommand
 {
  public:
 	CommandSVSPart(Module* Creator) : ServerCommand(Creator, "SVSPART", 2) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandSVSNick : public ServerCommand
 {
  public:
 	CommandSVSNick(Module* Creator) : ServerCommand(Creator, "SVSNICK", 3) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandMetadata : public ServerCommand
 {
  public:
 	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
 
 	class Builder : public CmdBuilder
 	{
@@ -150,8 +150,8 @@ class CommandFJoin : public ServerCommand
 	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
+	CmdResult Handle(User* user, Params& params) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_LOCALONLY; }
 
 	class Builder : public CmdBuilder
 	{
@@ -187,14 +187,14 @@ class CommandFMode : public ServerCommand
 {
  public:
 	CommandFMode(Module* Creator) : ServerCommand(Creator, "FMODE", 3) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
 };
 
 class CommandFTopic : public ServerCommand
 {
  public:
 	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 4, 5) { }
-	CmdResult Handle(User* user, Params& params) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& params) override;
 
 	class Builder : public CmdBuilder
 	{
@@ -237,7 +237,7 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
  public:
 	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_LOCALONLY; }
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_LOCALONLY; }
 };
 
 class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::CommandAway>
@@ -265,7 +265,7 @@ class CommandAddLine : public ServerCommand
 {
  public:
 	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) override;
 
 	class Builder : public CmdBuilder
 	{
@@ -278,15 +278,15 @@ class CommandDelLine : public ServerCommand
 {
  public:
 	CommandDelLine(Module* Creator) : ServerCommand(Creator, "DELLINE", 2, 2) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) override;
 };
 
 class CommandEncap : public ServerCommand
 {
  public:
 	CommandEncap(Module* Creator) : ServerCommand(Creator, "ENCAP", 2) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 class CommandIdle : public UserOnlyServerCommand<CommandIdle>
@@ -294,7 +294,7 @@ class CommandIdle : public UserOnlyServerCommand<CommandIdle>
  public:
 	CommandIdle(Module* Creator) : UserOnlyServerCommand<CommandIdle>(Creator, "IDLE", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& parameters);
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class SpanningTree::CommandNick : public UserOnlyServerCommand<SpanningTree::CommandNick>
@@ -308,8 +308,8 @@ class SpanningTree::CommandPing : public ServerCommand
 {
  public:
 	CommandPing(Module* Creator) : ServerCommand(Creator, "PING", 1) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	CmdResult Handle(User* user, Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::CommandPong>
@@ -317,7 +317,7 @@ class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::C
  public:
 	CommandPong(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandPong>(Creator, "PONG", 1) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
 class CommandSave : public ServerCommand
@@ -328,7 +328,7 @@ class CommandSave : public ServerCommand
 	static const time_t SavedTimestamp = 100;
 
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) override;
 };
 
 class SpanningTree::CommandServer : public ServerOnlyServerCommand<SpanningTree::CommandServer>
@@ -361,7 +361,7 @@ class CommandSNONotice : public ServerCommand
 {
  public:
 	CommandSNONotice(Module* Creator) : ServerCommand(Creator, "SNONOTICE", 2) { }
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, Params& parameters) override;
 };
 
 class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
@@ -389,7 +389,7 @@ class CommandNum : public ServerOnlyServerCommand<CommandNum>
  public:
 	CommandNum(Module* Creator) : ServerOnlyServerCommand<CommandNum>(Creator, "NUM", 3) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
 	class Builder : public CmdBuilder
 	{

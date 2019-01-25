@@ -63,7 +63,7 @@ class ModuleDenyChannels : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		GoodChannels goodchans;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("goodchan");
@@ -135,13 +135,13 @@ class ModuleDenyChannels : public Module
 		goodchannels.swap(goodchans);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);
 	}
 
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		for (BadChannels::const_iterator j = badchannels.begin(); j != badchannels.end(); ++j)
 		{

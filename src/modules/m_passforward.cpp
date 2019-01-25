@@ -25,12 +25,12 @@ class ModulePassForward : public Module
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Sends server password to NickServ", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
@@ -73,7 +73,7 @@ class ModulePassForward : public Module
 		}
 	}
 
-	void OnPostConnect(User* ruser) CXX11_OVERRIDE
+	void OnPostConnect(User* ruser) override
 	{
 		LocalUser* user = IS_LOCAL(ruser);
 		if (!user || user->password.empty())

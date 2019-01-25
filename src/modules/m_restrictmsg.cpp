@@ -24,7 +24,7 @@
 class ModuleRestrictMsg : public Module
 {
  public:
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{
@@ -47,7 +47,7 @@ class ModuleRestrictMsg : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers.",VF_VENDOR);
 	}

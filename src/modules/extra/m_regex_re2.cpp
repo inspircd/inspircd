@@ -52,7 +52,7 @@ class RE2Regex : public Regex
 		}
 	}
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
+	bool Matches(const std::string& text) override
 	{
 		return RE2::FullMatch(text, regexcl);
 	}
@@ -62,7 +62,7 @@ class RE2Factory : public RegexFactory
 {
  public:
 	RE2Factory(Module* m) : RegexFactory(m, "regex/re2") { }
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
+	Regex* Create(const std::string& expr) override
 	{
 		return new RE2Regex(expr);
 	}
@@ -77,7 +77,7 @@ class ModuleRegexRE2 : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Regex Provider Module for RE2", VF_VENDOR);
 	}

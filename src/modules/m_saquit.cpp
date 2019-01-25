@@ -32,7 +32,7 @@ class CommandSaquit : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if ((dest) && (dest->registered == REG_ALL))
@@ -59,7 +59,7 @@ class CommandSaquit : public Command
 		}
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -74,7 +74,7 @@ class ModuleSaquit : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR);
 	}

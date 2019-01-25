@@ -52,8 +52,8 @@ class CommandStats : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_UNICAST(parameters[1]);
@@ -409,13 +409,13 @@ class CoreModStats : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.userstats = security->getString("userstats");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the STATS command", VF_CORE | VF_VENDOR);
 	}

@@ -49,7 +49,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<HTTPACL> new_acls;
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
@@ -216,14 +216,14 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 		return true;
 	}
 
-	ModResult OnHTTPACLCheck(HTTPRequest& req) CXX11_OVERRIDE
+	ModResult OnHTTPACLCheck(HTTPRequest& req) override
 	{
 		if (IsAccessAllowed(&req))
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd dependent modules", VF_VENDOR);
 	}

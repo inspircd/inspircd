@@ -23,12 +23,12 @@
 class ModuleBadChannelExtban : public Module
 {
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Extban 'j' - channel status/join ban", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
 	{
 		if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':'))
 		{
@@ -52,7 +52,7 @@ class ModuleBadChannelExtban : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('j');
 	}

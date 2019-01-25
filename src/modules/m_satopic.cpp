@@ -29,7 +29,7 @@ class CommandSATopic : public Command
 		flags_needed = 'o'; syntax = "<target> <topic>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/*
 		 * Handles a SATOPIC request. Notifies all +s users.
@@ -67,7 +67,7 @@ class ModuleSATopic : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides a SATOPIC command", VF_VENDOR);
 	}

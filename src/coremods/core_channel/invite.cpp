@@ -25,7 +25,7 @@ class InviteExpireTimer : public Timer
 {
 	Invite::Invite* const inv;
 
-	bool Tick(time_t currtime) CXX11_OVERRIDE;
+	bool Tick(time_t currtime) override;
 
  public:
 	InviteExpireTimer(Invite::Invite* invite, time_t timeout);

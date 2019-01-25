@@ -42,7 +42,7 @@ class CommandLockserv : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (!locked.empty())
 		{
@@ -67,7 +67,7 @@ class CommandUnlockserv : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (locked.empty())
 		{
@@ -93,20 +93,20 @@ class ModuleLockserv : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// Emergency way to unlock
 		if (!status.srcuser)
 			locked.clear();
 	}
 
-	void OnModuleRehash(User* user, const std::string& param) CXX11_OVERRIDE
+	void OnModuleRehash(User* user, const std::string& param) override
 	{
 		if (irc::equals(param, "lockserv") && !locked.empty())
 			locked.clear();
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		if (!locked.empty())
 		{
@@ -116,12 +116,12 @@ class ModuleLockserv : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return !locked.empty() ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
 	}

@@ -54,7 +54,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string& param, bool adding) override
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan
@@ -254,7 +254,7 @@ class ModuleBanRedirect : public Module
 	{
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
 	{
 		if (type == ExtensionItem::EXT_CHANNEL)
 		{
@@ -277,7 +277,7 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (chan)
 		{
@@ -344,7 +344,7 @@ class ModuleBanRedirect : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
 	}

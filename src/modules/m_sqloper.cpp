@@ -44,7 +44,7 @@ class OperQuery : public SQL::Query
 	{
 	}
 
-	void OnResult(SQL::Result& res) CXX11_OVERRIDE
+	void OnResult(SQL::Result& res) override
 	{
 		ServerConfig::OperIndex& oper_blocks = ServerInstance->Config->oper_blocks;
 
@@ -106,7 +106,7 @@ class OperQuery : public SQL::Query
 		}
 	}
 
-	void OnError(SQL::Error& error) CXX11_OVERRIDE
+	void OnError(SQL::Error& error) override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.ToString());
 		ServerInstance->SNO->WriteGlobalSno('a', "m_sqloper: failed to update blocks from database");
@@ -169,7 +169,7 @@ public:
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// Clear list of our blocks, as ConfigReader just wiped them anyway
 		my_blocks.clear();
@@ -196,7 +196,7 @@ public:
 		}
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		// If we are not in the middle of an existing /OPER and someone is trying to oper-up
 		if (validated && command == "OPER" && parameters.size() >= 2 && !active)
@@ -231,7 +231,7 @@ public:
 		SQL->Submit(new OperQuery(this, my_blocks, u, un, pw), query);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		/** Run before other /OPER hooks that expect populated blocks, i.e. sslinfo or a TOTP module.
 		 *  We issue a DENY first, and will re-run OnPreCommand later to trigger the other hooks post-DB update.
@@ -239,7 +239,7 @@ public:
 		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}

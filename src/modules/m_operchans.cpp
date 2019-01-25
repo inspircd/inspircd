@@ -46,7 +46,7 @@ class ModuleOperChans : public Module
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
@@ -56,7 +56,7 @@ class ModuleOperChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
 	{
 		if ((mask.length() > 2) && (mask[0] == 'O') && (mask[1] == ':'))
 		{
@@ -66,12 +66,12 @@ class ModuleOperChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('O');
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR);
 	}

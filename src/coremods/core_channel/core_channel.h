@@ -70,8 +70,8 @@ class CommandInvite : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 /** Handle /JOIN.
@@ -88,7 +88,7 @@ class CommandJoin : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 /** Handle /TOPIC.
@@ -109,7 +109,7 @@ class CommandTopic : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 /** Handle /NAMES.
@@ -130,7 +130,7 @@ class CommandNames : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
 	/** Spool the NAMES list for a given channel to the given user
 	 * @param user User to spool the NAMES list to
@@ -154,8 +154,8 @@ class CommandKick : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
 /** Channel mode +b
@@ -176,9 +176,9 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
  public:
 	static const std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;
-	ModeAction OnSet(User* source, Channel* chan, std::string& param) CXX11_OVERRIDE;
+	ModeAction OnSet(User* source, Channel* chan, std::string& param) override;
 };
 
 /** Channel mode +l
@@ -188,9 +188,9 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
  public:
 	size_t minlimit;
 	ModeChannelLimit(Module* Creator);
-	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) CXX11_OVERRIDE;
+	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE;
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override;
 };
 
 /** Channel mode +o

@@ -65,7 +65,7 @@ class ReconnectTimer : public Timer
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
-	bool Tick(time_t TIME) CXX11_OVERRIDE;
+	bool Tick(time_t TIME) override;
 };
 
 struct QueueItem
@@ -110,19 +110,19 @@ class PgSQLresult : public SQL::Result
 		PQclear(res);
 	}
 
-	int Rows() CXX11_OVERRIDE
+	int Rows() override
 	{
 		return rows;
 	}
 
-	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
+	void GetCols(std::vector<std::string>& result) override
 	{
 		if (colnames.empty())
 			getColNames();
 		result = colnames;
 	}
 
-	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
+	bool HasColumn(const std::string& column, size_t& index) override
 	{
 		if (colnames.empty())
 			getColNames();
@@ -147,7 +147,7 @@ class PgSQLresult : public SQL::Result
 		return SQL::Field(std::string(v, PQgetlength(res, row, column)));
 	}
 
-	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) override
 	{
 		if (currentrow >= PQntuples(res))
 			return false;
@@ -184,7 +184,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		}
 	}
 
-	CullResult cull() CXX11_OVERRIDE
+	CullResult cull() override
 	{
 		this->SQL::Provider::cull();
 		ServerInstance->Modules->DelService(*this);
@@ -207,17 +207,17 @@ class SQLConn : public SQL::Provider, public EventHandler
 		}
 	}
 
-	void OnEventHandlerRead() CXX11_OVERRIDE
+	void OnEventHandlerRead() override
 	{
 		DoEvent();
 	}
 
-	void OnEventHandlerWrite() CXX11_OVERRIDE
+	void OnEventHandlerWrite() override
 	{
 		DoEvent();
 	}
 
-	void OnEventHandlerError(int errornum) CXX11_OVERRIDE
+	void OnEventHandlerError(int errornum) override
 	{
 		DelayReconnect();
 	}
@@ -414,7 +414,7 @@ restart:
 		}
 	}
 
-	void Submit(SQL::Query *req, const std::string& q) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q) override
 	{
 		if (qinprog.q.empty())
 		{
@@ -427,7 +427,7 @@ restart:
 		}
 	}
 
-	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamList& p) override
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -452,7 +452,7 @@ restart:
 		Submit(req, res);
 	}
 
-	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
+	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamMap& p) override
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -535,7 +535,7 @@ class ModulePgSQL : public Module
 		ClearAllConnections();
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ReadConf();
 	}
@@ -576,7 +576,7 @@ class ModulePgSQL : public Module
 		connections.clear();
 	}
 
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
+	void OnUnloadModule(Module* mod) override
 	{
 		SQL::Error err(SQL::BAD_DBID);
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
@@ -604,7 +604,7 @@ class ModulePgSQL : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
 	}

@@ -149,7 +149,7 @@ class CommandWho : public SplitCommand
 	/** Sends a WHO reply to a user. */
 	void SendWhoLine(LocalUser* user, const std::vector<std::string>& parameters, Membership* memb, User* u, WhoData& data);
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 template<> User* CommandWho::GetUser(UserManager::OperList::const_iterator& t) { return *t; }
@@ -558,12 +558,12 @@ class CoreModWho : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["WHOX"];
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the WHO command", VF_VENDOR|VF_CORE);
 	}

@@ -30,7 +30,7 @@ class ModuleOperjoin : public Module
 		bool override;
 
 	public:
-		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+		void ReadConfig(ConfigStatus& status) override
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
@@ -42,12 +42,12 @@ class ModuleOperjoin : public Module
 				operChans.push_back(channame);
 		}
 
-		Version GetVersion() CXX11_OVERRIDE
+		Version GetVersion() override
 		{
 			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
 		}
 
-		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
+		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
 		{
 			LocalUser* localuser = IS_LOCAL(user);
 			if (!localuser)

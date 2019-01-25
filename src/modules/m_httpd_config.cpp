@@ -32,7 +32,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 	{
 	}
 
-	ModResult OnHTTPRequest(HTTPRequest& request) CXX11_OVERRIDE
+	ModResult OnHTTPRequest(HTTPRequest& request) override
 	{
 		if ((request.GetURI() != "/config") && (request.GetURI() != "/config/"))
 			return MOD_RES_PASSTHRU;
@@ -68,7 +68,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		return MOD_RES_DENY;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd", VF_VENDOR);
 	}

@@ -42,8 +42,8 @@ class RFCSerializer : public ClientProtocol::Serializer
 	{
 	}
 
- 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE;
-	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const CXX11_OVERRIDE;
+ 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) override;
+	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const override;
 };
 
 bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput)
@@ -232,7 +232,7 @@ class ModuleCoreRFCSerializer : public Module
 	{
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
 	{
 		if (type != ExtensionItem::EXT_USER)
 			return;
@@ -242,13 +242,13 @@ class ModuleCoreRFCSerializer : public Module
 			ServerInstance->Users.QuitUser(user, "Protocol serializer module unloading");
 	}
 
-	void OnUserInit(LocalUser* user) CXX11_OVERRIDE
+	void OnUserInit(LocalUser* user) override
 	{
 		if (!user->serializer)
 			user->serializer = &rfcserializer;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("RFC client protocol serializer and unserializer", VF_CORE|VF_VENDOR);
 	}

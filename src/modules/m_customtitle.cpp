@@ -77,7 +77,7 @@ class CommandTitle : public Command
 		syntax = "<user> <password>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		MatchingConfigs matching = configs.equal_range(parameters[0]);
 
@@ -116,7 +116,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
 		CustomVhostMap newtitles;
@@ -142,7 +142,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric.GetNumeric() == 312)
@@ -158,7 +158,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Custom Title for users", VF_OPTCOMMON | VF_VENDOR);
 	}

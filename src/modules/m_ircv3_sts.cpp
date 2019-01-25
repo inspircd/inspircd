@@ -29,7 +29,7 @@ class STSCap : public Cap::Capability
 	std::string plaintextpolicy;
 	std::string securepolicy;
 
-	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	bool OnList(LocalUser* user) override
 	{
 		// Don't send the cap to clients that only support cap-3.1.
 		if (GetProtocol(user) == Cap::CAP_LEGACY)
@@ -51,14 +51,14 @@ class STSCap : public Cap::Capability
 		return InspIRCd::Match(snihost, host, ascii_case_insensitive_map);
 	}
 
-	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	bool OnRequest(LocalUser* user, bool adding) override
 	{
 		// Clients MUST NOT request this capability with CAP REQ. Servers MAY reply with a CAP NAK message if a
 		// client requests this capability.
 		return false;
 	}
 
-	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
+	const std::string* GetValue(LocalUser* user) const override
 	{
 		return SSLIOHook::IsSSL(&user->eh) ? &securepolicy : &plaintextpolicy;
 	}
@@ -152,7 +152,7 @@ class ModuleIRCv3STS : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// TODO: Multiple SNI profiles
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sts");
@@ -172,7 +172,7 @@ class ModuleIRCv3STS : public Module
 		cap.SetPolicy(host, duration, port, preload);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides IRCv3 Strict Transport Security policy advertisement", VF_OPTCOMMON|VF_VENDOR);
 	}

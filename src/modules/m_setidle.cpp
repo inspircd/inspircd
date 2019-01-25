@@ -38,7 +38,7 @@ class CommandSetidle : public SplitCommand
 		flags_needed = 'o'; syntax = "<duration>";
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		unsigned long idle;
 		if (!InspIRCd::Duration(parameters[0], idle))
@@ -67,7 +67,7 @@ class ModuleSetIdle : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows opers to set their idle time", VF_VENDOR);
 	}

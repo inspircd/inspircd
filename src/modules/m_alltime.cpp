@@ -29,7 +29,7 @@ class CommandAlltime : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
@@ -41,7 +41,7 @@ class CommandAlltime : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_BCAST;
 	}
@@ -56,7 +56,7 @@ class Modulealltime : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Display timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
 	}

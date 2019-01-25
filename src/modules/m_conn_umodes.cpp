@@ -25,18 +25,18 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserConnect(LocalUser* user) override
 	{
 		ConfigTag* tag = user->MyClass->config;
 		std::string ThisModes = tag->getString("modes");

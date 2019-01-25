@@ -54,7 +54,7 @@ class POSIXRegex : public Regex
 		regfree(&regbuf);
 	}
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
+	bool Matches(const std::string& text) override
 	{
 		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
@@ -65,7 +65,7 @@ class PosixFactory : public RegexFactory
  public:
 	bool extended;
 	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
+	Regex* Create(const std::string& expr) override
 	{
 		return new POSIXRegex(expr, extended);
 	}
@@ -80,12 +80,12 @@ class ModuleRegexPOSIX : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
 	}

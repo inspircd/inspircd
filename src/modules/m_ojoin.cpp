@@ -38,7 +38,7 @@ class CommandOjoin : public SplitCommand
 		active = false;
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0]))
@@ -92,7 +92,7 @@ class NetworkPrefix : public PrefixMode
 		ranktoset = ranktounset = UINT_MAX;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) override
 	{
 		User* theuser = ServerInstance->FindNick(parameter);
 		// remove own privs?
@@ -116,7 +116,7 @@ class ModuleOjoin : public Module
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (mycommand.active)
 		{
@@ -129,14 +129,14 @@ class ModuleOjoin : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
 		mycommand.notice = Conf->getBool("notice", true);
 		mycommand.op = Conf->getBool("op", true);
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
 	{
 		// Don't do anything if they're not +Y
 		if (!memb->HasMode(&np))
@@ -150,12 +150,12 @@ class ModuleOjoin : public Module
 		return MOD_RES_DENY;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Network Business Join", VF_VENDOR);
 	}

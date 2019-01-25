@@ -72,7 +72,7 @@ class ModuleAlias : public Module
 	bool active;
 
  public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		AliasMap newAliases;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
@@ -111,7 +111,7 @@ class ModuleAlias : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides aliases of commands.", VF_VENDOR);
 	}
@@ -155,7 +155,7 @@ class ModuleAlias : public Module
 		return message;
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -189,7 +189,7 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		// Don't echo anything which is caused by an alias.
 		if (active)
@@ -198,7 +198,7 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		if ((target.type != MessageTarget::TYPE_CHANNEL) || (details.type != MSG_PRIVMSG))
 		{
@@ -378,7 +378,7 @@ class ModuleAlias : public Module
 		active = false;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
 		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");

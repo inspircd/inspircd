@@ -235,7 +235,7 @@ class MD5Provider : public HashProvider
 	}
 
  public:
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
+	std::string GenerateRaw(const std::string& data) override
 	{
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length());
@@ -253,7 +253,7 @@ class ModuleMD5 : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements MD5 hashing",VF_VENDOR);
 	}

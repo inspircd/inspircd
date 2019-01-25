@@ -99,7 +99,7 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		unsigned int v = ConvToNum<unsigned int>(parameter);
 		if (v <= 0)
@@ -138,7 +138,7 @@ public:
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (chan)
 		{
@@ -152,7 +152,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) override
 	{
 		if ((!IS_LOCAL(memb->user)) || (source == memb->user))
 			return;
@@ -164,7 +164,7 @@ public:
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Channel mode to delay rejoin after kick", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
 	}

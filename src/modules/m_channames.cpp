@@ -56,7 +56,7 @@ class ModuleChannelNames : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->IsChannel = NewIsChannelHandler::Call;
 	}
@@ -98,7 +98,7 @@ class ModuleChannelNames : public Module
 		badchan = false;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
 		std::string denyToken = tag->getString("denyrange");
@@ -128,7 +128,7 @@ class ModuleChannelNames : public Module
 		ValidateChans();
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list) CXX11_OVERRIDE
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list) override
 	{
 		if (badchan)
 		{
@@ -139,14 +139,14 @@ class ModuleChannelNames : public Module
 		}
 	}
 
-	CullResult cull() CXX11_OVERRIDE
+	CullResult cull() override
 	{
 		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
 		return Module::cull();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR);
 	}

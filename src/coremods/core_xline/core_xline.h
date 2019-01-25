@@ -34,7 +34,7 @@ class InsaneBan
 	class Matcher : public MatcherBase
 	{
 	 public:
-		long Run(const std::string& mask) CXX11_OVERRIDE
+		long Run(const std::string& mask) override
 		{
 			long matches = 0;
 			const T* c = static_cast<T*>(this);
@@ -79,7 +79,7 @@ class CommandEline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /GLINE.
@@ -96,7 +96,7 @@ class CommandGline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /KLINE.
@@ -113,7 +113,7 @@ class CommandKline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /QLINE.
@@ -136,7 +136,7 @@ class CommandQline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /ZLINE.
@@ -159,5 +159,5 @@ class CommandZline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };

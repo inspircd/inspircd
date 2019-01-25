@@ -31,12 +31,12 @@ class ModuleSecureList : public Module
 	unsigned int WaitTime;
 
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowList newallows;
 
@@ -61,7 +61,7 @@ class ModuleSecureList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -90,7 +90,7 @@ class ModuleSecureList : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["SECURELIST"];
 	}

@@ -59,7 +59,7 @@ class CommandProp : public SplitCommand
 		syntax = "<user|channel> {[+-]<mode> [<value>]}*";
 	}
 
-	CmdResult HandleLocal(LocalUser* src, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* src, const Params& parameters) override
 	{
 		Channel* const chan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
@@ -110,7 +110,7 @@ class DummyZ : public ModeHandler
 	}
 
 	// Handle /MODE #chan Z
-	void DisplayList(User* user, Channel* chan) CXX11_OVERRIDE
+	void DisplayList(User* user, Channel* chan) override
 	{
 		if (IS_LOCAL(user))
 			::DisplayList(static_cast<LocalUser*>(user), chan);
@@ -126,17 +126,17 @@ class ModuleNamedModes : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;

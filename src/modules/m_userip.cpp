@@ -31,7 +31,7 @@ class CommandUserip : public Command
 		syntax = "<nick> [<nick> ...]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		std::string retbuf;
 		int nicks = 0;
@@ -85,12 +85,12 @@ class ModuleUserIP : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["USERIP"];
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for USERIP command",VF_VENDOR);
 	}

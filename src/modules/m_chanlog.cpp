@@ -29,7 +29,7 @@ class ModuleChanLog : public Module
 	ChanLogTargets logstreams;
 
  public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::string snomasks;
 		std::string channel;
@@ -56,7 +56,7 @@ class ModuleChanLog : public Module
 
 	}
 
-	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) CXX11_OVERRIDE
+	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) override
 	{
 		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
 		if (itpair.first == itpair.second)
@@ -78,7 +78,7 @@ class ModuleChanLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Logs snomask output to channel(s).", VF_VENDOR);
 	}

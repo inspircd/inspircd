@@ -56,7 +56,7 @@ class UserResolver : public DNS::Request
 	 * if a previous result has already come back.
 	 * @param r The finished query
 	 */
-	void OnLookupComplete(const DNS::Query* r) CXX11_OVERRIDE
+	void OnLookupComplete(const DNS::Query* r) override
 	{
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (!bound_user)
@@ -164,7 +164,7 @@ class UserResolver : public DNS::Request
 	/** Called on failed lookup
 	 * @param query The errored query
 	 */
-	void OnError(const DNS::Query* query) CXX11_OVERRIDE
+	void OnError(const DNS::Query* query) override
 	{
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (bound_user)
@@ -191,7 +191,7 @@ class ModuleHostnameLookup : public Module
 		ph = &ptrHosts;
 	}
 
-	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* user) override
 	{
 		// If core_dns is not loaded or hostname resolution is disabled for the user's
 		// connect class then the logic in this function does not apply.
@@ -221,12 +221,12 @@ class ModuleHostnameLookup : public Module
 		}
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return this->dnsLookup.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for DNS lookups on connecting clients", VF_CORE|VF_VENDOR);
 	}

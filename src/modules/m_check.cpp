@@ -140,7 +140,7 @@ class CommandCheck : public Command
 		return ret;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
 			return CMD_SUCCESS;
@@ -301,7 +301,7 @@ class CommandCheck : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[1]);
@@ -317,7 +317,7 @@ class ModuleCheck : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("CHECK command, view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
 	}

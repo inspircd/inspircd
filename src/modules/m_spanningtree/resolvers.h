@@ -37,8 +37,8 @@ class SecurityIPResolver : public DNS::Request
 	DNS::QueryType query;
  public:
 	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
-	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
-	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
+	void OnLookupComplete(const DNS::Query *r) override;
+	void OnError(const DNS::Query *q) override;
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
@@ -56,6 +56,6 @@ class ServernameResolver : public DNS::Request
 	reference<Autoconnect> myautoconnect;
  public:
 	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
-	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
-	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
+	void OnLookupComplete(const DNS::Query *r) override;
+	void OnError(const DNS::Query *q) override;
 };
