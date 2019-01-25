@@ -23,9 +23,6 @@
 
 enum ParseFlags
 {
-	// Legacy config parsing should be used.
-	FLAG_USE_COMPAT = 1,
-
 	// Executable includes are disabled.
 	FLAG_NO_EXEC = 2,
 
@@ -193,7 +190,7 @@ struct Parser
 		while (1)
 		{
 			ch = next();
-			if (ch == '&' && !(flags & FLAG_USE_COMPAT))
+			if (ch == '&')
 			{
 				std::string varname;
 				while (1)
@@ -234,16 +231,6 @@ struct Parser
 						throw CoreException("Undefined XML entity reference '&" + varname + ";'");
 					value.append(var->second);
 				}
-			}
-			else if (ch == '\\' && (flags & FLAG_USE_COMPAT))
-			{
-				int esc = next();
-				if (esc == 'n')
-					value.push_back('\n');
-				else if (isalpha(esc))
-					throw CoreException("Unknown escape character \\" + std::string(1, esc));
-				else
-					value.push_back(esc);
 			}
 			else if (ch == '"')
 				break;
@@ -307,23 +294,11 @@ struct Parser
 		}
 		else if (stdalgo::string::equalsci(name, "define"))
 		{
-			if (flags & FLAG_USE_COMPAT)
-				throw CoreException("<define> tags may only be used in XML-style config (add <config format=\"xml\">)");
 			std::string varname = tag->getString("name");
 			std::string value = tag->getString("value");
 			if (varname.empty())
 				throw CoreException("Variable definition must include variable name");
 			stack.vars[varname] = value;
-		}
-		else if (stdalgo::string::equalsci(name, "config"))
-		{
-			std::string format = tag->getString("format");
-			if (stdalgo::string::equalsci(format, "xml"))
-				flags &= ~FLAG_USE_COMPAT;
-			else if (stdalgo::string::equalsci(format, "compat"))
-				flags |= FLAG_USE_COMPAT;
-			else if (!format.empty())
-				throw CoreException("Unknown configuration format " + format);
 		}
 		else
 		{

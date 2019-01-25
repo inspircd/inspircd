@@ -104,8 +104,6 @@ class SSLModeUser : public ModeHandler
 		: ModeHandler(Creator, "sslqueries", 'z', PARAM_NONE, MODETYPE_USER)
 		, API(api)
 	{
-		if (!ServerInstance->Config->ConfValue("sslmodes")->getBool("enableumode"))
-			DisableAutoRegister();
 	}
 
 	ModeAction OnModeChange(User* user, User* dest, Channel* channel, std::string& parameter, bool adding) override

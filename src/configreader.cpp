@@ -37,7 +37,7 @@ ServerLimits::ServerLimits(ConfigTag* tag)
 	, MaxQuit(tag->getUInt("maxquit", 255))
 	, MaxTopic(tag->getUInt("maxtopic", 307))
 	, MaxKick(tag->getUInt("maxkick", 255))
-	, MaxReal(tag->getUInt("maxreal", tag->getUInt("maxgecos", 128)))
+	, MaxReal(tag->getUInt("maxreal", 128))
 	, MaxAway(tag->getUInt("maxaway", 200))
 	, MaxLine(tag->getUInt("maxline", 512))
 	, MaxHost(tag->getUInt("maxhost", 64))
@@ -349,20 +349,18 @@ void ServerConfig::Fill()
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getUInt("somaxconn", SOMAXCONN);
 	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
-	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
+	XLineMessage = options->getString("xlinemessage", "You're banned!");
 	ServerDesc = server->getString("description", "Configure Me");
 	Network = server->getString("network", "Network");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
-	HideServer = security->getString("hideserver", security->getString("hidewhois"));
+	HideServer = security->getString("hideserver");
 	SyntaxHints = options->getBool("syntaxhints");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
-	MaxChans = ConfValue("channels")->getUInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getUInt("opers", 0);
 	c_ipv4_range = ConfValue("cidr")->getUInt("ipv4clone", 32, 1, 32);
 	c_ipv6_range = ConfValue("cidr")->getUInt("ipv6clone", 128, 1, 128);
 	Limits = ServerLimits(ConfValue("limits"));
@@ -630,7 +628,7 @@ ConfigTagList ServerConfig::ConfTags(const std::string& tag)
 	return config_data.equal_range(tag);
 }
 
-std::string ServerConfig::Escape(const std::string& str, bool xml)
+std::string ServerConfig::Escape(const std::string& str)
 {
 	std::string escaped;
 	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
@@ -638,13 +636,13 @@ std::string ServerConfig::Escape(const std::string& str, bool xml)
 		switch (*it)
 		{
 			case '"':
-				escaped += xml ? "&quot;" : "\"";
+				escaped += "&quot;";
 				break;
 			case '&':
-				escaped += xml ? "&amp;" : "&";
+				escaped += "&amp;";
 				break;
 			case '\\':
-				escaped += xml ? "\\" : "\\\\";
+				escaped += "\\";
 				break;
 			default:
 				escaped += *it;

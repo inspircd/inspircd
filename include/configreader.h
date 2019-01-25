@@ -416,14 +416,6 @@ class CoreExport ServerConfig
 	 */
 	OperIndex OperTypes;
 
-	/** Default value for <connect:maxchans>, deprecated in 3.0
-	 */
-	unsigned int MaxChans;
-
-	/** Default value for <oper:maxchans>, deprecated in 3.0
-	 */
-	unsigned int OperMaxChans;
-
 	/** TS6-like server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
@@ -456,9 +448,8 @@ class CoreExport ServerConfig
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.
-	 * @param xml Are we using the XML config format?
 	 */
-	static std::string Escape(const std::string& str, bool xml = true);
+	static std::string Escape(const std::string& str);
 
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */

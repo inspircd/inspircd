@@ -22,28 +22,17 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class NoCTCPUser : public SimpleUserModeHandler
-{
-public:
-	NoCTCPUser(Module* Creator)
-		: SimpleUserModeHandler(Creator, "u_noctcp", 'T')
-	{
-		if (!ServerInstance->Config->ConfValue("noctcp")->getBool("enableumode"))
-			DisableAutoRegister();
-	}
-};
-
 class ModuleNoCTCP : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nc;
-	NoCTCPUser ncu;
+	SimpleUserModeHandler ncu;
 
  public:
 	ModuleNoCTCP()
 		: exemptionprov(this)
 		, nc(this, "noctcp", 'C')
-		, ncu(this)
+		, ncu(this, "u_noctcp", 'T')
 	{
 	}
 

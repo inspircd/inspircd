@@ -1390,10 +1390,6 @@
 # No CTCP module: Adds the channel mode +C and user mode +T to block
 # CTCPs and extban 'C' to block CTCPs sent by specific users.
 #<module name="noctcp">
-#
-# The +T user mode is not enabled by default to enable link compatibility
-# with 2.0 servers. You can enable it by uncommenting this:
-#<noctcp enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No kicks module: Adds the +Q channel mode and the Q: extban to deny
@@ -1517,9 +1513,7 @@
 # requirekey    - If enabled, overriding on join requires a channel   #
 #                 key of "override" to be specified                   #
 #                                                                     #
-# enableumode   - If enabled, usermode +O is required for override.   #
-#                                                                     #
-#<override noisy="yes" requirekey="no" enableumode="true">
+#<override noisy="yes" requirekey="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -2002,10 +1996,6 @@
 # Does not do anything useful without a working SSL module and the
 # sslinfo module (see below).
 #<module name="sslmodes">
-#
-# The +z user mode is not enabled by default to enable link compatibility
-# with 2.0 servers. You can enable it by uncommenting this:
-#<sslmodes enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL rehash signal module: Allows the SSL modules to be rehashed by
