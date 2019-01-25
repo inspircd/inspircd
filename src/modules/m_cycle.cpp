@@ -31,7 +31,7 @@ class CommandCycle : public SplitCommand
 		Penalty = 3; syntax = "<channel> :[reason]";
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = "Cycling";
@@ -82,7 +82,7 @@ class ModuleCycle : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel.", VF_VENDOR);
 	}

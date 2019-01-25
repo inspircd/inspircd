@@ -22,7 +22,7 @@
 class ModuleClassBan : public Module
 {
  public:
-	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) override
 	{
 		LocalUser* localUser = IS_LOCAL(user);
 		if ((localUser) && (mask.length() > 2) && (mask[0] == 'n') && (mask[1] == ':'))
@@ -33,12 +33,12 @@ class ModuleClassBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('n');
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Class 'n' - Connection class ban", VF_VENDOR | VF_OPTCOMMON);
 	}

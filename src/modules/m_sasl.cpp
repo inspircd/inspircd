@@ -53,12 +53,12 @@ class ServerTracker : public ServerEventListener
 		}
 	}
 
-	void OnServerLink(const Server* server) CXX11_OVERRIDE
+	void OnServerLink(const Server* server) override
 	{
 		Update(server, true);
 	}
 
-	void OnServerSplit(const Server* server) CXX11_OVERRIDE
+	void OnServerSplit(const Server* server) override
 	{
 		Update(server, false);
 	}
@@ -101,7 +101,7 @@ class SASLCap : public Cap::Capability
 	std::string mechlist;
 	const ServerTracker& servertracker;
 
-	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	bool OnRequest(LocalUser* user, bool adding) override
 	{
 		// Requesting this cap is allowed anytime
 		if (adding)
@@ -111,12 +111,12 @@ class SASLCap : public Cap::Capability
 		return (user->registered != REG_ALL);
 	}
 
-	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	bool OnList(LocalUser* user) override
 	{
 		return servertracker.IsOnline();
 	}
 
-	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
+	const std::string* GetValue(LocalUser* user) const override
 	{
 		return &mechlist;
 	}
@@ -319,7 +319,7 @@ class CommandAuthenticate : public SplitCommand
 		allow_empty_last_param = false;
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		{
 			if (!cap.get(user))
@@ -356,7 +356,7 @@ class CommandSASL : public Command
 		this->flags_needed = FLAG_SERVERONLY; // should not be called by users
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* target = ServerInstance->FindUUID(parameters[1]);
 		if (!target)
@@ -378,7 +378,7 @@ class CommandSASL : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -408,13 +408,13 @@ class ModuleSASL : public Module
 		g_protoev = &protoev;
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account and m_cap are not loaded! m_sasl will NOT function correctly until these two modules are loaded!");
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::string target = ServerInstance->Config->ConfValue("sasl")->getString("target");
 		if (target.empty())
@@ -424,13 +424,13 @@ class ModuleSASL : public Module
 		servertracker.Reset();
 	}
 
-	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override
 	{
 		if ((target == NULL) && (extname == "saslmechlist"))
 			cap.SetMechlist(extdata);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
 	}

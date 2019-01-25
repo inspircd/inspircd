@@ -1070,12 +1070,12 @@ info_done_dealloc:
 		Handshake(sock);
 	}
 
-	void OnStreamSocketClose(StreamSocket* user) CXX11_OVERRIDE
+	void OnStreamSocketClose(StreamSocket* user) override
 	{
 		CloseSession();
 	}
 
-	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
+	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -1113,7 +1113,7 @@ info_done_dealloc:
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -1176,7 +1176,7 @@ info_done_dealloc:
 		return 1;
 	}
 
-	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
+	void GetCiphersuite(std::string& out) const override
 	{
 		if (!IsHandshakeDone())
 			return;
@@ -1186,7 +1186,7 @@ info_done_dealloc:
 		out.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));
 	}
 
-	bool GetServerName(std::string& out) const CXX11_OVERRIDE
+	bool GetServerName(std::string& out) const override
 	{
 		std::vector<char> nameBuffer;
 		size_t nameLength = 0;
@@ -1245,12 +1245,12 @@ class GnuTLSIOHookProvider : public IOHookProvider
 		ServerInstance->Modules->DelService(*this);
 	}
 
-	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
+	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
 	{
 		new GnuTLSIOHook(this, sock, GNUTLS_SERVER);
 	}
 
-	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
+	void OnConnect(StreamSocket* sock) override
 	{
 		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT);
 	}
@@ -1345,14 +1345,14 @@ class ModuleSSLGnuTLS : public Module
 		thismod = this;
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
 		ReadProfiles();
 		ServerInstance->GenRandom = RandGen::Call;
 	}
 
-	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
+	void OnModuleRehash(User* user, const std::string &param) override
 	{
 		if(param != "ssl")
 			return;
@@ -1372,7 +1372,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->GenRandom = &InspIRCd::DefaultGenRandom;
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
 	{
 		if (type == ExtensionItem::EXT_USER)
 		{
@@ -1387,12 +1387,12 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		const GnuTLSIOHook* const iohook = static_cast<GnuTLSIOHook*>(user->eh.GetModHook(this));
 		if ((iohook) && (!iohook->IsHandshakeDone()))

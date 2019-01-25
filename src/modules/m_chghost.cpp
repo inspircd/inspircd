@@ -37,7 +37,7 @@ class CommandChghost : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxHost)
 		{
@@ -75,7 +75,7 @@ class CommandChghost : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -92,7 +92,7 @@ class ModuleChgHost : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
@@ -101,7 +101,7 @@ class ModuleChgHost : public Module
 			cmd.hostmap.set(static_cast<unsigned char>(*n));
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
 	}

@@ -162,7 +162,7 @@ class CoreExport ListenSocket : public EventHandler
 
 	/** Handles new connections, called by the socket engine
 	 */
-	void OnEventHandlerRead() CXX11_OVERRIDE;
+	void OnEventHandlerRead() override;
 
 	/** Inspects the bind block belonging to this socket to set the name of the IO hook
 	 * provider which this socket will use for incoming connections.

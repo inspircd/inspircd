@@ -141,7 +141,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param user The user to send the list to
 	 * @param channel The channel the user is requesting the list for
 	 */
-	void DisplayList(User* user, Channel* channel) CXX11_OVERRIDE;
+	void DisplayList(User* user, Channel* channel) override;
 
 	/** Tell a user that a list contains no elements.
 	 * Sends 'eolnum' numeric with text 'eolstr', unless overridden (see constructor)
@@ -149,7 +149,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel The channel that has the empty list
 	 * See mode.h
 	 */
-	void DisplayEmptyList(User* user, Channel* channel) CXX11_OVERRIDE;
+	void DisplayEmptyList(User* user, Channel* channel) override;
 
 	/** Remove all instances of the mode from a channel.
 	 * Populates the given modestack with modes that remove every instance of
@@ -158,7 +158,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel The channel to remove all instances of the mode from
 	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) CXX11_OVERRIDE;
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
 	/** Perform a rehash of this mode's configuration data
 	 */
@@ -167,7 +167,7 @@ class CoreExport ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE;
+	ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding) override;
 
 	/** Validate parameters.
 	 * Overridden by implementing module.
@@ -185,7 +185,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel For channel mode changes, the target of the mode. For user mode changes, NULL.
 	 * See mode.h
 	 */
-	virtual void OnParameterMissing(User* user, User* dest, Channel* channel) CXX11_OVERRIDE;
+	virtual void OnParameterMissing(User* user, User* dest, Channel* channel) override;
 
 	/** Tell the user the list is too long.
 	 * Overridden by implementing module.

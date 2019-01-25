@@ -240,12 +240,12 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
+	ModResult OnHTTPRequest(HTTPRequest& req) override
 	{
 		return HandleRequest(&req);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides statistics over HTTP via m_httpd", VF_VENDOR);
 	}

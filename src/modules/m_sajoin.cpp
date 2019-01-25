@@ -33,7 +33,7 @@ class CommandSajoin : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		const unsigned int channelindex = (parameters.size() > 1) ? 1 : 0;
 		if (CommandParser::LoopCall(user, this, parameters, channelindex))
@@ -101,7 +101,7 @@ class CommandSajoin : public Command
 		}
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -116,7 +116,7 @@ class ModuleSajoin : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}

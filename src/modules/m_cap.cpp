@@ -86,7 +86,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		throw ModuleException("Too many caps");
 	}
 
-	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) CXX11_OVERRIDE
+	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnReloadModuleSave()");
 		if (mod == creator)
@@ -117,7 +117,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		}
 	}
 
-	void OnReloadModuleRestore(Module* mod, void* data) CXX11_OVERRIDE
+	void OnReloadModuleRestore(Module* mod, void* data) override
 	{
 		CapModData* capmoddata = static_cast<CapModData*>(data);
 		for (std::vector<CapModData::Data>::const_iterator i = capmoddata->caps.begin(); i != capmoddata->caps.end(); ++i)
@@ -166,7 +166,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		}
 	}
 
-	void AddCap(Cap::Capability* cap) CXX11_OVERRIDE
+	void AddCap(Cap::Capability* cap) override
 	{
 		// No-op if the cap is already registered.
 		// This allows modules to call SetActive() on a cap without checking if it's active first.
@@ -182,7 +182,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, true));
 	}
 
-	void DelCap(Cap::Capability* cap) CXX11_OVERRIDE
+	void DelCap(Cap::Capability* cap) override
 	{
 		// No-op if the cap is not registered, see AddCap() above
 		if (!cap->IsRegistered())
@@ -206,7 +206,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		caps.erase(cap->GetName());
 	}
 
-	Capability* Find(const std::string& capname) const CXX11_OVERRIDE
+	Capability* Find(const std::string& capname) const override
 	{
 		CapMap::const_iterator it = caps.find(capname);
 		if (it != caps.end())
@@ -214,7 +214,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		return NULL;
 	}
 
-	void NotifyValueChange(Capability* cap) CXX11_OVERRIDE
+	void NotifyValueChange(Capability* cap) override
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
 		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapValueChange, (cap));
@@ -385,7 +385,7 @@ class CommandCap : public SplitCommand
 		works_before_reg = true;
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		if (user->registered != REG_ALL)
 			holdext.set(user, 1);
@@ -442,12 +442,12 @@ class ModuleCap : public Module
 	{
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return (cmd.holdext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for CAP capability negotiation", VF_VENDOR);
 	}

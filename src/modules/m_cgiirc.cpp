@@ -135,7 +135,7 @@ class CommandWebIRC : public SplitCommand
 		this->syntax = "<password> <gateway> <hostname> <ip> [flags]";
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		if (user->registered == REG_ALL || realhost.get(user))
 			return CMD_FAILURE;
@@ -269,12 +269,12 @@ class ModuleCgiIRC
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<IdentHost> identhosts;
 		std::vector<WebIRCHost> webirchosts;
@@ -323,7 +323,7 @@ class ModuleCgiIRC
 		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
 		// If <connect:webirc> is not set then we have nothing to do.
 		const std::string webirc = myclass->config->getString("webirc");
@@ -341,7 +341,7 @@ class ModuleCgiIRC
 		return InspIRCd::Match(*gateway, webirc) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// There is no need to check for gateways if one is already being used.
 		if (cmd.realhost.get(user))
@@ -374,7 +374,7 @@ class ModuleCgiIRC
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
 	{
 		// We are only interested in connection flags. If none have been
 		// given then we have nothing to do.
@@ -434,7 +434,7 @@ class ModuleCgiIRC
 		}
 	}
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) override
 	{
 		if (!whois.IsSelfWhois() && !whois.GetSource()->HasPrivPermission("users/auspex"))
 			return;
@@ -452,7 +452,7 @@ class ModuleCgiIRC
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an ident gateway");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Enables forwarding the real IP address of a user from a gateway to the IRC server", VF_VENDOR);
 	}

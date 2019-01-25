@@ -51,7 +51,7 @@ class CommandJumpserver : public Command
 		redirect_new_users = false;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		int n_done = 0;
 		reason = (parameters.size() < 4) ? "Please use this server/port instead" : parameters[3];
@@ -164,13 +164,13 @@ class ModuleJumpServer : public Module
 	{
 	}
 
-	void OnModuleRehash(User* user, const std::string& param) CXX11_OVERRIDE
+	void OnModuleRehash(User* user, const std::string& param) override
 	{
 		if (irc::equals(param, "jumpserver") && js.redirect_new_users)
 			js.redirect_new_users = false;
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		if (js.redirect_new_users)
 		{
@@ -182,14 +182,14 @@ class ModuleJumpServer : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// Emergency way to unlock
 		if (!status.srcuser)
 			js.redirect_new_users = false;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the RPL_REDIR numeric and the /JUMPSERVER command.", VF_VENDOR);
 	}

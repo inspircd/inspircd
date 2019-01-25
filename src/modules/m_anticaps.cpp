@@ -103,7 +103,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		irc::sepstream stream(parameter, ':');
 		AntiCapsMethod method;
@@ -183,7 +183,7 @@ class ModuleAntiCaps : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus&) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("anticaps");
 
@@ -198,7 +198,7 @@ class ModuleAntiCaps : public Module
 			lowercase.set(static_cast<unsigned char>(*iter));
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		// We only want to operate on messages from local users.
 		if (!IS_LOCAL(user))
@@ -295,7 +295,7 @@ class ModuleAntiCaps : public Module
 		return MOD_RES_DENY;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for punishing users that send capitalised messages.", VF_COMMON|VF_VENDOR);
 	}

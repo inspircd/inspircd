@@ -77,7 +77,7 @@ class ModuleDisable : public Module
 	}
 
  public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("disabled");
 
@@ -121,7 +121,7 @@ class ModuleDisable : public Module
 		notifyopers = tag->getBool("notifyopers");
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		// If a command is unvalidated or the source is not registered we do nothing.
 		if (!validated || user->registered != REG_ALL)
@@ -149,7 +149,7 @@ class ModuleDisable : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE
+	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
 	{
 		// If a mode change is remote or the source is not registered we do nothing.
 		if (!IS_LOCAL(user) || user->registered != REG_ALL)
@@ -180,7 +180,7 @@ class ModuleDisable : public Module
 		return MOD_RES_DENY;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for disabling commands and modes", VF_VENDOR);
 	}

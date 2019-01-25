@@ -42,19 +42,19 @@ public:
 		this->nickname = nick;
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE
+	bool Matches(User* u) override
 	{
 		if (u->nick == nickname)
 			return true;
 		return false;
 	}
 
-	bool Matches(const std::string& s) CXX11_OVERRIDE
+	bool Matches(const std::string& s) override
 	{
 		return InspIRCd::Match(s, nickname);
 	}
 
-	void DisplayExpiry() CXX11_OVERRIDE
+	void DisplayExpiry() override
 	{
 		if (!silent)
 		{
@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	const std::string& Displayable() CXX11_OVERRIDE
+	const std::string& Displayable() override
 	{
 		return nickname;
 	}
@@ -78,12 +78,12 @@ class SVSHoldFactory : public XLineFactory
 
 	/** Generate an SVSHOLD
  	*/
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
 	}
 
-	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
+	bool AutoApplyToUserList(XLine* x) override
 	{
 		return false;
 	}
@@ -99,7 +99,7 @@ class CommandSvshold : public Command
 		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -161,7 +161,7 @@ class CommandSvshold : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -180,18 +180,18 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
 		silent = tag->getBool("silent", true);
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'S')
 			return MOD_RES_PASSTHRU;
@@ -200,7 +200,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 
@@ -219,7 +219,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&s);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements SVSHOLD. Like Q-lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
 	}

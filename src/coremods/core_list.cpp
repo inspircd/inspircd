@@ -56,7 +56,7 @@ class CommandList : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 
@@ -200,13 +200,13 @@ class CoreModList : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["ELIST"] = "CMNTU";
 		tokens["SAFELIST"];
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the LIST command", VF_VENDOR|VF_CORE);
 	}

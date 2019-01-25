@@ -47,7 +47,7 @@ class AuthQuery : public SQL::Query
 	{
 	}
 
-	void OnResult(SQL::Result& res) CXX11_OVERRIDE
+	void OnResult(SQL::Result& res) override
 	{
 		LocalUser* user = static_cast<LocalUser*>(ServerInstance->FindUUID(uid));
 		if (!user)
@@ -101,7 +101,7 @@ class AuthQuery : public SQL::Query
 		}
 	}
 
-	void OnError(SQL::Error& error) CXX11_OVERRIDE
+	void OnError(SQL::Error& error) override
 	{
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
@@ -134,7 +134,7 @@ class ModuleSQLAuth : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");
@@ -156,7 +156,7 @@ class ModuleSQLAuth : public Module
 			hash_algos.push_back(algo);
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Note this is their initial (unresolved) connect block
 		ConfigTag* tag = user->MyClass->config;
@@ -195,7 +195,7 @@ class ModuleSQLAuth : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		switch (pendingExt.get(user))
 		{
@@ -210,7 +210,7 @@ class ModuleSQLAuth : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allow/Deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}

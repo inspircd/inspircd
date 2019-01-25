@@ -23,7 +23,7 @@
 
 class CapNotify : public Cap::Capability
 {
-	bool OnRequest(LocalUser* user, bool add) CXX11_OVERRIDE
+	bool OnRequest(LocalUser* user, bool add) override
 	{
 		// Users using the negotiation protocol v3.2 or newer may not turn off cap-notify
 		if ((!add) && (GetProtocol(user) != Cap::CAP_LEGACY))
@@ -31,7 +31,7 @@ class CapNotify : public Cap::Capability
 		return true;
 	}
 
-	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	bool OnList(LocalUser* user) override
 	{
 		// If the client supports 3.2 enable cap-notify for them
 		if (GetProtocol(user) != Cap::CAP_LEGACY)
@@ -127,7 +127,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 	{
 	}
 
-	void OnCapAddDel(Cap::Capability* cap, bool add) CXX11_OVERRIDE
+	void OnCapAddDel(Cap::Capability* cap, bool add) override
 	{
 		if (cap->creator == this)
 			return;
@@ -141,14 +141,14 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		Send(cap->GetName(), cap, add);
 	}
 
-	void OnCapValueChange(Cap::Capability* cap) CXX11_OVERRIDE
+	void OnCapValueChange(Cap::Capability* cap) override
 	{
 		// The value of a cap has changed, send CAP DEL and CAP NEW with the new value
 		Send(cap->GetName(), cap, false);
 		Send(cap->GetName(), cap, true);
 	}
 
-	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) CXX11_OVERRIDE
+	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
 	{
 		if (mod == this)
 			return;
@@ -157,7 +157,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		cd.add(this, NULL);
 	}
 
-	void OnReloadModuleRestore(Module* mod, void* data) CXX11_OVERRIDE
+	void OnReloadModuleRestore(Module* mod, void* data) override
 	{
 		// Reloading can change the set of caps provided by a module so assuming that if the reload succeded all
 		// caps that the module previously provided are available or all were lost if the reload failed is wrong.
@@ -176,7 +176,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		reloadedcaps.clear();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the cap-notify IRCv3 extension", VF_VENDOR);
 	}

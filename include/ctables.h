@@ -237,7 +237,7 @@ class CoreExport Command : public CommandBase
 
 	/** Register this object in the CommandParser
 	 */
-	void RegisterService() CXX11_OVERRIDE;
+	void RegisterService() override;
 
 	/** Destructor
 	 * Removes this command from the command parser
@@ -250,7 +250,7 @@ class CoreExport SplitCommand : public Command
  public:
 	SplitCommand(Module* me, const std::string &cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
 		: Command(me, cmd, minpara, maxpara) {}
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 	virtual CmdResult HandleLocal(LocalUser* user, const Params& parameters);
 	virtual CmdResult HandleRemote(RemoteUser* user, const Params& parameters);
 	virtual CmdResult HandleServer(FakeUser* user, const Params& parameters);

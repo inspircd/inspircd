@@ -58,12 +58,12 @@ class SQLite3Result : public SQL::Result
 	{
 	}
 
-	int Rows() CXX11_OVERRIDE
+	int Rows() override
 	{
 		return rows;
 	}
 
-	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) override
 	{
 		if (currentrow < rows)
 		{
@@ -78,12 +78,12 @@ class SQLite3Result : public SQL::Result
 		}
 	}
 
-	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
+	void GetCols(std::vector<std::string>& result) override
 	{
 		result.assign(columns.begin(), columns.end());
 	}
 
-	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
+	bool HasColumn(const std::string& column, size_t& index) override
 	{
 		for (size_t i = 0; i < columns.size(); ++i)
 		{
@@ -172,13 +172,13 @@ class SQLConn : public SQL::Provider
 		sqlite3_finalize(stmt);
 	}
 
-	void Submit(SQL::Query* query, const std::string& q) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q) override
 	{
 		Query(query, q);
 		delete query;
 	}
 
-	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamList& p) override
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -199,7 +199,7 @@ class SQLConn : public SQL::Provider
 		Submit(query, res);
 	}
 
-	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* query, const std::string& q, const SQL::ParamMap& p) override
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -248,7 +248,7 @@ class ModuleSQLite3 : public Module
 		conns.clear();
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ClearConns();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
@@ -262,7 +262,7 @@ class ModuleSQLite3 : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("sqlite3 provider", VF_VENDOR);
 	}

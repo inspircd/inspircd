@@ -169,7 +169,7 @@ class CommandRemove : public RemoveBase
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		return HandleRMB(user, parameters, false);
 	}
@@ -187,7 +187,7 @@ class CommandFpart : public RemoveBase
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		return HandleRMB(user, parameters, true);
 	}
@@ -208,19 +208,19 @@ class ModuleRemove : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["REMOVE"];
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
 		supportnokicks = tag->getBool("supportnokicks");
 		cmd1.protectedrank = cmd2.protectedrank = tag->getUInt("protectedrank", 50000);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
 	}

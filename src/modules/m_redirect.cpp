@@ -32,7 +32,7 @@ class Redirect : public ParamMode<Redirect, LocalStringExt>
 	Redirect(Module* Creator)
 		: ParamMode<Redirect, LocalStringExt>(Creator, "redirect", 'L') { }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		if (IS_LOCAL(source))
 		{
@@ -86,7 +86,7 @@ class ModuleRedirect : public Module
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if (chan)
 		{
@@ -121,7 +121,7 @@ class ModuleRedirect : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);
 	}

@@ -48,7 +48,7 @@ class CommandConnect : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/*
 		 * This is handled by the server linking module, if necessary. Do not remove this stub.
@@ -75,7 +75,7 @@ class CommandLinks : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->ServerName, ServerInstance->Config->ServerName, InspIRCd::Format("0 %s", ServerInstance->Config->ServerDesc.c_str()));
 		user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
@@ -101,7 +101,7 @@ class CommandServer : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (user->registered == REG_ALL)
 		{
@@ -134,7 +134,7 @@ class CommandSquit : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");
 		return CMD_FAILURE;
@@ -150,7 +150,7 @@ class CommandSummon
 	{
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		user->WriteNumeric(ERR_SUMMONDISABLED, "SUMMON has been disabled");
 		return CMD_SUCCESS;
@@ -166,7 +166,7 @@ class CommandUsers
 	{
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		user->WriteNumeric(ERR_USERSDISABLED, "USERS has been disabled");
 		return CMD_SUCCESS;
@@ -193,7 +193,7 @@ class CoreModStub : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides stubs for unimplemented commands", VF_VENDOR|VF_CORE);
 	}

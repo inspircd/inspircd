@@ -40,7 +40,7 @@ class CommandUserhost : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
@@ -93,7 +93,7 @@ class CoreModUserhost : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the USERHOST command", VF_CORE | VF_VENDOR);
 	}

@@ -111,7 +111,7 @@ class ModeHook : public ClientProtocol::EventHook
 		return modechangelist;
 	}
 
-	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE
+	void OnEventInit(const ClientProtocol::Event& ev) override
 	{
 		cache.clear();
 		filteredmsgplists.clear();
@@ -123,7 +123,7 @@ class ModeHook : public ClientProtocol::EventHook
 		modechangelists.reserve(numprefixmodes);
 	}
 
-	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override
 	{
 		const ClientProtocol::Events::Mode& mode = static_cast<const ClientProtocol::Events::Mode&>(ev);
 		Channel* const chan = mode.GetMessages().front().GetChanTarget();
@@ -188,12 +188,12 @@ class ModuleHideMode : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		modehook.settings.Load();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for hiding mode changes", VF_VENDOR);
 	}

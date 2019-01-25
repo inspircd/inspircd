@@ -49,7 +49,7 @@ class JoinTimer : public Timer
 		ServerInstance->Timers.AddTimer(this);
 	}
 
-	bool Tick(time_t time) CXX11_OVERRIDE
+	bool Tick(time_t time) override
 	{
 		if (user->chans.empty())
 			JoinChannels(user, channels);
@@ -71,24 +71,24 @@ class ModuleConnJoin : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
 		defchans = tag->getString("channel");
 		defdelay = tag->getDuration("delay", 0, 0, 60);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
 	}
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
+	void OnPostConnect(User* user) override
 	{
 		LocalUser* localuser = IS_LOCAL(user);
 		if (!localuser)

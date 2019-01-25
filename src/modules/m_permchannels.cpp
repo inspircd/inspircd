@@ -34,7 +34,7 @@ class PermChannel : public ModeHandler
 		oper = true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
 		if (adding == channel->IsModeSet(this))
 			return MODEACTION_DENY;
@@ -170,7 +170,7 @@ public:
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
@@ -252,7 +252,7 @@ public:
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE
+	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
 	{
 		if (chan && (chan->IsModeSet(p) || mh == &p))
 			dirty = true;
@@ -260,20 +260,20 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostTopicChange(User*, Channel *c, const std::string&) CXX11_OVERRIDE
+	void OnPostTopicChange(User*, Channel *c, const std::string&) override
 	{
 		if (c->IsModeSet(p))
 			dirty = true;
 	}
 
-	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
+	void OnBackgroundTimer(time_t) override
 	{
 		if (dirty)
 			WriteDatabase(p, this, save_listmodes);
 		dirty = false;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// XXX: Load the DB here because the order in which modules are init()ed at boot is
 		// alphabetical, this means we must wait until all modules have done their init()
@@ -303,12 +303,12 @@ public:
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for channel mode +P to provide permanent channels",VF_VENDOR);
 	}
 
-	ModResult OnChannelPreDelete(Channel *c) CXX11_OVERRIDE
+	ModResult OnChannelPreDelete(Channel *c) override
 	{
 		if (c->IsModeSet(p))
 			return MOD_RES_DENY;

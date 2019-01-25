@@ -178,15 +178,15 @@ class CoreExport KLine : public XLine
 	{
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE;
+	bool Matches(User* u) override;
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE;
+	bool Matches(const std::string& str) override;
 
-	void Apply(User* u) CXX11_OVERRIDE;
+	void Apply(User* u) override;
 
-	const std::string& Displayable() CXX11_OVERRIDE;
+	const std::string& Displayable() override;
 
-	bool IsBurstable() CXX11_OVERRIDE;
+	bool IsBurstable() override;
 
 	/** Ident mask (ident part only)
 	 */
@@ -224,13 +224,13 @@ class CoreExport GLine : public XLine
 	{
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE;
+	bool Matches(User* u) override;
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE;
+	bool Matches(const std::string& str) override;
 
-	void Apply(User* u)  CXX11_OVERRIDE;
+	void Apply(User* u)  override;
 
-	const std::string& Displayable() CXX11_OVERRIDE;
+	const std::string& Displayable() override;
 
 	/** Ident mask (ident part only)
 	 */
@@ -266,15 +266,15 @@ class CoreExport ELine : public XLine
 	{
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE;
+	bool Matches(User* u) override;
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE;
+	bool Matches(const std::string& str) override;
 
-	void Unset() CXX11_OVERRIDE;
+	void Unset() override;
 
-	void OnAdd() CXX11_OVERRIDE;
+	void OnAdd() override;
 
-	const std::string& Displayable() CXX11_OVERRIDE;
+	const std::string& Displayable() override;
 
 	/** Ident mask (ident part only)
 	 */
@@ -309,13 +309,13 @@ class CoreExport ZLine : public XLine
 	{
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE;
+	bool Matches(User* u) override;
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE;
+	bool Matches(const std::string& str) override;
 
-	void Apply(User* u) CXX11_OVERRIDE;
+	void Apply(User* u) override;
 
-	const std::string& Displayable() CXX11_OVERRIDE;
+	const std::string& Displayable() override;
 
 	/** IP mask (no ident part)
 	 */
@@ -344,13 +344,13 @@ class CoreExport QLine : public XLine
 	~QLine()
 	{
 	}
-	bool Matches(User* u) CXX11_OVERRIDE;
+	bool Matches(User* u) override;
 
-	bool Matches(const std::string& str) CXX11_OVERRIDE;
+	bool Matches(const std::string& str) override;
 
-	void Apply(User* u) CXX11_OVERRIDE;
+	void Apply(User* u) override;
 
-	const std::string& Displayable() CXX11_OVERRIDE;
+	const std::string& Displayable() override;
 
 	/** Nickname mask
 	 */

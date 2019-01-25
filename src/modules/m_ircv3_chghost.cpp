@@ -42,17 +42,17 @@ class ModuleIRCv3ChgHost : public Module
 	{
 	}
 
-	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
+	void OnChangeIdent(User* user, const std::string& newident) override
 	{
 		DoChgHost(user, newident, user->GetDisplayedHost());
 	}
 
-	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE
+	void OnChangeHost(User* user, const std::string& newhost) override
 	{
 		DoChgHost(user, user->ident, newhost);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the chghost IRCv3 extension", VF_VENDOR);
 	}

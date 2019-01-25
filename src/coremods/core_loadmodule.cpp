@@ -33,7 +33,7 @@ class CommandLoadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /LOADMODULE
@@ -75,7 +75,7 @@ class CommandUnloadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
@@ -118,12 +118,12 @@ class CoreModLoadModule : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("security");
 		cmdunloadmod.allowcoreunload = tag->getBool("allowcoreunload");

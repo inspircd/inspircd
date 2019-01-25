@@ -107,7 +107,7 @@ class BindInterface : public LDAPInterface
 	{
 	}
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
+	void OnResult(const LDAPResult& r) override
 	{
 		User* user = ServerInstance->FindUUID(uid);
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
@@ -180,7 +180,7 @@ class BindInterface : public LDAPInterface
 		}
 	}
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
+	void OnError(const LDAPResult& err) override
 	{
 		if (checkingAttributes && --attrCount)
 			return;
@@ -214,7 +214,7 @@ class SearchInterface : public LDAPInterface
 	{
 	}
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
+	void OnResult(const LDAPResult& r) override
 	{
 		LocalUser* user = static_cast<LocalUser*>(ServerInstance->FindUUID(uid));
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
@@ -246,7 +246,7 @@ class SearchInterface : public LDAPInterface
 		delete this;
 	}
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
+	void OnError(const LDAPResult& err) override
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
 		User* user = ServerInstance->FindUUID(uid);
@@ -269,7 +269,7 @@ class AdminBindInterface : public LDAPInterface
 	{
 	}
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
+	void OnResult(const LDAPResult& r) override
 	{
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 		if (LDAP)
@@ -286,7 +286,7 @@ class AdminBindInterface : public LDAPInterface
 		delete this;
 	}
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
+	void OnError(const LDAPResult& err) override
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
 		delete this;
@@ -315,7 +315,7 @@ public:
 		vhosts = &ldapVhost;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
@@ -360,7 +360,7 @@ public:
 		}
 	}
 
-	void OnUserConnect(LocalUser *user) CXX11_OVERRIDE
+	void OnUserConnect(LocalUser *user) override
 	{
 		std::string* cc = ldapVhost.get(user);
 		if (cc)
@@ -370,7 +370,7 @@ public:
 		}
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		for (std::vector<std::string>::const_iterator i = allowpatterns.begin(); i != allowpatterns.end(); ++i)
 		{
@@ -433,12 +433,12 @@ public:
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
 	}

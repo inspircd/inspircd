@@ -40,10 +40,10 @@ class ServerCommand : public CommandBase
 
 	/** Register this object in the ServerCommandManager
 	 */
-	void RegisterService() CXX11_OVERRIDE;
+	void RegisterService() override;
 
 	virtual CmdResult Handle(User* user, Params& parameters) = 0;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
 	/**
 	 * Extract the TS from a string.
@@ -65,7 +65,7 @@ class UserOnlyServerCommand : public ServerCommand
 	UserOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
-	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, Params& parameters) override
 	{
 		RemoteUser* remoteuser = IS_REMOTE(user);
 		if (!remoteuser)
@@ -84,7 +84,7 @@ class ServerOnlyServerCommand : public ServerCommand
 	ServerOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
-	CmdResult Handle(User* user, CommandBase::Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, CommandBase::Params& parameters) override
 	{
 		if (!IS_SERVER(user))
 			throw ProtocolException("Invalid source");

@@ -31,7 +31,7 @@ class ModuleIRCv3EchoMessage : public Module
 	{
 	}
 
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		if (!cap.get(user) || !details.echo)
 			return;
@@ -64,14 +64,14 @@ class ModuleIRCv3EchoMessage : public Module
 		}
 	}
 
-	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		// Prevent spammers from knowing that their spam was blocked.
 		if (details.echo_original)
 			OnUserPostMessage(user, target, details);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the echo-message IRCv3 extension", VF_VENDOR);
 	}

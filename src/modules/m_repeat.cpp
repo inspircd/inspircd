@@ -127,7 +127,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	{
 	}
 
-	void OnUnset(User* source, Channel* chan) CXX11_OVERRIDE
+	void OnUnset(User* source, Channel* chan) override
 	{
 		// Unset the per-membership extension when the mode is removed
 		const Channel::MemberMap& users = chan->GetUsers();
@@ -135,7 +135,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 			MemberInfoExt.unset(i->second);
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		ChannelSettings settings;
 		if (!ParseSettings(source, parameter, settings))
@@ -361,12 +361,12 @@ class RepeatModule : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		rm.ReadConfig();
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL || !IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -405,12 +405,12 @@ class RepeatModule : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the +E channel mode - for blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
 	}

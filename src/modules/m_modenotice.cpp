@@ -28,7 +28,7 @@ class CommandModeNotice : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* src, const Params& parameters) override
 	{
 		std::string msg = "*** From " + src->nick + ": " + parameters[1];
 		int mlen = parameters[0].length();
@@ -47,7 +47,7 @@ next_user:	;
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_BCAST;
 	}
@@ -63,7 +63,7 @@ class ModuleModeNotice : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the /MODENOTICE command", VF_VENDOR);
 	}

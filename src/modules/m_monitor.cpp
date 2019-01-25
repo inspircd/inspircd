@@ -82,7 +82,7 @@ class IRCv3::Monitor::Manager
 			free(container, unset_raw(container));
 		}
 
-		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
 		{
 			std::string ret;
 			if (format == FORMAT_NETWORK)
@@ -99,9 +99,9 @@ class IRCv3::Monitor::Manager
 			return ret;
 		}
 
-		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
 
-		void free(Extensible* container, void* item) CXX11_OVERRIDE
+		void free(Extensible* container, void* item) override
 		{
 			delete static_cast<ExtData*>(item);
 		}
@@ -319,7 +319,7 @@ class CommandMonitor : public SplitCommand
 		syntax = "[C|L|S|+ <nick1>[,<nick2>]|- <nick1>[,<nick2>]";
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		char subcmd = toupper(parameters[0][0]);
 		if (subcmd == '+')
@@ -399,18 +399,18 @@ class ModuleMonitor : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("monitor");
 		cmd.maxmonitor = tag->getUInt("maxentries", 30, 1);
 	}
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
+	void OnPostConnect(User* user) override
 	{
 		SendAlert(RPL_MONONLINE, user->nick);
 	}
 
-	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		// Detect and ignore nickname case change
 		if (ServerInstance->FindNickOnly(oldnick) == user)
@@ -420,7 +420,7 @@ class ModuleMonitor : public Module
 		SendAlert(RPL_MONONLINE, user->nick);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
 		LocalUser* localuser = IS_LOCAL(user);
 		if (localuser)
@@ -428,12 +428,12 @@ class ModuleMonitor : public Module
 		SendAlert(RPL_MONOFFLINE, user->nick);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides MONITOR support", VF_VENDOR);
 	}

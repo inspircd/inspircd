@@ -38,12 +38,12 @@ class ModuleBotMode : public Module, public Whois::EventListener
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) override
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{

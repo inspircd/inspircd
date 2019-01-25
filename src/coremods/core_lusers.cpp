@@ -61,7 +61,7 @@ class CommandLusers : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** Handle /LUSERS
@@ -110,7 +110,7 @@ public:
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding) CXX11_OVERRIDE
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding) override
 	{
 		if (dest->registered != REG_ALL)
 			return;
@@ -151,20 +151,20 @@ class ModuleLusers : public Module
 	{
 	}
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
+	void OnPostConnect(User* user) override
 	{
 		counters.UpdateMaxUsers();
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible++;
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("LUSERS", VF_VENDOR | VF_CORE);
 	}

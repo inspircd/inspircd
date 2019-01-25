@@ -41,7 +41,7 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -98,7 +98,7 @@ class ModuleCensor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
@@ -120,7 +120,7 @@ class ModuleCensor : public Module
 		censors.swap(newcensors);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides user and channel +G mode",VF_VENDOR);
 	}

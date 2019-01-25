@@ -89,7 +89,7 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ipv4db = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD);
 		if (!ipv4db)
@@ -119,24 +119,24 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 			GeoIP_delete(ipv6db);
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus&) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("geoip");
 		extban = tag->getBool("extban");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		if (extban)
 			tokens["EXTBAN"].push_back('G');
 	}
 
-	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) override
 	{
 		if (extban && (mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
 		{
@@ -150,7 +150,7 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
 		std::string* cc = ext.get(user);
 		if (!cc)
@@ -167,14 +167,14 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 		return MOD_RES_DENY;
 	}
 
-	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
+	void OnSetUserIP(LocalUser* user) override
 	{
 		// If user has sent NICK/USER, re-set the ExtItem as this is likely CGI:IRC changing the IP
 		if (user->registered == REG_NICKUSER)
 			SetExt(user);
 	}
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) override
 	{
 		// If the extban is disabled we don't expose users location.
 		if (!extban)
@@ -187,7 +187,7 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 		whois.SendLine(RPL_WHOISCOUNTRY, *cc, "is located in this country");
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'G')
 			return MOD_RES_PASSTHRU;

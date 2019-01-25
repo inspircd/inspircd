@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE
+	bool IsCTCP(std::string& name, std::string& body) const override
 	{
 		if (!this->IsCTCP())
 			return false;
@@ -60,7 +60,7 @@ public:
 		return true;
 	}
 
-	bool IsCTCP(std::string& name) const CXX11_OVERRIDE
+	bool IsCTCP(std::string& name) const override
 	{
 		if (!this->IsCTCP())
 			return false;
@@ -79,7 +79,7 @@ public:
 		return true;
 	}
 
-	bool IsCTCP() const CXX11_OVERRIDE
+	bool IsCTCP() const override
 	{
 		// According to draft-oakley-irc-ctcp-02 a valid CTCP must begin with SOH and
 		// contain at least one octet which is not NUL, SOH, CR, LF, or SPACE. As most
@@ -130,7 +130,7 @@ class MessageCommandBase : public Command
 	 */
 	CmdResult HandleMessage(User* user, const Params& parameters, MessageType mt);
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if (IS_LOCAL(user))
 			// This is handled by the OnUserPostMessage hook to split the LoopCall pieces
@@ -333,7 +333,7 @@ class CommandMessage : public MessageCommandBase
 	{
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		return HandleMessage(user, parameters, MT);
 	}
@@ -350,7 +350,7 @@ class ModuleCoreMessage : public Module
 	{
 	}
 
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		// We only handle the idle times of local users.
 		LocalUser* luser = IS_LOCAL(user);
@@ -364,7 +364,7 @@ class ModuleCoreMessage : public Module
 		luser->idle_lastmsg = ServerInstance->Time();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("PRIVMSG, NOTICE", VF_CORE|VF_VENDOR);
 	}

@@ -42,9 +42,9 @@ class WebSocketHookProvider : public IOHookProvider
 	{
 	}
 
-	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
+	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
 
-	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
+	void OnConnect(StreamSocket* sock) override
 	{
 	}
 };
@@ -374,7 +374,7 @@ class WebSocketHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) CXX11_OVERRIDE
+	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
 	{
 		StreamSocket::SendQueue& mysendq = GetSendQ();
 
@@ -425,7 +425,7 @@ class WebSocketHook : public IOHookMiddle
 		return 1;
 	}
 
-	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) CXX11_OVERRIDE
+	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
 	{
 		if (state == STATE_HTTPREQ)
 		{
@@ -444,7 +444,7 @@ class WebSocketHook : public IOHookMiddle
 		return wsret;
 	}
 
-	void OnStreamSocketClose(StreamSocket* sock) CXX11_OVERRIDE
+	void OnStreamSocketClose(StreamSocket* sock) override
 	{
 	}
 };
@@ -467,7 +467,7 @@ class ModuleWebSocket : public Module
 		sha1 = &hash;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("wsorigin");
 		if (tags.first == tags.second)
@@ -491,7 +491,7 @@ class ModuleWebSocket : public Module
 		hookprov->allowedorigins.swap(allowedorigins);
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
+	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
 	{
 		if (type != ExtensionItem::EXT_USER)
 			return;
@@ -501,7 +501,7 @@ class ModuleWebSocket : public Module
 			ServerInstance->Users.QuitUser(user, "WebSocket module unloading");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides RFC 6455 WebSocket support", VF_VENDOR);
 	}

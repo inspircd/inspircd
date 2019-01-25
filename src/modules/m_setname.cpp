@@ -32,7 +32,7 @@ class CommandSetname : public Command
 		syntax = "<new real name>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
 		{
@@ -59,7 +59,7 @@ class ModuleSetName : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the SETNAME command", VF_VENDOR);
 	}

@@ -34,12 +34,12 @@ class ModuleNoNotice : public Module
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('T');
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		ModResult res;
 		if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
@@ -60,7 +60,7 @@ class ModuleNoNotice : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);
 	}

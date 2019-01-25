@@ -57,7 +57,7 @@ class RLine : public XLine
 		delete regex;
 	}
 
-	bool Matches(User* u) CXX11_OVERRIDE
+	bool Matches(User* u) override
 	{
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu && lu->exempt)
@@ -68,12 +68,12 @@ class RLine : public XLine
 		return (regex->Matches(host) || regex->Matches(ip));
 	}
 
-	bool Matches(const std::string& compare) CXX11_OVERRIDE
+	bool Matches(const std::string& compare) override
 	{
 		return regex->Matches(compare);
 	}
 
-	void Apply(User* u) CXX11_OVERRIDE
+	void Apply(User* u) override
 	{
 		if (ZlineOnMatch)
 		{
@@ -91,7 +91,7 @@ class RLine : public XLine
 		DefaultApply(u, "R", false);
 	}
 
-	const std::string& Displayable() CXX11_OVERRIDE
+	const std::string& Displayable() override
 	{
 		return matchtext;
 	}
@@ -114,7 +114,7 @@ class RLineFactory : public XLineFactory
 
 	/** Generate a RLine
 	 */
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		if (!rxfactory)
 		{
@@ -140,7 +140,7 @@ class CommandRLine : public Command
 		flags_needed = 'o'; this->syntax = "<regex> [<rline-duration>] :<reason>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 
 		if (parameters.size() >= 3)
@@ -203,7 +203,7 @@ class CommandRLine : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
@@ -231,7 +231,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
@@ -242,12 +242,12 @@ class ModuleRLine : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
+	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
@@ -261,7 +261,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 
@@ -294,7 +294,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		initing = false;
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'R')
 			return MOD_RES_PASSTHRU;
@@ -303,7 +303,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		return MOD_RES_DENY;
 	}
 
-	void OnUserPostNick(User *user, const std::string &oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User *user, const std::string &oldnick) override
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -320,7 +320,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		}
 	}
 
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
+	void OnBackgroundTimer(time_t curtime) override
 	{
 		if (added_zline)
 		{
@@ -329,7 +329,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		}
 	}
 
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
+	void OnUnloadModule(Module* mod) override
 	{
 		// If the regex engine became unavailable or has changed, remove all R-lines.
 		if (!rxfactory)
@@ -343,7 +343,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		}
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);

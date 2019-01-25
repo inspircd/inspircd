@@ -96,7 +96,7 @@ class ModuleSpanningTree
 	/** Constructor
 	 */
 	ModuleSpanningTree();
-	void init() CXX11_OVERRIDE;
+	void init() override;
 
 	/** Shows /LINKS
 	 */
@@ -148,36 +148,36 @@ class ModuleSpanningTree
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE;
-	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) CXX11_OVERRIDE;
-	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
-	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE;
-	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) CXX11_OVERRIDE;
-	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE;
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE;
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE;
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE;
-	void OnChangeHost(User* user, const std::string &newhost) CXX11_OVERRIDE;
-	void OnChangeRealName(User* user, const std::string& real) CXX11_OVERRIDE;
-	void OnChangeIdent(User* user, const std::string &ident) CXX11_OVERRIDE;
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE;
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE;
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE;
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE;
-	void OnPreRehash(User* user, const std::string &parameter) CXX11_OVERRIDE;
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
-	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE;
-	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
-	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE;
-	void OnUserAway(User* user) CXX11_OVERRIDE;
-	void OnUserBack(User* user) CXX11_OVERRIDE;
-	void OnLoadModule(Module* mod) CXX11_OVERRIDE;
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
-	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
-	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE;
-	CullResult cull() CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
+	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) override;
+	void OnUserConnect(LocalUser* source) override;
+	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) override;
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override;
+	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) override;
+	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
+	void OnBackgroundTimer(time_t curtime) override;
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override;
+	void OnChangeHost(User* user, const std::string &newhost) override;
+	void OnChangeRealName(User* user, const std::string& real) override;
+	void OnChangeIdent(User* user, const std::string &ident) override;
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override;
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) override;
+	void OnUserPostNick(User* user, const std::string &oldnick) override;
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) override;
+	void OnPreRehash(User* user, const std::string &parameter) override;
+	void ReadConfig(ConfigStatus& status) override;
+	void OnOper(User* user, const std::string &opertype) override;
+	void OnAddLine(User *u, XLine *x) override;
+	void OnDelLine(User *u, XLine *x) override;
+	ModResult OnStats(Stats::Context& stats) override;
+	void OnUserAway(User* user) override;
+	void OnUserBack(User* user) override;
+	void OnLoadModule(Module* mod) override;
+	void OnUnloadModule(Module* mod) override;
+	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
+	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override;
+	CullResult cull() override;
 	~ModuleSpanningTree();
-	Version GetVersion() CXX11_OVERRIDE;
-	void Prioritize() CXX11_OVERRIDE;
+	Version GetVersion() override;
+	void Prioritize() override;
 };

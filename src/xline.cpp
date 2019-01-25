@@ -34,7 +34,7 @@ class GLineFactory : public XLineFactory
 
 	/** Generate a GLine
 	 */
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
 		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
@@ -50,7 +50,7 @@ class ELineFactory : public XLineFactory
 
 	/** Generate an ELine
 	 */
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
 		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
@@ -66,7 +66,7 @@ class KLineFactory : public XLineFactory
 
 	/** Generate a KLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
         {
                 IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
                 return new KLine(set_time, duration, source, reason, ih.first, ih.second);
@@ -82,7 +82,7 @@ class QLineFactory : public XLineFactory
 
 	/** Generate a QLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
         {
                 return new QLine(set_time, duration, source, reason, xline_specific_mask);
         }
@@ -97,7 +97,7 @@ class ZLineFactory : public XLineFactory
 
 	/** Generate a ZLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
         {
                 return new ZLine(set_time, duration, source, reason, xline_specific_mask);
         }

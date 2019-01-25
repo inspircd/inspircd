@@ -44,7 +44,7 @@ class HideOperWatcher : public ModeWatcher
 
  public:
 	HideOperWatcher(ModuleOperPrefixMode* parent);
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding) CXX11_OVERRIDE;
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding) override;
 };
 
 class ModuleOperPrefixMode : public Module
@@ -64,14 +64,14 @@ class ModuleOperPrefixMode : public Module
 		 */
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		if ((user->IsOper()) && (!user->IsModeSet(hideopermode)))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
+	void OnPostJoin(Membership* memb) override
 	{
 		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
 			return;
@@ -93,18 +93,18 @@ class ModuleOperPrefixMode : public Module
 			ServerInstance->Modes->Process(ServerInstance->FakeClient, (*v)->chan, NULL, changelist);
 	}
 
-	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) CXX11_OVERRIDE
+	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) override
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
 		Module* opermodes = ServerInstance->Modules->Find("m_opermodes.so");

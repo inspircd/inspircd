@@ -31,7 +31,7 @@ class CommandRMode : public Command
 		syntax = "<channel> <mode> [pattern]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		ModeHandler* mh;
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
@@ -101,7 +101,7 @@ class ModuleRMode : public Module
  public:
 	ModuleRMode() : cmd(this) { }
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows glob-based removal of list modes", VF_VENDOR);
 	}

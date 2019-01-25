@@ -33,7 +33,7 @@ namespace
 		ClientProtocol::Messages::Quit operquitmsg;
 		ClientProtocol::Event operquitevent;
 
-		void Execute(LocalUser* user) CXX11_OVERRIDE
+		void Execute(LocalUser* user) override
 		{
 			user->Send(user->IsOper() ? operquitevent : quitevent);
 		}

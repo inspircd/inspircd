@@ -70,7 +70,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	 */
 	bool waitingcull;
 
-	bool Tick(time_t currtime) CXX11_OVERRIDE
+	bool Tick(time_t currtime) override
 	{
 		AddToCull();
 		return false;
@@ -216,7 +216,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		sockets.erase(this);
 	}
 
-	void OnError(BufferedSocketError) CXX11_OVERRIDE
+	void OnError(BufferedSocketError) override
 	{
 		AddToCull();
 	}
@@ -267,7 +267,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		WriteData("\r\n");
 	}
 
-	void OnDataReady() CXX11_OVERRIDE
+	void OnDataReady() override
 	{
 		if (parser.upgrade || HTTP_PARSER_ERRNO(&parser))
 			return;
@@ -319,7 +319,7 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 	{
 	}
 
-	void SendResponse(HTTPDocumentResponse& resp) CXX11_OVERRIDE
+	void SendResponse(HTTPDocumentResponse& resp) override
 	{
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
@@ -343,18 +343,18 @@ class ModuleHttpServer : public Module
 		HttpServerSocket::ConfigureParser();
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		HttpModule = this;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
 		timeoutsec = tag->getDuration("timeout", 10, 1);
 	}
 
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
 	{
 		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "httpd"))
 			return MOD_RES_PASSTHRU;
@@ -363,7 +363,7 @@ class ModuleHttpServer : public Module
 		return MOD_RES_ALLOW;
 	}
 
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
+	void OnUnloadModule(Module* mod) override
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{
@@ -377,7 +377,7 @@ class ModuleHttpServer : public Module
 		}
 	}
 
-	CullResult cull() CXX11_OVERRIDE
+	CullResult cull() override
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
@@ -387,7 +387,7 @@ class ModuleHttpServer : public Module
 		return Module::cull();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides HTTP serving facilities to modules", VF_VENDOR);
 	}

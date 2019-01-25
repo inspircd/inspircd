@@ -44,7 +44,7 @@ class CommandClones : public SplitCommand
 		syntax = "<limit>";
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		unsigned int limit = ConvToNum<unsigned int>(parameters[0]);
 
@@ -94,7 +94,7 @@ class ModuleClones : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);
 	}

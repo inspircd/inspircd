@@ -39,7 +39,7 @@ class StdRegex : public Regex
 		}
 	}
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
+	bool Matches(const std::string& text) override
 	{
 		return std::regex_search(text, regexcl);
 	}
@@ -50,7 +50,7 @@ class StdRegexFactory : public RegexFactory
  public:
 	std::regex::flag_type regextype;
 	StdRegexFactory(Module* m) : RegexFactory(m, "regex/stdregex") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
+	Regex* Create(const std::string& expr) override
 	{
 		return new StdRegex(expr, regextype);
 	}
@@ -64,12 +64,12 @@ public:
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Regex Provider Module for std::regex", VF_VENDOR);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
 		std::string regextype = Conf->getString("type", "ecmascript");

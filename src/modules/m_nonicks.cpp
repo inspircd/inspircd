@@ -33,17 +33,17 @@ class ModuleNoNickChange : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('N');
 	}
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
 		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{

@@ -32,8 +32,8 @@ namespace Cap
 	{
 	 public:
 		ExtItem(Module* mod);
-		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
-		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
+		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
 	};
 
 	class Capability;
@@ -134,7 +134,7 @@ namespace Cap
 		 */
 		dynamic_reference<Manager> manager;
 
-		void OnCapture() CXX11_OVERRIDE
+		void OnCapture() override
 		{
 			if (active)
 				SetActive(true);
@@ -181,7 +181,7 @@ namespace Cap
 			SetActive(false);
 		}
 
-		void RegisterService() CXX11_OVERRIDE
+		void RegisterService() override
 		{
 			manager.SetCaptureHook(this);
 			SetActive(true);

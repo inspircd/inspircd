@@ -28,12 +28,12 @@ static ClientProtocol::Serializer* dummyserializer;
 
 class DummySerializer : public ClientProtocol::Serializer
 {
- 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE
+ 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) override
  	{
  		return false;
  	}
 
-	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const CXX11_OVERRIDE
+	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const override
 	{
 		return ClientProtocol::SerializedMessage();
 	}
@@ -69,7 +69,7 @@ class CommandReloadmodule : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 namespace ReloadModule
@@ -712,7 +712,7 @@ class ReloadAction : public ActionBase
 	{
 	}
 
-	void Call() CXX11_OVERRIDE
+	void Call() override
 	{
 		ReloadModule::DataKeeper datakeeper;
 		datakeeper.Save(mod);
@@ -776,7 +776,7 @@ class CoreModReloadmodule : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the RELOADMODULE command", VF_CORE | VF_VENDOR);
 	}

@@ -39,7 +39,7 @@ class ChanFilter : public ListModeBase
 	{
 	}
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
+	bool ValidateParam(User* user, Channel* chan, std::string& word) override
 	{
 		if (word.length() > maxlen)
 		{
@@ -66,7 +66,7 @@ class ModuleChanFilter : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
 		hidemask = tag->getBool("hidemask");
@@ -75,7 +75,7 @@ class ModuleChanFilter : public Module
 		cf.DoRehash();
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -112,7 +112,7 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		// We don't send any link data if the length is 35 for compatibility with the 2.0 branch.
 		std::string maxfilterlen;

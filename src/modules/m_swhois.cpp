@@ -48,7 +48,7 @@ class CommandSwhois : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
@@ -103,7 +103,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric.GetNumeric() == 312)
@@ -120,7 +120,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
+	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -135,7 +135,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
 	}
 
-	void OnPostDeoper(User* user) CXX11_OVERRIDE
+	void OnPostDeoper(User* user) override
 	{
 		std::string* swhois = cmd.swhois.get(user);
 		if (!swhois)
@@ -149,14 +149,14 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		ServerInstance->PI->SendMetaData(user, "swhois", "");
 	}
 
-	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) CXX11_OVERRIDE
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) override
 	{
 		User* dest = static_cast<User*>(target);
 		if (dest && (extname == "swhois"))
 			cmd.operblock.set(dest, 0);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
 	}

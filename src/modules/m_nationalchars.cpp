@@ -253,7 +253,7 @@ class ModuleNationalChars : public Module
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
@@ -261,7 +261,7 @@ class ModuleNationalChars : public Module
 		ServerInstance->IsNick = &lwbNickHandler::Call;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
@@ -309,7 +309,7 @@ class ModuleNationalChars : public Module
 		CheckRehash();
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON, charset);
 	}

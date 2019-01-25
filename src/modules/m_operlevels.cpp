@@ -25,12 +25,12 @@
 class ModuleOperLevels : public Module
 {
 	public:
-		Version GetVersion() CXX11_OVERRIDE
+		Version GetVersion() override
 		{
 			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR);
 		}
 
-		ModResult OnKill(User* source, User* dest, const std::string &reason) CXX11_OVERRIDE
+		ModResult OnKill(User* source, User* dest, const std::string &reason) override
 		{
 			// oper killing an oper?
 			if (dest->IsOper() && source->IsOper())

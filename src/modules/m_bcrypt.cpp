@@ -50,12 +50,12 @@ class BCryptProvider : public HashProvider
 		return hash;
 	}
 
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
+	std::string GenerateRaw(const std::string& data) override
 	{
 		return Generate(data, Salt());
 	}
 
-	bool Compare(const std::string& input, const std::string& hash) CXX11_OVERRIDE
+	bool Compare(const std::string& input, const std::string& hash) override
 	{
 		std::string ret = Generate(input, hash);
 		if (ret.empty())
@@ -66,7 +66,7 @@ class BCryptProvider : public HashProvider
 		return false;
 	}
 
-	std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE
+	std::string ToPrintable(const std::string& raw) override
 	{
 		return raw;
 	}
@@ -87,13 +87,13 @@ class ModuleBCrypt : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
 		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Implements bcrypt hashing", VF_VENDOR);
 	}

@@ -35,12 +35,12 @@ class ShunFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		return new Shun(set_time, duration, source, reason, xline_specific_mask);
 	}
 
-	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
+	bool AutoApplyToUserList(XLine* x) override
 	{
 		return false;
 	}
@@ -56,7 +56,7 @@ class CommandShun : public Command
 		flags_needed = 'o'; this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -129,7 +129,7 @@ class CommandShun : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
@@ -153,7 +153,7 @@ class ModuleShun : public Module, public Stats::EventListener
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
@@ -164,13 +164,13 @@ class ModuleShun : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		Module* alias = ServerInstance->Modules->Find("m_alias.so");
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'H')
 			return MOD_RES_PASSTHRU;
@@ -179,7 +179,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		return MOD_RES_DENY;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 		std::string cmds = tag->getString("enabledcommands");
@@ -202,7 +202,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		affectopers = tag->getBool("affectopers", false);
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		if (validated)
 			return MOD_RES_PASSTHRU;
@@ -241,7 +241,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the /SHUN command, which stops a user from executing all except configured commands.",VF_VENDOR|VF_COMMON);
 	}

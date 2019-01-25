@@ -108,7 +108,7 @@ class CoreExport QueuedThread : public Thread
 		queue.Wakeup();
 		queue.Unlock();
 	}
-	void SetExitFlag() CXX11_OVERRIDE
+	void SetExitFlag() override
 	{
 		queue.Lock();
 		Thread::SetExitFlag();
@@ -157,7 +157,7 @@ class CoreExport SocketThread : public Thread
 		queue.Wakeup();
 		queue.Unlock();
 	}
-	void SetExitFlag() CXX11_OVERRIDE
+	void SetExitFlag() override
 	{
 		queue.Lock();
 		Thread::SetExitFlag();

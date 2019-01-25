@@ -33,32 +33,6 @@
 #endif
 
 /**
- * These macros enable the use of the C++11 override control keywords in
- * compilers which support them.
- */
-#if __cplusplus >= 201103L
-# define HAS_CXX11_FINAL_OVERRIDE
-#elif defined __clang__
-# if __has_feature(cxx_override_control)
-#  define HAS_CXX11_FINAL_OVERRIDE
-# endif
-#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-# if defined __GXX_EXPERIMENTAL_CXX0X__
-#  define HAS_CXX11_FINAL_OVERRIDE
-# endif
-#elif _MSC_VER >= 1700
-# define HAS_CXX11_FINAL_OVERRIDE
-#endif
-
-#if defined HAS_CXX11_FINAL_OVERRIDE
-# define CXX11_FINAL final
-# define CXX11_OVERRIDE override
-#else
-# define CXX11_FINAL
-# define CXX11_OVERRIDE
-#endif
-
-/**
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.
  */

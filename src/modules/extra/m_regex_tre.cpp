@@ -60,7 +60,7 @@ public:
 		regfree(&regbuf);
 	}
 
-	bool Matches(const std::string& text)  CXX11_OVERRIDE
+	bool Matches(const std::string& text)  override
 	{
 		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
@@ -70,7 +70,7 @@ class TREFactory : public RegexFactory
 {
  public:
 	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
+	Regex* Create(const std::string& expr) override
 	{
 		return new TRERegex(expr);
 	}
@@ -85,7 +85,7 @@ class ModuleRegexTRE : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
 	}

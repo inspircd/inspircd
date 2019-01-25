@@ -101,17 +101,17 @@ class ModuleHostCycle : public Module
 	{
 	}
 
-	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
+	void OnChangeIdent(User* user, const std::string& newident) override
 	{
 		DoHostCycle(user, newident, user->GetDisplayedHost(), quitmsgident);
 	}
 
-	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE
+	void OnChangeHost(User* user, const std::string& newhost) override
 	{
 		DoHostCycle(user, user->ident, newhost, quitmsghost);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Cycles users in all their channels when their host or ident changes", VF_VENDOR);
 	}

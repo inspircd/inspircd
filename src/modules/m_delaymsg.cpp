@@ -30,13 +30,13 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) CXX11_OVERRIDE
+	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) override
 	{
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}
 
-	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) CXX11_OVERRIDE;
-	void OnUnset(User* source, Channel* chan) CXX11_OVERRIDE;
+	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) override;
+	void OnUnset(User* source, Channel* chan) override;
 
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out)
 	{
@@ -53,10 +53,10 @@ class ModuleDelayMsg : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE;
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
+	Version GetVersion() override;
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) override;
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
+	void ReadConfig(ConfigStatus& status) override;
 };
 
 ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)

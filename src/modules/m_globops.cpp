@@ -33,7 +33,7 @@ class CommandGlobops : public Command
 		flags_needed = 'o'; syntax = "<any-text>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
 		return CMD_SUCCESS;
@@ -46,12 +46,12 @@ class ModuleGlobops : public Module
  public:
 	ModuleGlobops() : cmd(this) {}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
 	}

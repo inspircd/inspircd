@@ -37,7 +37,7 @@ class HideOper : public SimpleUserModeHandler
 		oper = true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
 		if (SimpleUserModeHandler::OnModeChange(source, dest, channel, parameter, adding) == MODEACTION_DENY)
 			return MODEACTION_DENY;
@@ -71,18 +71,18 @@ class ModuleHideOper
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
-	void OnUserQuit(User* user, const std::string&, const std::string&) CXX11_OVERRIDE
+	void OnUserQuit(User* user, const std::string&, const std::string&) override
 	{
 		if (user->IsModeSet(hm))
 			hm.opercount--;
 	}
 
-	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
 	{
 		if (numeric.GetNumeric() != RPL_LUSEROP || active || user->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU;
@@ -98,7 +98,7 @@ class ModuleHideOper
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
@@ -115,7 +115,7 @@ class ModuleHideOper
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
 	{
 		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{
@@ -153,7 +153,7 @@ class ModuleHideOper
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'P')
 			return MOD_RES_PASSTHRU;

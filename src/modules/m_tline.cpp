@@ -30,7 +30,7 @@ class CommandTline : public Command
 		flags_needed = 'o'; this->syntax = "<mask>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		unsigned int n_matched = 0;
 		unsigned int n_match_host = 0;
@@ -77,7 +77,7 @@ class ModuleTLine : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR);
 	}

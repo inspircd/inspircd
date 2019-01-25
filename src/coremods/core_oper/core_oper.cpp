@@ -40,7 +40,7 @@ class CoreModOper : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		
 		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
@@ -56,7 +56,7 @@ class CoreModOper : public Module
 		cmdkill.hideuline = security->getBool("hideulinekills");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);
 	}

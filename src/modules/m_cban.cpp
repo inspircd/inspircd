@@ -45,17 +45,17 @@ public:
 	}
 
 	// XXX I shouldn't have to define this
-	bool Matches(User* u) CXX11_OVERRIDE
+	bool Matches(User* u) override
 	{
 		return false;
 	}
 
-	bool Matches(const std::string& s) CXX11_OVERRIDE
+	bool Matches(const std::string& s) override
 	{
 		return irc::equals(matchtext, s);
 	}
 
-	const std::string& Displayable() CXX11_OVERRIDE
+	const std::string& Displayable() override
 	{
 		return matchtext;
 	}
@@ -70,12 +70,12 @@ class CBanFactory : public XLineFactory
 
 	/** Generate a CBAN
  	*/
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		return new CBan(set_time, duration, source, reason, xline_specific_mask);
 	}
 
-	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
+	bool AutoApplyToUserList(XLine* x) override
 	{
 		return false; // No, we apply to channels.
 	}
@@ -91,7 +91,7 @@ class CommandCBan : public Command
 		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -143,7 +143,7 @@ class CommandCBan : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if (IS_LOCAL(user))
 			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
@@ -164,7 +164,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 	{
 	}
 
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
@@ -175,7 +175,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
+	ModResult OnStats(Stats::Context& stats) override
 	{
 		if (stats.GetSymbol() != 'C')
 			return MOD_RES_PASSTHRU;
@@ -184,7 +184,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
@@ -200,7 +200,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Gives /cban, aka C-lines. Think Q-lines, for channels.", VF_COMMON | VF_VENDOR);
 	}

@@ -68,7 +68,7 @@ class CommandTban : public Command
 		syntax = "<channel> <duration> <banmask>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (!channel)
@@ -129,7 +129,7 @@ class CommandTban : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_BROADCAST;
 	}
@@ -143,7 +143,7 @@ class BanWatcher : public ModeWatcher
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding) CXX11_OVERRIDE
+	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding) override
 	{
 		if (adding)
 			return;
@@ -191,7 +191,7 @@ class ModuleTimedBans : public Module
 	{
 	}
 
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
+	void OnBackgroundTimer(time_t curtime) override
 	{
 		timedbans expired;
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
@@ -226,13 +226,13 @@ class ModuleTimedBans : public Module
 		}
 	}
 
-	void OnChannelDelete(Channel* chan) CXX11_OVERRIDE
+	void OnChannelDelete(Channel* chan) override
 	{
 		// Remove all timed bans affecting the channel from internal bookkeeping
 		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Adds timed bans", VF_COMMON | VF_VENDOR);
 	}

@@ -30,7 +30,7 @@ class ModuleIRCv3InviteNotify : public Module
 	{
 	}
 
-	void OnUserInvite(User* source, User* dest, Channel* chan, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts) CXX11_OVERRIDE
+	void OnUserInvite(User* source, User* dest, Channel* chan, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts) override
 	{
 		ClientProtocol::Messages::Invite invitemsg(source, dest, chan);
 		ClientProtocol::Event inviteevent(ServerInstance->GetRFCEvents().invite, invitemsg);
@@ -55,13 +55,13 @@ class ModuleIRCv3InviteNotify : public Module
 		}
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// Prioritize after all modules to see all excepted users
 		ServerInstance->Modules.SetPriority(this, I_OnUserInvite, PRIORITY_LAST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the invite-notify IRCv3 extension", VF_VENDOR);
 	}

@@ -33,7 +33,7 @@ class CommandSetident : public Command
 		flags_needed = 'o'; syntax = "<new-ident>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
@@ -63,7 +63,7 @@ class ModuleSetIdent : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for the SETIDENT command", VF_VENDOR);
 	}

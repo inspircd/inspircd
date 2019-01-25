@@ -34,14 +34,14 @@ class CommandOpermotd : public Command
 		flags_needed = 'o'; syntax = "[<servername>]";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if ((parameters.empty()) || (parameters[0] == ServerInstance->Config->ServerName))
 			ShowOperMOTD(user);
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))
 			return ROUTE_OPT_UCAST(parameters[0]);
@@ -79,18 +79,18 @@ class ModuleOpermotd : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
 	}
 
-	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE
+	void OnOper(User* user, const std::string &opertype) override
 	{
 		if (onoper && IS_LOCAL(user))
 			cmd.ShowOperMOTD(user);
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		cmd.opermotd.clear();
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");

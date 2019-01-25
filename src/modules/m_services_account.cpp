@@ -51,7 +51,7 @@ class Channel_r : public ModeHandler
  public:
 	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
 		// only a u-lined server may add or remove the +r mode.
 		if (!IS_LOCAL(source))
@@ -79,7 +79,7 @@ class User_r : public ModeHandler
  public:
 	User_r(Module* Creator) : ModeHandler(Creator, "u_registered", 'r', PARAM_NONE, MODETYPE_USER) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
 		if (!IS_LOCAL(source))
 		{
@@ -108,7 +108,7 @@ class AccountExtItemImpl : public AccountExtItem
 	{
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
 	{
 		User* user = static_cast<User*>(container);
 
@@ -164,14 +164,14 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('R');
 		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
+	void OnWhois(Whois::Context& whois) override
 	{
 		std::string* account = accountname.get(whois.GetTarget());
 
@@ -187,14 +187,14 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		}
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string &oldnick) override
 	{
 		/* On nickchange, if they have +r, remove it */
 		if ((user->IsModeSet(m5)) && (ServerInstance->FindNickOnly(oldnick) != user))
 			m5.RemoveMode(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -232,7 +232,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
 	{
 		if (checking_ban)
 			return MOD_RES_PASSTHRU;
@@ -268,7 +268,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
@@ -288,14 +288,14 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
 	}

@@ -35,7 +35,7 @@ class DelayJoinMode : public ModeHandler
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
 	void RevealUser(User* user, Channel* chan);
 };
 
@@ -59,7 +59,7 @@ class JoinHook : public ClientProtocol::EventHook
 	{
 	}
 
-	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override
 	{
 		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
 		const Membership* const memb = join.GetMember();
@@ -86,15 +86,15 @@ class ModuleDelayJoin : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE;
-	ModResult OnNamesListItem(User* issuer, Membership*, std::string& prefixes, std::string& nick) CXX11_OVERRIDE;
-	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;
+	Version GetVersion() override;
+	ModResult OnNamesListItem(User* issuer, Membership*, std::string& prefixes, std::string& nick) override;
+	void OnUserJoin(Membership*, bool, bool, CUList&) override;
 	void CleanUser(User* user);
-	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
-	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
-	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE;
-	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
+	void OnUserPart(Membership*, std::string &partmessage, CUList&) override;
+	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) override;
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override;
+	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
+	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) override;
 };
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)

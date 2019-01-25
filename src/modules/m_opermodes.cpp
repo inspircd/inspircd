@@ -25,12 +25,12 @@
 class ModuleModesOnOper : public Module
 {
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR);
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
+	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
 	{
 		if (!IS_LOCAL(user))
 			return;

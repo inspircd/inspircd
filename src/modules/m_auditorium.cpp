@@ -50,8 +50,8 @@ class JoinHook : public ClientProtocol::EventHook
 
  public:
 	JoinHook(ModuleAuditorium* mod);
-	void OnEventInit(const ClientProtocol::Event& ev) CXX11_OVERRIDE;
-	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) CXX11_OVERRIDE;
+	void OnEventInit(const ClientProtocol::Event& ev) override;
+	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override;
 };
 
 }
@@ -76,7 +76,7 @@ class ModuleAuditorium
 	{
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");
@@ -84,7 +84,7 @@ class ModuleAuditorium
 		OperCanSee = tag->getBool("opercansee", true);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list", VF_VENDOR);
 	}
@@ -118,7 +118,7 @@ class ModuleAuditorium
 		return false;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
 		if (IsVisible(memb))
 			return MOD_RES_PASSTHRU;
@@ -144,17 +144,17 @@ class ModuleAuditorium
 		}
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override
 	{
 		for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 		{
@@ -177,7 +177,7 @@ class ModuleAuditorium
 		}
 	}
 
-	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
 	{
 		if (!memb)
 			return MOD_RES_PASSTHRU;

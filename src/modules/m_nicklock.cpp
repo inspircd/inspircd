@@ -44,7 +44,7 @@ class CommandNicklock : public Command
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
@@ -84,7 +84,7 @@ class CommandNicklock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -104,7 +104,7 @@ class CommandNickunlock : public Command
 		TRANSLATE1(TR_NICK);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
@@ -131,7 +131,7 @@ class CommandNickunlock : public Command
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[0]);
 	}
@@ -150,12 +150,12 @@ class ModuleNickLock : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
 		if (locked.get(user))
 		{
@@ -165,7 +165,7 @@ class ModuleNickLock : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, nflood);

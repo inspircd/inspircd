@@ -39,12 +39,12 @@ public:
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('B');
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
@@ -101,7 +101,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
 		percent = tag->getUInt("percent", 100, 1, 100);
@@ -118,7 +118,7 @@ public:
 			uppercase.set(static_cast<unsigned char>(*iter));
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support to block all-CAPS channel messages and notices", VF_VENDOR);
 	}

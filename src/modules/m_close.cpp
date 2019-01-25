@@ -31,7 +31,7 @@ class CommandClose : public Command
 		flags_needed = 'o';
 	}
 
-	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* src, const Params& parameters) override
 	{
 		std::map<std::string,int> closed;
 
@@ -74,7 +74,7 @@ class ModuleClose : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides /CLOSE functionality", VF_VENDOR);
 	}

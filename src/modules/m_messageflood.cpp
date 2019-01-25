@@ -72,7 +72,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 	{
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
@@ -118,7 +118,7 @@ class ModuleMsgFlood : public Module
 	{
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -157,13 +157,13 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void Prioritize() CXX11_OVERRIDE
+	void Prioritize() override
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides channel mode +f (message flood protection)", VF_VENDOR);
 	}

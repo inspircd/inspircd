@@ -31,7 +31,7 @@ class CommandSakick : public Command
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* dest = ServerInstance->FindNick(parameters[1]);
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
@@ -73,7 +73,7 @@ class CommandSakick : public Command
 		return CMD_FAILURE;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		return ROUTE_OPT_UCAST(parameters[1]);
 	}
@@ -88,7 +88,7 @@ class ModuleSakick : public Module
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR);
 	}

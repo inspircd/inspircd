@@ -62,7 +62,7 @@ class WhoisContextImpl : public Whois::Context
 	}
 
 	using Whois::Context::SendLine;
-	void SendLine(Numeric::Numeric& numeric) CXX11_OVERRIDE;
+	void SendLine(Numeric::Numeric& numeric) override;
 };
 
 void WhoisContextImpl::SendLine(Numeric::Numeric& numeric)
@@ -115,8 +115,8 @@ class CommandWhois : public SplitCommand
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
-	CmdResult HandleRemote(RemoteUser* target, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
+	CmdResult HandleRemote(RemoteUser* target, const Params& parameters) override;
 };
 
 class WhoisNumericSink
@@ -353,7 +353,7 @@ class CoreModWhois : public Module
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus&) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
 		const std::string splitwhois = tag->getString("splitwhois", "no");
@@ -372,7 +372,7 @@ class CoreModWhois : public Module
 		cmd.splitwhois = newsplitstate;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the WHOIS command", VF_VENDOR|VF_CORE);
 	}

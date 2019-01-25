@@ -38,17 +38,17 @@ class ModuleNamesX
 	{
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["NAMESX"];
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
+	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		/* We don't actually create a proper command handler class for PROTOCTL,
 		 * because other modules might want to have PROTOCTL hooks too.
@@ -66,7 +66,7 @@ class ModuleNamesX
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
 		if (cap.get(issuer))
 			prefixes = memb->GetAllPrefixChars();
@@ -74,7 +74,7 @@ class ModuleNamesX
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
 	{
 		if ((!memb) || (!cap.get(source)))
 			return MOD_RES_PASSTHRU;

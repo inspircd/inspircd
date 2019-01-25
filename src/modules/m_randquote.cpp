@@ -31,7 +31,7 @@ class ModuleRandQuote : public Module
 	std::vector<std::string> quotes;
 
  public:
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
 		prefix = conf->getString("prefix");
@@ -40,7 +40,7 @@ class ModuleRandQuote : public Module
 		quotes = reader.GetVector();
 	}
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	void OnUserConnect(LocalUser* user) override
 	{
 		if (!quotes.empty())
 		{
@@ -49,7 +49,7 @@ class ModuleRandQuote : public Module
 		}
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides random quotes on connect.", VF_VENDOR);
 	}

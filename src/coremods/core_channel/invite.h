@@ -69,7 +69,7 @@ class Invite::ExtItem : public ExtensionItem
 			free(ext, store);
 	}
 
-	void free(Extensible* container, void* item) CXX11_OVERRIDE
+	void free(Extensible* container, void* item) override
 	{
 		Store<T>* store = static_cast<Store<T>*>(item);
 		for (typename Store<T>::List::iterator i = store->invites.begin(); i != store->invites.end(); )
@@ -83,7 +83,7 @@ class Invite::ExtItem : public ExtensionItem
 		delete store;
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
 	{
 		if (format == FORMAT_NETWORK)
 			return std::string();
@@ -100,7 +100,7 @@ class Invite::ExtItem : public ExtensionItem
 		return ret;
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
 	{
 		if ((ExtType != ExtensionItem::EXT_CHANNEL) && (format != FORMAT_NETWORK))
 			UnserializeInvite(static_cast<LocalUser*>(container), value);
@@ -115,10 +115,10 @@ class Invite::APIImpl : public APIBase
  public:
 	APIImpl(Module* owner);
 
-	void Create(LocalUser* user, Channel* chan, time_t timeout) CXX11_OVERRIDE;
-	Invite* Find(LocalUser* user, Channel* chan) CXX11_OVERRIDE;
-	bool Remove(LocalUser* user, Channel* chan) CXX11_OVERRIDE;
-	const List* GetList(LocalUser* user) CXX11_OVERRIDE;
+	void Create(LocalUser* user, Channel* chan, time_t timeout) override;
+	Invite* Find(LocalUser* user, Channel* chan) override;
+	bool Remove(LocalUser* user, Channel* chan) override;
+	const List* GetList(LocalUser* user) override;
 
 	void RemoveAll(LocalUser* user) { userext.unset(user); }
 	void RemoveAll(Channel* chan) { chanext.unset(chan); }

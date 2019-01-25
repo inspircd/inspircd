@@ -98,7 +98,7 @@ class CoreExport SocketTimeout : public Timer
 
 	/** Handle tick event
 	 */
-	bool Tick(time_t now) CXX11_OVERRIDE;
+	bool Tick(time_t now) override;
 };
 
 /**
@@ -287,16 +287,16 @@ class CoreExport StreamSocket : public EventHandler
 
 	/** Called by the socket engine on a read event
 	 */
-	void OnEventHandlerRead() CXX11_OVERRIDE;
+	void OnEventHandlerRead() override;
 
 	/** Called by the socket engine on a write event
 	 */
-	void OnEventHandlerWrite() CXX11_OVERRIDE;
+	void OnEventHandlerWrite() override;
 
 	/** Called by the socket engine on error
 	 * @param errcode Error
 	 */
-	void OnEventHandlerError(int errcode) CXX11_OVERRIDE;
+	void OnEventHandlerError(int errcode) override;
 
 	/** Sets the error message for this socket. Once set, the socket is dead. */
 	void SetError(const std::string& err) { if (error.empty()) error = err; }
@@ -335,7 +335,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
-	CullResult cull() CXX11_OVERRIDE;
+	CullResult cull() override;
 
 	/** Get the IOHook of a module attached to this socket
 	 * @param mod Module whose IOHook to return
@@ -395,7 +395,7 @@ class CoreExport BufferedSocket : public StreamSocket
 	/** When there is data waiting to be read on a socket, the OnDataReady()
 	 * method is called.
 	 */
-	void OnDataReady() CXX11_OVERRIDE = 0;
+	void OnDataReady() override = 0;
 
 	/**
 	 * When an outbound connection fails, and the attempt times out, you
@@ -410,7 +410,7 @@ class CoreExport BufferedSocket : public StreamSocket
 
 	virtual ~BufferedSocket();
  protected:
-	void OnEventHandlerWrite() CXX11_OVERRIDE;
+	void OnEventHandlerWrite() override;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout);
 	BufferedSocketError BeginConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip);
 };

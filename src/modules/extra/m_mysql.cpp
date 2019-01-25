@@ -112,11 +112,11 @@ class ModuleSQL : public Module
 	ConnMap connections; // main thread only
 
 	ModuleSQL();
-	void init() CXX11_OVERRIDE;
+	void init() override;
 	~ModuleSQL();
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
-	Version GetVersion() CXX11_OVERRIDE;
+	void ReadConfig(ConfigStatus& status) override;
+	void OnUnloadModule(Module* mod) override;
+	Version GetVersion() override;
 };
 
 class DispatcherThread : public SocketThread
@@ -126,8 +126,8 @@ class DispatcherThread : public SocketThread
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
-	void Run() CXX11_OVERRIDE;
-	void OnNotify() CXX11_OVERRIDE;
+	void Run() override;
+	void OnNotify() override;
 };
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -193,17 +193,17 @@ class MySQLresult : public SQL::Result
 
 	}
 
-	int Rows() CXX11_OVERRIDE
+	int Rows() override
 	{
 		return rows;
 	}
 
-	void GetCols(std::vector<std::string>& result) CXX11_OVERRIDE
+	void GetCols(std::vector<std::string>& result) override
 	{
 		result.assign(colnames.begin(), colnames.end());
 	}
 
-	bool HasColumn(const std::string& column, size_t& index) CXX11_OVERRIDE
+	bool HasColumn(const std::string& column, size_t& index) override
 	{
 		for (size_t i = 0; i < colnames.size(); ++i)
 		{
@@ -225,7 +225,7 @@ class MySQLresult : public SQL::Result
 		return SQL::Field();
 	}
 
-	bool GetRow(SQL::Row& result) CXX11_OVERRIDE
+	bool GetRow(SQL::Row& result) override
 	{
 		if (currentrow < rows)
 		{
@@ -332,14 +332,14 @@ class SQLConnection : public SQL::Provider
 		mysql_close(connection);
 	}
 
-	void Submit(SQL::Query* q, const std::string& qs) CXX11_OVERRIDE
+	void Submit(SQL::Query* q, const std::string& qs) override
 	{
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
-	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamList& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamList& p) override
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -366,7 +366,7 @@ class SQLConnection : public SQL::Provider
 		Submit(call, res);
 	}
 
-	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamMap& p) CXX11_OVERRIDE
+	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamMap& p) override
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)

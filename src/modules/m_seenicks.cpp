@@ -24,17 +24,17 @@
 class ModuleSeeNicks : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
+	void init() override
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides support for seeing local and remote nickchanges via snomasks", VF_VENDOR);
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
+	void OnUserPostNick(User* user, const std::string &oldnick) override
 	{
 		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
 	}

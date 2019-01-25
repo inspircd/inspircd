@@ -32,7 +32,7 @@ class CommandMkpasswd : public Command
 		Penalty = 5;
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (!parameters[0].compare(0, 5, "hmac-", 5))
 		{
@@ -82,7 +82,7 @@ class ModulePasswordHash : public Module
 	{
 	}
 
-	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE
+	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) override
 	{
 		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{
@@ -126,7 +126,7 @@ class ModulePasswordHash : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides the ability to hash passwords to other modules", VF_VENDOR);
 	}

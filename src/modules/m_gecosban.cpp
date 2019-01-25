@@ -22,12 +22,12 @@
 class ModuleGecosBan : public Module
 {
  public:
-	Version GetVersion() CXX11_OVERRIDE
+	Version GetVersion() override
 	{
 		return Version("Provides a way to ban users by their real name with the 'a' and 'r' extbans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
 	{
 		if ((mask.length() > 2) && (mask[1] == ':'))
 		{
@@ -55,7 +55,7 @@ class ModuleGecosBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["EXTBAN"].push_back('a');
 		tokens["EXTBAN"].push_back('r');
