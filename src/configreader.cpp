@@ -63,6 +63,7 @@ ServerConfig::ServerConfig()
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
 	, RawLog(false)
+	, CaseMapping("ascii")
 	, NoSnoticeStack(false)
 {
 }
@@ -321,14 +322,6 @@ void ServerConfig::Fill()
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
 			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
-
-		CaseMapping = options->getString("casemapping", "rfc1459");
-		if (CaseMapping == "ascii")
-			national_case_insensitive_map = ascii_case_insensitive_map;
-		else if (CaseMapping == "rfc1459")
-			national_case_insensitive_map = rfc_case_insensitive_map;
-		else
-			throw CoreException("<options:casemapping> must be set to 'ascii', or 'rfc1459'");
 	}
 	else
 	{
@@ -339,11 +332,6 @@ void ServerConfig::Fill()
 		std::string nsid = server->getString("id");
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
-
-		std::string casemapping = options->getString("casemapping");
-		if (!casemapping.empty() && casemapping != CaseMapping)
-			throw CoreException("You must restart to change the server casemapping");
-
 	}
 	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);

@@ -53,11 +53,6 @@
  */
 CoreExport extern unsigned const char *national_case_insensitive_map;
 
-/** A mapping of uppercase to lowercase, including scandinavian
- * 'oddities' as specified by RFC1459, e.g. { -> [, and | -> \
- */
-CoreExport extern unsigned const char rfc_case_insensitive_map[256];
-
 /** Case insensitive map, ASCII rules.
  * That is;
  * [ != {, but A == a.
