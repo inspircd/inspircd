@@ -21,9 +21,8 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-CommandRestart::CommandRestart(Module* parent, std::string& hashref)
+CommandRestart::CommandRestart(Module* parent)
 	: Command(parent, "RESTART", 1, 1)
-	, hash(hashref)
 {
 	flags_needed = 'o';
 	syntax = "<server>";
@@ -32,7 +31,7 @@ CommandRestart::CommandRestart(Module* parent, std::string& hashref)
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Restart: %s", user->nick.c_str());
-	if (ServerInstance->PassCompare(user, password, parameters[0], hash))
+	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 
