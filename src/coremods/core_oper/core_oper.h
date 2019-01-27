@@ -34,12 +34,9 @@ namespace DieRestart
 class CommandDie : public Command
 {
  public:
-	std::string& hash;
-	std::string password;
-
 	/** Constructor for die.
 	 */
-	CommandDie(Module* parent, std::string& hashref);
+	CommandDie(Module* parent);
 
 	/** Handle command.
 	 * @param parameters The parameters to the command
@@ -119,12 +116,9 @@ class CommandRehash : public Command
 class CommandRestart : public Command
 {
  public:
-	std::string& hash;
-	std::string password;
-
 	/** Constructor for restart.
 	 */
-	CommandRestart(Module* parent, std::string& hashref);
+	CommandRestart(Module* parent);
 
 	/** Handle command.
 	 * @param user User issuing the command
