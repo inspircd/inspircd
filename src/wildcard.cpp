@@ -107,21 +107,6 @@ bool InspIRCd::MatchCIDR(const char* str, const char* mask, unsigned const char*
 	return InspIRCd::Match(str, mask, map);
 }
 
-bool InspIRCd::MatchAny(const std::string& str, const std::string& values)
-{
-	return InspIRCd::MatchAny(str, irc::spacesepstream(values));
-}
-
-bool InspIRCd::MatchAny(const std::string& str, irc::sepstream values)
-{
-	std::string value;
-	while (values.GetToken(value))
-		if (stdalgo::string::equalsci(str, value))
-			return true;
-
-	return false;
-}
-
 bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr)
 {
 	irc::spacesepstream masklist(masks);
