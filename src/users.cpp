@@ -1013,7 +1013,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 	this->InvalidateCache();
 
-	if (IS_LOCAL(this))
+	if (IS_LOCAL(this) && this->registered != REG_NONE)
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->GetDisplayedHost(), "is now your displayed host");
 
 	return true;
