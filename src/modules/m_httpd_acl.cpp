@@ -113,7 +113,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
-				if (InspIRCd::Match(http->GetURI(), this_acl->path, ascii_case_insensitive_map))
+				if (InspIRCd::Match(http->GetPath(), this_acl->path, ascii_case_insensitive_map))
 				{
 					if (!this_acl->blacklist.empty())
 					{
@@ -126,7 +126,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
 								ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
-										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
+										http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
 								BlockAccess(http, 403);
 								return false;
 							}
@@ -148,7 +148,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 						if (!allow_access)
 						{
 							ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
-									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
+									http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
 							BlockAccess(http, 403);
 							return false;
 						}
@@ -157,7 +157,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 					{
 						/* Password auth, first look to see if we have a basic authentication header */
 						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Checking HTTP auth password for resource %s (matched by pattern %s) from ip %s, against username %s",
-								http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), this_acl->username.c_str());
+								http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), this_acl->username.c_str());
 
 						if (http->headers->IsSet("Authorization"))
 						{

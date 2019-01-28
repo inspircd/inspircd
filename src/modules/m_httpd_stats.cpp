@@ -287,13 +287,13 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 	ModResult HandleRequest(HTTPRequest* http)
 	{
-		std::string uri = http->GetURI();
+		std::string path = http->GetPath();
 
-		if (uri != "/stats" && uri.substr(0, 7) != "/stats/")
+		if (path != "/stats" && path.substr(0, 7) != "/stats/")
 			return MOD_RES_PASSTHRU;
 
-		if (uri[uri.size() - 1] == '/')
-			uri.erase(uri.size() - 1, 1);
+		if (path[path.size() - 1] == '/')
+			path.erase(path.size() - 1, 1);
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 
@@ -301,18 +301,18 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		std::stringstream data;
 		data << "<inspircdstats>";
 
-		if (uri == "/stats")
+		if (path == "/stats")
 		{
 			data << Stats::ServerInfo << Stats::General
 				<< Stats::XLines << Stats::Modules
 				<< Stats::Channels << Stats::Users
 				<< Stats::Servers << Stats::Commands;
 		}
-		else if (uri == "/stats/general")
+		else if (path == "/stats/general")
 		{
 			data << Stats::General;
 		}
-		else if (uri == "/stats/users")
+		else if (path == "/stats/users")
 		{
 			data << Stats::Users;
 		}

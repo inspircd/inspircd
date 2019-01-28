@@ -34,7 +34,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 
 	ModResult OnHTTPRequest(HTTPRequest& request) CXX11_OVERRIDE
 	{
-		if ((request.GetURI() != "/config") && (request.GetURI() != "/config/"))
+		if ((request.GetPath() != "/config") && (request.GetPath() != "/config/"))
 			return MOD_RES_PASSTHRU;
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");

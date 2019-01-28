@@ -25,10 +25,50 @@
 
 #include "base.h"
 #include "event.h"
+#include "http_parser.h"
 
 #include <string>
 #include <sstream>
 #include <map>
+
+struct HTTPRequestURI
+{
+	std::string path;
+	insp::flat_multimap<std::string, std::string> query_params;
+	std::string fragment;
+
+	HTTPRequestURI(const std::string& uri)
+	{
+		http_parser_url url;
+		http_parser_url_init(&url);
+		http_parser_parse_url(uri.c_str(), uri.size(), 0, &url);
+		if (url.field_set & (1 << UF_PATH))
+			path = uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
+
+		if (url.field_set & (1 << UF_FRAGMENT))
+			fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
+
+		std::string param_str;
+		if (url.field_set & (1 << UF_QUERY))
+			param_str = uri.substr(url.field_data[UF_QUERY].off, url.field_data[UF_QUERY].len);
+
+		irc::sepstream param_stream(param_str, '&');
+		std::string token;
+		std::string::size_type eq_pos;
+		while (param_stream.GetToken(token))
+		{
+			eq_pos = token.find('=');
+			if (eq_pos == std::string::npos)
+			{
+				query_params.insert(std::make_pair(token, ""));
+			}
+			else
+			{
+				query_params.insert(std::make_pair(token.substr(0, eq_pos), token.substr(eq_pos + 1)));
+			}
+		}
+	}
+};
 
 /** A modifyable list of HTTP header fields
  */
@@ -115,6 +155,7 @@ class HTTPRequest
 	std::string document;
 	std::string ipaddr;
 	std::string postdata;
+	HTTPRequestURI parseduri;
 
  public:
 
@@ -137,7 +178,13 @@ class HTTPRequest
 	 */
 	HTTPRequest(const std::string& request_type, const std::string& uri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
-		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
+		: type(request_type)
+		, document(uri)
+		, ipaddr(ip)
+		, postdata(pdata)
+		, parseduri(uri)
+		, headers(hdr)
+		, sock(socket)
 	{
 	}
 
@@ -166,6 +213,16 @@ class HTTPRequest
 	std::string& GetURI()
 	{
 		return document;
+	}
+
+	HTTPRequestURI& GetParsedURI()
+	{
+		return parseduri;
+	}
+
+	std::string& GetPath()
+	{
+		return GetParsedURI().path;
 	}
 
 	/** Get IP address of requester.
