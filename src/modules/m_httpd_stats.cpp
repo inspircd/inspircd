@@ -124,6 +124,7 @@ namespace Stats
 		data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
 		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
 		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
+		data << "<currenttime>" << ServerInstance->Time() << "</currenttime>";
 
 		data << ISupport;
 		return data << "</general>";
@@ -209,10 +210,14 @@ namespace Stats
 		{
 			User* u = i->second;
 
+			if (u->registered != REG_ALL)
+				continue;
+
 			data << "<user>";
 			data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
 				<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
-				<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server>";
+				<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server><signon>"
+				<< u->signon << "</signon><age>" << u->age << "</age>";
 			if (u->IsAway())
 				data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
 			if (u->IsOper())
@@ -220,8 +225,10 @@ namespace Stats
 			data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
 			LocalUser* lu = IS_LOCAL(u);
 			if (lu)
-				data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
-					<< lu->server_sa.str() << "</servaddr>";
+				data << "<local/><port>" << lu->GetServerPort() << "</port><servaddr>"
+					<< lu->server_sa.str() << "</servaddr><connectclass>"
+					<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
+					<< lu->idle_lastmsg << "</lastmsg>";
 			data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
 
 			DumpMeta(data, u);
