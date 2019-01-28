@@ -1931,9 +1931,9 @@
 # operonly - Whether the SETNAME command should only be usable by     #
 #            server operators. Defaults to no.                        #
 #                                                                     #
-# notifyopers - Whether to send a snotice to snomask `a` when the     #
-#               server operators. Defaults to to yes if oper-only and #
-#               no if usable by everyone.                             #
+# notifyopers - Whether to send a snotice to snomask `a` when a user  #
+#               changes their real name. Defaults to to yes if        #
+#               oper-only and no if usable by everyone.               #
 #                                                                     #
 #<setname notifyopers="yes"                                           #
 #         operonly="no">                                              #
