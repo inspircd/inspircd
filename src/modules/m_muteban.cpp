@@ -22,7 +22,16 @@
 
 class ModuleQuietBan : public Module
 {
+ private:
+	bool notifyuser;
+
  public:
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
+		notifyuser = tag->getBool("notifyuser", true);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
@@ -36,7 +45,6 @@ class ModuleQuietBan : public Module
 		Channel* chan = target.Get<Channel>();
 		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			bool notifyuser = ServerInstance->Config->ConfValue("muteban")->getBool("notifyuser", true);
 			if (!notifyuser)
 			{
 				details.echo_original = true;
