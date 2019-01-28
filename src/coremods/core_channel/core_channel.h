@@ -179,6 +179,7 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;
 	ModeAction OnSet(User* source, Channel* chan, std::string& param) CXX11_OVERRIDE;
+	bool IsParameterSecret() CXX11_OVERRIDE;
 };
 
 /** Channel mode +l

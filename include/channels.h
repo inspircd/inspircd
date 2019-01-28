@@ -248,11 +248,11 @@ class CoreExport Channel : public Extensible
 	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = CUList());
 
 	/** Return the channel's modes with parameters.
-	 * @param showkey If this is set to true, the actual key is shown,
-	 * otherwise it is replaced with '&lt;KEY&gt;'
+	 * @param showsecret If this is set to true, the value of secret parameters
+	 * are shown, otherwise they are replaced with '&lt;name&gt;'.
 	 * @return The channel mode string
 	 */
-	const char* ChanModes(bool showkey);
+	const char* ChanModes(bool showsecret);
 
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up

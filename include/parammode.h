@@ -31,6 +31,7 @@ class CoreExport ParamModeBase : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE;
 
 	// Does nothing by default
+	virtual bool IsParameterSecret() { return false; }
 	virtual void OnUnset(User* source, Channel* chan) { }
 	virtual ModeAction OnSet(User* source, Channel* chan, std::string& param) = 0;
 	virtual void GetParameter(Channel* chan, std::string& out) = 0;
