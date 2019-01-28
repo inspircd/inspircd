@@ -142,7 +142,7 @@ class CommandCheck : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CMD_SUCCESS;
 
 		User *targuser;
