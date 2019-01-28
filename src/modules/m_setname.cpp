@@ -64,7 +64,7 @@ class ModuleSetName : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("cgiirc");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("setname");
 
 		// Whether the module should only be usable by server operators.
 		bool operonly = tag->getBool("operonly");
