@@ -25,7 +25,6 @@
 
 #include "base.h"
 #include "event.h"
-#include "http_parser.h"
 
 #include <string>
 #include <sstream>
@@ -85,38 +84,6 @@ struct HTTPRequestURI
 	std::string path;
 	HTTPQueryParameters query_params;
 	std::string fragment;
-
-	HTTPRequestURI(const std::string& uri)
-	{
-		http_parser_url url;
-		http_parser_url_init(&url);
-		http_parser_parse_url(uri.c_str(), uri.size(), 0, &url);
-		if (url.field_set & (1 << UF_PATH))
-			path = uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
-
-		if (url.field_set & (1 << UF_FRAGMENT))
-			fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
-
-		std::string param_str;
-		if (url.field_set & (1 << UF_QUERY))
-			param_str = uri.substr(url.field_data[UF_QUERY].off, url.field_data[UF_QUERY].len);
-
-		irc::sepstream param_stream(param_str, '&');
-		std::string token;
-		std::string::size_type eq_pos;
-		while (param_stream.GetToken(token))
-		{
-			eq_pos = token.find('=');
-			if (eq_pos == std::string::npos)
-			{
-				query_params.insert(std::make_pair(token, ""));
-			}
-			else
-			{
-				query_params.insert(std::make_pair(token.substr(0, eq_pos), token.substr(eq_pos + 1)));
-			}
-		}
-	}
 };
 
 /** A modifyable list of HTTP header fields
@@ -225,13 +192,13 @@ class HTTPRequest
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(const std::string& request_type, const std::string& uri,
+	HTTPRequest(const std::string& request_type, const std::string& uri, const HTTPRequestURI& Parseduri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
 		: type(request_type)
 		, document(uri)
 		, ipaddr(ip)
 		, postdata(pdata)
-		, parseduri(uri)
+		, parseduri(Parseduri)
 		, headers(hdr)
 		, sock(socket)
 	{
