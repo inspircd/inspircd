@@ -283,17 +283,134 @@ namespace Stats
 		}
 		return data << "</commandlist>";
 	}
+
+	enum OrderBy
+	{
+		OB_NICK,
+		OB_LASTMSG,
+
+		OB_NONE
+	};
+
+	struct UserSorter
+	{
+		OrderBy order;
+		bool desc;
+
+		UserSorter(OrderBy Order, bool Desc = false) : order(Order), desc(Desc) {}
+
+		template <typename T>
+		inline bool Compare(const T& a, const T& b)
+		{
+			return desc ? a > b : a < b;
+		}
+
+		bool operator()(User* u1, User* u2)
+		{
+			switch (order) {
+				case OB_LASTMSG:
+					return Compare(IS_LOCAL(u1)->idle_lastmsg, IS_LOCAL(u2)->idle_lastmsg);
+					break;
+				case OB_NICK:
+					return Compare(u1->nick, u2->nick);
+					break;
+				default:
+				case OB_NONE:
+					return false;
+					break;
+			}
+		}
+	};
+
+	std::ostream& ListUsers(std::ostream& data, const HTTPQueryParameters& params)
+	{
+		if (params.empty())
+			return Users(data);
+
+		data << "<userlist>";
+
+		// Filters
+		size_t limit = params.getNum<size_t>("limit");
+		bool showunreg = params.getBool("showunreg");
+		bool localonly = params.getBool("localonly");
+
+		// Minimum time since a user's last message
+		unsigned long min_idle = params.getDuration("minidle");
+		time_t maxlastmsg = ServerInstance->Time() - min_idle;
+
+		if (min_idle)
+			// We can only check idle times on local users
+			localonly = true;
+
+		// Sorting
+		const std::string& sortmethod = params.getString("sortby");
+		bool desc = params.getBool("desc", false);
+
+		OrderBy orderby;
+		if (stdalgo::string::equalsci(sortmethod, "nick"))
+			orderby = OB_NICK;
+		else if (stdalgo::string::equalsci(sortmethod, "lastmsg"))
+		{
+			orderby = OB_LASTMSG;
+			// We can only check idle times on local users
+			localonly = true;
+		}
+		else
+			orderby = OB_NONE;
+
+		typedef std::list<User*> NewUserList;
+		NewUserList user_list;
+		user_hash users = ServerInstance->Users->GetUsers();
+		for (user_hash::iterator i = users.begin(); i != users.end(); ++i)
+		{
+			User* u = i->second;
+			if (!showunreg && u->registered != REG_ALL)
+				continue;
+
+			LocalUser* lu = IS_LOCAL(u);
+			if (localonly && !lu)
+				continue;
+
+			if (min_idle && lu->idle_lastmsg > maxlastmsg)
+				continue;
+
+			user_list.push_back(u);
+		}
+
+		UserSorter sorter(orderby, desc);
+		if (sorter.order != OB_NONE && !(!localonly && sorter.order == OB_LASTMSG))
+			user_list.sort(sorter);
+
+		size_t count = 0;
+		for (NewUserList::const_iterator i = user_list.begin(); i != user_list.end() && (!limit || count < limit); ++i, ++count)
+			DumpUser(data, *i);
+
+		data << "</userlist>";
+		return data;
+	}
 }
 
 class ModuleHttpStats : public Module, public HTTPRequestEventListener
 {
 	HTTPdAPI API;
+	bool enableparams;
 
  public:
 	ModuleHttpStats()
 		: HTTPRequestEventListener(this)
 		, API(this)
+		, enableparams(false)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* conf = ServerInstance->Config->ConfValue("httpstats");
+
+		// Parameterized queries may cause a performance issue
+		// Due to the sheer volume of data
+		// So default them to disabled
+		enableparams = conf->getBool("enableparams");
 	}
 
 	ModResult HandleRequest(HTTPRequest* http)
@@ -325,7 +442,10 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		}
 		else if (path == "/stats/users")
 		{
-			data << Stats::Users;
+			if (enableparams)
+				Stats::ListUsers(data, http->GetParsedURI().query_params);
+			else
+				data << Stats::Users;
 		}
 		else
 		{
