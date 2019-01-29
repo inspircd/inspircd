@@ -25,7 +25,7 @@
 /// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
 
 /// $PackageInfo: require_system("centos") openssl-devel pkgconfig
-/// $PackageInfo: require_system("darwin") openssl pkg-config
+/// $PackageInfo: require_system("darwin") openssl@1.1 pkg-config
 /// $PackageInfo: require_system("debian") libssl-dev openssl pkg-config
 /// $PackageInfo: require_system("ubuntu") libssl-dev openssl pkg-config
 
@@ -41,29 +41,6 @@
 #ifdef _WIN32
 # pragma comment(lib, "ssleay32.lib")
 # pragma comment(lib, "libeay32.lib")
-#endif
-
-// Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
-#if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
-
-// BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0.
-# define BIO_get_data(BIO) BIO->ptr
-# define BIO_set_data(BIO, VALUE) BIO->ptr = VALUE;
-# define BIO_set_init(BIO, VALUE) BIO->init = VALUE;
-
-// These functions have been renamed in OpenSSL 1.1.
-# define OpenSSL_version SSLeay_version
-# define X509_getm_notAfter X509_get_notAfter
-# define X509_getm_notBefore X509_get_notBefore
-# define OPENSSL_init_ssl(OPTIONS, SETTINGS) \
-	SSL_library_init(); \
-	SSL_load_error_strings();
-
-// These macros have been renamed in OpenSSL 1.1.
-# define OPENSSL_VERSION SSLEAY_VERSION
-
-#else
-# define INSPIRCD_OPENSSL_OPAQUE_BIO
 #endif
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
@@ -446,7 +423,6 @@ namespace OpenSSL
 		static int read(BIO* bio, char* buf, int len);
 		static int write(BIO* bio, const char* buf, int len);
 
-#ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		static BIO_METHOD* alloc()
 		{
 			BIO_METHOD* meth = BIO_meth_new(100 | BIO_TYPE_SOURCE_SINK, "inspircd");
@@ -457,29 +433,10 @@ namespace OpenSSL
 			BIO_meth_set_destroy(meth, OpenSSL::BIOMethod::destroy);
 			return meth;
 		}
-#endif
 	}
 }
 
-// BIO_METHOD is opaque in OpenSSL 1.1 so we can't do this.
-// See OpenSSL::BIOMethod::alloc for the new method.
-#ifndef INSPIRCD_OPENSSL_OPAQUE_BIO
-static BIO_METHOD biomethods =
-{
-	(100 | BIO_TYPE_SOURCE_SINK),
-	"inspircd",
-	OpenSSL::BIOMethod::write,
-	OpenSSL::BIOMethod::read,
-	NULL, // puts
-	NULL, // gets
-	OpenSSL::BIOMethod::ctrl,
-	OpenSSL::BIOMethod::create,
-	OpenSSL::BIOMethod::destroy, // destroy, does nothing, see function body for more info
-	NULL // callback_ctrl
-};
-#else
 static BIO_METHOD* biomethods;
-#endif
 
 static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 {
@@ -670,11 +627,7 @@ class OpenSSLIOHook : public SSLIOHook
 		, data_to_write(false)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
-#ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		BIO* bio = BIO_new(biomethods);
-#else
-		BIO* bio = BIO_new(&biomethods);
-#endif
 		BIO_set_data(bio, sock);
 		SSL_set_bio(sess, bio, bio);
 
@@ -988,14 +941,12 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, NULL);
-#ifdef INSPIRCD_OPENSSL_OPAQUE_BIO
 		biomethods = OpenSSL::BIOMethod::alloc();
 	}
 
 	~ModuleSSLOpenSSL()
 	{
 		BIO_meth_free(biomethods);
-#endif
 	}
 
 	void init() override

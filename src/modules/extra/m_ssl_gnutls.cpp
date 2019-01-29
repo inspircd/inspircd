@@ -21,43 +21,24 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("gnutls")
-/// $CompilerFlags: require_version("gnutls" "1.0" "2.12") execute("libgcrypt-config --cflags" "LIBGCRYPT_CXXFLAGS")
 
 /// $LinkerFlags: find_linker_flags("gnutls" "-lgnutls")
-/// $LinkerFlags: require_version("gnutls" "1.0" "2.12") execute("libgcrypt-config --libs" "LIBGCRYPT_LDFLAGS")
 
 /// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
-/// $PackageInfo: require_system("debian" "1.0" "7.99") libgcrypt11-dev
 /// $PackageInfo: require_system("debian") gnutls-bin libgnutls28-dev pkg-config
-/// $PackageInfo: require_system("ubuntu" "1.0" "13.10") libgcrypt11-dev
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls-dev pkg-config
 
 #include "inspircd.h"
 #include "modules/ssl.h"
 #include <memory>
 
+#include <gnutls/crypto.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#ifndef GNUTLS_VERSION_NUMBER
-#define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
-#define GNUTLS_VERSION LIBGNUTLS_VERSION
-#endif
-
 // Check if the GnuTLS library is at least version major.minor.patch
 #define INSPIRCD_GNUTLS_HAS_VERSION(major, minor, patch) (GNUTLS_VERSION_NUMBER >= ((major << 16) | (minor << 8) | patch))
-
-#if INSPIRCD_GNUTLS_HAS_VERSION(2, 9, 8)
-#define GNUTLS_HAS_MAC_GET_ID
-#include <gnutls/crypto.h>
-#endif
-
-#if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
-# define GNUTLS_HAS_RND
-#else
-# include <gcrypt.h>
-#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls-30.lib")
@@ -70,24 +51,8 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
-#if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
-#define INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
-#define GNUTLS_NEW_CERT_CALLBACK_API
-typedef gnutls_retr2_st cert_cb_last_param_type;
-#else
-typedef gnutls_retr_st cert_cb_last_param_type;
-#endif
-
 #if INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
 #define INSPIRCD_GNUTLS_HAS_RECV_PACKET
-#endif
-
-#if INSPIRCD_GNUTLS_HAS_VERSION(2, 99, 0)
-// The second parameter of gnutls_init() has changed in 2.99.0 from gnutls_connection_end_t to unsigned int
-// (it became a general flags parameter) and the enum has been deprecated and generates a warning on use.
-typedef unsigned int inspircd_gnutls_session_init_flags_t;
-#else
-typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 #endif
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(3, 1, 9)
@@ -96,21 +61,13 @@ typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
 
 static Module* thismod;
 
-class RandGen
-{
- public:
-	static void Call(char* buffer, size_t len)
-	{
-#ifdef GNUTLS_HAS_RND
-		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
-#else
-		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
-#endif
-	}
-};
-
 namespace GnuTLS
 {
+	void GenRandom(char* buffer, size_t len)
+	{
+		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
+	}
+
 	class Init
 	{
 	 public:
@@ -159,8 +116,6 @@ namespace GnuTLS
 		// Nothing to deallocate, constructor may throw freely
 		Hash(const std::string& hashname)
 		{
-			// As older versions of gnutls can't do this, let's disable it where needed.
-#ifdef GNUTLS_HAS_MAC_GET_ID
 			// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
 			// There is no gnutls_dig_get_id() at the moment, but it may come later
 			hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
@@ -172,18 +127,6 @@ namespace GnuTLS
 			if (gnutls_hash_init(&is_digest, hash) < 0)
 				throw Exception("Unknown hash type " + hashname);
 			gnutls_hash_deinit(is_digest, NULL);
-#else
-			if (stdalgo::string::equalsci(hashname, "md5"))
-				hash = GNUTLS_DIG_MD5;
-			else if (stdalgo::string::equalsci(hashname, "sha1"))
-				hash = GNUTLS_DIG_SHA1;
-#ifdef INSPIRCD_GNUTLS_ENABLE_SHA256_FINGERPRINT
-			else if (stdalgo::string::equalsci(hashname, "sha256"))
-				hash = GNUTLS_DIG_SHA256;
-#endif
-			else
-				throw Exception("Unknown hash type " + hashname);
-#endif
 		}
 
 		gnutls_digest_algorithm_t get() const { return hash; }
@@ -464,7 +407,7 @@ namespace GnuTLS
 		 */
 		std::shared_ptr<X509CRL> crl;
 
-		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
+		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, gnutls_retr2_st* st);
 
 	 public:
 		X509Credentials(const std::string& certstr, const std::string& keystr)
@@ -475,11 +418,7 @@ namespace GnuTLS
 			int ret = gnutls_certificate_set_x509_key(cred, certs.raw(), certs.size(), key.get());
 			ThrowOnError(ret, "Unable to set cert/key pair");
 
-#ifdef GNUTLS_NEW_CERT_CALLBACK_API
 			gnutls_certificate_set_retrieve_function(cred, cert_callback);
-#else
-			gnutls_certificate_client_set_retrieve_function(cred, cert_callback);
-#endif
 		}
 
 		/** Sets the trusted CA and the certificate revocation list
@@ -959,8 +898,6 @@ info_done_dealloc:
 			SocketEngine::ChangeEventMask(sock, FD_READ_WILL_BLOCK);
 		return rv;
 	}
-
-#ifdef INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 	static ssize_t VectorPush(gnutls_transport_ptr_t transportptr, const giovec_t* iov, int iovcnt)
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(transportptr);
@@ -995,46 +932,8 @@ info_done_dealloc:
 		return ret;
 	}
 
-#else // INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
-	static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t session_wrap, const void* buffer, size_t size)
-	{
-		StreamSocket* sock = reinterpret_cast<StreamSocket*>(session_wrap);
-#ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
-#endif
-
-		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
-		{
-#ifdef _WIN32
-			gnutls_transport_set_errno(session->sess, EAGAIN);
-#else
-			errno = EAGAIN;
-#endif
-			return -1;
-		}
-
-		int rv = SocketEngine::Send(sock, reinterpret_cast<const char *>(buffer), size, 0);
-
-#ifdef _WIN32
-		if (rv < 0)
-		{
-			/* Windows doesn't use errno, but gnutls does, so check SocketEngine::IgnoreError()
-			 * and then set errno appropriately.
-			 * The gnutls library may also have a different errno variable than us, see
-			 * gnutls_transport_set_errno(3).
-			 */
-			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
-		}
-#endif
-
-		if (rv < (int)size)
-			SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
-		return rv;
-	}
-#endif // INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
-
  public:
-	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags)
+	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, unsigned int flags)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
 		, status(ISSL_NONE)
@@ -1044,11 +943,7 @@ info_done_dealloc:
 	{
 		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
-#ifdef INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 		gnutls_transport_set_vec_push_function(sess, VectorPush);
-#else
-		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
-#endif
 		gnutls_transport_set_pull_function(sess, gnutls_pull_wrapper);
 		GetProfile().SetupSession(sess);
 
@@ -1195,14 +1090,11 @@ info_done_dealloc:
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
-int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
+int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, gnutls_retr2_st* st)
 {
-#ifndef GNUTLS_NEW_CERT_CALLBACK_API
-	st->type = GNUTLS_CRT_X509;
-#else
 	st->cert_type = GNUTLS_CRT_X509;
 	st->key_type = GNUTLS_PRIVKEY_X509;
-#endif
+
 	StreamSocket* sock = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(sess));
 	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile().GetX509Credentials();
 
@@ -1325,9 +1217,6 @@ class ModuleSSLGnuTLS : public Module
  public:
 	ModuleSSLGnuTLS()
 	{
-#ifndef GNUTLS_HAS_RND
-		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
-#endif
 		thismod = this;
 	}
 
@@ -1335,7 +1224,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
 		ReadProfiles();
-		ServerInstance->GenRandom = RandGen::Call;
+		ServerInstance->GenRandom = GnuTLS::GenRandom;
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) override
