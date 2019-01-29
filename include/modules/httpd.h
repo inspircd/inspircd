@@ -31,10 +31,59 @@
 #include <sstream>
 #include <map>
 
+class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
+{
+ public:
+	bool get(const std::string& key, std::string& value) const
+	{
+		const_iterator it = find(key);
+		if (it == end())
+			return false;
+
+		value = it->second;
+		return true;
+	}
+
+	std::string getString(const std::string& key, const std::string& def = "") const
+	{
+		const_iterator it = find(key);
+		std::string value;
+		if (!get(key, value))
+			return def;
+
+		return value;
+	}
+
+	template <typename T>
+	T getNum(const std::string& key, T def = 0) const
+	{
+		const_iterator it = find(key);
+		std::string value;
+		if (!get(key, value))
+			return def;
+
+		return ConvToNum<T>(value);
+	}
+
+	unsigned long getDuration(const std::string& key, unsigned long def = 0) const
+	{
+		unsigned long value;
+		if (!InspIRCd::Duration(getString(key, "0"), value))
+			return def;
+
+		return value;
+	}
+
+	bool getBool(const std::string& key, bool def = false) const
+	{
+		return getNum<bool>(key, def);
+	}
+};
+
 struct HTTPRequestURI
 {
 	std::string path;
-	insp::flat_multimap<std::string, std::string> query_params;
+	HTTPQueryParameters query_params;
 	std::string fragment;
 
 	HTTPRequestURI(const std::string& uri)
