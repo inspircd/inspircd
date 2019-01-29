@@ -92,8 +92,12 @@ sub print_warning {
 
 sub prompt_bool($$$) {
 	my ($interactive, $question, $default) = @_;
-	my $answer = prompt_string($interactive, $question, $default ? 'y' : 'n');
-	return $answer =~ /y/i;
+	while (1) {
+		my $answer = prompt_string($interactive, $question, $default ? 'yes' : 'no');
+		return 1 if $answer =~ /^y(?:es)?$/i;
+		return 0 if $answer =~ /^no?$/i;
+		print_warning "\"$answer\" is not \"yes\" or \"no\". Please try again.\n";
+	}
 }
 
 sub prompt_dir($$$;$) {
