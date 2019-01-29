@@ -251,9 +251,6 @@ EOW
 $config{USER} = $user[0];
 $config{UID}  = $user[2];
 
-# Clear the screen.
-system 'tput', 'clear' if $interactive;
-
 # Warn the user about clock drifting when running on OpenVZ.
 if (-e '/proc/user_beancounters' || -e '/proc/vz/vzaquota') {
 	print_warning <<'EOW';
