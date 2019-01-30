@@ -59,6 +59,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	friend ModuleHttpServer;
 
 	http_parser parser;
+	http_parser_url url;
 	std::string ip;
 	std::string uri;
 	HTTPHeaders headers;
@@ -314,7 +315,6 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	bool ParseURI(const std::string& uri, HTTPRequestURI& out)
 	{
-		http_parser_url url;
 		http_parser_url_init(&url);
 		if (http_parser_parse_url(uri.c_str(), uri.size(), 0, &url) != 0)
 			return false;
