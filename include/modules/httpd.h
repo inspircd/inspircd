@@ -45,7 +45,6 @@ class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
 
 	std::string getString(const std::string& key, const std::string& def = "") const
 	{
-		const_iterator it = find(key);
 		std::string value;
 		if (!get(key, value))
 			return def;
@@ -56,7 +55,6 @@ class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
 	template <typename T>
 	T getNum(const std::string& key, T def = 0) const
 	{
-		const_iterator it = find(key);
 		std::string value;
 		if (!get(key, value))
 			return def;
