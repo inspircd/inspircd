@@ -166,7 +166,6 @@ class HTTPRequest
 {
  protected:
 	std::string type;
-	std::string document;
 	std::string ipaddr;
 	std::string postdata;
 	HTTPRequestURI parseduri;
@@ -184,16 +183,14 @@ class HTTPRequest
 	/** Initialize HTTPRequest.
 	 * This constructor is called by m_httpd.so to initialize the class.
 	 * @param request_type The request type, e.g. GET, POST, HEAD
-	 * @param uri The URI, e.g. /page
 	 * @param hdr The headers sent with the request
 	 * @param opaque An opaque pointer used internally by m_httpd, which you must pass back to the module in your reply.
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(const std::string& request_type, const std::string& uri, const HTTPRequestURI& Parseduri,
+	HTTPRequest(const std::string& request_type, const HTTPRequestURI& Parseduri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
 		: type(request_type)
-		, document(uri)
 		, ipaddr(ip)
 		, postdata(pdata)
 		, parseduri(Parseduri)
@@ -218,15 +215,6 @@ class HTTPRequest
 	std::string& GetType()
 	{
 		return type;
-	}
-
-	/** Get URI.
-	 * The URI string (URL minus hostname and scheme) will be provided by this function.
-	 * @return The URI being requested
-	 */
-	std::string& GetURI()
-	{
-		return document;
 	}
 
 	HTTPRequestURI& GetParsedURI()

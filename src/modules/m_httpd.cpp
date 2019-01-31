@@ -283,11 +283,11 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		std::string method = http_method_str(static_cast<http_method>(parser.method));
 		HTTPRequestURI parsed;
 		ParseURI(uri, parsed);
-		HTTPRequest acl(method, uri, parsed, &headers, this, ip, body);
+		HTTPRequest acl(method, parsed, &headers, this, ip, body);
 		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
 		if (MOD_RESULT != MOD_RES_DENY)
 		{
-			HTTPRequest url(method, uri, parsed, &headers, this, ip, body);
+			HTTPRequest url(method, parsed, &headers, this, ip, body);
 			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (url));
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
