@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "modules/invite.h"
+#include "modules/hidelist.h"
 
 class Override : public SimpleUserModeHandler
 {
@@ -38,7 +39,7 @@ class Override : public SimpleUserModeHandler
 	}
 };
 
-class ModuleOverride : public Module
+class ModuleOverride : public Module, public HideListEventListener
 {
 	bool RequireKey;
 	bool NoisyOverride;
@@ -78,7 +79,8 @@ class ModuleOverride : public Module
 
  public:
 	ModuleOverride()
-		: UmodeEnabled(false)
+		: HideListEventListener(this)
+		, UmodeEnabled(false)
 		, ou(this)
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
@@ -174,8 +176,14 @@ class ModuleOverride : public Module
 			{
 				const Modes::Change& item = *i;
 				if (!item.param.empty())
+				{
 					params.append(1, ' ').append(item.param);
-
+				}
+				else if (item.mh->IsListMode())
+				{
+					// Listmode overrides are dealt with in OnListDeny
+					return MOD_RES_PASSTHRU;
+				}
 				char wanted_pm = (item.adding ? '+' : '-');
 				if (wanted_pm != pm)
 				{
@@ -187,6 +195,21 @@ class ModuleOverride : public Module
 			}
 			msg += params;
 			ServerInstance->SNO->WriteGlobalSno('v',msg);
+			return MOD_RES_ALLOW;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnListDeny(User* user, Channel* chan, const std::string& modename) CXX11_OVERRIDE
+	{
+		if (!user->IsOper() || !IS_LOCAL(user))
+			return MOD_RES_PASSTHRU;
+
+		if (CanOverride(user, "MODE"))
+		{
+			const std::string msg = user->nick + " overriding hidelist: " + modename;
+
+			ServerInstance->SNO->WriteGlobalSno('v', msg);
 			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;
