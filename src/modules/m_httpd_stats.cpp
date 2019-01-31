@@ -99,7 +99,7 @@ namespace Stats
 	{
 		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><description>"
 			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
-			<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
+			<< Sanitize(ServerInstance->GetVersionString(true)) << "</version></server>";
 	}
 
 	std::ostream& ISupport(std::ostream& data)
