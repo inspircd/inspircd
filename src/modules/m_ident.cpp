@@ -256,7 +256,7 @@ class ModuleIdent : public Module
 {
  private:
 	unsigned int timeout;
-	bool NoLookupPrefix;
+	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
 
 	static void PrefixIdent(LocalUser* user)
@@ -292,7 +292,7 @@ class ModuleIdent : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
 		timeout = tag->getDuration("timeout", 5, 1, 60);
-		NoLookupPrefix = tag->getBool("nolookupprefix", false);
+		prefixunqueried = tag->getBool("prefixunqueried");
 	}
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
@@ -340,7 +340,7 @@ class ModuleIdent : public Module
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
 		{
-			if (NoLookupPrefix)
+			if (prefixunqueried)
 				PrefixIdent(user);
 			return MOD_RES_PASSTHRU;
 		}
