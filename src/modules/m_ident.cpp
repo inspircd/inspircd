@@ -257,7 +257,7 @@ class ModuleIdent : public Module
  private:
 	unsigned int timeout;
 	bool prefixunqueried;
-	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
+	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> socket;
 
 	static void PrefixIdent(LocalUser* user)
 	{
@@ -279,7 +279,7 @@ class ModuleIdent : public Module
 
  public:
 	ModuleIdent()
-		: ext("ident_socket", ExtensionItem::EXT_USER, this)
+		: socket("ident_socket", ExtensionItem::EXT_USER, this)
 	{
 	}
 
@@ -297,12 +297,12 @@ class ModuleIdent : public Module
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
-		IdentRequestSocket* isock = ext.get(user);
+		IdentRequestSocket* isock = socket.get(user);
 		if (isock)
 		{
 			// If an ident lookup request was in progress then cancel it.
 			isock->Close();
-			ext.unset(user);
+			socket.unset(user);
 		}
 
 		// The ident protocol requires that clients are connecting over a protocol with ports.
@@ -322,7 +322,7 @@ class ModuleIdent : public Module
 		try
 		{
 			isock = new IdentRequestSocket(user);
-			ext.set(user, isock);
+			socket.set(user, isock);
 		}
 		catch (ModuleException &e)
 		{
@@ -337,7 +337,7 @@ class ModuleIdent : public Module
 	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		/* Does user have an ident socket attached at all? */
-		IdentRequestSocket *isock = ext.get(user);
+		IdentRequestSocket* isock = socket.get(user);
 		if (!isock)
 		{
 			if (prefixunqueried)
@@ -373,7 +373,7 @@ class ModuleIdent : public Module
 		}
 
 		isock->Close();
-		ext.unset(user);
+		socket.unset(user);
 		return MOD_RES_PASSTHRU;
 	}
 
