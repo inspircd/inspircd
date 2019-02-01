@@ -352,7 +352,8 @@ class ModuleIdent : public Module
 		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
-			user->WriteNotice("*** Ident request timed out.");
+			PrefixIdent(user);
+			user->WriteNotice("*** Ident lookup timed out, using " + user->ident + " instead.");
 		}
 		else if (!isock->HasResult())
 		{
@@ -361,7 +362,7 @@ class ModuleIdent : public Module
 		}
 
 		/* wooo, got a result (it will be good, or bad) */
-		if (isock->result.empty())
+		else if (isock->result.empty())
 		{
 			PrefixIdent(user);
 			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
