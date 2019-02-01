@@ -255,7 +255,7 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
  private:
-	int RequestTimeout;
+	unsigned int timeout;
 	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
 
@@ -291,7 +291,7 @@ class ModuleIdent : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
-		RequestTimeout = tag->getDuration("timeout", 5, 1);
+		timeout = tag->getDuration("timeout", 5, 1, 60);
 		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
@@ -345,8 +345,7 @@ class ModuleIdent : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		time_t compare = isock->age;
-		compare += RequestTimeout;
+		time_t compare = isock->age + timeout;
 
 		/* Check for timeout of the socket */
 		if (ServerInstance->Time() >= compare)
