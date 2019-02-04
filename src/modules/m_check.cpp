@@ -67,16 +67,21 @@ class CheckContext
 
 	User* GetUser() const { return user; }
 
-	void DumpListMode(const ListModeBase::ModeList* list)
+	void DumpListMode(ListModeBase* mode, Channel* chan)
 	{
+		const ListModeBase::ModeList* list = mode->GetList(chan);
 		if (!list)
 			return;
 
-		CheckContext::List modelist(*this, "modelist");
 		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
-			modelist.Add(i->mask);
-
-		modelist.Flush();
+		{
+			CheckContext::List listmode(*this, "listmode");
+			listmode.Add(ConvToStr(mode->GetModeChar()));
+			listmode.Add(i->mask);
+			listmode.Add(i->setter);
+			listmode.Add(FormatTime(i->time));
+			listmode.Flush();
+		}
 	}
 
 	void DumpExt(Extensible* ext)
@@ -266,7 +271,7 @@ class CommandCheck : public Command
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				context.DumpListMode((*i)->GetList(targchan));
+				context.DumpListMode(*i, targchan);
 
 			context.DumpExt(targchan);
 		}
