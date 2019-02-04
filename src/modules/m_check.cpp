@@ -259,9 +259,9 @@ class CommandCheck : public Command
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 			 	 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
-				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
-					i->second->GetAllPrefixChars().c_str(), i->first->nick.c_str(),
-					i->first->ident.c_str(), i->first->GetDisplayedHost().c_str(), i->first->GetRealName().c_str()));
+				context.Write("member", InspIRCd::Format("%u %s%s (%s)", clonecount.global,
+					i->second->GetAllPrefixChars().c_str(), i->first->GetFullHost().c_str(),
+					i->first->GetRealName().c_str()));
 			}
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
