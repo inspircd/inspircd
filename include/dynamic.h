@@ -59,6 +59,12 @@ class CoreExport DLLManager : public classbase
 	 */
 	Module* CallInit();
 
+	/** Retrieves the value of the specified symbol.
+	 * @param name The name of the symbol to retrieve.
+	 * @return Either the value of the specified symbol or or NULL if it does not exist.
+	 */
+	void* GetSymbol(const char* name);
+
 	/** Get detailed version information from the module file */
 	std::string GetVersion();
 };
