@@ -199,13 +199,8 @@ class CommandCheck : public Command
 					std::string umodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_USER);
 					std::string cmodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL);
 					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
-
-					CheckContext::List opcmdlist(context, "commandperms");
-					opcmdlist.Add(oper->AllowedOperCommands.ToString());
-					opcmdlist.Flush();
-					CheckContext::List privlist(context, "permissions");
-					privlist.Add(oper->AllowedPrivs.ToString());
-					privlist.Flush();
+					context.Write("commandperms", oper->AllowedOperCommands.ToString());
+					context.Write("permissions", oper->AllowedPrivs.ToString());
 				}
 			}
 
