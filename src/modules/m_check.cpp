@@ -235,7 +235,7 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			context.Write("timestamp", targchan->age);
+			context.Write("createdat", targchan->age);
 
 			if (!targchan->topic.empty())
 			{
