@@ -30,8 +30,17 @@ enum
 
 class CheckContext
 {
+ private:
 	User* const user;
 	const std::string& target;
+
+	std::string FormatTime(time_t ts)
+	{
+		std::string timestr(InspIRCd::TimeString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
+		timestr.append(ConvToStr(ts));
+		timestr.push_back(')');
+		return timestr;
+	}
 
  public:
 	CheckContext(User* u, const std::string& targetstr)
@@ -49,6 +58,11 @@ class CheckContext
 	void Write(const std::string& type, const std::string& text)
 	{
 		user->WriteRemoteNumeric(RPL_CHECK, type, text);
+	}
+
+	void Write(const std::string& type, time_t ts)
+	{
+		user->WriteRemoteNumeric(RPL_CHECK, type, FormatTime(ts));
 	}
 
 	User* GetUser() const { return user; }
@@ -130,16 +144,6 @@ class CommandCheck : public Command
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
 
-	std::string timestring(time_t time)
-	{
-		char timebuf[60];
-		struct tm *mytime = gmtime(&time);
-		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (", mytime);
-		std::string ret(timebuf);
-		ret.append(ConvToStr(time)).push_back(')');
-		return ret;
-	}
-
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
@@ -173,15 +177,15 @@ class CommandCheck : public Command
 			context.Write("snomasks", GetSnomasks(targuser));
 			context.Write("server", targuser->server->GetName());
 			context.Write("uid", targuser->uuid);
-			context.Write("signon", timestring(targuser->signon));
-			context.Write("nickts", timestring(targuser->age));
+			context.Write("signon", targuser->signon);
+			context.Write("nickts", targuser->age);
 			if (loctarg)
-				context.Write("lastmsg", timestring(loctarg->idle_lastmsg));
+				context.Write("lastmsg", loctarg->idle_lastmsg);
 
 			if (targuser->IsAway())
 			{
 				/* user is away */
-				context.Write("awaytime", timestring(targuser->awaytime));
+				context.Write("awaytime", targuser->awaytime);
 				context.Write("awaymsg", targuser->awaymsg);
 			}
 
@@ -237,14 +241,14 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			context.Write("timestamp", timestring(targchan->age));
+			context.Write("timestamp", targchan->age);
 
 			if (!targchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
 				context.Write("topic", targchan->topic);
 				context.Write("topic_setby", targchan->setby);
-				context.Write("topic_setat", timestring(targchan->topicset));
+				context.Write("topic_setat", targchan->topicset);
 			}
 
 			context.Write("modes", targchan->ChanModes(true));
