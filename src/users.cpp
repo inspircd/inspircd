@@ -377,17 +377,6 @@ void User::Oper(OperInfo* info)
 	if (info->oper_block)
 		opername = info->oper_block->getString("name");
 
-	if (IS_LOCAL(this))
-	{
-		LocalUser* l = IS_LOCAL(this);
-		std::string vhost = oper->getConfig("vhost");
-		if (!vhost.empty())
-			l->ChangeDisplayedHost(vhost);
-		std::string opClass = oper->getConfig("class");
-		if (!opClass.empty())
-			l->SetClass(opClass);
-	}
-
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
