@@ -206,7 +206,7 @@ class SSLIOHook : public IOHook
 	std::string GetFingerprint() const
 	{
 		ssl_cert* cert = GetCertificate();
-		if (cert && certificate->IsUsable())
+		if (cert && cert->IsUsable())
 			return cert->GetFingerprint();
 		return "";
 	}

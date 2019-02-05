@@ -87,3 +87,8 @@ ModeAction ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param
 	// Dummy function, never called
 	return MODEACTION_DENY;
 }
+
+bool ModeChannelKey::IsParameterSecret()
+{
+	return true;
+}

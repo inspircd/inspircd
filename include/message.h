@@ -63,7 +63,7 @@ class CoreExport MessageDetails
 	 * @param body The location to store the parsed CTCP body.
 	 */
 	virtual bool IsCTCP(std::string& name, std::string& body) const = 0;
-	
+
 	/** Determines whether the specified message is a CTCP. If the specified message
 	 * is a CTCP then the CTCP name is extracted and stored in the name reference.
 	 * @param name The location to store the parsed CTCP name.

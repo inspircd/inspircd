@@ -144,12 +144,56 @@ static std::string GetSnomasks(const User* user)
 	return snomaskstr;
 }
 
+namespace
+{
+	void GetModeList(Numeric::Numeric& num, Channel* chan, User* user)
+	{
+		// We should only show the value of secret parameters (i.e. key) if
+		// the user is a member of the channel.
+		bool show_secret = chan->HasUser(user);
+
+		std::string& modes = num.push("+").GetParams().back();
+		std::string param;
+		for (unsigned char chr = 65; chr < 123; ++chr)
+		{
+			// Check that the mode exists and is set.
+			ModeHandler* mh = ServerInstance->Modes->FindMode(chr, MODETYPE_CHANNEL);
+			if (!mh || !chan->IsModeSet(mh))
+				continue;
+
+			// Add the mode to the set list.
+			modes.push_back(mh->GetModeChar());
+
+			// If the mode has a parameter we need to include that too.
+			ParamModeBase* pm = mh->IsParameterMode();
+			if (!pm)
+				continue;
+
+			// If a mode has a secret parameter and the user is not privy to
+			// the value of it then we use <name> instead of the value.
+			if (pm->IsParameterSecret() && !show_secret)
+			{
+				num.push("<" + pm->name + ">");
+				continue;
+			}
+
+			// Retrieve the parameter and add it to the mode list.
+			pm->GetParameter(chan, param);
+			num.push(param);
+			param.clear();
+		}
+	}
+}
+
 void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel)
 {
 	if (targetchannel)
 	{
 		// Display channel's current mode string
-		user->WriteNumeric(RPL_CHANNELMODEIS, targetchannel->name, (std::string("+") + targetchannel->ChanModes(targetchannel->HasUser(user))));
+		Numeric::Numeric modenum(RPL_CHANNELMODEIS);
+		modenum.push(targetchannel->name);
+		GetModeList(modenum, targetchannel, user);
+		user->WriteNumeric(modenum);
 		user->WriteNumeric(RPL_CHANNELCREATED, targetchannel->name, (unsigned long)targetchannel->age);
 	}
 	else

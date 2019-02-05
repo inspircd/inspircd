@@ -69,13 +69,15 @@ class CommandShun : public Command
 
 		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", user))
+			std::string reason;
+
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", reason, user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s", user->nick.c_str(), parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
-			else if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", user))
+			else if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", reason, user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SHUN on %s", user->nick.c_str(), target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
 			}
 			else
 			{

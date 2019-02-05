@@ -30,8 +30,17 @@ enum
 
 class CheckContext
 {
+ private:
 	User* const user;
 	const std::string& target;
+
+	std::string FormatTime(time_t ts)
+	{
+		std::string timestr(InspIRCd::TimeString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
+		timestr.append(ConvToStr(ts));
+		timestr.push_back(')');
+		return timestr;
+	}
 
  public:
 	CheckContext(User* u, const std::string& targetstr)
@@ -51,18 +60,28 @@ class CheckContext
 		user->WriteRemoteNumeric(RPL_CHECK, type, text);
 	}
 
+	void Write(const std::string& type, time_t ts)
+	{
+		user->WriteRemoteNumeric(RPL_CHECK, type, FormatTime(ts));
+	}
+
 	User* GetUser() const { return user; }
 
-	void DumpListMode(const ListModeBase::ModeList* list)
+	void DumpListMode(ListModeBase* mode, Channel* chan)
 	{
+		const ListModeBase::ModeList* list = mode->GetList(chan);
 		if (!list)
 			return;
 
-		CheckContext::List modelist(*this, "modelist");
 		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
-			modelist.Add(i->mask);
-
-		modelist.Flush();
+		{
+			CheckContext::List listmode(*this, "listmode");
+			listmode.Add(ConvToStr(mode->GetModeChar()));
+			listmode.Add(i->mask);
+			listmode.Add(i->setter);
+			listmode.Add(FormatTime(i->time));
+			listmode.Flush();
+		}
 	}
 
 	void DumpExt(Extensible* ext)
@@ -130,19 +149,9 @@ class CommandCheck : public Command
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
 
-	std::string timestring(time_t time)
-	{
-		char timebuf[60];
-		struct tm *mytime = gmtime(&time);
-		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (", mytime);
-		std::string ret(timebuf);
-		ret.append(ConvToStr(time)).push_back(')');
-		return ret;
-	}
-
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CMD_SUCCESS;
 
 		User *targuser;
@@ -173,15 +182,15 @@ class CommandCheck : public Command
 			context.Write("snomasks", GetSnomasks(targuser));
 			context.Write("server", targuser->server->GetName());
 			context.Write("uid", targuser->uuid);
-			context.Write("signon", timestring(targuser->signon));
-			context.Write("nickts", timestring(targuser->age));
+			context.Write("signon", targuser->signon);
+			context.Write("nickts", targuser->age);
 			if (loctarg)
-				context.Write("lastmsg", timestring(loctarg->idle_lastmsg));
+				context.Write("lastmsg", loctarg->idle_lastmsg);
 
 			if (targuser->IsAway())
 			{
 				/* user is away */
-				context.Write("awaytime", timestring(targuser->awaytime));
+				context.Write("awaytime", targuser->awaytime);
 				context.Write("awaymsg", targuser->awaymsg);
 			}
 
@@ -192,16 +201,10 @@ class CommandCheck : public Command
 				context.Write("opertype", oper->name);
 				if (loctarg)
 				{
-					std::string umodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_USER);
-					std::string cmodes = GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL);
-					context.Write("modeperms", "user=" + umodes + " channel=" + cmodes);
-
-					CheckContext::List opcmdlist(context, "commandperms");
-					opcmdlist.Add(oper->AllowedOperCommands.ToString());
-					opcmdlist.Flush();
-					CheckContext::List privlist(context, "permissions");
-					privlist.Add(oper->AllowedPrivs.ToString());
-					privlist.Flush();
+					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
+					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
+					context.Write("commandperms", oper->AllowedOperCommands.ToString());
+					context.Write("permissions", oper->AllowedPrivs.ToString());
 				}
 			}
 
@@ -237,14 +240,14 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			context.Write("timestamp", timestring(targchan->age));
+			context.Write("createdat", targchan->age);
 
 			if (!targchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
 				context.Write("topic", targchan->topic);
 				context.Write("topic_setby", targchan->setby);
-				context.Write("topic_setat", timestring(targchan->topicset));
+				context.Write("topic_setat", targchan->topicset);
 			}
 
 			context.Write("modes", targchan->ChanModes(true));
@@ -261,14 +264,14 @@ class CommandCheck : public Command
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 			 	 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
-				context.Write("member", InspIRCd::Format("%-3u %s%s (%s@%s) %s ", clonecount.global,
-					i->second->GetAllPrefixChars().c_str(), i->first->nick.c_str(),
-					i->first->ident.c_str(), i->first->GetDisplayedHost().c_str(), i->first->GetRealName().c_str()));
+				context.Write("member", InspIRCd::Format("%u %s%s (%s)", clonecount.global,
+					i->second->GetAllPrefixChars().c_str(), i->first->GetFullHost().c_str(),
+					i->first->GetRealName().c_str()));
 			}
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				context.DumpListMode((*i)->GetList(targchan));
+				context.DumpListMode(*i, targchan);
 
 			context.DumpExt(targchan);
 		}

@@ -98,9 +98,11 @@ class CommandCBan : public Command
 
 		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", user))
+			std::string reason;
+
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason, user))
 			{
-				ServerInstance->SNO->WriteGlobalSno('x', "%s removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteGlobalSno('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{

@@ -136,7 +136,6 @@ void TokenList::AddList(const std::string& tokenlist)
 		else
 			Add(token);
 	}
- 	
 }
 void TokenList::Add(const std::string& token)
 {

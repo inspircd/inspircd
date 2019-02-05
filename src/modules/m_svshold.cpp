@@ -112,10 +112,12 @@ class CommandSvshold : public Command
 
 		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", user))
+			std::string reason;
+
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", reason, user))
 			{
 				if (!silent)
-					ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
+					ServerInstance->SNO->WriteToSnoMask('x', "%s removed SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{

@@ -188,6 +188,11 @@ class ModuleSSLInfo
  private:
 	CommandSSLInfo cmd;
 
+	bool MatchFP(ssl_cert* const cert, const std::string& fp) const
+	{
+		return irc::spacesepstream(fp).Contains(cert->GetFingerprint());
+	}
+
  public:
 	ModuleSSLInfo()
 		: WebIRC::EventListener(this)
@@ -231,7 +236,7 @@ class ModuleSSLInfo
 				}
 
 				std::string fingerprint;
-				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
+				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || !MatchFP(cert, fingerprint)))
 				{
 					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
@@ -251,7 +256,7 @@ class ModuleSSLInfo
 			return;
 
 		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
-		if (!ssliohook)
+		if (!ssliohook || cmd.sslapi.nosslext.get(localuser))
 			return;
 
 		ssl_cert* const cert = ssliohook->GetCertificate();
@@ -275,7 +280,7 @@ class ModuleSSLInfo
 		{
 			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (fp == cert->fingerprint && ifo->oper_block->getBool("autologin"))
+			if (MatchFP(cert, fp) && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);
 		}
 	}

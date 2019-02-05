@@ -122,7 +122,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 
  public:
 	CoreModChannel()
-		: CheckExemption::EventListener(this)
+		: CheckExemption::EventListener(this, UINT_MAX)
 		, invapi(this)
 		, cmdinvite(this, invapi)
 		, cmdjoin(this)

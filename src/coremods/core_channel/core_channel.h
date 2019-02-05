@@ -177,8 +177,9 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 	static const std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
-	void SerializeParam(Channel* chan, const std::string* key, std::string& out)	;
+	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
 	ModeAction OnSet(User* source, Channel* chan, std::string& param) override;
+	bool IsParameterSecret() override;
 };
 
 /** Channel mode +l

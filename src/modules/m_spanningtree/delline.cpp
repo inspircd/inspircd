@@ -25,12 +25,13 @@
 CmdResult CommandDelLine::Handle(User* user, Params& params)
 {
 	const std::string& setter = user->nick;
+	std::string reason;
 
 	// XLineManager::DelLine() returns true if the xline existed, false if it didn't
-	if (ServerInstance->XLines->DelLine(params[1].c_str(), params[0], user))
+	if (ServerInstance->XLines->DelLine(params[1].c_str(), params[0], reason, user))
 	{
-		ServerInstance->SNO->WriteToSnoMask('X',"%s removed %s%s on %s", setter.c_str(),
-				params[0].c_str(), params[0].length() == 1 ? "-line" : "", params[1].c_str());
+		ServerInstance->SNO->WriteToSnoMask('X', "%s removed %s%s on %s: %s", setter.c_str(),
+				params[0].c_str(), params[0].length() == 1 ? "-line" : "", params[1].c_str(), reason.c_str());
 		return CMD_SUCCESS;
 	}
 	return CMD_FAILURE;

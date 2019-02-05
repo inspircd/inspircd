@@ -47,7 +47,6 @@ DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
 INSTALL = install
-INSTUID = @UID@
 INSTMODE_DIR = 0750
 INSTMODE_BIN = 0750
 INSTMODE_LIB = 0640
@@ -203,42 +202,32 @@ finishmessage: target
 	@echo "*************************************"
 
 install: target
-	@if [ "$(INSTUID)" = 0 -o "$(INSTUID)" = root ]; then \
-		echo ""; \
-		echo "Error: You must specify a non-root UID for the server"; \
-		echo ""; \
-		echo "If you are making a package, please specify using ./configure --uid"; \
-		echo "Otherwise, rerun using 'make INSTUID=irc install', where 'irc' is the user"; \
-		echo "who will be running the ircd. You will also need to modify the start script."; \
-		echo ""; \
-		exit 1; \
-	fi
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(DATPATH)
-	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(LOGPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/services
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/sql
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
-	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(SCRPATH)
-	[ "$(BUILDPATH)/bin/" -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-	[ "$(BUILDPATH)/modules/" -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
-	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BASE)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BINPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)/examples/services
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)/examples/sql
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MANPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)
-	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
-	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
-	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/services/*.example $(CONPATH)/examples/services
-	-$(INSTALL) -m $(INSTMODE_LIB) docs/sql/*.sql $(CONPATH)/examples/sql
-	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/conf/services/*.example $(CONPATH)/examples/services
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/sql/*.sql $(CONPATH)/examples/sql
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
