@@ -126,8 +126,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	std::cout << std::endl << "Loading core commands";
-	fflush(stdout);
+	std::cout << std::endl << "Loading core commands" << std::flush;
 
 	DIR* library = opendir(ServerInstance->Config->Paths.Module.c_str());
 	if (library)
@@ -137,8 +136,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 		{
 			if (InspIRCd::Match(entry->d_name, "core_*.so", ascii_case_insensitive_map))
 			{
-				std::cout << ".";
-				fflush(stdout);
+				std::cout << "." << std::flush;
 
 				this->NewServices = &servicemap[entry->d_name];
 
