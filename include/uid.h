@@ -18,12 +18,9 @@
 
 #pragma once
 
-class TestSuite;
-
 class CoreExport UIDGenerator
 {
-	friend class TestSuite;
-
+ private:
 	/** Holds the current UID. Used to generate the next one.
 	 */
 	std::string current_uid;
