@@ -65,5 +65,4 @@ class ServerEventListener : public Events::ModuleEventListener
 	 * @param server The target of the burst.
 	 */
 	virtual void OnSyncNetwork(ProtocolServer& server) { }
-	
 };

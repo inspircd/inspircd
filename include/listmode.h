@@ -99,7 +99,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	bool tidy;
 
-	/** Limits on a per-channel basis read from the <listmode>
+	/** Limits on a per-channel basis read from the \<listmode>
 	 * config tag.
 	 */
 	limitlist chanlimits;

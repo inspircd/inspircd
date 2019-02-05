@@ -207,6 +207,20 @@ if (defined $opt_gid) {
 } else {
 	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} // getgid());
 	print_error "you need to specify a group to run as using '--gid [id|name]'!" unless @group;
+	unless ($group[2]) {
+		print_warning <<"EOW";
+You are building as the privileged $group[0] group and have not specified
+an unprivileged group to run InspIRCd as.
+
+This is almost never what you should do. You should probably either create a new
+unprivileged user/group to build and run as or pass the '--gid [id|name]' flag
+to specify an unprivileged group to run as.
+EOW
+		if (!prompt_bool $interactive, "Are you sure you want to build as the $group[0] group?", 0) {
+			say STDERR "If you are sure you want to build as the $group[0] group pass the --gid $group[2] flag." unless $interactive;
+			exit 1;
+		}
+	}
 }
 $config{GROUP} = $group[0];
 $config{GID}   = $group[2];
@@ -219,12 +233,23 @@ if (defined $opt_uid) {
 } else {
 	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} // getuid());
 	print_error "you need to specify a user to run as using '--uid [id|name]'!" unless @user;
+	unless ($user[2]) {
+		print_warning <<"EOW";
+You are building as the privileged $user[0] user and have not specified
+an unprivileged user to run InspIRCd as.
+
+This is almost never what you should do. You should probably either create a new
+unprivileged user/group to build and run as or pass the '--uid [id|name]' flag
+to specify an unprivileged user to run as.
+EOW
+		if (!prompt_bool $interactive, "Are you sure you want to build as the $user[0] user?", 0) {
+			say STDERR "If you are sure you want to build as the $user[0] user pass the --uid $user[2] flag." unless $interactive;
+			exit 1;
+		}
+	}
 }
 $config{USER} = $user[0];
 $config{UID}  = $user[2];
-
-# Clear the screen.
-system 'tput', 'clear' if $interactive;
 
 # Warn the user about clock drifting when running on OpenVZ.
 if (-e '/proc/user_beancounters' || -e '/proc/vz/vzaquota') {

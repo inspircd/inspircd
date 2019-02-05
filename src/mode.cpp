@@ -607,7 +607,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
 		modeid = AllocateModeId(mh->GetModeType());
 
-	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)); 
+	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh));
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;

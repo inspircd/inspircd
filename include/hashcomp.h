@@ -143,6 +143,12 @@ namespace irc
 		 * @return True if the end of the stream has been reached, otherwise false
 		 */
 		bool StreamEnd();
+
+		/** Returns true if the specified value exists in the stream
+		 * @param value The value to search for
+		 * @return True if the value was found, False otherwise
+		 */
+		bool Contains(const std::string& value);
 	};
 
 	/** A derived form of sepstream, which seperates on commas

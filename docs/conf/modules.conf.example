@@ -469,7 +469,7 @@
 #<module name="chgname">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connection class ban module: Adds support for extban 'n' which 
+# Connection class ban module: Adds support for extban 'n' which
 # matches against the class name of the user's connection.
 # This module assumes that connection classes are named in a uniform
 # way on all servers of the network.
@@ -1034,12 +1034,12 @@
 # the timeout for ident lookups here. If not defined, it will default #
 # to 5 seconds. This is a non-blocking timeout which holds the user   #
 # in a 'connecting' state until the lookup is complete.               #
-# nolookupprefix: If on, the idents of users being in a connect class #
+# prefixunqueried: If on, the idents of users being in a connect class#
 # with ident lookups disabled (i.e. <connect useident="off">) will be #
 # prefixed with a "~". If off, the ident of those users will not be   #
 # prefixed. Default is off.                                           #
 #
-#<ident timeout="5" nolookupprefix="no">
+#<ident timeout="5" prefixunqueried="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite exception module: Adds support for channel invite exceptions
@@ -1497,7 +1497,7 @@
 # Oper modes module: Allows you to specify modes to add/remove on oper.
 # Specify the modes as the 'modes' parameter of the <type> tag
 # and/or as the 'modes' parameter of the <oper> tag.
-# This module is oper-only. For the user equivalent, see the 
+# This module is oper-only. For the user equivalent, see the
 # conn_umodes module.
 #<module name="opermodes">
 
@@ -1884,6 +1884,18 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SETNAME module: Adds the /SETNAME command.
 #<module name="setname">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SETNAME CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# operonly - Whether the SETNAME command should only be usable by     #
+#            server operators. Defaults to no.                        #
+#                                                                     #
+# notifyopers - Whether to send a snotice to snomask `a` when a user  #
+#               changes their real name. Defaults to to yes if        #
+#               oper-only and no if usable by everyone.               #
+#                                                                     #
+#<setname notifyopers="yes"                                           #
+#         operonly="no">                                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Serverban: Implements extended ban 's', which stops anyone connected

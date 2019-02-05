@@ -134,7 +134,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 }
 
 CmdResult CommandFHost::HandleRemote(RemoteUser* src, Params& params)
-{		
+{
 	src->ChangeDisplayedHost(params[0]);
 	return CMD_SUCCESS;
 }

@@ -294,7 +294,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 
 // deletes a line, returns true if the line existed and was removed
 
-bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* user, bool simulate)
+bool XLineManager::DelLine(const char* hostmask, const std::string& type, std::string& reason, User* user, bool simulate)
 {
 	ContainerIter x = lookup_lines.find(type);
 
@@ -305,6 +305,8 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 
 	if (y == x->second.end())
 		return false;
+
+	reason.assign(y->second->reason);
 
 	if (simulate)
 		return true;

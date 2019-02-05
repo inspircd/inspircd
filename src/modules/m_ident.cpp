@@ -24,6 +24,24 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// Either the ident looup has not started yet or the user is registered.
+	IDENT_UNKNOWN = 0,
+
+	// Ident lookups are not enabled and a user has been marked as being skipped.
+	IDENT_SKIPPED,
+
+	// Ident looups are not enabled and a user has been an insecure ident prefix.
+	IDENT_PREFIXED,
+
+	// An ident lookup was done and an ident was found.
+	IDENT_FOUND,
+
+	// An ident lookup was done but no ident was found
+	IDENT_MISSING
+};
+
 /* --------------------------------------------------------------
  * Note that this is the third incarnation of m_ident. The first
  * two attempts were pretty crashy, mainly due to the fact we tried
@@ -254,12 +272,34 @@ class IdentRequestSocket : public EventHandler
 
 class ModuleIdent : public Module
 {
-	int RequestTimeout;
-	bool NoLookupPrefix;
-	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
+ private:
+	unsigned int timeout;
+	bool prefixunqueried;
+	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> socket;
+	LocalIntExt state;
+
+	static void PrefixIdent(LocalUser* user)
+	{
+		// Check that they haven't been prefixed already.
+		if (user->ident[0] == '~')
+			return;
+		
+		// All invalid usernames are prefixed with a tilde.
+		std::string newident(user->ident);
+		newident.insert(newident.begin(), '~');
+
+		// If the username is too long then truncate it.
+		if (newident.length() > ServerInstance->Config->Limits.IdentMax)
+			newident.erase(ServerInstance->Config->Limits.IdentMax);
+
+		// Apply the new username.
+		user->ChangeIdent(newident);
+	}
+
  public:
 	ModuleIdent()
-		: ext("ident_socket", ExtensionItem::EXT_USER, this)
+		: socket("ident_socket", ExtensionItem::EXT_USER, this)
+		, state("ident_state", ExtensionItem::EXT_USER, this)
 	{
 	}
 
@@ -271,18 +311,18 @@ class ModuleIdent : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
-		RequestTimeout = tag->getDuration("timeout", 5, 1);
-		NoLookupPrefix = tag->getBool("nolookupprefix", false);
+		timeout = tag->getDuration("timeout", 5, 1, 60);
+		prefixunqueried = tag->getBool("prefixunqueried");
 	}
 
 	void OnSetUserIP(LocalUser* user) override
 	{
-		IdentRequestSocket* isock = ext.get(user);
+		IdentRequestSocket* isock = socket.get(user);
 		if (isock)
 		{
 			// If an ident lookup request was in progress then cancel it.
 			isock->Close();
-			ext.unset(user);
+			socket.unset(user);
 		}
 
 		// The ident protocol requires that clients are connecting over a protocol with ports.
@@ -295,14 +335,17 @@ class ModuleIdent : public Module
 
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
+		{
+			state.set(user, IDENT_SKIPPED);
 			return;
+		}
 
 		user->WriteNotice("*** Looking up your ident...");
 
 		try
 		{
 			isock = new IdentRequestSocket(user);
-			ext.set(user, isock);
+			socket.set(user, isock);
 		}
 		catch (ModuleException &e)
 		{
@@ -317,22 +360,26 @@ class ModuleIdent : public Module
 	ModResult OnCheckReady(LocalUser *user) override
 	{
 		/* Does user have an ident socket attached at all? */
-		IdentRequestSocket *isock = ext.get(user);
+		IdentRequestSocket* isock = socket.get(user);
 		if (!isock)
 		{
-			if ((NoLookupPrefix) && (user->ident[0] != '~'))
-				user->ident.insert(user->ident.begin(), 1, '~');
+			if (prefixunqueried && state.get(user) == IDENT_SKIPPED)
+			{
+				PrefixIdent(user);
+				state.set(user, IDENT_PREFIXED);
+			}
 			return MOD_RES_PASSTHRU;
 		}
 
-		time_t compare = isock->age;
-		compare += RequestTimeout;
+		time_t compare = isock->age + timeout;
 
 		/* Check for timeout of the socket */
 		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
-			user->WriteNotice("*** Ident request timed out.");
+			state.set(user, IDENT_MISSING);
+			PrefixIdent(user);
+			user->WriteNotice("*** Ident lookup timed out, using " + user->ident + " instead.");
 		}
 		else if (!isock->HasResult())
 		{
@@ -341,28 +388,35 @@ class ModuleIdent : public Module
 		}
 
 		/* wooo, got a result (it will be good, or bad) */
-		if (isock->result.empty())
+		else if (isock->result.empty())
 		{
-			user->ident.insert(user->ident.begin(), 1, '~');
+			state.set(user, IDENT_MISSING);
+			PrefixIdent(user);
 			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else
 		{
-			user->ident = isock->result;
+			state.set(user, IDENT_FOUND);
+			user->ChangeIdent(isock->result);
 			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
 		}
 
-		user->InvalidateCache();
 		isock->Close();
-		ext.unset(user);
+		socket.unset(user);
 		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
 	{
-		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
+		if (myclass->config->getBool("requireident") && state.get(user) != IDENT_FOUND)
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnUserConnect(LocalUser* user) override
+	{
+		// Clear this as it is no longer necessary.
+		state.unset(user);
 	}
 };
 

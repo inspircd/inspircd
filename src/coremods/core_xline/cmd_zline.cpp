@@ -92,9 +92,11 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(target.c_str(),"Z",user))
+		std::string reason;
+
+		if (ServerInstance->XLines->DelLine(target.c_str(), "Z", reason, user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s removed Z-line on %s",user->nick.c_str(),target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x', "%s removed Z-line on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
 		}
 		else
 		{

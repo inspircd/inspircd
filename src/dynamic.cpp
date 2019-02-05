@@ -54,36 +54,30 @@ DLLManager::~DLLManager()
 		dlclose(h);
 }
 
-union init_t {
-	void* vptr;
-	Module* (*fptr)();
-};
-
 Module* DLLManager::CallInit()
 {
-	if (!h)
-		return NULL;
-
-	init_t initfn;
-	initfn.vptr = dlsym(h, MODULE_INIT_STR);
-	if (!initfn.vptr)
+	union
 	{
-		RetrieveLastError();
-		return NULL;
-	}
+		void* vptr;
+		Module* (*fptr)();
+	};
 
-	return (*initfn.fptr)();
+	vptr = GetSymbol(MODULE_INIT_STR);
+	if (!vptr)
+		return NULL;
+
+	return (*fptr)();
+}
+
+void* DLLManager::GetSymbol(const char* name)
+{
+	return h ? dlsym(h, name) : NULL;
 }
 
 std::string DLLManager::GetVersion()
 {
-	if (!h)
-		return "";
-
-	const char* srcver = (char*)dlsym(h, "inspircd_src_version");
-	if (srcver)
-		return srcver;
-	return "";
+	const char* srcver = static_cast<const char*>(GetSymbol("inspircd_src_version"));
+	return srcver ? srcver : "";
 }
 
 void DLLManager::RetrieveLastError()

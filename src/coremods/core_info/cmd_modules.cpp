@@ -42,7 +42,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 {
 	// Don't ask remote servers about their modules unless the local user asking is an oper
 	// 2.0 asks anyway, so let's handle that the same way
-	bool for_us = (parameters.empty() || parameters[0] == ServerInstance->Config->ServerName);
+	bool for_us = (parameters.empty() || irc::equals(parameters[0], ServerInstance->Config->ServerName));
 	if ((!for_us) || (!IS_LOCAL(user)))
 	{
 		if (!user->IsOper())

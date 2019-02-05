@@ -433,7 +433,7 @@ void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& e
 	}
 }
 
-const char* Channel::ChanModes(bool showkey)
+const char* Channel::ChanModes(bool showsecret)
 {
 	static std::string scratch;
 	std::string sparam;
@@ -452,9 +452,9 @@ const char* Channel::ChanModes(bool showkey)
 			if (!pm)
 				continue;
 
-			if (n == 'k' - 65 && !showkey)
+			if (pm->IsParameterSecret() && !showsecret)
 			{
-				sparam += " <key>";
+				sparam += " <" + pm->name + ">";
 			}
 			else
 			{

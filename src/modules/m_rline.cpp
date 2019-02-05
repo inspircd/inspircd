@@ -190,9 +190,11 @@ class CommandRLine : public Command
 		}
 		else
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", user))
+			std::string reason;
+
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", reason, user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s removed R-line on %s",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s removed R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{

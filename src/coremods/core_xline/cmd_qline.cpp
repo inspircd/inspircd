@@ -74,9 +74,11 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "Q", user))
+		std::string reason;
+
+		if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "Q", reason, user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s removed Q-line on %s",user->nick.c_str(),parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask('x', "%s removed Q-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 		}
 		else
 		{

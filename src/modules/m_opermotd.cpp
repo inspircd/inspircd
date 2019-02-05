@@ -36,7 +36,7 @@ class CommandOpermotd : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if ((parameters.empty()) || (parameters[0] == ServerInstance->Config->ServerName))
+		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
 			ShowOperMOTD(user);
 		return CMD_SUCCESS;
 	}
