@@ -30,6 +30,60 @@
 #include <sstream>
 #include <map>
 
+class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
+{
+ public:
+	bool get(const std::string& key, std::string& value) const
+	{
+		const_iterator it = find(key);
+		if (it == end())
+			return false;
+
+		value = it->second;
+		return true;
+	}
+
+	std::string getString(const std::string& key, const std::string& def = "") const
+	{
+		std::string value;
+		if (!get(key, value))
+			return def;
+
+		return value;
+	}
+
+	template <typename T>
+	T getNum(const std::string& key, T def = 0) const
+	{
+		std::string value;
+		if (!get(key, value))
+			return def;
+
+		return ConvToNum<T>(value);
+	}
+
+	unsigned long getDuration(const std::string& key, unsigned long def = 0) const
+	{
+		unsigned long value;
+		if (!InspIRCd::Duration(getString(key, "0"), value))
+			return def;
+
+		return value;
+	}
+
+	bool getBool(const std::string& key, bool def = false) const
+	{
+		return getNum<bool>(key, def);
+	}
+};
+
+struct HTTPRequestURI
+{
+	std::string path;
+	HTTPQueryParameters query_params;
+	std::string fragment;
+};
+
 /** A modifyable list of HTTP header fields
  */
 class HTTPHeaders
@@ -112,9 +166,9 @@ class HTTPRequest
 {
  protected:
 	std::string type;
-	std::string document;
 	std::string ipaddr;
 	std::string postdata;
+	HTTPRequestURI parseduri;
 
  public:
 
@@ -129,15 +183,19 @@ class HTTPRequest
 	/** Initialize HTTPRequest.
 	 * This constructor is called by m_httpd.so to initialize the class.
 	 * @param request_type The request type, e.g. GET, POST, HEAD
-	 * @param uri The URI, e.g. /page
 	 * @param hdr The headers sent with the request
 	 * @param opaque An opaque pointer used internally by m_httpd, which you must pass back to the module in your reply.
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(const std::string& request_type, const std::string& uri,
+	HTTPRequest(const std::string& request_type, const HTTPRequestURI& Parseduri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
-		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
+		: type(request_type)
+		, ipaddr(ip)
+		, postdata(pdata)
+		, parseduri(Parseduri)
+		, headers(hdr)
+		, sock(socket)
 	{
 	}
 
@@ -159,13 +217,14 @@ class HTTPRequest
 		return type;
 	}
 
-	/** Get URI.
-	 * The URI string (URL minus hostname and scheme) will be provided by this function.
-	 * @return The URI being requested
-	 */
-	std::string& GetURI()
+	HTTPRequestURI& GetParsedURI()
 	{
-		return document;
+		return parseduri;
+	}
+
+	std::string& GetPath()
+	{
+		return GetParsedURI().path;
 	}
 
 	/** Get IP address of requester.

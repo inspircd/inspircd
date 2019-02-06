@@ -59,6 +59,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	friend ModuleHttpServer;
 
 	http_parser parser;
+	http_parser_url url;
 	std::string ip;
 	std::string uri;
 	HTTPHeaders headers;
@@ -280,11 +281,13 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		ModResult MOD_RESULT;
 		std::string method = http_method_str(static_cast<http_method>(parser.method));
-		HTTPRequest acl(method, uri, &headers, this, ip, body);
+		HTTPRequestURI parsed;
+		ParseURI(uri, parsed);
+		HTTPRequest acl(method, parsed, &headers, this, ip, body);
 		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
 		if (MOD_RESULT != MOD_RES_DENY)
 		{
-			HTTPRequest url(method, uri, &headers, this, ip, body);
+			HTTPRequest url(method, parsed, &headers, this, ip, body);
 			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (url));
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
@@ -308,6 +311,40 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		waitingcull = true;
 		Close();
 		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	bool ParseURI(const std::string& uri, HTTPRequestURI& out)
+	{
+		http_parser_url_init(&url);
+		if (http_parser_parse_url(uri.c_str(), uri.size(), 0, &url) != 0)
+			return false;
+
+		if (url.field_set & (1 << UF_PATH))
+			out.path = uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
+
+		if (url.field_set & (1 << UF_FRAGMENT))
+			out.fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
+
+		std::string param_str;
+		if (url.field_set & (1 << UF_QUERY))
+			param_str = uri.substr(url.field_data[UF_QUERY].off, url.field_data[UF_QUERY].len);
+
+		irc::sepstream param_stream(param_str, '&');
+		std::string token;
+		std::string::size_type eq_pos;
+		while (param_stream.GetToken(token))
+		{
+			eq_pos = token.find('=');
+			if (eq_pos == std::string::npos)
+			{
+				out.query_params.insert(std::make_pair(token, ""));
+			}
+			else
+			{
+				out.query_params.insert(std::make_pair(token.substr(0, eq_pos), token.substr(eq_pos + 1)));
+			}
+		}
+		return true;
 	}
 };
 

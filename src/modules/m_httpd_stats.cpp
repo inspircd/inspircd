@@ -99,7 +99,7 @@ namespace Stats
 	{
 		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><description>"
 			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
-			<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
+			<< Sanitize(ServerInstance->GetVersionString(true)) << "</version></server>";
 	}
 
 	std::ostream& ISupport(std::ostream& data)
@@ -124,6 +124,7 @@ namespace Stats
 		data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
 		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
 		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
+		data << "<currenttime>" << ServerInstance->Time() << "</currenttime>";
 
 		data << ISupport;
 		return data << "</general>";
@@ -201,6 +202,37 @@ namespace Stats
 		return data << "</channellist>";
 	}
 
+	std::ostream& DumpUser(std::ostream& data, User* u)
+	{
+		data << "<user>";
+		data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
+			<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
+			<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server><signon>"
+			<< u->signon << "</signon><age>" << u->age << "</age>";
+
+		if (u->IsAway())
+			data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
+
+		if (u->IsOper())
+			data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
+
+		data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
+
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu)
+			data << "<local/><port>" << lu->GetServerPort() << "</port><servaddr>"
+				<< lu->server_sa.str() << "</servaddr><connectclass>"
+				<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
+				<< lu->idle_lastmsg << "</lastmsg>";
+
+		data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
+
+		DumpMeta(data, u);
+
+		data << "</user>";
+		return data;
+	}
+
 	std::ostream& Users(std::ostream& data)
 	{
 		data << "<userlist>";
@@ -209,24 +241,10 @@ namespace Stats
 		{
 			User* u = i->second;
 
-			data << "<user>";
-			data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-				<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
-				<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server>";
-			if (u->IsAway())
-				data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
-			if (u->IsOper())
-				data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
-			data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
-			LocalUser* lu = IS_LOCAL(u);
-			if (lu)
-				data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
-					<< lu->server_sa.str() << "</servaddr>";
-			data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
+			if (u->registered != REG_ALL)
+				continue;
 
-			DumpMeta(data, u);
-
-			data << "</user>";
+			DumpUser(data, u);
 		}
 		return data << "</userlist>";
 	}
@@ -265,28 +283,145 @@ namespace Stats
 		}
 		return data << "</commandlist>";
 	}
+
+	enum OrderBy
+	{
+		OB_NICK,
+		OB_LASTMSG,
+
+		OB_NONE
+	};
+
+	struct UserSorter
+	{
+		OrderBy order;
+		bool desc;
+
+		UserSorter(OrderBy Order, bool Desc = false) : order(Order), desc(Desc) {}
+
+		template <typename T>
+		inline bool Compare(const T& a, const T& b)
+		{
+			return desc ? a > b : a < b;
+		}
+
+		bool operator()(User* u1, User* u2)
+		{
+			switch (order) {
+				case OB_LASTMSG:
+					return Compare(IS_LOCAL(u1)->idle_lastmsg, IS_LOCAL(u2)->idle_lastmsg);
+					break;
+				case OB_NICK:
+					return Compare(u1->nick, u2->nick);
+					break;
+				default:
+				case OB_NONE:
+					return false;
+					break;
+			}
+		}
+	};
+
+	std::ostream& ListUsers(std::ostream& data, const HTTPQueryParameters& params)
+	{
+		if (params.empty())
+			return Users(data);
+
+		data << "<userlist>";
+
+		// Filters
+		size_t limit = params.getNum<size_t>("limit");
+		bool showunreg = params.getBool("showunreg");
+		bool localonly = params.getBool("localonly");
+
+		// Minimum time since a user's last message
+		unsigned long min_idle = params.getDuration("minidle");
+		time_t maxlastmsg = ServerInstance->Time() - min_idle;
+
+		if (min_idle)
+			// We can only check idle times on local users
+			localonly = true;
+
+		// Sorting
+		const std::string& sortmethod = params.getString("sortby");
+		bool desc = params.getBool("desc", false);
+
+		OrderBy orderby;
+		if (stdalgo::string::equalsci(sortmethod, "nick"))
+			orderby = OB_NICK;
+		else if (stdalgo::string::equalsci(sortmethod, "lastmsg"))
+		{
+			orderby = OB_LASTMSG;
+			// We can only check idle times on local users
+			localonly = true;
+		}
+		else
+			orderby = OB_NONE;
+
+		typedef std::list<User*> NewUserList;
+		NewUserList user_list;
+		user_hash users = ServerInstance->Users->GetUsers();
+		for (user_hash::iterator i = users.begin(); i != users.end(); ++i)
+		{
+			User* u = i->second;
+			if (!showunreg && u->registered != REG_ALL)
+				continue;
+
+			LocalUser* lu = IS_LOCAL(u);
+			if (localonly && !lu)
+				continue;
+
+			if (min_idle && lu->idle_lastmsg > maxlastmsg)
+				continue;
+
+			user_list.push_back(u);
+		}
+
+		UserSorter sorter(orderby, desc);
+		if (sorter.order != OB_NONE && !(!localonly && sorter.order == OB_LASTMSG))
+			user_list.sort(sorter);
+
+		size_t count = 0;
+		for (NewUserList::const_iterator i = user_list.begin(); i != user_list.end() && (!limit || count < limit); ++i, ++count)
+			DumpUser(data, *i);
+
+		data << "</userlist>";
+		return data;
+	}
 }
 
 class ModuleHttpStats : public Module, public HTTPRequestEventListener
 {
 	HTTPdAPI API;
+	bool enableparams;
 
  public:
 	ModuleHttpStats()
 		: HTTPRequestEventListener(this)
 		, API(this)
+		, enableparams(false)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* conf = ServerInstance->Config->ConfValue("httpstats");
+
+		// Parameterized queries may cause a performance issue
+		// Due to the sheer volume of data
+		// So default them to disabled
+		enableparams = conf->getBool("enableparams");
 	}
 
 	ModResult HandleRequest(HTTPRequest* http)
 	{
-		std::string uri = http->GetURI();
+		std::string path = http->GetPath();
 
-		if (uri != "/stats" && uri.substr(0, 7) != "/stats/")
+		if (path != "/stats" && path.substr(0, 7) != "/stats/")
 			return MOD_RES_PASSTHRU;
 
-		if (uri[uri.size() - 1] == '/')
-			uri.erase(uri.size() - 1, 1);
+		if (path[path.size() - 1] == '/')
+			path.erase(path.size() - 1, 1);
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 
@@ -294,20 +429,23 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		std::stringstream data;
 		data << "<inspircdstats>";
 
-		if (uri == "/stats")
+		if (path == "/stats")
 		{
 			data << Stats::ServerInfo << Stats::General
 				<< Stats::XLines << Stats::Modules
 				<< Stats::Channels << Stats::Users
 				<< Stats::Servers << Stats::Commands;
 		}
-		else if (uri == "/stats/general")
+		else if (path == "/stats/general")
 		{
 			data << Stats::General;
 		}
-		else if (uri == "/stats/users")
+		else if (path == "/stats/users")
 		{
-			data << Stats::Users;
+			if (enableparams)
+				Stats::ListUsers(data, http->GetParsedURI().query_params);
+			else
+				data << Stats::Users;
 		}
 		else
 		{
