@@ -62,7 +62,7 @@ class CommandChgident : public Command
 			dest->ChangeIdent(parameters[1]);
 
 			if (!user->server->IsULine())
-				ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
 		}
 
 		return CMD_SUCCESS;

@@ -73,11 +73,11 @@ class CommandShun : public Command
 
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", reason, user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", reason, user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s removed SHUN on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
 			}
 			else
 			{
@@ -110,14 +110,14 @@ class CommandShun : public Command
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
+					ServerInstance->SNO.WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
 						user->nick.c_str(), target.c_str(), expr.c_str());
 				}
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
 					std::string timestr = InspIRCd::TimeString(c_requires_crap);
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
 						user->nick.c_str(), target.c_str(), timestr.c_str(), expr.c_str());
 				}
 			}

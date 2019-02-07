@@ -66,11 +66,11 @@ class CommandSanick : public Command
 			std::string newnick = target->nick;
 			if (target->ChangeNick(parameters[1]))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->SNO.WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 			}
 			else
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->SNO.WriteGlobalSno('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
 		}
 

@@ -83,9 +83,9 @@ class ModuleConnectBan : public Module
 				ServerInstance->XLines->ApplyLines();
 				std::string maskstr = mask.str();
 				std::string timestr = InspIRCd::TimeString(zl->expiry);
-				ServerInstance->SNO->WriteGlobalSno('x',"Module m_connectban added Z-line on %s to expire on %s: Connect flooding",
+				ServerInstance->SNO.WriteGlobalSno('x',"Module m_connectban added Z-line on %s to expire on %s: Connect flooding",
 					maskstr.c_str(), timestr.c_str());
-				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
+				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
 				connects.erase(i);
 			}
 		}

@@ -89,7 +89,7 @@ namespace
 
 void ModuleSpanningTree::init()
 {
-	ServerInstance->SNO->EnableSnomask('l', "LINK");
+	ServerInstance->SNO.EnableSnomask('l', "LINK");
 
 	ResetMembershipIds();
 
@@ -184,7 +184,7 @@ void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 		Link* x = Utils->FindLink(a->servers[a->position]);
 		if (x)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
 			ConnectServer(x, a);
 			return;
 		}
@@ -201,7 +201,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
+		ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
 	}
 
@@ -237,14 +237,14 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
 				x->Name.c_str(), newsocket->getError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
 	else if (!DNS)
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and core_dns is not loaded, unable to resolve.", x->Name.c_str());
+		ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and core_dns is not loaded, unable to resolve.", x->Name.c_str());
 	}
 	else
 	{
@@ -265,7 +265,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		catch (DNS::Exception& e)
 		{
 			delete snr;
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
 			ConnectServer(y, false);
 		}
 	}
@@ -300,7 +300,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		}
 		else if (curtime > s->age + p.second)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %u seconds)",p.first.c_str(),p.second);
+			ServerInstance->SNO.WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %u seconds)",p.first.c_str(),p.second);
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}
@@ -547,7 +547,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentULine()));
 		if (!hide)
 		{
-			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
+			ServerInstance->SNO.WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
 				user->server->GetName().c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
 		}
 	}
@@ -624,7 +624,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 		// Always warn local opers with snomask +l, also warn globally (snomask +L) if the rehash was issued by a remote user
 		std::string msg = "Error in configuration: ";
 		msg.append(e.GetReason());
-		ServerInstance->SNO->WriteToSnoMask('l', msg);
+		ServerInstance->SNO.WriteToSnoMask('l', msg);
 		if (status.srcuser && !IS_LOCAL(status.srcuser))
 			ServerInstance->PI->SendSNONotice('L', msg);
 	}

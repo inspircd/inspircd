@@ -50,7 +50,7 @@ class CommandSetidle : public SplitCommand
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
+		ServerInstance->SNO.WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
 		user->WriteNumeric(RPL_IDLETIMESET, "Idle time set.");
 
 		return CMD_SUCCESS;

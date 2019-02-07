@@ -123,7 +123,7 @@ void TreeSocket::OnConnected()
 			static_cast<IOHookProvider*>(prov)->OnConnect(this);
 		}
 
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
 	}
@@ -131,7 +131,7 @@ void TreeSocket::OnConnected()
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
+	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
 		linkID.c_str(), getError().c_str());
 	LinkState = DYING;
 	Close();

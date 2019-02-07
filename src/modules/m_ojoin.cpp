@@ -54,7 +54,7 @@ class CommandOjoin : public SplitCommand
 
 		if (channel)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
+			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
 			{
@@ -69,7 +69,7 @@ class CommandOjoin : public SplitCommand
 			if (!channel)
 				return CMD_FAILURE;
 
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
+			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
 			Modes::ChangeList changelist;
 			changelist.push_add(npmh, user->nick);

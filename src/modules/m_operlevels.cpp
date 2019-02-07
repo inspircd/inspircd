@@ -42,7 +42,7 @@ class ModuleOperLevels : public Module
 				{
 					if (IS_LOCAL(source))
 					{
-						ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %lu) attempted to /kill a higher oper: %s (level %lu): Reason: %s",
+						ServerInstance->SNO.WriteGlobalSno('a', "Oper %s (level %lu) attempted to /kill a higher oper: %s (level %lu): Reason: %s",
 							source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
 					}
 					dest->WriteNotice("*** Oper " + source->nick + " attempted to /kill you!");

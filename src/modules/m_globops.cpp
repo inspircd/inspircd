@@ -35,7 +35,7 @@ class CommandGlobops : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
+		ServerInstance->SNO.WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
 		return CMD_SUCCESS;
 	}
 };
@@ -48,7 +48,7 @@ class ModuleGlobops : public Module
 
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
+		ServerInstance->SNO.EnableSnomask('g',"GLOBOPS");
 	}
 
 	Version GetVersion() override

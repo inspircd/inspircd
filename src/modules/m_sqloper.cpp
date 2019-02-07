@@ -85,7 +85,7 @@ class OperQuery : public SQL::Query
 			if (tblk == ServerInstance->Config->OperTypes.end())
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Sqloper block " + name + " has missing type " + type);
-				ServerInstance->SNO->WriteGlobalSno('a', "m_sqloper: Oper block %s has missing type %s", name.c_str(), type.c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Oper block %s has missing type %s", name.c_str(), type.c_str());
 				continue;
 			}
 
@@ -109,7 +109,7 @@ class OperQuery : public SQL::Query
 	void OnError(SQL::Error& error) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.ToString());
-		ServerInstance->SNO->WriteGlobalSno('a', "m_sqloper: failed to update blocks from database");
+		ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: failed to update blocks from database");
 		if (!uid.empty())
 		{
 			// Fallback. We don't want to block a netadmin from /OPER

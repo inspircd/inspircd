@@ -74,7 +74,7 @@ class DNSBLResolver : public DNS::Request
 		// All replies should be in 127.0.0.0/8
 		if (ans_record->rdata.compare(0, 4, "127.") != 0)
 		{
-			ServerInstance->SNO->WriteGlobalSno('d', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
+			ServerInstance->SNO.WriteGlobalSno('d', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
 			ConfEntry->stats_misses++;
 			return;
 		}
@@ -148,7 +148,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(kl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "K-line added due to DNSBL match on *@%s to expire on %s: %s",
+						ServerInstance->SNO.WriteGlobalSno('x', "K-line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -166,7 +166,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(gl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "G-line added due to DNSBL match on *@%s to expire on %s: %s",
+						ServerInstance->SNO.WriteGlobalSno('x', "G-line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -184,7 +184,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(zl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "Z-line added due to DNSBL match on %s to expire on %s: %s",
+						ServerInstance->SNO.WriteGlobalSno('x', "Z-line added due to DNSBL match on %s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -200,7 +200,7 @@ class DNSBLResolver : public DNS::Request
 					break;
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('d', "Connecting user %s (%s) detected as being on the '%s' DNS blacklist with result %d",
+			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user %s (%s) detected as being on the '%s' DNS blacklist with result %d",
 				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 		}
 		else
@@ -223,7 +223,7 @@ class DNSBLResolver : public DNS::Request
 			return;
 		}
 
-		ServerInstance->SNO->WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
+		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
 			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), this->manager->GetErrorStr(q->error).c_str());
 	}
 };
@@ -266,7 +266,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('d', "DNSBL");
+		ServerInstance->SNO.EnableSnomask('d', "DNSBL");
 	}
 
 	Version GetVersion() override
@@ -334,7 +334,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 				if (e->reason.empty())
 				{
 					std::string location = tag->getTagLocation();
-					ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): empty reason, using defaults", location.c_str());
+					ServerInstance->SNO.WriteGlobalSno('d', "DNSBL(%s): empty reason, using defaults", location.c_str());
 					e->reason = "Your IP has been blacklisted.";
 				}
 

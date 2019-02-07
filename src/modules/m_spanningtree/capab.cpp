@@ -297,7 +297,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			{
 				if (Utils->AllowOptCommon)
 				{
-					ServerInstance->SNO->WriteToSnoMask('l',
+					ServerInstance->SNO.WriteToSnoMask('l',
 						"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
 						diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
 						diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());

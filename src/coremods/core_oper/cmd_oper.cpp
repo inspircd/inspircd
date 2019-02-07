@@ -66,6 +66,6 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
 	user->CommandFloodPenalty += 10000;
 
-	ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
+	ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
 	return CMD_FAILURE;
 }

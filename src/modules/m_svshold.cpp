@@ -58,7 +58,7 @@ public:
 	{
 		if (!silent)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago): %s",
+			ServerInstance->SNO.WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago): %s",
 				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
 		}
 	}
@@ -117,7 +117,7 @@ class CommandSvshold : public Command
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", reason, user))
 			{
 				if (!silent)
-					ServerInstance->SNO->WriteToSnoMask('x', "%s removed SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "%s removed SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{
@@ -144,13 +144,13 @@ class CommandSvshold : public Command
 
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 				}
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
 					std::string timestr = InspIRCd::TimeString(c_requires_crap);
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), parameters[2].c_str());
 				}
 			}
 			else

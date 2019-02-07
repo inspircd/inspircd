@@ -43,7 +43,7 @@ class CommandGloadmodule : public Command
 		{
 			if (ServerInstance->Modules.Load(parameters[0].c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
@@ -52,7 +52,7 @@ class CommandGloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}
@@ -92,7 +92,7 @@ class CommandGunloadmodule : public Command
 			{
 				if (ServerInstance->Modules.Unload(m))
 				{
-					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+					ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 					user->WriteRemoteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 				}
 				else
@@ -104,7 +104,7 @@ class CommandGunloadmodule : public Command
 				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "No such module");
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}
@@ -134,7 +134,7 @@ class CommandGreloadmodule : public Command
 			Module* m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
 				ServerInstance->Parser.CallHandler("RELOADMODULE", parameters, user);
 			}
 			else
@@ -144,7 +144,7 @@ class CommandGreloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}

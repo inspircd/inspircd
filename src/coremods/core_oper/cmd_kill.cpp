@@ -109,9 +109,9 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	if ((!hideuline) || (!user->server->IsULine()))
 	{
 		if (IS_LOCAL(user) && IS_LOCAL(target))
-			ServerInstance->SNO->WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+			ServerInstance->SNO.WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 		else
-			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
+			ServerInstance->SNO.WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());
 	}
 
 	if (IS_LOCAL(target))

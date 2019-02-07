@@ -26,7 +26,7 @@ class ModuleChanCreate : public Module
  public:
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
+		ServerInstance->SNO.EnableSnomask('j', "CHANCREATE");
 	}
 
 	Version GetVersion() override
@@ -38,7 +38,7 @@ class ModuleChanCreate : public Module
 	{
 		if ((created) && (IS_LOCAL(memb->user)))
 		{
-			ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
+			ServerInstance->SNO.WriteGlobalSno('j', "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
 		}
 	}
 };

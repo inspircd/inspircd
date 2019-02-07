@@ -80,7 +80,7 @@ class CommandSajoin : public Command
 				chan = Channel::JoinUser(localuser, channel, true);
 				if (chan)
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
+					ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
 					return CMD_SUCCESS;
 				}
 				else

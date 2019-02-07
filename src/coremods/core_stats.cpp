@@ -84,7 +84,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
-		ServerInstance->SNO->WriteToSnoMask('t',
+		ServerInstance->SNO.WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
@@ -97,7 +97,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		stats.AddRow(219, statschar, "End of /STATS report");
-		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+		ServerInstance->SNO.WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
 		return;
 	}
@@ -371,7 +371,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	}
 
 	stats.AddRow(219, statschar, "End of /STATS report");
-	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+	ServerInstance->SNO.WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
 	return;
 }

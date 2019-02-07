@@ -648,10 +648,10 @@ void InspIRCd::Run()
 				time_t timediff = TIME.tv_sec - OLDTIME;
 
 				if (timediff > Config->TimeSkipWarn)
-					SNO->WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by %lu seconds!", timediff);
+					SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by %lu seconds!", timediff);
 
 				else if (timediff < -Config->TimeSkipWarn)
-					SNO->WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by %lu seconds!", labs(timediff));
+					SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by %lu seconds!", labs(timediff));
 			}
 
 			OLDTIME = TIME.tv_sec;
@@ -672,7 +672,7 @@ void InspIRCd::Run()
 			if ((TIME.tv_sec % 5) == 0)
 			{
 				FOREACH_MOD(OnBackgroundTimer, (TIME.tv_sec));
-				SNO->FlushSnotices();
+				SNO.FlushSnotices();
 			}
 		}
 

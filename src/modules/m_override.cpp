@@ -60,7 +60,7 @@ class ModuleOverride : public Module
 
 		if (NoisyOverride)
 			chan->WriteNotice(InspIRCd::Format("%s used oper override to bypass %s", user->nick.c_str(), bypasswhat));
-		ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
+		ServerInstance->SNO.WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
 		return MOD_RES_ALLOW;
 	}
 
@@ -77,7 +77,7 @@ class ModuleOverride : public Module
 
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
+		ServerInstance->SNO.EnableSnomask('v', "OVERRIDE");
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -111,7 +111,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet(topiclock) && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
+				ServerInstance->SNO.WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
 			}
 
 			// Explicit allow
@@ -129,7 +129,7 @@ class ModuleOverride : public Module
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE) ||
 			    (memb->chan->GetPrefixValue(source) == HALFOP_VALUE && memb->getRank() == HALFOP_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
+				ServerInstance->SNO.WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
 				return MOD_RES_ALLOW;
 			}
 		}
@@ -172,7 +172,7 @@ class ModuleOverride : public Module
 				msg += item.mh->GetModeChar();
 			}
 			msg += params;
-			ServerInstance->SNO->WriteGlobalSno('v',msg);
+			ServerInstance->SNO.WriteGlobalSno('v',msg);
 			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;

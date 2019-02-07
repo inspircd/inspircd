@@ -89,7 +89,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 			case '*':
 				for (size_t j = 0; j < 64; j++)
 				{
-					if (ServerInstance->SNO->IsSnomaskUsable(j+'A'))
+					if (ServerInstance->SNO.IsSnomaskUsable(j+'A'))
 						curr[j] = adding;
 				}
 			break;
@@ -98,7 +98,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 				// For remote users accept what we were told, unless the snomask char is not a letter.
 				if (IS_LOCAL(user))
 				{
-					if (!ServerInstance->SNO->IsSnomaskUsable(*i))
+					if (!ServerInstance->SNO.IsSnomaskUsable(*i))
 					{
 						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is unknown snomask char to me");
 						continue;

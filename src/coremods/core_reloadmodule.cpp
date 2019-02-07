@@ -732,7 +732,7 @@ class ReloadAction : public ActionBase
 		else
 			datakeeper.Fail();
 
-		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
+		ServerInstance->SNO.WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
 		User* user = ServerInstance->FindUUID(uuid);
 		if (user)
 			user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));

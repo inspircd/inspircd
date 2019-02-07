@@ -46,7 +46,7 @@ class CommandSATopic : public Command
 			}
 
 			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
+			ServerInstance->SNO.WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CMD_SUCCESS;
 		}
