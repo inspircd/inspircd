@@ -58,7 +58,7 @@ class CoreModOper : public Module
 	void OnPostOper(User* user, const std::string&, const std::string&) CXX11_OVERRIDE
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (luser)
+		if (!luser)
 			return;
 
 		const std::string vhost = luser->oper->getConfig("vhost");
