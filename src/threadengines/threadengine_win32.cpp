@@ -81,7 +81,7 @@ static bool BindAndListen(int sockfd, int port, const char* addr)
 
 	if (SocketEngine::Listen(sockfd, ServerInstance->Config->MaxConn) != 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s", strerror(errno));
+		ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s", strerror(errno));
 		return false;
 	}
 

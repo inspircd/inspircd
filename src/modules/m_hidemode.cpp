@@ -51,7 +51,7 @@ class Settings
 			if (!rank)
 				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->getTagLocation());
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
 			newranks.insert(std::make_pair(modename, rank));
 		}
 		rankstosee.swap(newranks);

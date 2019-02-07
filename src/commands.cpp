@@ -37,7 +37,7 @@ CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 			return HandleServer(static_cast<FakeUser*>(user), parameters);
 	}
 
-	ServerInstance->Logs->Log("COMMAND", LOG_DEFAULT, "Unknown user type %d in command (uuid=%s)!",
+	ServerInstance->Logs.Log("COMMAND", LOG_DEFAULT, "Unknown user type %d in command (uuid=%s)!",
 		user->usertype, user->uuid.c_str());
 	return CMD_INVALID;
 }

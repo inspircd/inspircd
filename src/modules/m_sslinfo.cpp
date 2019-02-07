@@ -128,7 +128,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 
 	void SetCertificate(User* user, ssl_cert* cert) override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting SSL certificate for %s: %s",
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting SSL certificate for %s: %s",
 			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
 		sslext.set(user, cert);
 	}
@@ -292,12 +292,12 @@ class ModuleSSLInfo
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
 			ok = (cert && cert->IsCAVerified());
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted SSL cert. Client %s one.", (ok ? "has" : "does not have"));
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted SSL cert. Client %s one.", (ok ? "has" : "does not have"));
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
 			ok = (cert != NULL);
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires any SSL cert. Client %s one.", (ok ? "has" : "does not have"));
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class requires any SSL cert. Client %s one.", (ok ? "has" : "does not have"));
 		}
 
 		if (!ok)

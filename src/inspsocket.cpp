@@ -64,7 +64,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string& ipaddr, int 
 	irc::sockets::sockaddrs addr, bind;
 	if (!irc::sockets::aptosa(ipaddr, aport, addr))
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
+		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 		return I_ERR_CONNECT;
 	}
 
@@ -110,7 +110,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout);
 	ServerInstance->Timers.AddTimer(this->Timeout);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");
+	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");
 	return I_ERR_NONE;
 }
 
@@ -230,7 +230,7 @@ void StreamSocket::DoWrite()
 		return;
 	if (!error.empty() || fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
+		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
 		return;
 	}
 
@@ -367,7 +367,7 @@ void StreamSocket::WriteData(const std::string &data)
 {
 	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to write data to dead socket: %s",
+		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Attempt to write data to dead socket: %s",
 			data.c_str());
 		return;
 	}
@@ -380,7 +380,7 @@ void StreamSocket::WriteData(const std::string &data)
 
 bool SocketTimeout::Tick(time_t)
 {
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
+	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
 
 	if (SocketEngine::GetRef(this->sfd) != this->sock)
 	{
@@ -472,7 +472,7 @@ void StreamSocket::OnEventHandlerRead()
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
+		ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
 		SetError(ex.GetReason());
 	}
 	CheckError(I_ERR_OTHER);
@@ -491,7 +491,7 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 {
 	if (!error.empty())
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
+		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
 		OnError(errcode);
 	}
 }

@@ -471,14 +471,14 @@ void DataKeeper::RestoreMemberData(Channel* chan, const std::vector<ChanData::Me
 		User* const user = ServerInstance->FindUUID(md.owner);
 		if (!user)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User %s is gone (while processing %s)", md.owner.c_str(), chan->name.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone (while processing %s)", md.owner.c_str(), chan->name.c_str());
 			continue;
 		}
 
 		Membership* const memb = chan->GetUser(user);
 		if (!memb)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Member %s is no longer on channel %s", md.owner.c_str(), chan->name.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Member %s is no longer on channel %s", md.owner.c_str(), chan->name.c_str());
 			continue;
 		}
 
@@ -517,16 +517,16 @@ void DataKeeper::Save(Module* currmod)
 
 	FOREACH_MOD_CUSTOM(*reloadevprov, ReloadModule::EventListener, OnReloadModuleSave, (mod, this->moddata));
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans %lu modules", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size(), (unsigned long)moddata.list.size());
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans %lu modules", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size(), (unsigned long)moddata.list.size());
 }
 
 void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* type)
 {
 	const ServiceProvider* sp = service.extitem;
 	if (!sp)
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "%s \"%s\" is no longer available", type, service.itemname.c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "%s \"%s\" is no longer available", type, service.itemname.c_str());
 	else if (sp->creator != mod)
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "%s \"%s\" is now handled by %s", type, service.itemname.c_str(), (sp->creator ? sp->creator->ModuleSourceFile.c_str() : "<core>"));
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "%s \"%s\" is now handled by %s", type, service.itemname.c_str(), (sp->creator ? sp->creator->ModuleSourceFile.c_str() : "<core>"));
 }
 
 void DataKeeper::LinkModes(ModeType modetype)
@@ -575,14 +575,14 @@ void DataKeeper::Restore(Module* newmod)
 	DoRestoreChans();
 	DoRestoreModules();
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restore finished");
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restore finished");
 }
 
 void DataKeeper::Fail()
 {
 	this->mod = NULL;
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restore failed, notifying modules");
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restore failed, notifying modules");
 	DoRestoreModules();
 }
 
@@ -636,7 +636,7 @@ bool DataKeeper::RestoreSerializer(size_t serializerindex, User* user)
 
 void DataKeeper::DoRestoreUsers()
 {
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restoring user data");
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restoring user data");
 	Modes::ChangeList modechange;
 
 	for (std::vector<UserData>::const_iterator i = userdatalist.begin(); i != userdatalist.end(); ++i)
@@ -645,7 +645,7 @@ void DataKeeper::DoRestoreUsers()
 		User* const user = ServerInstance->FindUUID(userdata.owner);
 		if (!user)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User %s is gone", userdata.owner.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone", userdata.owner.c_str());
 			continue;
 		}
 
@@ -661,7 +661,7 @@ void DataKeeper::DoRestoreUsers()
 
 void DataKeeper::DoRestoreChans()
 {
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Restoring channel data");
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restoring channel data");
 	Modes::ChangeList modechange;
 
 	for (std::vector<ChanData>::const_iterator i = chandatalist.begin(); i != chandatalist.end(); ++i)
@@ -670,7 +670,7 @@ void DataKeeper::DoRestoreChans()
 		Channel* const chan = ServerInstance->FindChan(chandata.owner);
 		if (!chan)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Channel %s not found", chandata.owner.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Channel %s not found", chandata.owner.c_str());
 			continue;
 		}
 
@@ -691,7 +691,7 @@ void DataKeeper::DoRestoreModules()
 	for (ReloadModule::CustomData::List::iterator i = moddata.list.begin(); i != moddata.list.end(); ++i)
 	{
 		ReloadModule::CustomData::Data& data = *i;
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", (void*)data.handler);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", (void*)data.handler);
 		data.handler->OnReloadModuleRestore(mod, data.data);
 	}
 }

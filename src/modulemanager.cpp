@@ -40,14 +40,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	if (!FileSystem::FileExists(moduleFile))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename) != Modules.end())
 	{
 		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -72,7 +72,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 				version.assign("unknown");
 			if (defer)
 			{
-				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)",
+				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)",
 					filename.c_str(), version.c_str());
 			}
 			else
@@ -85,14 +85,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 				newmod->ReadConfig(confstatus);
 
 				Version v = newmod->GetVersion();
-				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)%s",
+				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)%s",
 					filename.c_str(), version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 		}
 		else
 		{
 			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 			delete newhandle;
 			return false;
 		}
@@ -110,7 +110,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -142,7 +142,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 
 				if (!Load(entry->d_name, true))
 				{
-					ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
+					ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
 					std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_MODULE);
 				}

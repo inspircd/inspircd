@@ -70,7 +70,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
-	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
+	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 
 	this->unregistered_count++;
 	this->clientlist[New->nick] = New;
@@ -80,7 +80,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Internal error on new connection");
+		ServerInstance->Logs.Log("USERS", LOG_DEBUG, "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 		return;
 	}
@@ -128,7 +128,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
+			ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
@@ -140,7 +140,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		else
 		{
-			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Negative hit for " + New->GetIPString());
+			ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Negative hit for " + New->GetIPString());
 		}
 	}
 	else
@@ -169,19 +169,19 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
 	user->quitting = true;
 
-	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
+	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
 	LocalUser* const localuser = IS_LOCAL(user);
 	if (localuser)
 	{
@@ -216,7 +216,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	}
 
 	if (!clientlist.erase(user->nick))
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();

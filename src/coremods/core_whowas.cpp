@@ -234,7 +234,7 @@ void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
 	whowas_users::iterator it = whowas.find(nick->nick);
 	if (it == whowas.end())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in whowas database, please report");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in whowas database, please report");
 		return;
 	}
 	PurgeNick(it);

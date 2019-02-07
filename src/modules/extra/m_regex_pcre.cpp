@@ -46,7 +46,7 @@ class PCRERegex : public Regex
 		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
 		if (!regex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
 			throw RegexException(rx, error, erroffset);
 		}
 	}

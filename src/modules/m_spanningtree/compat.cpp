@@ -26,7 +26,7 @@ static std::string newline("\n");
 
 void TreeSocket::WriteLineNoCompat(const std::string& line)
 {
-	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs.Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
 	this->WriteData(newline);
 }
@@ -368,7 +368,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			if (!server)
 			{
 				// We've no idea what this is, log and stop processing
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received a " + cmd + " with an unknown target: \"" + params[0] + "\", command dropped");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Received a " + cmd + " with an unknown target: \"" + params[0] + "\", command dropped");
 				return false;
 			}
 
@@ -541,7 +541,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			TreeServer* const numericsource = Utils->FindServer(srcstr);
 			if (!numericsource)
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH numeric %s to user %s from 1202 protocol server %s: source \"%s\" doesn't exist", token.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), srcstr.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH numeric %s to user %s from 1202 protocol server %s: source \"%s\" doesn't exist", token.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), srcstr.c_str());
 				return false;
 			}
 
@@ -570,7 +570,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			ts.GetMiddle(token);
 			if (token.c_str()[0] == '#')
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH %s to user %s from 1202 protocol server %s, target \"%s\"", cmd.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), token.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unable to translate PUSH %s to user %s from 1202 protocol server %s, target \"%s\"", cmd.c_str(), params[0].c_str(), this->MyRoot->GetName().c_str(), token.c_str());
 				return false;
 			}
 
@@ -579,7 +579,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		}
 		else
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Unable to translate PUSH to user %s from 1202 protocol server %s", params[0].c_str(), this->MyRoot->GetName().c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Unable to translate PUSH to user %s from 1202 protocol server %s", params[0].c_str(), this->MyRoot->GetName().c_str());
 			return false;
 		}
 

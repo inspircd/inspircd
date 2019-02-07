@@ -137,12 +137,12 @@ struct CallerIDExtInfo : public ExtensionItem
 
 			if (!targ)
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
 			if (!stdalgo::vector::swaperase(targ->wholistsme, dat))
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -312,12 +312,12 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
 		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
 		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
@@ -372,7 +372,7 @@ class ModuleCallerID : public Module
 
 			// Find me on their callerid list
 			if (!dat->accepting.erase(who))
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();

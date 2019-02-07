@@ -37,7 +37,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		if ((request.GetURI() != "/config") && (request.GetURI() != "/config/"))
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");
 		std::stringstream buffer;
 
 		ConfigDataHash& config = ServerInstance->Config->config_data;

@@ -97,7 +97,7 @@ class ModuleConnectBan : public Module
 
 	void OnGarbageCollect() override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Clearing map.");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Clearing map.");
 		connects.clear();
 	}
 };

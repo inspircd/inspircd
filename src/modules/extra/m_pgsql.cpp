@@ -179,7 +179,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 	{
 		if (!DoConnect())
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
 		}
 	}
@@ -272,7 +272,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -444,7 +444,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 					res.append(&buffer[0], escapedsize);
 				}
 			}
@@ -475,7 +475,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 					res.append(&buffer[0], escapedsize);
 				}
 			}

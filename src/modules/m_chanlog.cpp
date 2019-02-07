@@ -49,7 +49,7 @@ class ModuleChanLog : public Module
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
 				newlogs.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
 		logstreams.swap(newlogs);

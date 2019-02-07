@@ -58,7 +58,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time()), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
 {
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
 	CheckULine();
 
 	ServerInstance->Timers.AddTimer(&pingtimer);
@@ -129,7 +129,7 @@ void TreeServer::BeginBurst(uint64_t startms)
 	if ((!startms) || (startms > now))
 		startms = now;
 	this->StartBurst = startms;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %s behind_bursting %u", sid.c_str(), ConvToStr(startms).c_str(), behind_bursting);
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %s behind_bursting %u", sid.c_str(), ConvToStr(startms).c_str(), behind_bursting);
 }
 
 void TreeServer::FinishBurstInternal()
@@ -138,7 +138,7 @@ void TreeServer::FinishBurstInternal()
 	// introduced during a netburst may later send ENDBURST which would normally decrease this counter
 	if (behind_bursting > 0)
 		behind_bursting--;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
 
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
@@ -193,7 +193,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 
 void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 {
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
@@ -241,7 +241,7 @@ void TreeServer::CheckULine()
 		{
 			if (this->IsRoot())
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->getTagLocation() + ")");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->getTagLocation() + ")");
 				return;
 			}
 

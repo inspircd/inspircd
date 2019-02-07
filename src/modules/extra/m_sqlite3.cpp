@@ -104,7 +104,7 @@ class SQLConn : public SQL::Provider
 			// Even in case of an error conn must be closed
 			sqlite3_close(conn);
 			conn = NULL;
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
 		}
 	}
 

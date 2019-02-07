@@ -55,7 +55,7 @@ bool BanCacheManager::RemoveIfExpired(BanCacheHash::iterator& it)
 	if (ServerInstance->Time() < it->second->Expiry)
 		return false;
 
-	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "Hit on " + it->first + " is out of date, removing!");
+	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "Hit on " + it->first + " is out of date, removing!");
 	delete it->second;
 	it = BanHash.erase(it);
 	return true;
@@ -64,9 +64,9 @@ bool BanCacheManager::RemoveIfExpired(BanCacheHash::iterator& it)
 void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 {
 	if (positive)
-		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
+		ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
 	else
-		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing all negative hits");
+		ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing all negative hits");
 
 	for (BanCacheHash::iterator i = BanHash.begin(); i != BanHash.end(); )
 	{
@@ -90,7 +90,7 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 		if (remove)
 		{
 			/* we need to remove this one. */
-			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + i->first);
+			ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + i->first);
 			delete b;
 			i = BanHash.erase(i);
 		}

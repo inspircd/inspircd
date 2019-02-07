@@ -76,7 +76,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 {
 	client_sa.sa.sa_family = AF_UNSPEC;
 
-	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
+	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != USERTYPE_SERVER)
@@ -572,7 +572,7 @@ void LocalUser::FullConnect()
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
 		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
-	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
+	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -592,7 +592,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
 		return false;
 	}
 
@@ -786,7 +786,7 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 		if (nlpos == std::string::npos)
 			nlpos = text.length(); // TODO is this ok, test it
 
-		ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), (int) nlpos, text.c_str());
+		ServerInstance->Logs.Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), (int) nlpos, text.c_str());
 	}
 
 	eh.AddWriteBuf(text);
@@ -801,7 +801,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "BUG: LocalUser::Send() called on %s who does not have a serializer!",
+		ServerInstance->Logs.Log("USERS", LOG_DEBUG, "BUG: LocalUser::Send() called on %s who does not have a serializer!",
 			GetFullRealHost().c_str());
 		return;
 	}
@@ -1070,7 +1070,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 {
 	ConnectClass *found = NULL;
 
-	ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
+	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 
 	if (!explicit_name.empty())
 	{
@@ -1080,7 +1080,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
 				found = c;
 			}
 		}
@@ -1090,7 +1090,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1098,7 +1098,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class forced by module to %s", c->GetName().c_str());
 				found = c;
 				break;
 			}
@@ -1114,7 +1114,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 			    !InspIRCd::MatchCIDR(this->GetRealHost(), c->GetHost(), NULL))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;
 			}
 
@@ -1124,7 +1124,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			 */
 			if (c->limit && (c->GetReferenceCount() >= c->limit))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
 			}
 
@@ -1134,7 +1134,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				/* and our port doesn't match, fail. */
 				if (!c->ports.count(this->GetServerPort()))
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
+					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
 					continue;
 				}
 			}
@@ -1143,7 +1143,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			{
 				if (!ServerInstance->PassCompare(this, c->config->getString("password"), password, c->config->getString("hash")))
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
+					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
 					continue;
 				}
 			}

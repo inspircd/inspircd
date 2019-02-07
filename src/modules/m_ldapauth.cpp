@@ -157,7 +157,7 @@ class BindInterface : public LDAPInterface
 			const std::string& attr = it->first;
 			const std::string& val = it->second;
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 			try
 			{
 				LDAP->Compare(this, DN, attr, val);

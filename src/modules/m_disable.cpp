@@ -59,7 +59,7 @@ class ModuleDisable : public Module
 					chr, field.c_str(), tag->getTagLocation().c_str()));
 
 			// Disable the mode.
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "The %c (%s) %s mode has been disabled",
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %c (%s) %s mode has been disabled",
 				mh->GetModeChar(), mh->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user");
 			status.set(chr - 'A');
 		}
@@ -73,7 +73,7 @@ class ModuleDisable : public Module
 		if (notifyopers)
 			ServerInstance->SNO->WriteToSnoMask('a', buffer);
 		else
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, buffer);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}
 
  public:
@@ -97,7 +97,7 @@ class ModuleDisable : public Module
 				continue;
 
 			// Disable the command.
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "The %s command has been disabled", handler->name.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %s command has been disabled", handler->name.c_str());
 			newcommands.push_back(handler->name);
 		}
 

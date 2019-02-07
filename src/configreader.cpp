@@ -484,7 +484,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	if (!valid)
 	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
 		Classes.clear();
 	}
 
@@ -606,7 +606,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
 			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
 	return rv;
 }
@@ -649,7 +649,7 @@ void ConfigReaderThread::Run()
 void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
+	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, TheUserUID);
 
@@ -672,12 +672,12 @@ void ConfigReaderThread::Finish()
 		{
 			try
 			{
-				ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Rehashing " + i->first);
+				ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Rehashing " + i->first);
 				i->second->ReadConfig(status);
 			}
 			catch (CoreException& modex)
 			{
-				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
+				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
 				if (user)
 					user->WriteNotice(i->first + ": " + modex.GetReason());
 			}
@@ -688,8 +688,8 @@ void ConfigReaderThread::Finish()
 
 		ServerInstance->ISupport.Build();
 
-		ServerInstance->Logs->CloseLogs();
-		ServerInstance->Logs->OpenFileLogs();
+		ServerInstance->Logs.CloseLogs();
+		ServerInstance->Logs.OpenFileLogs();
 
 		if (Config->RawLog && !old->RawLog)
 			ServerInstance->Users->ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");

@@ -324,7 +324,7 @@ bool ModuleManager::PrioritizeHooks()
 			break;
 		if (tries == 19)
 		{
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected");
+			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected");
 			return false;
 		}
 	}
@@ -338,7 +338,7 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -413,7 +413,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
 	ServerInstance->ISupport.Build();
 }
 
@@ -485,7 +485,7 @@ void ModuleManager::LoadAll()
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 		if (!this->Load(name, true))
 		{
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
+			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -498,7 +498,7 @@ void ModuleManager::LoadAll()
 		Module* mod = i->second;
 		try
 		{
-			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
+			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
 			AttachAll(mod);
 			AddServices(servicemap[i->first]);
 			mod->init();
@@ -507,7 +507,7 @@ void ModuleManager::LoadAll()
 		catch (CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}

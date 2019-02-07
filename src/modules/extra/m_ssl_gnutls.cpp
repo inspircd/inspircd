@@ -367,7 +367,7 @@ namespace GnuTLS
 				if (gnutls_priority_init(&test, ret.c_str(), NULL) < 0)
 				{
 					// The new token broke the priority string, revert to the previously working one
-					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Priority string token not recognized: \"%s\"", token.c_str());
+					ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Priority string token not recognized: \"%s\"", token.c_str());
 					ret.erase(prevpos);
 				}
 				else
@@ -602,12 +602,12 @@ namespace GnuTLS
 				{
 					// Stripping failed, act as if a prio string wasn't set
 					stripped = GnuTLS::Priority::RemoveUnknownTokens(GnuTLS::Priority::GetDefault());
-					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens and stripping it didn't yield a working one either, falling back to \"%s\"", profilename.c_str(), stripped.c_str());
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens and stripping it didn't yield a working one either, falling back to \"%s\"", profilename.c_str(), stripped.c_str());
 				}
 				else if ((found) && (stripped != priostr))
 				{
 					// Prio string was set in the config and we ended up with something that works but different
-					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
 				}
 				priostr.swap(stripped);
 			}
@@ -1271,7 +1271,7 @@ class ModuleSSLGnuTLS : public Module
 			// No <sslprofile> tags found, create a profile named "gnutls" from settings in the <gnutls> block
 			const std::string defname = "gnutls";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <gnutls> tag");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <gnutls> tag");
 
 			try
 			{
@@ -1293,7 +1293,7 @@ class ModuleSSLGnuTLS : public Module
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
 				continue;
 			}
 
@@ -1333,7 +1333,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void init() override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
 		ReadProfiles();
 		ServerInstance->GenRandom = RandGen::Call;
 	}
@@ -1349,7 +1349,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
 	}
 

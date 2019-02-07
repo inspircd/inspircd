@@ -161,7 +161,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			const std::string restriction = current.substr(0, pos);
 			const char prefix = current[pos + 1];
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Exempting prefix %c from %s", prefix, restriction.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Exempting prefix %c from %s", prefix, restriction.c_str());
 			exempts[restriction] = prefix;
 		}
 

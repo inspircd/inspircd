@@ -66,7 +66,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	std::ofstream stream(permchannelsnewconf.c_str());
 	if (!stream.is_open())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot create database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Cannot create database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
@@ -137,7 +137,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 
 	if (stream.fail())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot write to new database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Cannot write to new database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
@@ -149,7 +149,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 	if (rename(permchannelsnewconf.c_str(), permchannelsconf.c_str()) < 0)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old permchan db \"%s\" with new db \"%s\": %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
@@ -195,7 +195,7 @@ public:
 
 			if ((channel.empty()) || (channel.length() > ServerInstance->Config->Limits.ChanMax))
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with empty or too long channel name (\"" + channel + "\")");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with empty or too long channel name (\"" + channel + "\")");
 				continue;
 			}
 
@@ -219,7 +219,7 @@ public:
 					c->SetTopic(ServerInstance->FakeClient, topic, topicset, &topicsetby);
 				}
 
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
 
 				if (modes.empty())
 					continue;
@@ -298,7 +298,7 @@ public:
 			}
 			catch (CoreException& e)
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}
 		}
 	}
