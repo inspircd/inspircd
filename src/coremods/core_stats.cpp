@@ -338,10 +338,10 @@ void CommandStats::DoStats(Stats::Context& stats)
 				std::string cmodes;
 				for(char c='A'; c <= 'z'; c++)
 				{
-					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
+					ModeHandler* mh = ServerInstance->Modes.FindMode(c, MODETYPE_USER);
 					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
 						umodes.push_back(c);
-					mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+					mh = ServerInstance->Modes.FindMode(c, MODETYPE_CHANNEL);
 					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A'])
 						cmodes.push_back(c);
 				}

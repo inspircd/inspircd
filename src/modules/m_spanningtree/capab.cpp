@@ -181,9 +181,9 @@ void TreeSocket::SendCapabilities(int phase)
 	{
 		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion))
 			.append(" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxReal))
-			.append(" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
-			.append(" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER))
-			.append(" PREFIX="+ ServerInstance->Modes->BuildPrefixes());
+			.append(" CHANMODES="+ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL))
+			.append(" USERMODES="+ServerInstance->Modes.GiveModeList(MODETYPE_USER))
+			.append(" PREFIX="+ ServerInstance->Modes.BuildPrefixes());
 	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
@@ -335,13 +335,13 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		{
 			if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
 			{
-				if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
+				if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL))
 					reason = "One or more of the channel modes on the remote server are invalid on this server.";
 			}
 
 			else if (this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end())
 			{
-				if (this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
+				if (this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes.BuildPrefixes())
 					reason = "One or more of the prefixes on the remote server are invalid on this server.";
 			}
 		}
@@ -370,7 +370,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		}
 		else if (proto_version == 1202 && this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_USER))
+			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes.GiveModeList(MODETYPE_USER))
 				reason = "One or more of the user modes on the remote server are invalid on this server.";
 		}
 

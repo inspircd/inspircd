@@ -31,7 +31,7 @@ static void DisplayList(LocalUser* user, Channel* channel)
 	Numeric::ParamBuilder<1> numeric(user, RPL_PROPLIST);
 	numeric.AddStatic(channel->name);
 
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(MODETYPE_CHANNEL);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
 		ModeHandler* mh = i->second;
@@ -84,7 +84,7 @@ class CommandProp : public SplitCommand
 			if (prop[0] == '+' || prop[0] == '-')
 				prop.erase(prop.begin());
 
-			ModeHandler* mh = ServerInstance->Modes->FindMode(prop, MODETYPE_CHANNEL);
+			ModeHandler* mh = ServerInstance->Modes.FindMode(prop, MODETYPE_CHANNEL);
 			if (mh)
 			{
 				if (mh->NeedsParam(plus))
@@ -96,7 +96,7 @@ class CommandProp : public SplitCommand
 					modes.push(mh, plus);
 			}
 		}
-		ServerInstance->Modes->ProcessSingle(src, chan, NULL, modes, ModeParser::MODE_CHECKACCESS);
+		ServerInstance->Modes.ProcessSingle(src, chan, NULL, modes, ModeParser::MODE_CHECKACCESS);
 		return CMD_SUCCESS;
 	}
 };
@@ -159,7 +159,7 @@ class ModuleNamedModes : public Module
 					name.erase(eq);
 				}
 
-				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
+				ModeHandler* mh = ServerInstance->Modes.FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
 				{
 					// Mode handler not found

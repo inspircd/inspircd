@@ -56,7 +56,7 @@ class ModuleCustomPrefix : public Module
 
 			if (tag->getBool("change"))
 			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
+				ModeHandler* mh = ServerInstance->Modes.FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
 					throw ModuleException("<customprefix:change> specified for a non-existent mode at " + tag->getTagLocation());
 

@@ -204,7 +204,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 
 		// Build a map of limits to their mode character.
 		insp::flat_map<int, std::string> limits;
-		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+		const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
 		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
 		{
 			const unsigned int limit = (*iter)->GetLowerLimit();
@@ -344,7 +344,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		char minmode = exemptions[restriction];
 
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(minmode);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
 		if (mh || minmode == '*')

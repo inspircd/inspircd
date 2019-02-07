@@ -36,9 +36,9 @@ class AutoOpList : public ListModeBase
 	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindPrefixMode(mid[0]);
+			return ServerInstance->Modes.FindPrefixMode(mid[0]);
 
-		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(mid, MODETYPE_CHANNEL);
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
@@ -101,7 +101,7 @@ class ModuleAutoOp : public Module
 						changelist.push_add(given, memb->user->nick);
 				}
 			}
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
 		}
 	}
 

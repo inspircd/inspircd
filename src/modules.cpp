@@ -565,7 +565,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 	switch (item.service)
 	{
 		case SERVICE_MODE:
-			if (!ServerInstance->Modes->DelMode(static_cast<ModeHandler*>(&item)))
+			if (!ServerInstance->Modes.DelMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
 			// Fall through
 		case SERVICE_DATA:

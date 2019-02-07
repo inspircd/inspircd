@@ -217,7 +217,7 @@ void TreeSocket::SendXLines()
 void TreeSocket::SendListModes(Channel* chan)
 {
 	FModeBuilder fmode(chan);
-	const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+	const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
 	for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
 	{
 		ListModeBase* mh = *i;

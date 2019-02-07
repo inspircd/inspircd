@@ -488,7 +488,7 @@ void DataKeeper::RestoreMemberData(Channel* chan, const std::vector<ChanData::Me
 
 void DataKeeper::CreateModeList(ModeType modetype)
 {
-	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes->GetModes(modetype);
+	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
 	for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); ++i)
 	{
 		ModeHandler* mh = i->second;
@@ -535,7 +535,7 @@ void DataKeeper::LinkModes(ModeType modetype)
 	for (std::vector<ProviderInfo>::iterator i = list.begin(); i != list.end(); ++i)
 	{
 		ProviderInfo& item = *i;
-		item.mh = ServerInstance->Modes->FindMode(item.itemname, modetype);
+		item.mh = ServerInstance->Modes.FindMode(item.itemname, modetype);
 		VerifyServiceProvider(item, (modetype == MODETYPE_USER ? "User mode" : "Channel mode"));
 	}
 }

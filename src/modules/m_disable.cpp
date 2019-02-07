@@ -53,7 +53,7 @@ class ModuleDisable : public Module
 					chr, field.c_str(), tag->getTagLocation().c_str()));
 
 			// Check that the mode actually exists.
-			ModeHandler* mh = ServerInstance->Modes->FindMode(chr, type);
+			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
 			if (!chr)
 				throw ModuleException(InspIRCd::Format("Non-existent mode '%c' was specified in <disabled:%s> at %s",
 					chr, field.c_str(), tag->getTagLocation().c_str()));
