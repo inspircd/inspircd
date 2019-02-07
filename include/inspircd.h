@@ -59,17 +59,6 @@
 
 CoreExport extern InspIRCd* ServerInstance;
 
-/** Base class for manager classes that are still accessed using -> but are no longer pointers
- */
-template <typename T>
-struct fakederef
-{
-	T* operator->()
-	{
-		return static_cast<T*>(this);
-	}
-};
-
 #include "config.h"
 #include "dynref.h"
 #include "consolecolors.h"
