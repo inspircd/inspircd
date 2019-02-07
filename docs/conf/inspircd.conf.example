@@ -677,10 +677,6 @@
 #                                                                     #
 
 <security
-          # allowcoreunload: If this value is set to yes, Opers will be able to
-          # unload core modules (e.g. core_privmsg).
-          allowcoreunload="no"
-
           # announceinvites: This option controls which members of the channel
           # receive an announcement when someone is INVITEd. Available values:
           # 'none' - don't send invite announcements

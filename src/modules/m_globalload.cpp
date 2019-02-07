@@ -76,8 +76,7 @@ class CommandGunloadmodule : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
-			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
+		if (InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 		{
 			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 			return CMD_FAILURE;

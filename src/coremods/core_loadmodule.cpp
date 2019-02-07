@@ -58,13 +58,10 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 class CommandUnloadmodule : public Command
 {
  public:
-	bool allowcoreunload;
-
 	/** Constructor for unloadmodule.
 	 */
 	CommandUnloadmodule(Module* parent)
 		: Command(parent, "UNLOADMODULE", 1)
-		, allowcoreunload(false)
 	{
 		flags_needed = 'o';
 		syntax = "<modulename>";
@@ -80,7 +77,7 @@ class CommandUnloadmodule : public Command
 
 CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 {
-	if (!allowcoreunload && InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
+	if (InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 		return CMD_FAILURE;
@@ -121,12 +118,6 @@ class CoreModLoadModule : public Module
 	Version GetVersion() override
 	{
 		return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
-	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("security");
-		cmdunloadmod.allowcoreunload = tag->getBool("allowcoreunload");
 	}
 };
 
