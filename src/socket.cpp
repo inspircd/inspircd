@@ -100,7 +100,7 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 		{
 			// UNIX socket paths are length limited to less than PATH_MAX.
 			irc::sockets::sockaddrs bindspec;
-			if (path.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path)))
+			if (path.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
 			{
 				this->Logs->Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path that is too long!",
 					path.c_str(), tag->getTagLocation().c_str());
@@ -115,11 +115,7 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 				continue;
 			}
 
-			// Create the bindspec manually (aptosa doesn't work with AF_UNIX yet).
-			memset(&bindspec, 0, sizeof(bindspec));
-			bindspec.un.sun_family = AF_UNIX;
-			memcpy(&bindspec.un.sun_path, path.c_str(), sizeof(bindspec.un.sun_path));
-
+			irc::sockets::untosa(path, bindspec);
 			if (!BindPort(tag, bindspec, old_ports))
 				failed_ports.push_back(std::make_pair(bindspec, errno));
 			else
@@ -180,6 +176,17 @@ bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::socka
 		return true;
 	}
 	return false;
+}
+
+bool irc::sockets::untosa(const std::string& path, irc::sockets::sockaddrs& sa)
+{
+	memset(&sa, 0, sizeof(sa));
+	if (path.length() >= sizeof(sa))
+		return false;
+
+	sa.un.sun_family = AF_UNIX;
+	memcpy(&sa.un.sun_path, path.c_str(), path.length() + 1);
+	return true;
 }
 
 int irc::sockets::sockaddrs::family() const
