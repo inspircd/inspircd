@@ -926,6 +926,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnServiceDel(ServiceProvider& service);
 
+	/** Called whenever a message is about to be written to a user.
+	 * @param user The user who is having a message sent to them.
+	 * @param msg The message which is being written to the user.
+	 * @return MOD_RES_ALLOW to explicitly allow the message to be sent, MOD_RES_DENY to explicitly
+	 * deny the message from being sent, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
 	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
 };
 
