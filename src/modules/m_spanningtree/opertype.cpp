@@ -30,7 +30,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 {
 	const std::string& opertype = params[0];
 	if (!u->IsOper())
-		ServerInstance->Users->all_opers.push_back(u);
+		ServerInstance->Users.all_opers.push_back(u);
 
 	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)

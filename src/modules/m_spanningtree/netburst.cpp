@@ -277,7 +277,7 @@ void TreeSocket::SyncChannel(Channel* chan)
 /** Send all users and their state, including oper and away status and global metadata */
 void TreeSocket::SendUsers(BurstState& bs)
 {
-	const user_hash& users = ServerInstance->Users->GetUsers();
+	const user_hash& users = ServerInstance->Users.GetUsers();
 	for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 	{
 		User* user = u->second;

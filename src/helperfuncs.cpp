@@ -42,9 +42,9 @@ User* InspIRCd::FindNick(const std::string &nick)
 
 User* InspIRCd::FindNickOnly(const std::string &nick)
 {
-	user_hash::iterator iter = this->Users->clientlist.find(nick);
+	user_hash::iterator iter = this->Users.clientlist.find(nick);
 
-	if (iter == this->Users->clientlist.end())
+	if (iter == this->Users.clientlist.end())
 		return NULL;
 
 	return iter->second;
@@ -52,9 +52,9 @@ User* InspIRCd::FindNickOnly(const std::string &nick)
 
 User *InspIRCd::FindUUID(const std::string &uid)
 {
-	user_hash::iterator finduuid = this->Users->uuidlist.find(uid);
+	user_hash::iterator finduuid = this->Users.uuidlist.find(uid);
 
-	if (finduuid == this->Users->uuidlist.end())
+	if (finduuid == this->Users.uuidlist.end())
 		return NULL;
 
 	return finduuid->second;

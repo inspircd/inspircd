@@ -531,11 +531,11 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 
 	// If we only want to match against opers we only have to iterate the oper list.
 	else if (data.flags['o'])
-		WhoUsers(user, parameters, ServerInstance->Users->all_opers, data);
+		WhoUsers(user, parameters, ServerInstance->Users.all_opers, data);
 
 	// Otherwise we have to use the global user list.
 	else
-		WhoUsers(user, parameters, ServerInstance->Users->GetUsers(), data);
+		WhoUsers(user, parameters, ServerInstance->Users.GetUsers(), data);
 
 	// Send the results to the source.
 	for (std::vector<Numeric::Numeric>::const_iterator n = data.results.begin(); n != data.results.end(); ++n)

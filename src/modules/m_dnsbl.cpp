@@ -121,7 +121,7 @@ class DNSBLResolver : public DNS::Request
 			{
 				case DNSBLConfEntry::I_KILL:
 				{
-					ServerInstance->Users->QuitUser(them, "Killed (" + reason + ")");
+					ServerInstance->Users.QuitUser(them, "Killed (" + reason + ")");
 					break;
 				}
 				case DNSBLConfEntry::I_MARK:

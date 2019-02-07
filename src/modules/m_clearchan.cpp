@@ -129,7 +129,7 @@ class CommandClearChan : public Command
 					delete xline;
 			}
 
-			ServerInstance->Users->QuitUser(curr, reason);
+			ServerInstance->Users.QuitUser(curr, reason);
 		}
 
 		ServerInstance->Modules.Detach(hook, creator);

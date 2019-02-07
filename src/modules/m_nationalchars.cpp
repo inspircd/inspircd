@@ -297,7 +297,7 @@ class ModuleNationalChars : public Module
 			User* n = *iter;
 			++iter;
 			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick))
-				ServerInstance->Users->QuitUser(n, message);
+				ServerInstance->Users.QuitUser(n, message);
 		}
 	}
 

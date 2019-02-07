@@ -129,7 +129,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	}
 
 	// send the quit out
-	ServerInstance->Users->QuitUser(target, killreason);
+	ServerInstance->Users.QuitUser(target, killreason);
 
 	return CMD_SUCCESS;
 }

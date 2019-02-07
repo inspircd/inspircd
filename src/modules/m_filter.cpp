@@ -404,7 +404,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s was killed because their message to %s matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
-			ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
+			ServerInstance->Users.QuitUser(user, "Filtered: " + f->reason);
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
@@ -502,7 +502,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if ((parting) && (f->action == FA_KILL))
 			{
 				user->WriteNotice("*** Your PART message was filtered: " + f->reason);
-				ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
+				ServerInstance->Users.QuitUser(user, "Filtered: " + f->reason);
 			}
 			if (f->action == FA_GLINE)
 			{

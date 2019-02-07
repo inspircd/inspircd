@@ -88,7 +88,7 @@ class ModuleHideOper
 			return MOD_RES_PASSTHRU;
 
 		// If there are no visible operators then we shouldn't send the numeric.
-		size_t opercount = ServerInstance->Users->all_opers.size() - hm.opercount;
+		size_t opercount = ServerInstance->Users.all_opers.size() - hm.opercount;
 		if (opercount)
 		{
 			active = true;
@@ -159,7 +159,7 @@ class ModuleHideOper
 			return MOD_RES_PASSTHRU;
 
 		unsigned int count = 0;
-		const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+		const UserManager::OperList& opers = ServerInstance->Users.all_opers;
 		for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 		{
 			User* oper = *i;

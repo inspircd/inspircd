@@ -49,7 +49,7 @@ class CommandSaquit : public Command
 
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "+parameters[1]);
 
-			ServerInstance->Users->QuitUser(dest, parameters[1]);
+			ServerInstance->Users.QuitUser(dest, parameters[1]);
 			return CMD_SUCCESS;
 		}
 		else

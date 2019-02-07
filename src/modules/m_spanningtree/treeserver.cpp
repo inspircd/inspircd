@@ -214,7 +214,7 @@ unsigned int TreeServer::QuitUsers(const std::string& reason)
 {
 	std::string publicreason = Utils->HideSplits ? "*.net *.split" : reason;
 
-	const user_hash& users = ServerInstance->Users->GetUsers();
+	const user_hash& users = ServerInstance->Users.GetUsers();
 	unsigned int original_size = users.size();
 	for (user_hash::const_iterator i = users.begin(); i != users.end(); )
 	{
@@ -223,7 +223,7 @@ unsigned int TreeServer::QuitUsers(const std::string& reason)
 		++i;
 		TreeServer* server = TreeServer::Get(user);
 		if (server->IsDead())
-			ServerInstance->Users->QuitUser(user, publicreason, &reason);
+			ServerInstance->Users.QuitUser(user, publicreason, &reason);
 	}
 	return original_size - users.size();
 }

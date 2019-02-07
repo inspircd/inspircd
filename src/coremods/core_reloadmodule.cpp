@@ -312,7 +312,7 @@ void DataKeeper::DoSaveUsers()
 {
 	ModesExts currdata;
 
-	const user_hash& users = ServerInstance->Users->GetUsers();
+	const user_hash& users = ServerInstance->Users.GetUsers();
 	for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 	{
 		User* const user = i->second;

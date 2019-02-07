@@ -85,7 +85,7 @@ public:
 				return MOD_RES_PASSTHRU;
 			}
 
-			ServerInstance->Users->QuitUser(user, quitmsg);
+			ServerInstance->Users.QuitUser(user, quitmsg);
 			return MOD_RES_DENY;
 		}
 
@@ -95,7 +95,7 @@ public:
 			{
 				throttled = true;
 				ServerInstance->SNO.WriteGlobalSno('a', "Connection throttle activated");
-				ServerInstance->Users->QuitUser(user, quitmsg);
+				ServerInstance->Users.QuitUser(user, quitmsg);
 				return MOD_RES_DENY;
 			}
 		}
