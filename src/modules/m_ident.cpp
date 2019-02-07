@@ -187,7 +187,7 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
 			SocketEngine::Close(this);
 		}
 	}
@@ -217,7 +217,7 @@ class IdentRequestSocket : public EventHandler
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "ReadResponse()");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "ReadResponse()");
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -349,7 +349,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
 		}
 	}
 

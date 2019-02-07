@@ -361,7 +361,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 				return;
 		}
 		else
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
 		std::string reversedip;
 		if (user->client_sa.family() == AF_INET)
@@ -388,7 +388,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		else
 			return;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
 		countExt.set(user, DNSBLConfEntries.size());
 
@@ -407,7 +407,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			catch (DNS::Exception &ex)
 			{
 				delete r;
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, ex.GetReason());
 			}
 
 			if (user->quitting)

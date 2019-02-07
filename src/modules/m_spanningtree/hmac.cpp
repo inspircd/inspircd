@@ -59,7 +59,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 
 	if (!challenge.empty() && !sha256)
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
 
 	return password;
 }

@@ -288,7 +288,7 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		if (uri[uri.size() - 1] == '/')
 			uri.erase(uri.size() - 1, 1);
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 
 		bool found = true;
 		std::stringstream data;

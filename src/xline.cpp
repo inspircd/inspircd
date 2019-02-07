@@ -538,7 +538,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 
 	if (bancache)
 	{
-		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
+		ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
 		ServerInstance->BanCache.AddHit(u->GetIPString(), this->type, banReason, this->duration);
 	}
 }

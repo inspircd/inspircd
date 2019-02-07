@@ -48,7 +48,7 @@ class ModuleSSLRehashSignal : public Module
 
 		const std::string feedbackmsg = "Got SIGUSR1, reloading SSL credentials";
 		ServerInstance->SNO->WriteGlobalSno('a', feedbackmsg);
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, feedbackmsg);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 
 		const std::string str = "ssl";
 		FOREACH_MOD(OnModuleRehash, (NULL, str));

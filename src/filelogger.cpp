@@ -24,13 +24,13 @@
 
 FileLogStream::FileLogStream(LogLevel loglevel, FileWriter *fw) : LogStream(loglevel), f(fw)
 {
-	ServerInstance->Logs->AddLoggerRef(f);
+	ServerInstance->Logs.AddLoggerRef(f);
 }
 
 FileLogStream::~FileLogStream()
 {
 	/* FileWriter is managed externally now */
-	ServerInstance->Logs->DelLoggerRef(f);
+	ServerInstance->Logs.DelLoggerRef(f);
 }
 
 void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std::string &text)

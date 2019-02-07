@@ -335,9 +335,9 @@ namespace OpenSSL
 			if (!setoptions && !clearoptions)
 				return; // Nothing to do
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting %s %s context options, default: %ld set: %ld clear: %ld", name.c_str(), ctxname.c_str(), ctx.GetDefaultContextOptions(), setoptions, clearoptions);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting %s %s context options, default: %ld set: %ld clear: %ld", name.c_str(), ctxname.c_str(), ctx.GetDefaultContextOptions(), setoptions, clearoptions);
 			long final = context.SetRawContextOptions(setoptions, clearoptions);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
 		}
 
 	 public:
@@ -398,7 +398,7 @@ namespace OpenSSL
 			if ((!ctx.SetCA(filename)) || (!clictx.SetCA(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
 			}
 
 			// Load the CRLs.
@@ -638,7 +638,7 @@ class OpenSSLIOHook : public SSLIOHook
 		if (status != ISSL_NONE)
 			return true;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Session %p killed, attempted to renegotiate", (void*)sess);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Session %p killed, attempted to renegotiate", (void*)sess);
 		CloseSession();
 		sock->SetError("Renegotiation is not allowed");
 		return false;
@@ -936,7 +936,7 @@ class ModuleSSLOpenSSL : public Module
 			// Create a default profile named "openssl"
 			const std::string defname = "openssl";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the <openssl> tag");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the <openssl> tag");
 
 			try
 			{
@@ -957,7 +957,7 @@ class ModuleSSLOpenSSL : public Module
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
 				continue;
 			}
 
@@ -1000,7 +1000,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void init() override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
 
 		// Register application specific data
 		char exdatastr[] = "inspircd";
@@ -1022,7 +1022,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
 	}
 

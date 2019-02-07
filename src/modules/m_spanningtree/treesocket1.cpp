@@ -150,7 +150,7 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& pa
 	TreeServer* quitting = Utils->FindServer(params[0]);
 	if (!quitting)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Squit from unknown server");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Squit from unknown server");
 		return CMD_FAILURE;
 	}
 
@@ -196,8 +196,8 @@ void TreeSocket::OnDataReady()
 		}
 		catch (CoreException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error while processing: " + line);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error while processing: " + line);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, ex.GetReason());
 			SendError(ex.GetReason() + " - check the log file for details");
 		}
 

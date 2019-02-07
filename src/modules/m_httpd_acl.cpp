@@ -86,7 +86,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 				}
 			}
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
 					password.c_str(), whitelist.c_str(), blacklist.c_str());
 
 			new_acls.push_back(HTTPACL(path, username, password, whitelist, blacklist));
@@ -96,7 +96,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BlockAccess (%u)", returnval);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BlockAccess (%u)", returnval);
 
 		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
 		HTTPDocumentResponse response(this, *http, &data, returnval);
@@ -109,7 +109,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	bool IsAccessAllowed(HTTPRequest* http)
 	{
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd acl event");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling httpd acl event");
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
@@ -125,7 +125,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 						{
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
-								ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
+								ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
 										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
 								BlockAccess(http, 403);
 								return false;
@@ -147,7 +147,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 						if (!allow_access)
 						{
-							ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
+							ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
 									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
 							BlockAccess(http, 403);
 							return false;
@@ -156,7 +156,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 					if (!this_acl->password.empty() && !this_acl->username.empty())
 					{
 						/* Password auth, first look to see if we have a basic authentication header */
-						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Checking HTTP auth password for resource %s (matched by pattern %s) from ip %s, against username %s",
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Checking HTTP auth password for resource %s (matched by pattern %s) from ip %s, against username %s",
 								http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), this_acl->username.c_str());
 
 						if (http->headers->IsSet("Authorization"))
@@ -175,7 +175,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 								sep.GetToken(base64);
 								std::string userpass = Base64ToBin(base64);
-								ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
+								ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
 
 								irc::sepstream userpasspair(userpass, ':');
 								if (userpasspair.GetToken(user))
@@ -185,7 +185,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 									/* Access granted if username and password are correct */
 									if (user == this_acl->username && pass == this_acl->password)
 									{
-										ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username match");
+										ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username match");
 										return true;
 									}
 									else

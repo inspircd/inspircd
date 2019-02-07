@@ -343,7 +343,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs->Log("STARTUP", LOG_DEFAULT, "Can't start as root");
+		this->Logs.Log("STARTUP", LOG_DEFAULT, "Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif

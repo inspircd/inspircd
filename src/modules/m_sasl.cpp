@@ -48,7 +48,7 @@ class ServerTracker : public ServerEventListener
 
 		if (InspIRCd::Match(server->GetName(), sasl_target))
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_VERBOSE, "SASL target server \"%s\" %s", sasl_target.c_str(), (linked ? "came online" : "went offline"));
+			ServerInstance->Logs.Log(MODNAME, LOG_VERBOSE, "SASL target server \"%s\" %s", sasl_target.c_str(), (linked ? "came online" : "went offline"));
 			online = linked;
 		}
 	}
@@ -244,13 +244,13 @@ class SaslAuthenticator
 			else if (msg[2] == "M")
 				this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");
 			else
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
 			break;
 		 case SASL_DONE:
 			break;
 		 default:
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
 			break;
 		}
 
@@ -361,7 +361,7 @@ class CommandSASL : public Command
 		User* target = ServerInstance->FindUUID(parameters[1]);
 		if (!target)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -411,7 +411,7 @@ class ModuleSASL : public Module
 	void init() override
 	{
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account and m_cap are not loaded! m_sasl will NOT function correctly until these two modules are loaded!");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account and m_cap are not loaded! m_sasl will NOT function correctly until these two modules are loaded!");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

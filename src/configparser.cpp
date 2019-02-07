@@ -415,7 +415,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
-	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
+	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
 	if (stdalgo::isin(reading, path))
 		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
@@ -441,7 +441,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = j->second;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -460,7 +460,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (!validator(res))
 	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: The value of <%s:%s> is not valid; value set to %s.",
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "WARNING: The value of <%s:%s> is not valid; value set to %s.",
 			tag.c_str(), key.c_str(), def.c_str());
 		return def;
 	}
@@ -475,7 +475,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (res.length() < minlen || res.length() > maxlen)
 	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
 			tag.c_str(), key.c_str(), minlen, maxlen, def.c_str());
 		return def;
 	}
@@ -518,7 +518,7 @@ namespace
 
 		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + val + " contains an invalid magnitude specifier '"
 			+ tail + "'; value set to " + ConvToStr(def) + ".";
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, message);
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, message);
 		num = def;
 	}
 
@@ -539,7 +539,7 @@ namespace
 
 		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + ConvToStr(num) + " is not between "
 			+ ConvToStr(min) + " and " + ConvToStr(max) + "; value set to " + ConvToStr(def) + ".";
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, message);
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, message);
 		num = def;
 	}
 }
@@ -587,7 +587,7 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	unsigned long ret;
 	if (!InspIRCd::Duration(duration, ret))
 	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 			" is not a duration; value set to " + ConvToStr(def) + ".");
 		return def;
 	}
@@ -618,7 +618,7 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if (result == "no" || result == "false" || result == "0" || result == "off")
 		return false;
 
-	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 		" is not valid, ignoring");
 	return def;
 }

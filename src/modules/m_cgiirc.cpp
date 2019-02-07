@@ -212,7 +212,7 @@ class CommandWebIRC : public SplitCommand
 		if (notify)
 			ServerInstance->SNO->WriteGlobalSno('w', buffer);
 		else
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, buffer);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}
 };
 
@@ -400,7 +400,7 @@ class ModuleCgiIRC
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
 							user->uuid.c_str(), user->client_sa.family());
 						return;
 				}
@@ -426,7 +426,7 @@ class ModuleCgiIRC
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
 							user->uuid.c_str(), user->server_sa.family());
 						return;
 				}

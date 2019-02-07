@@ -249,7 +249,7 @@ namespace mbedTLS
 			size_t len = strlen(msg);
 			if ((len > 0) && (msg[len-1] == '\n'))
 				len--;
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "%s:%d %.*s", file, line, len, msg);
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "%s:%d %.*s", file, line, len, msg);
 		}
 #endif
 
@@ -860,7 +860,7 @@ class ModuleSSLmbedTLS : public Module
 			// No <sslprofile> tags found, create a profile named "mbedtls" from settings in the <mbedtls> block
 			const std::string defname = "mbedtls";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <mbedtls> tag");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <mbedtls> tag");
 
 			try
 			{
@@ -882,7 +882,7 @@ class ModuleSSLmbedTLS : public Module
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
 				continue;
 			}
 
@@ -916,7 +916,7 @@ class ModuleSSLmbedTLS : public Module
 	{
 		char verbuf[16]; // Should be at least 9 bytes in size
 		mbedtls_version_get_string(verbuf);
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
 
 		if (!ctr_drbg.Seed(entropy))
 			throw ModuleException("CTR DRBG seed failed");
@@ -934,7 +934,7 @@ class ModuleSSLmbedTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
 	}
 

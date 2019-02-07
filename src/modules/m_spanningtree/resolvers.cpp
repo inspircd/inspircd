@@ -137,7 +137,7 @@ void SecurityIPResolver::OnError(const DNS::Query *r)
 			delete res;
 		}
 	}
-	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Could not resolve IP associated with Link '%s': %s",
+	ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not resolve IP associated with Link '%s': %s",
 		MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 }
 

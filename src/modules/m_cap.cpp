@@ -88,7 +88,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnReloadModuleSave()");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "OnReloadModuleSave()");
 		if (mod == creator)
 			return;
 
@@ -102,7 +102,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			if (cap->creator != mod)
 				continue;
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
 			capmoddata->caps.push_back(CapModData::Data(cap));
 			CapModData::Data& capdata = capmoddata->caps.back();
 
@@ -126,7 +126,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			Capability* cap = ManagerImpl::Find(capdata.name);
 			if (!cap)
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cap %s is no longer available after reload", capdata.name.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cap %s is no longer available after reload", capdata.name.c_str());
 				continue;
 			}
 
@@ -137,7 +137,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 				User* user = ServerInstance->FindUUID(uuid);
 				if (!user)
 				{
-					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());
+					ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());
 					continue;
 				}
 
@@ -173,7 +173,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		if (cap->IsRegistered())
 			return;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Registering cap %s", cap->GetName().c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Registering cap %s", cap->GetName().c_str());
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
 		caps.insert(std::make_pair(cap->GetName(), cap));
@@ -188,7 +188,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		if (!cap->IsRegistered())
 			return;
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unregistering cap %s", cap->GetName().c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unregistering cap %s", cap->GetName().c_str());
 
 		// Fire the event first so modules can still see who is using the cap which is being unregistered
 		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, false));
@@ -216,7 +216,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	void NotifyValueChange(Capability* cap) override
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
 		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapValueChange, (cap));
 	}
 
