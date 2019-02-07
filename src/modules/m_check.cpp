@@ -263,7 +263,7 @@ class CommandCheck : public Command
 				/*
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 			 	 */
-				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
+				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(i->first);
 				context.Write("member", InspIRCd::Format("%u %s%s (%s)", clonecount.global,
 					i->second->GetAllPrefixChars().c_str(), i->first->GetFullHost().c_str(),
 					i->first->GetRealName().c_str()));
@@ -281,7 +281,7 @@ class CommandCheck : public Command
 			long x = 0;
 
 			/* hostname or other */
-			const user_hash& users = ServerInstance->Users->GetUsers();
+			const user_hash& users = ServerInstance->Users.GetUsers();
 			for (user_hash::const_iterator a = users.begin(); a != users.end(); ++a)
 			{
 				if (InspIRCd::Match(a->second->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))

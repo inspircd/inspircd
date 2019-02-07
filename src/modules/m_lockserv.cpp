@@ -110,7 +110,7 @@ class ModuleLockserv : public Module
 	{
 		if (!locked.empty())
 		{
-			ServerInstance->Users->QuitUser(user, locked);
+			ServerInstance->Users.QuitUser(user, locked);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

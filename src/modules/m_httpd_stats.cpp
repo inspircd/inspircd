@@ -118,10 +118,10 @@ namespace Stats
 	std::ostream& General(std::ostream& data)
 	{
 		data << "<general>";
-		data << "<usercount>" << ServerInstance->Users->GetUsers().size() << "</usercount>";
-		data << "<localusercount>" << ServerInstance->Users->GetLocalUsers().size() << "</localusercount>";
+		data << "<usercount>" << ServerInstance->Users.GetUsers().size() << "</usercount>";
+		data << "<localusercount>" << ServerInstance->Users.GetLocalUsers().size() << "</localusercount>";
 		data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
-		data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
+		data << "<opercount>" << ServerInstance->Users.all_opers.size() << "</opercount>";
 		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
 		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
@@ -204,7 +204,7 @@ namespace Stats
 	std::ostream& Users(std::ostream& data)
 	{
 		data << "<userlist>";
-		const user_hash& users = ServerInstance->Users->GetUsers();
+		const user_hash& users = ServerInstance->Users.GetUsers();
 		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			User* u = i->second;

@@ -667,7 +667,7 @@ void InspIRCd::Run()
 			}
 
 			Timers.TickTimers(TIME.tv_sec);
-			Users->DoBackgroundUserStuff();
+			Users.DoBackgroundUserStuff();
 
 			if ((TIME.tv_sec % 5) == 0)
 			{

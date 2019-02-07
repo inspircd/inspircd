@@ -171,7 +171,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		case 'P':
 		{
 			unsigned int idx = 0;
-			const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+			const UserManager::OperList& opers = ServerInstance->Users.all_opers;
 			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 			{
 				User* oper = *i;
@@ -230,7 +230,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-			stats.AddRow(249, "Users: "+ConvToStr(ServerInstance->Users->GetUsers().size()));
+			stats.AddRow(249, "Users: "+ConvToStr(ServerInstance->Users.GetUsers().size()));
 			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->GetChans().size()));
 			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 

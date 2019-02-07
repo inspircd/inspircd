@@ -389,7 +389,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		}
 	}
 
-	const user_hash& users = ServerInstance->Users->GetUsers();
+	const user_hash& users = ServerInstance->Users.GetUsers();
 	for (user_hash::const_iterator u = users.begin(); u != users.end(); )
 	{
 		User* user = u->second;

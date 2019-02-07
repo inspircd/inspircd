@@ -27,19 +27,19 @@ struct LusersCounters
 	unsigned int invisible;
 
 	LusersCounters(unsigned int inv)
-		: max_local(ServerInstance->Users->LocalUserCount())
-		, max_global(ServerInstance->Users->RegisteredUserCount())
+		: max_local(ServerInstance->Users.LocalUserCount())
+		, max_global(ServerInstance->Users.RegisteredUserCount())
 		, invisible(inv)
 	{
 	}
 
 	inline void UpdateMaxUsers()
 	{
-		unsigned int current = ServerInstance->Users->LocalUserCount();
+		unsigned int current = ServerInstance->Users.LocalUserCount();
 		if (current > max_local)
 			max_local = current;
 
-		current = ServerInstance->Users->RegisteredUserCount();
+		current = ServerInstance->Users.RegisteredUserCount();
 		if (current > max_global)
 			max_global = current;
 	}
@@ -68,7 +68,7 @@ class CommandLusers : public Command
  */
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
+	unsigned int n_users = ServerInstance->Users.RegisteredUserCount();
 	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
 	unsigned int n_serv = serverlist.size();
@@ -87,10 +87,10 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %d users and %d invisible on %d servers",
 			n_users - counters.invisible, counters.invisible, n_serv));
 
-	if (ServerInstance->Users->OperCount())
+	if (ServerInstance->Users.OperCount())
 		user->WriteNumeric(RPL_LUSEROP, ServerInstance->Users.OperCount(), "operator(s) online");
 
-	if (ServerInstance->Users->UnregisteredUserCount())
+	if (ServerInstance->Users.UnregisteredUserCount())
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(), "channels formed");
@@ -132,7 +132,7 @@ class ModuleLusers : public Module
 	unsigned int CountInvisible()
 	{
 		unsigned int c = 0;
-		const user_hash& users = ServerInstance->Users->GetUsers();
+		const user_hash& users = ServerInstance->Users.GetUsers();
 		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			User* u = i->second;

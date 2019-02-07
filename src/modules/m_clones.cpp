@@ -59,7 +59,7 @@ class CommandClones : public SplitCommand
 			batch.GetBatchStartMessage().PushParam(ConvToStr(limit));
 		}
 
-		const UserManager::CloneMap& clonemap = ServerInstance->Users->GetCloneMap();
+		const UserManager::CloneMap& clonemap = ServerInstance->Users.GetCloneMap();
 		for (UserManager::CloneMap::const_iterator i = clonemap.begin(); i != clonemap.end(); ++i)
 		{
 			const UserManager::CloneCounts& counts = i->second;

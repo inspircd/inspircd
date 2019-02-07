@@ -123,7 +123,7 @@ class ModuleBlockAmsg : public Module
 					ServerInstance->SNO.WriteToSnoMask('a', "%s had an /amsg or /ame denied", user->nick.c_str());
 
 				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
-					ServerInstance->Users->QuitUser(user, "Attempted to global message (/amsg or /ame)");
+					ServerInstance->Users.QuitUser(user, "Attempted to global message (/amsg or /ame)");
 				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteNotice("Global message (/amsg or /ame) denied");
 

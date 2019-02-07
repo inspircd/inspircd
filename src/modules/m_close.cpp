@@ -43,7 +43,7 @@ class CommandClose : public Command
 			++u;
 			if (user->registered != REG_ALL)
 			{
-				ServerInstance->Users->QuitUser(user, "Closing all unknown connections per request");
+				ServerInstance->Users.QuitUser(user, "Closing all unknown connections per request");
 				std::string key = ConvToStr(user->GetIPString())+"."+ConvToStr(user->GetServerPort());
 				closed[key]++;
 			}

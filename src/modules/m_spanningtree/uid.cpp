@@ -71,7 +71,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
 	RemoteUser* _new = new SpanningTree::RemoteUser(params[0], remoteserver);
-	ServerInstance->Users->clientlist[params[2]] = _new;
+	ServerInstance->Users.clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
@@ -117,7 +117,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	_new->SetClientIP(params[6]);
 
-	ServerInstance->Users->AddClone(_new);
+	ServerInstance->Users.AddClone(_new);
 	remoteserver->UserCount++;
 
 	bool dosend = true;

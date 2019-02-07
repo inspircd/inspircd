@@ -151,7 +151,7 @@ class CommandWebIRC : public SplitCommand
 			{
 				WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
 					user->uuid.c_str(), user->GetIPString().c_str());
-				ServerInstance->Users->QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
+				ServerInstance->Users.QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
 				return CMD_FAILURE;
 			}
 
@@ -198,7 +198,7 @@ class CommandWebIRC : public SplitCommand
 
 		WriteLog("Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
 			user->uuid.c_str(), user->GetIPString().c_str());
-		ServerInstance->Users->QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
+		ServerInstance->Users.QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
 		return CMD_FAILURE;
 	}
 

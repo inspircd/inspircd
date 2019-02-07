@@ -531,9 +531,9 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users->QuitUser(u, line + "-lined", &banReason);
+		ServerInstance->Users.QuitUser(u, line + "-lined", &banReason);
 	else
-		ServerInstance->Users->QuitUser(u, banReason);
+		ServerInstance->Users.QuitUser(u, banReason);
 
 
 	if (bancache)

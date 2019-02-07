@@ -225,7 +225,7 @@ void UserIOHandler::OnDataReady()
 
 	if (recvq.length() > user->MyClass->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
-		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
+		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
 		return;
@@ -293,7 +293,7 @@ void UserIOHandler::OnDataReady()
 	}
 
 	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
-		ServerInstance->Users->QuitUser(user, "Excess Flood");
+		ServerInstance->Users.QuitUser(user, "Excess Flood");
 }
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
@@ -323,16 +323,16 @@ bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const i
 
 void UserIOHandler::OnError(BufferedSocketError)
 {
-	ServerInstance->Users->QuitUser(user, getError());
+	ServerInstance->Users.QuitUser(user, getError());
 }
 
 CullResult User::cull()
 {
 	if (!quitting)
-		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
+		ServerInstance->Users.QuitUser(this, "Culled without QuitUser");
 
 	if (client_sa.family() != AF_UNSPEC)
-		ServerInstance->Users->RemoveCloneCounts(this);
+		ServerInstance->Users.RemoveCloneCounts(this);
 
 	return Extensible::cull();
 }
@@ -392,7 +392,7 @@ void User::Oper(OperInfo* info)
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
-	ServerInstance->Users->all_opers.push_back(this);
+	ServerInstance->Users.all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
 	if (localuser)
@@ -470,7 +470,7 @@ void User::UnOper()
 	ServerInstance->Modes.Process(this, NULL, this, changelist);
 
 	// Remove the user from the oper list
-	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
+	stdalgo::vector::swaperase(ServerInstance->Users.all_opers, this);
 
 	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
@@ -487,27 +487,27 @@ void LocalUser::CheckClass(bool clone_count)
 
 	if (!a)
 	{
-		ServerInstance->Users->QuitUser(this, "Access denied by configuration");
+		ServerInstance->Users.QuitUser(this, "Access denied by configuration");
 		return;
 	}
 	else if (a->type == CC_DENY)
 	{
-		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
+		ServerInstance->Users.QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
 		return;
 	}
 	else if (clone_count)
 	{
-		const UserManager::CloneCounts& clonecounts = ServerInstance->Users->GetCloneCounts(this);
+		const UserManager::CloneCounts& clonecounts = ServerInstance->Users.GetCloneCounts(this);
 		if ((a->GetMaxLocal()) && (clonecounts.local > a->GetMaxLocal()))
 		{
-			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
+			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 			if (a->maxconnwarn)
 				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
 			return;
 		}
 		else if ((a->GetMaxGlobal()) && (clonecounts.global > a->GetMaxGlobal()))
 		{
-			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
+			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 			if (a->maxconnwarn)
 				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
 			return;
@@ -564,8 +564,8 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnUserConnect, (this));
 
 	/* Now registered */
-	if (ServerInstance->Users->unregistered_count)
-		ServerInstance->Users->unregistered_count--;
+	if (ServerInstance->Users.unregistered_count)
+		ServerInstance->Users.unregistered_count--;
 	this->registered = REG_ALL;
 
 	FOREACH_MOD(OnPostConnect, (this));
@@ -645,8 +645,8 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	nick = newnick;
 
 	InvalidateCache();
-	ServerInstance->Users->clientlist.erase(oldnick);
-	ServerInstance->Users->clientlist[newnick] = this;
+	ServerInstance->Users.clientlist.erase(oldnick);
+	ServerInstance->Users.clientlist[newnick] = this;
 
 	if (registered == REG_ALL)
 		FOREACH_MOD(OnUserPostNick, (this,oldnick));
@@ -758,13 +758,13 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 	if (sa == client_sa)
 		return;
 
-	ServerInstance->Users->RemoveCloneCounts(this);
+	ServerInstance->Users.RemoveCloneCounts(this);
 
 	User::SetClientIP(sa);
 
 	FOREACH_MOD(OnSetUserIP, (this));
 
-	ServerInstance->Users->AddClone(this);
+	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.
 	this->MyClass = NULL;

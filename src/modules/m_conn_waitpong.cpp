@@ -74,7 +74,7 @@ class ModuleWaitPong : public Module
 				else
 				{
 					if(killonbadreply)
-						ServerInstance->Users->QuitUser(user, "Incorrect ping reply for registration");
+						ServerInstance->Users.QuitUser(user, "Incorrect ping reply for registration");
 					return MOD_RES_DENY;
 				}
 			}

@@ -36,7 +36,7 @@ class CommandTline : public Command
 		unsigned int n_match_host = 0;
 		unsigned int n_match_ip = 0;
 
-		const user_hash& users = ServerInstance->Users->GetUsers();
+		const user_hash& users = ServerInstance->Users.GetUsers();
 		for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 		{
 			if (InspIRCd::Match(u->second->GetFullRealHost(),parameters[0]))

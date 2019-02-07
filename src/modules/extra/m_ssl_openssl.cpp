@@ -1036,7 +1036,7 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users->QuitUser(user, "SSL module unloading");
+				ServerInstance->Users.QuitUser(user, "SSL module unloading");
 			}
 		}
 	}

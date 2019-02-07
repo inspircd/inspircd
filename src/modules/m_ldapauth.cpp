@@ -175,7 +175,7 @@ class BindInterface : public LDAPInterface
 		{
 			if (verbose)
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (unable to validate attributes)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 			delete this;
 		}
 	}
@@ -196,7 +196,7 @@ class BindInterface : public LDAPInterface
 		{
 			if (verbose)
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), err.getError().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 		}
 
 		delete this;
@@ -221,7 +221,7 @@ class SearchInterface : public LDAPInterface
 		if (!LDAP || r.empty() || !user)
 		{
 			if (user)
-				ServerInstance->Users->QuitUser(user, killreason);
+				ServerInstance->Users.QuitUser(user, killreason);
 			delete this;
 			return;
 		}
@@ -232,7 +232,7 @@ class SearchInterface : public LDAPInterface
 			std::string bindDn = a.get("dn");
 			if (bindDn.empty())
 			{
-				ServerInstance->Users->QuitUser(user, killreason);
+				ServerInstance->Users.QuitUser(user, killreason);
 				delete this;
 				return;
 			}
@@ -251,7 +251,7 @@ class SearchInterface : public LDAPInterface
 		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
 		User* user = ServerInstance->FindUUID(uid);
 		if (user)
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 		delete this;
 	}
 };
@@ -394,7 +394,7 @@ public:
 		{
 			if (verbose)
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (No password provided)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
 
@@ -402,7 +402,7 @@ public:
 		{
 			if (verbose)
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (Unable to find LDAP provider)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
 
@@ -427,7 +427,7 @@ public:
 		catch (LDAPException &ex)
 		{
 			ServerInstance->SNO.WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 		}
 
 		return MOD_RES_DENY;

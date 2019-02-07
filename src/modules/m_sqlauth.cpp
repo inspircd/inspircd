@@ -172,7 +172,7 @@ class ModuleSQLAuth : public Module
 		if (!SQL)
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_PASSTHRU;
 		}
 
@@ -204,7 +204,7 @@ class ModuleSQLAuth : public Module
 			case AUTH_STATE_BUSY:
 				return MOD_RES_DENY;
 			case AUTH_STATE_FAIL:
-				ServerInstance->Users->QuitUser(user, killreason);
+				ServerInstance->Users.QuitUser(user, killreason);
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

@@ -66,7 +66,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 {
 	float percent = 0;
 
-	const user_hash& users = ServerInstance->Users->GetUsers();
+	const user_hash& users = ServerInstance->Users.GetUsers();
 	if (!users.empty())
 	{
 		// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
@@ -205,7 +205,7 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 	for (std::vector<std::string>::const_iterator i = map.begin(); i != map.end(); ++i)
 		user->WriteRemoteNumeric(RPL_MAP, *i);
 
-	size_t totusers = ServerInstance->Users->GetUsers().size();
+	size_t totusers = ServerInstance->Users.GetUsers().size();
 	float avg_users = (float) totusers / Utils->serverlist.size();
 
 	user->WriteRemoteNumeric(RPL_MAPUSERS, InspIRCd::Format("%u server%s and %u user%s, average %.2f users per server",
