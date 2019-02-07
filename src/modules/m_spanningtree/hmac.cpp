@@ -75,7 +75,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
+			ServerInstance->SNO.WriteToSnoMask('l',"Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
 				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
 			SendError("Invalid SSL certificate fingerprint " + fp + " - expected " + link.Fingerprint);
 			return false;
@@ -101,7 +101,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	// this time
 	if ((!capab->auth_fingerprint) && (!fp.empty()))
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL certificate fingerprint for link %s is \"%s\". "
+		ServerInstance->SNO.WriteToSnoMask('l', "SSL certificate fingerprint for link %s is \"%s\". "
 			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
 	}
 

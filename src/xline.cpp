@@ -682,7 +682,7 @@ void ELine::OnAdd()
 void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
-	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago): %s",
+	ServerInstance->SNO.WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago): %s",
 		type.c_str(), (onechar ? "-line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
 }
 
@@ -756,7 +756,7 @@ void XLineManager::ClearConfigLines()
 	if (lookup_lines.empty())
 		return;
 
-	ServerInstance->SNO->WriteToSnoMask('x', "Server rehashing; expiring lines defined in the server config ...");
+	ServerInstance->SNO.WriteToSnoMask('x', "Server rehashing; expiring lines defined in the server config ...");
 	for (ContainerIter type = lookup_lines.begin(); type != lookup_lines.end(); ++type)
 	{
 		for (LookupIter xline = type->second.begin(); xline != type->second.end(); )

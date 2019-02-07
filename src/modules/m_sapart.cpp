@@ -65,7 +65,7 @@ class CommandSapart : public Command
 			if (IS_LOCAL(dest))
 			{
 				channel->PartUser(dest, reason);
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+channel->name);
+				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+channel->name);
 			}
 
 			return CMD_SUCCESS;

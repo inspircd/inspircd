@@ -78,7 +78,7 @@ class CommandSamode : public Command
 	void LogUsage(const User* user, const std::string& text)
 	{
 		logged = true;
-		ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + text);
+		ServerInstance->SNO.WriteGlobalSno('a', user->nick + " used SAMODE: " + text);
 	}
 };
 

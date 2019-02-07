@@ -31,7 +31,7 @@ void InspIRCd::SignalHandler(int signal)
 #else
 	if (signal == SIGHUP)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "Rehashing due to SIGHUP");
+		ServerInstance->SNO.WriteGlobalSno('a', "Rehashing due to SIGHUP");
 		Rehash();
 	}
 	else if (signal == SIGTERM)

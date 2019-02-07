@@ -71,7 +71,7 @@ class ModuleDisable : public Module
 		VAFORMAT(buffer, message, message);
 
 		if (notifyopers)
-			ServerInstance->SNO->WriteToSnoMask('a', buffer);
+			ServerInstance->SNO.WriteToSnoMask('a', buffer);
 		else
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}

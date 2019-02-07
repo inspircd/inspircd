@@ -38,7 +38,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	float percent = ((float)matches / (float)ServerInstance->Users->GetUsers().size()) * 100;
 	if (percent > itrigger)
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "\2WARNING\2: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
+		ServerInstance->SNO.WriteToSnoMask('a', "\2WARNING\2: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
 		return true;
 	}
 	return false;
@@ -84,7 +84,7 @@ class CoreModXLine : public Module
 		// A Q-line matched the new nick, tell opers if the user is registered
 		if (user->registered == REG_ALL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Q-lined nickname %s from %s: %s",
+			ServerInstance->SNO.WriteGlobalSno('a', "Q-lined nickname %s from %s: %s",
 				newnick.c_str(), user->GetFullRealHost().c_str(), xline->reason.c_str());
 		}
 

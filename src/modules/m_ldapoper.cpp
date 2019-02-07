@@ -67,7 +67,7 @@ class LDAPOperBase : public LDAPInterface
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
 		Fallback();
 		delete this;
 	}
@@ -120,7 +120,7 @@ class SearchInterface : public LDAPOperBase
 		}
 		catch (LDAPException& ex)
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 		}
 
 		return true;
@@ -167,7 +167,7 @@ class AdminBindInterface : public LDAPInterface
 			}
 			catch (LDAPException& ex)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+				ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 			}
 		}
 		delete this;
@@ -175,7 +175,7 @@ class AdminBindInterface : public LDAPInterface
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
 		delete this;
 	}
 };
@@ -233,7 +233,7 @@ class ModuleLDAPAuth : public Module
 			}
 			catch (LDAPException& ex)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
+				ServerInstance->SNO.WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
 			}
 		}
 

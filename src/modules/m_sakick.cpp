@@ -60,7 +60,7 @@ class CommandSakick : public Command
 			{
 				// Target is on this server, kick them and send the snotice
 				channel->KickUser(ServerInstance->FakeClient, dest, reason);
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + channel->name);
+				ServerInstance->SNO.WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + channel->name);
 			}
 
 			return CMD_SUCCESS;

@@ -28,7 +28,7 @@ class ModuleOperLog : public Module
  public:
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
+		ServerInstance->SNO.EnableSnomask('r', "OPERLOG");
 	}
 
 	Version GetVersion() override
@@ -55,7 +55,7 @@ class ModuleOperLog : public Module
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
-					ServerInstance->SNO->WriteGlobalSno('r', msg);
+					ServerInstance->SNO.WriteGlobalSno('r', msg);
 			}
 		}
 

@@ -31,7 +31,7 @@
 
 CmdResult CommandSNONotice::Handle(User* user, Params& params)
 {
-	ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
+	ServerInstance->SNO.WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
 	return CMD_SUCCESS;
 }
 

@@ -226,7 +226,7 @@ void UserIOHandler::OnDataReady()
 	if (recvq.length() > user->MyClass->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
+		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
 		return;
 	}
@@ -388,7 +388,7 @@ void User::Oper(OperInfo* info)
 			l->SetClass(opClass);
 	}
 
-	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
+	ServerInstance->SNO.WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
@@ -502,14 +502,14 @@ void LocalUser::CheckClass(bool clone_count)
 		{
 			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
 			return;
 		}
 		else if ((a->GetMaxGlobal()) && (clonecounts.global > a->GetMaxGlobal()))
 		{
 			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
 			return;
 		}
 	}
@@ -570,7 +570,7 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
+	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
 		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");

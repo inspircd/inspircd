@@ -166,7 +166,7 @@ class BindInterface : public LDAPInterface
 			catch (LDAPException &ex)
 			{
 				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(), ex.GetReason().c_str());
+					ServerInstance->SNO.WriteToSnoMask('c', "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(), ex.GetReason().c_str());
 			}
 		}
 
@@ -174,7 +174,7 @@ class BindInterface : public LDAPInterface
 		if (!attrCount)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (unable to validate attributes)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (unable to validate attributes)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			delete this;
 		}
@@ -195,7 +195,7 @@ class BindInterface : public LDAPInterface
 		if (user)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), err.getError().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), err.getError().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 		}
 
@@ -241,14 +241,14 @@ class SearchInterface : public LDAPInterface
 		}
 		catch (LDAPException& ex)
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 		}
 		delete this;
 	}
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
 		User* user = ServerInstance->FindUUID(uid);
 		if (user)
 			ServerInstance->Users->QuitUser(user, killreason);
@@ -280,7 +280,7 @@ class AdminBindInterface : public LDAPInterface
 			}
 			catch (LDAPException& ex)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+				ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 			}
 		}
 		delete this;
@@ -288,7 +288,7 @@ class AdminBindInterface : public LDAPInterface
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
 		delete this;
 	}
 };
@@ -393,7 +393,7 @@ public:
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (No password provided)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (No password provided)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -401,7 +401,7 @@ public:
 		if (!LDAP)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (Unable to find LDAP provider)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (Unable to find LDAP provider)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -426,7 +426,7 @@ public:
 		}
 		catch (LDAPException &ex)
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
 			ServerInstance->Users->QuitUser(user, killreason);
 		}
 

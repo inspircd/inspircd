@@ -44,7 +44,7 @@ class CommandSetname : public Command
 		if (user->ChangeRealName(parameters[0]))
 		{
 			if (notifyopers)
-				ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'",
+				ServerInstance->SNO.WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'",
 					user->nick.c_str(), parameters[0].c_str());
 		}
 

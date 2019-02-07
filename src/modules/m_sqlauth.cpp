@@ -61,7 +61,7 @@ class AuthQuery : public SQL::Query
 				if (!hashprov)
 				{
 					if (verbose)
-						ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (a provider for %s was not loaded)", user->GetFullRealHost().c_str(), kdf.c_str());
+						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (a provider for %s was not loaded)", user->GetFullRealHost().c_str(), kdf.c_str());
 					pendingExt.set(user, AUTH_STATE_FAIL);
 					return;
 				}
@@ -70,7 +70,7 @@ class AuthQuery : public SQL::Query
 				if (!pwcolumn.empty() && !res.HasColumn(pwcolumn, colindex))
 				{
 					if (verbose)
-						ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (the column specified (%s) was not returned)", user->GetFullRealHost().c_str(), pwcolumn.c_str());
+						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (the column specified (%s) was not returned)", user->GetFullRealHost().c_str(), pwcolumn.c_str());
 					pendingExt.set(user, AUTH_STATE_FAIL);
 					return;
 				}
@@ -86,7 +86,7 @@ class AuthQuery : public SQL::Query
 				}
 
 				if (verbose)
-					ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (Password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
+					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (Password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
 				pendingExt.set(user, AUTH_STATE_FAIL);
 				return;
 			}
@@ -96,7 +96,7 @@ class AuthQuery : public SQL::Query
 		else
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
 			pendingExt.set(user, AUTH_STATE_FAIL);
 		}
 	}
@@ -108,7 +108,7 @@ class AuthQuery : public SQL::Query
 			return;
 		pendingExt.set(user, AUTH_STATE_FAIL);
 		if (verbose)
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.ToString());
+			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.ToString());
 	}
 };
 
@@ -171,7 +171,7 @@ class ModuleSQLAuth : public Module
 
 		if (!SQL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_PASSTHRU;
 		}

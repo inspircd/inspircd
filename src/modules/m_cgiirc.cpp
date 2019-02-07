@@ -210,7 +210,7 @@ class CommandWebIRC : public SplitCommand
 		// If we are sending a snotice then the message will already be
 		// written to the logfile.
 		if (notify)
-			ServerInstance->SNO->WriteGlobalSno('w', buffer);
+			ServerInstance->SNO.WriteGlobalSno('w', buffer);
 		else
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}
@@ -271,7 +271,7 @@ class ModuleCgiIRC
 
 	void init() override
 	{
-		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
+		ServerInstance->SNO.EnableSnomask('w', "CGIIRC");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

@@ -28,7 +28,7 @@ CmdResult CommandPong::HandleServer(TreeServer* server, CommandBase::Params& par
 {
 	if (server->IsBursting())
 	{
-		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
+		ServerInstance->SNO.WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
 		server->FinishBurst();
 	}
 

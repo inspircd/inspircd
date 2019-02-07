@@ -81,7 +81,7 @@ public:
 			{
 				/* expire throttle */
 				throttled = false;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
+				ServerInstance->SNO.WriteGlobalSno('a', "Connection throttle deactivated");
 				return MOD_RES_PASSTHRU;
 			}
 
@@ -94,7 +94,7 @@ public:
 			if (conns >= maxconns)
 			{
 				throttled = true;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
+				ServerInstance->SNO.WriteGlobalSno('a', "Connection throttle activated");
 				ServerInstance->Users->QuitUser(user, quitmsg);
 				return MOD_RES_DENY;
 			}

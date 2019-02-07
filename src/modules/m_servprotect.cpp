@@ -117,7 +117,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 		if (dst->IsModeSet(bm))
 		{
 			src->WriteNumeric(ERR_KILLDENY, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
-			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
+			ServerInstance->SNO.WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

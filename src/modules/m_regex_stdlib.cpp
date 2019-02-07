@@ -85,7 +85,7 @@ public:
 		else
 		{
 			if (!stdalgo::string::equalsci(regextype, "ecmascript"))
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Non-existent regex engine '%s' specified. Falling back to ECMAScript.", regextype.c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: Non-existent regex engine '%s' specified. Falling back to ECMAScript.", regextype.c_str());
 			ref.regextype = std::regex::ECMAScript;
 		}
 	}
