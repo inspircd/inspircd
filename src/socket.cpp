@@ -181,7 +181,7 @@ bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::socka
 bool irc::sockets::untosa(const std::string& path, irc::sockets::sockaddrs& sa)
 {
 	memset(&sa, 0, sizeof(sa));
-	if (path.length() >= sizeof(sa))
+	if (path.length() >= sizeof(sa.un.sun_path))
 		return false;
 
 	sa.un.sun_family = AF_UNIX;
