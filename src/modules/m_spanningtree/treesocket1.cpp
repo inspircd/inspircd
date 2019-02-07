@@ -36,7 +36,7 @@
  * BufferedSocket, we just call DoConnect() for most of the action,
  * and only do minor initialization tasks ourselves.
  */
-TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
+TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& dest)
 	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
 	, burstsent(false), age(ServerInstance->Time())
 {
@@ -45,7 +45,17 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	capab->ac = myac;
 	capab->capab_phase = 0;
 
-	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
+	irc::sockets::sockaddrs bind;
+	memset(&bind, 0, sizeof(bind));
+	if ((dest.family() == AF_INET || dest.family() == AF_INET6) && !irc::sockets::aptosa(link->Bind, 0, bind))
+	{
+		state = I_ERROR;
+		SetError("Bind address '" + link->Bind + "' is not an valid IPv4 or IPv6 address");
+		TreeSocket::OnError(I_ERR_BIND);
+		return;
+	}
+
+	DoConnect(dest, bind, link->Timeout);
 	Utils->timeoutlist[this] = std::pair<std::string, unsigned int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }

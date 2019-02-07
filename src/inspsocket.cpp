@@ -48,36 +48,15 @@ BufferedSocket::BufferedSocket(int newfd)
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
 
-void BufferedSocket::DoConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip)
+void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int maxtime)
 {
-	BufferedSocketError err = BeginConnect(ipaddr, aport, maxtime, connectbindip);
+	BufferedSocketError err = BeginConnect(dest, bind, maxtime);
 	if (err != I_ERR_NONE)
 	{
 		state = I_ERROR;
 		SetError(SocketEngine::LastError());
 		OnError(err);
 	}
-}
-
-BufferedSocketError BufferedSocket::BeginConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip)
-{
-	irc::sockets::sockaddrs addr, bind;
-	if (!irc::sockets::aptosa(ipaddr, aport, addr))
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
-		return I_ERR_CONNECT;
-	}
-
-	bind.sa.sa_family = 0;
-	if (!connectbindip.empty())
-	{
-		if (!irc::sockets::aptosa(connectbindip, 0, bind))
-		{
-			return I_ERR_BIND;
-		}
-	}
-
-	return BeginConnect(addr, bind, maxtime);
 }
 
 BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout)

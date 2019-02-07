@@ -164,7 +164,7 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr);
+	TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& sa);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new

@@ -49,6 +49,14 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 		return;
 	}
 
+	irc::sockets::sockaddrs sa;
+	if (!irc::sockets::aptosa(ans_record->rdata, MyLink->Port, sa))
+	{
+		// We had a result but it wasn't a valid IPv4/IPv6.
+		OnError(r);
+		return;
+	}
+
 	/* Initiate the connection, now that we have an IP to use.
 	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.
@@ -56,7 +64,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name);
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, ans_record->rdata);
+		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, sa);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
