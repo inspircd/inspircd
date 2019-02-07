@@ -56,7 +56,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 			return CMD_SUCCESS;
 	}
 
-	const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+	const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 
   	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 	{

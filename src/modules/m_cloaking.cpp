@@ -357,7 +357,7 @@ class ModuleCloaking : public Module
 	void Prioritize() override
 	{
 		/* Needs to be after m_banexception etc. */
-		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
 	}
 
 	// this unsets umode +x on every host change. If we are actually doing a +x

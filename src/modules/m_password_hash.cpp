@@ -37,7 +37,7 @@ class CommandMkpasswd : public Command
 		if (!parameters[0].compare(0, 5, "hmac-", 5))
 		{
 			std::string type(parameters[0], 5);
-			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
+			HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 			{
 				user->WriteNotice("Unknown hash type");
@@ -58,7 +58,7 @@ class CommandMkpasswd : public Command
 			return CMD_SUCCESS;
 		}
 
-		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + parameters[0]);
+		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + parameters[0]);
 		if (!hp)
 		{
 			user->WriteNotice("Unknown hash type");
@@ -87,7 +87,7 @@ class ModulePasswordHash : public Module
 		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{
 			std::string type(hashtype, 5);
-			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
+			HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 				return MOD_RES_PASSTHRU;
 
@@ -110,7 +110,7 @@ class ModulePasswordHash : public Module
 				return MOD_RES_DENY;
 		}
 
-		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
+		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + hashtype);
 
 		/* Is this a valid hash name? */
 		if (hp)

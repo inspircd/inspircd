@@ -30,7 +30,7 @@ class ModuleAbbreviation : public Module
  public:
 	void Prioritize() override
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
 	Version GetVersion() override

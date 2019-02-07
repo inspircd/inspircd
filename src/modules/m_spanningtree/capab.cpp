@@ -39,7 +39,7 @@ static CompatMod compatmods[] =
 
 std::string TreeSocket::MyModules(int filter)
 {
-	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules->GetModules();
+	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules.GetModules();
 
 	std::string capabilities;
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
@@ -170,7 +170,7 @@ void TreeSocket::SendCapabilities(int phase)
 
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
-	if (ServerInstance->Modules->FindService(SERVICE_DATA, "hash/sha256"))
+	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
 	{
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
@@ -204,7 +204,7 @@ void TreeSocket::SendCapabilities(int phase)
 			// in 2.0, we advertise it here to not break linking to previous versions.
 			// Protocol version 1201 (1.2) does not have this issue because we advertise m_globops
 			// to 1201 protocol servers irrespectively of its module flags.
-			(ServerInstance->Modules->Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
+			(ServerInstance->Modules.Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
 			);
 
 	this->WriteLine("CAPAB END");
@@ -395,7 +395,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
-		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules->FindService(SERVICE_DATA, "hash/sha256")))
+		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);

@@ -71,7 +71,7 @@ Module::~Module()
 
 void Module::DetachEvent(Implementation i)
 {
-	ServerInstance->Modules->Detach(i, this);
+	ServerInstance->Modules.Detach(i, this);
 }
 
 void		Module::ReadConfig(ConfigStatus& status) { }
@@ -151,14 +151,14 @@ void		Module::OnRunTestSuite() { }
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator), name(Name), service(Type)
 {
-	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
-		ServerInstance->Modules->NewServices->push_back(this);
+	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
+		ServerInstance->Modules.NewServices->push_back(this);
 }
 
 void ServiceProvider::DisableAutoRegister()
 {
-	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
-		stdalgo::erase(*ServerInstance->Modules->NewServices, this);
+	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
+		stdalgo::erase(*ServerInstance->Modules.NewServices, this);
 }
 
 ModuleManager::ModuleManager()
@@ -449,7 +449,7 @@ namespace
 		void Call() override
 		{
 			DLLManager* dll = mod->ModuleDLLManager;
-			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->Modules.DoSafeUnload(mod);
 			ServerInstance->GlobalCulls.Apply();
 			// In pure static mode this is always NULL
 			delete dll;

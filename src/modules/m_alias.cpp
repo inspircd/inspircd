@@ -381,8 +381,8 @@ class ModuleAlias : public Module
 	void Prioritize() override
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
-		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPostMessage, PRIORITY_AFTER, linkmod);
+		Module* linkmod = ServerInstance->Modules.Find("m_spanningtree.so");
+		ServerInstance->Modules.SetPriority(this, I_OnUserPostMessage, PRIORITY_AFTER, linkmod);
 	}
 };
 

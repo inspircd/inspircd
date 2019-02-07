@@ -160,7 +160,7 @@ class ModuleMsgFlood : public Module
 	void Prioritize() override
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
 	Version GetVersion() override

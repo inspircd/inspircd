@@ -812,12 +812,12 @@ class mbedTLSIOHookProvider : public IOHookProvider
 		: IOHookProvider(mod, "ssl/" + config.name, IOHookProvider::IOH_SSL)
 		, profile(config)
 	{
-		ServerInstance->Modules->AddService(*this);
+		ServerInstance->Modules.AddService(*this);
 	}
 
 	~mbedTLSIOHookProvider()
 	{
-		ServerInstance->Modules->DelService(*this);
+		ServerInstance->Modules.DelService(*this);
 	}
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override

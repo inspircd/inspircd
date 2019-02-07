@@ -80,7 +80,7 @@ class ModuleConnJoin : public Module
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
 	}
 
 	Version GetVersion() override

@@ -103,7 +103,7 @@ void InspIRCd::Cleanup()
 	ports.clear();
 
 	GlobalCulls.Apply();
-	Modules->UnloadAll();
+	Modules.UnloadAll();
 
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
 	/* Must be deleted before modes as it decrements modelines */
@@ -438,7 +438,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	std::cout << std::endl;
 
-	this->Modules->LoadAll();
+	this->Modules.LoadAll();
 
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();

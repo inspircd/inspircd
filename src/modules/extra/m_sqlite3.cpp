@@ -235,7 +235,7 @@ class ModuleSQLite3 : public Module
 		for(ConnMap::iterator i = conns.begin(); i != conns.end(); i++)
 		{
 			SQLConn* conn = i->second;
-			ServerInstance->Modules->DelService(*conn);
+			ServerInstance->Modules.DelService(*conn);
 			delete conn;
 		}
 		conns.clear();
@@ -251,7 +251,7 @@ class ModuleSQLite3 : public Module
 				continue;
 			SQLConn* conn = new SQLConn(this, i->second);
 			conns.insert(std::make_pair(i->second->getString("id"), conn));
-			ServerInstance->Modules->AddService(*conn);
+			ServerInstance->Modules.AddService(*conn);
 		}
 	}
 

@@ -428,7 +428,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 		{
 			SQLConnection* conn = new SQLConnection(this, i->second);
 			conns.insert(std::make_pair(id, conn));
-			ServerInstance->Modules->AddService(*conn);
+			ServerInstance->Modules.AddService(*conn);
 		}
 		else
 		{
@@ -442,7 +442,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 	SQL::Error err(SQL::BAD_DBID);
 	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 	{
-		ServerInstance->Modules->DelService(*i->second);
+		ServerInstance->Modules.DelService(*i->second);
 		// it might be running a query on this database. Wait for that to complete
 		i->second->lock.Lock();
 		i->second->lock.Unlock();

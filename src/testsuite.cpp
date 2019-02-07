@@ -76,7 +76,7 @@ TestSuite::TestSuite()
 		{
 			case '1':
 			{
-				const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+				const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 				for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 					i->second->OnRunTestSuite();
 				break;
@@ -84,14 +84,14 @@ TestSuite::TestSuite()
 			case '2':
 				std::cout << "Enter module filename to load: ";
 				std::cin >> modname;
-				std::cout << (ServerInstance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (ServerInstance->Modules.Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '3':
 				std::cout << "Enter module filename to unload: ";
 				std::cin >> modname;
 				{
-					Module* m = ServerInstance->Modules->Find(modname);
-					std::cout << (ServerInstance->Modules->Unload(m) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+					Module* m = ServerInstance->Modules.Find(modname);
+					std::cout << (ServerInstance->Modules.Unload(m) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 					ServerInstance->AtomicActions.Run();
 				}
 				break;

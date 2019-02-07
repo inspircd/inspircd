@@ -544,7 +544,7 @@ class ModuleLDAP : public Module
 				LDAPService* conn = new LDAPService(this, tag);
 				conns[id] = conn;
 
-				ServerInstance->Modules->AddService(*conn);
+				ServerInstance->Modules.AddService(*conn);
 				ServerInstance->Threads.Start(conn);
 			}
 			else
@@ -557,7 +557,7 @@ class ModuleLDAP : public Module
 		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
 		{
 			LDAPService* conn = i->second;
-			ServerInstance->Modules->DelService(*conn);
+			ServerInstance->Modules.DelService(*conn);
 			conn->join();
 			conn->OnNotify();
 			delete conn;

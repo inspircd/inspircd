@@ -719,14 +719,14 @@ class ReloadAction : public ActionBase
 
 		DLLManager* dll = mod->ModuleDLLManager;
 		std::string name = mod->ModuleSourceFile;
-		ServerInstance->Modules->DoSafeUnload(mod);
+		ServerInstance->Modules.DoSafeUnload(mod);
 		ServerInstance->GlobalCulls.Apply();
 		delete dll;
-		bool result = ServerInstance->Modules->Load(name);
+		bool result = ServerInstance->Modules.Load(name);
 
 		if (result)
 		{
-			Module* newmod = ServerInstance->Modules->Find(name);
+			Module* newmod = ServerInstance->Modules.Find(name);
 			datakeeper.Restore(newmod);
 		}
 		else
@@ -743,7 +743,7 @@ class ReloadAction : public ActionBase
 
 CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 {
-	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	Module* m = ServerInstance->Modules.Find(parameters[0]);
 	if (m == creator)
 	{
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");

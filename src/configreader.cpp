@@ -533,7 +533,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 void ServerConfig::ApplyModules(User* user)
 {
 	std::vector<std::string> added_modules;
-	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules->GetModules();
+	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules.GetModules();
 
 	ConfigTagList tags = ConfTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -556,7 +556,7 @@ void ServerConfig::ApplyModules(User* user)
 		// Don't remove core_*.so, just remove m_*.so
 		if (InspIRCd::Match(modname, "core_*.so", ascii_case_insensitive_map))
 			continue;
-		if (ServerInstance->Modules->Unload(i->second))
+		if (ServerInstance->Modules.Unload(i->second))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
@@ -568,19 +568,19 @@ void ServerConfig::ApplyModules(User* user)
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str()));
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 		}
 	}
 
 	for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 	{
 		// Skip modules which are already loaded.
-		if (ServerInstance->Modules->Find(*adding))
+		if (ServerInstance->Modules.Find(*adding))
 			continue;
 
-		if (ServerInstance->Modules->Load(*adding))
+		if (ServerInstance->Modules.Load(*adding))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
@@ -591,9 +591,9 @@ void ServerConfig::ApplyModules(User* user)
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, *adding, InspIRCd::Format("Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str()));
+				user->WriteNumeric(ERR_CANTLOADMODULE, *adding, InspIRCd::Format("Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules.LastError().c_str()));
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules.LastError().c_str());
 		}
 	}
 }
@@ -667,7 +667,7 @@ void ConfigReaderThread::Finish()
 		User* user = ServerInstance->FindNick(TheUserUID);
 
 		ConfigStatus status(user);
-		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 		{
 			try

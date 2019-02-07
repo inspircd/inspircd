@@ -347,8 +347,8 @@ class ModuleRLine : public Module, public Stats::EventListener
 
 	void Prioritize() override
 	{
-		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
+		Module* mod = ServerInstance->Modules.Find("m_cgiirc.so");
+		ServerInstance->Modules.SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
 	}
 };
 

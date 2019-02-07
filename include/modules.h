@@ -115,7 +115,7 @@ struct ModResult {
  * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
-	const Module::List& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## y]; \
 	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
 		_next = _i+1; \
@@ -138,7 +138,7 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	const Module::List& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## n]; \
 	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
 		_next = _i+1; \
@@ -939,7 +939,7 @@ class CoreExport Module : public classbase, public usecountbase
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager : public fakederef<ModuleManager>
+class CoreExport ModuleManager
 {
  public:
 	typedef std::vector<ServiceProvider*> ServiceList;

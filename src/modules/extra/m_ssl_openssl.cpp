@@ -894,12 +894,12 @@ class OpenSSLIOHookProvider : public IOHookProvider
 		: IOHookProvider(mod, "ssl/" + profilename, IOHookProvider::IOH_SSL)
 		, profile(profilename, tag)
 	{
-		ServerInstance->Modules->AddService(*this);
+		ServerInstance->Modules.AddService(*this);
 	}
 
 	~OpenSSLIOHookProvider()
 	{
-		ServerInstance->Modules->DelService(*this);
+		ServerInstance->Modules.DelService(*this);
 	}
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
