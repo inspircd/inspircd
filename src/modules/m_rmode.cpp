@@ -43,7 +43,7 @@ class CommandRMode : public Command
 			return CMD_FAILURE;
 		}
 
-		mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+		mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
 			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
@@ -89,7 +89,7 @@ class CommandRMode : public Command
 				changelist.push_remove(mh);
 		}
 
-		ServerInstance->Modes->Process(user, chan, NULL, changelist);
+		ServerInstance->Modes.Process(user, chan, NULL, changelist);
 		return CMD_SUCCESS;
 	}
 };

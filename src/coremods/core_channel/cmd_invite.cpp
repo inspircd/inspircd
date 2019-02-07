@@ -114,7 +114,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				if (rank < HALFOP_VALUE)
 				{
 					// Check whether halfop mode is available and phrase error message accordingly
-					ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+					ModeHandler* mh = ServerInstance->Modes.FindMode('h', MODETYPE_CHANNEL);
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
 						(mh && mh->name == "halfop" ? "half-" : "")));
 					return CMD_FAILURE;
@@ -149,7 +149,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			}
 			case Invite::ANNOUNCE_DYNAMIC:
 			{
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+				PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 				if ((mh) && (mh->name == "halfop"))
 				{
 					prefix = mh->GetPrefix();

@@ -87,7 +87,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 			std::string modes;
 			std::string params;
 
-			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+			const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
 			for (ModeParser::ListModeList::const_iterator j = listmodes.begin(); j != listmodes.end(); ++j)
 			{
 				ListModeBase* lm = *j;
@@ -233,7 +233,7 @@ public:
 				// XXX bleh, should we pass this to the mode parser instead? ugly. --w00t
 				for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
 				{
-					ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
+					ModeHandler* mode = ServerInstance->Modes.FindMode(*n, MODETYPE_CHANNEL);
 					if (mode)
 					{
 						if (mode->NeedsParam(true))

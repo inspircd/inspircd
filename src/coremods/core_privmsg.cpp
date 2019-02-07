@@ -177,7 +177,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 	char status = 0;
 	const char* target = parameters[0].c_str();
 
-	if (ServerInstance->Modes->FindPrefix(*target))
+	if (ServerInstance->Modes.FindPrefix(*target))
 	{
 		status = *target;
 		target++;

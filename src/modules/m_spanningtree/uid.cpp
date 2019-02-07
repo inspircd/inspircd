@@ -90,7 +90,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 			continue;
 
 		/* For each mode thats set, find the mode handler and set it on the new user */
-		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(*v, MODETYPE_USER);
 		if (!mh)
 			throw ProtocolException("Unrecognised mode '" + std::string(1, *v) + "'");
 

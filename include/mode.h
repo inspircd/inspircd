@@ -535,7 +535,7 @@ class CoreExport ModeWatcher : public classbase
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class CoreExport ModeParser : public fakederef<ModeParser>
+class CoreExport ModeParser
 {
  public:
 	static const ModeHandler::Id MODEID_MAX = 64;

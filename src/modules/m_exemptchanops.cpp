@@ -47,7 +47,7 @@ class ExemptChanOps : public ListModeBase
 		if (p != std::string::npos)
 			restriction.erase(p);
 
-		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
+		if (!ServerInstance->Modes.FindMode(restriction, MODETYPE_CHANNEL))
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction"));
 			return false;
@@ -70,9 +70,9 @@ class ExemptHandler : public CheckExemption::EventListener
 	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindPrefixMode(mid[0]);
+			return ServerInstance->Modes.FindPrefixMode(mid[0]);
 
-		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(mid, MODETYPE_CHANNEL);
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 

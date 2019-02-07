@@ -103,11 +103,11 @@ class CommandTban : public Command
 		}
 
 		Modes::ChangeList setban;
-		setban.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+		setban.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
-		ServerInstance->Modes->Process(user, channel, NULL, setban);
-		if (ServerInstance->Modes->GetLastChangeList().empty())
+		ServerInstance->Modes.Process(user, channel, NULL, setban);
+		if (ServerInstance->Modes.GetLastChangeList().empty())
 		{
 			user->WriteNotice("Invalid ban mask");
 			return CMD_FAILURE;
@@ -120,7 +120,7 @@ class CommandTban : public Command
 
 		const std::string addban = user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.";
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
 		ClientProtocol::Messages::Privmsg notice(ServerInstance->FakeClient, channel, addban, MSG_NOTICE);
@@ -212,7 +212,7 @@ class ModuleTimedBans : public Module
 			{
 				const std::string expiry = "*** Timed ban on " + cr->name + " expired.";
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+				PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
 				ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, expiry, MSG_NOTICE);
@@ -220,8 +220,8 @@ class ModuleTimedBans : public Module
 				ServerInstance->PI->SendChannelNotice(cr, pfxchar, expiry);
 
 				Modes::ChangeList setban;
-				setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
-				ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
+				setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, cr, NULL, setban);
 			}
 		}
 	}

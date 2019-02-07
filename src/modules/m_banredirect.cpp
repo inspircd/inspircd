@@ -263,7 +263,7 @@ class ModuleBanRedirect : public Module
 
 			if(redirects)
 			{
-				ModeHandler* ban = ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL);
+				ModeHandler* ban = ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL);
 				Modes::ChangeList changelist;
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
@@ -272,7 +272,7 @@ class ModuleBanRedirect : public Module
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 					changelist.push_add(ban, i->banmask);
 
-				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
 			}
 		}
 	}

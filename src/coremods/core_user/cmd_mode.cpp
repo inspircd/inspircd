@@ -88,9 +88,9 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 		flags |= ModeParser::MODE_LOCALONLY;
 
 	if (IS_LOCAL(user))
-		ServerInstance->Modes->ProcessSingle(user, targetchannel, targetuser, changelist, flags);
+		ServerInstance->Modes.ProcessSingle(user, targetchannel, targetuser, changelist, flags);
 	else
-		ServerInstance->Modes->Process(user, targetchannel, targetuser, changelist, flags);
+		ServerInstance->Modes.Process(user, targetchannel, targetuser, changelist, flags);
 
 	if ((ServerInstance->Modes.GetLastChangeList().empty()) && (targetchannel) && (parameters.size() == 2))
 	{
@@ -118,7 +118,7 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 		if (mletter == '+')
 			continue;
 
-		ModeHandler* mh = ServerInstance->Modes->FindMode(mletter, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(mletter, MODETYPE_CHANNEL);
 		if (!mh || !mh->IsListMode())
 			return;
 
@@ -157,7 +157,7 @@ namespace
 		for (unsigned char chr = 65; chr < 123; ++chr)
 		{
 			// Check that the mode exists and is set.
-			ModeHandler* mh = ServerInstance->Modes->FindMode(chr, MODETYPE_CHANNEL);
+			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, MODETYPE_CHANNEL);
 			if (!mh || !chan->IsModeSet(mh))
 				continue;
 

@@ -42,7 +42,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 CullResult ModeHandler::cull()
 {
 	if (ServerInstance)
-		ServerInstance->Modes->DelMode(this);
+		ServerInstance->Modes.DelMode(this);
 	return classbase::cull();
 }
 
@@ -147,12 +147,12 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
 	: mode(modename), m_type(type), creator(Creator)
 {
-	ServerInstance->Modes->AddModeWatcher(this);
+	ServerInstance->Modes.AddModeWatcher(this);
 }
 
 ModeWatcher::~ModeWatcher()
 {
-	ServerInstance->Modes->DelModeWatcher(this);
+	ServerInstance->Modes.DelModeWatcher(this);
 }
 
 bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool)
@@ -834,7 +834,7 @@ void ModeHandler::RemoveMode(User* user)
 	{
 		Modes::ChangeList changelist;
 		changelist.push_remove(this);
-		ServerInstance->Modes->Process(ServerInstance->FakeClient, NULL, user, changelist, ModeParser::MODE_LOCALONLY);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, NULL, user, changelist, ModeParser::MODE_LOCALONLY);
 	}
 }
 

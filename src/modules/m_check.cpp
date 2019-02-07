@@ -269,7 +269,7 @@ class CommandCheck : public Command
 					i->first->GetRealName().c_str()));
 			}
 
-			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+			const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
 				context.DumpListMode(*i, targchan);
 

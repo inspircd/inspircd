@@ -169,7 +169,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	if (apply_other_sides_modes)
 	{
 		ServerInstance->Modes.ModeParamsToChangeList(srcuser, MODETYPE_CHANNEL, params, modechangelist, 2, params.size() - 1);
-		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
+		ServerInstance->Modes.Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
 		// Reuse for prefix modes
 		modechangelist.clear();
 	}
@@ -192,7 +192,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 
 	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
-		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY);
+		ServerInstance->Modes.Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY);
 
 	return CMD_SUCCESS;
 }
@@ -227,7 +227,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 		/* Iterate through the modes and see if they are valid here, if so, apply */
 		for (std::string::const_iterator i = item.begin(); i != modeendit; ++i)
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			ModeHandler* mh = ServerInstance->Modes.FindMode(*i, MODETYPE_CHANNEL);
 			if (!mh)
 				throw ProtocolException("Unrecognised mode '" + std::string(1, *i) + "'");
 
@@ -261,7 +261,7 @@ void CommandFJoin::RemoveStatus(Channel* c)
 {
 	Modes::ChangeList changelist;
 
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(MODETYPE_CHANNEL);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
 		ModeHandler* mh = i->second;
@@ -270,7 +270,7 @@ void CommandFJoin::RemoveStatus(Channel* c)
 		mh->RemoveMode(c, changelist);
 	}
 
-	ServerInstance->Modes->Process(ServerInstance->FakeClient, c, NULL, changelist, ModeParser::MODE_LOCALONLY);
+	ServerInstance->Modes.Process(ServerInstance->FakeClient, c, NULL, changelist, ModeParser::MODE_LOCALONLY);
 }
 
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)

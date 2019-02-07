@@ -50,6 +50,6 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	if ((TS == ourTS) && IS_SERVER(who))
 		flags |= ModeParser::MODE_MERGE;
 
-	ServerInstance->Modes->Process(who, chan, NULL, changelist, flags);
+	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
 	return CMD_SUCCESS;
 }

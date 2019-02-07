@@ -167,8 +167,8 @@ class ModuleAntiCaps : public Module
 		banmask.append(user->GetDisplayedHost());
 
 		Modes::ChangeList changelist;
-		changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), banmask);
-		ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL, changelist);
+		changelist.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), banmask);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, NULL, changelist);
 	}
 
 	void InformUser(Channel* channel, User* user, const std::string& message)

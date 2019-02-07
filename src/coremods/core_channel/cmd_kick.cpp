@@ -108,7 +108,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 			unsigned int req = HALFOP_VALUE;
 			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
 			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
+				ModeHandler* mh = ServerInstance->Modes.FindMode(memb->modes[i], MODETYPE_CHANNEL);
 				if (mh && mh->GetLevelRequired(true) > req)
 					req = mh->GetLevelRequired(true);
 			}

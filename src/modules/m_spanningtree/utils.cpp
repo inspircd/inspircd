@@ -140,7 +140,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	unsigned int minrank = 0;
 	if (status)
 	{
-		PrefixMode* mh = ServerInstance->Modes->FindPrefix(status);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefix(status);
 		if (mh)
 			minrank = mh->GetPrefixRank();
 	}

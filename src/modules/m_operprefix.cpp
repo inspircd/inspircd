@@ -90,7 +90,7 @@ class ModuleOperPrefixMode : public Module
 		Modes::ChangeList changelist;
 		changelist.push(&opm, add, user->nick);
 		for (User::ChanList::iterator v = user->chans.begin(); v != user->chans.end(); v++)
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, (*v)->chan, NULL, changelist);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, (*v)->chan, NULL, changelist);
 	}
 
 	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) override

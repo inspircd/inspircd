@@ -32,7 +32,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	if (!u->IsOper())
 		ServerInstance->Users->all_opers.push_back(u);
 
-	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
 		u->SetMode(opermh, true);
 

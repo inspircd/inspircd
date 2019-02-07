@@ -186,7 +186,7 @@ void ISupportManager::Build()
 
 	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
 	tokens["CASEMAPPING"] = ServerInstance->Config->CaseMapping;
-	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
+	tokens["CHANMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
 	tokens["HOSTLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxHost);
@@ -196,8 +196,8 @@ void ISupportManager::Build()
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
 	tokens["NETWORK"] = ServerInstance->Config->Network;
 	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
-	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
-	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
+	tokens["PREFIX"] = ServerInstance->Modes.BuildPrefixes();
+	tokens["STATUSMSG"] = ServerInstance->Modes.BuildPrefixes(false);
 	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
 	tokens["VBANLIST"];

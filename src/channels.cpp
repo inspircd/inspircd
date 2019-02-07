@@ -131,7 +131,7 @@ void Channel::SetDefaultModes()
 
 	for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
 	{
-		ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
+		ModeHandler* mode = ServerInstance->Modes.FindMode(*n, MODETYPE_CHANNEL);
 		if (mode)
 		{
 			if (mode->IsPrefixMode())
@@ -272,7 +272,7 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 		// remote user and his own server set the modes), then set them internally now
 		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
 		{
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);
+			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
 			if (mh)
 			{
 				std::string nick = user->nick;
@@ -415,7 +415,7 @@ void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& e
 	unsigned int minrank = 0;
 	if (status)
 	{
-		PrefixMode* mh = ServerInstance->Modes->FindPrefix(status);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefix(status);
 		if (mh)
 			minrank = mh->GetPrefixRank();
 	}
@@ -443,7 +443,7 @@ const char* Channel::ChanModes(bool showsecret)
 	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(n + 65, MODETYPE_CHANNEL);
 		if (mh && IsModeSet(mh))
 		{
 			scratch.push_back(n + 65);
@@ -485,7 +485,7 @@ char Membership::GetPrefixChar() const
 
 	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
 	{
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
 		if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 		{
 			bestrank = mh->GetPrefixRank();
@@ -501,7 +501,7 @@ unsigned int Membership::getRank()
 	unsigned int rv = 0;
 	if (mchar)
 	{
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(mchar);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(mchar);
 		if (mh)
 			rv = mh->GetPrefixRank();
 	}
@@ -513,7 +513,7 @@ std::string Membership::GetAllPrefixChars() const
 	std::string ret;
 	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
 	{
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
 		if (mh && mh->GetPrefix())
 			ret.push_back(mh->GetPrefix());
 	}
@@ -535,7 +535,7 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 	for (unsigned int i = 0; i < modes.length(); i++)
 	{
 		char mchar = modes[i];
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(mchar);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(mchar);
 		if (mh && mh->GetPrefixRank() <= delta_mh->GetPrefixRank())
 		{
 			modes = modes.substr(0,i) +

@@ -89,7 +89,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	{
 		char pfx = 0;
 		std::string dest = routing.serverdest;
-		if (ServerInstance->Modes->FindPrefix(dest[0]))
+		if (ServerInstance->Modes.FindPrefix(dest[0]))
 		{
 			pfx = dest[0];
 			dest.erase(dest.begin());

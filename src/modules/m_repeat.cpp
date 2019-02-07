@@ -395,8 +395,8 @@ class RepeatModule : public Module
 			if (settings->Action == ChannelSettings::ACT_BAN)
 			{
 				Modes::ChangeList changelist;
-				changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
-				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist);
+				changelist.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist);
 			}
 
 			memb->chan->KickUser(ServerInstance->FakeClient, user, "Repeat flood");

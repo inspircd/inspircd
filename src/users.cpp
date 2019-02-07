@@ -37,7 +37,7 @@ bool User::IsNoticeMaskSet(unsigned char sm)
 
 bool User::IsModeSet(unsigned char m) const
 {
-	ModeHandler* mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
+	ModeHandler* mh = ServerInstance->Modes.FindMode(m, MODETYPE_USER);
 	return (mh && modes[mh->GetId()]);
 }
 
@@ -353,7 +353,7 @@ CullResult FakeUser::cull()
 
 void User::Oper(OperInfo* info)
 {
-	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
 	{
 		if (this->IsModeSet(opermh))
@@ -459,7 +459,7 @@ void User::UnOper()
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
 	Modes::ChangeList changelist;
-	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
+	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes.GetModes(MODETYPE_USER);
 	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
 	{
 		ModeHandler* mh = i->second;
@@ -467,12 +467,12 @@ void User::UnOper()
 			changelist.push_remove(mh);
 	}
 
-	ServerInstance->Modes->Process(this, NULL, this, changelist);
+	ServerInstance->Modes.Process(this, NULL, this, changelist);
 
 	// Remove the user from the oper list
 	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
 
-	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
 		this->SetMode(opermh, false);
 	FOREACH_MOD(OnPostDeoper, (this));
