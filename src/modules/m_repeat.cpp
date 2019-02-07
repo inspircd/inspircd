@@ -407,7 +407,7 @@ class RepeatModule : public Module
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
 	Version GetVersion() override

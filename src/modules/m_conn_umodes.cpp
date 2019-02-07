@@ -28,7 +28,7 @@ class ModuleModesOnConnect : public Module
 	void Prioritize() override
 	{
 		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
 	Version GetVersion() override

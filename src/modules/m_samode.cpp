@@ -124,11 +124,11 @@ class ModuleSaMode : public Module
 
 	void Prioritize() override
 	{
-		Module* disable = ServerInstance->Modules->Find("m_disable.so");
-		ServerInstance->Modules->SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disable);
+		Module* disable = ServerInstance->Modules.Find("m_disable.so");
+		ServerInstance->Modules.SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disable);
 
-		Module *override = ServerInstance->Modules->Find("m_override.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
+		Module *override = ServerInstance->Modules.Find("m_override.so");
+		ServerInstance->Modules.SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
 	}
 };
 

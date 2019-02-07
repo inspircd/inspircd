@@ -154,7 +154,7 @@ namespace Stats
 	std::ostream& Modules(std::ostream& data)
 	{
 		data << "<modulelist>";
-		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 		{

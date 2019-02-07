@@ -131,7 +131,7 @@ class ModuleShowFile : public Module
 		{
 			// Command doesn't exist, create it
 			sfcmd = new CommandShowFile(this, cmdname);
-			ServerInstance->Modules->AddService(*sfcmd);
+			ServerInstance->Modules.AddService(*sfcmd);
 		}
 
 		sfcmd->UpdateSettings(tag, reader.GetVector());

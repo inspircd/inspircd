@@ -152,7 +152,7 @@ class ModuleOjoin : public Module
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
 	}
 
 	Version GetVersion() override

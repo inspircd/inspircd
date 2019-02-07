@@ -168,8 +168,8 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	void Prioritize() override
 	{
-		Module* alias = ServerInstance->Modules->Find("m_alias.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
+		Module* alias = ServerInstance->Modules.Find("m_alias.so");
+		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override

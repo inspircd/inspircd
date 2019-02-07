@@ -89,7 +89,7 @@ class CommandClearChan : public Command
 
 		// Attach to the appropriate hook so we're able to hide the QUIT/KICK messages
 		Implementation hook = (kick ? I_OnUserKick : I_OnBuildNeighborList);
-		ServerInstance->Modules->Attach(hook, creator);
+		ServerInstance->Modules.Attach(hook, creator);
 
 		std::string mask;
 		// Now remove all local non-opers from the channel
@@ -132,7 +132,7 @@ class CommandClearChan : public Command
 			ServerInstance->Users->QuitUser(curr, reason);
 		}
 
-		ServerInstance->Modules->Detach(hook, creator);
+		ServerInstance->Modules.Detach(hook, creator);
 		if (xlf)
 			ServerInstance->XLines->ApplyLines();
 
@@ -153,7 +153,7 @@ class ModuleClearChan : public Module
 	void init() override
 	{
 		// Only attached while we are working; don't react to events otherwise
-		ServerInstance->Modules->DetachAll(this);
+		ServerInstance->Modules.DetachAll(this);
 	}
 
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override

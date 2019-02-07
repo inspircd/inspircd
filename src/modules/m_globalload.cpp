@@ -41,14 +41,14 @@ class CommandGloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
-			if (ServerInstance->Modules->Load(parameters[0].c_str()))
+			if (ServerInstance->Modules.Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
 			{
-				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
+				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules.LastError());
 			}
 		}
 		else
@@ -87,17 +87,17 @@ class CommandGunloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
-			Module* m = ServerInstance->Modules->Find(parameters[0]);
+			Module* m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
 			{
-				if (ServerInstance->Modules->Unload(m))
+				if (ServerInstance->Modules.Unload(m))
 				{
 					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 					user->WriteRemoteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 				}
 				else
 				{
-					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules.LastError());
 				}
 			}
 			else
@@ -131,7 +131,7 @@ class CommandGreloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
-			Module* m = ServerInstance->Modules->Find(parameters[0]);
+			Module* m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());

@@ -87,7 +87,7 @@ class ModuleCustomPrefix : public Module
 			{
 				CustomPrefixMode* mh = new CustomPrefixMode(this, name, letter[0], prefix[0], tag);
 				modes.push_back(mh);
-				ServerInstance->Modules->AddService(*mh);
+				ServerInstance->Modules.AddService(*mh);
 			}
 			catch (ModuleException& e)
 			{

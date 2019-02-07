@@ -40,7 +40,7 @@ class CommandLoadmodule : public Command
  */
 CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 {
-	if (ServerInstance->Modules->Load(parameters[0]))
+	if (ServerInstance->Modules.Load(parameters[0]))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
@@ -48,7 +48,7 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
+		user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules.LastError());
 		return CMD_FAILURE;
 	}
 }
@@ -86,21 +86,21 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
-	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	Module* m = ServerInstance->Modules.Find(parameters[0]);
 	if (m == creator)
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
 		return CMD_FAILURE;
 	}
 
-	if (m && ServerInstance->Modules->Unload(m))
+	if (m && ServerInstance->Modules.Unload(m))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 	}
 	else
 	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], (m ? ServerInstance->Modules->LastError() : "No such module"));
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], (m ? ServerInstance->Modules.LastError() : "No such module"));
 		return CMD_FAILURE;
 	}
 

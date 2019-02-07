@@ -793,7 +793,7 @@ Version ModuleSpanningTree::GetVersion()
  */
 void ModuleSpanningTree::Prioritize()
 {
-	ServerInstance->Modules->SetPriority(this, PRIORITY_LAST);
+	ServerInstance->Modules.SetPriority(this, PRIORITY_LAST);
 	ServerInstance->Modules.SetPriority(this, I_OnPreTopicChange, PRIORITY_FIRST);
 }
 

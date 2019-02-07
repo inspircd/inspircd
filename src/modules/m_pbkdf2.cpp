@@ -231,7 +231,7 @@ class ModulePBKDF2 : public Module
 			if (item->provider != &prov)
 				continue;
 
-			ServerInstance->Modules->DelService(*item);
+			ServerInstance->Modules.DelService(*item);
 			delete item;
 			providers.erase(i);
 			break;

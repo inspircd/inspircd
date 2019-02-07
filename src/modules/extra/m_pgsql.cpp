@@ -187,7 +187,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 	CullResult cull() override
 	{
 		this->SQL::Provider::cull();
-		ServerInstance->Modules->DelService(*this);
+		ServerInstance->Modules.DelService(*this);
 		return this->EventHandler::cull();
 	}
 
@@ -554,7 +554,7 @@ class ModulePgSQL : public Module
 			{
 				SQLConn* conn = new SQLConn(this, i->second);
 				conns.insert(std::make_pair(id, conn));
-				ServerInstance->Modules->AddService(*conn);
+				ServerInstance->Modules.AddService(*conn);
 			}
 			else
 			{

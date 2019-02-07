@@ -57,7 +57,7 @@ class AuthQuery : public SQL::Query
 		{
 			if (!kdf.empty())
 			{
-				HashProvider* hashprov = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + kdf);
+				HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + kdf);
 				if (!hashprov)
 				{
 					if (verbose)
@@ -185,7 +185,7 @@ class ModuleSQLAuth : public Module
 
 		for (std::vector<std::string>::const_iterator it = hash_algos.begin(); it != hash_algos.end(); ++it)
 		{
-			HashProvider* hashprov = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + *it);
+			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + *it);
 			if (hashprov && !hashprov->IsKDF())
 				userinfo[*it + "pass"] = hashprov->Generate(user->password);
 		}

@@ -133,7 +133,7 @@ class ModuleNamedModes : public Module
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override
