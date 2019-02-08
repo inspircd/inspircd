@@ -89,6 +89,45 @@ public:
 	}
 };
 
+namespace
+{
+	bool FirePreEvents(User* source, MessageTarget& msgtarget, MessageDetails& msgdetails)
+	{
+		// Inform modules that a message wants to be sent.
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserPreMessage, modres, (source, msgtarget, msgdetails));
+		if (modres == MOD_RES_DENY)
+		{
+			// Inform modules that a module blocked the mssage.
+			FOREACH_MOD(OnUserMessageBlocked, (source, msgtarget, msgdetails));
+			return false;
+		}
+
+		// Check whether a module zapped the message body.
+		if (msgdetails.text.empty())
+		{
+			source->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+			return false;
+		}
+
+		// Inform modules that a message is about to be sent.
+		FOREACH_MOD(OnUserMessage, (source, msgtarget, msgdetails));
+		return true;
+	}
+
+	CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const MessageDetails& msgdetails)
+	{
+		// If the source is local and was not sending a CTCP reply then update their idle time.
+		LocalUser* lsource = IS_LOCAL(source);
+		if (lsource && (msgdetails.type != MSG_NOTICE || !msgdetails.IsCTCP()))
+			lsource->idle_lastmsg = ServerInstance->Time();
+
+		// Inform modules that a message was sent.
+		FOREACH_MOD(OnUserPostMessage, (source, msgtarget, msgdetails));
+		return CMD_SUCCESS;
+	}
+}
+
 class CommandMessage : public Command
 {
  private:
@@ -159,22 +198,14 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 		std::string servername(parameters[0], 1);
 		MessageTarget msgtarget(&servername);
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
-
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
-		if (MOD_RESULT == MOD_RES_DENY)
-		{
-			FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
+		if (!FirePreEvents(user, msgtarget, msgdetails))
 			return CMD_FAILURE;
-		}
 
-		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
 		{
 			SendAll(user, msgdetails);
 		}
-		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
-		return CMD_SUCCESS;
+		return FirePostEvent(user, msgtarget, msgdetails);
 	}
 
 	char status = 0;
@@ -219,30 +250,14 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 			MessageTarget msgtarget(chan, status);
 			MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 			msgdetails.exemptions.insert(user);
-
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
-			if (MOD_RESULT == MOD_RES_DENY)
-			{
-				FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
+			if (!FirePreEvents(user, msgtarget, msgdetails))
 				return CMD_FAILURE;
-			}
-
-			/* Check again, a module may have zapped the input string */
-			if (msgdetails.text.empty())
-			{
-				user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-				return CMD_FAILURE;
-			}
-
-			FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
 			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, msgdetails.text, msgdetails.type, msgtarget.status);
 			privmsg.AddTags(msgdetails.tags_out);
 			privmsg.SetSideEffect(true);
 			chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, msgtarget.status, msgdetails.exemptions);
-
-			FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
+			return FirePostEvent(user, msgtarget, msgdetails);
 		}
 		else
 		{
@@ -250,7 +265,6 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
-		return CMD_SUCCESS;
 	}
 
 	const char* destnick = parameters[0].c_str();
@@ -294,17 +308,8 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 
 		MessageTarget msgtarget(dest);
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
-
-
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
-		if (MOD_RESULT == MOD_RES_DENY)
-		{
-			FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
+		if (!FirePreEvents(user, msgtarget, msgdetails))
 			return CMD_FAILURE;
-		}
-
-		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
 		LocalUser* const localtarget = IS_LOCAL(dest);
 		if (localtarget)
@@ -315,8 +320,7 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 			privmsg.SetSideEffect(true);
 			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 		}
-
-		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
+		return FirePostEvent(user, msgtarget, msgdetails);
 	}
 	else
 	{
@@ -324,7 +328,6 @@ CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 		return CMD_FAILURE;
 	}
-	return CMD_SUCCESS;
 }
 
 class ModuleCoreMessage : public Module
@@ -338,20 +341,6 @@ class ModuleCoreMessage : public Module
 		: cmdprivmsg(this, MSG_PRIVMSG)
 		, cmdnotice(this, MSG_NOTICE)
 	{
-	}
-
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
-	{
-		// We only handle the idle times of local users.
-		LocalUser* luser = IS_LOCAL(user);
-		if (!luser)
-			return;
-
-		// We don't update the idle time when a CTCP reply is sent.
-		if (details.type == MSG_NOTICE && details.IsCTCP())
-			return;
-
-		luser->idle_lastmsg = ServerInstance->Time();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
