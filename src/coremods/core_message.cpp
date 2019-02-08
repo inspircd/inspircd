@@ -305,7 +305,35 @@ class CommandMessage : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	{
+		if (CommandParser::LoopCall(user, this, parameters, 0))
+			return CMD_SUCCESS;
+
+		// The specified message was empty.
+		if (parameters[1].empty())
+		{
+			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+			return CMD_FAILURE;
+		}
+
+		// The target is a server glob.
+		if (parameters[0][0] == '$')
+			return HandleServerTarget(user, parameters);
+
+		// If the message begins with a status character then look it up.
+		const char* target = parameters[0].c_str();
+		PrefixMode* pmh = ServerInstance->Modes->FindPrefix(target[0]);
+		if (pmh)
+			target++;
+
+		// The target is a channel name.
+		if (*target == '#')
+			return HandleChannelTarget(user, parameters, target, pmh);
+
+		// The target is a nickname.
+		return HandleUserTarget(user, parameters);
+	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
@@ -316,29 +344,6 @@ class CommandMessage : public Command
 			return ROUTE_MESSAGE(parameters[0]);
 	}
 };
-
-CmdResult CommandMessage::Handle(User* user, const Params& parameters)
-{
-	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
-
-	// The target is a server glob.
-	if (parameters[0][0] == '$')
-		return HandleServerTarget(user, parameters);
-
-	// If the message begins with a status character then look it up.
-	const char* target = parameters[0].c_str();
-	PrefixMode* pmh = ServerInstance->Modes->FindPrefix(target[0]);
-	if (pmh)
-		target++;
-
-	// The target is a channel name.
-	if (*target == '#')
-		return HandleChannelTarget(user, parameters, target, pmh);
-
-	// The target is a nickname.
-	return HandleUserTarget(user, parameters);
-}
 
 class ModuleCoreMessage : public Module
 {
