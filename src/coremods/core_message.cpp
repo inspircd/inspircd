@@ -135,24 +135,159 @@ class CommandMessage : public Command
 	ChanModeReference moderatedmode;
 	ChanModeReference noextmsgmode;
 
-	/** Send a PRIVMSG or NOTICE message to all local users from the given user
-	 * @param source The user sending the message.
-	 * @param msg The details of the message to send.
-	 */
-	static void SendAll(User* source, const MessageDetails& details)
+	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
 	{
-		ClientProtocol::Messages::Privmsg message(ClientProtocol::Messages::Privmsg::nocopy, source, "$*", details.text, details.type);
-		message.AddTags(details.tags_out);
-		message.SetSideEffect(true);
-		ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
-
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+		Channel* chan = ServerInstance->FindChan(target);
+		if (!chan)
 		{
-			LocalUser* user = *i;
-			if ((user->registered == REG_ALL) && (!details.exemptions.count(user)))
-				user->Send(messageevent);
+			// The target channel does not exist.
+			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+			return CMD_FAILURE;
 		}
+
+		if (IS_LOCAL(source))
+		{
+			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(source))
+			{
+				// The noextmsg mode is set and the source is not in the channel.
+				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
+				return CMD_FAILURE;
+			}
+
+			bool no_chan_priv = chan->GetPrefixValue(source) < VOICE_VALUE;
+			if (no_chan_priv && chan->IsModeSet(moderatedmode))
+			{
+				// The moderated mode is set and the source has no status rank.
+				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m)");
+				return CMD_FAILURE;
+			}
+
+			if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(source))
+			{
+				// The source is banned in the channel and restrictbannedusers is enabled.
+				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+				return CMD_FAILURE;
+			}
+		}
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(chan, pm ? pm->GetPrefix() : 0);
+		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
+		msgdetails.exemptions.insert(source);
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		// Send the message to the members of the channel.
+		ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, chan, msgdetails.text, msgdetails.type, msgtarget.status);
+		privmsg.AddTags(msgdetails.tags_out);
+		privmsg.SetSideEffect(true);
+		chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, msgtarget.status, msgdetails.exemptions);
+
+		// Create the outgoing message and message event.
+		return FirePostEvent(source, msgtarget, msgdetails);
+	}
+
+	CmdResult HandleServerTarget(User* source, const Params& parameters)
+	{
+		// If the source isn't allowed to mass message users then reject
+		// the attempt to mass-message users.
+		if (!source->HasPrivPermission("users/mass-message"))
+			return CMD_FAILURE;
+
+		// Extract the server glob match from the target parameter.
+		std::string servername(parameters[0], 1);
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(&servername);
+		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		// If the current server name matches the server name glob then send
+		// the message out to the local users.
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
+		{
+			// Create the outgoing message and message event.
+			ClientProtocol::Messages::Privmsg message(ClientProtocol::Messages::Privmsg::nocopy, source, "$*", msgdetails.text, msgdetails.type);
+			message.AddTags(msgdetails.tags_out);
+			message.SetSideEffect(true);
+			ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
+
+			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+			for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+			{
+				LocalUser* luser = *i;
+
+				// Don't send to unregistered users or the user who is the source.
+				if (luser->registered != REG_ALL || luser == source)
+					continue;
+
+				// Only send to non-exempt users.
+				if (!msgdetails.exemptions.count(luser))
+					luser->Send(messageevent);
+			}
+		}
+
+		// Fire the post-message event.
+		return FirePostEvent(source, msgtarget, msgdetails);
+	}
+
+	CmdResult HandleUserTarget(User* source, const Params& parameters)
+	{
+		User* target;
+		if (IS_LOCAL(source))
+		{
+			// Local sources can specify either a nick or a nick@server mask as the target.
+			const char* targetserver = strchr(parameters[0].c_str(), '@');
+			if (targetserver)
+			{
+				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
+				target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+					target = NULL;
+			}
+			else
+			{
+				// If the source is a local user then we only look up the target by nick.
+				target = ServerInstance->FindNickOnly(parameters[0]);
+			}
+		}
+		else
+		{
+			// Remote users can only specify a nick or UUID as the target.
+			target = ServerInstance->FindNick(parameters[0]);
+		}
+
+		if (!target || target->registered != REG_ALL)
+		{
+			// The target user does not exist or is not fully registered.
+			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			return CMD_FAILURE;
+		}
+
+		// If the target is away then inform the user.
+		if (target->IsAway() && msgtype == MSG_PRIVMSG)
+			source->WriteNumeric(RPL_AWAY, target->nick, target->awaymsg);
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(target);
+		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		LocalUser* const localtarget = IS_LOCAL(target);
+		if (localtarget)
+		{
+			// Send to the target if they are a local user.
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, localtarget->nick, msgdetails.text, msgtype);
+			privmsg.AddTags(msgdetails.tags_out);
+			privmsg.SetSideEffect(true);
+			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
+		}
+
+		// Fire the post-message event.
+		return FirePostEvent(source, msgtarget, msgdetails);
 	}
 
  public:
@@ -184,150 +319,25 @@ class CommandMessage : public Command
 
 CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 {
-	User *dest;
-	Channel *chan;
-
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
+	// The target is a server glob.
 	if (parameters[0][0] == '$')
-	{
-		if (!user->HasPrivPermission("users/mass-message"))
-			return CMD_SUCCESS;
+		return HandleServerTarget(user, parameters);
 
-		std::string servername(parameters[0], 1);
-		MessageTarget msgtarget(&servername);
-		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
-		if (!FirePreEvents(user, msgtarget, msgdetails))
-			return CMD_FAILURE;
-
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername, NULL))
-		{
-			SendAll(user, msgdetails);
-		}
-		return FirePostEvent(user, msgtarget, msgdetails);
-	}
-
-	char status = 0;
+	// If the message begins with a status character then look it up.
 	const char* target = parameters[0].c_str();
-
-	if (ServerInstance->Modes->FindPrefix(*target))
-	{
-		status = *target;
+	PrefixMode* pmh = ServerInstance->Modes->FindPrefix(target[0]);
+	if (pmh)
 		target++;
-	}
+
+	// The target is a channel name.
 	if (*target == '#')
-	{
-		chan = ServerInstance->FindChan(target);
+		return HandleChannelTarget(user, parameters, target, pmh);
 
-		if (chan)
-		{
-			if (IS_LOCAL(user) && chan->GetPrefixValue(user) < VOICE_VALUE)
-			{
-				if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
-				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
-					return CMD_FAILURE;
-				}
-
-				if (chan->IsModeSet(moderatedmode))
-				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m)");
-					return CMD_FAILURE;
-				}
-
-				if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
-				{
-					if (chan->IsBanned(user))
-					{
-						if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-							user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
-						return CMD_FAILURE;
-					}
-				}
-			}
-
-			MessageTarget msgtarget(chan, status);
-			MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
-			msgdetails.exemptions.insert(user);
-			if (!FirePreEvents(user, msgtarget, msgdetails))
-				return CMD_FAILURE;
-
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, msgdetails.text, msgdetails.type, msgtarget.status);
-			privmsg.AddTags(msgdetails.tags_out);
-			privmsg.SetSideEffect(true);
-			chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, msgtarget.status, msgdetails.exemptions);
-			return FirePostEvent(user, msgtarget, msgdetails);
-		}
-		else
-		{
-			/* channel does not exist */
-			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
-		}
-	}
-
-	const char* destnick = parameters[0].c_str();
-
-	if (IS_LOCAL(user))
-	{
-		const char* targetserver = strchr(destnick, '@');
-
-		if (targetserver)
-		{
-			std::string nickonly;
-
-			nickonly.assign(destnick, 0, targetserver - destnick);
-			dest = ServerInstance->FindNickOnly(nickonly);
-			if (dest && strcasecmp(dest->server->GetName().c_str(), targetserver + 1))
-			{
-				/* Incorrect server for user */
-				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-				return CMD_FAILURE;
-			}
-		}
-		else
-			dest = ServerInstance->FindNickOnly(destnick);
-	}
-	else
-		dest = ServerInstance->FindNick(destnick);
-
-	if ((dest) && (dest->registered == REG_ALL))
-	{
-		if (parameters[1].empty())
-		{
-			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-			return CMD_FAILURE;
-		}
-
-		if ((dest->IsAway()) && (msgtype == MSG_PRIVMSG))
-		{
-			/* auto respond with aweh msg */
-			user->WriteNumeric(RPL_AWAY, dest->nick, dest->awaymsg);
-		}
-
-		MessageTarget msgtarget(dest);
-		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
-		if (!FirePreEvents(user, msgtarget, msgdetails))
-			return CMD_FAILURE;
-
-		LocalUser* const localtarget = IS_LOCAL(dest);
-		if (localtarget)
-		{
-			// direct write, same server
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, localtarget->nick, msgdetails.text, msgtype);
-			privmsg.AddTags(msgdetails.tags_out);
-			privmsg.SetSideEffect(true);
-			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
-		}
-		return FirePostEvent(user, msgtarget, msgdetails);
-	}
-	else
-	{
-		/* no such nick/channel */
-		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-		return CMD_FAILURE;
-	}
+	// The target is a nickname.
+	return HandleUserTarget(user, parameters);
 }
 
 class ModuleCoreMessage : public Module
