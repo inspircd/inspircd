@@ -89,8 +89,10 @@ public:
 	}
 };
 
-class MessageCommandBase : public Command
+class CommandMessage : public Command
 {
+ private:
+	const MessageType msgtype;
 	ChanModeReference moderatedmode;
 	ChanModeReference noextmsgmode;
 
@@ -115,8 +117,9 @@ class MessageCommandBase : public Command
 	}
 
  public:
-	MessageCommandBase(Module* parent, MessageType mt)
+	CommandMessage(Module* parent, MessageType mt)
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
+		, msgtype(mt)
 		, moderatedmode(parent, "moderated")
 		, noextmsgmode(parent, "noextmsg")
 	{
@@ -128,7 +131,7 @@ class MessageCommandBase : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult HandleMessage(User* user, const Params& parameters, MessageType mt);
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
@@ -140,7 +143,7 @@ class MessageCommandBase : public Command
 	}
 };
 
-CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters, MessageType mt)
+CmdResult CommandMessage::Handle(User* user, const Params& parameters)
 {
 	User *dest;
 	Channel *chan;
@@ -155,7 +158,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 
 		std::string servername(parameters[0], 1);
 		MessageTarget msgtarget(&servername);
-		MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
+		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, msgtarget, msgdetails));
@@ -214,7 +217,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 			}
 
 			MessageTarget msgtarget(chan, status);
-			MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
+			MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 			msgdetails.exemptions.insert(user);
 
 			ModResult MOD_RESULT;
@@ -283,14 +286,14 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 			return CMD_FAILURE;
 		}
 
-		if ((dest->IsAway()) && (mt == MSG_PRIVMSG))
+		if ((dest->IsAway()) && (msgtype == MSG_PRIVMSG))
 		{
 			/* auto respond with aweh msg */
 			user->WriteNumeric(RPL_AWAY, dest->nick, dest->awaymsg);
 		}
 
 		MessageTarget msgtarget(dest);
-		MessageDetailsImpl msgdetails(mt, parameters[1], parameters.GetTags());
+		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 
 
 		ModResult MOD_RESULT;
@@ -307,7 +310,7 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 		if (localtarget)
 		{
 			// direct write, same server
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, localtarget->nick, msgdetails.text, mt);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, localtarget->nick, msgdetails.text, msgtype);
 			privmsg.AddTags(msgdetails.tags_out);
 			privmsg.SetSideEffect(true);
 			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
@@ -324,29 +327,16 @@ CmdResult MessageCommandBase::HandleMessage(User* user, const Params& parameters
 	return CMD_SUCCESS;
 }
 
-template<MessageType MT>
-class CommandMessage : public MessageCommandBase
-{
- public:
-	CommandMessage(Module* parent)
-		: MessageCommandBase(parent, MT)
-	{
-	}
-
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, parameters, MT);
-	}
-};
-
 class ModuleCoreMessage : public Module
 {
-	CommandMessage<MSG_PRIVMSG> CommandPrivmsg;
-	CommandMessage<MSG_NOTICE> CommandNotice;
+ private:
+	CommandMessage cmdprivmsg;
+	CommandMessage cmdnotice;
 
  public:
 	ModuleCoreMessage()
-		: CommandPrivmsg(this), CommandNotice(this)
+		: cmdprivmsg(this, MSG_PRIVMSG)
+		, cmdnotice(this, MSG_NOTICE)
 	{
 	}
 
