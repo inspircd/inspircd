@@ -931,7 +931,7 @@
 # If you specify to use the helpop module, then specify below the     #
 # path to the helpop.conf file.                                       #
 #                                                                     #
-#<include file="examples/helpop-full.conf.example">
+#<include file="examples/helpop.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide chans module: Allows users to hide their channels list from non-
