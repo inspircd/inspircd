@@ -21,6 +21,12 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 2812.
+	ERR_NOSUCHSERVICE = 408
+};
+
 class MessageDetailsImpl : public MessageDetails
 {
 public:
@@ -345,22 +351,80 @@ class CommandMessage : public Command
 	}
 };
 
+class CommandSQuery : public SplitCommand
+{
+ public:
+	CommandSQuery(Module* Creator)
+		: SplitCommand(Creator, "SQUERY", 2, 2)
+	{
+		syntax = "<service> <message>";
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	{
+		// The specified message was empty.
+		if (parameters[1].empty())
+		{
+			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+			return CMD_FAILURE;
+		}
+
+		// The target can be either a nick or a nick@server mask.
+		User* target;
+		const char* targetserver = strchr(parameters[0].c_str(), '@');
+		if (targetserver)
+		{
+			// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
+			target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+			if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+				target = NULL;
+		}
+		else
+		{
+			// The targer can be on any server.
+			target = ServerInstance->FindNickOnly(parameters[0]);
+		}
+
+		if (!target || target->registered != REG_ALL || !target->server->IsULine())
+		{
+			// The target user does not exist, is not fully registered, or is not a service.
+			user->WriteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");
+			return CMD_FAILURE;
+		}
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(target);
+		MessageDetailsImpl msgdetails(MSG_PRIVMSG, parameters[1], parameters.GetTags());
+		if (!FirePreEvents(user, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		// The SQUERY command targets a service on a u-lined server. This can never
+		// be on the server local to the source so we don't need to do any routing
+		// logic and can forward it as a PRIVMSG.
+
+		// Fire the post-message event.
+		return FirePostEvent(user, msgtarget, msgdetails);
+	}
+};
+
 class ModuleCoreMessage : public Module
 {
  private:
 	CommandMessage cmdprivmsg;
 	CommandMessage cmdnotice;
+	CommandSQuery cmdsquery;
 
  public:
 	ModuleCoreMessage()
 		: cmdprivmsg(this, MSG_PRIVMSG)
 		, cmdnotice(this, MSG_NOTICE)
+		, cmdsquery(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("PRIVMSG, NOTICE", VF_CORE|VF_VENDOR);
+		return Version("Provides the NOTICE, PRIVMSG, and SQUERY commands", VF_CORE|VF_VENDOR);
 	}
 };
 

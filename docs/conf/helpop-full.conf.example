@@ -38,9 +38,13 @@ WHOIS     WHOWAS   ISON      USERHOST  WATCH
 LIST      NAMES    WHO       MOTD
 ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
-SSLINFO
+SSLINFO   SQUERY
 
 USER      PASS     PING     PONG       QUIT">
+
+<helpop key="squery" value="/SQUERY <target> <text>
+
+Sends a message to the network service specified in <target>.">
 
 <helpop key="sslinfo" value="/SSLINFO <nick>
 
