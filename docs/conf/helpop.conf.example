@@ -31,19 +31,15 @@ parameter for this command.
 <helpop key="cuser" value="User Commands
 -------------
 
-PRIVMSG   NOTICE   NICK      JOIN      PART
-CYCLE     KNOCK    MODE      OPER      TOPIC
-KICK      FPART    REMOVE    TBAN      INVITE
-UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
-MKPASSWD  VHOST    TITLE     SETNAME
-
-WHOIS     WHOWAS   ISON      USERHOST  WATCH
-LIST      NAMES    WHO       MOTD
-ADMIN     MAP      LINKS     LUSERS    TIME
-STATS     VERSION  INFO      MODULES   COMMANDS
-SSLINFO   SQUERY
-
-USER      PASS     PING     PONG       QUIT">
+ACCEPT      ADMIN       AWAY        COMMANDS    CYCLE       DCCALLOW
+FPART       INFO        INVITE      ISON        JOIN        KICK
+KNOCK       LINKS       LIST        LUSERS      MAP         MKPASSWD
+MODE        MODULES     MOTD        NAMES       NICK        NOTICE
+OPER        PART        PASS        PING        PONG        PRIVMSG
+QUIT        REMOVE      SETNAME     SILENCE     SQUERY      SSLINFO
+STATS       TBAN        TIME        TITLE       TOPIC       UNINVITE
+USER        USERHOST    VERSION     VHOST       WATCH       WHO
+WHOIS       WHOWAS">
 
 <helpop key="squery" value="/SQUERY <target> <text>
 
@@ -410,28 +406,17 @@ Sets your name to the specified name.">
 <helpop key="coper" value="Oper Commands
 -------------
 
-OPERMOTD  CHECK     CLONES      USERIP   TLINE
-ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
-CLOAK
-
-SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
-SETIDLE   SWHOIS
-
-SANICK    NICKLOCK  NICKUNLOCK
-
-SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
-
-KILL      SAQUIT    GLINE       ZLINE    QLINE
-KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER    OJOIN     CLEARCHAN
-
-CONNECT   SQUIT     RCONNECT    RSQUIT
-
-DIE            RESTART      REHASH
-               LOADMODULE   UNLOADMODULE
-RELOADMODULE   GLOADMODULE  GUNLOADMODULE
-GRELOADMODULE  CLOSE        JUMPSERVER
-LOCKSERV       UNLOCKSERV">
+ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
+CHGNAME        CLEARCHAN      CLOAK          CLONES         CLOSE
+CONNECT        DIE            ELINE          FILTER         GLINE
+GLOADMODULE    GLOBOPS        GRELOADMODULE  GUNLOADMODULE  JUMPSERVER
+KILL           KLINE          LOADMODULE     LOCKSERV       MODENOTICE
+NICKLOCK       NICKUNLOCK     OJOIN          OPERMOTD       QLINE
+RCONNECT       REHASH         RELOADMODULE   RESTART        RLINE
+RSQUIT         SAJOIN         SAKICK         SAMODE         SANICK
+SAPART         SAQUIT         SATOPIC        SETHOST        SETIDENT
+SETIDLE        SHUN           SQUIT          SWHOIS         TLINE
+UNLOADMODULE   UNLOCKSERV     USERIP         WALLOPS        ZLINE">
 
 <helpop key="userip" value="/USERIP <nick> [<nick>]
 
