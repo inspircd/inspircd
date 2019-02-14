@@ -48,6 +48,55 @@ namespace
 			user->ForEachNeighbor(*this, false);
 		}
 	};
+
+	void CheckPingTimeout(LocalUser* user)
+	{
+		// Check if it is time to ping the user yet.
+		if (ServerInstance->Time() < user->nping)
+			return;
+
+		// This user didn't answer the last ping, remove them.
+		if (!user->lastping)
+		{
+			time_t secs = ServerInstance->Time() - (user->nping - user->MyClass->GetPingTime());
+			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
+			ServerInstance->Users.QuitUser(user, message);
+			return;
+		}
+
+		// Send a ping to the client.
+		ClientProtocol::Messages::Ping ping;
+		user->Send(ServerInstance->GetRFCEvents().ping, ping);
+		user->lastping = 0;
+		user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+	}
+
+	void CheckRegistrationTimeout(LocalUser* user)
+	{
+		if (user->GetClass() && (ServerInstance->Time() > (user->signon + user->GetClass()->GetRegTimeout())))
+		{
+			// Either the user did not send NICK/USER or a module blocked registration in
+			// OnCheckReady until the client timed out.
+			ServerInstance->Users.QuitUser(user, "Registration timeout");
+		}
+	}
+
+	void CheckModulesReady(LocalUser* user)
+	{
+		ModResult res;
+		FIRST_MOD_RESULT(OnCheckReady, res, (user));
+		if (res == MOD_RES_PASSTHRU)
+		{
+			// User has sent NICK/USER and modules are ready.
+			user->FullConnect();
+			return;
+		}
+
+		// If the user has been quit in OnCheckReady then we shouldn't quit
+		// them again for having a registration timeout.
+		if (!user->quitting)
+			CheckRegistrationTimeout(user);
+	}
 }
 
 UserManager::UserManager()
@@ -285,17 +334,6 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	}
 }
 
-/* this returns true when all modules are satisfied that the user should be allowed onto the irc server
- * (until this returns true, a user will block in the waiting state, waiting to connect up to the
- * registration timeout maximum seconds)
- */
-bool UserManager::AllModulesReportReady(LocalUser* user)
-{
-	ModResult res;
-	FIRST_MOD_RESULT(OnCheckReady, res, (user));
-	return (res == MOD_RES_PASSTHRU);
-}
-
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the users, e.g. do
@@ -322,45 +360,16 @@ void UserManager::DoBackgroundUserStuff()
 		switch (curr->registered)
 		{
 			case REG_ALL:
-				if (ServerInstance->Time() >= curr->nping)
-				{
-					// This user didn't answer the last ping, remove them
-					if (!curr->lastping)
-					{
-						time_t time = ServerInstance->Time() - (curr->nping - curr->MyClass->GetPingTime());
-						const std::string message = "Ping timeout: " + ConvToStr(time) + (time != 1 ? " seconds" : " second");
-						this->QuitUser(curr, message);
-						continue;
-					}
-					ClientProtocol::Messages::Ping ping;
-					curr->Send(ServerInstance->GetRFCEvents().ping, ping);
-					curr->lastping = 0;
-					curr->nping = ServerInstance->Time() + curr->MyClass->GetPingTime();
-				}
+				CheckPingTimeout(curr);
 				break;
+
 			case REG_NICKUSER:
-				if (AllModulesReportReady(curr))
-				{
-					/* User has sent NICK/USER, modules are okay, DNS finished. */
-					curr->FullConnect();
-					continue;
-				}
-
-				// If the user has been quit in OnCheckReady then we shouldn't
-				// quit them again for having a registration timeout.
-				if (curr->quitting)
-					continue;
+				CheckModulesReady(curr);
 				break;
-		}
 
-		if (curr->registered != REG_ALL && curr->MyClass && (ServerInstance->Time() > (curr->signon + curr->MyClass->GetRegTimeout())))
-		{
-			/*
-			 * registration timeout -- didnt send USER/NICK/HOST
-			 * in the time specified in their connection class.
-			 */
-			this->QuitUser(curr, "Registration timeout");
-			continue;
+			default:
+				CheckRegistrationTimeout(curr);
+				break;
 		}
 	}
 }

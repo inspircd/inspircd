@@ -92,12 +92,6 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	void DoBackgroundUserStuff();
 
-	/** Returns true when all modules have done pre-registration checks on a user
-	 * @param user The user to verify
-	 * @return True if all modules have finished checking this user
-	 */
-	bool AllModulesReportReady(LocalUser* user);
-
 	/** Handle a client connection.
 	 * Creates a new LocalUser object, inserts it into the appropriate containers,
 	 * initializes it as not yet registered, and adds it to the socket engine.
