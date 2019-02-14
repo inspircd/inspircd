@@ -40,11 +40,11 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 	}
 
  public:
-	WriteNeighborsWithCap(User* user, ClientProtocol::Event& ev, const Cap::Capability& capability)
+	WriteNeighborsWithCap(User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, bool include_self = false)
 		: cap(capability)
 		, protoev(ev)
 	{
-		user->ForEachNeighbor(*this, false);
+		user->ForEachNeighbor(*this, include_self);
 	}
 };
 
