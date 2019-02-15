@@ -45,6 +45,21 @@ class CoreModOper : public Module
 		cmdkill.hideuline = security->getBool("hideulinekills");
 	}
 
+	void OnPostOper(User* user, const std::string&, const std::string&) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser)
+			return;
+
+		const std::string vhost = luser->oper->getConfig("vhost");
+		if (!vhost.empty())
+			luser->ChangeDisplayedHost(vhost);
+
+		const std::string klass = luser->oper->getConfig("class");
+		if (!klass.empty())
+			luser->SetClass(klass);
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);

@@ -107,7 +107,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 1
+#define INSPIRCD_VERSION_API 2
 
 /**
  * This #define allows us to call a method in all
@@ -896,13 +896,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
 
-#ifdef INSPIRCD_ENABLE_TESTSUITE
-	/** Add test suite hooks here. These are used for testing functionality of a module
-	 * via the --testsuite debugging parameter.
-	 */
-	virtual void OnRunTestSuite();
-#endif
-
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
 	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
 	 * @param issuer The user who is going to receive the NAMES list being built
@@ -933,6 +926,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnServiceDel(ServiceProvider& service);
 
+	/** Called whenever a message is about to be written to a user.
+	 * @param user The user who is having a message sent to them.
+	 * @param msg The message which is being written to the user.
+	 * @return MOD_RES_ALLOW to explicitly allow the message to be sent, MOD_RES_DENY to explicitly
+	 * deny the message from being sent, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
 	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
 };
 

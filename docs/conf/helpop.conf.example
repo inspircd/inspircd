@@ -9,6 +9,8 @@
 #   -- w00t 16/dec/2006
 #
 
+<config format="xml">
+
 <alias text="HELP" replace="HELPOP $2-">
 
 <helpmsg nohelp="There is no help for the topic you searched for. Please try again.">
@@ -29,45 +31,751 @@ parameter for this command.
 <helpop key="cuser" value="User Commands
 -------------
 
-PRIVMSG   NOTICE   NICK      JOIN      PART
-CYCLE     KNOCK    MODE      OPER      TOPIC
-KICK      FPART    REMOVE    TBAN      INVITE
-UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
-MKPASSWD  VHOST    TITLE     SETNAME
+ACCEPT      ADMIN       AWAY        COMMANDS    CYCLE       DCCALLOW
+FPART       INFO        INVITE      ISON        JOIN        KICK
+KNOCK       LINKS       LIST        LUSERS      MAP         MKPASSWD
+MODE        MODULES     MOTD        NAMES       NICK        NOTICE
+OPER        PART        PASS        PING        PONG        PRIVMSG
+QUIT        REMOVE      SETNAME     SILENCE     SQUERY      SSLINFO
+STATS       TBAN        TIME        TITLE       TOPIC       UNINVITE
+USER        USERHOST    VERSION     VHOST       WATCH       WHO
+WHOIS       WHOWAS">
 
-WHOIS     WHOWAS   ISON      USERHOST  WATCH
-LIST      NAMES    WHO       MOTD
-ADMIN     MAP      LINKS     LUSERS    TIME
-STATS     VERSION  INFO      MODULES   COMMANDS
-SSLINFO
+<helpop key="squery" value="/SQUERY <target> <text>
 
-USER      PASS     PING     PONG       QUIT">
+Sends a message to the network service specified in <target>.">
+
+<helpop key="sslinfo" value="/SSLINFO <nick>
+
+Displays information on the SSL connection and certificate of the
+target user.">
+
+<helpop key="uninvite" value="/UNINVITE <nick> <channel>
+
+Uninvite a user from a channel, same syntax as INVITE.">
+
+<helpop key="tban" value="/TBAN <channel> <duration> <banmask>
+
+Sets a timed ban. The duration of the ban can be specified in the
+following format: 1w2d3h4m6s which indicates a ban of one week, two
+days, three hours, four minutes and six seconds. Alternatively the
+ban may just be specified as a number of seconds. All timed bans
+appear in the banlist as normal bans and may be safely removed
+before their time is up.">
+
+<helpop key="dccallow" value="/DCCALLOW - List allowed nicks
+/DCCALLOW LIST - This also lists allowed nicks
+/DCCALLOW +<nick> [<duration>] - Add a nick
+/DCCALLOW -<nick> - Remove a nick
+/DCCALLOW HELP - Display help
+
+Duration is optional, and may be specified in seconds or in the
+form of 1m2h3d4w5y.">
+
+<helpop key="accept" value="/ACCEPT * - List accepted nicks
+/ACCEPT +<nick> - Add a nick
+/ACCEPT -<nick> - Remove a nick
+This command accepts multiple nicks like so:
+/ACCEPT +<nick1>,+<nick2>,-<nick3>
+
+Manages your accept list. This list is used to determine who can
+private message you when you have usermode +g set.">
+
+<helpop key="cycle" value="/CYCLE <channel> :[<reason>]
+
+Cycles a channel (leaving and rejoining), overrides restrictions that
+would stop a new user joining, such as user limits and channel keys.">
+
+<helpop key="title" value="/TITLE <name> <password>
+
+Authenticate for a WHOIS title line and optionally a vhost using the
+specified username and password.">
+
+<helpop key="watch" value="/WATCH - List watched nicks that are online
+/WATCH L - List watched nicks, online and offline
+/WATCH C - Clear all watched nicks
+/WATCH S - Show statistics
+/WATCH +<nick> - Add a nick
+/WATCH -<nick> - Remove a nick
+This command accepts multiple nicks like so:
+/WATCH +<nick1> +<nick2> -<nick3>">
+
+<helpop key="vhost" value="/VHOST <username> <password>
+
+Authenticate for a vhost using the specified username and password.">
+
+<helpop key="remove" value="/REMOVE <channel> <nick> [<reason>]
+
+Removes a user from a channel you specify. You must be at least a
+channel halfoperator to remove a user. A removed user will part with
+a message stating they were removed from the channel and by whom.">
+
+<helpop key="rmode" value="/RMODE [channel] [modeletter] {[pattern]}
+
+Removes listmodes from a channel.
+E.g. /RMODE #Chan b m:* will remove all mute extbans.">
+
+<helpop key="fpart" value="/FPART <channel> <nick> [<reason>]
+
+This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
+which caused trouble for some users.">
+
+<helpop key="silence" value="/SILENCE - Shows a list of silenced masks
+/SILENCE +<mask> [<flags>] - Add a mask
+/SILENCE -<mask> - Remove a mask
+
+A serverside ignore of the given n!u@h mask. The letter(s) at the end
+specify what is to be ignored from this hostmask.
+
+Valid SILENCE Flags
+-------------------
+
+ p        Block private messages
+ c        Block channel messages
+ i        Block invites
+ n        Block private notices
+ t        Block channel notices
+ a        Block all of the above
+ x        Exception
+
+Multiple letters may be specified. For an exception, you must pair x
+with what you want excepted. For example, if you wanted to except
+everything from people with a host matching *.foo.net, you would do
+/SILENCE +*!*@*.foo.net xa
+
+/SILENCE without a parameter will list the masks that you have silenced.">
+
+<helpop key="knock" value="/KNOCK <channel>
+
+Sends a notice to a channel indicating you wish to join.">
+
+<helpop key="user" value="/USER <ident> <local host> <remote host> :<real name>
+
+This command is used by your client to register your
+IRC session, providing your ident and real name to the
+server.
+
+You should not use it during an established connection.">
+
+<helpop key="nick" value="/NICK <new nick>
+
+Change your nickname to <new nick>.">
+
+<helpop key="quit" value="/QUIT [<reason>]
+
+Quit from IRC and end your current session.">
+
+<helpop key="version" value="/VERSION
+
+Returns the server's version information.">
+
+<helpop key="ping" value="/PING <server>
+
+Ping a server. The server will answer with a PONG.">
+
+<helpop key="pong" value="/PONG <server>
+
+Your client should send this to answer server PINGs. You
+should not issue this command manually.">
+
+<helpop key="admin" value="/ADMIN [<server>]
+
+Shows the administrative information for the given server.">
+
+<helpop key="privmsg" value="/PRIVMSG <target> <text>
+
+Sends a message to a user or channel specified in <target>.">
+
+<helpop key="notice" value="/NOTICE <target> <text>
+
+Sends a notice to a user or channel specified in <target>.">
+
+<helpop key="join" value="/JOIN <channel>[,<channel>] [<key>][,<key>]
+
+Joins one or more channels you provide the names for.">
+
+<helpop key="names" value="/NAMES <channel>[,<channel>]
+
+Return a list of users on the channels you provide.">
+
+<helpop key="part" value="/PART <channel>[,<channel>] [<reason>]
+
+Leaves one or more channels you specify.">
+
+<helpop key="kick" value="/KICK <channel> <nick>[,<nick>] [<reason>]
+
+Kicks a user from a channel you specify. You must be
+at least a channel halfoperator to kick a user.">
+
+<helpop key="mode" value="/MODE <target> (+|-)<modes> [<mode parameters>] - Change modes of <target>.
+
+/MODE <target> - Show modes of <target>.
+
+/MODE <channel> <list mode char> - List bans, exceptions, etc. set on <channel>.
+
+Sets the mode for a channel or a nickname specified in <target>.
+A user may only set modes upon themselves, and may not set the
++o usermode, and a user may only change channel modes of
+channels where they are at least a halfoperator.
+
+For a list of all user and channel modes, enter /HELPOP UMODES or
+/HELPOP CHMODES.">
+
+<helpop key="topic" value="/TOPIC <channel> [<topic>]
+
+Sets or retrieves the channel topic. If a channel topic is
+given in the command and either the channel is not +t, or
+you are at least a halfoperator, the channel topic will be
+changed to the new one you provide.">
+
+<helpop key="who" value="/WHO <pattern> [<flags>][%[<fields>[,<querytype>]]] <pattern>
+
+Looks up information about users matching the provided pattern. You can specify
+a flag specific pattern, a channel name, user hostname, a user server name, a
+user real name, or a user nickname. Matching users will only be included in the
+WHO response if:
+
+ 1) The specified pattern is an exact channel name that does not have the
+    private or secret channel modes set and the user does not have the invisible
+    user mode set.
+ 2) The specified pattern is an exact nickname.
+ 3) You share one or more common channels with the user.
+ 4) The user does not have the invisible user mode set.
+ 5) You are a server operator with the users/auspex privilege.
+
+If you specify any fields the response returned will be a WHOX response rather
+than a RFC 1459 WHO response.
+
+Valid WHO Flags
+---------------
+
+The following flags use <pattern> to match against the specified user data:
+
+ A     Show users who have an away message matching <pattern>.
+ a     Show users who have an account name matching <pattern>.
+ h     Show users who have a hostname matching <pattern>. If the 'x' modifier
+       is specified then this will match against the real hostname instead of
+       the display hostname.
+ i     Show users who have an IP address matching <pattern>.
+ m     Show users who have the modes listed in <pattern>. The pattern
+       should be in the same format as a mode change e.g. +ow-i (server
+       operators only).
+ n     Show users who have a nickname matching <pattern>.
+ p     Show users who are connected to a port in the <pattern> range (server
+       operators only).
+ r     Show users who have a real name matching <pattern>.
+ s     Show users who are on a server with a name matching <pattern>. If the 'x'
+       modifier is specified then this will match against the real server name
+       instead of the masked server name.
+ t     Show users who have connected in the last <pattern> seconds.
+ u     Show users who have an ident (username) matching <pattern>.
+
+The following flags filter users by their status:
+
+ f     Only show users on remote (far) servers.
+ l     Only show users on the local server.
+ o     Only show server operators.
+
+The following flags modify the command output:
+
+ x     Show sensitive data like real user hostnames and, when hideserver is
+       enabled, real server hostnames.
+
+You may combine one flag from the first group and multiple from the others in
+one WHO command.
+
+Valid WHO Fields
+----------------
+
+ a     Include the user's account name in the response.
+ c     Include the first common channel name in the response.
+ d     Include the user's server distance from you in the response.
+ f     Include the user's away status, oper status, and highest channel prefix
+       in the response.
+ h     Include the user's hostname in the response. If the 'x' flag was
+       specified then this is the real host rather than the display host.
+ i     Include the user's IP address in the response.
+ l     Include the user's idle time in the response.
+ n     Include the user's nickname in the response.
+ o     Include the user's channel operator rank level in the response.
+ r     Include the user's real name in the response.
+ s     Include the user's server name in the response. If the 'x' flag was
+       specified then this is the real server name rather than the masked server
+       name.
+ t     Include the query type in the response.
+ u     Include the user's ident in the response.
+
+">
+
+<helpop key="motd" value="/MOTD [<server>]
+
+Show the message of the day for <server>. Messages of the day often
+contain important server rules and notices and should be read prior
+to using a server.">
+
+<helpop key="oper" value="/OPER <login> <password>
+
+Attempts to authenticate a user as an IRC operator.
+
+Both successful and unsuccessful oper attempts are
+logged, and sent to online IRC operators.">
+
+<helpop key="list" value="/LIST [<pattern>]
+
+Creates a list of all existing channels matching the glob pattern
+<pattern>, e.g. *chat* or bot*.">
+
+<helpop key="lusers" value="/LUSERS
+
+Shows a count of local and remote users, servers and channels.">
+
+<helpop key="userhost" value="/USERHOST <nick> [<nick>]
+
+Returns the hostname and nickname of a user, and some other
+miscellaneous information.">
+
+<helpop key="away" value="/AWAY [<message>]
+
+If a message is given, marks you as being away, otherwise
+removes your away status and previous message.">
+
+<helpop key="ison" value="/ISON <nick> [<nick> ...]
+
+Returns a subset of the nicks you give, showing only those
+that are currently online.">
+
+<helpop key="invite" value="/INVITE <nick> <channel> [<time>]
+
+Invites a user to a channel. If the channel is NOT +A, only
+channel halfoperators or above can invite people. If +A is set,
+anyone can invite people to the channel, as long as the person
+doing the invite is a member of the channel they wish to invite
+the user to.
+
+Invited users may override bans, +k, and similar in addition to
++i, depending on configuration.
+
+If a time is provided, the invite expires after that time and the user
+can no longer use it to enter the channel.">
+
+<helpop key="pass" value="/PASS <password>
+
+This command is used by your client when setting up
+your IRC session to submit a server password to the
+server.
+
+You should not use it during an established connection.">
+
+<helpop key="whowas" value="/WHOWAS <nick>
+
+Returns a list of times the user was seen recently on IRC along with
+the time they were last seen and their server.">
+
+<helpop key="links" value="/LINKS
+
+Shows all servers linked to this one.">
+
+<helpop key="map" value="/MAP
+
+Shows a graphical representation of all users and servers on the
+network, and the links between them, as a tree from the perspective
+of your server.">
+
+<helpop key="whois" value="/WHOIS <nick> [<server>]
+
+Returns the WHOIS information of a user, their channels, hostname,
+etc. If a second nickname or server is provided, then a whois is
+performed from the server where the user is actually located rather
+than locally, showing idle and signon times.">
+
+<helpop key="time" value="/TIME [<server>]
+
+Returns the local time of the server, or remote time of another
+server.">
+
+<helpop key="info" value="/INFO [<server>]
+
+Returns information on the developers and supporters who made this
+IRC server possible.">
+
+<helpop key="setname" value="/SETNAME <name>
+
+Sets your name to the specified name.">
+
 
 <helpop key="coper" value="Oper Commands
 -------------
 
-OPERMOTD  CHECK     CLONES      USERIP   TLINE
-ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
-CLOAK
+ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
+CHGNAME        CLEARCHAN      CLOAK          CLONES         CONNECT
+DIE            ELINE          FILTER         GLINE          GLOADMODULE
+GLOBOPS        GRELOADMODULE  GUNLOADMODULE  KILL           KLINE
+LOADMODULE     LOCKSERV       MODENOTICE     NICKLOCK       NICKUNLOCK
+OJOIN          OPERMOTD       QLINE          RCONNECT       REHASH
+RELOADMODULE   RESTART        RLINE          RSQUIT         SAJOIN
+SAKICK         SAMODE         SANICK         SAPART         SAQUIT
+SATOPIC        SETHOST        SETIDENT       SETIDLE        SHUN
+SQUIT          SWHOIS         TLINE          UNLOADMODULE   UNLOCKSERV
+USERIP         WALLOPS        ZLINE">
 
-SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
-SETIDLE   SWHOIS
+<helpop key="userip" value="/USERIP <nick> [<nick>]
 
-SANICK    NICKLOCK  NICKUNLOCK
+Returns the ip and nickname of the given users.">
 
-SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
+<helpop key="tline" value="/TLINE <mask>
 
-KILL      SAQUIT    GLINE       ZLINE    QLINE
-KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER    CLEARCHAN
+This command returns the number of local and global clients matched,
+and the percentage of clients matched, plus how they were matched
+(by IP address or by hostname). Mask should be given as either a
+nick!user@host or user@IP (wildcards acceptable).">
 
-CONNECT   SQUIT     RCONNECT    RSQUIT
+<helpop key="lockserv" value="/LOCKSERV :[<message>]
 
-DIE            RESTART      REHASH
-               LOADMODULE   UNLOADMODULE
-RELOADMODULE   GLOADMODULE  GUNLOADMODULE
-GRELOADMODULE  CLOSE        JUMPSERVER
-LOCKSERV       UNLOCKSERV">
+Locks out all new connections notifying connecting users that the
+service is temporarily closed and to try again later.">
+
+<helpop key="unlockserv" value="/UNLOCKSERV
+
+Opens the server up again for new connections.">
+
+<helpop key="filter" value="/FILTER <filter-definition> [<action> <flags> [<duration>] :<reason>]
+
+This command will add a filter when more than one parameter is given,
+for messages of the types specified by the flags, with the given
+filter definition, action, duration (when the action is 'gline',
+'zline' or 'shun'), and reason.
+
+The filter will take effect when a message of any type specified by
+the flags and matching the definition is sent to the server, and
+perform the specified action.
+
+Valid FILTER Actions
+--------------------
+
+None    Does nothing
+Warn    Lets the message through and informs +s IRCops of the message
+        and all relevant info
+Block   Blocks message and informs +s IRCops of the blocked message
+        and all relevant info
+Silent  Blocks message, but does not notify IRCops
+Kill    Kills the user
+Gline   G-lines the user for the specified duration
+Zline   Z-lines the user for the specified duration
+Shun    Shuns the user for the specified duration (requires the shun module)
+
+Valid FILTER Flags
+------------------
+
+p    Block private and channel messages
+n    Block private and channel notices
+P    Block part messages
+q    Block quit messages
+o    Don't match against opers
+c    Strip all formatting codes from the message before matching
+*    Represents all of the above flags
+-    Does nothing, a non-op for when you do not want to specify any
+     flags
+
+The reason for the filter will be used as the reason for the action,
+unless the action is 'none', and is sent to the user when their text is
+blocked by 'block' and 'silent' actions.
+
+A G-line, Z-line or shun duration may be specified in seconds, or in the
+format 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours, 5
+minutes and 6 seconds. All fields in this format are optional.
+
+When only one parameter is provided (the filter pattern) the provided
+filter will be removed. Note that if you remove a
+configuration-defined filter, it will reappear at next rehash unless
+it is also removed from the config file.">
+
+<helpop key="ojoin" value="/OJOIN <channel>
+
+Force joins you to the specified channel, and gives you +Y and any other
+configuration-defined modes on it, preventing you from being kicked.
+Depending on configuration, may announce that you have joined the
+channel on official network business.">
+
+<helpop key="clones" value="/CLONES <limit>
+
+Retrieves a list of users with more clones than the specified
+limit.">
+
+<helpop key="check" value="/CHECK <nick|ip|hostmask|channel> [<server>]
+
+Allows opers to look up advanced information on channels, hostmasks
+or IP addresses, in a similar way to WHO but in more detail, displaying
+most information the IRCD has stored on the target, including all
+metadata.
+
+With the second parameter given, runs the command remotely on the
+specified server.">
+
+<helpop key="alltime" value="/ALLTIME
+
+Shows the time on all servers on the network.">
+
+<helpop key="rconnect" value="/RCONNECT <source mask> <target mask>
+
+The server matching <source mask> will try to connect to the first
+server in the config file matching <target mask>.">
+
+<helpop key="rsquit" value="/RSQUIT <target mask> [<reason>]
+
+Causes a remote server matching <target mask> to be disconnected from
+the network.">
+
+<helpop key="globops" value="/GLOBOPS <message>
+
+Sends a message to all users with the +g snomask.">
+
+<helpop key="cban" value="/CBAN <channel> [<duration> :[<reason>]]
+
+Sets or removes a channel ban. You must specify all three parameters
+to add a ban, and one parameter to remove a ban (just the channel).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="sajoin" value="/SAJOIN [<nick>] <channel>[,<channel>]
+
+Forces the user to join the channel(s).
+If no nick is given, it joins the oper doing the /SAJOIN.">
+
+<helpop key="sapart" value="/SAPART <nick> <channel>[,<channel>]
+
+Forces the user to part the channel(s).">
+
+<helpop key="samode" value="/SAMODE <target> (+|-)<modes> [<parameters for modes>]
+
+Applies the given mode change to the channel or nick specified.">
+
+<helpop key="sanick" value="/SANICK <nick> <new nick>
+
+Changes the user's nick to the new nick.">
+
+<helpop key="sakick" value="/SAKICK <channel> <nick> <reason>
+
+Kicks the given user from the specified channel.">
+
+<helpop key="satopic" value="/SATOPIC <channel> <new topic>
+
+Applies the given topic to the specified channel.">
+
+<helpop key="saquit" value="/SAQUIT <nick> <reason>
+
+Forces user to quit with the specified reason.">
+
+<helpop key="setidle" value="/SETIDLE <idle time>
+
+Sets your idle time (in seconds) to the specified value.">
+
+<helpop key="sethost" value="/SETHOST <host>
+
+Sets your host to the specified host.">
+
+<helpop key="setident" value="/SETIDENT <ident>
+
+Sets your ident to the specified ident.">
+
+<helpop key="swhois" line="/SWHOIS <nick> <swhois>
+
+Sets the user's swhois field to the given swhois.">
+
+<helpop key="mkpasswd" value="/MKPASSWD <hashtype> <plaintext>
+
+Encodes the plaintext to a hash of the given type and displays
+the result.">
+
+<helpop key="opermotd" value="/OPERMOTD
+
+Displays the Oper MOTD.">
+
+<helpop key="nicklock" value="/NICKLOCK <nick> <new nick>
+
+Changes the user's nick to the new nick, and forces
+it to remain as such for the remainder of the session.">
+
+<helpop key="nickunlock" value="/NICKUNLOCK <nick>
+
+Allows a previously locked user to change nicks again.">
+
+<helpop key="chghost" value="/CHGHOST <nickname> <new hostname>
+
+Changes the hostname of the user to the new hostname.">
+
+<helpop key="chgname" value="/CHGNAME <nickname> <new name>
+
+Changes the name of the user to the new name.">
+
+<helpop key="chgident" value="/CHGIDENT <nickname> <new ident>
+
+Changes the ident of the user to the new ident.">
+
+<helpop key="shun" value="/SHUN <nick!user@host> [[<duration>] :<reason>]
+
+Sets or removes a shun (server side ignore) on a host and ident mask.
+You must specify all three parameters to add a shun, and one parameter
+to remove a shun (just the nick!user@host section).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="die" value="/DIE <server>
+
+This command shuts down the local server. A single parameter is
+required, which must match the name of the local server.">
+
+<helpop key="restart" value="/RESTART <server>
+
+This command restarts the local server. A single parameter is
+required, which must match the name of the local server.">
+
+<helpop key="commands" value="/COMMANDS
+
+Shows all currently available commands.">
+
+<helpop key="kill" value="/KILL <user> <reason>
+
+This command will disconnect a user from IRC with the given reason.">
+
+<helpop key="rehash" value="/REHASH <mask>
+
+This command will cause the server configuration file to be reread and
+values reinitialized for all servers matching the server mask, or the
+local server if one is not specified.">
+
+<helpop key="connect" value="/CONNECT <servermask>
+
+Add a connection to the server matching the given server mask. You must
+have configured the server for linking in your configuration file
+before trying to link them.">
+
+<helpop key="squit" value="/SQUIT <servermask>
+
+Disconnects the server matching the given server mask from this server.">
+
+<helpop key="modules" value="/MODULES
+
+Lists currently loaded modules, their memory offsets, version numbers,
+and flags. If you are not an operator, you will see reduced detail.">
+
+<helpop key="loadmodule" value="/LOADMODULE <modname>
+
+Loads the specified module into the local server.">
+
+<helpop key="unloadmodule" value="/UNLOADMODULE <modname>
+
+Unloads a module from the local server.">
+
+<helpop key="reloadmodule" value="/RELOADMODULE <modname>
+
+Unloads and reloads a module on the local server.">
+
+<helpop key="gloadmodule" value="/GLOADMODULE <modname>
+
+Loads the specified module on all linked servers.">
+
+<helpop key="gunloadmodule" value="/GUNLOADMODULE <modname>
+
+Unloads a module from all linked servers.">
+
+<helpop key="greloadmodule" value="/GRELOADMODULE <modname>
+
+Unloads and reloads a module on all linked servers.">
+
+<helpop key="kline" value="/KLINE <user@host> [<duration> :<reason>]
+
+Sets or removes a K-line (local host based ban) on a host and ident mask.
+You must specify all three parameters to add a ban, and one parameter
+to remove a ban (just the user@host section).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="zline" value="/ZLINE <ipmask> [<duration> :<reason>]
+
+Sets or removes a Z-line (ip based ban) on an ip range mask.
+You must specify all three parameters to add a ban, and one parameter
+to remove a ban (just the ipmask).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="qline" value="/QLINE <nickmask> [<duration> :<reason>]
+
+Sets or removes a Q-line (nick based ban) on a nick mask.
+You must specify all three parameters to add a ban, and one parameter
+to remove a ban (just the nickmask).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="gline" value="/GLINE <user@host> [<duration> :<reason>]
+
+Sets or removes a G-line (host based ban) on host mask.
+You must specify all three parameters to add a ban, and one
+parameter to remove a ban (just the user@host section).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="eline" value="/ELINE <user@host> [<duration> :<reason>]
+
+Sets or removes a E-line (global ban exception) on host mask.
+You must specify at least 3 parameters to add an exception, and one
+parameter to remove an exception (just the user@host section).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.
+
+This command has a few important limitations. Bans on *@<ip> can only
+be negated by an E-line on *@<ip>, bans on *@<host> can be negated by
+E-lines on *@<ip>, or *@<host>, and bans on <ident>@* or <ident>@<host>
+can be negated by any E-line that matches.">
+
+<helpop key="wallops" value="/WALLOPS <message>
+
+Sends a message to all +w users.">
+
+<helpop key="rline" value="/RLINE <regex> [<duration> :<reason>]
+
+Sets or removes an R-line (regex line) on a n!u@h\srealname mask. You
+must specify all three parameters to add an R-line, and one parameter
+to remove an R-line (just the regex).
+
+The duration may be specified in seconds, or in the format
+1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
+5 minutes and 6 seconds. All fields in this format are optional.">
+
+<helpop key="clearchan" value="/CLEARCHAN <channel> [<KILL|KICK|G|Z>] [<reason>]
+
+Quits or kicks all non-opers from a channel, optionally G/Z-lines them.
+Useful for quickly nuking bot channels.
+
+The default method, KILL, simply disconnects the victims from the server,
+while methods G and Z also add G/Z-lines for all the targets.
+
+When used, the victims won't see each other getting kicked or quitting.">
+
+<helpop key="modenotice" value="/MODENOTICE <modeletters> <message>
+
+Sends a notice to all users who have the given mode(s) set.
+If multiple mode letters are given, the notice is only sent to users
+who have all of them set.">
+
+<helpop key="cloak" value="/CLOAK <host>
+
+Generate the cloak of a host or IP. This is useful for example when
+trying to get the cloak of a user from /WHOWAS and they were not
+using their cloak when they quit.">
 
 <helpop key="umodes" value="User Modes
 ----------
@@ -186,7 +894,6 @@ LOCKSERV       UNLOCKSERV">
  E [~*][lines]:[sec]{[:difference]}{[:backlog]} Allows blocking of similar messages.
                     Kicks as default, blocks with ~ and bans with *
                     The last two parameters are optional.
-
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the
                     specified rate (requires the nickflood module).
  G                  Censors messages to the channel based on the
@@ -223,12 +930,69 @@ LOCKSERV       UNLOCKSERV">
  X <type>:<status>  Makes users of <status> or higher exempt to the
                     specified restriction <type>. For example: flood:h
                     (requires the exemptchanops module).
+ Possible restriction types to exempt with +X are:
+
+ auditorium-see      Permission required to see the full user list of
+                     a +u channel (requires the auditorium module).
+ auditorium-vis      Permission required to be visible in a +u channel
+                     (requires the auditorium module).
+ blockcaps           Channel mode +B
+ blockcolor          Channel mode +c
+ censor              Channel mode +G
+ filter              Channel mode +g
+ flood               Channel mode +f
+ nickflood           Channel mode +F
+ noctcp              Channel mode +C
+ nonick              Channel mode +N
+ nonotice            Channel mode +T
+ regmoderated        Channel mode +M
+ stripcolor          Channel mode +S
+ topiclock           Channel mode +t
 
 -------------
 NOTE: A large number of these modes are dependent upon server-side modules
 being loaded by a server/network administrator. The actual modes available
 on your network may be very different to this list. Please consult your
 help channel if you have any questions.">
+
+<helpop key="stats" value="/STATS <symbol>
+
+Shows various server statistics. Depending on configuration, some
+symbols may be only available to opers.
+
+Valid symbols are:
+
+e  Show E-lines (local ban exemptions)
+g  Show G-lines (host bans)
+k  Show K-lines (local host bans)
+q  Show Q-lines (nick mask bans)
+R  Show R-lines (regular expression bans)
+Z  Show Z-lines (IP mask bans)
+
+s  Show filters
+C  Show channel bans
+H  Show shuns
+
+c  Show link blocks
+d  Show configured DNSBLs and related statistics
+m  Show command statistics, number of times commands have been used
+o  Show a list of all valid oper usernames and hostmasks
+p  Show open client ports, and the port type (ssl, plaintext, etc)
+u  Show server uptime
+z  Show memory usage statistics
+i  Show connect class permissions
+l  Show all client connections with information (sendq, commands, bytes, time connected)
+L  Show all client connections with information and IP address
+P  Show online opers and their idle times
+T  Show bandwidth/socket statistics
+U  Show U-lined servers
+Y  Show connection classes
+O  Show opertypes and the allowed user and channel modes it can set
+E  Show socket engine events
+S  Show currently held registered nicknames
+G  Show how many local users are connected from each country according to GeoIP
+
+Note that all /STATS use is broadcast to online IRC operators.">
 
 <helpop key="snomasks" value="Server Notice Masks
 
