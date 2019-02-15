@@ -791,9 +791,8 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	unsigned int exempt:1;
 
-	/** Used by PING checking code
-	 */
-	time_t nping;
+	/** The time at which this user should be pinged next. */
+	time_t nextping;
 
 	/** Time that the connection last sent a message, used to calculate idle time
 	 */

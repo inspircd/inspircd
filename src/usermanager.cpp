@@ -52,13 +52,13 @@ namespace
 	void CheckPingTimeout(LocalUser* user)
 	{
 		// Check if it is time to ping the user yet.
-		if (ServerInstance->Time() < user->nping)
+		if (ServerInstance->Time() < user->nextping)
 			return;
 
 		// This user didn't answer the last ping, remove them.
 		if (!user->lastping)
 		{
-			time_t secs = ServerInstance->Time() - (user->nping - user->MyClass->GetPingTime());
+			time_t secs = ServerInstance->Time() - (user->nextping - user->MyClass->GetPingTime());
 			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
 			ServerInstance->Users.QuitUser(user, message);
 			return;
@@ -68,7 +68,7 @@ namespace
 		ClientProtocol::Messages::Ping ping;
 		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 		user->lastping = 0;
-		user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+		user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
 	}
 
 	void CheckRegistrationTimeout(LocalUser* user)

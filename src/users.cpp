@@ -97,7 +97,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
-	, nping(0)
+	, nextping(0)
 	, idle_lastmsg(0)
 	, CommandFloodPenalty(0)
 	, already_sent(0)
@@ -503,7 +503,7 @@ void LocalUser::CheckClass(bool clone_count)
 		}
 	}
 
-	this->nping = ServerInstance->Time() + a->GetPingTime();
+	this->nextping = ServerInstance->Time() + a->GetPingTime();
 }
 
 bool LocalUser::CheckLines(bool doZline)
