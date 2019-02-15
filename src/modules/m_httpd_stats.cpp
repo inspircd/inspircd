@@ -220,7 +220,7 @@ namespace Stats
 
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
-			data << "<local/><port>" << lu->GetServerPort() << "</port><servaddr>"
+			data << "<local/><port>" << lu->server_sa.port() << "</port><servaddr>"
 				<< lu->server_sa.str() << "</servaddr><connectclass>"
 				<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
 				<< lu->idle_lastmsg << "</lastmsg>";

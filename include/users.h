@@ -772,11 +772,6 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	irc::sockets::sockaddrs server_sa;
 
-	/**
-	 * @return The port number of this user.
-	 */
-	int GetServerPort();
-
 	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
 	 * This can't be handled normally because QuitUser itself calls Write on other
 	 * users, which could trigger their SendQ to overrun.

@@ -274,7 +274,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 			long port;
 			while ((port = portrange.GetToken()))
 			{
-				if (port == lu->GetServerPort())
+				if (port == lu->server_sa.port())
 				{
 					match = true;
 					break;

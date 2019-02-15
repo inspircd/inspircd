@@ -560,7 +560,7 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
+		this->server_sa.port(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -654,11 +654,6 @@ void LocalUser::OverruleNick()
 	// Clear the bit before calling ChangeNick() to make it NOT run the OnUserPostNick() hook
 	this->registered &= ~REG_NICK;
 	this->ChangeNick(this->uuid);
-}
-
-int LocalUser::GetServerPort()
-{
-	return this->server_sa.port();
 }
 
 const std::string& User::GetIPString()
@@ -1121,7 +1116,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!c->ports.empty())
 			{
 				/* and our port doesn't match, fail. */
-				if (!c->ports.count(this->GetServerPort()))
+				if (!c->ports.count(this->server_sa.port()))
 				{
 					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
 					continue;

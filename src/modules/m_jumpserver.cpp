@@ -151,7 +151,7 @@ class CommandJumpserver : public Command
 	{
 		int p = (sslapi && sslapi->GetCertificate(user) ? sslport : port);
 		if (p == 0)
-			p = user->GetServerPort();
+			p = user->server_sa.port();
 		return p;
 	}
 };
