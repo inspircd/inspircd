@@ -28,7 +28,7 @@ class CommandSakick : public Command
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
 		flags_needed = 'o'; syntax = "<channel> <nick> [reason]";
-		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
+		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

@@ -45,7 +45,7 @@ class CommandSwhois : public Command
 		, swhois("swhois", ExtensionItem::EXT_USER, Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

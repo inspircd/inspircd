@@ -75,7 +75,7 @@ class CommandSVSSilence : public Command
 	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

@@ -40,7 +40,7 @@ class CommandUninvite : public Command
 		, invapi(Creator)
 	{
 		syntax = "<nick> <channel>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
