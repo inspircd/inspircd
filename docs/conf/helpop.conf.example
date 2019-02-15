@@ -407,16 +407,16 @@ Sets your name to the specified name.">
 -------------
 
 ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
-CHGNAME        CLEARCHAN      CLOAK          CLONES         CLOSE
-CONNECT        DIE            ELINE          FILTER         GLINE
-GLOADMODULE    GLOBOPS        GRELOADMODULE  GUNLOADMODULE  JUMPSERVER
-KILL           KLINE          LOADMODULE     LOCKSERV       MODENOTICE
-NICKLOCK       NICKUNLOCK     OJOIN          OPERMOTD       QLINE
-RCONNECT       REHASH         RELOADMODULE   RESTART        RLINE
-RSQUIT         SAJOIN         SAKICK         SAMODE         SANICK
-SAPART         SAQUIT         SATOPIC        SETHOST        SETIDENT
-SETIDLE        SHUN           SQUIT          SWHOIS         TLINE
-UNLOADMODULE   UNLOCKSERV     USERIP         WALLOPS        ZLINE">
+CHGNAME        CLEARCHAN      CLOAK          CLONES         CONNECT
+DIE            ELINE          FILTER         GLINE          GLOADMODULE
+GLOBOPS        GRELOADMODULE  GUNLOADMODULE  KILL           KLINE
+LOADMODULE     LOCKSERV       MODENOTICE     NICKLOCK       NICKUNLOCK
+OJOIN          OPERMOTD       QLINE          RCONNECT       REHASH
+RELOADMODULE   RESTART        RLINE          RSQUIT         SAJOIN
+SAKICK         SAMODE         SANICK         SAPART         SAQUIT
+SATOPIC        SETHOST        SETIDENT       SETIDLE        SHUN
+SQUIT          SWHOIS         TLINE          UNLOADMODULE   UNLOCKSERV
+USERIP         WALLOPS        ZLINE">
 
 <helpop key="userip" value="/USERIP <nick> [<nick>]
 
@@ -437,27 +437,6 @@ service is temporarily closed and to try again later.">
 <helpop key="unlockserv" value="/UNLOCKSERV
 
 Opens the server up again for new connections.">
-
-<helpop key="jumpserver" value="/JUMPSERVER [<newserver> <newport> <(+|-)[flags]> :[<reason>]]
-
-Sets or cancels jumpserver mode. If no parameters are given,
-jumpserver mode is cancelled, if it is currently set. If parameters
-are given, a server address must be given for <newserver> and a
-server port must be given for <newport>. Zero or more status flags
-should be given for 'flags', from the list below (if you do not
-wish to specify any flags just place a '+' in this field):
-
-1. +a: Redirect all users immediately (except for opers) and cause
-them to quit with the given reason
-
-2. +n: Redirect any new users who connect and cause them to quit
-during registration
-
-You may use + and - to set or unset these flags in the command, the
-default flags are -a+n, which will just redirect new users. The
-reason parameter is optional, and if not provided defaults to
-'Please use this server/port instead' (the default given in various
-numeric lists)">
 
 <helpop key="filter" value="/FILTER <filter-definition> [<action> <flags> [<duration>] :<reason>]
 
@@ -775,10 +754,6 @@ to remove an R-line (just the regex).
 The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
-
-<helpop key="close" value="/CLOSE
-
-Closes all unregistered connections to the local server.">
 
 <helpop key="clearchan" value="/CLEARCHAN <channel> [<KILL|KICK|G|Z>] [<reason>]
 

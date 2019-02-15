@@ -554,12 +554,6 @@
 #       key="changeme"
 #       prefix="net-">
 
-#-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Close module: Allows an oper to close all unregistered connections.
-# This module is oper-only and provides the /CLOSE command.
-# To use, CLOSE must be in one of your oper class blocks.
-#<module name="close">
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clones module: Adds an oper command /CLONES for detecting cloned
 # users. Warning: This command may be resource intensive when it is
@@ -1164,14 +1158,6 @@
 #
 # The number of seconds to close the channel for:
 #<joinflood duration="1m">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Jump server module: Adds support for the RPL_REDIR numeric.
-# This module is oper-only.
-# To use, JUMPSERVER must be in one of your oper class blocks.
-# If your server is redirecting new clients and you get disconnected,
-# do a REHASH from shell to open up again.
-#<module name="jumpserver">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).
