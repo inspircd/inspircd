@@ -180,7 +180,7 @@ public:
 	{
 		allow_empty_last_param = false;
 		syntax = "*|(+|-)<nick>[,(+|-)<nick> ...]";
-		TRANSLATE1(TR_CUSTOM);
+		translation = { TR_CUSTOM };
 	}
 
 	void EncodeParameter(std::string& parameter, unsigned int index) override

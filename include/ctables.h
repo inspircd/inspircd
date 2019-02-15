@@ -255,18 +255,3 @@ class CoreExport SplitCommand : public Command
 	virtual CmdResult HandleRemote(RemoteUser* user, const Params& parameters);
 	virtual CmdResult HandleServer(FakeUser* user, const Params& parameters);
 };
-
-/** Shortcut macros for defining translation lists
- */
-#define TRANSLATE1(x1)	translation.push_back(x1);
-#define TRANSLATE2(x1,x2)  translation.push_back(x1);translation.push_back(x2);
-#define TRANSLATE3(x1,x2,x3)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);
-#define TRANSLATE4(x1,x2,x3,x4)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);
-#define TRANSLATE5(x1,x2,x3,x4,x5)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
-	translation.push_back(x5);
-#define TRANSLATE6(x1,x2,x3,x4,x5,x6)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
-	translation.push_back(x5);translation.push_back(x6);
-#define TRANSLATE7(x1,x2,x3,x4,x5,x6,x7)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
-	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);
-#define TRANSLATE8(x1,x2,x3,x4,x5,x6,x7,x8)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
-	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);translation.push_back(x8);

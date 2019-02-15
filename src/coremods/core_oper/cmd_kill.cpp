@@ -28,7 +28,7 @@ CommandKill::CommandKill(Module* parent)
 {
 	flags_needed = 'o';
 	syntax = "<nickname> <reason>";
-	TRANSLATE2(TR_CUSTOM, TR_CUSTOM);
+	translation = { TR_CUSTOM, TR_CUSTOM };
 }
 
 class KillMessage : public ClientProtocol::Message

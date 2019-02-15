@@ -30,7 +30,7 @@ class CommandSanick : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o'; syntax = "<nick> <new-nick>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

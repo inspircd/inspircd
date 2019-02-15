@@ -41,7 +41,7 @@ class CommandNicklock : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<oldnick> <newnick>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -101,7 +101,7 @@ class CommandNickunlock : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<locked-nick>";
-		TRANSLATE1(TR_NICK);
+		translation = { TR_NICK };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

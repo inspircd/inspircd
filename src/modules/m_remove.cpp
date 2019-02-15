@@ -166,7 +166,7 @@ class CommandRemove : public RemoveBase
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
 		syntax = "<channel> <nick> [<reason>]";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
+		translation = { TR_NICK, TR_TEXT, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -184,7 +184,7 @@ class CommandFpart : public RemoveBase
 		: RemoveBase(Creator, snk, nkm, "FPART")
 	{
 		syntax = "<channel> <nick> [<reason>]";
-		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
+		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
