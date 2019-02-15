@@ -97,7 +97,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
-	, nping(0)
+	, nextping(0)
 	, idle_lastmsg(0)
 	, CommandFloodPenalty(0)
 	, already_sent(0)
@@ -377,17 +377,6 @@ void User::Oper(OperInfo* info)
 	if (info->oper_block)
 		opername = info->oper_block->getString("name");
 
-	if (IS_LOCAL(this))
-	{
-		LocalUser* l = IS_LOCAL(this);
-		std::string vhost = oper->getConfig("vhost");
-		if (!vhost.empty())
-			l->ChangeDisplayedHost(vhost);
-		std::string opClass = oper->getConfig("class");
-		if (!opClass.empty())
-			l->SetClass(opClass);
-	}
-
 	ServerInstance->SNO.WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
@@ -514,7 +503,7 @@ void LocalUser::CheckClass(bool clone_count)
 		}
 	}
 
-	this->nping = ServerInstance->Time() + a->GetPingTime();
+	this->nextping = ServerInstance->Time() + a->GetPingTime();
 }
 
 bool LocalUser::CheckLines(bool doZline)
@@ -571,7 +560,7 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
+		this->server_sa.port(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -665,11 +654,6 @@ void LocalUser::OverruleNick()
 	// Clear the bit before calling ChangeNick() to make it NOT run the OnUserPostNick() hook
 	this->registered &= ~REG_NICK;
 	this->ChangeNick(this->uuid);
-}
-
-int LocalUser::GetServerPort()
-{
-	return this->server_sa.port();
 }
 
 const std::string& User::GetIPString()
@@ -1132,7 +1116,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!c->ports.empty())
 			{
 				/* and our port doesn't match, fail. */
-				if (!c->ports.count(this->GetServerPort()))
+				if (!c->ports.count(this->server_sa.port()))
 				{
 					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
 					continue;

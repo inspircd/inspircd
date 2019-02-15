@@ -312,7 +312,7 @@ sub cmd_stop()
 	# Get to here, we have something to kill.
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
-	my $maxwait = (`ps -o command $pid` =~ /valgrind/i) ? 90 : 15;
+	my $maxwait = (`ps -o command $pid 2>/dev/null` =~ /valgrind/i) ? 90 : 15;
 	kill TERM => $pid or die "Cannot terminate IRCd: $!\n";
 	for (1..$maxwait) {
 		sleep 1;

@@ -246,7 +246,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		return;
 
 	/* activity resets the ping pending timer */
-	user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+	user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
 
 	if (handler->flags_needed)
 	{

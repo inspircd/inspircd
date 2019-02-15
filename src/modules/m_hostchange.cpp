@@ -76,7 +76,7 @@ class HostRule
 
 	bool Matches(LocalUser* user) const
 	{
-		if (!ports.empty() && !ports.count(user->GetServerPort()))
+		if (!ports.empty() && !ports.count(user->server_sa.port()))
 			return false;
 
 		if (InspIRCd::MatchCIDR(user->MakeHost(), mask))

@@ -29,14 +29,6 @@ CommandDie::CommandDie(Module* parent)
 	syntax = "<server>";
 }
 
-static void QuitAll()
-{
-	const std::string quitmsg = "Server shutdown";
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	while (!list.empty())
-		ServerInstance->Users.QuitUser(list.front(), quitmsg);
-}
-
 void DieRestart::SendError(const std::string& message)
 {
 	ClientProtocol::Messages::Error errormsg(message);
@@ -69,7 +61,6 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 			DieRestart::SendError(diebuf);
 		}
 
-		QuitAll();
 		ServerInstance->Exit(EXIT_STATUS_DIE);
 	}
 	else
