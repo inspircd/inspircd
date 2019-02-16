@@ -309,6 +309,23 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 }
 
+static std::string GetServerName()
+{
+#ifndef _WIN32
+	char hostname[256];
+	if (gethostname(hostname, sizeof(hostname)) == 0)
+	{
+		std::string name(hostname);
+		if (name.find('.') == std::string::npos)
+			name.push_back('.');
+
+		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsHost(name))
+			return name;
+	}
+#endif
+	return "irc.example.com";
+}
+
 void ServerConfig::Fill()
 {
 	ConfigTag* options = ConfValue("options");
@@ -316,7 +333,7 @@ void ServerConfig::Fill()
 	ConfigTag* server = ConfValue("server");
 	if (sid.empty())
 	{
-		ServerName = server->getString("name", "irc.example.com", InspIRCd::IsHost);
+		ServerName = server->getString("name", GetServerName(), InspIRCd::IsHost);
 
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
