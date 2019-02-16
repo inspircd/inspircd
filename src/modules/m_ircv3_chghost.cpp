@@ -32,7 +32,7 @@ class ModuleIRCv3ChgHost : public Module
 		msg.PushParamRef(ident);
 		msg.PushParamRef(host);
 		ClientProtocol::Event protoev(protoevprov, msg);
-		IRCv3::WriteNeighborsWithCap(user, protoev, cap);
+		IRCv3::WriteNeighborsWithCap(user, protoev, cap, true);
 	}
 
  public:
