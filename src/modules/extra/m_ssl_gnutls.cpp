@@ -191,10 +191,8 @@ namespace GnuTLS
 				hash = GNUTLS_DIG_MD5;
 			else if (stdalgo::string::equalsci(hashname, "sha1"))
 				hash = GNUTLS_DIG_SHA1;
-#ifdef INSPIRCD_GNUTLS_ENABLE_SHA256_FINGERPRINT
 			else if (stdalgo::string::equalsci(hashname, "sha256"))
 				hash = GNUTLS_DIG_SHA256;
-#endif
 			else
 				throw Exception("Unknown hash type " + hashname);
 #endif
