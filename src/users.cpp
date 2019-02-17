@@ -46,7 +46,7 @@ std::string User::GetModeLetters(bool includeparams) const
 	std::string ret(1, '+');
 	std::string params;
 
-	for (unsigned char i = 'A'; i < 'z'; i++)
+	for (unsigned char i = 'A'; i <= 'z'; i++)
 	{
 		const ModeHandler* const mh = ServerInstance->Modes.FindMode(i, MODETYPE_USER);
 		if ((!mh) || (!IsModeSet(mh)))
