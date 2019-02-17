@@ -147,9 +147,9 @@ class DNSBLResolver : public DNS::Request
 							"*", them->GetIPString());
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
-						std::string timestr = InspIRCd::TimeString(kl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "K-line added due to DNSBL match on *@%s to expire on %s: %s",
-							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->SNO->WriteGlobalSno('x', "K-line added due to DNSBL match on *@%s to expire in %s (on %s): %s",
+							them->GetIPString().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
+							InspIRCd::TimeString(kl->expiry).c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
@@ -165,9 +165,9 @@ class DNSBLResolver : public DNS::Request
 							"*", them->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
-						std::string timestr = InspIRCd::TimeString(gl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "G-line added due to DNSBL match on *@%s to expire on %s: %s",
-							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->SNO->WriteGlobalSno('x', "G-line added due to DNSBL match on *@%s to expire in %s (on %s): %s",
+							them->GetIPString().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
+							InspIRCd::TimeString(gl->expiry).c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
@@ -183,9 +183,9 @@ class DNSBLResolver : public DNS::Request
 							them->GetIPString());
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
-						std::string timestr = InspIRCd::TimeString(zl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x', "Z-line added due to DNSBL match on %s to expire on %s: %s",
-							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
+						ServerInstance->SNO->WriteGlobalSno('x', "Z-line added due to DNSBL match on %s to expire in %s (on %s): %s",
+							them->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
+							InspIRCd::TimeString(zl->expiry).c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else

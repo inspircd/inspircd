@@ -118,7 +118,7 @@ class CommandTban : public Command
 		T.chan = channel;
 		TimedBanList.push_back(T);
 
-		const std::string addban = user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.";
+		const std::string addban = user->nick + " added a timed ban on " + mask + " lasting for " + InspIRCd::DurationString(duration) + ".";
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';

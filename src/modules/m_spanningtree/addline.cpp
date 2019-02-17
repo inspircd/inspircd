@@ -50,14 +50,16 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		if (xl->duration)
 		{
-			std::string timestr = InspIRCd::TimeString(xl->expiry);
-			ServerInstance->SNO->WriteToSnoMask('X',"%s added %s%s on %s to expire on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
-					params[1].c_str(), timestr.c_str(), params[5].c_str());
+			ServerInstance->SNO->WriteToSnoMask('X', "%s added %s%s on %s to expire in %s (on %s): %s",
+				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
+				params[1].c_str(), InspIRCd::DurationString(xl->duration).c_str(),
+				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('X',"%s added permanent %s%s on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
-					params[1].c_str(),params[5].c_str());
+			ServerInstance->SNO->WriteToSnoMask('X', "%s added permanent %s%s on %s: %s",
+				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
+				params[1].c_str(), params[5].c_str());
 		}
 
 		TreeServer* remoteserver = TreeServer::Get(usr);
