@@ -46,7 +46,7 @@ class CommandKnock : public Command
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
 	{
-		syntax = "<channel> <reason>";
+		syntax = "<channel> :<reason>";
 		Penalty = 5;
 	}
 

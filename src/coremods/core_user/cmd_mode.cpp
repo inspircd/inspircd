@@ -26,7 +26,7 @@ CommandMode::CommandMode(Module* parent)
 	: Command(parent, "MODE", 1)
 	, seq(0)
 {
-	syntax = "<target> <modes> {<mode-parameters>}";
+	syntax = "<target> [[(+|-)]<modes> [<mode-parameters>]]";
 	memset(&sent, 0, sizeof(sent));
 }
 

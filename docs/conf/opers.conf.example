@@ -1,4 +1,4 @@
-#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#-#-#-#-#-#-#-#-#-#-#-#-#  CLASS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   Classes are a group of commands which are grouped together and    #
 #   given a unique name. They're used to define which commands        #
@@ -19,19 +19,23 @@
 
      # privs: Special privileges that users with this class may utilise.
      #  VIEWING:
-     #   - channels/auspex: allows opers with this priv to see more detail about channels than normal users.
+     #   - channels/auspex: allows opers with this priv to see more details about channels than normal users.
      #   - users/auspex: allows opers with this priv to view more details about users than normal users, e.g. real host and IP.
      #   - users/channel-spy: allows opers with this priv to view the private/secret channels that a user is on.
-     #   - servers/auspex: allows opers with this priv to see more detail about server information than normal users.
+     #   - servers/auspex: allows opers with this priv to see more details about server information than normal users.
      # ACTIONS:
-     #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
-     #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE
+     #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*).
+     #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE.
      # PERMISSIONS:
-     #.  - channels/ignore-nonicks: allows opers with this priv to change their nick when on a +N channel.
-     #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE)
-     #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
-     #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE)
-     #.  - users/callerid-override: allows opers with this priv to message people using callerid without being on their callerid list.
+     #   - channels/ignore-nonicks: allows opers with this priv to change their nick when on a +N channel.
+     #   - channels/restricted-create: allows opers with this priv to create channels if the restrictchans module is loaded.
+     #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE).
+     #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE).
+     #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE).
+     #   - users/callerid-override: allows opers with this priv to message people using callerid without being on their callerid list.
+     #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
+     #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.
+     #   - servers/use-disabled-modes: allows opers with this priv to use disabled modes.
      #
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message users/flood/no-throttle users/flood/increased-buffers"
@@ -57,13 +61,13 @@
 #                                                                     #
 
 <type
-    # name: Name of type. Used in actual server operator accounts below.
+    # name: Name of the type. Used in actual server operator accounts below.
     name="NetAdmin"
 
     # classes: Classes (blocks above) that this type belongs to.
     classes="SACommands OperChat BanControl HostCloak Shutdown ServerLink"
 
-    # vhost: Host opers of this type get when they log in (oper up). This is optional.
+    # vhost: Host that opers of this type get when they log in (oper up). This is optional.
     vhost="netadmin.omega.example.org"
 
     # maxchans: Maximum number of channels opers of this type can be in at once.
@@ -71,7 +75,7 @@
 
     # modes: User modes besides +o that are set on an oper of this type
     # when they oper up. Used for snomasks and other things.
-    # Requires the opermodes module be loaded.
+    # Requires the opermodes module to be loaded.
     modes="+s +cCqQ">
 
 <type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.example.org">
@@ -84,9 +88,9 @@
 #   Remember to only make operators out of trustworthy people.        #
 #                                                                     #
 
-# Operator account with a plain-text password.
+# Operator account with a plaintext password.
 <oper
-      # name: Oper login that is used to oper up (/oper name password).
+      # name: Oper login that is used to oper up (/OPER <username> <password>).
       # Remember: This is case sensitive.
       name="Attila"
 
@@ -101,7 +105,7 @@
 
       # ** ADVANCED ** This option is disabled by default.
       # fingerprint: When using the sslinfo module, you may specify
-      # a key fingerprint here. This can be obtained by using the /sslinfo
+      # a key fingerprint here. This can be obtained by using the /SSLINFO
       # command while the module is loaded, and is also noticed on connect.
       # This enhances security by verifying that the person opering up has
       # a matching SSL client certificate, which is very difficult to
@@ -115,7 +119,7 @@
       # that the private key is well-protected! Requires the sslinfo module.
       #autologin="on"
 
-      # sslonly: If on, this oper can only oper up if they're using a SSL connection.
+      # sslonly: If on, this oper can only oper up if they're using an SSL connection.
       # Setting this option adds a decent bit of security. Highly recommended
       # if the oper is on wifi, or specifically, unsecured wifi. Note that it
       # is redundant to specify this option if you specify a fingerprint.
@@ -140,21 +144,21 @@
 
 # Operator with a hashed password. It is highly recommended to use hashed passwords.
 <oper
-      # name: Oper login that is used to oper up (/oper name password).
+      # name: Oper login that is used to oper up (/OPER <username> <password>).
       # Remember: This is case sensitive.
       name="Adam"
 
-      # hash: the hash function this password is hashed with. Requires the
+      # hash: The hash function this password is hashed with. Requires the
       # module for the selected function (bcrypt, md5, sha1, or sha256) and
       # the password hashing module (password_hash) to be loaded.
       #
       # You may also use any of the above other than bcrypt prefixed with
       # either "hmac-" or "pbkdf2-hmac-" (requires the pbkdf2 module).
-      # Create hashed passwords with: /mkpasswd <hash> <password>
+      # Create hashed passwords with: /MKPASSWD <hashtype> <plaintext>.
       hash="bcrypt"
 
       # password: A hash of the password (see above option) hashed
-      # with /mkpasswd <hash> <password>. See the password_hash module
+      # with /MKPASSWD <hashtype> <plaintext>. See the password_hash module
       # in modules.conf for more information about password hashing.
       password="qQmv3LcF$Qh63wzmtUqWp9OXnLwe7yv1GcBwHpq59k2a0UrY8xe0"
 

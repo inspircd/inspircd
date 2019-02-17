@@ -179,7 +179,7 @@ public:
 		extInfo(Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "*|(+|-)<nick>[,(+|-)<nick> ...]";
+		syntax = "*|(+|-)<nick>[,(+|-)<nick>]+";
 		TRANSLATE1(TR_CUSTOM);
 	}
 
@@ -189,7 +189,7 @@ public:
 		if (parameter.find(',') != std::string::npos)
 			return;
 
-		// Convert a [+|-]<nick> into a [-]<uuid>
+		// Convert a (+|-)<nick> into a [-]<uuid>
 		ACCEPTAction action = GetTargetAndAction(parameter);
 		if (!action.first)
 			return;

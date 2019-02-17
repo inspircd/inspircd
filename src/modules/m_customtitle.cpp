@@ -74,7 +74,7 @@ class CommandTitle : public Command
 	CommandTitle(Module* Creator) : Command(Creator,"TITLE", 2),
 		ctitle("ctitle", ExtensionItem::EXT_USER, Creator)
 	{
-		syntax = "<user> <password>";
+		syntax = "<username> <password>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE

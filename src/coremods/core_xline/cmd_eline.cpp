@@ -26,7 +26,7 @@ CommandEline::CommandEline(Module* parent)
 	: Command(parent, "ELINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<ident@host> [<duration> :<reason>]";
+	syntax = "<user@host> [<duration> :<reason>]";
 }
 
 /** Handle /ELINE

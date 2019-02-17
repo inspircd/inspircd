@@ -27,7 +27,7 @@ CommandNames::CommandNames(Module* parent)
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")
 {
-	syntax = "{<channel>{,<channel>}}";
+	syntax = "<channel>[,<channel>]+";
 }
 
 /** Handle /NAMES

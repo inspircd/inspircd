@@ -24,7 +24,7 @@
 CommandKick::CommandKick(Module* parent)
 	: Command(parent, "KICK", 2, 3)
 {
-	syntax = "<channel> <nick>{,<nick>} [<reason>]";
+	syntax = "<channel> <nick>[,<nick>]+ [:<reason>]";
 }
 
 /** Handle /KICK
@@ -65,7 +65,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 
 		if (u->server->IsULine())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You may not kick a u-lined client");
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You may not kick a U-lined client");
 			return CMD_FAILURE;
 		}
 	}

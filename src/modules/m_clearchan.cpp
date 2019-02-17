@@ -28,7 +28,7 @@ class CommandClearChan : public Command
 	CommandClearChan(Module* Creator)
 		: Command(Creator, "CLEARCHAN", 1, 3)
 	{
-		syntax = "<channel> [<KILL|KICK|G|Z>] [<reason>]";
+		syntax = "<channel> [KILL|KICK|G|Z] [:<reason>]";
 		flags_needed = 'o';
 
 		// Stop the linking mod from forwarding ENCAP'd CLEARCHAN commands, see below why

@@ -27,7 +27,7 @@ CommandDie::CommandDie(Module* parent, std::string& hashref)
 	, hash(hashref)
 {
 	flags_needed = 'o';
-	syntax = "<server>";
+	syntax = "<servername>";
 }
 
 void DieRestart::SendError(const std::string& message)

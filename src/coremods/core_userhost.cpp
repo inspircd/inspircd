@@ -33,7 +33,7 @@ class CommandUserhost : public Command
 		: Command(parent,"USERHOST", 1)
 		, hideopermode(parent, "hideoper")
 	{
-		syntax = "<nick> [<nick> ...]";
+		syntax = "<nick> [<nick>]+";
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command

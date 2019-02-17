@@ -24,7 +24,7 @@
 CommandJoin::CommandJoin(Module* parent)
 	: SplitCommand(parent, "JOIN", 1, 2)
 {
-	syntax = "<channel>{,<channel>} {<key>{,<key>}}";
+	syntax = "<channel>[,<channel>]+ [<key>[,<key>]+]";
 	Penalty = 2;
 }
 

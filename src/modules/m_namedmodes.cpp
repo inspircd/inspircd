@@ -56,7 +56,7 @@ class CommandProp : public SplitCommand
 	CommandProp(Module* parent)
 		: SplitCommand(parent, "PROP", 1)
 	{
-		syntax = "<user|channel> {[+-]<mode> [<value>]}*";
+		syntax = "<channel> [[(+|-)]<mode> [<value>]]";
 	}
 
 	CmdResult HandleLocal(LocalUser* src, const Params& parameters) CXX11_OVERRIDE

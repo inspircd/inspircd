@@ -37,7 +37,7 @@ enum
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
-	syntax = "<nick>{,<nick>}";
+	syntax = "<nick>";
 	Penalty = 2;
 }
 
