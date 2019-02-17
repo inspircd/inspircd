@@ -235,7 +235,7 @@ class CommandDccallow : public Command
 
 					if (length > 0)
 					{
-						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %ld seconds", target->nick.c_str(), length));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %s", target->nick.c_str(), InspIRCd::DurationString(length).c_str()));
 					}
 					else
 					{

@@ -130,9 +130,9 @@ class CommandCBan : public Command
 				}
 				else
 				{
-					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = InspIRCd::TimeString(c_requires_crap);
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), reason);
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires in %s (on %s): %s",
+						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
+						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
 				}
 			}
 			else
