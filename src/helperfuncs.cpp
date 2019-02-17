@@ -7,6 +7,7 @@
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *   Copyright (C) 2006-2007 Oliver Lupton <oliverlupton@gmail.com>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2003-2019 Anope Team <team@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -427,6 +428,33 @@ bool InspIRCd::IsValidDuration(const std::string& duration)
 			return false;
 	}
 	return true;
+}
+
+std::string InspIRCd::DurationString(time_t duration)
+{
+	time_t years = duration / 31536000;
+	time_t weeks = (duration / 604800) % 52;
+	time_t days = (duration / 86400) % 7;
+	time_t hours = (duration / 3600) % 24;
+	time_t minutes = (duration / 60) % 60;
+	time_t seconds = duration % 60;
+
+	std::string ret;
+
+	if (years)
+		ret = ConvToStr(years) + "y";
+	if (weeks)
+		ret += ConvToStr(weeks) + "w";
+	if (days)
+		ret += ConvToStr(days) + "d";
+	if (hours)
+		ret += ConvToStr(hours) + "h";
+	if (minutes)
+		ret += ConvToStr(minutes) + "m";
+	if (seconds)
+		ret += ConvToStr(seconds) + "s";
+
+	return ret;
 }
 
 std::string InspIRCd::Format(va_list& vaList, const char* formatString)
