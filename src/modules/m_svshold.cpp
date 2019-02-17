@@ -58,8 +58,8 @@ public:
 	{
 		if (!silent)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago): %s",
-				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %s ago): %s",
+				nickname.c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
 		}
 	}
 
