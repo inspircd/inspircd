@@ -79,7 +79,7 @@
 #                    read from the top of the file to the bottom.     #
 #                                                                     #
 # usercommand -      If this is true, the alias can be run simply as  #
-#                    /aliasname. Defaults to true.                    #
+#                    /ALIASNAME. Defaults to true.                    #
 #                                                                     #
 # channelcommand -   If this is true, the alias can be used as an     #
 #                    in-channel alias or 'fantasy command', prefixed  #
@@ -780,11 +780,11 @@
 #                                                                     #
 # chanmodes - One or more channel modes that can not be added/removed #
 #             by users. You can exempt server operators from this     #
-#             with the servers/use-disabled-commands privilege.       #
+#             with the servers/use-disabled-modes privilege.          #
 #                                                                     #
 # usermodes - One or more user modes that can not be added/removed by #
 #             users. You can exempt server operators from this with   #
-#             the servers/use-disabled-commands privilege.            #
+#             the servers/use-disabled-modes privilege.               #
 #                                                                     #
 # fakenonexistent - Whether to pretend that a disabled command/mode   #
 #                   does not exist when executed/changed by a user.   #
@@ -803,7 +803,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DNS blacklist module: Provides support for looking up IPs on one or #
 # more blacklists.                                                    #
-#<module name="dnsbl">                                                #
+#<module name="dnsbl">
 #                                                                     #
 # For configuration options please see the wiki page for dnsbl at     #
 # https://wiki.inspircd.org/Modules/3.0/dnsbl                         #
@@ -816,8 +816,8 @@
 # nonick, nonotice, regmoderated, stripcolor, and topiclock.          #
 # See <options:exemptchanops> in inspircd.conf.example for a more     #
 # detailed list of the restriction modes that can be exempted.        #
-# These are settable using /mode #chan +X <restriction>:<status>      #
-#<module name="exemptchanops">                                        #
+# These are settable using: /MODE #chan +X <restriction>:<status>     #
+#<module name="exemptchanops">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides message filtering, similar to SPAMFILTER.   #
@@ -886,7 +886,7 @@
 # <connect deny="*" geoip="TR,RU">
 #
 # If enabled you can also ban people from channnels by country code
-# using the G: extban (e.g. /mode #channel +b G:US).
+# using the G: extban (e.g. /MODE #channel +b G:US).
 # <geoip extban="yes">
 #
 # The country code must be in capitals and should be an ISO country
@@ -1332,7 +1332,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Named modes module: Allows for the display and set/unset of channel
 # modes via long-form mode names via +Z and the /PROP command.
-# For example, to set a ban, do /mode #channel +Z ban=foo!bar@baz or
+# For example, to set a ban, do /MODE #channel +Z ban=foo!bar@baz or
 # /PROP #channel ban=foo!bar@baz
 #<module name="namedmodes">
 
@@ -1419,7 +1419,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper channels mode: Adds the +O channel mode and extban O:<mask>
 # to ban, except, etc. specific oper types. For example
-# /mode #channel +iI O:* is equivalent to channel mode +O, but you
+# /MODE #channel +iI O:* is equivalent to channel mode +O, but you
 # may also set +iI O:AdminTypeOnly to only allow admins.
 # Modes +I and +e work in a similar fashion.
 #<module name="operchans">
@@ -1699,7 +1699,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Remove module: Adds the /REMOVE command which is a peaceful
-# alternative to /KICK.
+# alternative to /KICK. It also provides the /FPART command which works
+# in the same way as /REMOVE.
 #<module name="remove">
 #
 # supportnokicks: If true, /REMOVE is not allowed on channels where the
@@ -1709,27 +1710,36 @@
 #<remove supportnokicks="true" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# A module to block, kick or ban upon similar messages being uttered several times.
-# Syntax [~*][lines]:[sec]{[:difference]}{[:matchlines]}
-# ~ is to block, * is to ban, default is kick.
-# lines - In mode 1 the amount of lines that has to match consecutively - In mode 2 the size of the backlog to keep for matching
-# seconds - How old the message has to be before it's invalidated.
-# distance - Edit distance, in percent, between two strings to trigger on.
-# matchlines - When set, the function goes into mode 2. In this mode the function will trigger if this many of the last <lines> matches.
+# Repeat module: Allows to block, kick or ban upon similar messages
+# being uttered several times. Provides channel mode +E.
+#
+# Syntax: [~|*]<lines>:<sec>[:<difference>][:<backlog>]
+#         ~ is to block, * is to ban, default is kick.
+# lines      - In mode 1, the amount of lines that has to match consecutively.
+#              In mode 2, the size of the backlog to keep for matching.
+# seconds    - How old the message has to be before it's invalidated.
+# difference - Edit distance, in percent, between two strings to trigger on.
+# backlog    - When set, the function goes into mode 2. In this mode the
+#              function will trigger if this many of the last <lines> matches.
 #
 # As this module can be rather CPU-intensive, it comes with some options.
-# maxbacklog - Maximum size that can be specified for backlog. 0 disables multiline matching.
-# maxdistance - Max percentage of difference between two lines we'll allow to match. Set to 0 to disable edit-distance matching.
-# maxlines - Max lines of backlog to match against.
-# maxtime - Maximum period of time a user can set. 0 to allow any.
-# size - Maximum number of characters to check for, can be used to truncate messages
-# before they are checked, resulting in less CPU usage. Increasing this beyond 512
-# doesn't have any effect, as the maximum length of a message on IRC cannot exceed that.
-#<repeat maxbacklog="20" maxlines="20" maxdistance="50" maxtime="0" size="512">
+# maxbacklog  - Maximum size that can be specified for backlog. 0 disables
+#               multiline matching.
+# maxdistance - Max percentage of difference between two lines we'll allow
+#               to match. Set to 0 to disable edit-distance matching.
+# maxlines    - Max lines of backlog to match against.
+# maxtime     - Maximum period of time a user can set. 0 to allow any.
+# size        - Maximum number of characters to check for, can be used to
+#               truncate messages before they are checked, resulting in
+#               less CPU usage. Increasing this beyond 512 doesn't have
+#               any effect, as the maximum length of a message on IRC
+#               cannot exceed that.
+#<repeat maxbacklog="20" maxdistance="50 maxlines="20" maxtime="0" size="512">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restricted channels module: Allows only opers or registered users to
+# Restricted channels module: Allows only opers with the
+# channels/restricted-create priv and/or registered users to
 # create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
@@ -1775,10 +1785,11 @@
 # so that at least \s or [[:space:]] is available.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# RMODE module: Adds the /RMODE command
-# Allows channel mods to remove list modes en masse.
-# Syntax: /rmode <channel> <mode> [pattern]
-# E.g. '/rmode #Channel b m:*' will remove all mute-extbans on the channel.
+# RMODE module: Adds the /RMODE command.
+# Allows channel operators to remove list modes en masse, optionally
+# matching a glob-based pattern.
+# Syntax: /RMODE <channel> <mode> [<pattern>]
+# E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.
 #<module name="rmode">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1921,8 +1932,8 @@
 #               changes their real name. Defaults to to yes if        #
 #               oper-only and no if usable by everyone.               #
 #                                                                     #
-#<setname notifyopers="yes"                                           #
-#         operonly="no">                                              #
+#<setname notifyopers="yes"
+#         operonly="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Serverban: Implements extended ban 's', which stops anyone connected
@@ -1939,7 +1950,7 @@
 # they enter a command.                                               #
 # This module adds one command for each <showfile> tag that shows the #
 # given file to the user as a series of messages or numerics.         #
-#<module name="showfile">                                             #
+#<module name="showfile">
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-# SHOWFILE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

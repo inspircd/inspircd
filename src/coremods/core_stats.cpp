@@ -44,7 +44,7 @@ class CommandStats : public Command
 		, statsevprov(Creator, "event/stats")
 	{
 		allow_empty_last_param = false;
-		syntax = "<stats-symbol> [<servername>]";
+		syntax = "<symbol> [<servername>]";
 	}
 
 	/** Handle command.

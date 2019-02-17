@@ -137,7 +137,7 @@ class CommandRLine : public Command
  public:
 	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
 	{
-		flags_needed = 'o'; this->syntax = "<regex> [<rline-duration>] :<reason>";
+		flags_needed = 'o'; this->syntax = "<regex> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE

@@ -28,7 +28,7 @@ class CommandCycle : public SplitCommand
 	CommandCycle(Module* Creator)
 		: SplitCommand(Creator, "CYCLE", 1)
 	{
-		Penalty = 3; syntax = "<channel> :[reason]";
+		Penalty = 3; syntax = "<channel> [:<reason>]";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE

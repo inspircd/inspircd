@@ -29,7 +29,7 @@ class CommandChgname : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<nick> <new real name>";
+		syntax = "<nick> :<realname>";
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 

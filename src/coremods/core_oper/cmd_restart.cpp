@@ -26,7 +26,7 @@ CommandRestart::CommandRestart(Module* parent, std::string& hashref)
 	, hash(hashref)
 {
 	flags_needed = 'o';
-	syntax = "<server>";
+	syntax = "<servername>";
 }
 
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)

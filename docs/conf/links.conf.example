@@ -64,19 +64,19 @@
       # servers will not be shown when users do a /MAP or /LINKS.
       hidden="no"
 
-      # passwords: the passwords we send and receive.
+      # passwords: The passwords we send and receive.
       # The remote server will have these passwords reversed.
       # Passwords that contain a space character or begin with
       # a colon (:) are invalid and may not be used.
       sendpass="outgoing!password"
       recvpass="incoming!password">
 
-# A duplicate of the first link block without comments
+# A duplicate of the first link block without comments,
 # if you like copying & pasting.
 <link name="hub.example.org"
       ipaddr="penguin.example.org"
       port="7000"
-      allowmask="203.0.113.0/24"
+      allowmask="203.0.113.0/24 127.0.0.0/8 2001:db8::/32"
       timeout="5m"
       ssl="gnutls"
       bind="1.2.3.4"
@@ -94,7 +94,7 @@
       sendpass="penguins"
       recvpass="polarbears">
 
-# Simple autoconnect block. This enables automatic connection of a server
+# Simple autoconnect block. This enables automatic connections to a server.
 # Recommended setup is to have leaves connect to the hub, and have no
 # automatic connections started by the hub.
 <autoconnect period="10m" server="hub.example.org">
@@ -108,15 +108,15 @@
 	server="hub.us.example.org hub.eu.example.org leaf.eu.example.org">
 
 
-#-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
-# This tag defines a ulined server. A U-Lined server has special      #
-# permissions, and should be used with caution. Services servers are  #
-# usually u-lined in this manner.                                     #
-#                                                                     #
-# The 'silent' value, if set to yes, indicates that this server should#
-# not generate quit and connect notices, which can cut down on noise  #
-# to opers on the network.                                            #
-#                                                                     #
+#-#-#-#-#-#-#-#-#-#-#-#-# U-LINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+# This tag defines a U-lined server. A U-lined server has special       #
+# permissions, and should be used with caution. Services servers are    #
+# usually U-lined in this manner.                                       #
+#                                                                       #
+# The 'silent' value, if set to yes, indicates that this server should  #
+# not generate quit and connect notices, which can cut down on noise    #
+# to opers on the network.                                              #
+#                                                                       #
 <uline server="services.example.com" silent="yes">
 
 # Once you have edited this file you can remove this line. This is just to

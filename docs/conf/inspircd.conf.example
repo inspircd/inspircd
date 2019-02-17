@@ -255,7 +255,7 @@
          #
          # You may also use any of the above other than bcrypt prefixed with
          # either "hmac-" or "pbkdf2-hmac-" (requires the pbkdf2 module).
-         # Create hashed passwords with: /mkpasswd <hash> <password>
+         # Create hashed passwords with: /MKPASSWD <hashtype> <plaintext>
          #hash="bcrypt"
 
          # password: Password to use for this block/user(s)
@@ -268,7 +268,7 @@
          # timeout: How long the server will wait before disconnecting
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
+         # send /NICK, /USER or /PASS)
          timeout="10"
 
          # localmax: Maximum local connections per IP (or CIDR mask, see below).
@@ -300,8 +300,8 @@
 
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the "cloaking"
+         # This entry is highly recommended to use for/with IP cloaking/masking.
+         # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x"
 
@@ -352,7 +352,7 @@
          # timeout: How long the server will wait before disconnecting
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
+         # send /NICK, /USER or /PASS)
          timeout="10"
 
          # pingfreq: How often the server tries to ping connecting clients.
@@ -414,7 +414,7 @@
 
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP Cloaking/masking.
+         # This entry is highly recommended to use for/with IP cloaking/masking.
          # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x">
@@ -647,7 +647,7 @@
          # See m_exemptchanops in modules.conf.example for more details.
          exemptchanops="censor:o filter:o nickflood:o nonick:v regmoderated:o"
 
-         # invitebypassmodes: This allows /invite to bypass other channel modes.
+         # invitebypassmodes: This allows /INVITE to bypass other channel modes.
          # (Such as +k, +j, +l, etc.)
          invitebypassmodes="yes"
 
@@ -714,10 +714,10 @@
           announceinvites="dynamic"
 
           # hideulines: If this value is set to yes, U-lined servers will
-          # be hidden from non-opers in /links and /map.
+          # be hidden from non-opers in /LINKS and /MAP.
           hideulines="no"
 
-          # flatlinks: If this value is set to yes, /map and /links will
+          # flatlinks: If this value is set to yes, /MAP and /LINKS will
           # be flattened when shown to non-opers.
           flatlinks="no"
 
@@ -734,7 +734,7 @@
           # from the server.
           hidebans="no"
 
-          # hidekills: If defined, replaces who set a /kill with a custom string.
+          # hidekills: If defined, replaces who executed a /KILL with a custom string.
           hidekills=""
 
           # hideulinekills: Hide kills from clients of ulined servers from server notices.
@@ -746,7 +746,7 @@
           hidesplits="no"
 
           # maxtargets: Maximum number of targets per command.
-          # (Commands like /notice, /privmsg, /kick, etc)
+          # (Commands like /NOTICE, /PRIVMSG, /KICK, etc)
           maxtargets="20"
 
           # customversion: A custom message to be displayed in the comments field
@@ -777,7 +777,7 @@
           # affects the display in WHOIS.
           genericoper="no"
 
-          # userstats: /stats commands that users can run (opers can run all).
+          # userstats: /STATS commands that users can run (opers can run all).
           userstats="Pu">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
@@ -845,7 +845,7 @@
 #
 # An example log tag would be:
 #  <log method="file" type="OPER" level="default" target="opers.log">
-# which would log all information on /oper (failed and successful) to
+# which would log all information on /OPER (failed and successful) to
 # a file called opers.log.
 #
 # There are many different types which may be used, and modules may
@@ -889,17 +889,17 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# This tag lets you define the behaviour of the /whowas command of    #
+# This tag lets you define the behaviour of the /WHOWAS command of    #
 # your server.                                                        #
 #                                                                     #
 
 <whowas
         # groupsize: Maximum entries per nick shown when performing
-        # a /whowas nick.
+        # a /WHOWAS <nick>.
         groupsize="10"
 
         # maxgroups: Maximum number of nickgroups that can be added to
-        # the list so that /whowas does not use a lot of resources on
+        # the list so that /WHOWAS does not use a lot of resources on
         # large networks.
         maxgroups="100000"
 
@@ -927,7 +927,7 @@
          # nick: Nick to disallow. Wildcards are supported.
          nick="ChanServ"
 
-         # reason: Reason to display on /nick.
+         # reason: Reason to display on /NICK.
          reason="Reserved for a network service">
 
 <badhost
@@ -947,7 +947,7 @@
            # Wildcards and CIDR (if you specify an IP) can be used.
            host="*@ircop.example.com"
 
-           # reason: Reason for exception. Only shown in /stats e
+           # reason: Reason for exception. Only shown in /STATS e.
            reason="Oper's hostname">
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#

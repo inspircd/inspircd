@@ -29,7 +29,7 @@ class CommandSajoin : public Command
 	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; syntax = "[<nick>] <channel>[,<channel>]";
+		flags_needed = 'o'; syntax = "[<nick>] <channel>[,<channel>]+";
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
@@ -53,7 +53,7 @@ class CommandSajoin : public Command
 
 			if (dest->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CMD_FAILURE;
 			}
 			if (IS_LOCAL(user) && !ServerInstance->IsChannel(channel))

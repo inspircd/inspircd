@@ -88,7 +88,7 @@ class CommandCBan : public Command
  public:
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
-		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
+		flags_needed = 'o'; this->syntax = "<channel> [<duration> [:<reason>]]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE

@@ -30,7 +30,7 @@ class CommandSetname : public Command
 	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
 	{
 		allow_empty_last_param = false;
-		syntax = "<new real name>";
+		syntax = ":<realname>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE

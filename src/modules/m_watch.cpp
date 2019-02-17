@@ -133,7 +133,7 @@ class CommandWatch : public SplitCommand
 		, manager(managerref)
 	{
 		allow_empty_last_param = false;
-		syntax = "[<C|L|S|l|+<nick1>|-<nick>>]";
+		syntax = "C|L|l|S|(+|-)<nick> [(+|-)<nick>]+";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE

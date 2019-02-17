@@ -30,7 +30,7 @@ class CommandIson : public SplitCommand
 	CommandIson(Module* parent)
 		: SplitCommand(parent, "ISON", 1)
 	{
-		syntax = "<nick> {nick}";
+		syntax = "<nick> [<nick>]+";
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command

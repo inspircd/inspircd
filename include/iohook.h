@@ -49,7 +49,7 @@ class IOHookProvider : public refcountbase, public ServiceProvider
 	 */
 	bool IsMiddle() const { return middlehook; }
 
-	/** Called when the provider should hook an incoming connection and act as being on the server side of the connection.
+	/** Called when the provider should hook an incoming connection and act as being on the server-side of the connection.
 	 * This occurs when a bind block has a hook configured and the listener accepts a connection.
 	 * @param sock Socket to hook
 	 * @param client Client IP address and port

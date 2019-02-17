@@ -143,7 +143,7 @@ class CommandWho : public SplitCommand
 		, whoevprov(parent, "event/who")
 	{
 		allow_empty_last_param = false;
-		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
+		syntax = "<server>|<nick>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nick>|<channel>|<realname>|<host>|0]";
 	}
 
 	/** Sends a WHO reply to a user. */

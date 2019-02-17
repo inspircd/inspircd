@@ -592,13 +592,13 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
-			throw ModuleException(InspIRCd::Format("Mode prefix for %s already by used by %s from %s: %c",
+			throw ModuleException(InspIRCd::Format("Mode prefix for %s already used by %s from %s: %c",
 				mh->name.c_str(), otherpm->name.c_str(), otherpm->creator->ModuleSourceFile.c_str(), pm->GetPrefix()));
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
 	if (slot)
-		throw ModuleException(InspIRCd::Format("Mode letter for %s already by used by %s from %s: %c",
+		throw ModuleException(InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
 			mh->name.c_str(), slot->name.c_str(), slot->creator->ModuleSourceFile.c_str(), mh->GetModeChar()));
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.

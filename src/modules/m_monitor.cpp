@@ -316,7 +316,7 @@ class CommandMonitor : public SplitCommand
 	{
 		Penalty = 2;
 		allow_empty_last_param = false;
-		syntax = "[C|L|S|+ <nick1>[,<nick2>]|- <nick1>[,<nick2>]";
+		syntax = "C|L|S|(+|-) <nick>[,<nick>]+";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE

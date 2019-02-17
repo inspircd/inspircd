@@ -303,7 +303,7 @@ class CommandMessage : public Command
 		, moderatedmode(parent, "moderated")
 		, noextmsgmode(parent, "noextmsg")
 	{
-		syntax = "<target>{,<target>} <message>";
+		syntax = "<target>[,<target>]+ :<message>";
 	}
 
 	/** Handle command.
@@ -357,7 +357,7 @@ class CommandSQuery : public SplitCommand
 	CommandSQuery(Module* Creator)
 		: SplitCommand(Creator, "SQUERY", 2, 2)
 	{
-		syntax = "<service> <message>";
+		syntax = "<service> :<message>";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
@@ -398,7 +398,7 @@ class CommandSQuery : public SplitCommand
 		if (!FirePreEvents(user, msgtarget, msgdetails))
 			return CMD_FAILURE;
 
-		// The SQUERY command targets a service on a u-lined server. This can never
+		// The SQUERY command targets a service on a U-lined server. This can never
 		// be on the server local to the source so we don't need to do any routing
 		// logic and can forward it as a PRIVMSG.
 
