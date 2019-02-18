@@ -114,7 +114,7 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
 		Link* x = *i;
-		if ((!stdalgo::string::equalsci(x->Name, sname)) && (x->Name != "*")) // open link allowance
+		if (!InspIRCd::Match(sname, x->Name))
 			continue;
 
 		if (!ComparePass(*x, password))
