@@ -477,15 +477,15 @@ service is temporarily closed and to try again later.">
 
 Opens the server up again for new connections.">
 
-<helpop key="filter" value="/FILTER <filter-definition> [<action> <flags> [<duration>] :<reason>]
+<helpop key="filter" value="/FILTER <pattern> [<action> <flags> [<duration>] :<reason>]
 
 This command will add a global filter when more than one parameter is
 given, for messages of the types specified by the flags, with the given
-filter definition, action, duration (when the action is 'gline',
-'zline' or 'shun'), and reason.
+filter pattern, action, duration (when the action is 'gline', 'zline'
+or 'shun'), and reason.
 
 The filter will take effect when a message of any type specified by
-the flags and matching the definition is sent to the server, and
+the flags and matching the pattern is sent to the server, and
 perform the specified action.
 
 Valid FILTER Actions
