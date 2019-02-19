@@ -155,7 +155,7 @@ class CommandFilter : public Command
 		: Command(f, "FILTER", 1, 5)
 	{
 		flags_needed = 'o';
-		this->syntax = "<filter-definition> <action> <flags> [<duration>] :<reason>";
+		this->syntax = "<pattern> [<action> <flags> [<duration>] :<reason>]";
 	}
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 

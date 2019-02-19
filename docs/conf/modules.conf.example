@@ -851,7 +851,7 @@
 #                                                                     #
 # Optional - If you specify to use the filter module, then            #
 # specify below the path to the filter.conf file, or define some      #
-# <filter> tags.                                                      #
+# <keyword> tags.                                                     #
 #                                                                     #
 #<include file="examples/filter.conf.example">
 
