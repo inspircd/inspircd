@@ -152,7 +152,8 @@ namespace
 		// the user is a member of the channel.
 		bool show_secret = chan->HasUser(user);
 
-		std::string& modes = num.push("+").GetParams().back();
+		size_t modepos = num.push("+").GetParams().size() - 1;
+		std::string modes;
 		std::string param;
 		for (unsigned char chr = 65; chr < 123; ++chr)
 		{
@@ -182,6 +183,7 @@ namespace
 			num.push(param);
 			param.clear();
 		}
+		num.GetParams()[modepos].append(modes);
 	}
 }
 
