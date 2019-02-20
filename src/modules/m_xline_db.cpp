@@ -51,7 +51,8 @@ class ModuleXLineDB : public Module
 	 */
 	void OnAddLine(User* source, XLine* line) CXX11_OVERRIDE
 	{
-		dirty = true;
+		if (!line->from_config)
+			dirty = true;
 	}
 
 	/** Called whenever an xline is deleted.
@@ -61,7 +62,8 @@ class ModuleXLineDB : public Module
 	 */
 	void OnDelLine(User* source, XLine* line) CXX11_OVERRIDE
 	{
-		dirty = true;
+		if (!line->from_config)
+			dirty = true;
 	}
 
 	void OnBackgroundTimer(time_t now) CXX11_OVERRIDE
@@ -113,6 +115,9 @@ class ModuleXLineDB : public Module
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
 				XLine* line = i->second;
+				if (line->from_config)
+					continue;
+
 				stream << "LINE " << line->type << " " << line->Displayable() << " "
 					<< line->source << " " << line->set_time << " "
 					<< line->duration << " :" << line->reason << std::endl;
