@@ -467,6 +467,7 @@ void ModuleManager::LoadAll()
 	std::map<std::string, ServiceList> servicemap;
 	LoadCoreModules(servicemap);
 
+	// Step 1: load all of the modules.
 	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
@@ -487,8 +488,7 @@ void ModuleManager::LoadAll()
 		}
 	}
 
-	ConfigStatus confstatus;
-
+	// Step 2: initialize the modules and register their services.
 	for (ModuleMap::const_iterator i = Modules.begin(); i != Modules.end(); ++i)
 	{
 		Module* mod = i->second;
@@ -498,7 +498,6 @@ void ModuleManager::LoadAll()
 			AttachAll(mod);
 			AddServices(servicemap[i->first]);
 			mod->init();
-			mod->ReadConfig(confstatus);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -510,6 +509,27 @@ void ModuleManager::LoadAll()
 	}
 
 	this->NewServices = NULL;
+	ConfigStatus confstatus;
+
+	// Step 3: Read the configuration for the modules. This must be done as part of
+	// its own step so that services provided by modules can be registered before
+	// the configuration is read.
+	for (ModuleMap::const_iterator i = Modules.begin(); i != Modules.end(); ++i)
+	{
+		Module* mod = i->second;
+		try
+		{
+			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Reading configuration for %s", i->first.c_str());
+			mod->ReadConfig(confstatus);
+		}
+		catch (CoreException& modexcept)
+		{
+			LastModuleError = "Unable to read the configuration for " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_CONFIG);
+		}
+	}
 
 	if (!PrioritizeHooks())
 		ServerInstance->Exit(EXIT_STATUS_MODULE);
