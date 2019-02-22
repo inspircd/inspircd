@@ -265,12 +265,31 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		LookupIter i = x->second.find(line->Displayable());
 		if (i != x->second.end())
 		{
-			// XLine propagation bug was here, if the line to be added already exists and
-			// it's expired then expire it and add the new one instead of returning false
-			if ((!i->second->duration) || (ServerInstance->Time() < i->second->expiry))
-				return false;
+			bool silent = false;
 
-			ExpireLine(x, i);
+			// Allow replacing a config line for an updated config line.
+			if (i->second->from_config && line->from_config)
+			{
+				// Nothing changed, skip adding this one.
+				if (i->second->reason == line->reason)
+					return false;
+
+				silent = true;
+			}
+			// Allow replacing a non-config line for a new config line.
+			else if (!line->from_config)
+			{
+				// X-line propagation bug was here, if the line to be added already exists and
+				// it's expired then expire it and add the new one instead of returning false
+				if ((!i->second->duration) || (ServerInstance->Time() < i->second->expiry))
+					return false;
+			}
+			else
+			{
+				silent = true;
+			}
+
+			ExpireLine(x, i, silent);
 		}
 	}
 
@@ -403,11 +422,13 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 }
 
 // removes lines that have expired
-void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
+void XLineManager::ExpireLine(ContainerIter container, LookupIter item, bool silent)
 {
 	FOREACH_MOD(OnExpireLine, (item->second));
 
-	item->second->DisplayExpiry();
+	if (!silent)
+		item->second->DisplayExpiry();
+
 	item->second->Unset();
 
 	/* TODO: Can we skip this loop by having a 'pending' field in the XLine class, which is set when a line
@@ -750,23 +771,23 @@ XLineFactory* XLineManager::GetFactory(const std::string &type)
 	return n->second;
 }
 
-void XLineManager::ClearConfigLines()
+void XLineManager::ExpireRemovedConfigLines(const std::string& type, const insp::flat_set<std::string>& configlines)
 {
 	// Nothing to do.
 	if (lookup_lines.empty())
 		return;
 
-	ServerInstance->SNO->WriteToSnoMask('x', "Server rehashing; expiring lines defined in the server config ...");
-	for (ContainerIter type = lookup_lines.begin(); type != lookup_lines.end(); ++type)
+	ContainerIter xlines = lookup_lines.find(type);
+	if (xlines == lookup_lines.end())
+		return;
+
+	for (LookupIter xline = xlines->second.begin(); xline != xlines->second.end(); )
 	{
-		for (LookupIter xline = type->second.begin(); xline != type->second.end(); )
-		{
-			// We cache this to avoid iterator invalidation.
-			LookupIter cachedxline = xline++;
-			if (cachedxline->second->from_config)
-			{
-				ExpireLine(type, cachedxline);
-			}
-		}
+		LookupIter cachedxline = xline++;
+		if (!cachedxline->second->from_config)
+			continue;
+
+		if (!configlines.count(cachedxline->second->Displayable()))
+			ExpireLine(xlines, cachedxline);
 	}
 }

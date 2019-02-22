@@ -193,7 +193,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
-	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags);
+	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
@@ -744,7 +744,7 @@ bool ModuleFilter::DeleteFilter(const std::string& freeform, std::string& reason
 	return false;
 }
 
-std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flgs)
+std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flgs, bool config)
 {
 	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
@@ -756,7 +756,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 	try
 	{
-		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs, false));
+		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs, config));
 	}
 	catch (ModuleException &e)
 	{
@@ -807,11 +807,13 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 
 void ModuleFilter::ReadFilters()
 {
+	insp::flat_set<std::string> removedfilters;
+
 	for (std::vector<FilterResult>::iterator filter = filters.begin(); filter != filters.end(); )
 	{
 		if (filter->from_config)
 		{
-			ServerInstance->SNO->WriteGlobalSno('f', "Removing filter '" + filter->freeform + "' due to config rehash.");
+			removedfilters.insert(filter->freeform);
 			delete filter->regex;
 			filter = filters.erase(filter);
 			continue;
@@ -836,15 +838,17 @@ void ModuleFilter::ReadFilters()
 		if (!StringToFilterAction(action, fa))
 			fa = FA_NONE;
 
-		try
-		{
-			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, duration, flgs, true));
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
-		}
-		catch (ModuleException &e)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason().c_str());
-		}
+		std::pair<bool, std::string> result = static_cast<ModuleFilter*>(this)->AddFilter(pattern, fa, reason, duration, flgs, true);
+		if (result.first)
+			removedfilters.erase(pattern);
+		else
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
+	}
+
+	if (!removedfilters.empty())
+	{
+		for (insp::flat_set<std::string>::const_iterator it = removedfilters.begin(); it != removedfilters.end(); ++it)
+			ServerInstance->SNO->WriteGlobalSno('f', "Removing filter '" + *(it) + "' due to config rehash.");
 	}
 }
 
