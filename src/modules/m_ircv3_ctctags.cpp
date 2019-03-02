@@ -280,7 +280,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 	{
 		// A client-only tag is prefixed with a plus sign (+) and otherwise conforms
 		// to the format specified in IRCv3.2 tags.
-		if (tagname[0] != '+')
+		if (tagname[0] != '+' || tagname.length() < 2)
 			return MOD_RES_PASSTHRU;
 
 		// If the user is local then we check whether they have the message-tags cap
