@@ -9,7 +9,7 @@ language: minimal
 notifications:
   email: false
 script:
-  - MODULES="m_geoip.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_posix.cpp,m_regex_re2.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_mbedtls.cpp,m_ssl_openssl.cpp,m_sslrehashsignal.cpp"
+  - MODULES="m_geoip.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_re2.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_mbedtls.cpp,m_ssl_openssl.cpp,m_sslrehashsignal.cpp"
   - docker run --env PWD=/home/travis/inspircd --env TEST_BUILD_MODULES=$MODULES --volume ${TRAVIS_BUILD_DIR}:/home/travis/inspircd --workdir /home/travis/inspircd inspircd ./tools/test-build $CXX
   - docker stop $(docker ps --latest --quiet)
 services:
