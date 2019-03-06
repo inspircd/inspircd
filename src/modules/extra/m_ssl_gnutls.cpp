@@ -21,8 +21,7 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("gnutls")
-
-/// $LinkerFlags: find_linker_flags("gnutls" "-lgnutls")
+/// $LinkerFlags: find_linker_flags("gnutls")
 
 /// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config

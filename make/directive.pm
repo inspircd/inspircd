@@ -169,7 +169,7 @@ sub __function_execute {
 }
 
 sub __function_find_compiler_flags {
-	my ($file, $name, $defaults) = @_;
+	my ($file, $name) = @_;
 
 	# Try to look up the compiler flags with pkg-config...
 	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
@@ -185,18 +185,12 @@ sub __function_find_compiler_flags {
 		return $ENV{$key};
 	}
 
-	# If all else fails then look for the defaults..
-	if (defined $defaults) {
-		print_format "Using the default <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $defaults|>\n";
-		return $defaults;
-	}
-
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
 	__error $file, "unable to find the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|>!";
 }
 
 sub __function_find_linker_flags {
-	my ($file, $name, $defaults) = @_;
+	my ($file, $name) = @_;
 
 	# Try to look up the linker flags with pkg-config...
 	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
@@ -210,12 +204,6 @@ sub __function_find_linker_flags {
 	if (defined $ENV{$key}) {
 		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
-	}
-
-	# If all else fails then look for the defaults..
-	if (defined $defaults) {
-		print_format "Using the default <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $defaults|>\n";
-		return $defaults;
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
