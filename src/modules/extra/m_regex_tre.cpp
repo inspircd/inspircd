@@ -18,7 +18,7 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("tre")
-/// $LinkerFlags: find_linker_flags("tre" "-ltre")
+/// $LinkerFlags: find_linker_flags("tre")
 
 /// $PackageInfo: require_system("darwin") pkg-config tre
 /// $PackageInfo: require_system("debian") libtre-dev pkg-config

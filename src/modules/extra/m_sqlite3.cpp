@@ -20,7 +20,7 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("sqlite3")
-/// $LinkerFlags: find_linker_flags("sqlite3" "-lsqlite3")
+/// $LinkerFlags: find_linker_flags("sqlite3")
 
 /// $PackageInfo: require_system("centos") pkgconfig sqlite-devel
 /// $PackageInfo: require_system("darwin") pkg-config sqlite3

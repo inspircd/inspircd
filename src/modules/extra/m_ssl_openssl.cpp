@@ -22,7 +22,7 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("openssl")
-/// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
+/// $LinkerFlags: find_linker_flags("openssl")
 
 /// $PackageInfo: require_system("centos") openssl-devel pkgconfig
 /// $PackageInfo: require_system("darwin") openssl@1.1 pkg-config

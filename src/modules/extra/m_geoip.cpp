@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("geoip" "")
-/// $LinkerFlags: find_linker_flags("geoip" "-lGeoIP")
+/// $CompilerFlags: find_compiler_flags("geoip")
+/// $LinkerFlags: find_linker_flags("geoip")
 
 /// $PackageInfo: require_system("centos" "7.0") GeoIP-devel pkgconfig
 /// $PackageInfo: require_system("darwin") geoip pkg-config
