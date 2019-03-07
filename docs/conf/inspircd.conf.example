@@ -216,7 +216,7 @@
 #  -- It is important to note that connect tags are read from the  -- #
 #     TOP DOWN. This means that you should have more specific deny    #
 #    and allow tags at the top, progressively more general, followed  #
-#        by a <connect allow="*" (should you wish to have one).       #
+#        by a <connect allow="*"> (should you wish to have one).      #
 #                                                                     #
 # Connect blocks are searched twice for each user - once when the TCP #
 # connection is accepted, and once when the user completes their      #
