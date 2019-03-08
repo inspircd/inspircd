@@ -224,24 +224,12 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		AddToCull();
 	}
 
-	const char* Response(unsigned int response)
-	{
-		switch (response)
-		{
-#define HTTP_STATUS_CASE(n, m, s) case n: return #s;
-			HTTP_STATUS_MAP(HTTP_STATUS_CASE)
-			default:
-				return "WTF";
-			break;
-		}
-	}
-
 	void SendHTTPError(unsigned int response)
 	{
 		HTTPHeaders empty;
 		std::string data = InspIRCd::Format(
 			"<html><head></head><body>Server error %u: %s<br>"
-			"<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>", response, Response(response));
+			"<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>", response, http_status_str((http_status)response));
 
 		SendHeaders(data.length(), response, empty);
 		WriteData(data);
@@ -250,7 +238,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders &rheaders)
 	{
-		WriteData(InspIRCd::Format("HTTP/%u.%u %u %s\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, Response(response)));
+		WriteData(InspIRCd::Format("HTTP/%u.%u %u %s\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
 
 		rheaders.CreateHeader("Date", InspIRCd::TimeString(ServerInstance->Time(), "%a, %d %b %Y %H:%M:%S GMT", true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
