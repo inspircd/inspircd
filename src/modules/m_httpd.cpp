@@ -40,7 +40,7 @@
 #endif
 
 // Fix warnings about shadowing in http_parser.
-#ifdef _GNUC
+#ifdef __GNUC__
 # pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
