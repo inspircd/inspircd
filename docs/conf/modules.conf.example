@@ -825,14 +825,6 @@
 #<include file="examples/filter.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Flash Policy Daemon module: Allows Flash IRC clients (e.g. LightIRC)#
-# to connect. If no file is specified, it'll serve a default policy   #
-# allowing all IPs to connect to all plaintext IRC ports              #
-#<bind address="" port="8430" type="flashpolicyd">                    #
-#<flashpolicyd timeout="5" file="">                                   #
-#<module name="flashpolicyd">                                         #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Real name ban: Implements two extended bans:                        #
 # 'a', which matches a n!u@h+realname mask like +b a:*!*@host+*real*  #
 # 'r', which matches a realname mask like +b r:*realname?here*        #
