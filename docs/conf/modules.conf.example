@@ -885,30 +885,48 @@
 #<module name="gecosban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GeoIP module: Allows the server admin to match users by country code.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_geoip.cpp
-# and run make install, then uncomment this module to enable it.
-# This module requires GeoIP to be installed on your system,
-# use your package manager to find the appropriate packages
-# or check the InspIRCd wiki page for this module.
-#<module name="geoip">
-#
-# The actual allow/ban actions are done by connect classes, not by the
-# GeoIP module. An example connect class to ban people from russia or
-# turkey:
-#
-# <connect deny="*" geoip="TR,RU">
-#
-# If enabled you can also ban people from channnels by country code
-# using the G: extban (e.g. /MODE #channel +b G:US).
-# <geoip extban="yes">
-#
-# The country code must be in capitals and should be an ISO country
-# code such as TR, GB, or US. Unknown IPs (localhost, LAN IPs, etc)
-# will be assigned the country code "UNK". Since connect classes are
-# matched from top down, your deny classes must be above your allow
-# classes for them to match.
+# Geolocation ban module: Adds support for extban 'G' which matches   #
+# against the ISO 3166-1 alpha-2 codes for the countries that users   #
+# are connecting from. Users connecting from unknown origins such as  #
+# internal networks can be matched against using the XX alpha-2 code. #
+# A full list of ISO 3166-1 alpha-2 codes can be found at             #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoban">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Geolocation connect class module: Adds support for limiting connect #
+# classes to users from specific countries. With this module you can  #
+# specify a space-delimited list of two character the ISO 3166-1      #
+# alpha-2 codes in the "country" field of a connect class. e.g. to    #
+# deny connections from users in Russia or Turkey:                    #
+#                                                                     #
+# <connect deny="*" country="TR RU">                                  #
+#                                                                     #
+# Users connecting from unknown origins such as internal networks can #
+# be matched against using the XX alpha-2 code. A full list of ISO    #
+# 3166-1 alpha-2 codes can be found at                                #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoclass">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MaxMindDB geolocation module: Provides geolocation information for  #
+# other modules that need it using the libMaxMindDB library.          #
+#                                                                     #
+# This module is in extras. Re-run configure with:                    #
+# ./configure --enable-extras=m_geo_maxmind.cpp
+# and run make install, then uncomment this module to enable it.      #
+#                                                                     #
+# This module requires libMaxMindDB to be installed on your system.   #
+# Use your package manager to find the appropriate packages or check  #
+# the InspIRCd documentation page for this module.                    #
+#<module name="geo_maxmind">
+#                                                                     #
+# If you use the geo_maxmind module you MUST provide a database file  #
+# to look up geolocation information in. You can either purchase this #
+# from MaxMind at https://www.maxmind.com/en/geoip2-country-database  #
+# or use the free CC-BY-SA licensed GeoLite2 Country database which   #
+# can be downloaded at https://dev.maxmind.com/geoip/geoip2/geolite2/ #
+#<maxmind file="GeoLite2-Country.mmdb">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Globops module: Provides the /GLOBOPS command and snomask +g.

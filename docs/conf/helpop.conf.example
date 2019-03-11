@@ -1044,7 +1044,7 @@ Y  Show connection classes
 O  Show opertypes and the allowed user and channel modes it can set
 E  Show socket engine events
 S  Show currently held registered nicknames
-G  Show how many local users are connected from each country according to GeoIP
+G  Show how many local users are connected from each country
 
 Note that all /STATS use is broadcast to online IRC operators.">
 
