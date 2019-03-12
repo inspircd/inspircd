@@ -39,12 +39,29 @@ static const char who_field_order[] = "cuhsnf";
 
 struct WhoData : public Who::Request
 {
-	std::string query_flag_order;
-
 	bool GetFlagIndex(char flag, size_t& out) const CXX11_OVERRIDE
 	{
-		out = query_flag_order.find(flag);
-		return out != std::string::npos;
+		if (!whox)
+		{
+			const char* pos = strchr(who_field_order, flag);
+			if (pos == NULL)
+				return false;
+
+			out = pos - who_field_order;
+			return true;
+		}
+
+		if (!whox_fields[flag])
+			return false;
+
+		out = 0;
+		for (const char* c = whox_field_order; *c && *c != flag; ++c)
+		{
+			if (whox_fields[*c])
+				++out;
+		}
+
+		return whox_field_order[out];
 	}
 
 	WhoData(const CommandBase::Params& parameters)
@@ -85,17 +102,6 @@ struct WhoData : public Who::Request
 				current_bitset->set(chr);
 			}
 		}
-
-		if (whox)
-		{
-			for (const char *c = whox_field_order; c; c++)
-			{
-				if (whox_fields[*c])
-					query_flag_order.push_back(*c);
-			}
-		}
-		else
-			query_flag_order = who_field_order;
 	}
 };
 
