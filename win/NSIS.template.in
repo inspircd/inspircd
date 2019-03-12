@@ -43,7 +43,7 @@
 
 ;--- Component support macros: ---
 ; The code for the add/remove functionality is from:
-;   http://nsis.sourceforge.net/Add/Remove_Functionality
+;   https://nsis.sourceforge.io/Add/Remove_Functionality
 ; It has been modified slightly and extended to provide
 ; inter-component dependencies.
 Var AR_SecFlags

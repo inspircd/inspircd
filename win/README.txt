@@ -1,9 +1,9 @@
 Building InspIRCd for Windows:
 
 Prerequisites:
-	Visual Studio 2015 or newer (https://www.visualstudio.com/)
-	CMake 2.8 or newer (http://www.cmake.org/)
-	If building the installer, NSIS http://nsis.sourceforge.net/
+	Visual Studio 2015 or newer (https://www.visualstudio.com)
+	CMake 2.8 or newer (https://cmake.org)
+	If building the installer, NSIS (https://nsis.sourceforge.io)
 
 Configuring:
 	First copy any extra modules from extras (such as m_mysql) to the modules directory that you want to build.

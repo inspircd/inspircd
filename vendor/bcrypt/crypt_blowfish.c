@@ -1,7 +1,7 @@
 /*
  * The crypt_blowfish homepage is:
  *
- *	http://www.openwall.com/crypt/
+ *	https://www.openwall.com/crypt/
  *
  * This code comes from John the Ripper password cracker, with reentrant
  * and crypt(3) interfaces added, but optimizations specific to password
@@ -36,7 +36,7 @@
  *
  * There's a paper on the algorithm that explains its design decisions:
  *
- *	http://www.usenix.org/events/usenix99/provos.html
+ *	https://www.usenix.org/legacy/events/usenix99/provos.html
  *
  * Some of the tricks in BF_ROUND might be inspired by Eric Young's
  * Blowfish library (I can't be sure if I would think of something if I

@@ -18,7 +18,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /// $CompilerFlags: -Ivendor_directory("http_parser")
@@ -229,7 +229,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		HTTPHeaders empty;
 		std::string data = InspIRCd::Format(
 			"<html><head></head><body>Server error %u: %s<br>"
-			"<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>", response, http_status_str((http_status)response));
+			"<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>", response, http_status_str((http_status)response));
 
 		SendHeaders(data.length(), response, empty);
 		WriteData(data);

@@ -14,7 +14,7 @@
 # details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
 
@@ -184,7 +184,7 @@ std-header:
 	@echo "*                                   *"
 	@echo "*   This will take a *long* time.   *"
 	@echo "*     Why not read our wiki at      *"
-	@echo "*     http://wiki.inspircd.org      *"
+	@echo "*     https://wiki.inspircd.org     *"
 	@echo "*  while you wait for Make to run?  *"
 	@echo "*************************************"
 
