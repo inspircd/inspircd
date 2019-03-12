@@ -84,22 +84,9 @@ class ModuleNamesX
 		if (prefixes.length() <= 1)
 			return MOD_RES_PASSTHRU;
 
-		size_t flag_index = 5;
-		if (request.whox)
-		{
-			// We only need to fiddle with the flags if they are present.
-			if (!request.whox_fields['f'])
-				return MOD_RES_PASSTHRU;
-
-			// WHOX makes this a bit tricky as we need to work out the parameter which the flags are in.
-			flag_index = 0;
-			static const char* flags = "tcuihsn";
-			for (size_t i = 0; i < strlen(flags); ++i)
-			{
-				if (request.whox_fields[flags[i]])
-					flag_index += 1;
-			}
-		}
+		size_t flag_index;
+		if (!request.GetFlagIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
 
 		// #chan ident localhost insp22.test nick H@ :0 Attila
 		if (numeric.GetParams().size() <= flag_index)
