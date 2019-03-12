@@ -21,6 +21,7 @@
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"
+#include "modules/who.h"
 
 enum
 {
@@ -184,6 +185,7 @@ class ModuleSSLInfo
 	: public Module
 	, public WebIRC::EventListener
 	, public Whois::EventListener
+	, public Who::EventListener
 {
  private:
 	CommandSSLInfo cmd;
@@ -197,6 +199,7 @@ class ModuleSSLInfo
 	ModuleSSLInfo()
 		: WebIRC::EventListener(this)
 		, Whois::EventListener(this)
+		, Who::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -216,6 +219,19 @@ class ModuleSSLInfo
 			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
 				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
+		if (cert)
+			numeric.GetParams()[flag_index].push_back('s');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
