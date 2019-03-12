@@ -34,8 +34,19 @@ enum
 	RPL_WHOSPCRPL = 354
 };
 
+static const char whox_field_order[] = "tcuihsnfdlaor";
+static const char who_field_order[] = "cuhsnf";
+
 struct WhoData : public Who::Request
 {
+	std::string query_flag_order;
+
+	bool GetFlagIndex(char flag, size_t& out) const CXX11_OVERRIDE
+	{
+		out = query_flag_order.find(flag);
+		return out != std::string::npos;
+	}
+
 	WhoData(const CommandBase::Params& parameters)
 	{
 		// Find the matchtext and swap the 0 for a * so we can use InspIRCd::Match on it.
@@ -74,6 +85,17 @@ struct WhoData : public Who::Request
 				current_bitset->set(chr);
 			}
 		}
+
+		if (whox)
+		{
+			for (const char *c = whox_field_order; c; c++)
+			{
+				if (whox_fields[*c])
+					query_flag_order.push_back(*c);
+			}
+		}
+		else
+			query_flag_order = who_field_order;
 	}
 };
 

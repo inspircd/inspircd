@@ -71,6 +71,17 @@ class Who::Request
 	/** A user specified label for the WHOX response. */
 	std::string whox_querytype;
 
+	/** Get the index in the response parameters for the different data fields
+	 *
+	 * The fields 'r' (realname) and 'd' (hops) will always be missing in a non-WHOX
+	 * query, because WHOX splits them to 2 fields, where old WHO has them as one.
+	 *
+	 * @param flag The field name to look for
+	 * @param out The index will be stored in this value
+	 * @return True if the field is available, false otherwise
+	 */
+	virtual bool GetFlagIndex(char flag, size_t& out) const = 0;
+
  protected:
 	Request()
 		: fuzzy_match(false)
