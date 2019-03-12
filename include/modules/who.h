@@ -80,7 +80,7 @@ class Who::Request
 	 * @param out The index will be stored in this value
 	 * @return True if the field is available, false otherwise
 	 */
-	virtual bool GetFlagIndex(char flag, size_t& out) const = 0;
+	virtual bool GetFieldIndex(char flag, size_t& out) const = 0;
 
  protected:
 	Request()
