@@ -85,7 +85,7 @@ class ModuleNamesX
 			return MOD_RES_PASSTHRU;
 
 		size_t flag_index;
-		if (!request.GetFlagIndex('f', flag_index))
+		if (!request.GetFieldIndex('f', flag_index))
 			return MOD_RES_PASSTHRU;
 
 		// #chan ident localhost insp22.test nick H@ :0 Attila

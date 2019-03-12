@@ -39,7 +39,7 @@ static const char who_field_order[] = "cuhsnf";
 
 struct WhoData : public Who::Request
 {
-	bool GetFlagIndex(char flag, size_t& out) const CXX11_OVERRIDE
+	bool GetFieldIndex(char flag, size_t& out) const CXX11_OVERRIDE
 	{
 		if (!whox)
 		{

@@ -124,7 +124,7 @@ class ModuleHideOper
 				return MOD_RES_DENY;
 
 			size_t flag_index;
-			if (!request.GetFlagIndex('f', flag_index))
+			if (!request.GetFieldIndex('f', flag_index))
 				return MOD_RES_PASSTHRU;
 
 			// hide the "*" that marks the user as an oper from the /WHO line
