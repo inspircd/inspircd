@@ -1,5 +1,6 @@
 # This file contains aliases and nickname reservations which are used
-# by Atheme. See http://atheme.net for more information on Atheme.
+# by Atheme. See https://atheme.github.io/atheme.html for more
+# information on Atheme.
 
 # This file inherits from the generic config to avoid repetition.
 <include file="examples/services/generic.conf.example">

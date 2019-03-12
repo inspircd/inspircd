@@ -342,7 +342,7 @@
 # The webirc method is the recommended way to allow gateways to forward
 # IP/host information. When using this method the gateway sends a WEBIRC
 # message to the server on connection. For more details please read the
-# IRCv3 WebIRC specification at http://ircv3.net/specs/extensions/webirc.html.
+# IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
 #
 # When using this method you must specify a wildcard mask or CIDR range
 # to allow gateway connections from and at least one of either a SSL
@@ -1080,7 +1080,7 @@
 #
 # Further information on these extensions can be found at the IRCv3
 # working group website:
-# http://ircv3.net/irc/
+# https://ircv3.net/irc/
 #
 #<module name="ircv3">
 # The following block can be used to control which extensions are
@@ -1292,7 +1292,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Map hiding module: replaces /MAP and /LINKS output to users with a  #
-# message to see a website, set by maphide="http://test.org/map" in   #
+# message to see a website, set by maphide="https://test.org/map" in  #
 # the <security> tag, instead.                                        #
 #<module name="maphide">
 

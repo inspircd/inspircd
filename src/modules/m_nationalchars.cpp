@@ -20,8 +20,8 @@
  */
 
 
-/* Contains a code of Unreal IRCd + Bynets patch ( http://www.unrealircd.com/ and http://www.bynets.org/ )
-   Original patch is made by Dmitry "Killer{R}" Kononko. ( http://killprog.com/ )
+/* Contains a code of Unreal IRCd + Bynets patch (https://www.unrealircd.org and https://bynets.org)
+   Original patch is made by Dmitry "Killer{R}" Kononko. (http://killprog.com)
    Changed at 2008-06-15 - 2009-02-11
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
