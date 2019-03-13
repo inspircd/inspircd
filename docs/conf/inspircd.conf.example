@@ -336,6 +336,16 @@
          port="6697,9999">
 
 <connect
+         name="loggedin"
+         parent="main"
+
+         # account: Control how the class matches users with an account (requires m_services_account)
+         #  allow: Allow a user with an account to connect, not requiring an account though (default)
+         #  deny: Only allow a user that isn't logged in to match this connect class
+         #  require: Only match a user with an account
+         account="require">
+
+<connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
          name="main"
