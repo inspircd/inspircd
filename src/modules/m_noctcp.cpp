@@ -63,6 +63,9 @@ class ModuleNoCTCP : public Module
 
 		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
+			if (user->HasPrivPermission("channels/ignore-noctcp"))
+				return MOD_RES_PASSTHRU;
+
 			Channel* c = target.Get<Channel>();
 			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
 			if (res == MOD_RES_ALLOW)
@@ -76,6 +79,9 @@ class ModuleNoCTCP : public Module
 		}
 		else if (target.type == MessageTarget::TYPE_USER)
 		{
+			if (user->HasPrivPermission("users/ignore-noctcp"))
+				return MOD_RES_PASSTHRU;
+
 			User* u = target.Get<User>();
 			if (u->IsModeSet(ncu))
 			{
