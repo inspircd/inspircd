@@ -20,7 +20,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Website** &mdash; (https://github.com/nodejs/http-parser)[https://github.com/nodejs/http-parser]
+**Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
 ## sha256
 
