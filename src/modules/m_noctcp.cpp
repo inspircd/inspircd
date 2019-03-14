@@ -80,7 +80,7 @@ class ModuleNoCTCP : public Module
 			if (u->IsModeSet(ncu))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T set)");
-				return MOD_RES_PASSTHRU;
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
