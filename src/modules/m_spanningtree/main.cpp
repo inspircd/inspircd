@@ -45,6 +45,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, commands(this)
 	, currmembid(0)
 	, eventprov(this, "event/server")
+	, sslapi(this)
 	, DNS(this, "DNS")
 	, tagevprov(this, "event/messagetag")
 	, loopCall(false)
@@ -446,6 +447,10 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 {
 	if (user->quitting)
 		return;
+
+	// Create the lazy ssl_cert metadata for this user if not already created.
+	if (sslapi)
+		sslapi->GetCertificate(user);
 
 	CommandUID::Builder(user).Broadcast();
 

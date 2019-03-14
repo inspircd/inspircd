@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "event.h"
 #include "modules/dns.h"
+#include "modules/ssl.h"
 #include "modules/stats.h"
 #include "servercommand.h"
 #include "commands.h"
@@ -79,6 +80,9 @@ class ModuleSpanningTree
 	/** Event provider for our events
 	 */
 	Events::ModuleEventProvider eventprov;
+
+	/** API for accessing user SSL certificates. */
+	UserCertificateAPI sslapi;
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
