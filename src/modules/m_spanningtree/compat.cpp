@@ -42,7 +42,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			if (line[0] == '@')
 			{
 				// The line contains tags which the 1202 protocol can't handle.
-				line.erase(0, a);
+				line.erase(0, a + 1);
 				a = line.find(' ');
 			}
 			std::string::size_type b = line.find(' ', a + 1);
