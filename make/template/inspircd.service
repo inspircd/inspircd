@@ -30,6 +30,8 @@ ExecStop=@SCRIPT_DIR@/inspircd stop
 PIDFile=@DATA_DIR@/inspircd.pid
 Restart=on-failure
 Type=forking
+User=@USER@
+Group=@GROUP@
 
 [Install]
 WantedBy=multi-user.target
