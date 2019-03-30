@@ -14,7 +14,7 @@ Example configs:
 3.0 (alpha) - https://github.com/inspircd/inspircd/tree/master/docs/conf
 
 Wiki:
-https://wiki.inspircd.org/
+https://wiki.inspircd.org
 -->
 
 **Description**

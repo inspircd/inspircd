@@ -27,7 +27,7 @@ CommandKill::CommandKill(Module* parent)
 	, protoev(parent, name)
 {
 	flags_needed = 'o';
-	syntax = "<nickname> <reason>";
+	syntax = "<nick>[,<nick>]+ :<reason>";
 	translation = { TR_CUSTOM, TR_CUSTOM };
 }
 

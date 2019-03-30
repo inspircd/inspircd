@@ -24,7 +24,7 @@
 #include "inspircd.h"
 
 /* Improved drop-in replacement for the /SILENCE command
- * syntax: /SILENCE [+|-]<mask> <p|c|i|n|t|a|x> as in <privatemessage|channelmessage|invites|privatenotice|channelnotice|all|exclude>
+ * syntax: /SILENCE [(+|-)<mask> [p|c|i|n|t|a|x]] as in [privatemessages|channelmessages|invites|privatenotices|channelnotices|all|exclude]
  *
  * example that blocks all except private messages
  *  /SILENCE +*!*@* a
@@ -74,7 +74,7 @@ class CommandSVSSilence : public Command
  public:
 	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
-		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
+		syntax = "<target> (+|-)<mask> [p|c|i|n|t|a|x]";
 		translation = { TR_NICK, TR_TEXT, TR_TEXT };
 	}
 
@@ -119,7 +119,7 @@ class CommandSilence : public Command
 		, ext("silence_list", ExtensionItem::EXT_USER, Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
+		syntax = "[(+|-)<mask> [p|c|i|n|t|a|x]]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

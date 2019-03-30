@@ -27,7 +27,7 @@ class CommandSakick : public Command
  public:
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
-		flags_needed = 'o'; syntax = "<channel> <nick> [reason]";
+		flags_needed = 'o'; syntax = "<channel> <nick> [:<reason>]";
 		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}
 
@@ -42,7 +42,7 @@ class CommandSakick : public Command
 
 			if (dest->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CMD_FAILURE;
 			}
 

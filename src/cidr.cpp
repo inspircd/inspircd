@@ -73,7 +73,11 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 	}
 
 	irc::sockets::sockaddrs addr;
-	irc::sockets::aptosa(address_copy, 0, addr);
+	if (!irc::sockets::aptosa(address_copy, 0, addr))
+	{
+		// The address could not be parsed.
+		return false;
+	}
 
 	irc::sockets::cidr_mask mask(cidr_copy);
 	irc::sockets::cidr_mask mask2(addr, mask.length);

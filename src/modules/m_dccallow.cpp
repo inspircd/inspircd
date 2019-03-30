@@ -54,7 +54,7 @@ static const char* const helptext[] =
 	"Brain would then be able to send you files. They would have to",
 	"resend the file again if the server gave them an error message",
 	"before you added them to your DCCALLOW list.",
-	"DCCALLOW entries will be temporary by default, if you want to add",
+	"DCCALLOW entries will be temporary. If you want to add",
 	"them to your DCCALLOW list until you leave IRC, type:",
 	"/DCCALLOW +Brain 0",
 	"To remove the user from your DCCALLOW list, type:",
@@ -63,7 +63,7 @@ static const char* const helptext[] =
 	"/DCCALLOW LIST",
 	"NOTE: If the user leaves IRC or changes their nickname",
 	"  they will be removed from your DCCALLOW list.",
-	"  your DCCALLOW list will be deleted when you leave IRC."
+	"  Your DCCALLOW list will be deleted when you leave IRC."
 };
 
 class BannedFileList
@@ -117,7 +117,7 @@ class CommandDccallow : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
+		/* syntax: DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP] */
 		if (!parameters.size())
 		{
 			// display current DCCALLOW list
@@ -235,7 +235,7 @@ class CommandDccallow : public Command
 
 					if (length > 0)
 					{
-						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %ld seconds", target->nick.c_str(), length));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %s", target->nick.c_str(), InspIRCd::DurationString(length).c_str()));
 					}
 					else
 					{

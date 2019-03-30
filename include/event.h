@@ -39,7 +39,7 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
 		bool operator()(ModuleEventListener* one, ModuleEventListener* two) const;
 	};
 
-	typedef insp::flat_multiset<ModuleEventListener*, Comp> SubscriberList;
+	typedef insp::flat_multiset<ModuleEventListener*, Comp, std::less<ModuleEventListener*> > SubscriberList;
 
 	/** Constructor
 	 * @param mod Module providing the event(s)

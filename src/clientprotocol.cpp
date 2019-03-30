@@ -63,7 +63,7 @@ const ClientProtocol::SerializedMessage& ClientProtocol::Serializer::SerializeFo
 	if (!msg.msginit_done)
 	{
 		msg.msginit_done = true;
-		FOREACH_MOD_CUSTOM(evprov, MessageTagProvider, OnClientProtocolPopulateTags, (msg));
+		FOREACH_MOD_CUSTOM(evprov, MessageTagProvider, OnPopulateTags, (msg));
 	}
 	return msg.GetSerialized(Message::SerializedInfo(this, MakeTagWhitelist(user, msg.GetTags())));
 }

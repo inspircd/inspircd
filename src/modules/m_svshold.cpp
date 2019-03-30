@@ -58,8 +58,8 @@ public:
 	{
 		if (!silent)
 		{
-			ServerInstance->SNO.WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago): %s",
-				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time), reason.c_str());
+			ServerInstance->SNO.WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %s ago): %s",
+				nickname.c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
 		}
 	}
 
@@ -96,7 +96,7 @@ class CommandSvshold : public Command
  public:
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
-		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
+		flags_needed = 'o'; this->syntax = "<nick> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

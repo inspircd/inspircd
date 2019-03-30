@@ -53,7 +53,7 @@ class CommandShun : public Command
  public:
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
-		flags_needed = 'o'; this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
+		flags_needed = 'o'; this->syntax = "<nick!user@host> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -110,15 +110,14 @@ class CommandShun : public Command
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent SHUN for %s: %s",
 						user->nick.c_str(), target.c_str(), expr.c_str());
 				}
 				else
 				{
-					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = InspIRCd::TimeString(c_requires_crap);
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
-						user->nick.c_str(), target.c_str(), timestr.c_str(), expr.c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SHUN for %s to expire in %s (on %s): %s",
+						user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
+						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), expr.c_str());
 				}
 			}
 			else

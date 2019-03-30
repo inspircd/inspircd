@@ -509,6 +509,12 @@ class CoreExport InspIRCd
 	 */
 	static bool IsValidDuration(const std::string& str);
 
+	/** Return a duration in seconds as a human-readable string.
+	 * @param duration The duration in seconds to convert to a human-readable string.
+	 * @return A string representing the given duration.
+	 */
+	static std::string DurationString(time_t duration);
+
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
 	 * against possible hashed equivalents in the input string.

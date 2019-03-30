@@ -165,7 +165,7 @@ class CommandRemove : public RemoveBase
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
-		syntax = "<channel> <nick> [<reason>]";
+		syntax = "<channel> <nick> [:<reason>]";
 		translation = { TR_NICK, TR_TEXT, TR_TEXT };
 	}
 
@@ -183,7 +183,7 @@ class CommandFpart : public RemoveBase
 	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "FPART")
 	{
-		syntax = "<channel> <nick> [<reason>]";
+		syntax = "<channel> <nick> [:<reason>]";
 		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}
 

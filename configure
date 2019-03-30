@@ -268,7 +268,7 @@ not been tested as heavily and may contain various faults which could seriously
 affect the running of your server. It is recommended that you use a stable
 version instead.
 
-You can obtain the latest stable version from http://www.inspircd.org/ or by
+You can obtain the latest stable version from https://www.inspircd.org or by
 running `<|GREEN git checkout $(git describe --abbrev=0 --tags insp3)|>` if you are
 installing from Git.
 EOW

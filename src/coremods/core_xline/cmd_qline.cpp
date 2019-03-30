@@ -27,7 +27,7 @@ CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<nick> [<duration> :<reason>]";
+	syntax = "<nickmask> [<duration> :<reason>]";
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)
@@ -55,14 +55,13 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x',"%s added permanent Q-line for %s: %s",user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent Q-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 			}
 			else
 			{
-				time_t c_requires_crap = duration + ServerInstance->Time();
-				std::string timestr = InspIRCd::TimeString(c_requires_crap);
-				ServerInstance->SNO.WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s: %s",user->nick.c_str(),parameters[0].c_str(),
-						timestr.c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added timed Q-line for %s, expires in %s (on %s): %s",
+					user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
+					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

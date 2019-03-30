@@ -1,6 +1,6 @@
 Here you can find locales configuration files.
 
-(!) The idea and several locale files are derived from Bynets UnrealIRCd distribution (See http://www.bynets.org/)
+(!) The idea and several locale files are derived from Bynets UnrealIRCd distribution (See https://bynets.org)
 
 *** File structure ***
 

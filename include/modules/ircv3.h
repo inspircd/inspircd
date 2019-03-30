@@ -75,7 +75,7 @@ class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 		return cap.get(user);
 	}
 
-	void OnClientProtocolPopulateTags(ClientProtocol::Message& msg) override
+	void OnPopulateTags(ClientProtocol::Message& msg) override
 	{
 		T& tag = static_cast<T&>(*this);
 		const std::string* const val = tag.GetValue(msg);

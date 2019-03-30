@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/cap.h"
 #include "modules/whois.h"
 
 enum
@@ -28,13 +29,44 @@ enum
 	RPL_WHOISBOT = 335
 };
 
+class BotTag : public ClientProtocol::MessageTagProvider
+{
+ private:
+	SimpleUserModeHandler& botmode;
+	Cap::Reference ctctagcap;
+
+ public:
+	BotTag(Module* mod, SimpleUserModeHandler& bm)
+		: ClientProtocol::MessageTagProvider(mod)
+		, botmode(bm)
+		, ctctagcap(mod, "message-tags")
+	{
+	}
+
+	void OnPopulateTags(ClientProtocol::Message& msg) override
+	{
+		User* const user = msg.GetSourceUser();
+		if (user && user->IsModeSet(botmode))
+			msg.AddTag("inspircd.org/bot", this, "");
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
+	{
+		return ctctagcap.get(user);
+	}
+};
+
 class ModuleBotMode : public Module, public Whois::EventListener
 {
+ private:
 	SimpleUserModeHandler bm;
+	BotTag tag;
+
  public:
 	ModuleBotMode()
 		: Whois::EventListener(this)
 		, bm(this, "bot", 'B')
+		, tag(this, bm)
 	{
 	}
 

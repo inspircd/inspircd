@@ -25,7 +25,7 @@ CommandPart::CommandPart(Module* parent)
 	: Command(parent, "PART", 1, 2)
 {
 	Penalty = 5;
-	syntax = "<channel>{,<channel>} [<reason>]";
+	syntax = "<channel>[,<channel>]+ [:<reason>]";
 }
 
 CmdResult CommandPart::Handle(User* user, const Params& parameters)

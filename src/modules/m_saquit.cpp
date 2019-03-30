@@ -28,7 +28,8 @@ class CommandSaquit : public Command
  public:
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
-		flags_needed = 'o'; syntax = "<nick> <reason>";
+		flags_needed = 'o';
+		syntax = "<nick> :<reason>";
 		translation = { TR_NICK, TR_TEXT };
 	}
 
@@ -39,7 +40,7 @@ class CommandSaquit : public Command
 		{
 			if (dest->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CMD_FAILURE;
 			}
 

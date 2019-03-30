@@ -29,7 +29,8 @@ class CommandSanick : public Command
 	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; syntax = "<nick> <new-nick>";
+		flags_needed = 'o';
+		syntax = "<nick> <newnick>";
 		translation = { TR_NICK, TR_TEXT };
 	}
 
@@ -42,7 +43,7 @@ class CommandSanick : public Command
 		{
 			if (target && target->server->IsULine())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a u-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CMD_FAILURE;
 			}
 

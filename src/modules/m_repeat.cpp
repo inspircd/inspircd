@@ -141,14 +141,14 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (!ParseSettings(source, parameter, settings))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-				"Invalid repeat syntax. Syntax is {[~*]}[lines]:[time]{:[difference]}{:[backlog]}."));
+				"Invalid repeat syntax. Syntax is: [~|*]<lines>:<sec>[:<difference>][:<backlog>]"));
 			return MODEACTION_DENY;
 		}
 
 		if ((settings.Backlog > 0) && (settings.Lines > settings.Backlog))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-				"Invalid repeat syntax. You can't set needed lines higher than backlog."));
+				"Invalid repeat syntax. You can't set lines higher than backlog."));
 			return MODEACTION_DENY;
 		}
 
@@ -319,7 +319,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"Invalid repeat parameter. The seconds you specified is too great. Maximum allowed is %u.", ms.MaxSecs)));
+				"Invalid repeat parameter. The seconds you specified are too great. Maximum allowed is %u.", ms.MaxSecs)));
 			return false;
 		}
 

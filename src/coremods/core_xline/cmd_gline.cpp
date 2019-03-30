@@ -26,7 +26,7 @@ CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<ident@host> [<duration> :<reason>]";
+	syntax = "<user@host> [<duration> :<reason>]";
 }
 
 /** Handle /GLINE
@@ -75,14 +75,13 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x',"%s added permanent G-line for %s: %s",user->nick.c_str(),target.c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent G-line for %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
 			}
 			else
 			{
-				time_t c_requires_crap = duration + ServerInstance->Time();
-				std::string timestr = InspIRCd::TimeString(c_requires_crap);
-				ServerInstance->SNO.WriteToSnoMask('x',"%s added timed G-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
-						timestr.c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added timed G-line for %s, expires in %s (on %s): %s",
+					user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
+					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}
 
 			ServerInstance->XLines->ApplyLines();

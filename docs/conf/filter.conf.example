@@ -16,8 +16,8 @@
 # block         This blocks the line, sends out a notice to all opers with
 #               +s and informs the user that their message was blocked.
 #
-# silent        This blocks the line only, and informs the user their message
-#               was blocked, but does not notify opers.
+# silent        This blocks the line only, and informs the user that their
+#               message was blocked, but does not notify opers.
 #
 # none          This action causes nothing to be done except logging. This
 #               is the default action if none is specified.
@@ -26,17 +26,17 @@
 #               the kill reason.
 #
 # gline         G-line the user for 'duration' length of time. Durations may
-#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               be specified using the notation 1y2w3d4h5m6s in a similar way to
 #               other G-lines, omitting the duration or setting it to 0 makes
 #               any G-lines set by this filter be permanent.
 #
 # zline         Z-line the user for 'duration' length of time. Durations may
-#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               be specified using the notation 1y2w3d4h5m6s in a similar way to
 #               other Z-lines, omitting the duration or setting it to 0 makes
 #               any Z-lines set by this filter be permanent.
 #
 # shun          Shun the user for 'duration' length of time. Durations may
-#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               be specified using the notation 1y2w3d4h5m6s in a similar way to
 #               other X-lines, omitting the duration or setting it to 0 makes
 #               any shuns set by this filter be permanent.
 #               Requires the shun module to be loaded.
@@ -59,11 +59,11 @@
 #
 # <keyword pattern="*qwerty*" reason="You qwertied!" action="block" flags="pn">
 # <keyword pattern="*killmenow*" reason="As you request." action="kill" flags="*">
-# <keyword pattern="*blah*" reason="Dont blah!" action="gline" duration="1d6h" flags="-">
+# <keyword pattern="*blah*" reason="Don't blah!" action="gline" duration="1d6h" flags="-">
 
 # An example regexp filter:
 #
-# <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h" flags="pnPq">
+# <keyword pattern="^blah.*?$" reason="Don't blah!" action="gline" duration="1d6h" flags="pnPq">
 
 # You may specify specific channels that are exempt from being filtered:
 #<exemptfromfilter target="#opers">

@@ -193,9 +193,9 @@ public:
 			std::string channel = tag->getString("channel");
 			std::string modes = tag->getString("modes");
 
-			if ((channel.empty()) || (channel.length() > ServerInstance->Config->Limits.ChanMax))
+			if (!ServerInstance->IsChannel(channel))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with empty or too long channel name (\"" + channel + "\")");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with invalid channel name (\"" + channel + "\")");
 				continue;
 			}
 
