@@ -43,7 +43,7 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	{
 	}
 
-	void OnClientProtocolPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
+	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
 	{
 		User* const user = msg.GetSourceUser();
 		if (user && user->IsModeSet(botmode))

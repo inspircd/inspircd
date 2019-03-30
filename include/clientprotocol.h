@@ -537,7 +537,7 @@ class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
 	 * The default implementation does nothing.
 	 * @param msg Message to be populated with tags.
 	 */
-	virtual void OnClientProtocolPopulateTags(ClientProtocol::Message& msg)
+	virtual void OnPopulateTags(ClientProtocol::Message& msg)
 	{
 	}
 
