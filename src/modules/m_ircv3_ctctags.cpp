@@ -1,0 +1,347 @@
+/*
+ * InspIRCd -- Internet Relay Chat Daemon
+ *
+ *   Copyright (C) 2019 Peter Powell <petpow@saberuk.com>
+ *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
+ *
+ * This file is part of InspIRCd.  InspIRCd is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, version 2.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "inspircd.h"
+#include "modules/cap.h"
+#include "modules/ctctags.h"
+
+class CommandTagMsg : public Command
+{
+ private:
+	Cap::Capability& cap;
+	ChanModeReference moderatedmode;
+	ChanModeReference noextmsgmode;
+	Events::ModuleEventProvider tagevprov;
+	ClientProtocol::EventProvider msgevprov;
+
+	bool FirePreEvents(User* source, MessageTarget& msgtarget, CTCTags::TagMessageDetails& msgdetails)
+	{
+		// Inform modules that a TAGMSG wants to be sent.
+		ModResult modres;
+		FIRST_MOD_RESULT_CUSTOM(tagevprov, CTCTags::EventListener, OnUserPreTagMessage, modres, (source, msgtarget, msgdetails));
+		if (modres == MOD_RES_DENY)
+		{
+			// Inform modules that a module blocked the TAGMSG.
+			FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessageBlocked, (source, msgtarget, msgdetails));
+			return false;
+		}
+
+		// Inform modules that a TAGMSG is about to be sent.
+		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessage, (source, msgtarget, msgdetails));
+		return true;
+	}
+
+	CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const CTCTags::TagMessageDetails& msgdetails)
+	{
+		// If the source is local then update its idle time.
+		LocalUser* lsource = IS_LOCAL(source);
+		if (lsource)
+			lsource->idle_lastmsg = ServerInstance->Time();
+
+		// Inform modules that a TAGMSG was sent.
+		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserPostTagMessage, (source, msgtarget, msgdetails));
+		return CMD_SUCCESS;
+	}
+
+	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
+	{
+		Channel* chan = ServerInstance->FindChan(target);
+		if (!chan)
+		{
+			// The target channel does not exist.
+			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+			return CMD_FAILURE;
+		}
+
+		if (IS_LOCAL(source))
+		{
+			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(source))
+			{
+				// The noextmsg mode is set and the source is not in the channel.
+				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
+				return CMD_FAILURE;
+			}
+
+			bool no_chan_priv = chan->GetPrefixValue(source) < VOICE_VALUE;
+			if (no_chan_priv && chan->IsModeSet(moderatedmode))
+			{
+				// The moderated mode is set and the source has no status rank.
+				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m)");
+				return CMD_FAILURE;
+			}
+
+			if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(source))
+			{
+				// The source is banned in the channel and restrictbannedusers is enabled.
+				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+				return CMD_FAILURE;
+			}
+		}
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(chan, pm ? pm->GetPrefix() : 0);
+		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
+		CTCTags::TagMessage message(source, chan, parameters.GetTags());
+		const Channel::MemberMap& userlist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)
+		{
+			LocalUser* luser = IS_LOCAL(iter->first);
+
+			// Don't send to remote users or the user who is the source. 
+			if (!luser || luser == source)
+				continue;
+
+			// Don't send to unprivileged or exempt users.
+			if (iter->second->getRank() < minrank || msgdetails.exemptions.count(luser))
+				continue;
+
+			// Send to users if they have the capability.
+			if (cap.get(luser))
+				luser->Send(msgevprov, message);
+		}
+		return FirePostEvent(source, msgtarget, msgdetails);
+	}
+
+	CmdResult HandleServerTarget(User* source, const Params& parameters)
+	{
+		// If the source isn't allowed to mass message users then reject
+		// the attempt to mass-message users.
+		if (!source->HasPrivPermission("users/mass-message"))
+			return CMD_FAILURE;
+
+		// Extract the server glob match from the target parameter.
+		std::string servername(parameters[0], 1);
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(&servername);
+		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		// If the current server name matches the server name glob then send
+		// the message out to the local users.
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
+		{
+			CTCTags::TagMessage message(source, "$*", parameters.GetTags());
+			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+			for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+			{
+				LocalUser* luser = IS_LOCAL(*iter);
+
+				// Don't send to unregistered users or the user who is the source.
+				if (luser->registered != REG_ALL || luser == source)
+					continue;
+
+				// Don't send to exempt users.
+				if (msgdetails.exemptions.count(luser))
+					continue;
+
+				// Send to users if they have the capability.
+				if (cap.get(luser))
+					luser->Send(msgevprov, message);
+			}
+		}
+
+		// Fire the post-message event.
+		return FirePostEvent(source, msgtarget, msgdetails);
+	}
+
+	CmdResult HandleUserTarget(User* source, const Params& parameters)
+	{
+		User* target;
+		if (IS_LOCAL(source))
+		{
+			// Local sources can specify either a nick or a nick@server mask as the target.
+			const char* targetserver = strchr(parameters[0].c_str(), '@');
+			if (targetserver)
+			{
+				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
+				target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+					target = NULL;
+			}
+			else
+			{
+				// If the source is a local user then we only look up the target by nick.
+				target = ServerInstance->FindNickOnly(parameters[0]);
+			}
+		}
+		else
+		{
+			// Remote users can only specify a nick or UUID as the target.
+			target = ServerInstance->FindNick(parameters[0]);
+		}
+
+		if (!target || target->registered != REG_ALL)
+		{
+			// The target user does not exist or is not fully registered.
+			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			return CMD_FAILURE;
+		}
+
+		// Fire the pre-message events.
+		MessageTarget msgtarget(target);
+		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
+		if (!FirePreEvents(source, msgtarget, msgdetails))
+			return CMD_FAILURE;
+
+		LocalUser* const localtarget = IS_LOCAL(target);
+		if (localtarget && cap.get(localtarget))
+		{
+			// Send to the target if they have the capability and are a local user.
+			CTCTags::TagMessage message(source, localtarget, parameters.GetTags());
+			localtarget->Send(msgevprov, message);
+		}
+
+		// Fire the post-message event.
+		return FirePostEvent(source, msgtarget, msgdetails);
+	}
+
+ public:
+	CommandTagMsg(Module* Creator, Cap::Capability& Cap)
+		: Command(Creator, "TAGMSG", 1)
+		, cap(Cap)
+		, moderatedmode(Creator, "moderated")
+		, noextmsgmode(Creator, "noextmsg")
+		, tagevprov(Creator, "event/tagmsg")
+		, msgevprov(Creator, "TAGMSG")
+	{
+		allow_empty_last_param = false;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		if (CommandParser::LoopCall(user, this, parameters, 0))
+			return CMD_SUCCESS;
+
+		// Check that the source has the message tags capability.
+		if (IS_LOCAL(user) && !cap.get(user))
+			return CMD_FAILURE;
+
+		// The target is a server glob.
+		if (parameters[0][0] == '$')
+			return HandleServerTarget(user, parameters);
+
+		// If the message begins with a status character then look it up.
+		const char* target = parameters[0].c_str();
+		PrefixMode* pmh = ServerInstance->Modes.FindPrefix(target[0]);
+		if (pmh)
+			target++;
+
+		// The target is a channel name.
+		if (*target == '#')
+			return HandleChannelTarget(user, parameters, target, pmh);
+
+		// The target is a nickname.
+		return HandleUserTarget(user, parameters);
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_MESSAGE(parameters[0]);
+	}
+};
+
+class C2CTags : public ClientProtocol::MessageTagProvider
+{
+ private:
+	Cap::Capability& cap;
+
+ public:
+	C2CTags(Module* Creator, Cap::Capability& Cap)
+		: ClientProtocol::MessageTagProvider(Creator)
+		, cap(Cap)
+	{
+	}
+
+	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override
+	{
+		// A client-only tag is prefixed with a plus sign (+) and otherwise conforms
+		// to the format specified in IRCv3.2 tags.
+		if (tagname[0] != '+' || tagname.length() < 2)
+			return MOD_RES_PASSTHRU;
+
+		// If the user is local then we check whether they have the message-tags cap
+		// enabled. If not then we reject all client-only tags originating from them.
+		LocalUser* lu = IS_LOCAL(user);
+		if (lu && !cap.get(lu))
+			return MOD_RES_DENY;
+
+		// Remote users have their client-only tags checked by their local server.
+		return MOD_RES_ALLOW;
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
+	{
+		return cap.get(user);
+	}
+};
+
+class ModuleIRCv3CTCTags
+	: public Module
+	, public CTCTags::EventListener
+{
+ private:
+	Cap::Capability cap;
+	CommandTagMsg cmd;
+	C2CTags c2ctags;
+
+	ModResult CopyClientTags(const ClientProtocol::TagMap& tags_in, ClientProtocol::TagMap& tags_out)
+	{
+		for (ClientProtocol::TagMap::const_iterator i = tags_in.begin(); i != tags_in.end(); ++i)
+		{
+			const ClientProtocol::MessageTagData& tagdata = i->second;
+			if (tagdata.tagprov == &c2ctags)
+				tags_out.insert(*i);
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+ public:
+	ModuleIRCv3CTCTags()
+		: CTCTags::EventListener(this)
+		, cap(this, "message-tags")
+		, cmd(this, cap)
+		, c2ctags(this, cap)
+	{
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return CopyClientTags(details.tags_in, details.tags_out);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return CopyClientTags(details.tags_in, details.tags_out);
+	}
+
+	Version GetVersion() override
+	{
+		return Version("Provides the DRAFT message-tags IRCv3 extension", VF_VENDOR | VF_COMMON);
+	}
+};
+
+MODULE_INIT(ModuleIRCv3CTCTags)

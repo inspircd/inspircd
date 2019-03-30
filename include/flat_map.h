@@ -200,10 +200,10 @@ class flat_map_base
 
 } // namespace detail
 
-template <typename T, typename Comp = std::less<T> >
-class flat_set : public detail::flat_map_base<T, Comp>
+template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
+class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp> base_t;
+	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_t;
 
  public:
 	typedef typename base_t::iterator iterator;
@@ -240,10 +240,10 @@ class flat_set : public detail::flat_map_base<T, Comp>
 	}
 };
 
-template <typename T, typename Comp = std::less<T> >
-class flat_multiset : public detail::flat_map_base<T, Comp>
+template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
+class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp> base_t;
+	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_t;
 
  public:
 	typedef typename base_t::iterator iterator;
@@ -280,10 +280,10 @@ class flat_multiset : public detail::flat_map_base<T, Comp>
 	}
 };
 
-template <typename T, typename U, typename Comp = std::less<T> >
-class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, Comp> >
+template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
+class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, Comp> > base_t;
+	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_t;
 
  public:
 	typedef typename base_t::iterator iterator;
@@ -333,10 +333,10 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 	}
 };
 
-template <typename T, typename U, typename Comp = std::less<T> >
-class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, Comp> >
+template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
+class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, Comp> > base_t;
+	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_t;
 
  public:
 	typedef typename base_t::iterator iterator;

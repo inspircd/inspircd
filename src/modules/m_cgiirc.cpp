@@ -132,7 +132,7 @@ class CommandWebIRC : public SplitCommand
 	{
 		allow_empty_last_param = false;
 		works_before_reg = true;
-		this->syntax = "<password> <gateway> <hostname> <ip> [flags]";
+		this->syntax = "<password> <gateway> <hostname> <ip> [<flags>]";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

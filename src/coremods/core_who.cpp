@@ -34,8 +34,36 @@ enum
 	RPL_WHOSPCRPL = 354
 };
 
+static const char whox_field_order[] = "tcuihsnfdlaor";
+static const char who_field_order[] = "cuhsnf";
+
 struct WhoData : public Who::Request
 {
+	bool GetFieldIndex(char flag, size_t& out) const override
+	{
+		if (!whox)
+		{
+			const char* pos = strchr(who_field_order, flag);
+			if (pos == NULL)
+				return false;
+
+			out = pos - who_field_order;
+			return true;
+		}
+
+		if (!whox_fields[flag])
+			return false;
+
+		out = 0;
+		for (const char* c = whox_field_order; *c && *c != flag; ++c)
+		{
+			if (whox_fields[*c])
+				++out;
+		}
+
+		return whox_field_order[out];
+	}
+
 	WhoData(const CommandBase::Params& parameters)
 	{
 		// Find the matchtext and swap the 0 for a * so we can use InspIRCd::Match on it.
@@ -143,7 +171,7 @@ class CommandWho : public SplitCommand
 		, whoevprov(parent, "event/who")
 	{
 		allow_empty_last_param = false;
-		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nickname>|<channel>|<realname>|<host>|0]";
+		syntax = "<server>|<nick>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nick>|<channel>|<realname>|<host>|0]";
 	}
 
 	/** Sends a WHO reply to a user. */

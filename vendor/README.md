@@ -10,7 +10,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Public Domain
 
-**Website** &mdash; [http://openwall.com/crypt/](http://openwall.com/crypt/)
+**Website** &mdash; [https://www.openwall.com/crypt/](https://www.openwall.com/crypt/)
 
 ## http_parser
 
@@ -20,7 +20,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Website** &mdash; (https://github.com/nodejs/http-parser)[https://github.com/nodejs/http-parser]
+**Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
 ## sha256
 

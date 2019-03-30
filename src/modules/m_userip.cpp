@@ -28,7 +28,7 @@ class CommandUserip : public Command
  public:
 	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
-		syntax = "<nick> [<nick> ...]";
+		syntax = "<nick> [<nick>]+";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

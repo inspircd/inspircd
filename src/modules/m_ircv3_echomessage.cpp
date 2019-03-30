@@ -20,14 +20,21 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/ctctags.h"
 
-class ModuleIRCv3EchoMessage : public Module
+class ModuleIRCv3EchoMessage
+	: public Module
+	, public CTCTags::EventListener
 {
+ private:
 	Cap::Capability cap;
+	ClientProtocol::EventProvider tagmsgprov;
 
  public:
 	ModuleIRCv3EchoMessage()
-		: cap(this, "echo-message")
+		: CTCTags::EventListener(this)
+		, cap(this, "echo-message")
+		, tagmsgprov(this, "TAGMSG")
 	{
 	}
 
@@ -64,11 +71,47 @@ class ModuleIRCv3EchoMessage : public Module
 		}
 	}
 
+	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override
+	{
+		if (!cap.get(user) || !details.echo)
+			return;
+
+		// Caps are only set on local users
+		LocalUser* const localuser = static_cast<LocalUser*>(user);
+
+		const ClientProtocol::TagMap& tags = details.echo_original ? details.tags_in : details.tags_out;
+		if (target.type == MessageTarget::TYPE_USER)
+		{
+			User* destuser = target.Get<User>();
+			CTCTags::TagMessage message(user, destuser, tags);
+			localuser->Send(tagmsgprov, message);
+		}
+		else if (target.type == MessageTarget::TYPE_CHANNEL)
+		{
+			Channel* chan = target.Get<Channel>();
+			CTCTags::TagMessage message(user, chan, tags);
+			localuser->Send(tagmsgprov, message);
+		}
+		else
+		{
+			const std::string* servername = target.Get<std::string>();
+			CTCTags::TagMessage message(user, servername->c_str(), tags);
+			localuser->Send(tagmsgprov, message);
+		}
+	}
+
 	void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		// Prevent spammers from knowing that their spam was blocked.
 		if (details.echo_original)
 			OnUserPostMessage(user, target, details);
+	}
+
+	void OnUserTagMessageBlocked(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override
+	{
+		// Prevent spammers from knowing that their spam was blocked.
+		if (details.echo_original)
+			OnUserPostTagMessage(user, target, details);
 	}
 
 	Version GetVersion() override

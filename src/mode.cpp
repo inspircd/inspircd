@@ -312,18 +312,18 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		}
 	}
 
-	if ((adding) && (IS_LOCAL(user)) && (mh->NeedsOper()) && (!user->HasModePermission(mh)))
+	if ((chan || (!chan && adding)) && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(mh))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to set %s mode %c",
-					user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to %sset %s mode %c",
+					user->oper->name.c_str(), adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may set %s mode %c",
-					type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset %s mode %c",
+					adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		return MODEACTION_DENY;
 	}
@@ -592,13 +592,13 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
-			throw ModuleException(InspIRCd::Format("Mode prefix for %s already by used by %s from %s: %c",
+			throw ModuleException(InspIRCd::Format("Mode prefix for %s already used by %s from %s: %c",
 				mh->name.c_str(), otherpm->name.c_str(), otherpm->creator->ModuleSourceFile.c_str(), pm->GetPrefix()));
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
 	if (slot)
-		throw ModuleException(InspIRCd::Format("Mode letter for %s already by used by %s from %s: %c",
+		throw ModuleException(InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
 			mh->name.c_str(), slot->name.c_str(), slot->creator->ModuleSourceFile.c_str(), mh->GetModeChar()));
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.

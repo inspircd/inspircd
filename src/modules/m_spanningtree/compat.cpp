@@ -42,7 +42,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			if (line[0] == '@')
 			{
 				// The line contains tags which the 1202 protocol can't handle.
-				line.erase(0, a);
+				line.erase(0, a + 1);
 				a = line.find(' ');
 			}
 			std::string::size_type b = line.find(' ', a + 1);
@@ -308,6 +308,11 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					std::string push = InspIRCd::Format(":%.*s PUSH %s ::%s %.*s %s", 3, line.c_str()+1, target->uuid.c_str(), numericsource->GetName().c_str(), 3, line.c_str()+23, target->nick.c_str());
 					push.append(line, 26, std::string::npos);
 					push.swap(line);
+				}
+				else if (command == "TAGMSG")
+				{
+					// Drop IRCv3 tag messages as v2 has no message tag support.
+					return;
 				}
 			}
 			WriteLineNoCompat(line);

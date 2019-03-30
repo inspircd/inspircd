@@ -515,8 +515,9 @@ class CoreExport XLineManager
 	/** Expire a line given two iterators which identify it in the main map.
 	 * @param container Iterator to the first level of entries the map
 	 * @param item Iterator to the second level of entries in the map
+	 * @param silent If true, doesn't send an expiry SNOTICE.
 	 */
-	void ExpireLine(ContainerIter container, LookupIter item);
+	void ExpireLine(ContainerIter container, LookupIter item, bool silent = false);
 
 	/** Apply any new lines that are pending to be applied.
 	 * This will only apply lines in the pending_lines list, to save on
@@ -533,6 +534,6 @@ class CoreExport XLineManager
 	 */
 	void InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats);
 
-	/** Clears any XLines which were added by the server configuration. */
-	void ClearConfigLines();
+	/** Expire X-lines which were added by the server configuration and have been removed. */
+	void ExpireRemovedConfigLines(const std::string& type, const insp::flat_set<std::string>& configlines);
 };

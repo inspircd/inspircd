@@ -146,7 +146,7 @@ class CommandCheck : public Command
 		: Command(parent,"CHECK", 1)
 		, snomaskmode(parent, "snomask")
 	{
-		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
+		flags_needed = 'o'; syntax = "<nick>|<ipmask>|<hostmask>|<channel> [<servername>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

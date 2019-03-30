@@ -30,7 +30,7 @@ class CommandSetident : public Command
  CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; syntax = "<new-ident>";
+		flags_needed = 'o'; syntax = "<ident>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

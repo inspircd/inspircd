@@ -40,7 +40,7 @@ class CommandConnect : public Command
 		: Command(parent, "CONNECT", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<servername>";
+		syntax = "<servermask>";
 	}
 
 	/** Handle command.
@@ -126,7 +126,7 @@ class CommandSquit : public Command
 		: Command(parent, "SQUIT", 1, 2)
 	{
 		flags_needed = 'o';
-		syntax = "<servername>";
+		syntax = "<servermask>";
 	}
 
 	/** Handle command.
