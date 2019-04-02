@@ -4,27 +4,27 @@
 <module name="alias">
 
 # Long hand aliases for services pseudoclients.
-<alias text="BOTSERV"  replace="PRIVMSG $requirement :$2-" requires="BotServ"  uline="yes">
-<alias text="CHANSERV" replace="PRIVMSG $requirement :$2-" requires="ChanServ" uline="yes">
-<alias text="HOSTSERV" replace="PRIVMSG $requirement :$2-" requires="HostServ" uline="yes">
-<alias text="MEMOSERV" replace="PRIVMSG $requirement :$2-" requires="MemoServ" uline="yes">
-<alias text="NICKSERV" replace="PRIVMSG $requirement :$2-" requires="NickServ" uline="yes">
-<alias text="OPERSERV" replace="PRIVMSG $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
-<alias text="STATSERV" replace="PRIVMSG $requirement :$2-" requires="StatServ" uline="yes">
+<alias text="BOTSERV"  replace="SQUERY $requirement :$2-" requires="BotServ"  uline="yes">
+<alias text="CHANSERV" replace="SQUERY $requirement :$2-" requires="ChanServ" uline="yes">
+<alias text="HOSTSERV" replace="SQUERY $requirement :$2-" requires="HostServ" uline="yes">
+<alias text="MEMOSERV" replace="SQUERY $requirement :$2-" requires="MemoServ" uline="yes">
+<alias text="NICKSERV" replace="SQUERY $requirement :$2-" requires="NickServ" uline="yes">
+<alias text="OPERSERV" replace="SQUERY $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
+<alias text="STATSERV" replace="SQUERY $requirement :$2-" requires="StatServ" uline="yes">
 
 # Short hand aliases for services pseudoclients.
-<alias text="BS" replace="PRIVMSG $requirement :$2-" requires="BotServ"  uline="yes">
-<alias text="CS" replace="PRIVMSG $requirement :$2-" requires="ChanServ" uline="yes">
-<alias text="HS" replace="PRIVMSG $requirement :$2-" requires="HostServ" uline="yes">
-<alias text="MS" replace="PRIVMSG $requirement :$2-" requires="MemoServ" uline="yes">
-<alias text="NS" replace="PRIVMSG $requirement :$2-" requires="NickServ" uline="yes">
-<alias text="OS" replace="PRIVMSG $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
-<alias text="SS" replace="PRIVMSG $requirement :$2-" requires="StatServ" uline="yes">
+<alias text="BS" replace="SQUERY $requirement :$2-" requires="BotServ"  uline="yes">
+<alias text="CS" replace="SQUERY $requirement :$2-" requires="ChanServ" uline="yes">
+<alias text="HS" replace="SQUERY $requirement :$2-" requires="HostServ" uline="yes">
+<alias text="MS" replace="SQUERY $requirement :$2-" requires="MemoServ" uline="yes">
+<alias text="NS" replace="SQUERY $requirement :$2-" requires="NickServ" uline="yes">
+<alias text="OS" replace="SQUERY $requirement :$2-" requires="OperServ" uline="yes" operonly="yes">
+<alias text="SS" replace="SQUERY $requirement :$2-" requires="StatServ" uline="yes">
 
 # /ID [account] <password>
 # Identifies to a services account.
-<alias text="ID"       format="*" replace="PRIVMSG $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
-<alias text="IDENTIFY" format="*" replace="PRIVMSG $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+<alias text="ID"       format="*" replace="SQUERY $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+<alias text="IDENTIFY" format="*" replace="SQUERY $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
 
 # Prevent clients from using the nicknames of services pseudoclients.
 <badnick nick="BotServ"  reason="Reserved for a network service">
