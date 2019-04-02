@@ -36,6 +36,7 @@
      #   - users/callerid-override: allows opers with this priv to message people using callerid without being on their callerid list.
      #   - users/ignore-commonchans: allows opers with this priv to send a message to a +c user without sharing common channels.
      #   - users/ignore-noctcp: allows opers with this priv to send a CTCP to a +T user.
+     #   - users/privdeaf-override: allows opers with this priv to message users with +D set.
      #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
      #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.
      #   - servers/use-disabled-modes: allows opers with this priv to use disabled modes.

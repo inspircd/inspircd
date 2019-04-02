@@ -853,6 +853,8 @@ using their cloak when they quit.">
  z            Only allow private messages from SSL users (requires the
               sslmode module).
  B            Marks as a bot (requires the botmode module).
+ D            Privdeaf mode. User will not receive any private messages
+              or notices from users (requires the deaf module).
  G            Censors messages sent to the user based on filters
               configured for the network (requires the censor module).
  H            Hides an oper's oper status from WHOIS (requires the
