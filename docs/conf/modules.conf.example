@@ -719,9 +719,24 @@
 #<banfile pattern="*.txt" action="allow">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deaf module: Adds support for the usermode +d - deaf to channel
-# messages and channel notices.
+# Deaf module: Adds support for the usermodes +dD:
+# d - deaf to channel messages and notices.
+# D - deaf to user messages and notices.
+# The +D user mode is not enabled by default to enable link compatibility
+# with 2.0 servers.
 #<module name="deaf">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-  DEAF CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#  bypasschars       - Characters that bypass deaf to a regular user.
+#  bypasscharsuline  - Characters that bypass deaf to a U-lined user (services).
+#                      Both of these take a list of characters that must match
+#                      the starting character of a message.
+#                      If 'bypasscharsuline' is empty, then 'bypasschars' will
+#                      match for both regular and U-lined users.
+#  enableprivdeaf    - Whether to enable usermode +D (privdeaf).
+#  privdeafuline     - Whether U-lined users bypass usermode +D (privdeaf).A
+#
+#<deaf bypasschars="" bypasscharsuline="!" enableprivdeaf="no" privdeafuline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Delay join module: Adds the channel mode +D which delays all JOIN
