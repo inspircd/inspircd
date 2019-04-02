@@ -38,7 +38,7 @@ class ModulePrivacyMode : public Module
 		if (target.type == MessageTarget::TYPE_USER)
 		{
 			User* t = target.Get<User>();
-			if (!user->IsOper() && (t->IsModeSet(pm)) && (!user->server->IsULine()) && !user->SharesChannelWith(t))
+			if (!user->HasPrivPermission("users/ignore-commonchans") && (t->IsModeSet(pm)) && (!user->server->IsULine()) && !user->SharesChannelWith(t))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, t->nick, "You are not permitted to send private messages to this user (+c set)");
 				return MOD_RES_DENY;
