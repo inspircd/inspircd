@@ -216,7 +216,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
-	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
+	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit, I_OnUserPostInit,
 	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -722,10 +722,19 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
 
-	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
-	 * connect class, or accepting any commands.
+	/** Called after a user object is initialised and added to the user list.
+	 * When this is called the user has not their I/O hooks checked or had their initial
+	 * connect class assigned and may not yet have a serialiser. You probably want to use
+	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
+	 * @param user The connecting user.
 	 */
 	virtual void OnUserInit(LocalUser* user);
+
+	/** Called after a user object has had their I/O hooks checked, their initial connection
+	 * class assigned, and had a serialiser set.
+	 * @param user The connecting user.
+	 */
+	virtual void OnUserPostInit(LocalUser* user);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting

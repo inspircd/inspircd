@@ -210,8 +210,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		New->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
 	FOREACH_MOD(OnSetUserIP, (New));
-	if (New->quitting)
-		return;
+	if (!New->quitting)
+		FOREACH_MOD(OnUserPostInit, (New));
 }
 
 void UserManager::QuitUser(User* user, const std::string& quitreason, const std::string* operreason)

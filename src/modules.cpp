@@ -102,6 +102,7 @@ void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
 ModResult	Module::OnPreCommand(std::string&, CommandBase::Params&, LocalUser*, bool) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
 void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool) { DetachEvent(I_OnPostCommand); }
 void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
+void		Module::OnUserPostInit(LocalUser*) { DetachEvent(I_OnUserPostInit); }
 ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
