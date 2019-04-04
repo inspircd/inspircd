@@ -1074,7 +1074,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
  r      Allows receipt of local oper commands (requires the operlog module).
  R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
- v      Allows receipt of oper-override notices (requires the override module).
+ v      Allows receipt of oper override notices (requires the override module).
  x      Allows receipt of local X-line notices (G/Z/Q/K/E/R/SHUN/CBan).
  X      Allows receipt of remote X-line notices (G/Z/Q/K/E/R/SHUN/CBan).">
 

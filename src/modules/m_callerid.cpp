@@ -406,7 +406,7 @@ public:
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 
-		if (user->HasPrivPermission("users/callerid-override"))
+		if (user->HasPrivPermission("users/ignore-callerid"))
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);

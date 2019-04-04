@@ -131,7 +131,7 @@ class ModuleDeaf : public Module
 			if (!privdeafuline && user->server->IsULine())
 				return MOD_RES_DENY;
 
-			if (!user->HasPrivPermission("users/privdeaf-override"))
+			if (!user->HasPrivPermission("users/ignore-privdeaf"))
 				return MOD_RES_DENY;
 		}
 
