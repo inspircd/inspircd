@@ -734,7 +734,7 @@
 #                      If 'bypasscharsuline' is empty, then 'bypasschars' will
 #                      match for both regular and U-lined users.
 #  enableprivdeaf    - Whether to enable usermode +D (privdeaf).
-#  privdeafuline     - Whether U-lined users bypass usermode +D (privdeaf).A
+#  privdeafuline     - Whether U-lined users bypass usermode +D (privdeaf).
 #
 #<deaf bypasschars="" bypasscharsuline="!" enableprivdeaf="no" privdeafuline="yes">
 

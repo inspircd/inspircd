@@ -723,7 +723,7 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
 
 	/** Called after a user object is initialised and added to the user list.
-	 * When this is called the user has not their I/O hooks checked or had their initial
+	 * When this is called the user has not had their I/O hooks checked or had their initial
 	 * connect class assigned and may not yet have a serialiser. You probably want to use
 	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
 	 * @param user The connecting user.
