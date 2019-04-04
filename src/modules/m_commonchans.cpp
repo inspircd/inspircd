@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2019 Peter Powell <petpow@saberuk.com>
  *   Copyright (C) 2007 Craig Edwards <craigedwards@brainbox.cc>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -18,34 +19,52 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
-class ModulePrivacyMode : public Module
+class ModuleCommonChans
+	: public CTCTags::EventListener
+	, public Module
 {
-	SimpleUserModeHandler pm;
+ private:
+	SimpleUserModeHandler mode;
+
+	ModResult HandleMessage(User* user, const MessageTarget& target) CXX11_OVERRIDE
+	{
+		if (target.type != MessageTarget::TYPE_USER)
+			return MOD_RES_PASSTHRU;
+
+		User* targuser = target.Get<User>();
+		if (!targuser->IsModeSet(mode) || !user->SharesChannelWith(targuser))
+			return MOD_RES_PASSTHRU;
+
+		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
+			return MOD_RES_PASSTHRU;
+
+		user->WriteNumeric(ERR_CANTSENDTOUSER, targuser->nick, "You are not permitted to send private messages to this user (+c set)");
+		return MOD_RES_DENY;
+	}
+
  public:
-	ModulePrivacyMode()
-		: pm(this, "deaf_commonchan", 'c')
+	ModuleCommonChans()
+		: CTCTags::EventListener(this)
+		, mode(this, "deaf_commonchan", 'c')
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);
+		return Version("Adds user mode +c which requires users to share a common channel with you to private message you", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target.type == MessageTarget::TYPE_USER)
-		{
-			User* t = target.Get<User>();
-			if (!user->HasPrivPermission("users/ignore-commonchans") && (t->IsModeSet(pm)) && (!user->server->IsULine()) && !user->SharesChannelWith(t))
-			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, t->nick, "You are not permitted to send private messages to this user (+c set)");
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 };
 
-MODULE_INIT(ModulePrivacyMode)
+MODULE_INIT(ModuleCommonChans)
