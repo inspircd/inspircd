@@ -28,7 +28,7 @@ class ModuleCommonChans
  private:
 	SimpleUserModeHandler mode;
 
-	ModResult HandleMessage(User* user, const MessageTarget& target) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
