@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/callerid.h"
+#include "modules/ctctags.h"
 #include "modules/exemption.h"
 #include "modules/whois.h"
 
@@ -136,7 +137,10 @@ class AccountExtItemImpl : public AccountExtItem
 	}
 };
 
-class ModuleServicesAccount : public Module, public Whois::EventListener
+class ModuleServicesAccount
+	: public Module
+	, public Whois::EventListener
+	, public CTCTags::EventListener
 {
  private:
 	CallerID::API calleridapi;
@@ -152,6 +156,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
  public:
 	ModuleServicesAccount()
 		: Whois::EventListener(this)
+		, CTCTags::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
 		, m1(this, "reginvite", 'R')
@@ -194,7 +199,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			m5.RemoveMode(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -230,6 +235,16 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) CXX11_OVERRIDE

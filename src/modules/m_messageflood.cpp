@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 #include "modules/exemption.h"
 
 /** Holds flood settings and state for mode +f
@@ -105,20 +106,23 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 	}
 };
 
-class ModuleMsgFlood : public Module
+class ModuleMsgFlood
+	: public Module
+	, public CTCTags::EventListener
 {
+private:
 	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
 
  public:
-
 	ModuleMsgFlood()
-		: exemptionprov(this)
+		: CTCTags::EventListener(this)
+		, exemptionprov(this)
 		, mf(this)
 	{
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -155,6 +159,16 @@ class ModuleMsgFlood : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

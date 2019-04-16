@@ -20,11 +20,14 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
-class ModuleRestrictMsg : public Module
+class ModuleRestrictMsg
+	: public Module
+	, public CTCTags::EventListener 
 {
- public:
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+ private:
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{
@@ -45,6 +48,22 @@ class ModuleRestrictMsg : public Module
 
 		// however, we must allow channel messages...
 		return MOD_RES_PASSTHRU;
+	}
+
+ public:
+	ModuleRestrictMsg()
+		: CTCTags::EventListener(this)
+	{
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

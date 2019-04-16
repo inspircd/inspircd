@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 #include "modules/ssl.h"
 
 enum
@@ -134,7 +135,9 @@ class SSLModeUser : public ModeHandler
 	}
 };
 
-class ModuleSSLModes : public Module
+class ModuleSSLModes
+	: public Module
+	, public CTCTags::EventListener
 {
  private:
 	UserCertificateAPI api;
@@ -143,7 +146,8 @@ class ModuleSSLModes : public Module
 
  public:
 	ModuleSSLModes()
-		: api(this)
+		: CTCTags::EventListener(this)
+		, api(this)
 		, sslm(this, api)
 		, sslquery(this, api)
 	{
@@ -169,7 +173,7 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& msgtarget, MessageDetails& details) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& msgtarget)
 	{
 		if (msgtarget.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
@@ -201,6 +205,16 @@ class ModuleSSLModes : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE

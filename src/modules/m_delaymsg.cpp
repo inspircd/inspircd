@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
 class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 {
@@ -44,18 +45,26 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 	}
 };
 
-class ModuleDelayMsg : public Module
+class ModuleDelayMsg
+	: public Module
+	, public CTCTags::EventListener 
 {
+ private:
 	DelayMsgMode djm;
 	bool allownotice;
+	ModResult HandleMessage(User* user, const MessageTarget& target, bool notice);
+
  public:
-	ModuleDelayMsg() : djm(this)
+	ModuleDelayMsg()
+		: CTCTags::EventListener(this)
+		, djm(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE;
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE;
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 };
 
@@ -95,10 +104,20 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details)
 {
+	return HandleMessage(user, target, details.type == MSG_NOTICE);
+}
+
+ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details)
+{
+	return HandleMessage(user, target, false);
+}
+
+ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target, bool notice)
+{
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	if ((target.type != MessageTarget::TYPE_CHANNEL) || ((!allownotice) && (details.type == MSG_NOTICE)))
+	if ((target.type != MessageTarget::TYPE_CHANNEL) || ((!allownotice) && (notice)))
 		return MOD_RES_PASSTHRU;
 
 	Channel* channel = target.Get<Channel>();

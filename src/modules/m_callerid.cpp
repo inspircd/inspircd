@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/callerid.h"
+#include "modules/ctctags.h"
 
 enum
 {
@@ -345,7 +346,9 @@ class CallerIDAPIImpl : public CallerID::APIBase
 };
 
 
-class ModuleCallerID : public Module
+class ModuleCallerID
+	: public Module
+	, public CTCTags::EventListener
 {
 	CommandAccept cmd;
 	CallerIDAPIImpl api;
@@ -380,7 +383,8 @@ class ModuleCallerID : public Module
 
 public:
 	ModuleCallerID()
-		: cmd(this)
+		: CTCTags::EventListener(this)
+		, cmd(this)
 		, api(this, cmd.extInfo)
 		, myumode(this, "callerid", 'g')
 	{
@@ -397,7 +401,7 @@ public:
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
@@ -425,6 +429,16 @@ public:
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		return HandleMessage(user, target);
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
