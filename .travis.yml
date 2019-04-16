@@ -1,7 +1,7 @@
 compiler:
   - clang
   - gcc
-dist: trusty
+dist: xenial
 language: cpp
 notifications:
   email: false
