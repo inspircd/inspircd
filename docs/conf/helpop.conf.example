@@ -145,36 +145,6 @@ E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.">
 This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
 which caused trouble for some users.">
 
-<helpop key="silence" value="/SILENCE [(+|-)<mask> [p|c|i|n|t|a|x]]
-
-A server-side ignore of the given n!u@h mask. The flags at the end
-are optional, and specify what is to be ignored from this mask.
-
-/SILENCE - Shows a list of silenced masks
-/SILENCE +<mask> [<flags>] - Add a mask
-/SILENCE -<mask> - Remove a mask
-
-Valid SILENCE Flags
--------------------
-
- p        Block private messages
- c        Block channel messages
- i        Block invites
- n        Block private notices
- t        Block channel notices
- a        Block all of the above
- x        Exception
-
-Multiple flags may be specified. For an exception, you must pair x
-with what you want excepted. For example, if you wanted to except
-everything from people with a host matching *.foo.net, you would do
-/SILENCE +*!*@*.foo.net xa
-
-If no flags are specified, it will default to blocking private messages
-and private notices (pn).
-
-/SILENCE without a parameter will list the masks that you have silenced.">
-
 <helpop key="knock" value="/KNOCK <channel> :<reason>
 
 Sends a notice to a channel indicating you wish to join.">
