@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libmaxminddb")
-/// $LinkerFlags: find_linker_flags("libmaxminddb")
+/// $CompilerFlags: find_compiler_flags("libmaxminddb" "")
+/// $LinkerFlags: find_linker_flags("libmaxminddb" "-lmaxminddb")
 
 /// $PackageInfo: require_system("darwin") libmaxminddb pkg-config
 /// $PackageInfo: require_system("debian" "9.0") libmaxminddb-dev pkg-config
