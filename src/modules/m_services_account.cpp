@@ -199,7 +199,7 @@ class ModuleServicesAccount
 			m5.RemoveMode(user);
 	}
 
-	ModResult HandleMessage(User* user, const MessageTarget& target) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;

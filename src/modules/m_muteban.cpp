@@ -45,7 +45,7 @@ class ModuleQuietBan
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original) CXX11_OVERRIDE
+	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)
 	{
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
