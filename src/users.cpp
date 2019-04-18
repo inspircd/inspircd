@@ -195,27 +195,17 @@ bool LocalUser::HasPermission(const std::string &command)
 	return oper->AllowedOperCommands.Contains(command);
 }
 
-bool User::HasPrivPermission(const std::string &privstr, bool noisy)
+bool User::HasPrivPermission(const std::string& privstr)
 {
 	return true;
 }
 
-bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
+bool LocalUser::HasPrivPermission(const std::string& privstr)
 {
 	if (!this->IsOper())
-	{
-		if (noisy)
-			this->WriteNotice("You are not an oper");
 		return false;
-	}
 
-	if (oper->AllowedPrivs.Contains(privstr))
-		return true;
-
-	if (noisy)
-		this->WriteNotice("Oper type " + oper->name + " does not have access to priv " + privstr);
-
-	return false;
+	return oper->AllowedPrivs.Contains(privstr);
 }
 
 void UserIOHandler::OnDataReady()

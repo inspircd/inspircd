@@ -463,10 +463,9 @@ class CoreExport User : public Extensible
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
 	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
-	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	virtual bool HasPrivPermission(const std::string &privstr, bool noisy = false);
+	virtual bool HasPrivPermission(const std::string& privstr);
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -840,10 +839,9 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
 	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
-	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	bool HasPrivPermission(const std::string &privstr, bool noisy = false) CXX11_OVERRIDE;
+	bool HasPrivPermission(const std::string& privstr) CXX11_OVERRIDE;
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing

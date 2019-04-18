@@ -45,7 +45,7 @@ class CommandSajoin : public Command
 		User* dest = ServerInstance->FindNick(nickname);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (user != dest && !user->HasPrivPermission("users/sajoin-others", false))
+			if (user != dest && !user->HasPrivPermission("users/sajoin-others"))
 			{
 				user->WriteNotice("*** You are not allowed to /SAJOIN other users (the privilege users/sajoin-others is needed to /SAJOIN others).");
 				return CMD_FAILURE;
