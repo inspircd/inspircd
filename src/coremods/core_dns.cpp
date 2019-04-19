@@ -842,7 +842,7 @@ class ModuleDNS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("DNS support", VF_CORE|VF_VENDOR);
+		return Version("Provides support for DNS lookups", VF_CORE|VF_VENDOR);
 	}
 };
 

@@ -166,7 +166,7 @@ class ModuleLusers : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("LUSERS", VF_VENDOR | VF_CORE);
+		return Version("Provides the LUSERS command", VF_VENDOR | VF_CORE);
 	}
 };
 

@@ -179,7 +179,7 @@ class CoreModUser : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the AWAY, MODE, NICK, PART, PASS, PING, PONG, QUIT and USER commands", VF_VENDOR|VF_CORE);
+		return Version("Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands", VF_VENDOR|VF_CORE);
 	}
 };
 
