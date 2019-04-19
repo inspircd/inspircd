@@ -19,26 +19,7 @@
 
 
 #include "inspircd.h"
-
-/** Handle /ISON.
- */
-class CommandIson : public SplitCommand
-{
- public:
-	/** Constructor for ison.
-	 */
-	CommandIson(Module* parent)
-		: SplitCommand(parent, "ISON", 1)
-	{
-		syntax = "<nick> [<nick>]+";
-	}
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
-};
+#include "core_user.h"
 
 class IsonReplyBuilder : public Numeric::Builder<' ', true>
 {
@@ -76,22 +57,3 @@ CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 	reply.Flush();
 	return CMD_SUCCESS;
 }
-
-class CoreModIson : public Module
-{
- private:
-	CommandIson cmd;
-
- public:
-	CoreModIson()
-		: cmd(this)
-	{
-	}
-
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the ISON command", VF_CORE | VF_VENDOR);
-	}
-};
-
-MODULE_INIT(CoreModIson)

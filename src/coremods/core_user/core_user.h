@@ -70,6 +70,28 @@ class CommandAway : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
+/** Handle /ISON.
+ */
+class CommandIson : public SplitCommand
+{
+ public:
+	/** Constructor for ison.
+	 */
+	CommandIson(Module* parent)
+		: SplitCommand(parent, "ISON", 1)
+	{
+		allow_empty_last_param = false;
+		syntax = "<nick> [<nick>]+";
+	}
+	/** Handle command.
+	 * @param parameters The parameters to the command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+};
+
+
 /** Handle /NICK.
  */
 class CommandNick : public SplitCommand
@@ -155,6 +177,30 @@ class CommandUser : public SplitCommand
 	 * a non-MOD_RES_DENY result).
 	 */
 	static CmdResult CheckRegister(LocalUser* user);
+};
+
+/** Handle /USERHOST.
+ */
+class CommandUserhost : public Command
+{
+	UserModeReference hideopermode;
+
+ public:
+	/** Constructor for userhost.
+	 */
+	CommandUserhost(Module* parent)
+		: Command(parent,"USERHOST", 1)
+		, hideopermode(parent, "hideoper")
+	{
+		allow_empty_last_param = false;
+		syntax = "<nick> [<nick>]+";
+	}
+	/** Handle command.
+	 * @param parameters The parameters to the command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** User mode +s

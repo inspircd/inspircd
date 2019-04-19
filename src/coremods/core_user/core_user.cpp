@@ -147,6 +147,8 @@ class CoreModUser : public Module
 	CommandPong cmdpong;
 	CommandQuit cmdquit;
 	CommandUser cmduser;
+	CommandIson cmdison;
+	CommandUserhost cmduserhost;
 	SimpleUserModeHandler invisiblemode;
 	ModeUserOperator operatormode;
 	ModeUserServerNoticeMask snomaskmode;
@@ -161,6 +163,8 @@ class CoreModUser : public Module
 		, cmdpong(this)
 		, cmdquit(this)
 		, cmduser(this)
+		, cmdison(this)
+		, cmduserhost(this)
 		, invisiblemode(this, "invisible", 'i')
 		, operatormode(this)
 		, snomaskmode(this)
