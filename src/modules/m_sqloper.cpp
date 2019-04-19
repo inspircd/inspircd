@@ -96,6 +96,7 @@ class OperQuery : public SQL::Query
 			ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
 			oper_blocks[name] = ifo;
 			my_blocks.push_back(name);
+			row.clear();
 		}
 
 		// If this was done as a result of /OPER and not a config read
