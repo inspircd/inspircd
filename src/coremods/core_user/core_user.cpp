@@ -140,7 +140,6 @@ void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, 
 class CoreModUser : public Module
 {
 	CommandAway cmdaway;
-	CommandMode cmdmode;
 	CommandNick cmdnick;
 	CommandPart cmdpart;
 	CommandPass cmdpass;
@@ -155,7 +154,6 @@ class CoreModUser : public Module
  public:
 	CoreModUser()
 		: cmdaway(this)
-		, cmdmode(this)
 		, cmdnick(this)
 		, cmdpart(this)
 		, cmdpass(this)
