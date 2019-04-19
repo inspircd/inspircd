@@ -47,7 +47,7 @@ class ModuleOperLog : public Module
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((user->IsOper()) && (user->HasPermission(command)))
+		if ((user->IsOper()) && (user->HasCommandPermission(command)))
 		{
 			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))

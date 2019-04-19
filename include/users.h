@@ -456,7 +456,7 @@ class CoreExport User : public Extensible
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	virtual bool HasPermission(const std::string &command);
+	virtual bool HasCommandPermission(const std::string& command);
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -832,7 +832,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	bool HasPermission(const std::string &command) CXX11_OVERRIDE;
+	bool HasCommandPermission(const std::string& command) CXX11_OVERRIDE;
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to

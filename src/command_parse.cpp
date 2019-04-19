@@ -139,7 +139,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 				if (user->IsModeSet(n->second->flags_needed))
 				{
 					/* if user has the flags, and now has the permissions, go ahead */
-					if (user->HasPermission(commandname))
+					if (user->HasCommandPermission(commandname))
 						bOkay = true;
 				}
 			}
@@ -257,7 +257,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			return;
 		}
 
-		if (!user->HasPermission(command))
+		if (!user->HasCommandPermission(command))
 		{
 			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
