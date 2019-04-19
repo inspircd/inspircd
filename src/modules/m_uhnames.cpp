@@ -21,13 +21,19 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/names.h"
 
-class ModuleUHNames : public Module
+class ModuleUHNames
+	: public Module
+	, public Names::EventListener
 {
+ private:
 	Cap::Capability cap;
 
  public:
-	ModuleUHNames() : cap(this, "userhost-in-names")
+	ModuleUHNames()
+		: Names::EventListener(this)
+		, cap(this, "userhost-in-names")
 	{
 	}
 
@@ -59,7 +65,7 @@ class ModuleUHNames : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
 		if (cap.get(issuer))
 			nick = memb->user->GetFullHost();

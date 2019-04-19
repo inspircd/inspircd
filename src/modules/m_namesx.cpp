@@ -22,10 +22,12 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/names.h"
 #include "modules/who.h"
 
 class ModuleNamesX
 	: public Module
+	, public Names::EventListener
 	, public Who::EventListener
 {
  private:
@@ -33,7 +35,8 @@ class ModuleNamesX
 
  public:
 	ModuleNamesX()
-		: Who::EventListener(this)
+		: Names::EventListener(this)
+		, Who::EventListener(this)
 		, cap(this, "multi-prefix")
 	{
 	}
@@ -66,7 +69,7 @@ class ModuleNamesX
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
 		if (cap.get(issuer))
 			prefixes = memb->GetAllPrefixChars();

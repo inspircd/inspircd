@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/names.h"
 #include "modules/who.h"
 
 class AuditoriumMode : public SimpleChannelModeHandler
@@ -58,6 +59,7 @@ class JoinHook : public ClientProtocol::EventHook
 
 class ModuleAuditorium
 	: public Module
+	, public Names::EventListener
 	, public Who::EventListener
 {
 	CheckExemption::EventProvider exemptionprov;
@@ -69,7 +71,8 @@ class ModuleAuditorium
 
  public:
 	ModuleAuditorium()
-		: Who::EventListener(this)
+		: Names::EventListener(this)
+		, Who::EventListener(this)
 		, exemptionprov(this)
 		, aum(this)
 		, joinhook(this)
@@ -118,7 +121,7 @@ class ModuleAuditorium
 		return false;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
 		if (IsVisible(memb))
 			return MOD_RES_PASSTHRU;

@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/names.h"
 
 class DelayJoinMode : public ModeHandler
 {
@@ -76,6 +77,7 @@ class JoinHook : public ClientProtocol::EventHook
 class ModuleDelayJoin 
 	: public Module
 	, public CTCTags::EventListener
+	, public Names::EventListener
 {
  public:
 	LocalIntExt unjoined;
@@ -84,6 +86,7 @@ class ModuleDelayJoin
 
 	ModuleDelayJoin()
 		: CTCTags::EventListener(this)
+		, Names::EventListener(this)
 		, unjoined("delayjoin", ExtensionItem::EXT_MEMBERSHIP, this)
 		, joinhook(this, unjoined)
 		, djm(this, unjoined)
@@ -91,7 +94,7 @@ class ModuleDelayJoin
 	}
 
 	Version GetVersion() CXX11_OVERRIDE;
-	ModResult OnNamesListItem(User* issuer, Membership*, std::string& prefixes, std::string& nick) CXX11_OVERRIDE;
+	ModResult OnNamesListItem(LocalUser* issuer, Membership*, std::string& prefixes, std::string& nick) CXX11_OVERRIDE;
 	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
@@ -127,7 +130,7 @@ Version ModuleDelayJoin::GetVersion()
 	return Version("Allows for delay-join channels (+D) where users don't appear to join until they speak", VF_VENDOR);
 }
 
-ModResult ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick)
+ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick)
 {
 	/* don't prevent the user from seeing themself */
 	if (issuer == memb->user)

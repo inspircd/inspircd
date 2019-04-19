@@ -226,7 +226,7 @@ enum Implementation
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
+	I_OnUserMessage, I_OnPassCompare, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
 	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
 	I_END
@@ -904,18 +904,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
-
-	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
-	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
-	 * @param issuer The user who is going to receive the NAMES list being built
-	 * @param item The channel member being considered for inclusion
-	 * @param prefixes The prefix character(s) to display, initially set to the prefix char of the most powerful
-	 * prefix mode the member has, can be changed
-	 * @param nick The nick to display, initially set to the member's nick, can be changed
-	 * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
-	 * excluded from this NAMES list
-	 */
-	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 

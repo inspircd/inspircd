@@ -116,9 +116,11 @@ class CommandTopic : public SplitCommand
  */
 class CommandNames : public SplitCommand
 {
+ private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 	UserModeReference invisiblemode;
+	Events::ModuleEventProvider namesevprov;
 
  public:
 	/** Constructor for names.
