@@ -371,7 +371,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 		if (!mh)
 		{
 			/* No mode handler? Unknown mode character then. */
-			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, modechar, "is unknown mode char to me");
+			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, modechar, "is an unknown mode character");
 			continue;
 		}
 
