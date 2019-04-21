@@ -167,7 +167,7 @@ bool LocalUser::HasModePermission(const ModeHandler* mh) const
 		return false;
 
 	const unsigned char mode = mh->GetModeChar();
-	if (ModeParser::IsModeChar(mode))
+	if (!ModeParser::IsModeChar(mode))
 		return false;
 
 	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
