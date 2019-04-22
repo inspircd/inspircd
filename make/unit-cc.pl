@@ -78,7 +78,7 @@ sub do_link_dir {
 	for my $file (<$dir/*.cpp>) {
 		$link_flags .= rpath(get_directive($file, 'LinkerFlags', '')) . ' ';
 	}
-	my $execstr = "$ENV{CXX} -o $out $ENV{PICLDFLAGS} $link_flags @_";
+	my $execstr = "$ENV{CXX} -o $out $ENV{PICLDFLAGS} @_ $link_flags";
 	message 'LINK', $out, $execstr;
 	exec $execstr;
 }
