@@ -36,7 +36,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Nemanja Trifunovic
 
-**Last Updated** &mdash; 2018-09-17 (0a238813416e0ac8ea998b8814f00611a00f0735)
+**Last Updated** &mdash; 2019-04-25 (ad27c7d5e0e5b4c3baca4a2e70c0336b68c0dffb)
 
 **License** &mdash; Boost Software License
 
