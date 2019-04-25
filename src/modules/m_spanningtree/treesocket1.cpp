@@ -47,12 +47,22 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockad
 
 	irc::sockets::sockaddrs bind;
 	memset(&bind, 0, sizeof(bind));
-	if ((dest.family() == AF_INET || dest.family() == AF_INET6) && !irc::sockets::aptosa(link->Bind, 0, bind))
+	if (!link->Bind.empty() && (dest.family() == AF_INET || dest.family() == AF_INET6))
 	{
-		state = I_ERROR;
-		SetError("Bind address '" + link->Bind + "' is not an valid IPv4 or IPv6 address");
-		TreeSocket::OnError(I_ERR_BIND);
-		return;
+		if (!irc::sockets::aptosa(link->Bind, 0, bind))
+		{
+			state = I_ERROR;
+			SetError("Bind address '" + link->Bind + "' is not an valid IPv4 or IPv6 address");
+			TreeSocket::OnError(I_ERR_BIND);
+			return;
+		}
+		else if (bind.family() != dest.family())
+		{
+			state = I_ERROR;
+			SetError("Bind address '" + bind.addr() + "' is not the same address family as destination address '" + dest.addr() + "'");
+			TreeSocket::OnError(I_ERR_BIND);
+			return;
+		}
 	}
 
 	DoConnect(dest, bind, link->Timeout);
