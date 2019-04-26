@@ -61,9 +61,10 @@ class CommandOpermotd : public Command
 
 	void ShowOperMOTD(User* user, bool show_missing)
 	{
-		if (opermotd.empty() && show_missing)
+		if (opermotd.empty())
 		{
-			user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing");
+			if (show_missing)
+				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing");
 			return;
 		}
 
