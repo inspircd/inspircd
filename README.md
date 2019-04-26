@@ -20,7 +20,7 @@ If you encounter any bugs then [please file an issue](https://github.com/inspirc
 
 ## Installation
 
-Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd wiki](https://wiki.inspircd.org/Installation_From_Source).
+Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd docs site](http://docs.inspircd.org/2/installation/source).
 
 Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/insp20/win/README.txt) if you wish to do this.
 
@@ -37,7 +37,7 @@ InspIRCd is licensed under [version 2 of the GNU General Public License](https:/
 ## External Links
 
 * [Website](https://www.inspircd.org)
-* [Documentation](https://wiki.inspircd.org)
+* [Documentation](https://docs.inspircd.org)
 * [GitHub](https://github.com/inspircd)
 * [Support IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/#inspircd) &mdash; \#inspircd on irc.inspircd.org
 * [Development IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/#inspircd.dev) &mdash; \#inspircd.dev on irc.inspircd.org

@@ -37,7 +37,7 @@
 # Optional - If you specify to use m_cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
-# For more information see: https://wiki.inspircd.org/Modules/2.0/cgiirc
+# For more information see: https://docs.inspircd.org/2/modules/cgiirc
 #
 # Set to yes if you want to notice opers when CGI clients connect
 # <cgiirc opernotice="no">
@@ -261,8 +261,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
-# https://wiki.inspircd.org/Modules/2.0/ssl_gnutls                    #
+# m_ssl_gnutls.so is too complex to describe here, see the docs:      #
+# https://docs.inspircd.org/2/modules/ssl_gnutls                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Info module: Allows users to retrieve information about other
@@ -288,8 +288,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
-# https://wiki.inspircd.org/Modules/2.0/ssl_openssl                   #
+# m_ssl_openssl.so is too complex to describe here, see the docs:     #
+# https://docs.inspircd.org/2/modules/ssl_openssl                     #
 
 <module name="m_stripcolor.so">
 <module name="m_svshold.so">
