@@ -22,6 +22,17 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_NOOPERMOTD = 425,
+
+	// From ircd-ratbox.
+	RPL_OMOTDSTART = 720,
+	RPL_OMOTD = 721,
+	RPL_ENDOFOMOTD = 722
+};
+
 /** Handle /OPERMOTD
  */
 class CommandOpermotd : public Command
@@ -37,7 +48,7 @@ class CommandOpermotd : public Command
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
-			ShowOperMOTD(user);
+			ShowOperMOTD(user, true);
 		return CMD_SUCCESS;
 	}
 
@@ -48,22 +59,22 @@ class CommandOpermotd : public Command
 		return ROUTE_LOCALONLY;
 	}
 
-	void ShowOperMOTD(User* user)
+	void ShowOperMOTD(User* user, bool show_missing)
 	{
-		if (opermotd.empty())
+		if (opermotd.empty() && show_missing)
 		{
-			user->WriteRemoteNumeric(455, "OPERMOTD file is missing");
+			user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing");
 			return;
 		}
 
-		user->WriteRemoteNumeric(RPL_MOTDSTART, "- IRC Operators Message of the Day");
+		user->WriteRemoteNumeric(RPL_OMOTDSTART, "- IRC Operators Message of the Day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->WriteRemoteNumeric(RPL_MOTD, InspIRCd::Format("- %s", i->c_str()));
+			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->WriteRemoteNumeric(RPL_ENDOFMOTD, "- End of OPERMOTD");
+		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "- End of OPERMOTD");
 	}
 };
 
@@ -87,7 +98,7 @@ class ModuleOpermotd : public Module
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE
 	{
 		if (onoper && IS_LOCAL(user))
-			cmd.ShowOperMOTD(user);
+			cmd.ShowOperMOTD(user, false);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
