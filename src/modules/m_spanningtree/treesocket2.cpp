@@ -377,21 +377,24 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 
 	CmdResult res;
 	ClientProtocol::TagMap tags;
+	std::string tag;
+	irc::sepstream tagstream(taglist, ';');
+	while (tagstream.GetToken(tag))
+		ProcessTag(who, tag, tags);
+
+	CommandBase::Params newparams(params, tags);
+
 	if (scmd)
-		res = scmd->Handle(who, params);
+		res = scmd->Handle(who, newparams);
 	else
 	{
-		std::string tag;
-		irc::sepstream tagstream(taglist, ';');
-		while (tagstream.GetToken(tag))
-			ProcessTag(who, tag, tags);
-		res = cmd->Handle(who, CommandBase::Params(params, tags));
+		res = cmd->Handle(who, newparams);
 		if (res == CMD_INVALID)
 			throw ProtocolException("Error in command handler");
 	}
 
 	if (res == CMD_SUCCESS)
-		Utils->RouteCommand(server->GetRoute(), cmdbase, CommandBase::Params(params, tags), who);
+		Utils->RouteCommand(server->GetRoute(), cmdbase, newparams, who);
 }
 
 void TreeSocket::OnTimeout()
