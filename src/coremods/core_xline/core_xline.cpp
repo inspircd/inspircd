@@ -38,7 +38,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	float percent = ((float)matches / (float)ServerInstance->Users->GetUsers().size()) * 100;
 	if (percent > itrigger)
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "\2WARNING\2: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
+		ServerInstance->SNO->WriteToSnoMask('a', "\002WARNING\002: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
 		return true;
 	}
 	return false;

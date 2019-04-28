@@ -393,7 +393,7 @@ public:
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (No password provided)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (no password provided)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -401,7 +401,7 @@ public:
 		if (!LDAP)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (Unable to find LDAP provider)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (unable to find LDAP provider)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -440,7 +440,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
+		return Version("Allow/deny connections based upon answers from an LDAP server", VF_VENDOR);
 	}
 };
 

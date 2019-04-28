@@ -121,7 +121,7 @@ class CommandSvshold : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found in list, try /stats S.");
+				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found on the list.");
 			}
 		}
 		else
@@ -223,7 +223,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements SVSHOLD. Like Q-lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
+		return Version("Implements SVSHOLD, like Q-lines, but can only be added/removed by Services", VF_COMMON | VF_VENDOR);
 	}
 };
 

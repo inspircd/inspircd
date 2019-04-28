@@ -47,7 +47,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 
 class ModuleDelayMsg
 	: public Module
-	, public CTCTags::EventListener 
+	, public CTCTags::EventListener
 {
  private:
 	DelayMsgMode djm;
@@ -91,7 +91,7 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 
 Version ModuleDelayMsg::GetVersion()
 {
-	return Version("Provides channelmode +d <int>, to deny messages to a channel until <int> seconds.", VF_VENDOR);
+	return Version("Provides channel mode +d <int>, to deny messages to a channel until <int> seconds have passed", VF_VENDOR);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
@@ -137,7 +137,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, InspIRCd::Format("You must wait %d seconds after joining to send to channel (+d)", len));
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, InspIRCd::Format("You must wait %d seconds after joining to send to the channel (+d)", len));
 			return MOD_RES_DENY;
 		}
 	}

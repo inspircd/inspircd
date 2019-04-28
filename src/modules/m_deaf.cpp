@@ -34,7 +34,7 @@ class DeafMode : public ModeHandler
 			return MODEACTION_DENY;
 
 		if (adding)
-			dest->WriteNotice("*** You have enabled usermode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
+			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
 
 		dest->SetMode(this, adding);
 		return MODEACTION_ALLOW;
@@ -57,7 +57,7 @@ class PrivDeafMode : public ModeHandler
 			return MODEACTION_DENY;
 
 		if (adding)
-			dest->WriteNotice("*** You have enabled usermode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
+			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
 
 		dest->SetMode(this, adding);
 		return MODEACTION_ALLOW;
@@ -140,7 +140,7 @@ class ModuleDeaf : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides usermodes +dD to block channel and/or user messages and notices", VF_VENDOR);
+		return Version("Provides user modes +d and +D to block channel and user messages/notices", VF_VENDOR);
 	}
 };
 

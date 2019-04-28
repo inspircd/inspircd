@@ -55,7 +55,7 @@ class ModuleDisable : public Module
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes->FindMode(chr, type);
 			if (!chr)
-				throw ModuleException(InspIRCd::Format("Non-existent mode '%c' was specified in <disabled:%s> at %s",
+				throw ModuleException(InspIRCd::Format("Nonexistent mode '%c' was specified in <disabled:%s> at %s",
 					chr, field.c_str(), tag->getTagLocation().c_str()));
 
 			// Disable the mode.
@@ -89,7 +89,7 @@ class ModuleDisable : public Module
 			// Check that the command actually exists.
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
-				throw ModuleException(InspIRCd::Format("Non-existent command '%s' was specified in <disabled:commands> at %s",
+				throw ModuleException(InspIRCd::Format("Nonexistent command '%s' was specified in <disabled:commands> at %s",
 					command.c_str(), tag->getTagLocation().c_str()));
 
 			// Prevent admins from disabling COMMANDS and MODULES for transparency reasons.

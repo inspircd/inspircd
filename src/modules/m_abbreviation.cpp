@@ -35,7 +35,7 @@ class ModuleAbbreviation : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
+		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords", VF_VENDOR);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE

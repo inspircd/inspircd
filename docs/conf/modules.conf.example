@@ -117,9 +117,9 @@
 #                    the user receives a 'no such nick' 401 numeric.  #
 #                                                                     #
 # uline       -      Setting this to true will ensure that the user   #
-#                    given in 'requires' is also on a u-lined server, #
+#                    given in 'requires' is also on a U-lined server, #
 #                    as well as actually being on the network. If the #
-#                    user is online, but not on a u-lined server,     #
+#                    user is online, but not on a U-lined server,     #
 #                    then an oper alert is sent out as this is        #
 #                    possibly a sign of a user trying to impersonate  #
 #                    a service.                                       #
@@ -282,7 +282,7 @@
 #<module name="botmode">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CallerID module: Adds usermode +g which activates hybrid-style
+# CallerID module: Adds user mode +g which activates hybrid-style
 # callerid: block all private messages unless you /ACCEPT first.
 #<module name="callerid">
 #
@@ -510,7 +510,7 @@
 #<module name="clearchan">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Cloaking module: Adds usermode +x and cloaking support.
+# Cloaking module: Adds user mode +x and cloaking support.
 # Relies on the md5 module being loaded.
 # To cloak users when they connect, load the conn_umodes module and set
 # <connect:modes> to include the +x mode. The example <connect> tag
@@ -719,7 +719,7 @@
 #<banfile pattern="*.txt" action="allow">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deaf module: Adds support for the usermodes +dD:
+# Deaf module: Adds support for user modes +d and +D:
 # d - deaf to channel messages and notices.
 # D - deaf to user messages and notices.
 # The +D user mode is not enabled by default to enable link compatibility
@@ -733,8 +733,8 @@
 #                      the starting character of a message.
 #                      If 'bypasscharsuline' is empty, then 'bypasschars' will
 #                      match for both regular and U-lined users.
-#  enableprivdeaf    - Whether to enable usermode +D (privdeaf).
-#  privdeafuline     - Whether U-lined users bypass usermode +D (privdeaf).
+#  enableprivdeaf    - Whether to enable user mode +D (privdeaf).
+#  privdeafuline     - Whether U-lined users bypass user mode +D (privdeaf).
 #
 #<deaf bypasschars="" bypasscharsuline="!" enableprivdeaf="no" privdeafuline="yes">
 
@@ -1499,26 +1499,26 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper prefixing module: Adds a channel prefix mode +y which is given
-# to all IRC operators automatically on all channels they are in.
+# to all server operators automatically on all channels they are in.
 # This prefix mode is more powerful than channel op and other regular
 # prefix modes.
 #
-# Load this module if you want all your IRC operators to have channel
-# operator powers.
+# Load this module if you want all your server operators to have
+# channel operator powers.
 #<module name="operprefix">
 #
 # You may additionally customise the prefix character.
 #<operprefix prefix="!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for separate message of the day
+# Oper MOTD module: Provides support for a separate message of the day
 # on oper-up.
 # This module is oper-only.
 #<module name="opermotd">
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the opermotd module, specify the motd here.   #
+# If you are using the opermotd module, specify the motd file here.   #
 #                                                                     #
 # onoper        - If on, the message is sent on /OPER, otherwise it's #
 #                 only sent when /OPERMOTD is used.                   #
@@ -1540,9 +1540,9 @@
 #                 via channel notice.                                 #
 #                                                                     #
 # requirekey    - If enabled, overriding on join requires a channel   #
-#                 key of "override" to be specified                   #
+#                 key of "override" to be specified.                  #
 #                                                                     #
-# enableumode   - If enabled, usermode +O is required for override.   #
+# enableumode   - If enabled, user mode +O is required for override.  #
 #                                                                     #
 #<override noisy="yes" requirekey="no" enableumode="true">
 
@@ -1807,13 +1807,15 @@
 # If you wish to re-check a user when they change nickname (can be
 # useful under some situations, but *can* also use CPU with more users
 # on a server) then set 'matchonnickchange' to yes.
+# If you additionally want Z-lines to be added on matches, then
+# set 'zlineonmatch' to yes.
 # Also, this is where you set what Regular Expression engine is to be
 # used. If you ever change it while running, all of your R-lines will
 # be wiped. This is the regex engine used by all R-lines set, and
 # regex_<engine> must be loaded, or rline will be non-functional
 # until you load it or change the engine to one that is loaded.
 #
-#<rline matchonnickchange="yes" engine="pcre">
+#<rline matchonnickchange="yes" zlineonmatch="no" engine="pcre">
 #
 # Generally, you will NOT want to use 'glob' here, as this turns an
 # R-line into just another G-line. The exceptions are that R-lines will
@@ -1931,7 +1933,7 @@
 #<module name="setidle">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several usermodes such as +R and +M.
+# Services support module: Adds several user modes such as +R and +M.
 # This module implements the 'identified' state via account names,
 # and is similar in operation to the way asuka and ircu handle services.
 #
@@ -2018,7 +2020,7 @@
 #          endtext="End of server rules.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Show whois module: Adds the +W usermode which allows opers to see
+# Show whois module: Adds the +W user mode which allows opers to see
 # when they are /WHOIS'd.
 # This module is oper-only by default.
 #<module name="showwhois">
@@ -2274,7 +2276,7 @@
 # <wsorigin allow="https://*.example.com/">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# XLine database: Stores all *-lines (G/Z/K/R/any added by other modules)
+# X-line database: Stores all *-lines (G/Z/K/R/any added by other modules)
 # in a file which is re-loaded on restart. This is useful
 # for two reasons: it keeps bans so users may not evade them, and on
 # bigger networks, server connections will take less time as there will

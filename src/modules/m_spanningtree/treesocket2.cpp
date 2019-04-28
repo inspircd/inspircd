@@ -161,13 +161,13 @@ void TreeSocket::ProcessLine(std::string &line)
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
-						ServerInstance->SNO->WriteGlobalSno('l',"\2ERROR\2: Your clocks are out by %ld seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",labs((long)delta));
+						ServerInstance->SNO->WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by %ld seconds (this is more than five minutes). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", labs((long)delta));
 						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return;
 					}
 					else if ((delta < -30) || (delta > 30))
 					{
-						ServerInstance->SNO->WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %ld seconds. Please consider synching your clocks.", labs((long)delta));
+						ServerInstance->SNO->WriteGlobalSno('l', "\002WARNING\002: Your clocks are off by %ld seconds. Please consider syncing your clocks.", labs((long)delta));
 					}
 				}
 
@@ -417,13 +417,13 @@ void TreeSocket::Close()
 	if (MyRoot)
 		MyRoot->SQuit(getError());
 
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
+	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
 	{
 		std::string timestr = ModuleSpanningTree::TimeToStr(server_uptime);
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' was established for %s", linkID.c_str(), timestr.c_str());
 	}
 }
 

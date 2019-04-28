@@ -103,7 +103,7 @@ struct TreeSocket::BurstState
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
+	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \002%s\002 (Authentication: %s%s).",
 		s->GetName().c_str(),
 		capab->auth_fingerprint ? "SSL certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
@@ -125,7 +125,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendXLines();
 	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncNetwork, (bs.server));
 	this->WriteLine(CmdBuilder("ENDBURST"));
-	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
+	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \002"+ s->GetName()+"\002.");
 
 	this->burstsent = true;
 }

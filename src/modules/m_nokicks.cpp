@@ -50,7 +50,7 @@ class ModuleNoKicks : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +Q to prevent kicks on the channel.", VF_VENDOR);
+		return Version("Provides channel mode +Q to prevent kicks on the channel", VF_VENDOR);
 	}
 };
 

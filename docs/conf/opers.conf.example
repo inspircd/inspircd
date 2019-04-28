@@ -44,7 +44,7 @@
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message users/flood/no-throttle users/flood/increased-buffers"
 
-     # usermodes: Oper-only usermodes that opers with this class can use.
+     # usermodes: Oper-only user modes that opers with this class can use.
      usermodes="*"
 
      # chanmodes: Oper-only channel modes that opers with this class can use.
@@ -82,7 +82,7 @@
     # Requires the opermodes module to be loaded.
     modes="+s +cCqQ">
 
-<type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.example.org">
+<type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="serverop.omega.example.org">
 <type name="Helper" classes="HostCloak" vhost="helper.omega.example.org">
 
 

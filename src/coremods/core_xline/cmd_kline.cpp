@@ -102,7 +102,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** K-line " + target + " not found in list, try /stats k.");
+			user->WriteNotice("*** K-line " + target + " not found on the list.");
 		}
 	}
 

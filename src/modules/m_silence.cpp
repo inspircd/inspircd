@@ -41,7 +41,7 @@ class SilenceEntry
 
 		// Exclude users who match this flags ("x").
 		SF_EXEMPT = 1,
-	
+
 		// 2, 4, 8, 16 are reserved for future use.
 
 		// Matches a NOTICE targeted at a channel ("n").
@@ -369,7 +369,7 @@ class ModuleSilence
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["ESILENCE"] = "CcdiNnPpsTtx";
+		tokens["ESILENCE"] = "CcdiNnPpTtx";
 		tokens["SILENCE"] = ConvToStr(cmd.maxsilence);
 	}
 
