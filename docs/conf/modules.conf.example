@@ -453,10 +453,12 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
-# in a channel matching a ban like +b j:#channel*mask from joining.
+# in a channel matching a ban like +b j:#channel from joining.
+# It is also possible to ban based on their status in that channel,
+# like so: +b j:@#channel, this example prevents the ops from joining.
 # Note that by default wildcard characters * and ? are allowed in
-# channel names. To disallow them, load m_channames and add characters
-# 42 and 63 to denyrange (see above).
+# channel names. To disallow them, load the channames module and
+# add characters 42 and 63 to denyrange (see above).
 #<module name="channelban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -501,7 +503,7 @@
 # Connection class ban module: Adds support for extban 'n' which
 # matches against the class name of the user's connection.
 # This module assumes that connection classes are named in a uniform
-# way on all servers of the network.
+# way on all servers of the network. Wildcards are accepted.
 #<module name="classban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1445,7 +1447,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Network business join module:
 # Allows an oper to join a channel using /OJOIN, giving them +Y on the
-# channel which makes them immune to kick/deop/etc.
+# channel which makes them immune to kicks.
 #<module name="ojoin">
 #
 # Specify the prefix that +Y will grant here.
@@ -1979,6 +1981,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Serverban: Implements extended ban 's', which stops anyone connected
 # to a server matching a mask like +b s:server.mask.here from joining.
+# Wildcards are accepted.
 #<module name="serverban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

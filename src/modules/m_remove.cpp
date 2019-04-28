@@ -149,7 +149,7 @@ class RemoveBase : public Command
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (nokicks mode is set)", target->nick.c_str()));
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (+Q is set)", target->nick.c_str()));
 			return CMD_FAILURE;
 		}
 

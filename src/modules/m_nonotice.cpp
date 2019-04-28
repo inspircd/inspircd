@@ -52,7 +52,7 @@ class ModuleNoNotice : public Module
 					return MOD_RES_PASSTHRU;
 				else
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send NOTICE to channel (+T set)");
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send NOTICE to channel (+T is set)");
 					return MOD_RES_DENY;
 				}
 			}

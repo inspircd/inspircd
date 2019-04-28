@@ -1387,7 +1387,7 @@ class ModuleSSLGnuTLS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides SSL support for clients", VF_VENDOR);
+		return Version("Provides SSL support via GnuTLS", VF_VENDOR);
 	}
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE

@@ -123,7 +123,7 @@ class ModuleLockserv : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
+		return Version("Provides the LOCKSERV and UNLOCKSERV commands to lock the server and block all incoming connections until unlocked again", VF_VENDOR);
 	}
 };
 

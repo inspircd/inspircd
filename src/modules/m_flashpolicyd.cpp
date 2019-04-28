@@ -155,7 +155,7 @@ class ModuleFlashPD : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Flash Policy Daemon. Allows Flash IRC clients to connect", VF_VENDOR);
+		return Version("Flash Policy Daemon, allows Flash IRC clients to connect", VF_VENDOR);
 	}
 };
 

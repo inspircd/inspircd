@@ -58,7 +58,7 @@ class ModuleBlockColor : public Module
 					// Block all control codes except \001 for CTCP
 					if ((*i >= 0) && (*i < 32) && (*i != 1))
 					{
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c set)");
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send colors to channel (+c is set)");
 						return MOD_RES_DENY;
 					}
 				}

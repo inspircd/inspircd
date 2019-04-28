@@ -104,7 +104,7 @@ class ModuleStartTLS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for the STARTTLS command", VF_VENDOR);
+		return Version("Provides the STARTTLS command", VF_VENDOR);
 	}
 };
 

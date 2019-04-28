@@ -179,7 +179,7 @@ private:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +f (message flood protection)", VF_VENDOR);
+		return Version("Provides channel mode +f, message flood protection", VF_VENDOR);
 	}
 };
 

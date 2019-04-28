@@ -35,7 +35,7 @@ class ModuleNoNickChange : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
+		return Version("Provides channel mode +N and extban 'N' which prevents nick changes on the channel", VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

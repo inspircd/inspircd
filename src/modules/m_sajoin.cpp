@@ -96,7 +96,7 @@ class CommandSajoin : public Command
 		}
 		else
 		{
-			user->WriteNotice("*** No such nickname "+nickname);
+			user->WriteNotice("*** No such nickname: '" + nickname + "'");
 			return CMD_FAILURE;
 		}
 	}
@@ -118,7 +118,7 @@ class ModuleSajoin : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SAJOIN command, allows opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

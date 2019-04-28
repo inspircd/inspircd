@@ -84,7 +84,7 @@ class ModuleSetHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for the SETHOST command", VF_VENDOR);
+		return Version("Provides the SETHOST command", VF_VENDOR);
 	}
 };
 

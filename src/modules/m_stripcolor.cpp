@@ -90,7 +90,7 @@ class ModuleStripColor : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +S (strip ansi color)", VF_VENDOR);
+		return Version("Provides channel mode +S, strip ansi color", VF_VENDOR);
 	}
 
 };

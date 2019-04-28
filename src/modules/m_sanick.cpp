@@ -54,7 +54,7 @@ class CommandSanick : public Command
 
 			if (!ServerInstance->IsNick(parameters[1]))
 			{
-				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
+				user->WriteNotice("*** Invalid nickname: '" + parameters[1] + "'");
 				return CMD_FAILURE;
 			}
 		}
@@ -95,7 +95,7 @@ class ModuleSanick : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for SANICK command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SANICK command, allows opers to change the nicknames of users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

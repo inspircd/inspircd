@@ -91,7 +91,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for the +I channel mode", VF_VENDOR);
+		return Version("Provides channel mode +I, invite exceptions", VF_VENDOR);
 	}
 };
 

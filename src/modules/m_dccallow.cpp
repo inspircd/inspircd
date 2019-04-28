@@ -529,7 +529,7 @@ class ModuleDCCAllow : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for the DCCALLOW command", VF_COMMON | VF_VENDOR);
+		return Version("Provides the DCCALLOW command", VF_COMMON | VF_VENDOR);
 	}
 };
 

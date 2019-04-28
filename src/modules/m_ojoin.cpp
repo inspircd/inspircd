@@ -157,7 +157,7 @@ class ModuleOjoin : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Network Business Join", VF_VENDOR);
+		return Version("Provides the OJOIN command, allows an oper to join a channel and be immune to kicks", VF_VENDOR);
 	}
 };
 

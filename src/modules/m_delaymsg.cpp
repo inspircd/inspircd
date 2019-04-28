@@ -137,7 +137,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, InspIRCd::Format("You must wait %d seconds after joining to send to the channel (+d)", len));
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, InspIRCd::Format("You must wait %d seconds after joining to send to the channel (+d is set)", len));
 			return MOD_RES_DENY;
 		}
 	}

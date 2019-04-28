@@ -412,7 +412,7 @@ class RepeatModule : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the +E channel mode - for blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
+		return Version("Provides channel mode +E, blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
 	}
 };
 

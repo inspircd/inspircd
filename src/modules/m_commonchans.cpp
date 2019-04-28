@@ -40,7 +40,7 @@ class ModuleCommonChans
 		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
 			return MOD_RES_PASSTHRU;
 
-		user->WriteNumeric(ERR_CANTSENDTOUSER, targuser->nick, "You are not permitted to send private messages to this user (+c set)");
+		user->WriteNumeric(ERR_CANTSENDTOUSER, targuser->nick, "You are not permitted to send private messages to this user (+c is set)");
 		return MOD_RES_DENY;
 	}
 
@@ -53,7 +53,7 @@ class ModuleCommonChans
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds user mode +c which requires users to share a common channel with you to private message you", VF_VENDOR);
+		return Version("Provides user mode +c, requires users to share a common channel with you to private message you", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE

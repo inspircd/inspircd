@@ -160,7 +160,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Custom title for users", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the TITLE command, custom titles for users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

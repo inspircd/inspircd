@@ -73,7 +73,7 @@ class ModuleNoCTCP : public Module
 
 			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C set)");
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -85,7 +85,7 @@ class ModuleNoCTCP : public Module
 			User* u = target.Get<User>();
 			if (u->IsModeSet(ncu))
 			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T set)");
+				user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
 				return MOD_RES_DENY;
 			}
 		}
