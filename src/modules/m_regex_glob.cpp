@@ -56,7 +56,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
+		return Version("Regex module using plain wildcard matching", VF_VENDOR);
 	}
 };
 

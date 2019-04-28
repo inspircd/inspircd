@@ -54,7 +54,7 @@ class Channel_r : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
-		// only a u-lined server may add or remove the +r mode.
+		// Only a U-lined server may add or remove the +r mode.
 		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
@@ -312,7 +312,7 @@ class ModuleServicesAccount
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides support for ircu-style services accounts, including channel mode +R, etc", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

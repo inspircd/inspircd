@@ -159,7 +159,7 @@ class ModuleSSLModes
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a SSL user (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are an SSL user (+z)");
 				return MOD_RES_DENY;
 			}
 
@@ -199,7 +199,7 @@ class ModuleSSLModes
 		{
 			if (!api || !api->GetCertificate(target))
 			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove usermode 'z' before you are able to send private messages to a non-ssl user.");
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove user mode 'z' before you are able to send private messages to a non-SSL user.");
 				return MOD_RES_DENY;
 			}
 		}
@@ -235,7 +235,7 @@ class ModuleSSLModes
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices.", VF_VENDOR);
+		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices", VF_VENDOR);
 	}
 };
 

@@ -36,8 +36,8 @@ CmdResult CommandAdmin::Handle(User* user, const Params& parameters)
 		return CMD_SUCCESS;
 	user->WriteRemoteNumeric(RPL_ADMINME, ServerInstance->Config->ServerName, "Administrative info");
 	if (!AdminName.empty())
-		user->WriteRemoteNumeric(RPL_ADMINLOC1, InspIRCd::Format("Name     - %s", AdminName.c_str()));
-	user->WriteRemoteNumeric(RPL_ADMINLOC2, InspIRCd::Format("Nickname - %s", AdminNick.c_str()));
-	user->WriteRemoteNumeric(RPL_ADMINEMAIL, InspIRCd::Format("E-Mail   - %s", AdminEmail.c_str()));
+		user->WriteRemoteNumeric(RPL_ADMINLOC1, InspIRCd::Format("Name: %s", AdminName.c_str()));
+	user->WriteRemoteNumeric(RPL_ADMINLOC2, InspIRCd::Format("Nickname: %s", AdminNick.c_str()));
+	user->WriteRemoteNumeric(RPL_ADMINEMAIL, InspIRCd::Format("Email: %s", AdminEmail.c_str()));
 	return CMD_SUCCESS;
 }

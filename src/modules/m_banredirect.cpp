@@ -325,13 +325,13 @@ class ModuleBanRedirect : public Module
 
 						if(destchan && destchan->IsModeSet(redirectmode) && !destlimit.empty() && (destchan->GetUserCounter() >= ConvToNum<size_t>(destlimit)))
 						{
-							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You are banned)");
+							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
 							return MOD_RES_DENY;
 						}
 						else
 						{
-							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You are banned)");
-							user->WriteNumeric(470, chan->name, redir->targetchan, "You are banned from this channel, so you are automatically transferred to the redirected channel.");
+							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
+							user->WriteNumeric(470, chan->name, redir->targetchan, "You are banned from this channel, so you are automatically being transferred to the redirected channel.");
 							nofollow = true;
 							Channel::JoinUser(user, redir->targetchan);
 							nofollow = false;

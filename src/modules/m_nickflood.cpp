@@ -202,7 +202,7 @@ class ModuleNickFlood : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Channel mode F - nick flood protection", VF_VENDOR);
+		return Version("Provides channel mode +F, nick flood protection", VF_VENDOR);
 	}
 };
 

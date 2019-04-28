@@ -113,7 +113,7 @@ class ModuleAlias : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides aliases of commands.", VF_VENDOR);
+		return Version("Provides aliases of commands", VF_VENDOR);
 	}
 
 	std::string GetVar(std::string varname, const std::string &original_line)
@@ -282,8 +282,8 @@ class ModuleAlias : public Module
 
 			if ((a->ULineOnly) && (!u->server->IsULine()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is an imposter! Please inform an IRC operator as soon as possible.");
+				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is an imposter! Please inform a server operator as soon as possible.");
 				return 1;
 			}
 		}

@@ -33,7 +33,7 @@ class ModuleOperLog : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
+		return Version("Provides logging of all oper commands to the ircd log at the default loglevel", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

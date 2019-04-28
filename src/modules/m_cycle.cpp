@@ -84,7 +84,7 @@ class ModuleCycle : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel.", VF_VENDOR);
+		return Version("Provides the CYCLE command, acts as a server-side HOP command to part and rejoin a channel", VF_VENDOR);
 	}
 };
 

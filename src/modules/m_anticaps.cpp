@@ -297,7 +297,7 @@ class ModuleAntiCaps : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for punishing users that send capitalised messages.", VF_COMMON|VF_VENDOR);
+		return Version("Provides support for punishing users that send capitalised messages", VF_COMMON|VF_VENDOR);
 	}
 };
 

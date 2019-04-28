@@ -52,7 +52,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockad
 		if (!irc::sockets::aptosa(link->Bind, 0, bind))
 		{
 			state = I_ERROR;
-			SetError("Bind address '" + link->Bind + "' is not an valid IPv4 or IPv6 address");
+			SetError("Bind address '" + link->Bind + "' is not a valid IPv4 or IPv6 address");
 			TreeSocket::OnError(I_ERR_BIND);
 			return;
 		}
@@ -143,7 +143,7 @@ void TreeSocket::OnConnected()
 			static_cast<IOHookProvider*>(prov)->OnConnect(this);
 		}
 
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
 	}

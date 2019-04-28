@@ -298,7 +298,7 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP cloaking/masking.
          # For the example to work, this also requires that the cloaking
@@ -412,7 +412,7 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP cloaking/masking.
          # For the example to work, this also requires that the cloaking
@@ -772,7 +772,7 @@
           restrictbannedusers="yes"
 
           # genericoper: Setting this value to yes makes all opers on this server
-          # appear as 'is an IRC operator' in their WHOIS, regardless of their
+          # appear as 'is a server operator' in their WHOIS, regardless of their
           # oper type, however oper types are still used internally. This only
           # affects the display in WHOIS.
           genericoper="no"
@@ -945,7 +945,7 @@
 <exception
            # host: ident@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
-           host="*@ircop.example.com"
+           host="*@serverop.example.com"
 
            # reason: Reason for exception. Only shown in /STATS e.
            reason="Oper's hostname">

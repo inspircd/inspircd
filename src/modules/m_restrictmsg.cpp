@@ -24,7 +24,7 @@
 
 class ModuleRestrictMsg
 	: public Module
-	, public CTCTags::EventListener 
+	, public CTCTags::EventListener
 {
  private:
 	ModResult HandleMessage(User* user, const MessageTarget& target)
@@ -68,7 +68,7 @@ class ModuleRestrictMsg
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers.",VF_VENDOR);
+		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers", VF_VENDOR);
 	}
 };
 

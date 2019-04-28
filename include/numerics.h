@@ -124,7 +124,7 @@ enum
 
 	/*
 	 * A quick side-rant about the next group of numerics..
-	 * There are clients out there that like to assume that just because they don't recieve a numeric
+	 * There are clients out there that like to assume that just because they don't receive a numeric
 	 * they know, that they have joined the channel.
 	 *
 	 * If IRC was at all properly standardised, this may even be a semi-acceptable assumption to make,
@@ -133,7 +133,7 @@ enum
 	 * instead!
 	 *
 	 * tl;dr version:
-	 *   DON'T MAKE YOUR CLIENT ASSUME YOU JOINED UNLESS YOU RECIEVE A JOIN WITH YOUR DAMN NICK ON IT.
+	 *   DON'T MAKE YOUR CLIENT ASSUME YOU JOINED UNLESS YOU RECEIVE A JOIN WITH YOUR DAMN NICK ON IT.
 	 * Thanks.
 	 *
 	 *  -- A message from the IRC group for coder sanity, and w00t

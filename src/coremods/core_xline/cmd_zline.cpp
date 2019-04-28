@@ -99,7 +99,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Z-line " + target + " not found in list, try /stats Z.");
+			user->WriteNotice("*** Z-line " + target + " not found on the list.");
 			return CMD_FAILURE;
 		}
 	}

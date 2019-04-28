@@ -242,7 +242,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			{
 				if (chan->IsBanned(user))
 				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (You're banned)");
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
 					return NULL;
 				}
 			}

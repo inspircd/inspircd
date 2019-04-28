@@ -202,7 +202,7 @@ class CoreExport LogManager : public fakederef<LogManager>
 	 */
 	bool AddLogType(const std::string &type, LogStream *l, bool autoclose);
 
-	/** Removes a logstream from the core. After removal, it will not recieve further events.
+	/** Removes a logstream from the core. After removal, it will not receive further events.
 	 * If the LogStream was ever added with autoclose, it will be closed after this call (this means the pointer won't be valid anymore).
 	 */
 	void DelLogStream(LogStream* l);

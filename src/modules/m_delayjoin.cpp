@@ -127,7 +127,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 
 Version ModuleDelayJoin::GetVersion()
 {
-	return Version("Allows for delay-join channels (+D) where users don't appear to join until they speak", VF_VENDOR);
+	return Version("Allows for delay-join channels (channel mode +D) where users don't appear to join until they speak", VF_VENDOR);
 }
 
 ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick)

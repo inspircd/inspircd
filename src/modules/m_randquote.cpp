@@ -51,7 +51,7 @@ class ModuleRandQuote : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides random quotes on connect.", VF_VENDOR);
+		return Version("Provides random quotes on connect", VF_VENDOR);
 	}
 };
 

@@ -27,7 +27,7 @@ class ModuleOperLevels : public Module
 	public:
 		Version GetVersion() CXX11_OVERRIDE
 		{
-			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR);
+			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level", VF_VENDOR);
 		}
 
 		ModResult OnKill(User* source, User* dest, const std::string &reason) CXX11_OVERRIDE
@@ -42,10 +42,10 @@ class ModuleOperLevels : public Module
 				{
 					if (IS_LOCAL(source))
 					{
-						ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %lu) attempted to /kill a higher oper: %s (level %lu): Reason: %s",
+						ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %lu) attempted to /KILL a higher level oper: %s (level %lu), reason: %s",
 							source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
 					}
-					dest->WriteNotice("*** Oper " + source->nick + " attempted to /kill you!");
+					dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
 					source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
 					return MOD_RES_DENY;
 				}

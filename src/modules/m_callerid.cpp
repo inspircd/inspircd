@@ -392,7 +392,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
+		return Version("Implementation of callerid, provides user mode +g and the ACCEPT command", VF_COMMON | VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -422,7 +422,7 @@ public:
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
-				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have user mode +g set. Use /ACCEPT +%s to allow.",
 						user->nick.c_str()));
 				dat->lastnotify = now;
 			}

@@ -60,7 +60,7 @@ class ModuleBlockAmsg : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
+		return Version("Attempt to block /amsg or /ame, at least some of the irritating client scripts", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -120,12 +120,12 @@ class ModuleBlockAmsg : public Module
 			{
 				// Block it...
 				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					ServerInstance->SNO->WriteToSnoMask('a', "%s had an /amsg or /ame denied", user->nick.c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "%s had an /amsg or /ame blocked", user->nick.c_str());
 
 				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users->QuitUser(user, "Attempted to global message (/amsg or /ame)");
 				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
-					user->WriteNotice("Global message (/amsg or /ame) denied");
+					user->WriteNotice("Global message (/amsg or /ame) blocked");
 
 				return MOD_RES_DENY;
 			}

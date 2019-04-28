@@ -226,7 +226,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Filter '" + parameters[0] + "' not found in list, try /stats s.");
+			user->WriteNotice("*** Filter '" + parameters[0] + "' not found on the list.");
 			return CMD_FAILURE;
 		}
 	}

@@ -36,7 +36,7 @@ namespace DNS
 
 using namespace DNS;
 
-/** A full packet sent or recieved to/from the nameserver
+/** A full packet sent or received to/from the nameserver
  */
 class Packet : public Query
 {

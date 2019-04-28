@@ -86,7 +86,7 @@ class AuthQuery : public SQL::Query
 				}
 
 				if (verbose)
-					ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (Password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
+					ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
 				pendingExt.set(user, AUTH_STATE_FAIL);
 				return;
 			}
@@ -171,7 +171,7 @@ class ModuleSQLAuth : public Module
 
 		if (!SQL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_PASSTHRU;
 		}
@@ -212,7 +212,7 @@ class ModuleSQLAuth : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allow/Deny connections based upon an arbitrary SQL table", VF_VENDOR);
+		return Version("Allow/deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}
 };
 

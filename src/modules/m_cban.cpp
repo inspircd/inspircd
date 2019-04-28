@@ -106,7 +106,7 @@ class CommandCBan : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** CBan " + parameters[0] + " not found in list, try /stats C.");
+				user->WriteNotice("*** CBan " + parameters[0] + " not found on the list.");
 				return CMD_FAILURE;
 			}
 		}
@@ -204,7 +204,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Gives /cban, aka C-lines. Think Q-lines, for channels.", VF_COMMON | VF_VENDOR);
+		return Version("Provides the CBAN command, like Q-lines, but for channels", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -64,18 +64,18 @@ class CommandOpermotd : public Command
 		if (opermotd.empty())
 		{
 			if (show_missing)
-				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing");
+				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing.");
 			return;
 		}
 
-		user->WriteRemoteNumeric(RPL_OMOTDSTART, "- IRC Operators Message of the Day");
+		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
 			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "- End of OPERMOTD");
+		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
 	}
 };
 
@@ -93,7 +93,7 @@ class ModuleOpermotd : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Shows a message to opers after oper-up and adds the OPERMOTD command", VF_VENDOR | VF_OPTCOMMON);
 	}
 
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE

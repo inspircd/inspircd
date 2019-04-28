@@ -500,7 +500,7 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 
 Version ModuleSQL::GetVersion()
 {
-	return Version("MySQL support", VF_VENDOR);
+	return Version("Provides MySQL support", VF_VENDOR);
 }
 
 void DispatcherThread::Run()

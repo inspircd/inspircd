@@ -153,7 +153,7 @@ class TreeServer : public Server
 	 */
 	unsigned long rtt;
 
-	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
+	/** When we received BURST from this server, used to calculate total burst time at ENDBURST.
 	 */
 	uint64_t StartBurst;
 
