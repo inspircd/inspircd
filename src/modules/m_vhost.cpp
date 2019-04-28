@@ -116,7 +116,7 @@ class ModuleVHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides masking of user hostnames via traditional /VHOST command", VF_VENDOR);
+		return Version("Provides masking of user hostnames via the VHOST command", VF_VENDOR);
 	}
 };
 

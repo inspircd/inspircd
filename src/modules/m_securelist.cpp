@@ -33,7 +33,7 @@ class ModuleSecureList : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
+		return Version("Disallows the LIST command for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

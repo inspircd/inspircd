@@ -83,7 +83,7 @@ class CommandTagMsg : public Command
 			if (no_chan_priv && chan->IsModeSet(moderatedmode))
 			{
 				// The moderated mode is set and the source has no status rank.
-				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m)");
+				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
 				return CMD_FAILURE;
 			}
 

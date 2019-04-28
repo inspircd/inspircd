@@ -201,7 +201,7 @@ class CommandSilence : public SplitCommand
 		SilenceList* list = ext.get(user);
 		if (list && list->size() > maxsilence)
 		{
-			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your silence list is full");
+			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
 			return CMD_FAILURE;
 		}
 		else if (!list)
@@ -213,7 +213,7 @@ class CommandSilence : public SplitCommand
 
 		if (!list->insert(SilenceEntry(flags, mask)).second)
 		{
-			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The silence entry you specified already exists");
+			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified already exists");
 			return CMD_FAILURE;
 		}
 
@@ -239,7 +239,7 @@ class CommandSilence : public SplitCommand
 			}
 		}
 
-		user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The silence entry you specified could not be found");
+		user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified could not be found");
 		return CMD_FAILURE;
 	}
 
@@ -253,7 +253,7 @@ class CommandSilence : public SplitCommand
 				user->WriteNumeric(RPL_SILELIST, iter->mask, SilenceEntry::BitsToFlags(iter->flags));
 			}
 		}
-		user->WriteNumeric(RPL_ENDOFSILELIST, "End of silence list");
+		user->WriteNumeric(RPL_ENDOFSILELIST, "End of SILENCE list");
 		return CMD_SUCCESS;
 	}
 
@@ -431,7 +431,7 @@ class ModuleSilence
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for blocking users with the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides support for blocking users with the SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

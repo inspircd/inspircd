@@ -629,7 +629,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 Version ModuleFilter::GetVersion()
 {
-	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
+	return Version("Provides text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
 }
 
 std::string ModuleFilter::EncodeFilter(FilterResult* filter)

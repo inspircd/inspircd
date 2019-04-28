@@ -92,7 +92,7 @@ class ModuleUserIP : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for USERIP command",VF_VENDOR);
+		return Version("Provides the USERIP command", VF_VENDOR);
 	}
 };
 

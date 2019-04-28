@@ -54,7 +54,7 @@ class CommandSaquit : public Command
 		}
 		else
 		{
-			user->WriteNotice("*** Invalid nickname '" + parameters[0] + "'");
+			user->WriteNotice("*** Invalid nickname: '" + parameters[0] + "'");
 			return CMD_FAILURE;
 		}
 	}
@@ -76,7 +76,7 @@ class ModuleSaquit : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SAQUIT command, allows opers to force-quit users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -42,7 +42,7 @@ class ModuleQuietBan
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides extban 'm', mute bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)

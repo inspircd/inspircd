@@ -41,7 +41,7 @@ class ModuleMapHide : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Replaces the output of /MAP and /LINKS with an URL", VF_VENDOR);
+		return Version("Replaces the output of the MAP and LINKS commands with an URL", VF_VENDOR);
 	}
 };
 

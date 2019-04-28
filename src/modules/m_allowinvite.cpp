@@ -57,7 +57,7 @@ class ModuleAllowInvite : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for channel mode +A, allowing /INVITE freely on a channel, and extban A to deny specific users it", VF_VENDOR);
+		return Version("Provides channel mode +A to allow /INVITE freely on a channel, and extban 'A' to deny specific users it", VF_VENDOR);
 	}
 };
 

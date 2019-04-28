@@ -53,7 +53,7 @@ class ModuleGlobops : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
+		return Version("Provides the GLOBOPS command and snomask 'g'", VF_VENDOR);
 	}
 };
 

@@ -305,7 +305,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for channel mode +P to provide permanent channels",VF_VENDOR);
+		return Version("Provides channel mode +P to provide permanent channels", VF_VENDOR);
 	}
 
 	ModResult OnChannelPreDelete(Channel *c) CXX11_OVERRIDE

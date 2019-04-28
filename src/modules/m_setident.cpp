@@ -65,7 +65,7 @@ class ModuleSetIdent : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for the SETIDENT command", VF_VENDOR);
+		return Version("Provides the SETIDENT command", VF_VENDOR);
 	}
 };
 

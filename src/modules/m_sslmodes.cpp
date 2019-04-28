@@ -159,13 +159,13 @@ class ModuleSSLModes
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are an SSL user (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are an SSL user (+z is set)");
 				return MOD_RES_DENY;
 			}
 
 			if (!api->GetCertificate(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -190,7 +190,7 @@ class ModuleSSLModes
 			if (!api || !api->GetCertificate(user))
 			{
 				/* The sending user is not on an SSL connection */
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z set)");
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
