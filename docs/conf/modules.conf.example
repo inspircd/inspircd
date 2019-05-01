@@ -10,7 +10,7 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules. Please refer to       #
-#  https://wiki.inspircd.org/3.0/Modules for a list of modules and    #
+#  https://docs.inspircd.org/3/modules for a list of modules and      #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
@@ -822,8 +822,8 @@
 # more blacklists.                                                    #
 #<module name="dnsbl">
 #                                                                     #
-# For configuration options please see the wiki page for dnsbl at     #
-# https://wiki.inspircd.org/Modules/3.0/dnsbl                         #
+# For configuration options please see the docs page for dnsbl at     #
+# https://docs.inspircd.org/3/modules/dnsbl                           #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
@@ -1013,7 +1013,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# See https://wiki.inspircd.org/Modules/3.0/hostchange for help.      #
+# See https://docs.inspircd.org/3/modules/hostchange for help.        #
 #                                                                     #
 #<hostchange mask="*@42.theanswer.example.org" action="addaccount" suffix=".users.example.com">
 #<hostchange mask="*root@*" action="addnick" prefix="example/users/">
@@ -1365,8 +1365,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# mysql is more complex than described here, see the wiki for more    #
-# info: https://wiki.inspircd.org/Modules/3.0/mysql                   #
+# mysql is more complex than described here, see the docs for more    #
+# info: https://docs.inspircd.org/3/modules/mysql                     #
 #
 #<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
 
@@ -1536,7 +1536,7 @@
 #                                                                     #
 # Much of override's configuration relates to your oper blocks.       #
 # For more information on how to allow opers to override, see:        #
-# https://wiki.inspircd.org/Modules/3.0/override                      #
+# https://docs.inspircd.org/3/modules/override                        #
 #                                                                     #
 # noisy         - If enabled, all oper overrides will be announced    #
 #                 via channel notice.                                 #
@@ -1654,8 +1654,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# pgsql is more complex than described here, see the wiki for         #
-# more: https://wiki.inspircd.org/Modules/3.0/pgsql                   #
+# pgsql is more complex than described here, see the docs for         #
+# more: https://docs.inspircd.org/3/modules/pgsql                     #
 #
 #<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
 
@@ -2083,8 +2083,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# ssl_gnutls is too complex to describe here, see the wiki:           #
-# https://wiki.inspircd.org/Modules/3.0/ssl_gnutls                    #
+# ssl_gnutls is too complex to describe here, see the docs:           #
+# https://docs.inspircd.org/3/modules/ssl_gnutls                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL info module: Allows users to retrieve information about other
@@ -2114,8 +2114,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# ssl_openssl is too complex to describe here, see the wiki:          #
-# https://wiki.inspircd.org/Modules/3.0/ssl_openssl                   #
+# ssl_openssl is too complex to describe here, see the docs:          #
+# https://docs.inspircd.org/3/modules/ssl_openssl                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip color module: Adds channel mode +S that strips color codes and
@@ -2144,8 +2144,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# sqlite is more complex than described here, see the wiki for more   #
-# info: https://wiki.inspircd.org/Modules/3.0/sqlite3                 #
+# sqlite is more complex than described here, see the docs for more   #
+# info: https://docs.inspircd.org/3/modules/sqlite3                   #
 #
 #<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
 
@@ -2157,8 +2157,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# sqlauth is too complex to describe here, see the wiki:              #
-# https://wiki.inspircd.org/Modules/3.0/sqlauth                       #
+# sqlauth is too complex to describe here, see the docs:              #
+# https://docs.inspircd.org/3/modules/sqlauth                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL
@@ -2172,7 +2172,7 @@
 #                                                                     #
 # dbid       - Database ID to use (see SQL modules).                  #
 #                                                                     #
-# See also: https://wiki.inspircd.org/Modules/3.0/sqloper             #
+# See also: https://docs.inspircd.org/3/modules/sqloper               #
 #                                                                     #
 #<sqloper dbid="1">
 

@@ -1,8 +1,8 @@
 This directory stores modules which require external libraries to compile.
-For example, m_filter_pcre requires the PCRE libraries.
+For example, m_regex_pcre requires the PCRE libraries.
 
 To compile any of these modules first ensure you have the required dependencies
-(read the online documentation at https://wiki.inspircd.org) and then symlink
+(read the online documentation at https://docs.inspircd.org) and then symlink
 the .cpp file from this directory into the parent directory (src/modules/).
 
 Alternatively, use the command: ./configure --enable-extras=m_extra.cpp, which will

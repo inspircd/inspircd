@@ -188,8 +188,8 @@ std-header:
 	@echo "*       BUILDING INSPIRCD           *"
 	@echo "*                                   *"
 	@echo "*   This will take a *long* time.   *"
-	@echo "*     Why not read our wiki at      *"
-	@echo "*     https://wiki.inspircd.org     *"
+	@echo "*     Why not read our docs at      *"
+	@echo "*     https://docs.inspircd.org     *"
 	@echo "*  while you wait for Make to run?  *"
 	@echo "*************************************"
 
