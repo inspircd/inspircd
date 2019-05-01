@@ -24,13 +24,9 @@ Most InspIRCd users running a UNIX-like system build from source. A guide about 
 
 Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/master/win/README.txt) if you wish to do this.
 
-<!--
-TODO: uncomment this once we have binary packages for v3.
-
 If you are running on CentOS 7, Debian 7, or Windows binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
 A [Docker](https://www.docker.com) image is also available. See [the inspircd-docker repository](https://github.com/inspircd/inspircd-docker) for more information.
--->
 
 Some distributions ship an InspIRCd package in their package managers. We generally do not recommend the use of such packages as in the past distributions have made broken modifications to InspIRCd and not kept their packages up to date with essential security updates.
 
