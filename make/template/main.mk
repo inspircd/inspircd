@@ -201,7 +201,7 @@ std-header:
 	@echo "*                                   *"
 	@echo "*   This will take a *long* time.   *"
 	@echo "*     Why not read our docs at      *"
-	@echo "*     http://docs.inspircd.org      *"
+	@echo "*     https://docs.inspircd.org     *"
 	@echo "*  while you wait for make to run?  *"
 	@echo "*************************************"
 

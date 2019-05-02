@@ -327,7 +327,7 @@
 # Optional - If you specify to use m_cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
-# For more information see: https://docs.inspircd.org/2/modules/cgiirc 
+# For more information see: https://docs.inspircd.org/2/modules/cgiirc
 #
 # Set to yes if you want to notice opers when CGI:IRC clients connect.
 # <cgiirc opernotice="no">
