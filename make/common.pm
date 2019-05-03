@@ -68,6 +68,7 @@ sub get_version {
 
 	# If the user has specified a distribution label then we use it in
 	# place of the label from src/version.sh or Git.
+	$version{REAL_LABEL} = $version{LABEL};
 	$version{LABEL} = shift // $version{LABEL};
 
 	# If any of these fields are missing then the user has deleted the

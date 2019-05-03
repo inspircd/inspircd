@@ -261,7 +261,7 @@ EOW
 }
 
 # Check that the user actually wants this version.
-if ($version{LABEL} ne 'release') {
+if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
 You are building a development version. This contains code which has
 not been tested as heavily and may contain various faults which could seriously
