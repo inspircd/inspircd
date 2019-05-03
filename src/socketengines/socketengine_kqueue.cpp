@@ -39,6 +39,20 @@ namespace
 	/** Pending changes
 	 */
 	std::vector<struct kevent> changelist(8);
+
+#ifdef __NetBSD__
+	inline intptr_t udata_cast(EventHandler* eh)
+	{
+		// On NetBSD the last parameter of EV_SET is intptr_t.
+		return reinterpret_cast<intptr_t>(eh);
+	}
+#else
+	inline void* udata_cast(EventHandler* eh)
+	{
+		// On other platforms the last parameter of EV_SET is void*.
+		return static_cast<void*>(eh);
+	}
+#endif
 }
 
 /** Initialize the kqueue engine
@@ -87,7 +101,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 
 	// We always want to read from the socket...
 	struct kevent* ke = GetChangeKE();
-	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, static_cast<void*>(eh));
+	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, udata_cast(eh));
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
@@ -128,7 +142,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	{
 		// new poll-style write
 		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, static_cast<void*>(eh));
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, udata_cast(eh));
 	}
 	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
 	{
@@ -139,7 +153,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
 		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, static_cast<void*>(eh));
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, udata_cast(eh));
 	}
 }
 
@@ -160,8 +174,9 @@ int SocketEngine::DispatchEvents()
 
 	for (int j = 0; j < i; j++)
 	{
+		// This can't be a static_cast because udata is intptr_t on NetBSD.
 		struct kevent& kev = ke_list[j];
-		EventHandler* eh = static_cast<EventHandler*>(kev.udata);
+		EventHandler* eh = reinterpret_cast<EventHandler*>(kev.udata);
 		if (!eh)
 			continue;
 
