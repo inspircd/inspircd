@@ -305,14 +305,24 @@
          # module be loaded as well.
          modes="+x"
 
-         # requireident, requiressl, requireaccount: require that users of this
-         # block have a valid ident response, use SSL, or have authenticated.
-         # Requires ident, sslinfo, or the services_account module, respectively.
-         requiressl="on"
-         # NOTE: For requireaccount, you must complete the signon prior to full
-         # connection. Currently, this is only possible by using SASL
-         # authentication; passforward and PRIVMSG NickServ happen after
-         # your final connect block has been found.
+         # requireident: Require that users of this block have a valid ident response.
+         # Requires the ident module to be loaded.
+         #requireident="yes"
+
+         # requiressl: Require that users of this block use an SSL connection.
+         # This can also be set to "trusted", as to only accept certificates
+         # issued by a certificate authority that you can configure in the
+         # settings of the SSL module that you're using.
+         # Requires the sslinfo module to be loaded.
+         #requiressl="yes"
+
+         # requireaccount: Require that users of this block have authenticated to a
+         # services account.
+         # NOTE: You must complete the signon prior to full connection. Currently,
+         # this is only possible by using SASL authentication; passforward
+         # and PRIVMSG NickServ happen after your final connect block has been found.
+         # Requires the services_account module to be loaded.
+         #requireaccount="yes"
 
          # Alternate MOTD file for this connect class. The contents of this file are
          # specified using <files secretmotd="filename"> or <execfiles ...>
