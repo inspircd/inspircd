@@ -32,7 +32,7 @@
 CXX = @CXX@
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
-BUILDPATH ?= $(PWD)/build
+BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
