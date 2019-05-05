@@ -2286,7 +2286,7 @@
 # which are allowed to connect to the server. You should set this as
 # strict as possible to prevent malicious webpages from connecting to
 # your server.
-# <wsorigin allow="https://*.example.com/">
+# <wsorigin allow="https://*.example.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # X-line database: Stores all *-lines (G/Z/K/R/any added by other modules)
