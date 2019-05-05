@@ -228,20 +228,30 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		return;
 	}
 
+	std::string reason;
+	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
+
+	LocalUser* const localuser = IS_LOCAL(user);
+	if (localuser)
+	{
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (localuser, reason));
+		if (MOD_RESULT == MOD_RES_DENY)
+			return;
+	}
+
+	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
+	if (!operreason)
+		operreason = &reason;
+
 	user->quitting = true;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
-	LocalUser* const localuser = IS_LOCAL(user);
 	if (localuser)
 	{
 		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operreason ? operreason->c_str() : quitreason.c_str()));
 		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
 	}
-
-	std::string reason;
-	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	if (!operreason)
-		operreason = &reason;
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
