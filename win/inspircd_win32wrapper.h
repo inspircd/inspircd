@@ -85,7 +85,7 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 
-typedef int ssize_t;
+typedef SSIZE_T ssize_t;
 
 /* _popen, _pclose */
 #define popen _popen
