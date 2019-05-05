@@ -220,7 +220,7 @@ Sends a notice to a user or channel specified in <target>.">
 
 Joins one or more channels you provide the names for.">
 
-<helpop key="names" value="/NAMES <channel>[,<channel>]+
+<helpop key="names" value="/NAMES [<channel>[,<channel>]+]
 
 Return a list of users on the channel(s) you provide.">
 
