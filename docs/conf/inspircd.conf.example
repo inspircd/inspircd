@@ -269,7 +269,7 @@
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /NICK, /USER or /PASS)
-         timeout="10"
+         timeout="20"
 
          # localmax: Maximum local connections per IP (or CIDR mask, see below).
          localmax="3"
@@ -363,7 +363,7 @@
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /NICK, /USER or /PASS)
-         timeout="10"
+         timeout="20"
 
          # pingfreq: How often the server tries to ping connecting clients.
          pingfreq="2m"
