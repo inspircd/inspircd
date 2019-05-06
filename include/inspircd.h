@@ -25,6 +25,10 @@
 
 #pragma once
 
+// If the system has a pre-C11 stdint header this must be defined in
+// order to use the numeric limit macros.
+#define __STDC_LIMIT_MACROS
+
 #include <cfloat>
 #include <climits>
 #include <cmath>
