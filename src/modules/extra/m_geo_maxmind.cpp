@@ -27,9 +27,9 @@
 # pragma comment(lib, "libmaxminddb.lib")
 #endif
 
-#include <maxminddb.h>
 #include "inspircd.h"
 #include "modules/geolocation.h"
+#include <maxminddb.h>
 
 class GeolocationExtItem : public LocalExtItem
 {
