@@ -828,9 +828,10 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
 # users of a specified channel status to be exempt from some channel  #
-# restriction modes. Supported restrictions are                       #
-# blockcaps, blockcolor, censor, filter, flood, nickflood, noctcp,    #
-# nonick, nonotice, regmoderated, stripcolor, and topiclock.          #
+# restriction modes. Supported restrictions are:                      #
+# anticaps, auditorium-see, auditorium-vis, blockcaps, blockcolor,    #
+# censor, filter, flood, nickflood, noctcp, nonick, nonotice,         #
+# regmoderated, stripcolor, and topiclock.                            #
 # See <options:exemptchanops> in inspircd.conf.example for a more     #
 # detailed list of the restriction modes that can be exempted.        #
 # These are settable using: /MODE #chan +X <restriction>:<status>     #
