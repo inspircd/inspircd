@@ -24,9 +24,9 @@
  */
 
 
-#include <iostream>
 #include "inspircd.h"
 #include "exitcodes.h"
+#include <iostream>
 
 #ifndef _WIN32
 	#include <dirent.h>
