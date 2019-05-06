@@ -626,6 +626,8 @@
 
          # exemptchanops: Allows users with with a status mode to be exempt
          # from various channel restrictions. Possible restrictions are:
+         #  - anticaps        Channel mode +B - blocks messages with too many capital
+         #                    letters (requires the anticaps module).
          #  - auditorium-see  Permission required to see the full user list of
          #                    a +u channel (requires the auditorium module).
          #  - auditorium-vis  Permission required to be visible in a +u channel
