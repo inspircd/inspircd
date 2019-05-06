@@ -982,6 +982,7 @@ using their cloak when they quit.">
                     (requires the exemptchanops module).
  Possible restriction types to exempt with +X are:
 
+ anticaps            Channel mode +B
  auditorium-see      Permission required to see the full user list of
                      a +u channel (requires the auditorium module).
  auditorium-vis      Permission required to be visible in a +u channel
