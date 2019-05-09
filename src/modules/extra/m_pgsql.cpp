@@ -298,6 +298,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
+				return true;
 			default:
 				return true;
 		}
@@ -391,6 +392,7 @@ restart:
 				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
+				return true;
 			default:
 				return true;
 		}
