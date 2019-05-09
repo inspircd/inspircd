@@ -859,6 +859,8 @@ using their cloak when they quit.">
               non-server operators (requires the hidechans module).
  L            Stops redirections done by the redirect module (requires
               the redirect module).
+ O            Allows server operators to opt-in to overriding
+              restrictions (requires the override module).
  R            Blocks private messages from unregistered users
               (requires the services account module).
  S            Strips formatting codes out of private messages
