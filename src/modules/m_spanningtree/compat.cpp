@@ -48,7 +48,6 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			std::string::size_type b = line.find(' ', a + 1);
 			std::string command(line, a + 1, b-a-1);
 			// now try to find a translation entry
-			// TODO a more efficient lookup method will be needed later
 			if (proto_version < 1205)
 			{
 				if (command == "IJOIN")

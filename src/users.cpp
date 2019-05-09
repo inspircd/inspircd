@@ -121,7 +121,6 @@ const std::string& User::MakeHost()
 	if (!this->cached_makehost.empty())
 		return this->cached_makehost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_makehost = ident + "@" + GetRealHost();
 	return this->cached_makehost;
 }
@@ -131,7 +130,6 @@ const std::string& User::MakeHostIP()
 	if (!this->cached_hostip.empty())
 		return this->cached_hostip;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_hostip = ident + "@" + this->GetIPString();
 	return this->cached_hostip;
 }
@@ -141,7 +139,6 @@ const std::string& User::GetFullHost()
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_fullhost = nick + "!" + ident + "@" + GetDisplayedHost();
 	return this->cached_fullhost;
 }
@@ -151,7 +148,6 @@ const std::string& User::GetFullRealHost()
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_fullrealhost = nick + "!" + ident + "@" + GetRealHost();
 	return this->cached_fullrealhost;
 }
