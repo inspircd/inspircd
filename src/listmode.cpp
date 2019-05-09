@@ -64,6 +64,7 @@ void ListModeBase::DoRehash()
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("maxlist");
 	limitlist newlimits;
+	bool seen_default = false;
 	for (ConfigIter i = tags.first; i != tags.second; i++)
 	{
 		ConfigTag* c = i->second;
@@ -72,20 +73,24 @@ void ListModeBase::DoRehash()
 		if (!mname.empty() && !stdalgo::string::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;
 
-		ListLimit limit(c->getString("chan", "*"), c->getUInt("limit", 0));
+		ListLimit limit(c->getString("chan", "*", 1), c->getUInt("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
 			throw ModuleException(InspIRCd::Format("<maxlist:chan> is empty, at %s", c->getTagLocation().c_str()));
 
-		if (limit.limit <= 0)
-			throw ModuleException(InspIRCd::Format("<maxlist:limit> must be non-zero, at %s", c->getTagLocation().c_str()));
+		if (limit.mask == "*" || limit.mask == "#*")
+			seen_default = true;
 
 		newlimits.push_back(limit);
 	}
 
-	// Add the default entry. This is inserted last so if the user specifies a
-	// wildcard record in the config it will take precedence over this entry.
-	newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
+	// If no default limit has been specified then insert one.
+	if (!seen_default)
+	{
+		ServerInstance->Logs->Log("MODE", LOG_DEBUG, "No default <maxlist> entry was found for the %s mode; defaulting to %u",
+			name.c_str(), DEFAULT_LIST_SIZE);
+		newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
+	}
 
 	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
 	if (chanlimits == newlimits)
@@ -112,7 +117,7 @@ unsigned int ListModeBase::FindLimit(const std::string& channame)
 			return it->limit;
 		}
 	}
-	return DEFAULT_LIST_SIZE;
+	return 0;
 }
 
 unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
@@ -133,13 +138,16 @@ unsigned int ListModeBase::GetLimit(Channel* channel)
 
 unsigned int ListModeBase::GetLowerLimit()
 {
+	if (chanlimits.empty())
+		return DEFAULT_LIST_SIZE;
+
 	unsigned int limit = UINT_MAX;
 	for (limitlist::iterator iter = chanlimits.begin(); iter != chanlimits.end(); ++iter)
 	{
 		if (iter->limit < limit)
 			limit = iter->limit;
 	}
-	return limit == UINT_MAX ? DEFAULT_LIST_SIZE : limit;
+	return limit;
 }
 
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
