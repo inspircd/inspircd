@@ -123,8 +123,8 @@ while (<SRC>) {
 close SRC;
 
 # determine core version
-`./src/version.sh` =~ /InspIRCd-([0-9.]+)/ or die "Cannot determine inspircd version";
-$installed{core} = $1;
+my %version = get_version();
+$installed{core} = "$version{MAJOR}.$version{MINOR}.$version{PATCH}";
 for my $mod (keys %modules) {
 	MODVER: for my $mver (keys %{$modules{$mod}}) {
 		for my $dep (@{$modules{$mod}{$mver}{depends}}) {
@@ -137,7 +137,7 @@ for my $mod (keys %modules) {
 	}
 	delete $modules{$mod} unless %{$modules{$mod}};
 }
-$modules{core}{$1} = {
+$modules{core}{$installed{core}} = {
 	url => 'NONE',
 	depends => [],
 	conflicts => [],
