@@ -26,8 +26,6 @@ class CommandTagMsg : public Command
 {
  private:
 	Cap::Capability& cap;
-	ChanModeReference moderatedmode;
-	ChanModeReference noextmsgmode;
 	Events::ModuleEventProvider tagevprov;
 	ClientProtocol::EventProvider msgevprov;
 
@@ -68,32 +66,6 @@ class CommandTagMsg : public Command
 			// The target channel does not exist.
 			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
-		}
-
-		if (IS_LOCAL(source))
-		{
-			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(source))
-			{
-				// The noextmsg mode is set and the source is not in the channel.
-				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
-				return CMD_FAILURE;
-			}
-
-			bool no_chan_priv = chan->GetPrefixValue(source) < VOICE_VALUE;
-			if (no_chan_priv && chan->IsModeSet(moderatedmode))
-			{
-				// The moderated mode is set and the source has no status rank.
-				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
-				return CMD_FAILURE;
-			}
-
-			if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(source))
-			{
-				// The source is banned in the channel and restrictbannedusers is enabled.
-				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-					source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
-				return CMD_FAILURE;
-			}
 		}
 
 		// Fire the pre-message events.
@@ -223,8 +195,6 @@ class CommandTagMsg : public Command
 	CommandTagMsg(Module* Creator, Cap::Capability& Cap)
 		: Command(Creator, "TAGMSG", 1)
 		, cap(Cap)
-		, moderatedmode(Creator, "moderated")
-		, noextmsgmode(Creator, "noextmsg")
 		, tagevprov(Creator, "event/tagmsg")
 		, msgevprov(Creator, "TAGMSG")
 	{
@@ -307,6 +277,8 @@ class ModuleIRCv3CTCTags
 	Cap::Capability cap;
 	CommandTagMsg cmd;
 	C2CTags c2ctags;
+	ChanModeReference moderatedmode;
+	ChanModeReference noextmsgmode;
 
 	ModResult CopyClientTags(const ClientProtocol::TagMap& tags_in, ClientProtocol::TagMap& tags_out)
 	{
@@ -325,6 +297,8 @@ class ModuleIRCv3CTCTags
 		, cap(this, "message-tags")
 		, cmd(this, cap)
 		, c2ctags(this, cap)
+		, moderatedmode(this, "moderated")
+		, noextmsgmode(this, "noextmsg")
 	{
 	}
 
@@ -335,6 +309,33 @@ class ModuleIRCv3CTCTags
 
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
 	{
+		if (IS_LOCAL(user) && target.type == MessageTarget::TYPE_CHANNEL)
+		{
+			Channel* chan = target.Get<Channel>();
+			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
+			{
+				// The noextmsg mode is set and the user is not in the channel.
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
+				return MOD_RES_DENY;
+			}
+
+			bool no_chan_priv = chan->GetPrefixValue(user) < VOICE_VALUE;
+			if (no_chan_priv && chan->IsModeSet(moderatedmode))
+			{
+				// The moderated mode is set and the user has no status rank.
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
+				return MOD_RES_DENY;
+			}
+
+			if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(user))
+			{
+				// The user is banned in the channel and restrictbannedusers is enabled.
+				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+				return MOD_RES_DENY;
+			}
+		}
+
 		return CopyClientTags(details.tags_in, details.tags_out);
 	}
 

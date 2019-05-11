@@ -138,8 +138,6 @@ class CommandMessage : public Command
 {
  private:
 	const MessageType msgtype;
-	ChanModeReference moderatedmode;
-	ChanModeReference noextmsgmode;
 
 	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
 	{
@@ -149,32 +147,6 @@ class CommandMessage : public Command
 			// The target channel does not exist.
 			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
-		}
-
-		if (IS_LOCAL(source))
-		{
-			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(source))
-			{
-				// The noextmsg mode is set and the source is not in the channel.
-				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
-				return CMD_FAILURE;
-			}
-
-			bool no_chan_priv = chan->GetPrefixValue(source) < VOICE_VALUE;
-			if (no_chan_priv && chan->IsModeSet(moderatedmode))
-			{
-				// The moderated mode is set and the source has no status rank.
-				source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
-				return CMD_FAILURE;
-			}
-
-			if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(source))
-			{
-				// The source is banned in the channel and restrictbannedusers is enabled.
-				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-					source->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
-				return CMD_FAILURE;
-			}
 		}
 
 		// Fire the pre-message events.
@@ -300,8 +272,6 @@ class CommandMessage : public Command
 	CommandMessage(Module* parent, MessageType mt)
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
-		, moderatedmode(parent, "moderated")
-		, noextmsgmode(parent, "noextmsg")
 	{
 		syntax = "<target>[,<target>]+ :<message>";
 	}
@@ -413,13 +383,49 @@ class ModuleCoreMessage : public Module
 	CommandMessage cmdprivmsg;
 	CommandMessage cmdnotice;
 	CommandSQuery cmdsquery;
+	ChanModeReference moderatedmode;
+	ChanModeReference noextmsgmode;
 
  public:
 	ModuleCoreMessage()
 		: cmdprivmsg(this, MSG_PRIVMSG)
 		, cmdnotice(this, MSG_NOTICE)
 		, cmdsquery(this)
+		, moderatedmode(this, "moderated")
+		, noextmsgmode(this, "noextmsg")
 	{
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
+			return MOD_RES_PASSTHRU;
+
+		Channel* chan = target.Get<Channel>();
+		if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
+		{
+			// The noextmsg mode is set and the user is not in the channel.
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
+			return MOD_RES_DENY;
+		}
+
+		bool no_chan_priv = chan->GetPrefixValue(user) < VOICE_VALUE;
+		if (no_chan_priv && chan->IsModeSet(moderatedmode))
+		{
+			// The moderated mode is set and the user has no status rank.
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
+			return MOD_RES_DENY;
+		}
+
+		if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(user))
+		{
+			// The user is banned in the channel and restrictbannedusers is enabled.
+			if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+			return MOD_RES_DENY;
+		}
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
