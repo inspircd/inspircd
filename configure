@@ -52,6 +52,7 @@ my ($opt_binary_dir,
     $opt_config_dir,
     $opt_data_dir,
     $opt_development,
+    $opt_disable_auto_extras,
     $opt_disable_interactive,
     $opt_distribution_label,
     $opt_gid,
@@ -80,6 +81,7 @@ GetOptions(
 
 	'development'          => \$opt_development,
 	'disable-interactive'  => \$opt_disable_interactive,
+	'disable-auto-extras'  => \$opt_disable_auto_extras,
 	'distribution-label=s' => \$opt_distribution_label,
 	'binary-dir=s'         => \$opt_binary_dir,
 	'config-dir=s'         => \$opt_config_dir,
@@ -117,6 +119,7 @@ our $interactive = !(
 	defined $opt_config_dir ||
 	defined $opt_data_dir ||
 	defined $opt_development ||
+	defined $opt_disable_auto_extras ||
 	defined $opt_disable_interactive ||
 	defined $opt_distribution_label ||
 	defined $opt_gid ||
@@ -321,7 +324,7 @@ if (prompt_bool $interactive, $question, 0) {
 			enable_extras "$module_name.cpp";
 		}
 	}
-} else {
+} elsif (!defined $opt_disable_auto_extras) {
 	# TODO: finish modulemanager rewrite and replace this code with:
 	# system './modulemanager', 'enable', '--auto';
 	my %modules = (
