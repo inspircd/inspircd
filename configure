@@ -74,7 +74,7 @@ sub disable_extras (@);
 my @opt_enableextras;
 my @opt_disableextras;
 
-GetOptions(
+exit 1 unless GetOptions(
 	'clean'  => \&cmd_clean,
 	'help'	 => \&cmd_help,
 	'update' => \&cmd_update,
