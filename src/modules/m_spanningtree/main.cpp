@@ -145,20 +145,6 @@ void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
-std::string ModuleSpanningTree::TimeToStr(time_t secs)
-{
-	time_t mins_up = secs / 60;
-	time_t hours_up = mins_up / 60;
-	time_t days_up = hours_up / 24;
-	secs = secs % 60;
-	mins_up = mins_up % 60;
-	hours_up = hours_up % 24;
-	return ((days_up ? (ConvToStr(days_up) + "d") : "")
-			+ (hours_up ? (ConvToStr(hours_up) + "h") : "")
-			+ (mins_up ? (ConvToStr(mins_up) + "m") : "")
-			+ ConvToStr(secs) + "s");
-}
-
 void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 {
 	if (!a)

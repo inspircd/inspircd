@@ -142,10 +142,6 @@ class ModuleSpanningTree
 	 */
 	ModResult HandleConnect(const CommandBase::Params& parameters, User* user);
 
-	/** Display a time as a human readable string
-	 */
-	static std::string TimeToStr(time_t secs);
-
 	const Events::ModuleEventProvider& GetEventProvider() const { return eventprov; }
 
 	/**
