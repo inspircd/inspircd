@@ -258,13 +258,12 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		ConfigTag* tag = i->second;
 		reference<Link> L = new Link(tag);
-		std::string linkname = tag->getString("name");
-		L->Name = linkname.c_str();
 
 		irc::spacesepstream sep = tag->getString("allowmask");
 		for (std::string s; sep.GetToken(s);)
 			L->AllowMasks.push_back(s);
 
+		L->Name = tag->getString("name");
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getUInt("port", 0);
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
