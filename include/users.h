@@ -676,6 +676,12 @@ class CoreExport User : public Extensible
 	 */
 	virtual ~User();
 	CullResult cull() CXX11_OVERRIDE;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Deserialize(Data& data) CXX11_OVERRIDE;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Serialize(Serializable::Data& data) CXX11_OVERRIDE;
 };
 
 class CoreExport UserIOHandler : public StreamSocket
@@ -729,6 +735,8 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	LocalUser(int fd, const std::string& uuid, Serializable::Data& data);
+
 	CullResult cull() CXX11_OVERRIDE;
 
 	UserIOHandler eh;
@@ -872,6 +880,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param msg Message to send.
 	 */
 	void Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg);
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Deserialize(Data& data) CXX11_OVERRIDE;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Serialize(Serializable::Data& data) CXX11_OVERRIDE;
 };
 
 class RemoteUser : public User

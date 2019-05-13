@@ -74,6 +74,7 @@ struct fakederef
 #include "dynref.h"
 #include "consolecolors.h"
 #include "cull_list.h"
+#include "serialize.h"
 #include "extensible.h"
 #include "fileutils.h"
 #include "ctables.h"
