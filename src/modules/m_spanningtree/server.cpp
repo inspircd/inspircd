@@ -59,9 +59,8 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 		return CMD_FAILURE;
 	}
 
-
-	Link* lnk = Utils->FindLink(servername);
-
+	TreeServer* route = ParentOfThis->GetRoute();
+	Link* lnk = Utils->FindLink(route->GetName());
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	HandleExtra(Node, params);
@@ -85,8 +84,10 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 			val.assign(prop, p+1, std::string::npos);
 		}
 
-		if (key == "burst")
+		if (irc::equals(key, "burst"))
 			newserver->BeginBurst(ConvToNum<uint64_t>(val));
+		else if (irc::equals(key, "hidden"))
+			newserver->Hidden = ConvToNum<bool>(val);
 	}
 }
 
@@ -230,5 +231,6 @@ CommandServer::Builder::Builder(TreeServer* server)
 	push(server->GetID());
 	if (server->IsBursting())
 		push_property("burst", ConvToStr(server->StartBurst));
+	push_property("hidden", ConvToStr(server->Hidden));
 	push_last(server->GetDesc());
 }
