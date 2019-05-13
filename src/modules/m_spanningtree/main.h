@@ -32,17 +32,31 @@
 #include "commands.h"
 #include "protocolinterface.h"
 
-/** If you make a change which breaks the protocol, increment this.
- * If you  completely change the protocol, completely change the number.
+/** An enumeration of all known protocol versions.
  *
- * IMPORTANT: If you make changes, document your changes here, without fail:
- * https://docs.inspircd.org/developer/spanningtree/
- *
- * Failure to document your protocol changes will result in a painfully
- * painful death by pain. You have been warned.
+ * If you introduce new protocol versions please document them here:
+ * https://docs.inspircd.org/spanningtree/changes
  */
-const unsigned int ProtocolVersion = 1205;
-const unsigned int MinCompatProtocol = 1202;
+enum ProtocolVersion
+{
+	/** The linking protocol version introduced in InspIRCd v2.0. */
+	PROTO_INSPIRCD_20 = 1202,
+
+	/** The linking protocol version introduced in InspIRCd v2.1 alpha 0. */
+	PROTO_INSPIRCD_21_A0 = 1203,
+
+	/** The linking protocol version introduced in InspIRCd v2.1 beta 2. */
+	PROTO_INSPIRCD_21_B2 = 1204,
+
+	/** The linking protocol version introduced in InspIRCd v3.0. */
+	PROTO_INSPIRCD_30 = 1205,
+
+	/** The oldest version of the protocol that we support. */
+	PROTO_OLDEST = PROTO_INSPIRCD_20,
+
+	/** The newest version of the protocol that we support. */
+	PROTO_NEWEST = PROTO_INSPIRCD_30
+};
 
 /** Forward declarations
  */

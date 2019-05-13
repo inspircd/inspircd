@@ -35,7 +35,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState == CONNECTED)
 	{
-		if (proto_version != ProtocolVersion)
+		if (proto_version != PROTO_NEWEST)
 		{
 			std::string line = original_line;
 			std::string::size_type a = line.find(' ');
@@ -48,7 +48,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			std::string::size_type b = line.find(' ', a + 1);
 			std::string command(line, a + 1, b-a-1);
 			// now try to find a translation entry
-			if (proto_version < 1205)
+			if (proto_version < PROTO_INSPIRCD_30)
 			{
 				if (command == "IJOIN")
 				{

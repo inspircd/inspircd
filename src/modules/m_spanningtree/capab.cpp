@@ -47,11 +47,11 @@ std::string TreeSocket::MyModules(int filter)
 		Module* const mod = i->second;
 		// 3.0 advertises its settings for the benefit of services
 		// 2.0 would bork on this
-		if (proto_version < 1205 && i->second->ModuleSourceFile == "m_kicknorejoin.so")
+		if (proto_version < PROTO_INSPIRCD_30 && mod->ModuleSourceFile == "m_kicknorejoin.so")
 			continue;
 
 		bool do_compat_include = false;
-		if (proto_version < 1205)
+		if (proto_version < PROTO_INSPIRCD_30)
 		{
 			for (size_t j = 0; j < sizeof(compatmods)/sizeof(compatmods[0]); j++)
 			{
@@ -63,7 +63,7 @@ std::string TreeSocket::MyModules(int filter)
 			}
 		}
 
-		Version v = i->second->GetVersion();
+		Version v = mod->GetVersion();
 		if ((!do_compat_include) && (!(v.Flags & filter)))
 			continue;
 
@@ -79,7 +79,7 @@ std::string TreeSocket::MyModules(int filter)
 
 	// If we are linked in a 2.0 server and have an ascii casemapping
 	// advertise it as m_ascii.so from inspircd-extras
-	if ((filter & VF_COMMON) && ServerInstance->Config->CaseMapping == "ascii" && proto_version == 1202)
+	if ((filter & VF_COMMON) && ServerInstance->Config->CaseMapping == "ascii" && proto_version == PROTO_INSPIRCD_20)
 	{
 		if (!capabilities.empty())
 			capabilities += "m_ascii.so";
@@ -97,7 +97,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		const ModeHandler* const mh = i->second;
 		const PrefixMode* const pm = mh->IsPrefixMode();
 		std::string mdesc;
-		if (proto_version != 1202)
+		if (proto_version >= PROTO_INSPIRCD_30)
 		{
 			if (pm)
 				mdesc.append("prefix:").append(ConvToStr(pm->GetPrefixRank())).push_back(':');
@@ -128,7 +128,7 @@ void TreeSocket::SendCapabilities(int phase)
 		return;
 
 	if (capab->capab_phase < 1 && phase >= 1)
-		WriteLine("CAPAB START " + ConvToStr(ProtocolVersion));
+		WriteLine("CAPAB START " + ConvToStr(PROTO_NEWEST));
 
 	capab->capab_phase = phase;
 	if (phase < 2)
@@ -185,9 +185,9 @@ void TreeSocket::SendCapabilities(int phase)
 	}
 
 	// 2.0 needs these keys.
-	if (proto_version == 1202)
+	if (proto_version == PROTO_INSPIRCD_20)
 	{
-		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion))
+		extra.append(" PROTOCOL="+ConvToStr(proto_version))
 			.append(" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxReal))
 			.append(" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
 			.append(" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER))
@@ -260,16 +260,17 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		if (params.size() > 1)
 			proto_version = ConvToNum<unsigned int>(params[1]);
 
-		if (proto_version < MinCompatProtocol)
+		if (proto_version < PROTO_OLDEST)
 		{
-			SendError("CAPAB negotiation failed: Server is using protocol version " + (proto_version ? ConvToStr(proto_version) : "1201 or older")
-				+ " which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
-				+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")"));
+			SendError("CAPAB negotiation failed: Server is using protocol version "
+				+ (proto_version ? ConvToStr(proto_version) : "1201 or older")
+				+ " which is too old to link with this server (protocol versions "
+				+ ConvToStr(PROTO_OLDEST) + " to " + ConvToStr(PROTO_NEWEST) + " are supported)");
 			return false;
 		}
 
-		// Special case, may be removed in the future
-		if (proto_version == 1203 || proto_version == 1204)
+		// We don't support the 2.1 protocol.
+		if (proto_version == PROTO_INSPIRCD_21_A0 || proto_version == PROTO_INSPIRCD_21_B2)
 		{
 			SendError("CAPAB negotiation failed: InspIRCd 2.1 beta is not supported");
 			return false;
@@ -339,7 +340,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				}
 			}
 		}
-		else if (proto_version == 1202)
+		else if (proto_version == PROTO_INSPIRCD_20)
 		{
 			if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
 			{
@@ -376,7 +377,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				}
 			}
 		}
-		else if (proto_version == 1202 && this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
+		else if (proto_version == PROTO_INSPIRCD_20 && this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
 		{
 			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_USER))
 				reason = "One or more of the user modes on the remote server are invalid on this server.";

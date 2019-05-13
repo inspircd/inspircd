@@ -333,7 +333,7 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	}
 
 	// Translate commands coming from servers using an older protocol
-	if (proto_version < ProtocolVersion)
+	if (proto_version < PROTO_NEWEST)
 	{
 		if (!PreProcessOldProtocolMessage(who, command, params))
 			return;
