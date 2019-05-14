@@ -298,7 +298,7 @@ class CoreExport SocketEngine
 	static void ResizeDouble(std::vector<T>& vect)
 	{
 		if (SocketEngine::CurrentSetSize > vect.size())
-			vect.resize(vect.size() * 2);
+			vect.resize(SocketEngine::CurrentSetSize * 2);
 	}
 
 public:
