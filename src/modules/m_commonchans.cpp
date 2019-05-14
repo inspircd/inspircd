@@ -34,7 +34,7 @@ class ModuleCommonChans
 			return MOD_RES_PASSTHRU;
 
 		User* targuser = target.Get<User>();
-		if (!targuser->IsModeSet(mode) || !user->SharesChannelWith(targuser))
+		if (!targuser->IsModeSet(mode) || user->SharesChannelWith(targuser))
 			return MOD_RES_PASSTHRU;
 
 		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
