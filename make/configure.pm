@@ -154,6 +154,8 @@ MISC OPTIONS
 
   --clean                       Remove the configuration cache file and start
                                 the interactive configuration wizard.
+  --disable-auto-extras         Disables automatically enabling extra modules
+                                for which the dependencies are available.
   --disable-interactive         Disables the interactive configuration wizard.
   --distribution-label=[text]   Sets a distribution specific version label in
                                 the build configuration.
