@@ -1168,6 +1168,13 @@
 #<module name="ircv3_invitenotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 message id module: Provides the msgid IRCv3 extension which
+# adds a unique identifier to each message when the message-tags cap
+# has been requested. This enables support for modern features such as
+# reactions and replies.
+#<module name="ircv3_msgid">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 server-time module. Adds the 'time' tag which adds a timestamp
 # to all messages received from the server.
 #<module name="ircv3_servertime">
