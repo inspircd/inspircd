@@ -19,35 +19,6 @@
 
 
 #include "inspircd.h"
-#include "threadengines/threadengine_pthread.h"
-#include <pthread.h>
-#include <fcntl.h>
-
-static void* entry_point(void* parameter)
-{
-	/* Recommended by nenolod, signal safety on a per-thread basis */
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, SIGPIPE);
-	pthread_sigmask(SIG_BLOCK, &set, NULL);
-
-	Thread* pt = static_cast<Thread*>(parameter);
-	pt->Run();
-	return parameter;
-}
-
-
-void ThreadEngine::Start(Thread* thread)
-{
-	if (pthread_create(&thread->state.pthread_id, NULL, entry_point, thread) != 0)
-		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
-}
-
-void ThreadEngine::Stop(Thread* thread)
-{
-	thread->SetExitFlag();
-	pthread_join(thread->state.pthread_id, NULL);
-}
 
 #ifdef HAS_EVENTFD
 #include <sys/eventfd.h>
@@ -92,11 +63,11 @@ class ThreadSignalSocket : public EventHandler
 
 SocketThread::SocketThread()
 {
-	signal.sock = NULL;
+	socket = NULL;
 	int fd = eventfd(0, EFD_NONBLOCK);
 	if (fd < 0)
 		throw CoreException("Could not create pipe " + std::string(strerror(errno)));
-	signal.sock = new ThreadSignalSocket(this, fd);
+	socket = new ThreadSignalSocket(this, fd);
 }
 #else
 
@@ -145,24 +116,24 @@ class ThreadSignalSocket : public EventHandler
 
 SocketThread::SocketThread()
 {
-	signal.sock = NULL;
+	socket = NULL;
 	int fds[2];
 	if (pipe(fds))
 		throw CoreException("Could not create pipe " + std::string(strerror(errno)));
-	signal.sock = new ThreadSignalSocket(this, fds[0], fds[1]);
+	socket = new ThreadSignalSocket(this, fds[0], fds[1]);
 }
 #endif
 
 void SocketThread::NotifyParent()
 {
-	signal.sock->Notify();
+	socket->Notify();
 }
 
 SocketThread::~SocketThread()
 {
-	if (signal.sock)
+	if (socket)
 	{
-		signal.sock->cull();
-		delete signal.sock;
+		socket->cull();
+		delete socket;
 	}
 }

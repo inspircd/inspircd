@@ -119,7 +119,7 @@ class DispatcherThread : public SocketThread
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
-	void Run() override;
+	void OnStart() override;
 	void OnNotify() override;
 };
 
@@ -241,7 +241,7 @@ class SQLConnection : public SQL::Provider
  public:
 	reference<ConfigTag> config;
 	MYSQL *connection;
-	Mutex lock;
+	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
 	SQLConnection(Module* p, ConfigTag* tag) : SQL::Provider(p, "SQL/" + tag->getString("id")),
@@ -397,14 +397,14 @@ ModuleSQL::ModuleSQL()
 void ModuleSQL::init()
 {
 	Dispatcher = new DispatcherThread(this);
-	ServerInstance->Threads.Start(Dispatcher);
+	Dispatcher->Start();
 }
 
 ModuleSQL::~ModuleSQL()
 {
 	if (Dispatcher)
 	{
-		Dispatcher->join();
+		Dispatcher->Stop();
 		Dispatcher->OnNotify();
 		delete Dispatcher;
 	}
@@ -444,8 +444,8 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 	{
 		ServerInstance->Modules.DelService(*i->second);
 		// it might be running a query on this database. Wait for that to complete
-		i->second->lock.Lock();
-		i->second->lock.Unlock();
+		i->second->lock.lock();
+		i->second->lock.unlock();
 		// now remove all active queries to this DB
 		for (size_t j = qq.size(); j > 0; j--)
 		{
@@ -478,8 +478,8 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 			{
 				// need to wait until the query is done
 				// (the result will be discarded)
-				qq[i].c->lock.Lock();
-				qq[i].c->lock.Unlock();
+				qq[i].c->lock.lock();
+				qq[i].c->lock.unlock();
 			}
 			qq[i].q->OnError(err);
 			delete qq[i].q;
@@ -496,18 +496,18 @@ Version ModuleSQL::GetVersion()
 	return Version("Provides MySQL support", VF_VENDOR);
 }
 
-void DispatcherThread::Run()
+void DispatcherThread::OnStart()
 {
 	this->LockQueue();
-	while (!this->GetExitFlag())
+	while (!this->IsStopping())
 	{
 		if (!Parent->qq.empty())
 		{
 			QQueueItem i = Parent->qq.front();
-			i.c->lock.Lock();
+			i.c->lock.lock();
 			this->UnlockQueue();
 			MySQLresult* res = i.c->DoBlockingQuery(i.query);
-			i.c->lock.Unlock();
+			i.c->lock.unlock();
 
 			/*
 			 * At this point, the main thread could be working on:

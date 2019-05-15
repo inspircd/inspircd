@@ -588,13 +588,9 @@ void InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs.Log("CONFIG", LOG_DEBUG, "Detected ConfigThread exiting, tidying up...");
-
-			this->ConfigThread->Finish();
-
-			ConfigThread->join();
-			delete ConfigThread;
-			ConfigThread = NULL;
+			this->Logs.Log("CONFIG", LOG_DEBUG, "New configuration has been read, applying...");
+			ConfigThread->Stop();
+			DeleteZero(ConfigThread);
 		}
 
 		UpdateTime();

@@ -251,7 +251,7 @@ class LDAPService : public LDAPProvider, public SocketThread
  public:
 	typedef std::vector<LDAPRequest*> query_queue;
 	query_queue queries, results;
-	Mutex process_mutex; /* held when processing requests not in either queue */
+	std::mutex process_mutex; /* held when processing requests not in either queue */
 
 	LDAPService(Module* c, ConfigTag* tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
@@ -431,7 +431,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 	void SendRequests()
 	{
-		process_mutex.Lock();
+		process_mutex.lock();
 
 		query_queue q;
 		this->LockQueue();
@@ -440,7 +440,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 		if (q.empty())
 		{
-			process_mutex.Unlock();
+			process_mutex.unlock();
 			return;
 		}
 
@@ -472,13 +472,13 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 		this->NotifyParent();
 
-		process_mutex.Unlock();
+		process_mutex.unlock();
 	}
 
  public:
-	void Run() override
+	void OnStart() override
 	{
-		while (!this->GetExitFlag())
+		while (!this->IsStopping())
 		{
 			this->LockQueue();
 			if (this->queries.empty())
@@ -545,7 +545,7 @@ class ModuleLDAP : public Module
 				conns[id] = conn;
 
 				ServerInstance->Modules.AddService(*conn);
-				ServerInstance->Threads.Start(conn);
+				conn->Start();
 			}
 			else
 			{
@@ -558,7 +558,7 @@ class ModuleLDAP : public Module
 		{
 			LDAPService* conn = i->second;
 			ServerInstance->Modules.DelService(*conn);
-			conn->join();
+			conn->Stop();
 			conn->OnNotify();
 			delete conn;
 		}
@@ -572,7 +572,7 @@ class ModuleLDAP : public Module
 		{
 			LDAPService* s = it->second;
 
-			s->process_mutex.Lock();
+			s->process_mutex.lock();
 			s->LockQueue();
 
 			for (unsigned int i = s->queries.size(); i > 0; --i)
@@ -600,7 +600,7 @@ class ModuleLDAP : public Module
 			}
 
 			s->UnlockQueue();
-			s->process_mutex.Unlock();
+			s->process_mutex.unlock();
 		}
 	}
 
@@ -609,7 +609,7 @@ class ModuleLDAP : public Module
 		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
 		{
 			LDAPService* conn = i->second;
-			conn->join();
+			conn->Stop();
 			conn->OnNotify();
 			delete conn;
 		}

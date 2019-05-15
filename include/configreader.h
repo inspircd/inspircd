@@ -461,24 +461,35 @@ class CoreExport ServerConfig
  */
 class CoreExport ConfigReaderThread : public Thread
 {
-	ServerConfig* Config;
-	volatile bool done;
+ private:
+	/** The new server configuration. */
+	ServerConfig* Config = new ServerConfig();
+
+	/** Whether the config has been read yet. */
+	std::atomic_bool done = { false };
+
+ protected:
+	/** @copydoc Thread::OnStart */
+	void OnStart() override;
+
+	/** @copydoc Thread::OnStop */
+	void OnStop() override;
+
  public:
-	const std::string TheUserUID;
-	ConfigReaderThread(const std::string &useruid)
-		: Config(new ServerConfig), done(false), TheUserUID(useruid)
+	const std::string UUID;
+
+	ConfigReaderThread(const std::string& uuid)
+		: UUID(uuid)
 	{
 	}
 
-	virtual ~ConfigReaderThread()
+	~ConfigReaderThread()
 	{
 		delete Config;
 	}
 
-	void Run() override;
-	/** Run in the main thread to apply the configuration */
-	void Finish();
-	bool IsDone() { return done; }
+	/** Whether the configuration has been read yet. */
+	bool IsDone() { return done.load(); }
 };
 
 class CoreExport ConfigStatus

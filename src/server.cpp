@@ -57,7 +57,7 @@ void InspIRCd::Rehash(const std::string& uuid)
 	if (!ServerInstance->ConfigThread)
 	{
 		ServerInstance->ConfigThread = new ConfigReaderThread(uuid);
-		ServerInstance->Threads.Start(ServerInstance->ConfigThread);
+		ServerInstance->ConfigThread->Start();
 	}
 }
 

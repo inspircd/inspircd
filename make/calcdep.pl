@@ -79,7 +79,7 @@ all: inspircd modules
 
 END
 	my(@core_deps, @modlist);
-	for my $file (<*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
+	for my $file (<*.cpp>, <socketengines/*.cpp>) {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";

@@ -661,18 +661,18 @@ std::string ServerConfig::Escape(const std::string& str)
 	return escaped;
 }
 
-void ConfigReaderThread::Run()
+void ConfigReaderThread::OnStart()
 {
 	Config->Read();
 	done = true;
 }
 
-void ConfigReaderThread::Finish()
+void ConfigReaderThread::OnStop()
 {
 	ServerConfig* old = ServerInstance->Config;
 	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
-	Config->Apply(old, TheUserUID);
+	Config->Apply(old, UUID);
 
 	if (Config->valid)
 	{
@@ -685,7 +685,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		User* user = ServerInstance->FindNick(TheUserUID);
+		User* user = ServerInstance->FindUUID(UUID);
 
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();

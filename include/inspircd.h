@@ -85,7 +85,8 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "message.h"
 #include "modules.h"
 #include "clientprotocol.h"
-#include "threadengine.h"
+#include "thread.h"
+#include "threadsocket.h"
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
@@ -237,10 +238,6 @@ class CoreExport InspIRCd
 	/** Command parser, handles client to server commands
 	 */
 	CommandParser Parser;
-
-	/** Thread engine, Handles threading where required
-	 */
-	ThreadEngine Threads;
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
