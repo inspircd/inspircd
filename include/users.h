@@ -456,17 +456,16 @@ class CoreExport User : public Extensible
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	virtual bool HasPermission(const std::string &command);
+	virtual bool HasCommandPermission(const std::string& command);
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
 	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
-	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	virtual bool HasPrivPermission(const std::string &privstr, bool noisy = false);
+	virtual bool HasPrivPermission(const std::string& privstr);
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -749,17 +748,16 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	bool HasPermission(const std::string &command) override;
+	bool HasCommandPermission(const std::string& command) override;
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
 	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
-	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	bool HasPrivPermission(const std::string &privstr, bool noisy = false) override;
+	bool HasPrivPermission(const std::string& privstr) override;
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing

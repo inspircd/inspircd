@@ -81,7 +81,7 @@ class CommandShun : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** Shun " + parameters[0] + " not found in list, try /stats H.");
+				user->WriteNotice("*** Shun " + parameters[0] + " not found on the list.");
 				return CMD_FAILURE;
 			}
 		}
@@ -115,7 +115,7 @@ class CommandShun : public Command
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SHUN for %s to expire in %s (on %s): %s",
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SHUN for %s, expires in %s (on %s): %s",
 						user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), expr.c_str());
 				}
@@ -244,7 +244,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	Version GetVersion() override
 	{
-		return Version("Provides the /SHUN command, which stops a user from executing all except configured commands.",VF_VENDOR|VF_COMMON);
+		return Version("Provides the SHUN command, which stops a user from executing all except configured commands", VF_VENDOR|VF_COMMON);
 	}
 };
 

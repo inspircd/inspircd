@@ -211,7 +211,7 @@ class ModuleClearChan : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Adds /CLEARCHAN that allows opers to masskick, masskill or mass G/Z-line users on a channel.", VF_VENDOR|VF_OPTCOMMON);
+		return Version("Provides the CLEARCHAN command that allows opers to masskick, masskill or mass G/Z-line users on a channel", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

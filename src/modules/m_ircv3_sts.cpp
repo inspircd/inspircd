@@ -35,6 +35,10 @@ class STSCap : public Cap::Capability
 		if (GetProtocol(user) == Cap::CAP_LEGACY)
 			return false;
 
+		// Don't send the cap to clients in a class which has STS disabled.
+		if (user->GetClass()->config->getBool("usests", true))
+			return false;
+
 		// Plaintext listeners have their own policy.
 		SSLIOHook* sslhook = SSLIOHook::IsSSL(&user->eh);
 		if (!sslhook)

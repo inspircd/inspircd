@@ -140,7 +140,6 @@ void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, 
 class CoreModUser : public Module
 {
 	CommandAway cmdaway;
-	CommandMode cmdmode;
 	CommandNick cmdnick;
 	CommandPart cmdpart;
 	CommandPass cmdpass;
@@ -148,6 +147,8 @@ class CoreModUser : public Module
 	CommandPong cmdpong;
 	CommandQuit cmdquit;
 	CommandUser cmduser;
+	CommandIson cmdison;
+	CommandUserhost cmduserhost;
 	SimpleUserModeHandler invisiblemode;
 	ModeUserOperator operatormode;
 	ModeUserServerNoticeMask snomaskmode;
@@ -155,7 +156,6 @@ class CoreModUser : public Module
  public:
 	CoreModUser()
 		: cmdaway(this)
-		, cmdmode(this)
 		, cmdnick(this)
 		, cmdpart(this)
 		, cmdpass(this)
@@ -163,6 +163,8 @@ class CoreModUser : public Module
 		, cmdpong(this)
 		, cmdquit(this)
 		, cmduser(this)
+		, cmdison(this)
+		, cmduserhost(this)
 		, invisiblemode(this, "invisible", 'i')
 		, operatormode(this)
 		, snomaskmode(this)
@@ -177,7 +179,7 @@ class CoreModUser : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides the AWAY, MODE, NICK, PART, PASS, PING, PONG, QUIT and USER commands", VF_VENDOR|VF_CORE);
+		return Version("Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands", VF_VENDOR|VF_CORE);
 	}
 };
 

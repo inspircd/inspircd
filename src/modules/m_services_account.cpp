@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/callerid.h"
+#include "modules/ctctags.h"
 #include "modules/exemption.h"
 #include "modules/whois.h"
 
@@ -53,7 +54,7 @@ class Channel_r : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
 	{
-		// only a u-lined server may add or remove the +r mode.
+		// Only a U-lined server may add or remove the +r mode.
 		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
@@ -136,7 +137,10 @@ class AccountExtItemImpl : public AccountExtItem
 	}
 };
 
-class ModuleServicesAccount : public Module, public Whois::EventListener
+class ModuleServicesAccount
+	: public Module
+	, public Whois::EventListener
+	, public CTCTags::EventListener
 {
  private:
 	CallerID::API calleridapi;
@@ -152,6 +156,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
  public:
 	ModuleServicesAccount()
 		: Whois::EventListener(this)
+		, CTCTags::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
 		, m1(this, "reginvite", 'R')
@@ -194,7 +199,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			m5.RemoveMode(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -230,6 +235,16 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return HandleMessage(user, target);
 	}
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
@@ -297,7 +312,7 @@ class ModuleServicesAccount : public Module, public Whois::EventListener
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides support for ircu-style services accounts, including channel mode +R, etc", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

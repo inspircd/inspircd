@@ -10,7 +10,7 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules. Please refer to       #
-#  https://wiki.inspircd.org/3.0/Modules for a list of modules and    #
+#  https://docs.inspircd.org/3/modules for a list of modules and      #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
@@ -117,9 +117,9 @@
 #                    the user receives a 'no such nick' 401 numeric.  #
 #                                                                     #
 # uline       -      Setting this to true will ensure that the user   #
-#                    given in 'requires' is also on a u-lined server, #
+#                    given in 'requires' is also on a U-lined server, #
 #                    as well as actually being on the network. If the #
-#                    user is online, but not on a u-lined server,     #
+#                    user is online, but not on a U-lined server,     #
 #                    then an oper alert is sent out as this is        #
 #                    possibly a sign of a user trying to impersonate  #
 #                    a service.                                       #
@@ -132,17 +132,17 @@
 # An example of using the format value to create an alias with two
 # different behaviours depending on the format of the parameters.
 #
-#<alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3"
+#<alias text="ID" format="#*" replace="SQUERY ChanServ :IDENTIFY $2 $3"
 #  requires="ChanServ" uline="yes">
 #
-#<alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $2"
+#<alias text="ID" replace="SQUERY NickServ :IDENTIFY $2"
 #  requires="NickServ" uline="yes">
 #
 # This alias fixes a glitch in xchat 2.6.x and above and the way it
 # assumes IDENTIFY must be prefixed by a colon (:) character. It should
 # be placed ABOVE the default NICKSERV alias.
 #
-#<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
+#<alias text="NICKSERV" format=":IDENTIFY *" replace="SQUERY NickServ :IDENTIFY $3-"
 #  requires="NickServ" uline="yes">
 #
 # You may also add aliases to trigger based on something said in a
@@ -151,7 +151,7 @@
 # command must be preceded by the fantasy prefix when used.
 #
 #<alias text="CS" usercommand="no" channelcommand="yes"
-#  replace="PRIVMSG ChanServ :$1 $chan $2-" requires="ChanServ" uline="yes">
+#  replace="SQUERY ChanServ :$1 $chan $2-" requires="ChanServ" uline="yes">
 #
 # This would be used as "!cs <command> <options>", with the channel
 # being automatically inserted after the command in the message to
@@ -253,7 +253,7 @@
 #<module name="botmode">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CallerID module: Adds usermode +g which activates hybrid-style
+# CallerID module: Adds user mode +g which activates hybrid-style
 # callerid: block all private messages unless you /ACCEPT first.
 #<module name="callerid">
 #
@@ -424,10 +424,12 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone already
-# in a channel matching a ban like +b j:#channel*mask from joining.
+# in a channel matching a ban like +b j:#channel from joining.
+# It is also possible to ban based on their status in that channel,
+# like so: +b j:@#channel, this example prevents the ops from joining.
 # Note that by default wildcard characters * and ? are allowed in
-# channel names. To disallow them, load m_channames and add characters
-# 42 and 63 to denyrange (see above).
+# channel names. To disallow them, load the channames module and
+# add characters 42 and 63 to denyrange (see above).
 #<module name="channelban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -472,7 +474,7 @@
 # Connection class ban module: Adds support for extban 'n' which
 # matches against the class name of the user's connection.
 # This module assumes that connection classes are named in a uniform
-# way on all servers of the network.
+# way on all servers of the network. Wildcards are accepted.
 #<module name="classban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -481,7 +483,7 @@
 #<module name="clearchan">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Cloaking module: Adds usermode +x and cloaking support.
+# Cloaking module: Adds user mode +x and cloaking support.
 # Relies on the md5 module being loaded.
 # To cloak users when they connect, load the conn_umodes module and set
 # <connect:modes> to include the +x mode. The example <connect> tag
@@ -690,9 +692,24 @@
 #<banfile pattern="*.txt" action="allow">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deaf module: Adds support for the usermode +d - deaf to channel
-# messages and channel notices.
+# Deaf module: Adds support for user modes +d and +D:
+# d - deaf to channel messages and notices.
+# D - deaf to user messages and notices.
+# The +D user mode is not enabled by default to enable link compatibility
+# with 2.0 servers.
 #<module name="deaf">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-  DEAF CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#  bypasschars       - Characters that bypass deaf to a regular user.
+#  bypasscharsuline  - Characters that bypass deaf to a U-lined user (services).
+#                      Both of these take a list of characters that must match
+#                      the starting character of a message.
+#                      If 'bypasscharsuline' is empty, then 'bypasschars' will
+#                      match for both regular and U-lined users.
+#  enableprivdeaf    - Whether to enable user mode +D (privdeaf).
+#  privdeafuline     - Whether U-lined users bypass user mode +D (privdeaf).
+#
+#<deaf bypasschars="" bypasscharsuline="!" enableprivdeaf="no" privdeafuline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Delay join module: Adds the channel mode +D which delays all JOIN
@@ -776,15 +793,16 @@
 # more blacklists.                                                    #
 #<module name="dnsbl">
 #                                                                     #
-# For configuration options please see the wiki page for dnsbl at     #
-# https://wiki.inspircd.org/Modules/3.0/dnsbl                         #
+# For configuration options please see the docs page for dnsbl at     #
+# https://docs.inspircd.org/3/modules/dnsbl                           #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
 # users of a specified channel status to be exempt from some channel  #
-# restriction modes. Supported restrictions are                       #
-# blockcaps, blockcolor, censor, filter, flood, nickflood, noctcp,    #
-# nonick, nonotice, regmoderated, stripcolor, and topiclock.          #
+# restriction modes. Supported restrictions are:                      #
+# anticaps, auditorium-see, auditorium-vis, blockcaps, blockcolor,    #
+# censor, filter, flood, nickflood, noctcp, nonick, nonotice,         #
+# regmoderated, stripcolor, and topiclock.                            #
 # See <options:exemptchanops> in inspircd.conf.example for a more     #
 # detailed list of the restriction modes that can be exempted.        #
 # These are settable using: /MODE #chan +X <restriction>:<status>     #
@@ -831,30 +849,48 @@
 #<module name="gecosban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GeoIP module: Allows the server admin to match users by country code.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_geoip.cpp
-# and run make install, then uncomment this module to enable it.
-# This module requires GeoIP to be installed on your system,
-# use your package manager to find the appropriate packages
-# or check the InspIRCd wiki page for this module.
-#<module name="geoip">
-#
-# The actual allow/ban actions are done by connect classes, not by the
-# GeoIP module. An example connect class to ban people from russia or
-# turkey:
-#
-# <connect deny="*" geoip="TR,RU">
-#
-# If enabled you can also ban people from channnels by country code
-# using the G: extban (e.g. /MODE #channel +b G:US).
-# <geoip extban="yes">
-#
-# The country code must be in capitals and should be an ISO country
-# code such as TR, GB, or US. Unknown IPs (localhost, LAN IPs, etc)
-# will be assigned the country code "UNK". Since connect classes are
-# matched from top down, your deny classes must be above your allow
-# classes for them to match.
+# Geolocation ban module: Adds support for extban 'G' which matches   #
+# against the ISO 3166-1 alpha-2 codes for the countries that users   #
+# are connecting from. Users connecting from unknown origins such as  #
+# internal networks can be matched against using the XX alpha-2 code. #
+# A full list of ISO 3166-1 alpha-2 codes can be found at             #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoban">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Geolocation connect class module: Adds support for limiting connect #
+# classes to users from specific countries. With this module you can  #
+# specify a space-delimited list of two character the ISO 3166-1      #
+# alpha-2 codes in the "country" field of a connect class. e.g. to    #
+# deny connections from users in Russia or Turkey:                    #
+#                                                                     #
+# <connect deny="*" country="TR RU">                                  #
+#                                                                     #
+# Users connecting from unknown origins such as internal networks can #
+# be matched against using the XX alpha-2 code. A full list of ISO    #
+# 3166-1 alpha-2 codes can be found at                                #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoclass">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MaxMindDB geolocation module: Provides geolocation information for  #
+# other modules that need it using the libMaxMindDB library.          #
+#                                                                     #
+# This module is in extras. Re-run configure with:                    #
+# ./configure --enable-extras=m_geo_maxmind.cpp
+# and run make install, then uncomment this module to enable it.      #
+#                                                                     #
+# This module requires libMaxMindDB to be installed on your system.   #
+# Use your package manager to find the appropriate packages or check  #
+# the InspIRCd documentation page for this module.                    #
+#<module name="geo_maxmind">
+#                                                                     #
+# If you use the geo_maxmind module you MUST provide a database file  #
+# to look up geolocation information in. You can either purchase this #
+# from MaxMind at https://www.maxmind.com/en/geoip2-country-database  #
+# or use the free CC-BY-SA licensed GeoLite2 Country database which   #
+# can be downloaded at https://dev.maxmind.com/geoip/geoip2/geolite2/ #
+#<maxmind file="GeoLite2-Country.mmdb">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Globops module: Provides the /GLOBOPS command and snomask +g.
@@ -939,7 +975,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# See https://wiki.inspircd.org/Modules/3.0/hostchange for help.      #
+# See https://docs.inspircd.org/3/modules/hostchange for help.        #
 #                                                                     #
 #<hostchange mask="*@42.theanswer.example.org" action="addaccount" suffix=".users.example.com">
 #<hostchange mask="*root@*" action="addnick" prefix="example/users/">
@@ -1091,6 +1127,13 @@
 # extension which notifies supporting clients when a user invites
 # another user into a channel. This respects <options:announceinvites>.
 #<module name="ircv3_invitenotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 message id module: Provides the msgid IRCv3 extension which
+# adds a unique identifier to each message when the message-tags cap
+# has been requested. This enables support for modern features such as
+# reactions and replies.
+#<module name="ircv3_msgid">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 server-time module. Adds the 'time' tag which adds a timestamp
@@ -1291,8 +1334,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# mysql is more complex than described here, see the wiki for more    #
-# info: https://wiki.inspircd.org/Modules/3.0/mysql                   #
+# mysql is more complex than described here, see the docs for more    #
+# info: https://docs.inspircd.org/3/modules/mysql                     #
 #
 #<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
 
@@ -1369,7 +1412,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Network business join module:
 # Allows an oper to join a channel using /OJOIN, giving them +Y on the
-# channel which makes them immune to kick/deop/etc.
+# channel which makes them immune to kicks.
 #<module name="ojoin">
 #
 # Specify the prefix that +Y will grant here.
@@ -1423,26 +1466,26 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper prefixing module: Adds a channel prefix mode +y which is given
-# to all IRC operators automatically on all channels they are in.
+# to all server operators automatically on all channels they are in.
 # This prefix mode is more powerful than channel op and other regular
 # prefix modes.
 #
-# Load this module if you want all your IRC operators to have channel
-# operator powers.
+# Load this module if you want all your server operators to have
+# channel operator powers.
 #<module name="operprefix">
 #
 # You may additionally customise the prefix character.
 #<operprefix prefix="!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for separate message of the day
+# Oper MOTD module: Provides support for a separate message of the day
 # on oper-up.
 # This module is oper-only.
 #<module name="opermotd">
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the opermotd module, specify the motd here.   #
+# If you are using the opermotd module, specify the motd file here.   #
 #                                                                     #
 # onoper        - If on, the message is sent on /OPER, otherwise it's #
 #                 only sent when /OPERMOTD is used.                   #
@@ -1458,13 +1501,13 @@
 #                                                                     #
 # Much of override's configuration relates to your oper blocks.       #
 # For more information on how to allow opers to override, see:        #
-# https://wiki.inspircd.org/Modules/3.0/override                      #
+# https://docs.inspircd.org/3/modules/override                        #
 #                                                                     #
 # noisy         - If enabled, all oper overrides will be announced    #
 #                 via channel notice.                                 #
 #                                                                     #
 # requirekey    - If enabled, overriding on join requires a channel   #
-#                 key of "override" to be specified                   #
+#                 key of "override" to be specified.                  #
 #                                                                     #
 #<override noisy="yes" requirekey="no">
 
@@ -1502,7 +1545,7 @@
 
 		# cmd: Command for the user to run when it receives a connect
 		# password.
-		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
+		cmd="SQUERY $nickrequired :IDENTIFY $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
@@ -1574,8 +1617,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# pgsql is more complex than described here, see the wiki for         #
-# more: https://wiki.inspircd.org/Modules/3.0/pgsql                   #
+# pgsql is more complex than described here, see the docs for         #
+# more: https://docs.inspircd.org/3/modules/pgsql                     #
 #
 #<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
 
@@ -1680,7 +1723,7 @@
 #               less CPU usage. Increasing this beyond 512 doesn't have
 #               any effect, as the maximum length of a message on IRC
 #               cannot exceed that.
-#<repeat maxbacklog="20" maxdistance="50 maxlines="20" maxtime="0" size="512">
+#<repeat maxbacklog="20" maxdistance="50" maxlines="20" maxtime="0" size="512">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1714,13 +1757,15 @@
 # If you wish to re-check a user when they change nickname (can be
 # useful under some situations, but *can* also use CPU with more users
 # on a server) then set 'matchonnickchange' to yes.
+# If you additionally want Z-lines to be added on matches, then
+# set 'zlineonmatch' to yes.
 # Also, this is where you set what Regular Expression engine is to be
 # used. If you ever change it while running, all of your R-lines will
 # be wiped. This is the regex engine used by all R-lines set, and
 # regex_<engine> must be loaded, or rline will be non-functional
 # until you load it or change the engine to one that is loaded.
 #
-#<rline matchonnickchange="yes" engine="pcre">
+#<rline matchonnickchange="yes" zlineonmatch="no" engine="pcre">
 #
 # Generally, you will NOT want to use 'glob' here, as this turns an
 # R-line into just another G-line. The exceptions are that R-lines will
@@ -1838,7 +1883,7 @@
 #<module name="setidle">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several usermodes such as +R and +M.
+# Services support module: Adds several user modes such as +R and +M.
 # This module implements the 'identified' state via account names,
 # and is similar in operation to the way asuka and ircu handle services.
 #
@@ -1884,6 +1929,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Serverban: Implements extended ban 's', which stops anyone connected
 # to a server matching a mask like +b s:server.mask.here from joining.
+# Wildcards are accepted.
 #<module name="serverban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1925,7 +1971,7 @@
 #          endtext="End of server rules.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Show whois module: Adds the +W usermode which allows opers to see
+# Show whois module: Adds the +W user mode which allows opers to see
 # when they are /WHOIS'd.
 # This module is oper-only by default.
 #<module name="showwhois">
@@ -1973,7 +2019,7 @@
 #<module name="sslrehashsignal">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
+# GnuTLS SSL module: Adds support for SSL/TLS connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or
 # manually symlink the source for this module from the directory
 # src/modules/extra, if you want to enable this, or it will not load.
@@ -1981,30 +2027,40 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# ssl_gnutls is too complex to describe here, see the wiki:           #
-# https://wiki.inspircd.org/Modules/3.0/ssl_gnutls                    #
+# ssl_gnutls is too complex to describe here, see the docs:           #
+# https://docs.inspircd.org/3/modules/ssl_gnutls                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL info module: Allows users to retrieve information about other
-# users' peer SSL certificates and keys. This can be used by client
-# scripts to validate users. For this to work, one of ssl_gnutls
-# or ssl_openssl must be loaded. This module also adds the
-# "* <user> is using a secure connection" whois line, the ability for
-# opers to use SSL cert fingerprints to verify their identity and the
-# ability to force opers to use SSL connections in order to oper up.
-# It is highly recommended to load this module if you use SSL on your
-# network.
-# For how to use the oper features, please see the first example <oper> tag
-# in opers.conf.example.
+# users' peer SSL certificates and keys via the SSLINFO command.
+# This can be used by client scripts to validate users. For this to
+# work, one of ssl_gnutls, ssl_mbedtls or ssl_openssl must be loaded.
+# This module also adds the "<user> is using a secure connection"
+# and "<user> has client certificate fingerprint <fingerprint>"
+# WHOIS lines, the ability for opers to use SSL cert fingerprints to
+# verify their identity and the ability to force opers to use SSL
+# connections in order to oper up. It is highly recommended to load
+# this module if you use SSL on your network.
+# For how to use the oper features, please see the first
+# example <oper> tag in opers.conf.example.
 #
 #<module name="sslinfo">
+#
+# If you want to prevent users from viewing SSL certificate information
+# and fingerprints of other users, set operonly to yes.
+#<sslinfo operonly="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # mbedTLS SSL module: Adds support for SSL/TLS connections using mbedTLS.
 #<module name="ssl_mbedtls">
+#
+#-#-#-#-#-#-#-#-#-#-#- MBEDTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# ssl_mbedtls is too complex to describe here, see the docs:          #
+# https://docs.inspircd.org/3/modules/ssl_mbedtls                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# OpenSSL SSL module: Adds support for SSL connections using OpenSSL,
+# OpenSSL SSL module: Adds support for SSL/TLS connections using OpenSSL,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
 # you want to enable this, or it will not load.
@@ -2012,8 +2068,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# ssl_openssl is too complex to describe here, see the wiki:          #
-# https://wiki.inspircd.org/Modules/3.0/ssl_openssl                   #
+# ssl_openssl is too complex to describe here, see the docs:          #
+# https://docs.inspircd.org/3/modules/ssl_openssl                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip color module: Adds channel mode +S that strips color codes and
@@ -2042,8 +2098,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# sqlite is more complex than described here, see the wiki for more   #
-# info: https://wiki.inspircd.org/Modules/3.0/sqlite3                 #
+# sqlite is more complex than described here, see the docs for more   #
+# info: https://docs.inspircd.org/3/modules/sqlite3                   #
 #
 #<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
 
@@ -2055,8 +2111,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# sqlauth is too complex to describe here, see the wiki:              #
-# https://wiki.inspircd.org/Modules/3.0/sqlauth                       #
+# sqlauth is too complex to describe here, see the docs:              #
+# https://docs.inspircd.org/3/modules/sqlauth                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL
@@ -2070,14 +2126,14 @@
 #                                                                     #
 # dbid       - Database ID to use (see SQL modules).                  #
 #                                                                     #
-# See also: https://wiki.inspircd.org/Modules/3.0/sqloper             #
+# See also: https://docs.inspircd.org/3/modules/sqloper               #
 #                                                                     #
 #<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # StartTLS module: Implements STARTTLS, which allows clients          #
 # connected to non SSL enabled ports to enable SSL, if a proper SSL   #
-# module is loaded (either ssl_gnutls or ssl_openssl).                #
+# module is loaded (either ssl_gnutls, ssl_mbedtls or ssl_openssl).   #
 #<module name="starttls">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2174,10 +2230,10 @@
 # which are allowed to connect to the server. You should set this as
 # strict as possible to prevent malicious webpages from connecting to
 # your server.
-# <wsorigin allow="https://*.example.com/">
+# <wsorigin allow="https://*.example.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# XLine database: Stores all *-lines (G/Z/K/R/any added by other modules)
+# X-line database: Stores all *-lines (G/Z/K/R/any added by other modules)
 # in a file which is re-loaded on restart. This is useful
 # for two reasons: it keeps bans so users may not evade them, and on
 # bigger networks, server connections will take less time as there will

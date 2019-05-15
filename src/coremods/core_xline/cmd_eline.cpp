@@ -94,7 +94,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** E-line " + target + " not found in list, try /stats e.");
+			user->WriteNotice("*** E-line " + target + " not found on the list.");
 		}
 	}
 

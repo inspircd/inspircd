@@ -19,13 +19,21 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
-class ModuleQuietBan : public Module
+class ModuleQuietBan
+	: public Module
+	, public CTCTags::EventListener
 {
  private:
 	bool notifyuser;
 
  public:
+	ModuleQuietBan()
+		: CTCTags::EventListener(this)
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
@@ -34,10 +42,10 @@ class ModuleQuietBan : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides extban 'm', mute bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)
 	{
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -47,7 +55,7 @@ class ModuleQuietBan : public Module
 		{
 			if (!notifyuser)
 			{
-				details.echo_original = true;
+				echo_original = true;
 				return MOD_RES_DENY;
 			}
 
@@ -56,6 +64,16 @@ class ModuleQuietBan : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return HandleMessage(user, target, details.echo_original);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return HandleMessage(user, target, details.echo_original);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override

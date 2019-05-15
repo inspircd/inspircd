@@ -225,7 +225,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 
 	Version GetVersion() override
 	{
-		return Version("Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd dependent modules", VF_VENDOR);
+		return Version("Provides access control lists (passwording of resources, IP restrictions, etc) to m_httpd dependent modules", VF_VENDOR);
 	}
 };
 

@@ -70,39 +70,27 @@ class CommandAway : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandMode : public Command
+/** Handle /ISON.
+ */
+class CommandIson : public SplitCommand
 {
-	unsigned int sent[256];
-	unsigned int seq;
-
-	/** Show the list of one or more list modes to a user.
-	 * @param user User to send to.
-	 * @param chan Channel whose lists to show.
-	 * @param mode_sequence Mode letters to show the lists of.
-	 */
-	void DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence);
-
-	/** Show the current modes of a channel or a user to a user.
-	 * @param user User to show the modes to.
-	 * @param targetuser User whose modes to show. NULL if showing the modes of a channel.
-	 * @param targetchannel Channel whose modes to show. NULL if showing the modes of a user.
-	 */
-	void DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel);
-
  public:
-	/** Constructor for mode.
+	/** Constructor for ison.
 	 */
-	CommandMode(Module* parent);
-
+	CommandIson(Module* parent)
+		: SplitCommand(parent, "ISON", 1)
+	{
+		allow_empty_last_param = false;
+		syntax = "<nick> [<nick>]+";
+	}
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(User* user, const Params& parameters) override;
-
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
+
 
 /** Handle /NICK.
  */
@@ -189,6 +177,30 @@ class CommandUser : public SplitCommand
 	 * a non-MOD_RES_DENY result).
 	 */
 	static CmdResult CheckRegister(LocalUser* user);
+};
+
+/** Handle /USERHOST.
+ */
+class CommandUserhost : public Command
+{
+	UserModeReference hideopermode;
+
+ public:
+	/** Constructor for userhost.
+	 */
+	CommandUserhost(Module* parent)
+		: Command(parent,"USERHOST", 1)
+		, hideopermode(parent, "hideoper")
+	{
+		allow_empty_last_param = false;
+		syntax = "<nick> [<nick>]+";
+	}
+	/** Handle command.
+	 * @param parameters The parameters to the command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 /** User mode +s

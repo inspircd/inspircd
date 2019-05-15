@@ -48,20 +48,19 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 	if (CheckDupe)
 	{
 		socket->SendError("Server "+servername+" already exists!");
-		ServerInstance->SNO.WriteToSnoMask('L', "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
+		ServerInstance->SNO.WriteToSnoMask('L', "Server \002"+CheckDupe->GetName()+"\002 being introduced from \002" + ParentOfThis->GetName() + "\002 denied, already exists. Closing link with " + ParentOfThis->GetName());
 		return CMD_FAILURE;
 	}
 	CheckDupe = Utils->FindServer(sid);
 	if (CheckDupe)
 	{
 		socket->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		ServerInstance->SNO.WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
+		ServerInstance->SNO.WriteToSnoMask('L', "Server \002"+servername+"\002 being introduced from \002" + ParentOfThis->GetName() + "\002 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
 		return CMD_FAILURE;
 	}
 
-
-	Link* lnk = Utils->FindLink(servername);
-
+	TreeServer* route = ParentOfThis->GetRoute();
+	Link* lnk = Utils->FindLink(route->GetName());
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	HandleExtra(Node, params);
@@ -85,8 +84,10 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 			val.assign(prop, p+1, std::string::npos);
 		}
 
-		if (key == "burst")
+		if (irc::equals(key, "burst"))
 			newserver->BeginBurst(ConvToNum<uint64_t>(val));
+		else if (irc::equals(key, "hidden"))
+			newserver->Hidden = ConvToNum<bool>(val);
 	}
 }
 
@@ -119,14 +120,14 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 		if (!ComparePass(*x, password))
 		{
-			ServerInstance->SNO.WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "Invalid password on link: %s", x->Name.c_str());
 			continue;
 		}
 
 		if (!CheckDuplicate(sname, sid))
 			return NULL;
 
-		ServerInstance->SNO.WriteToSnoMask('l',"Verified server connection " + linkID + " ("+description+")");
+		ServerInstance->SNO.WriteToSnoMask('l', "Verified server connection " + linkID + " ("+description+")");
 
 		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(this);
 		if (ssliohook)
@@ -139,8 +140,8 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 		return x;
 	}
 
-	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
-	ServerInstance->SNO.WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
+	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. user mode +s +Ll)");
+	ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, invalid link credentials");
 	return NULL;
 }
 
@@ -177,7 +178,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	{
 		std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
 		SendError("Server "+sname+" already exists on server "+pname+"!");
-		ServerInstance->SNO.WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
+		ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, already exists on server "+pname);
 		return false;
 	}
 
@@ -188,7 +189,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	if (CheckDupe)
 	{
 		this->SendError("Server ID "+CheckDupe->GetID()+" already exists on server "+CheckDupe->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		ServerInstance->SNO.WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupe->GetID()+
+		ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, server ID '"+CheckDupe->GetID()+
 				"' already exists on server "+CheckDupe->GetName());
 		return false;
 	}
@@ -230,5 +231,6 @@ CommandServer::Builder::Builder(TreeServer* server)
 	push(server->GetID());
 	if (server->IsBursting())
 		push_property("burst", ConvToStr(server->StartBurst));
+	push_property("hidden", ConvToStr(server->Hidden));
 	push_last(server->GetDesc());
 }

@@ -96,7 +96,7 @@ class ModuleClones : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);
+		return Version("Provides the CLONES command to retrieve information on clones", VF_VENDOR);
 	}
 };
 

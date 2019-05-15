@@ -161,7 +161,7 @@ class CommandRLine : public Command
 			}
 			catch (ModuleException &e)
 			{
-				ServerInstance->SNO.WriteToSnoMask('a',"Could not add RLINE: " + e.GetReason());
+				ServerInstance->SNO.WriteToSnoMask('a', "Could not add R-line: " + e.GetReason());
 			}
 
 			if (r)
@@ -170,11 +170,11 @@ class CommandRLine : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO.WriteToSnoMask('x',"%s added permanent R-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent R-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 					}
 					else
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "%s added timed R-line for %s to expire in %s (on %s): %s",
+						ServerInstance->SNO.WriteToSnoMask('x', "%s added timed R-line for %s, expires in %s (on %s): %s",
 							user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 							InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 					}
@@ -198,7 +198,7 @@ class CommandRLine : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** R-line " + parameters[0] + " not found in list, try /stats R.");
+				user->WriteNotice("*** R-line " + parameters[0] + " not found on the list.");
 			}
 		}
 
@@ -246,7 +246,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 
 	Version GetVersion() override
 	{
-		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
+		return Version("Provides support for banning users through regular expression patterns", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override

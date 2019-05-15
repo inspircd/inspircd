@@ -56,7 +56,7 @@ public:
 
 	Version GetVersion() override
 	{
-		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
+		return Version("Regex provider module using plain wildcard matching", VF_VENDOR);
 	}
 };
 

@@ -96,6 +96,7 @@ class OperQuery : public SQL::Query
 			ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
 			oper_blocks[name] = ifo;
 			my_blocks.push_back(name);
+			row.clear();
 		}
 
 		// If this was done as a result of /OPER and not a config read
@@ -109,7 +110,7 @@ class OperQuery : public SQL::Query
 	void OnError(SQL::Error& error) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.ToString());
-		ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: failed to update blocks from database");
+		ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Failed to update blocks from database");
 		if (!uid.empty())
 		{
 			// Fallback. We don't want to block a netadmin from /OPER

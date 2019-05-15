@@ -121,7 +121,7 @@ class CommandSvshold : public Command
 			}
 			else
 			{
-				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found in list, try /stats S.");
+				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found on the list.");
 			}
 		}
 		else
@@ -148,9 +148,9 @@ class CommandSvshold : public Command
 				}
 				else
 				{
-					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = InspIRCd::TimeString(c_requires_crap);
-					ServerInstance->SNO.WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), timestr.c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires in %s (on %s): %s",
+						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
+						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 				}
 			}
 			else
@@ -223,7 +223,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
 	Version GetVersion() override
 	{
-		return Version("Implements SVSHOLD. Like Q-lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
+		return Version("Implements SVSHOLD, like Q-lines, but can only be added/removed by Services", VF_COMMON | VF_VENDOR);
 	}
 };
 

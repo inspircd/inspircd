@@ -58,7 +58,7 @@ class ModuleCustomPrefix : public Module
 			{
 				ModeHandler* mh = ServerInstance->Modes.FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
-					throw ModuleException("<customprefix:change> specified for a non-existent mode at " + tag->getTagLocation());
+					throw ModuleException("<customprefix:change> specified for a nonexistent mode at " + tag->getTagLocation());
 
 				PrefixMode* pm = mh->IsPrefixMode();
 				if (!pm)

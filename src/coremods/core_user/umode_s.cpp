@@ -100,7 +100,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 				{
 					if (!ServerInstance->SNO.IsSnomaskUsable(*i))
 					{
-						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is unknown snomask char to me");
+						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
 						continue;
 					}
 				}

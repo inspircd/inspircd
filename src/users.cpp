@@ -121,7 +121,6 @@ const std::string& User::MakeHost()
 	if (!this->cached_makehost.empty())
 		return this->cached_makehost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_makehost = ident + "@" + GetRealHost();
 	return this->cached_makehost;
 }
@@ -131,7 +130,6 @@ const std::string& User::MakeHostIP()
 	if (!this->cached_hostip.empty())
 		return this->cached_hostip;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_hostip = ident + "@" + this->GetIPString();
 	return this->cached_hostip;
 }
@@ -141,7 +139,6 @@ const std::string& User::GetFullHost()
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_fullhost = nick + "!" + ident + "@" + GetDisplayedHost();
 	return this->cached_fullhost;
 }
@@ -151,7 +148,6 @@ const std::string& User::GetFullRealHost()
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
 
-	// XXX: Is there really a need to cache this?
 	this->cached_fullrealhost = nick + "!" + ident + "@" + GetRealHost();
 	return this->cached_fullrealhost;
 }
@@ -167,7 +163,8 @@ bool LocalUser::HasModePermission(const ModeHandler* mh) const
 		return false;
 
 	const unsigned char mode = mh->GetModeChar();
-	if (mode < 'A' || mode > ('A' + 64)) return false;
+	if (!ModeParser::IsModeChar(mode))
+		return false;
 
 	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
 
@@ -179,12 +176,12 @@ bool LocalUser::HasModePermission(const ModeHandler* mh) const
  * allowing remote kills, etc - but if they have access to the src, they most likely have
  * access to the conf - so it's an end to a means either way.
  */
-bool User::HasPermission(const std::string&)
+bool User::HasCommandPermission(const std::string&)
 {
 	return true;
 }
 
-bool LocalUser::HasPermission(const std::string &command)
+bool LocalUser::HasCommandPermission(const std::string& command)
 {
 	// are they even an oper at all?
 	if (!this->IsOper())
@@ -195,27 +192,17 @@ bool LocalUser::HasPermission(const std::string &command)
 	return oper->AllowedOperCommands.Contains(command);
 }
 
-bool User::HasPrivPermission(const std::string &privstr, bool noisy)
+bool User::HasPrivPermission(const std::string& privstr)
 {
 	return true;
 }
 
-bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
+bool LocalUser::HasPrivPermission(const std::string& privstr)
 {
 	if (!this->IsOper())
-	{
-		if (noisy)
-			this->WriteNotice("You are not an oper");
 		return false;
-	}
 
-	if (oper->AllowedPrivs.Contains(privstr))
-		return true;
-
-	if (noisy)
-		this->WriteNotice("Oper type " + oper->name + " does not have access to priv " + privstr);
-
-	return false;
+	return oper->AllowedPrivs.Contains(privstr);
 }
 
 void UserIOHandler::OnDataReady()
@@ -377,7 +364,7 @@ void User::Oper(OperInfo* info)
 	if (info->oper_block)
 		opername = info->oper_block->getString("name");
 
-	ServerInstance->SNO.WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
+	ServerInstance->SNO.WriteToSnoMask('o', "%s (%s@%s) is now a server operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 

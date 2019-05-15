@@ -42,7 +42,7 @@ class ModuleNoKicks : public Module
 		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet(nk)))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (+Q set)", memb->user->nick.c_str()));
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (+Q is set)", memb->user->nick.c_str()));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -50,7 +50,7 @@ class ModuleNoKicks : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides channel mode +Q to prevent kicks on the channel.", VF_VENDOR);
+		return Version("Provides channel mode +Q to prevent kicks on the channel", VF_VENDOR);
 	}
 };
 

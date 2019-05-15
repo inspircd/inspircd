@@ -258,13 +258,12 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		ConfigTag* tag = i->second;
 		reference<Link> L = new Link(tag);
-		std::string linkname = tag->getString("name");
-		L->Name = linkname.c_str();
 
 		irc::spacesepstream sep = tag->getString("allowmask");
 		for (std::string s; sep.GetToken(s);)
 			L->AllowMasks.push_back(s);
 
+		L->Name = tag->getString("name");
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getUInt("port", 0);
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
@@ -303,7 +302,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
-		if (!L->Port)
+		if (!L->Port && L->IPAddr.find('/') == std::string::npos)
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no port defined, you will not be able to /connect it.");
 
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());

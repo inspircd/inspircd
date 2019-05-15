@@ -37,7 +37,7 @@ class ModuleMLock : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Implements the ability to have server-side MLOCK enforcement.", VF_VENDOR);
+		return Version("Implements the ability to have server-side MLOCK enforcement", VF_VENDOR);
 	}
 
 	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding) override
@@ -56,7 +56,7 @@ class ModuleMLock : public Module
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{
-			source->WriteNumeric(ERR_MLOCKRESTRICTED, channel->name, mode, *mlock_str, "MODE cannot be set due to channel having an active MLOCK restriction policy");
+			source->WriteNumeric(ERR_MLOCKRESTRICTED, channel->name, mode, *mlock_str, "MODE cannot be set due to the channel having an active MLOCK restriction policy");
 			return MOD_RES_DENY;
 		}
 

@@ -122,7 +122,7 @@ class ModuleCensor : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides user and channel +G mode",VF_VENDOR);
+		return Version("Provides user and channel mode +G", VF_VENDOR);
 	}
 
 };

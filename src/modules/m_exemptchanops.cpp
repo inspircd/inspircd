@@ -116,7 +116,7 @@ class ModuleExemptChanOps : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
+		return Version("Provides the ability to allow channel operators to be exempt from certain modes", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

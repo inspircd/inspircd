@@ -103,7 +103,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** G-line " + target + " not found in list, try /stats g.");
+			user->WriteNotice("*** G-line " + target + " not found on the list.");
 		}
 	}
 

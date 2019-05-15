@@ -20,14 +20,16 @@
 
 #include "inspircd.h"
 #include "core_channel.h"
+#include "modules/names.h"
 
 CommandNames::CommandNames(Module* parent)
 	: SplitCommand(parent, "NAMES", 0, 0)
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")
+	, namesevprov(parent, "event/names")
 {
-	syntax = "<channel>[,<channel>]+";
+	syntax = "[<channel>[,<channel>]+]";
 }
 
 /** Handle /NAMES
@@ -100,13 +102,9 @@ void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible
 		nick = i->first->nick;
 
 		ModResult res;
-		FIRST_MOD_RESULT(OnNamesListItem, res, (user, memb, prefixlist, nick));
-
-		// See if a module wants us to exclude this user from NAMES
-		if (res == MOD_RES_DENY)
-			continue;
-
-		reply.Add(prefixlist, nick);
+		FIRST_MOD_RESULT_CUSTOM(namesevprov, Names::EventListener, OnNamesListItem, res, (user, memb, prefixlist, nick));
+		if (res != MOD_RES_DENY)
+			reply.Add(prefixlist, nick);
 	}
 
 	reply.Flush();

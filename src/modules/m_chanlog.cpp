@@ -62,7 +62,7 @@ class ModuleChanLog : public Module
 		if (itpair.first == itpair.second)
 			return MOD_RES_PASSTHRU;
 
-		const std::string snotice = "\2" + desc + "\2: " + msg;
+		const std::string snotice = "\002" + desc + "\002: " + msg;
 
 		for (ChanLogTargets::const_iterator it = itpair.first; it != itpair.second; ++it)
 		{
@@ -80,7 +80,7 @@ class ModuleChanLog : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Logs snomask output to channel(s).", VF_VENDOR);
+		return Version("Logs snomask output to channel(s)", VF_VENDOR);
 	}
 };
 

@@ -33,7 +33,7 @@ class ModuleConnectBan : public Module
  public:
 	Version GetVersion() override
 	{
-		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
+		return Version("Throttles the connections of IP ranges who try to connect flood", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -82,9 +82,8 @@ class ModuleConnectBan : public Module
 				}
 				ServerInstance->XLines->ApplyLines();
 				std::string maskstr = mask.str();
-				std::string timestr = InspIRCd::TimeString(zl->expiry);
-				ServerInstance->SNO.WriteGlobalSno('x',"Module m_connectban added Z-line on %s to expire on %s: Connect flooding",
-					maskstr.c_str(), timestr.c_str());
+				ServerInstance->SNO.WriteGlobalSno('x', "Z-line added by module m_connectban on %s to expire in %s (on %s): Connect flooding",
+					maskstr.c_str(), InspIRCd::DurationString(zl->duration).c_str(), InspIRCd::TimeString(zl->expiry).c_str());
 				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
 				connects.erase(i);
 			}

@@ -104,7 +104,7 @@ class CoreExport ProtocolInterface
 
 	/** Send a message to a channel.
 	 * @param target The channel to message.
-	 * @param status The status character (e.g. %) required to recieve.
+	 * @param status The status character (e.g. %) required to receive.
 	 * @param text The message to send.
 	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
 	 */
@@ -119,7 +119,7 @@ class CoreExport ProtocolInterface
 
 	/** Send a notice to a channel.
 	 * @param target The channel to message.
-	 * @param status The status character (e.g. %) required to recieve.
+	 * @param status The status character (e.g. %) required to receive.
 	 * @param text The message to send.
 	 */
 	void SendChannelNotice(Channel* target, char status, const std::string &text)

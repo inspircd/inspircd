@@ -207,7 +207,7 @@ class ModuleChanHistory
 
 	Version GetVersion() override
 	{
-		return Version("Provides channel history replayed on join", VF_VENDOR);
+		return Version("Provides channel mode +H, allows for the channel message history to be replayed on join", VF_VENDOR);
 	}
 };
 

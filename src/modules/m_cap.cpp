@@ -407,13 +407,21 @@ class CommandCap : public SplitCommand
 		}
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
+			Cap::Protocol capversion = Cap::CAP_LEGACY;
 			const bool is_ls = (subcommand.length() == 2);
-			if ((is_ls) && (parameters.size() > 1) && (parameters[1] == "302"))
-				manager.Set302Protocol(user);
+			if ((is_ls) && (parameters.size() > 1))
+			{
+				unsigned int version = ConvToNum<unsigned int>(parameters[1]);
+				if (version >= 302)
+				{
+					capversion = Cap::CAP_302;
+					manager.Set302Protocol(user);
+				}
+			}
 
 			std::string result;
 			// Show values only if supports v3.2 and doing LS
-			manager.HandleList(result, user, is_ls, ((is_ls) && (manager.GetProtocol(user) != Cap::CAP_LEGACY)));
+			manager.HandleList(result, user, is_ls, ((is_ls) && (capversion != Cap::CAP_LEGACY)));
 			DisplayResult(user, subcommand, result);
 		}
 		else if ((subcommand == "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))

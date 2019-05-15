@@ -101,7 +101,7 @@ class ModuleOperPrefixMode : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
+		return Version("Gives opers channel mode +y which provides a staff prefix", VF_VENDOR);
 	}
 
 	void Prioritize() override

@@ -97,7 +97,7 @@ class ModuleSapart : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides command SAPART to force-part users from a channel.", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SAPART command, allows opers to force-part users from channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

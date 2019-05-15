@@ -15,7 +15,7 @@
 
 /include/config.h
 
-/src/modules/m_geoip.cpp
+/src/modules/m_geo_maxmind.cpp
 /src/modules/m_ldap.cpp
 /src/modules/m_mysql.cpp
 /src/modules/m_pgsql.cpp

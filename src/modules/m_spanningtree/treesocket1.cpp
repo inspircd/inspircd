@@ -36,7 +36,7 @@
  * BufferedSocket, we just call DoConnect() for most of the action,
  * and only do minor initialization tasks ourselves.
  */
-TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
+TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& dest)
 	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
 	, burstsent(false), age(ServerInstance->Time())
 {
@@ -45,7 +45,27 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	capab->ac = myac;
 	capab->capab_phase = 0;
 
-	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
+	irc::sockets::sockaddrs bind;
+	memset(&bind, 0, sizeof(bind));
+	if (!link->Bind.empty() && (dest.family() == AF_INET || dest.family() == AF_INET6))
+	{
+		if (!irc::sockets::aptosa(link->Bind, 0, bind))
+		{
+			state = I_ERROR;
+			SetError("Bind address '" + link->Bind + "' is not a valid IPv4 or IPv6 address");
+			TreeSocket::OnError(I_ERR_BIND);
+			return;
+		}
+		else if (bind.family() != dest.family())
+		{
+			state = I_ERROR;
+			SetError("Bind address '" + bind.addr() + "' is not the same address family as destination address '" + dest.addr() + "'");
+			TreeSocket::OnError(I_ERR_BIND);
+			return;
+		}
+	}
+
+	DoConnect(dest, bind, link->Timeout);
 	Utils->timeoutlist[this] = std::pair<std::string, unsigned int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }
@@ -123,7 +143,7 @@ void TreeSocket::OnConnected()
 			static_cast<IOHookProvider*>(prov)->OnConnect(this);
 		}
 
-		ServerInstance->SNO.WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to \002%s\002[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
 	}

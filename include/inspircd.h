@@ -293,7 +293,7 @@ class CoreExport InspIRCd
 	 */
 	std::vector<ListenSocket*> ports;
 
-	/** Set to the current signal recieved
+	/** Set to the current signal received
 	 */
 	static sig_atomic_t s_signal;
 
@@ -396,12 +396,12 @@ class CoreExport InspIRCd
 	static bool IsSID(const std::string& sid);
 
 	/** Handles incoming signals after being set
-	 * @param signal the signal recieved
+	 * @param signal the signal received
 	 */
 	void SignalHandler(int signal);
 
-	/** Sets the signal recieved
-	 * @param signal the signal recieved
+	/** Sets the signal received
+	 * @param signal the signal received
 	 */
 	static void SetSignal(int signal);
 

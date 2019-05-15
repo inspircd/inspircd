@@ -168,7 +168,7 @@ class ModuleGlobalLoad : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
+		return Version("Allows global loading of a module", VF_COMMON | VF_VENDOR);
 	}
 };
 

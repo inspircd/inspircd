@@ -79,7 +79,7 @@ class ModuleTLine : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR);
+		return Version("Provides the TLINE command, used to test how many users a mask matches against", VF_VENDOR);
 	}
 };
 

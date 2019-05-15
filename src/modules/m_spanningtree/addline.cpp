@@ -31,7 +31,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 
 	if (!xlf)
 	{
-		ServerInstance->SNO.WriteToSnoMask('x',"%s sent me an unknown ADDLINE type (%s).",setter.c_str(),params[0].c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "%s sent me an unknown ADDLINE type (%s).", setter.c_str(), params[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -42,7 +42,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->SNO.WriteToSnoMask('x',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
 		return CMD_FAILURE;
 	}
 	xl->SetCreateTime(ConvToNum<time_t>(params[3]));
@@ -50,7 +50,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		if (xl->duration)
 		{
-			ServerInstance->SNO.WriteToSnoMask('X', "%s added %s%s on %s to expire in %s (on %s): %s",
+			ServerInstance->SNO.WriteToSnoMask('X', "%s added timed %s%s for %s, expires in %s (on %s): %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
 				params[1].c_str(), InspIRCd::DurationString(xl->duration).c_str(),
 				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());

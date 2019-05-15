@@ -21,19 +21,25 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/names.h"
 
-class ModuleUHNames : public Module
+class ModuleUHNames
+	: public Module
+	, public Names::EventListener
 {
+ private:
 	Cap::Capability cap;
 
  public:
-	ModuleUHNames() : cap(this, "userhost-in-names")
+	ModuleUHNames()
+		: Names::EventListener(this)
+		, cap(this, "userhost-in-names")
 	{
 	}
 
 	Version GetVersion() override
 	{
-		return Version("Provides the UHNAMES facility.",VF_VENDOR);
+		return Version("Provides the UHNAMES (CAP userhost-in-names) capability", VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
@@ -59,7 +65,7 @@ class ModuleUHNames : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
 		if (cap.get(issuer))
 			nick = memb->user->GetFullHost();

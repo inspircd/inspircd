@@ -22,6 +22,17 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_NOOPERMOTD = 425,
+
+	// From ircd-ratbox.
+	RPL_OMOTDSTART = 720,
+	RPL_OMOTD = 721,
+	RPL_ENDOFOMOTD = 722
+};
+
 /** Handle /OPERMOTD
  */
 class CommandOpermotd : public Command
@@ -37,7 +48,7 @@ class CommandOpermotd : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
-			ShowOperMOTD(user);
+			ShowOperMOTD(user, true);
 		return CMD_SUCCESS;
 	}
 
@@ -48,22 +59,23 @@ class CommandOpermotd : public Command
 		return ROUTE_LOCALONLY;
 	}
 
-	void ShowOperMOTD(User* user)
+	void ShowOperMOTD(User* user, bool show_missing)
 	{
 		if (opermotd.empty())
 		{
-			user->WriteRemoteNumeric(455, "OPERMOTD file is missing");
+			if (show_missing)
+				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing.");
 			return;
 		}
 
-		user->WriteRemoteNumeric(RPL_MOTDSTART, "- IRC Operators Message of the Day");
+		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->WriteRemoteNumeric(RPL_MOTD, InspIRCd::Format("- %s", i->c_str()));
+			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format("- %s", i->c_str()));
 		}
 
-		user->WriteRemoteNumeric(RPL_ENDOFMOTD, "- End of OPERMOTD");
+		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
 	}
 };
 
@@ -81,13 +93,13 @@ class ModuleOpermotd : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Shows a message to opers after oper-up and adds the OPERMOTD command", VF_VENDOR | VF_OPTCOMMON);
 	}
 
 	void OnOper(User* user, const std::string &opertype) override
 	{
 		if (onoper && IS_LOCAL(user))
-			cmd.ShowOperMOTD(user);
+			cmd.ShowOperMOTD(user, false);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

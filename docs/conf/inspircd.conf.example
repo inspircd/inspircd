@@ -145,7 +145,7 @@
       # ssl: If you want the port(s) in this bind tag to use SSL, set this to
       # the name of a custom <sslprofile> tag that you have defined or one
       # of "openssl", "gnutls", "mbedtls" if you have not defined any. See the
-      # wiki page for the SSL module you are using for more details.
+      # docs page for the SSL module you are using for more details.
       #
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
       # for GnuTLS and ssl_mbedtls for mbedTLS.
@@ -180,7 +180,7 @@
 #<bind path="/tmp/inspircd.sock" type="clients">
 
 # You can define a custom <sslprofile> tag which defines the SSL configuration
-# for this listener. See the wiki page for the SSL module you are using for
+# for this listener. See the docs page for the SSL module you are using for
 # more details.
 #
 # Alternatively, you can use one of the default SSL profiles which are created
@@ -260,7 +260,7 @@
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /NICK, /USER or /PASS)
-         timeout="10"
+         timeout="20"
 
          # localmax: Maximum local connections per IP (or CIDR mask, see below).
          localmax="3"
@@ -282,6 +282,10 @@
          # useident: Defines if users in this class MUST respond to a ident query or not.
          useident="no"
 
+         # usests: Whether a STS policy should be advertised to users in this class.
+         # This setting only has effect when the ircv3_sts module is loaded.
+         #usests="no"
+
          # webirc: Restricts usage of this class to the specified WebIRC gateway.
          # This setting only has effect when the cgiirc module is loaded.
          #webirc="name"
@@ -289,21 +293,31 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP cloaking/masking.
          # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x"
 
-         # requireident, requiressl, requireaccount: require that users of this
-         # block have a valid ident response, use SSL, or have authenticated.
-         # Requires ident, sslinfo, or the services_account module, respectively.
-         requiressl="on"
-         # NOTE: For requireaccount, you must complete the signon prior to full
-         # connection. Currently, this is only possible by using SASL
-         # authentication; passforward and PRIVMSG NickServ happen after
-         # your final connect block has been found.
+         # requireident: Require that users of this block have a valid ident response.
+         # Requires the ident module to be loaded.
+         #requireident="yes"
+
+         # requiressl: Require that users of this block use an SSL connection.
+         # This can also be set to "trusted", as to only accept certificates
+         # issued by a certificate authority that you can configure in the
+         # settings of the SSL module that you're using.
+         # Requires the sslinfo module to be loaded.
+         #requiressl="yes"
+
+         # requireaccount: Require that users of this block have authenticated to a
+         # services account.
+         # NOTE: You must complete the signon prior to full connection. Currently,
+         # this is only possible by using SASL authentication; passforward
+         # and PRIVMSG NickServ happen after your final connect block has been found.
+         # Requires the services_account module to be loaded.
+         #requireaccount="yes"
 
          # Alternate MOTD file for this connect class. The contents of this file are
          # specified using <files secretmotd="filename"> or <execfiles ...>
@@ -344,7 +358,7 @@
          # a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /NICK, /USER or /PASS)
-         timeout="10"
+         timeout="20"
 
          # pingfreq: How often the server tries to ping connecting clients.
          pingfreq="2m"
@@ -400,10 +414,14 @@
          # useident: Defines if users in this class must respond to a ident query or not.
          useident="no"
 
+         # usests: Whether a STS policy should be advertised to users in this class.
+         # This setting only has effect when the ircv3_sts module is loaded.
+         #usests="no"
+
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
+         # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP cloaking/masking.
          # For the example to work, this also requires that the cloaking
@@ -438,11 +456,11 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="examples/opers.conf.example">
+#<include file="examples/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="examples/links.conf.example">
+#<include file="examples/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -593,6 +611,8 @@
 
          # exemptchanops: Allows users with with a status mode to be exempt
          # from various channel restrictions. Possible restrictions are:
+         #  - anticaps        Channel mode +B - blocks messages with too many capital
+         #                    letters (requires the anticaps module).
          #  - auditorium-see  Permission required to see the full user list of
          #                    a +u channel (requires the auditorium module).
          #  - auditorium-vis  Permission required to be visible in a +u channel
@@ -745,7 +765,7 @@
           restrictbannedusers="yes"
 
           # genericoper: Setting this value to yes makes all opers on this server
-          # appear as 'is an IRC operator' in their WHOIS, regardless of their
+          # appear as 'is a server operator' in their WHOIS, regardless of their
           # oper type, however oper types are still used internally. This only
           # affects the display in WHOIS.
           genericoper="no"
@@ -918,7 +938,7 @@
 <exception
            # host: ident@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
-           host="*@ircop.example.com"
+           host="*@serverop.example.com"
 
            # reason: Reason for exception. Only shown in /STATS e.
            reason="Oper's hostname">
@@ -965,7 +985,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="examples/modules.conf.example">
+#<include file="examples/modules.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# SERVICES CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

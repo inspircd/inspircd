@@ -36,7 +36,8 @@ use lib $RealDir;
 use make::common;
 use make::configure;
 
-$ENV{INSPIRCD_DEBUG} = $ENV{INSPIRCD_VERBOSE} = 1;
+$ENV{INSPIRCD_DEBUG} = 3;
+$ENV{INSPIRCD_VERBOSE} = 1;
 
 system 'git', 'clean', '-dfx';
 

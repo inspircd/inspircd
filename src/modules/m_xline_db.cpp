@@ -217,7 +217,7 @@ class ModuleXLineDB : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Keeps a dynamic log of all XLines created, and stores them in a separate conf file (xline.db).", VF_VENDOR);
+		return Version("Provides the ability to store X-lines in a database file", VF_VENDOR);
 	}
 };
 

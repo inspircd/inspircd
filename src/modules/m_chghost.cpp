@@ -103,7 +103,7 @@ class ModuleChgHost : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

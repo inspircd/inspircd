@@ -24,7 +24,7 @@ class ModulePartMsgBan : public Module
  public:
 	Version GetVersion() override
 	{
-		return Version("Implements extban +b p: - part message bans", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides extban 'p', part message bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override

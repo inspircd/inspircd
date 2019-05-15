@@ -46,7 +46,7 @@ class CommandSajoin : public Command
 		User* dest = ServerInstance->FindNick(nickname);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (user != dest && !user->HasPrivPermission("users/sajoin-others", false))
+			if (user != dest && !user->HasPrivPermission("users/sajoin-others"))
 			{
 				user->WriteNotice("*** You are not allowed to /SAJOIN other users (the privilege users/sajoin-others is needed to /SAJOIN others).");
 				return CMD_FAILURE;
@@ -97,7 +97,7 @@ class CommandSajoin : public Command
 		}
 		else
 		{
-			user->WriteNotice("*** No such nickname "+nickname);
+			user->WriteNotice("*** No such nickname: '" + nickname + "'");
 			return CMD_FAILURE;
 		}
 	}
@@ -119,7 +119,7 @@ class ModuleSajoin : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SAJOIN command, allows opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

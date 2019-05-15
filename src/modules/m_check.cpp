@@ -322,7 +322,7 @@ class ModuleCheck : public Module
 
 	Version GetVersion() override
 	{
-		return Version("CHECK command, view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
+		return Version("Provides the CHECK command to view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

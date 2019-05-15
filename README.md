@@ -10,7 +10,7 @@ InspIRCd is supported on on the following platforms:
 
 - Most recent Linux distributions using the Clang 3.8+ or GCC 5+ compilers and the GNU toolchain.
 
-- The most recent three major releases of macOS using the AppleClang 7.0.2+, Clang 3.8+, or GCC 5+ (*not* LLVM-GCC) compilers and the GNU toolchains.
+- The most recent three major releases of macOS using the AppleClang 7.0.2+, Clang 3.8+, or GCC 5+ (*not* LLVM-GCC) compilers and the GNU toolchain.
 
 - Windows 7 or newer using the MSVC 14+ (Visual Studio 2015) compiler and CMake 2.8+.
 
@@ -20,12 +20,12 @@ If you encounter any bugs then [please file an issue](https://github.com/inspirc
 
 ## Installation
 
-Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd wiki](https://wiki.inspircd.org/Installation_From_Source).
+Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd docs site](https://docs.inspircd.org/3/installation/source).
 
 Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/master/win/README.txt) if you wish to do this.
 
 <!--
-TODO: uncomment this once we have binary packages for v3.
+TODO: uncomment this once we have binary packages for v4.
 
 If you are running on CentOS 7, Debian 7, or Windows binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
@@ -41,7 +41,8 @@ InspIRCd is licensed under [version 2 of the GNU General Public License](https:/
 ## External Links
 
 * [Website](https://www.inspircd.org)
-* [Documentation](https://wiki.inspircd.org)
+* [Documentation](https://docs.inspircd.org)
 * [GitHub](https://github.com/inspircd)
 * [Support IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/#inspircd) &mdash; \#inspircd on irc.inspircd.org
 * [Development IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/#inspircd.dev) &mdash; \#inspircd.dev on irc.inspircd.org
+* [InspIRCd test network](https://kiwiirc.com/nextclient/testnet.inspircd.org:+6697) &mdash; testnet.inspircd.org

@@ -1,11 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2006-2008 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2005-2007 Craig Edwards <craigedwards@brainbox.cc>
- *   Copyright (C) 2006 John Brooks <john.brooks@dereferenced.net>
+ *   Copyright (C) 2019 Peter Powell <petpow@saberuk.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -22,364 +18,420 @@
 
 
 #include "inspircd.h"
-
-/* Improved drop-in replacement for the /SILENCE command
- * syntax: /SILENCE [(+|-)<mask> [p|c|i|n|t|a|x]] as in [privatemessages|channelmessages|invites|privatenotices|channelnotices|all|exclude]
- *
- * example that blocks all except private messages
- *  /SILENCE +*!*@* a
- *  /SILENCE +*!*@* px
- *
- * example that blocks all invites except from channel services
- *  /SILENCE +*!*@* i
- *  /SILENCE +chanserv!services@chatters.net ix
- *
- * example that blocks some bad dude from private, notice and inviting you
- *  /SILENCE +*!kiddie@lamerz.net pin
- *
- * TODO: possibly have add and remove check for existing host and only modify flags according to
- *       what's been changed instead of having to remove first, then add if you want to change
- *       an entry.
- */
-
-// pair of hostmask and flags
-typedef std::pair<std::string, int> silenceset;
-
-// list of pairs
-typedef std::vector<silenceset> silencelist;
-
-// intmasks for flags
-static int SILENCE_PRIVATE	= 0x0001; /* p  private messages      */
-static int SILENCE_CHANNEL	= 0x0002; /* c  channel messages      */
-static int SILENCE_INVITE	= 0x0004; /* i  invites               */
-static int SILENCE_NOTICE	= 0x0008; /* n  notices               */
-static int SILENCE_CNOTICE	= 0x0010; /* t  channel notices       */
-static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
-static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
+#include "modules/ctctags.h"
 
 enum
 {
 	// From ircu?
 	RPL_SILELIST = 271,
 	RPL_ENDOFSILELIST = 272,
+	ERR_SILELISTFULL = 511,
 
 	// InspIRCd-specific.
-	RPL_UNSILENCED = 950,
-	RPL_SILENCED = 951,
-	ERR_NOTSILENCED = 952
+	ERR_SILENCE = 952
 };
 
-class CommandSVSSilence : public Command
+class SilenceEntry
 {
  public:
-	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
+	enum SilenceFlags
 	{
-		syntax = "<target> (+|-)<mask> [p|c|i|n|t|a|x]";
-		translation = { TR_NICK, TR_TEXT, TR_TEXT };
+		// Does nothing; for internal use only.
+		SF_NONE = 0,
+
+		// Exclude users who match this flags ("x").
+		SF_EXEMPT = 1,
+
+		// 2, 4, 8, 16 are reserved for future use.
+
+		// Matches a NOTICE targeted at a channel ("n").
+		SF_NOTICE_CHANNEL = 32,
+
+		// Matches a NOTICE targeted at a user ("N").
+		SF_NOTICE_USER = 64,
+
+		// Matches a PRIVMSG targeted at a channel ("p").
+		SF_PRIVMSG_CHANNEL = 128,
+
+		// Matches a PRIVMSG targeted at a user ("P").
+		SF_PRIVMSG_USER = 256,
+
+		// Matches a TAGMSG targeted at a channel ("t").
+		SF_TAGMSG_CHANNEL = 512,
+
+		// Matches a TAGMSG targeted at a user ("T").
+		SF_TAGMSG_USER = 1024,
+
+		// Matches a CTCP targeted at a channel ("c").
+		SF_CTCP_CHANNEL = 2048,
+
+		// Matches a CTCP targeted at a user ("C").
+		SF_CTCP_USER = 4096,
+
+		// Matches an invite to a channel ("i").
+		SF_INVITE = 8192,
+
+		// The default if no flags have been specified.
+		SF_DEFAULT = SF_NOTICE_CHANNEL | SF_NOTICE_USER | SF_PRIVMSG_CHANNEL | SF_PRIVMSG_USER | SF_TAGMSG_CHANNEL |
+			SF_TAGMSG_USER | SF_CTCP_CHANNEL | SF_CTCP_USER | SF_INVITE
+	};
+
+	// The flags that this mask is silenced for.
+	uint32_t flags;
+
+	// The mask which is silenced (e.g. *!*@example.com).
+	std::string mask;
+
+	SilenceEntry(uint32_t Flags, const std::string& Mask)
+		: flags(Flags)
+		, mask(Mask)
+	{
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) override
+	bool operator <(const SilenceEntry& other) const
 	{
-		/*
-		 * XXX: thought occurs to me
-		 * We may want to change the syntax of this command to
-		 * SVSSILENCE <flagsora+> +<nick> -<nick> +<nick>
-		 * style command so services can modify lots of entries at once.
-		 * leaving it backwards compatible for now as it's late. -- w
-		 */
-		if (!user->server->IsULine())
-			return CMD_FAILURE;
+		if (flags & SF_EXEMPT && other.flags & ~SF_EXEMPT)
+			return true;
+		if (other.flags & SF_EXEMPT && flags & ~SF_EXEMPT)
+			return false;
+		if (flags < other.flags)
+			return true;
+		if (other.flags < flags)
+			return false;
+		return mask < other.mask;
+	}
 
-		User *u = ServerInstance->FindNick(parameters[0]);
-		if (!u)
-			return CMD_FAILURE;
-
-		if (IS_LOCAL(u))
+	// Converts a flag list to a bitmask.
+	static bool FlagsToBits(const std::string& flags, uint32_t& out)
+	{
+		out = SF_NONE;
+		for (std::string::const_iterator flag = flags.begin(); flag != flags.end(); ++flag)
 		{
-			CommandBase::Params params(parameters.begin() + 1, parameters.end());
-			ServerInstance->Parser.CallHandler("SILENCE", params, u);
+			switch (*flag)
+			{
+				case 'C':
+					out |= SF_CTCP_USER;
+					break;
+				case 'c':
+					out |= SF_CTCP_CHANNEL;
+					break;
+				case 'd':
+					out |= SF_DEFAULT;
+					break;
+				case 'i':
+					out |= SF_INVITE;
+					break;
+				case 'N':
+					out |= SF_NOTICE_USER;
+					break;
+				case 'n':
+					out |= SF_NOTICE_CHANNEL;
+					break;
+				case 'P':
+					out |= SF_PRIVMSG_USER;
+					break;
+				case 'p':
+					out |= SF_PRIVMSG_CHANNEL;
+					break;
+				case 'T':
+					out |= SF_TAGMSG_USER;
+					break;
+				case 't':
+					out |= SF_TAGMSG_CHANNEL;
+					break;
+				case 'x':
+					out |= SF_EXEMPT;
+					break;
+				default:
+					out = SF_NONE;
+					return false;
+			}
+		}
+		return true;
+	}
+
+	// Converts a bitmask to a flag list.
+	static std::string BitsToFlags(uint32_t flags)
+	{
+		std::string out;
+		if (flags & SF_CTCP_USER)
+			out.push_back('C');
+		if (flags & SF_CTCP_CHANNEL)
+			out.push_back('c');
+		if (flags & SF_INVITE)
+			out.push_back('i');
+		if (flags & SF_NOTICE_USER)
+			out.push_back('N');
+		if (flags & SF_NOTICE_CHANNEL)
+			out.push_back('n');
+		if (flags & SF_PRIVMSG_USER)
+			out.push_back('P');
+		if (flags & SF_PRIVMSG_CHANNEL)
+			out.push_back('p');
+		if (flags & SF_TAGMSG_CHANNEL)
+			out.push_back('T');
+		if (flags & SF_TAGMSG_USER)
+			out.push_back('t');
+		if (flags & SF_EXEMPT)
+			out.push_back('x');
+		return out;
+	}
+};
+
+typedef insp::flat_set<SilenceEntry> SilenceList;
+
+class SilenceMessage : public ClientProtocol::Message
+{
+ public:
+	SilenceMessage(const std::string& mask, const std::string& flags)
+		: ClientProtocol::Message("SILENCE")
+	{
+		PushParam(mask);
+		PushParamRef(flags);
+	}
+};
+
+class CommandSilence : public SplitCommand
+{
+ private:
+	ClientProtocol::EventProvider msgprov;
+
+	CmdResult AddSilence(LocalUser* user, const std::string& mask, uint32_t flags)
+	{
+		SilenceList* list = ext.get(user);
+		if (list && list->size() > maxsilence)
+		{
+			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
+			return CMD_FAILURE;
+		}
+		else if (!list)
+		{
+			// There is no list; create it.
+			list = new SilenceList();
+			ext.set(user, list);
 		}
 
+		if (!list->insert(SilenceEntry(flags, mask)).second)
+		{
+			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified already exists");
+			return CMD_FAILURE;
+		}
+
+		SilenceMessage msg("+" + mask, SilenceEntry::BitsToFlags(flags));
+		user->Send(msgprov, msg);
 		return CMD_SUCCESS;
 	}
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	CmdResult RemoveSilence(LocalUser* user, const std::string& mask, uint32_t flags)
 	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
-};
-
-class CommandSilence : public Command
-{
-	unsigned int& maxsilence;
- public:
-	SimpleExtItem<silencelist> ext;
-	CommandSilence(Module* Creator, unsigned int &max) : Command(Creator, "SILENCE", 0),
-		maxsilence(max)
-		, ext("silence_list", ExtensionItem::EXT_USER, Creator)
-	{
-		allow_empty_last_param = false;
-		syntax = "[(+|-)<mask> [p|c|i|n|t|a|x]]";
-	}
-
-	CmdResult Handle(User* user, const Params& parameters) override
-	{
-		if (parameters.empty())
+		SilenceList* list = ext.get(user);
+		if (list)
 		{
-			// no parameters, show the current silence list.
-			silencelist* sl = ext.get(user);
-			// if the user has a silence list associated with their user record, show it
-			if (sl)
+			for (SilenceList::iterator iter = list->begin(); iter != list->end(); ++iter)
 			{
-				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
-				{
-					std::string decomppattern = DecompPattern(c->second);
-					user->WriteNumeric(RPL_SILELIST, user->nick, c->first, decomppattern);
-				}
-			}
-			user->WriteNumeric(RPL_ENDOFSILELIST, "End of Silence List");
+				if (!irc::equals(iter->mask, mask) || iter->flags != flags)
+					continue;
 
-			return CMD_SUCCESS;
-		}
-		else
-		{
-			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			std::string mask(parameters[0], 1);
-			char action = parameters[0][0];
-			// Default is private and notice so clients do not break
-			int pattern = CompilePattern("pn");
-
-			// if pattern supplied, use it
-			if (parameters.size() > 1) {
-				pattern = CompilePattern(parameters[1].c_str());
-			}
-
-			if (pattern == 0)
-			{
-				user->WriteNotice("Bad SILENCE pattern");
-				return CMD_INVALID;
-			}
-
-			if (!mask.length())
-			{
-				// 'SILENCE +' or 'SILENCE -', assume *!*@*
-				mask = "*!*@*";
-			}
-
-			ModeParser::CleanMask(mask);
-
-			if (action == '-')
-			{
-				std::string decomppattern = DecompPattern(pattern);
-				// fetch their silence list
-				silencelist* sl = ext.get(user);
-				// does it contain any entries and does it exist?
-				if (sl)
-				{
-					for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-					{
-						// search through for the item
-						const std::string& listitem = i->first;
-						if ((irc::equals(listitem, mask)) && (i->second == pattern))
-						{
-							sl->erase(i);
-							user->WriteNumeric(RPL_UNSILENCED, user->nick, InspIRCd::Format("Removed %s %s from silence list", mask.c_str(), decomppattern.c_str()));
-							if (!sl->size())
-							{
-								ext.unset(user);
-							}
-							return CMD_SUCCESS;
-						}
-					}
-				}
-				user->WriteNumeric(ERR_NOTSILENCED, user->nick, InspIRCd::Format("%s %s does not exist on your silence list", mask.c_str(), decomppattern.c_str()));
-			}
-			else if (action == '+')
-			{
-				// fetch the user's current silence list
-				silencelist* sl = ext.get(user);
-				if (!sl)
-				{
-					sl = new silencelist;
-					ext.set(user, sl);
-				}
-				if (sl->size() > maxsilence)
-				{
-					user->WriteNumeric(ERR_NOTSILENCED, user->nick, "Your silence list is full");
-					return CMD_FAILURE;
-				}
-
-				std::string decomppattern = DecompPattern(pattern);
-				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
-				{
-					const std::string& listitem = n->first;
-					if ((irc::equals(listitem, mask)) && (n->second == pattern))
-					{
-						user->WriteNumeric(ERR_NOTSILENCED, user->nick, InspIRCd::Format("%s %s is already on your silence list", mask.c_str(), decomppattern.c_str()));
-						return CMD_FAILURE;
-					}
-				}
-				if (((pattern & SILENCE_EXCLUDE) > 0))
-				{
-					sl->insert(sl->begin(), silenceset(mask, pattern));
-				}
-				else
-				{
-					sl->push_back(silenceset(mask,pattern));
-				}
-				user->WriteNumeric(RPL_SILENCED, user->nick, InspIRCd::Format("Added %s %s to silence list", mask.c_str(), decomppattern.c_str()));
+				list->erase(iter);
+				SilenceMessage msg("-" + mask, SilenceEntry::BitsToFlags(flags));
+				user->Send(msgprov, msg);
 				return CMD_SUCCESS;
 			}
 		}
+
+		user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified could not be found");
+		return CMD_FAILURE;
+	}
+
+	CmdResult ShowSilenceList(LocalUser* user)
+	{
+		SilenceList* list = ext.get(user);
+		if (list)
+		{
+			for (SilenceList::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+			{
+				user->WriteNumeric(RPL_SILELIST, iter->mask, SilenceEntry::BitsToFlags(iter->flags));
+			}
+		}
+		user->WriteNumeric(RPL_ENDOFSILELIST, "End of SILENCE list");
 		return CMD_SUCCESS;
 	}
 
-	/* turn the nice human readable pattern into a mask */
-	int CompilePattern(const char* pattern)
+ public:
+	SimpleExtItem<SilenceList> ext;
+	unsigned int maxsilence;
+
+	CommandSilence(Module* Creator)
+		: SplitCommand(Creator, "SILENCE")
+		, msgprov(Creator, "SILENCE")
+		, ext("silence_list", ExtensionItem::EXT_USER, Creator)
 	{
-		int p = 0;
-		for (const char* n = pattern; *n; n++)
+		allow_empty_last_param = false;
+		syntax = "[(+|-)<mask> [CcdiNnPpTtx]]";
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
+	{
+		if (parameters.empty())
+			return ShowSilenceList(user);
+
+		// If neither add nor remove are specified we default to add.
+		bool is_remove = parameters[0][0] == '-';
+
+		// If a prefix mask has been given then strip it and clean it up.
+		std::string mask = parameters[0];
+		if (mask[0] == '-' || mask[0] == '+')
 		{
-			switch (*n)
+			mask.erase(0);
+			if (mask.empty())
+				mask.assign("*");
+			ModeParser::CleanMask(mask);
+		}
+
+		// If the user specified a flags then use that. Otherwise, default to blocking
+		// all CTCPs, invites, notices, privmsgs, and invites.
+		uint32_t flags = SilenceEntry::SF_DEFAULT;
+		if (parameters.size() > 1)
+		{
+			if (!SilenceEntry::FlagsToBits(parameters[1], flags))
 			{
-				case 'p':
-					p |= SILENCE_PRIVATE;
-					break;
-				case 'c':
-					p |= SILENCE_CHANNEL;
-					break;
-				case 'i':
-					p |= SILENCE_INVITE;
-					break;
-				case 'n':
-					p |= SILENCE_NOTICE;
-					break;
-				case 't':
-					p |= SILENCE_CNOTICE;
-					break;
-				case 'a':
-				case '*':
-					p |= SILENCE_ALL;
-					break;
-				case 'x':
-					p |= SILENCE_EXCLUDE;
-					break;
-				default:
-					break;
+				user->WriteNumeric(ERR_SILENCE, mask, parameters[1], "You specified one or more invalid SILENCE flags");
+				return CMD_FAILURE;
+			}
+			else if (flags == SilenceEntry::SF_EXEMPT)
+			{
+				// The user specified "x" with no other flags which does not make sense; add the "d" flag.
+				flags |= SilenceEntry::SF_DEFAULT;
 			}
 		}
-		return p;
-	}
 
-	/* turn the mask into a nice human readable format */
-	std::string DecompPattern (const int pattern)
-	{
-		std::string out;
-		if (pattern & SILENCE_PRIVATE)
-			out += ",privatemessages";
-		if (pattern & SILENCE_CHANNEL)
-			out += ",channelmessages";
-		if (pattern & SILENCE_INVITE)
-			out += ",invites";
-		if (pattern & SILENCE_NOTICE)
-			out += ",privatenotices";
-		if (pattern & SILENCE_CNOTICE)
-			out += ",channelnotices";
-		if (pattern & SILENCE_ALL)
-			out = ",all";
-		if (pattern & SILENCE_EXCLUDE)
-			out += ",exclude";
-		if (out.length())
-			return "<" + out.substr(1) + ">";
-		else
-			return "<none>";
+		return is_remove ? RemoveSilence(user, mask, flags) : AddSilence(user, mask, flags);
 	}
-
 };
 
-class ModuleSilence : public Module
+class ModuleSilence
+	: public Module
+	, public CTCTags::EventListener
 {
-	unsigned int maxsilence;
-	bool ExemptULine;
-	CommandSilence cmdsilence;
-	CommandSVSSilence cmdsvssilence;
- public:
+ private:
+	bool exemptuline;
+	CommandSilence cmd;
 
+	ModResult BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions)
+	{
+		const Channel::MemberMap& members = channel->GetUsers();
+		for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
+		{
+			if (!CanReceiveMessage(source, member->first, flag))
+				exemptions.insert(member->first);
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	bool CanReceiveMessage(User* source, User* target, SilenceEntry::SilenceFlags flag)
+	{
+		// Servers handle their own clients.
+		if (!IS_LOCAL(target))
+			return true;
+
+		if (exemptuline && source->server->IsULine())
+			return true;
+
+		SilenceList* list = cmd.ext.get(target);
+		if (!list)
+			return true;
+
+		for (SilenceList::iterator iter = list->begin(); iter != list->end(); ++iter)
+		{
+			if (!(iter->flags & flag))
+				continue;
+
+			if (InspIRCd::Match(source->GetFullHost(), iter->mask))
+				return iter->flags & SilenceEntry::SF_EXEMPT;
+		}
+
+		return true;
+	}
+
+ public:
 	ModuleSilence()
-		: maxsilence(32), cmdsilence(this, maxsilence), cmdsvssilence(this)
+		: CTCTags::EventListener(this)
+		, cmd(this)
 	{
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
-
-		maxsilence = tag->getUInt("maxentries", 32, 1);
-		ExemptULine = tag->getBool("exemptuline", true);
+		exemptuline = tag->getBool("exemptuline", true);
+		cmd.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
-		tokens["ESILENCE"];
-		tokens["SILENCE"] = ConvToStr(maxsilence);
+		tokens["ESILENCE"] = "CcdiNnPpTtx";
+		tokens["SILENCE"] = ConvToStr(cmd.maxsilence);
 	}
 
-	void BuildExemptList(MessageType message_type, Channel* chan, User* sender, CUList& exempt_list)
+	ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) override
 	{
-		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
-
-		const Channel::MemberMap& ulist = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-		{
-			if (IS_LOCAL(i->first))
-			{
-				if (MatchPattern(i->first, sender, public_silence) == MOD_RES_DENY)
-				{
-					exempt_list.insert(i->first);
-				}
-			}
-		}
+		return CanReceiveMessage(source, dest, SilenceEntry::SF_INVITE) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		if (target.type == MessageTarget::TYPE_USER && IS_LOCAL(target.Get<User>()))
+		std::string ctcpname;
+		bool is_ctcp = details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION");
+
+		SilenceEntry::SilenceFlags flag = SilenceEntry::SF_NONE;
+		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			return MatchPattern(target.Get<User>(), user, ((details.type == MSG_PRIVMSG) ? SILENCE_PRIVATE : SILENCE_NOTICE));
+			if (is_ctcp)
+				flag = SilenceEntry::SF_CTCP_CHANNEL;
+			else if (details.type == MSG_NOTICE)
+				flag = SilenceEntry::SF_NOTICE_CHANNEL;
+			else if (details.type == MSG_PRIVMSG)
+				flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
+
+			return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
 		}
-		else if (target.type == MessageTarget::TYPE_CHANNEL)
+
+		if (target.type == MessageTarget::TYPE_USER)
 		{
-			Channel* chan = target.Get<Channel>();
-			BuildExemptList(details.type, chan, user, details.exemptions);
+			if (is_ctcp)
+				flag = SilenceEntry::SF_CTCP_USER;
+			else if (details.type == MSG_NOTICE)
+				flag = SilenceEntry::SF_NOTICE_USER;
+			else if (details.type == MSG_PRIVMSG)
+				flag = SilenceEntry::SF_PRIVMSG_USER;
+
+			if (!CanReceiveMessage(user, target.Get<User>(), flag))
+			{
+				details.echo_original = true;
+				return MOD_RES_DENY;
+			}
 		}
+
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout) override
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
-		return MatchPattern(dest, source, SILENCE_INVITE);
-	}
+		if (target.type == MessageTarget::TYPE_CHANNEL)
+			return BuildChannelExempts(user, target.Get<Channel>(), SilenceEntry::SF_TAGMSG_CHANNEL, details.exemptions);
 
-	ModResult MatchPattern(User* dest, User* source, int pattern)
-	{
-		if (ExemptULine && source->server->IsULine())
-			return MOD_RES_PASSTHRU;
-
-		silencelist* sl = cmdsilence.ext.get(dest);
-		if (sl)
+		if (target.type == MessageTarget::TYPE_USER && !CanReceiveMessage(user, target.Get<User>(), SilenceEntry::SF_TAGMSG_USER))
 		{
-			for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
-			{
-				if (((((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0)) && (InspIRCd::Match(source->GetFullHost(), c->first)))
-					return (c->second & SILENCE_EXCLUDE) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
-			}
+			details.echo_original = true;
+			return MOD_RES_DENY;
 		}
+
 		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides support for blocking users with the SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

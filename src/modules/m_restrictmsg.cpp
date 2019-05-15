@@ -20,11 +20,14 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
-class ModuleRestrictMsg : public Module
+class ModuleRestrictMsg
+	: public Module
+	, public CTCTags::EventListener
 {
- public:
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+ private:
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{
@@ -47,9 +50,25 @@ class ModuleRestrictMsg : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+ public:
+	ModuleRestrictMsg()
+		: CTCTags::EventListener(this)
+	{
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return HandleMessage(user, target);
+	}
+
 	Version GetVersion() override
 	{
-		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers.",VF_VENDOR);
+		return Version("Forbids users from messaging each other, but users may still message opers and opers may message other opers", VF_VENDOR);
 	}
 };
 

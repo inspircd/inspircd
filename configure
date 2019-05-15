@@ -52,6 +52,7 @@ my ($opt_binary_dir,
     $opt_config_dir,
     $opt_data_dir,
     $opt_development,
+    $opt_disable_auto_extras,
     $opt_disable_interactive,
     $opt_distribution_label,
     $opt_gid,
@@ -73,17 +74,18 @@ sub disable_extras (@);
 my @opt_enableextras;
 my @opt_disableextras;
 
-GetOptions(
+exit 1 unless GetOptions(
 	'clean'  => \&cmd_clean,
 	'help'	 => \&cmd_help,
 	'update' => \&cmd_update,
 
-	'development'          => \$opt_development,
-	'disable-interactive'  => \$opt_disable_interactive,
-	'distribution-label=s' => \$opt_distribution_label,
 	'binary-dir=s'         => \$opt_binary_dir,
 	'config-dir=s'         => \$opt_config_dir,
 	'data-dir=s'           => \$opt_data_dir,
+	'development'          => \$opt_development,
+	'disable-auto-extras'  => \$opt_disable_auto_extras,
+	'disable-interactive'  => \$opt_disable_interactive,
+	'distribution-label=s' => \$opt_distribution_label,
 	'gid=s'                => \$opt_gid,
 	'log-dir=s'            => \$opt_log_dir,
 	'manual-dir=s'         => \$opt_manual_dir,
@@ -117,6 +119,7 @@ our $interactive = !(
 	defined $opt_config_dir ||
 	defined $opt_data_dir ||
 	defined $opt_development ||
+	defined $opt_disable_auto_extras ||
 	defined $opt_disable_interactive ||
 	defined $opt_distribution_label ||
 	defined $opt_gid ||
@@ -254,14 +257,14 @@ $config{UID}  = $user[2];
 # Warn the user about clock drifting when running on OpenVZ.
 if (-e '/proc/user_beancounters' || -e '/proc/vz/vzaquota') {
 	print_warning <<'EOW';
-You are building InspIRCd inside of an an OpenVZ container. If you
+You are building InspIRCd inside of an OpenVZ container. If you
 plan to use InspIRCd in this container then you should make sure that NTP is
 configured on the Hardware Node. Failure to do so may result in clock drifting!
 EOW
 }
 
 # Check that the user actually wants this version.
-if ($version{LABEL} ne 'release') {
+if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
 You are building a development version. This contains code which has
 not been tested as heavily and may contain various faults which could seriously
@@ -321,12 +324,12 @@ if (prompt_bool $interactive, $question, 0) {
 			enable_extras "$module_name.cpp";
 		}
 	}
-} else {
+} elsif (!defined $opt_disable_auto_extras) {
 	# TODO: finish modulemanager rewrite and replace this code with:
 	# system './modulemanager', 'enable', '--auto';
 	my %modules = (
 		# Missing: m_ldap, m_regex_stdlib, m_ssl_mbedtls
-		'm_geoip.cpp'           => 'pkg-config --exists geoip',
+		'm_geo_maxmind.cpp'     => 'pkg-config --exists libmaxminddb',
 		'm_mysql.cpp'           => 'mysql_config --version',
 		'm_pgsql.cpp'           => 'pg_config --version',
 		'm_regex_pcre.cpp'      => 'pcre-config --version',

@@ -93,7 +93,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 	if (user->IsOper())
 	{
 		time_t secs_up = ServerInstance->Time() - current->age;
-		buffer += " [Up: " + ModuleSpanningTree::TimeToStr(secs_up) + (current->rtt == 0 ? "]" : " Lag: " + ConvToStr(current->rtt) + "ms]");
+		buffer += " [Up: " + InspIRCd::DurationString(secs_up) + (current->rtt == 0 ? "]" : " Lag: " + ConvToStr(current->rtt) + "ms]");
 	}
 
 	std::vector<std::string> map;

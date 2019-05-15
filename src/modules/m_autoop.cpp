@@ -112,7 +112,7 @@ class ModuleAutoOp : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for the +w channel mode", VF_VENDOR);
+		return Version("Provides channel mode +w, basic channel access controls", VF_VENDOR);
 	}
 };
 

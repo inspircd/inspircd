@@ -24,7 +24,7 @@ class ModuleServerBan : public Module
  public:
 	Version GetVersion() override
 	{
-		return Version("Extban 's' - server ban",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides extban 's' to ban users connected to a specified server", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override

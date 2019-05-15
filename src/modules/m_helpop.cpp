@@ -162,7 +162,7 @@ class ModuleHelpop : public Module, public Whois::EventListener
 
 		Version GetVersion() override
 		{
-			return Version("Provides the /HELPOP command for useful information", VF_VENDOR);
+			return Version("Provides the HELPOP command for useful information", VF_VENDOR);
 		}
 };
 

@@ -193,7 +193,7 @@ class SSLIOHook : public IOHook
 	 * Get the certificate sent by this peer
 	 * @return The SSL certificate sent by the peer, NULL if no cert was sent
 	 */
-	ssl_cert* GetCertificate() const
+	virtual ssl_cert* GetCertificate() const
 	{
 		return certificate;
 	}
@@ -203,7 +203,7 @@ class SSLIOHook : public IOHook
 	 * @return The fingerprint of the SSL client certificate sent by the peer,
 	 * empty if no cert was sent
 	 */
-	std::string GetFingerprint() const
+	virtual std::string GetFingerprint() const
 	{
 		ssl_cert* cert = GetCertificate();
 		if (cert && cert->IsUsable())

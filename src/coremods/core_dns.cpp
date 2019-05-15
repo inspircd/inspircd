@@ -36,7 +36,7 @@ namespace DNS
 
 using namespace DNS;
 
-/** A full packet sent or recieved to/from the nameserver
+/** A full packet sent or received to/from the nameserver
  */
 class Packet : public Query
 {
@@ -842,7 +842,7 @@ class ModuleDNS : public Module
 
 	Version GetVersion() override
 	{
-		return Version("DNS support", VF_CORE|VF_VENDOR);
+		return Version("Provides support for DNS lookups", VF_CORE|VF_VENDOR);
 	}
 };
 

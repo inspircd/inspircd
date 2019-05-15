@@ -32,7 +32,7 @@
 CXX = @CXX@ -std=c++14
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
-BUILDPATH ?= $(PWD)/build
+BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
@@ -46,10 +46,11 @@ LOGPATH = "$(DESTDIR)@LOG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
-INSTALL = install
-INSTMODE_DIR = 0750
-INSTMODE_BIN = 0750
-INSTMODE_LIB = 0640
+INSTALL ?= install
+INSTMODE_DIR ?= 0755
+INSTMODE_BIN ?= 0755
+INSTMODE_TXT ?= 0644
+INSTMODE_PRV ?= 0640
 
 ifneq ($(COMPILER), ICC)
   CORECXXFLAGS += -Woverloaded-virtual -Wshadow
@@ -77,7 +78,6 @@ ifeq ($(SYSTEM), gnu)
 endif
 ifeq ($(SYSTEM), solaris)
   LDLIBS += -lsocket -lnsl -lrt -lresolv
-  INSTALL = ginstall
 endif
 ifeq ($(SYSTEM), darwin)
   LDLIBS += -ldl
@@ -111,6 +111,11 @@ endif
 ifeq ($(INSPIRCD_DEBUG), 2)
   CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
+  DBGOK=1
+endif
+ifeq ($(INSPIRCD_DEBUG), 3)
+  CORECXXFLAGS += -fno-rtti -O0 -g0
+  HEADER = std-header
   DBGOK=1
 endif
 FOOTER = finishmessage
@@ -187,8 +192,8 @@ std-header:
 	@echo "*       BUILDING INSPIRCD           *"
 	@echo "*                                   *"
 	@echo "*   This will take a *long* time.   *"
-	@echo "*     Why not read our wiki at      *"
-	@echo "*     https://wiki.inspircd.org     *"
+	@echo "*     Why not read our docs at      *"
+	@echo "*     https://docs.inspircd.org     *"
 	@echo "*  while you wait for Make to run?  *"
 	@echo "*************************************"
 
@@ -212,22 +217,22 @@ install: target
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) "$(BUILDPATH)/modules/"*.so $(MODPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/conf/services/*.example $(CONPATH)/examples/services
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) docs/sql/*.sql $(CONPATH)/examples/sql
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/*.example $(CONPATH)/examples
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(CONPATH)/examples/services
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(CONPATH)/examples/sql
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_PRV) *.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -284,6 +289,7 @@ help:
 	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' INSPIRCD_DEBUG=1    Enable debug build, for module development or crash tracing'
 	@echo ' INSPIRCD_DEBUG=2    Enable debug build with optimizations, for detailed backtraces'
+	@echo ' INSPIRCD_DEBUG=3    Enable fast build with no optimisations or symbols, for Travis CI'
 	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
 	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''

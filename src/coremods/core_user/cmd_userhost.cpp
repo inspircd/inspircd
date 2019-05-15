@@ -19,29 +19,7 @@
 
 
 #include "inspircd.h"
-
-/** Handle /USERHOST.
- */
-class CommandUserhost : public Command
-{
-	UserModeReference hideopermode;
-
- public:
-	/** Constructor for userhost.
-	 */
-	CommandUserhost(Module* parent)
-		: Command(parent,"USERHOST", 1)
-		, hideopermode(parent, "hideoper")
-	{
-		syntax = "<nick> [<nick>]+";
-	}
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) override;
-};
+#include "core_user.h"
 
 CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 {
@@ -81,22 +59,3 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 	return CMD_SUCCESS;
 }
-
-class CoreModUserhost : public Module
-{
- private:
-	CommandUserhost cmd;
-
- public:
-	CoreModUserhost()
-		: cmd(this)
-	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the USERHOST command", VF_CORE | VF_VENDOR);
-	}
-};
-
-MODULE_INIT(CoreModUserhost)

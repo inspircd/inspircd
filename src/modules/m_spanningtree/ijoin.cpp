@@ -30,7 +30,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 	{
 		// Desync detected, recover
 		// Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Received IJOIN for non-existant channel: " + params[0]);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Received IJOIN for nonexistent channel: " + params[0]);
 
 		CmdBuilder("RESYNC").push(params[0]).Unicast(user);
 

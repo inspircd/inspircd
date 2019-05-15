@@ -20,9 +20,9 @@
  */
 
 
-#include <signal.h>
-#include "exitcodes.h"
 #include "inspircd.h"
+#include "exitcodes.h"
+#include <signal.h>
 
 void InspIRCd::SignalHandler(int signal)
 {

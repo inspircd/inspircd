@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 #include "modules/ssl.h"
 
 enum
@@ -132,7 +133,9 @@ class SSLModeUser : public ModeHandler
 	}
 };
 
-class ModuleSSLModes : public Module
+class ModuleSSLModes
+	: public Module
+	, public CTCTags::EventListener
 {
  private:
 	UserCertificateAPI api;
@@ -141,7 +144,8 @@ class ModuleSSLModes : public Module
 
  public:
 	ModuleSSLModes()
-		: api(this)
+		: CTCTags::EventListener(this)
+		, api(this)
 		, sslm(this, api)
 		, sslquery(this, api)
 	{
@@ -153,13 +157,13 @@ class ModuleSSLModes : public Module
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a SSL user (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are an SSL user (+z is set)");
 				return MOD_RES_DENY;
 			}
 
 			if (!api->GetCertificate(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -167,7 +171,7 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& msgtarget, MessageDetails& details) override
+	ModResult HandleMessage(User* user, const MessageTarget& msgtarget)
 	{
 		if (msgtarget.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
@@ -184,7 +188,7 @@ class ModuleSSLModes : public Module
 			if (!api || !api->GetCertificate(user))
 			{
 				/* The sending user is not on an SSL connection */
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z set)");
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -193,12 +197,22 @@ class ModuleSSLModes : public Module
 		{
 			if (!api || !api->GetCertificate(target))
 			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove usermode 'z' before you are able to send private messages to a non-ssl user.");
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove user mode 'z' before you are able to send private messages to a non-SSL user.");
 				return MOD_RES_DENY;
 			}
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return HandleMessage(user, target);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
@@ -219,7 +233,7 @@ class ModuleSSLModes : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices.", VF_VENDOR);
+		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices", VF_VENDOR);
 	}
 };
 

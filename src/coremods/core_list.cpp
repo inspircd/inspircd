@@ -48,6 +48,7 @@ class CommandList : public Command
 		, secretmode(creator, "secret")
 		, privatemode(creator, "private")
 	{
+		allow_empty_last_param = false;
 		Penalty = 5;
 	}
 
@@ -87,36 +88,37 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	size_t minusers = 0;
 	size_t maxusers = 0;
 
-	if ((parameters.size() == 1) && (!parameters[0].empty()))
+	for (Params::const_iterator iter = parameters.begin(); iter != parameters.end(); ++iter)
 	{
-		if (parameters[0][0] == '<')
+		const std::string& constraint = *iter;
+		if (constraint[0] == '<')
 		{
-			maxusers = ConvToNum<size_t>(parameters[0].c_str() + 1);
+			maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
 		}
-		else if (parameters[0][0] == '>')
+		else if (constraint[0] == '>')
 		{
-			minusers = ConvToNum<size_t>(parameters[0].c_str() + 1);
+			minusers = ConvToNum<size_t>(constraint.c_str() + 1);
 		}
-		else if (!parameters[0].compare(0, 2, "C<", 2))
+		else if (!constraint.compare(0, 2, "C<", 2) || !constraint.compare(0, 2, "c<", 2))
 		{
-			mincreationtime = ParseMinutes(parameters[0]);
+			mincreationtime = ParseMinutes(constraint);
 		}
-		else if (!parameters[0].compare(0, 2, "C>", 2))
+		else if (!constraint.compare(0, 2, "C>", 2) || !constraint.compare(0, 2, "c>", 2))
 		{
-			maxcreationtime = ParseMinutes(parameters[0]);
+			maxcreationtime = ParseMinutes(constraint);
 		}
-		else if (!parameters[0].compare(0, 2, "T<", 2))
+		else if (!constraint.compare(0, 2, "T<", 2) || !constraint.compare(0, 2, "t<", 2))
 		{
-			mintopictime = ParseMinutes(parameters[0]);
+			mintopictime = ParseMinutes(constraint);
 		}
-		else if (!parameters[0].compare(0, 2, "T>", 2))
+		else if (!constraint.compare(0, 2, "T>", 2) || !constraint.compare(0, 2, "t>", 2))
 		{
-			maxtopictime = ParseMinutes(parameters[0]);
+			maxtopictime = ParseMinutes(constraint);
 		}
 		else
 		{
 			// If the glob is prefixed with ! it is inverted.
-			match = parameters[0].c_str();
+			match = constraint.c_str();
 			if (match[0] == '!')
 			{
 				match_inverted = true;

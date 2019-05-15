@@ -79,7 +79,7 @@ format are optional.">
 <helpop key="accept" value="/ACCEPT *|(+|-)<nick>[,(+|-)<nick>]+
 
 Manages your accept list. This list is used to determine who can
-private message you when you have usermode +g set.
+private message you when you have user mode +g set.
 
 /ACCEPT * - List accepted nicks
 /ACCEPT +<nick> - Add a nick
@@ -145,10 +145,11 @@ E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.">
 This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
 which caused trouble for some users.">
 
-<helpop key="silence" value="/SILENCE [(+|-)<mask> [p|c|i|n|t|a|x]]
+<helpop key="silence" value="/SILENCE [(+|-)<mask> [CcdiNnPpTtx]]
 
-A server-side ignore of the given n!u@h mask. The flags at the end
-are optional, and specify what is to be ignored from this mask.
+A server-side ignore of the given n!u@h mask. If the optional flags field is
+specified then it must contain one or more flags which specify what kind of
+messages should be blocked and how they should be blocked.
 
 /SILENCE - Shows a list of silenced masks
 /SILENCE +<mask> [<flags>] - Add a mask
@@ -156,24 +157,19 @@ are optional, and specify what is to be ignored from this mask.
 
 Valid SILENCE Flags
 -------------------
+ C    Matches a CTCP targeted at a user.
+ c    Matches a CTCP targeted at a channel.
+ d    Default behaviour; equivalent to CciNnPpTt.
+ i    Matches an invite to a channel.
+ N    Matches a NOTICE targeted at a user.
+ n    Matches a NOTICE targeted at a channel.
+ P    Matches a PRIVMSG targeted at a user.
+ p    Matches a PRIVMSG targeted at a channel.
+ T    Matches a TAGMSG targeted at a user.
+ t    Matches a TAGMSG targeted at a channel.
+ x    Exempt the mask from silence rules.
 
- p        Block private messages
- c        Block channel messages
- i        Block invites
- n        Block private notices
- t        Block channel notices
- a        Block all of the above
- x        Exception
-
-Multiple flags may be specified. For an exception, you must pair x
-with what you want excepted. For example, if you wanted to except
-everything from people with a host matching *.foo.net, you would do
-/SILENCE +*!*@*.foo.net xa
-
-If no flags are specified, it will default to blocking private messages
-and private notices (pn).
-
-/SILENCE without a parameter will list the masks that you have silenced.">
+Any combination of flags is valid.">
 
 <helpop key="knock" value="/KNOCK <channel> :<reason>
 
@@ -224,7 +220,7 @@ Sends a notice to a user or channel specified in <target>.">
 
 Joins one or more channels you provide the names for.">
 
-<helpop key="names" value="/NAMES <channel>[,<channel>]+
+<helpop key="names" value="/NAMES [<channel>[,<channel>]+]
 
 Return a list of users on the channel(s) you provide.">
 
@@ -247,7 +243,7 @@ Change or view modes of <target>.
 
 Sets the mode for a channel or a nickname specified in <target>.
 A user may only set modes upon themselves, and may not set the
-+o usermode, and a user may only change channel modes of
++o user mode, and a user may only change channel modes of
 channels where they are at least a halfoperator.
 
 For a list of all user and channel modes, enter /HELPOP UMODES or
@@ -347,10 +343,10 @@ to using a server.">
 
 <helpop key="oper" value="/OPER <username> <password>
 
-Attempts to authenticate a user as an IRC operator.
+Attempts to authenticate as a server operator.
 
 Both successful and unsuccessful oper attempts are
-logged, and sent to online IRC operators.">
+logged, and sent to online server operators.">
 
 <helpop key="list" value="/LIST [<pattern>]
 
@@ -465,8 +461,8 @@ Returns the IP address and nickname of the given user(s).">
 
 This command returns the number of local and global clients matched,
 and the percentage of clients matched, plus how they were matched
-(by IP address or by hostname). Mask should be given as either a
-nick!user@host or user@IP (wildcards accepted).">
+(by IP address or by hostname). Mask should be given as either
+nick!user@host or user@IP (wildcards and CIDR blocks are accepted).">
 
 <helpop key="lockserv" value="/LOCKSERV [:<message>]
 
@@ -492,11 +488,11 @@ Valid FILTER Actions
 --------------------
 
 None    Does nothing
-Warn    Lets the message through and informs +s IRCops of the message
-        and all relevant info
-Block   Blocks message and informs +s IRCops of the blocked message
-        and all relevant info
-Silent  Blocks message, but does not notify IRCops
+Warn    Lets the message through and informs +s server operators
+        of the message and all relevant info
+Block   Blocks message and informs +s server operators of the blocked
+        message and all relevant info
+Silent  Blocks message, but does not notify server operators
 Kill    Kills the user
 Gline   G-lines the user for the specified duration
 Zline   Z-lines the user for the specified duration
@@ -836,16 +832,16 @@ using their cloak when they quit.">
               from channels they are in (requires the deaf module).
  g            In combination with /ACCEPT, provides for server-side
               ignore (requires the callerid module).
- h            Marks as 'available for help' in WHOIS (IRCop only,
-              requires the helpop module).
+ h            Marks as 'available for help' in WHOIS (server operators
+              only, requires the helpop module).
  i            Makes invisible to /WHO if the user using /WHO is not in
               a common channel.
  k            Prevents the user from being kicked from channels, or
               having op modes removed from them (services only,
               requires the servprotect module).
- o            Marks as a IRC operator.
+ o            Marks as a server operator.
  s <mask>     Receives server notices specified by <mask>
-              (IRCop only).
+              (server operators only).
  r            Marks as a having a registered nickname
               (requires the services account module).
  w            Receives wallops messages.
@@ -853,20 +849,24 @@ using their cloak when they quit.">
  z            Only allow private messages from SSL users (requires the
               sslmode module).
  B            Marks as a bot (requires the botmode module).
+ D            Privdeaf mode. User will not receive any private messages
+              or notices from users (requires the deaf module).
  G            Censors messages sent to the user based on filters
               configured for the network (requires the censor module).
  H            Hides an oper's oper status from WHOIS (requires the
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
-              non-IRCops (requires the hidechans module).
+              non-server operators (requires the hidechans module).
  L            Stops redirections done by the redirect module (requires
               the redirect module).
+ O            Allows server operators to opt-in to overriding
+              restrictions (requires the override module).
  R            Blocks private messages from unregistered users
               (requires the services account module).
  S            Strips formatting codes out of private messages
               to the user (requires the stripcolor module).
- W            Receives notification when a user uses WHOIS on them
-              (IRCop only, requires the showwhois module).">
+ W            Receives notifications when a user uses WHOIS on them
+              (server operators only, requires the showwhois module).">
 
 <helpop key="chmodes" value="Channel Modes
 -------------
@@ -965,12 +965,12 @@ using their cloak when they quit.">
                     the services account module).
  N                  Prevents users on the channel from changing nick
                     (requires the nonicks module).
- O                  Channel is IRCops only (can only be set by IRCops,
-                    requires the operchans module).
+ O                  Channel is server operators only (can only be set
+                    by server operators, requires the operchans module).
  P                  Makes the channel permanent; Bans, invites, the
                     topic, modes, and such will not be lost when it
-                    empties (can only be set by IRCops, requires
-                    the permchannels module).
+                    empties (can only be set by server operators,
+                    requires the permchannels module).
  Q                  Only U-lined servers and their users can kick
                     (requires the nokicks module).
  R                  Blocks unregistered users from joining (requires
@@ -984,6 +984,7 @@ using their cloak when they quit.">
                     (requires the exemptchanops module).
  Possible restriction types to exempt with +X are:
 
+ anticaps            Channel mode +B
  auditorium-see      Permission required to see the full user list of
                      a +u channel (requires the auditorium module).
  auditorium-vis      Permission required to be visible in a +u channel
@@ -1042,9 +1043,9 @@ Y  Show connection classes
 O  Show opertypes and the allowed user and channel modes it can set
 E  Show socket engine events
 S  Show currently held registered nicknames
-G  Show how many local users are connected from each country according to GeoIP
+G  Show how many local users are connected from each country
 
-Note that all /STATS use is broadcast to online IRC operators.">
+Note that all /STATS use is broadcast to online server operators.">
 
 <helpop key="snomasks" value="Server Notice Masks
 
@@ -1072,7 +1073,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
  r      Allows receipt of local oper commands (requires the operlog module).
  R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
- v      Allows receipt of oper-override notices (requires the override module).
+ v      Allows receipt of oper override notices (requires the override module).
  x      Allows receipt of local X-line notices (G/Z/Q/K/E/R/SHUN/CBan).
  X      Allows receipt of remote X-line notices (G/Z/Q/K/E/R/SHUN/CBan).">
 
@@ -1092,7 +1093,7 @@ setting +I <extban>.
 
 Matching extbans:
 
- a:<mask>      Matches user with both a matching banmask and realname,
+ a:<mask>      Matches user with both a matching banmask and real name,
                where <mask> is in the format nick!user@host+realname
                (requires gecosban module).
  j:<channel>   Matches anyone in the given channel. Does not support
@@ -1105,8 +1106,9 @@ Matching extbans:
                serverban module).
  z:<certfp>    Matches users having the given SSL certificate
                fingerprint (requires the sslmodes module).
- O:<opertype>  Matches IRCops of a matching type, mostly useful as an
-               an invite exception (requires the operchans module).
+ O:<opertype>  Matches server operators of a matching type, mostly
+               useful as an invite exception (requires the
+               operchans module).
  R:<account>   Matches users logged into a matching account (requires
                the services account module).
  U:<banmask>   Matches unregistered users matching the given banmask.

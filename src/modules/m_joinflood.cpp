@@ -151,7 +151,7 @@ class ModuleJoinFlood : public Module
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j). Please try again later.");
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j is set). Please try again later.");
 				return MOD_RES_DENY;
 			}
 		}
@@ -181,7 +181,7 @@ class ModuleJoinFlood : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides channel mode +j (join flood protection)", VF_VENDOR);
+		return Version("Provides channel mode +j, join flood protection", VF_VENDOR);
 	}
 };
 

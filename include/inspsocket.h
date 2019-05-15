@@ -380,12 +380,11 @@ class CoreExport BufferedSocket : public StreamSocket
 	 * This will create a socket, register with socket engine, and start the asynchronous
 	 * connection process. If an error is detected at this point (such as out of file descriptors),
 	 * OnError will be called; otherwise, the state will become CONNECTING.
-	 * @param ipaddr Address to connect to
-	 * @param aport Port to connect on
+	 * @param dest Remote endpoint to connect to.
+	 * @param bind Local endpoint to connect from.
 	 * @param maxtime Time to wait for connection
-	 * @param connectbindip Address to bind to (if NULL, no bind will be done)
 	 */
-	void DoConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip);
+	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int maxtime);
 
 	/** This method is called when an outbound connection on your socket is
 	 * completed.
@@ -412,7 +411,6 @@ class CoreExport BufferedSocket : public StreamSocket
  protected:
 	void OnEventHandlerWrite() override;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout);
-	BufferedSocketError BeginConnect(const std::string& ipaddr, int aport, unsigned int maxtime, const std::string& connectbindip);
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }

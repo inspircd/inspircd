@@ -90,7 +90,7 @@ class ModuleSakick : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides the SAKICK command", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

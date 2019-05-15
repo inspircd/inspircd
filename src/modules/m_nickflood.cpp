@@ -54,10 +54,6 @@ class nickfloodsettings
 
 	bool shouldlock()
 	{
-		/* XXX HACK: using counter + 1 here now to allow the counter to only be incremented
-		 * on successful nick changes; this will be checked before the counter is
-		 * incremented.
-		 */
 		return ((ServerInstance->Time() <= reset) && (counter == this->nicks));
 	}
 
@@ -202,7 +198,7 @@ class ModuleNickFlood : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Channel mode F - nick flood protection", VF_VENDOR);
+		return Version("Provides channel mode +F, nick flood protection", VF_VENDOR);
 	}
 };
 

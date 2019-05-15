@@ -25,7 +25,7 @@ class ModuleBadChannelExtban : public Module
  public:
 	Version GetVersion() override
 	{
-		return Version("Extban 'j' - channel status/join ban", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides extban 'j', ban users that are present in another channel, and optionally on their status there", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override

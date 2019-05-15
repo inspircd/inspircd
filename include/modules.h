@@ -99,7 +99,7 @@ struct ModResult {
 /** InspIRCd major version.
  * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
  */
-#define INSPIRCD_VERSION_MAJ 300
+#define INSPIRCD_VERSION_MAJ 400
 
 /** InspIRCd API version.
  * If you change any API elements, increment this value. This counter should be
@@ -107,7 +107,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 2
+#define INSPIRCD_VERSION_API 0
 
 /**
  * This #define allows us to call a method in all
@@ -216,7 +216,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
-	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
+	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit, I_OnUserPostInit,
 	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -226,7 +226,7 @@ enum Implementation
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnUserMessage, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
+	I_OnUserMessage, I_OnPassCompare, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
 	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
 	I_END
@@ -722,10 +722,19 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
 
-	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
-	 * connect class, or accepting any commands.
+	/** Called after a user object is initialised and added to the user list.
+	 * When this is called the user has not had their I/O hooks checked or had their initial
+	 * connect class assigned and may not yet have a serialiser. You probably want to use
+	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
+	 * @param user The connecting user.
 	 */
 	virtual void OnUserInit(LocalUser* user);
+
+	/** Called after a user object has had their I/O hooks checked, their initial connection
+	 * class assigned, and had a serialiser set.
+	 * @param user The connecting user.
+	 */
+	virtual void OnUserPostInit(LocalUser* user);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
@@ -895,18 +904,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
-
-	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
-	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
-	 * @param issuer The user who is going to receive the NAMES list being built
-	 * @param item The channel member being considered for inclusion
-	 * @param prefixes The prefix character(s) to display, initially set to the prefix char of the most powerful
-	 * prefix mode the member has, can be changed
-	 * @param nick The nick to display, initially set to the member's nick, can be changed
-	 * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
-	 * excluded from this NAMES list
-	 */
-	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 

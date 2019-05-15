@@ -226,7 +226,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Filter '" + parameters[0] + "' not found in list, try /stats s.");
+			user->WriteNotice("*** Filter '" + parameters[0] + "' not found on the list.");
 			return CMD_FAILURE;
 		}
 	}
@@ -628,7 +628,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 Version ModuleFilter::GetVersion()
 {
-	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
+	return Version("Provides text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
 }
 
 std::string ModuleFilter::EncodeFilter(FilterResult* filter)

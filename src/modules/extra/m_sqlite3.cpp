@@ -257,7 +257,7 @@ class ModuleSQLite3 : public Module
 
 	Version GetVersion() override
 	{
-		return Version("sqlite3 provider", VF_VENDOR);
+		return Version("Provides SQLite3 support", VF_VENDOR);
 	}
 };
 

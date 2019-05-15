@@ -87,13 +87,13 @@ class RemoveBase : public Command
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteNotice(InspIRCd::Format("*** The user %s is not on channel %s", target->nick.c_str(), channel->name.c_str()));
+			user->WriteNotice(InspIRCd::Format("*** User %s is not on channel %s", target->nick.c_str(), channel->name.c_str()));
 			return CMD_FAILURE;
 		}
 
 		if (target->server->IsULine())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a u-line may remove a u-line from a channel.");
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a U-line may remove a U-line from a channel.");
 			return CMD_FAILURE;
 		}
 
@@ -142,14 +142,14 @@ class RemoveBase : public Command
 			}
 			else
 			{
-				user->WriteNotice(InspIRCd::Format("*** You do not have access to /remove %s from %s", target->nick.c_str(), channel->name.c_str()));
+				user->WriteNotice(InspIRCd::Format("*** You do not have access to /REMOVE %s from %s", target->nick.c_str(), channel->name.c_str()));
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (nokicks mode is set)", target->nick.c_str()));
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (+Q is set)", target->nick.c_str()));
 			return CMD_FAILURE;
 		}
 
@@ -222,7 +222,7 @@ class ModuleRemove : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the REMOVE command as an alternative to KICK, it makes users appear to have left the channel", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

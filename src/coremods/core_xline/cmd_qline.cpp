@@ -81,7 +81,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		}
 		else
 		{
-			user->WriteNotice("*** Q-line " + parameters[0] + " not found in list, try /stats q.");
+			user->WriteNotice("*** Q-line " + parameters[0] + " not found on the list.");
 			return CMD_FAILURE;
 		}
 	}

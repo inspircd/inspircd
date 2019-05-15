@@ -51,7 +51,7 @@ class ModuleRandQuote : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides random quotes on connect.", VF_VENDOR);
+		return Version("Provides random quotes on connect", VF_VENDOR);
 	}
 };
 

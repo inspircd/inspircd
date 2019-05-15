@@ -85,7 +85,7 @@ public:
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for the CHGIDENT command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the CHGIDENT command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

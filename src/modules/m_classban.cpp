@@ -40,7 +40,7 @@ class ModuleClassBan : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Class 'n' - Connection class ban", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Provides extban 'n', connection class bans", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

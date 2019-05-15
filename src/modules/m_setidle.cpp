@@ -69,7 +69,7 @@ class ModuleSetIdle : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Allows opers to set their idle time", VF_VENDOR);
+		return Version("Provides the SETIDLE command, allows opers to set their idle time", VF_VENDOR);
 	}
 };
 

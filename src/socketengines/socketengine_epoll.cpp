@@ -31,7 +31,7 @@ namespace
 
 	/** These are used by epoll() to hold socket events
 	 */
-	std::vector<struct epoll_event> events(1);
+	std::vector<struct epoll_event> events(16);
 }
 
 void SocketEngine::Init()

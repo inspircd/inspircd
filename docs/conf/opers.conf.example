@@ -23,18 +23,20 @@
      #   - users/auspex: allows opers with this priv to view more details about users than normal users, e.g. real host and IP.
      #   - users/channel-spy: allows opers with this priv to view the private/secret channels that a user is on.
      #   - servers/auspex: allows opers with this priv to see more details about server information than normal users.
-     # ACTIONS:
+     #  ACTIONS:
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*).
      #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE.
-     # PERMISSIONS:
+     #  PERMISSIONS:
      #   - channels/ignore-noctcp: allows opers with this priv to send a CTCP to a +C channel.
      #   - channels/ignore-nonicks: allows opers with this priv to change their nick when on a +N channel.
      #   - channels/restricted-create: allows opers with this priv to create channels if the restrictchans module is loaded.
+     #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE).
      #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE).
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE).
-     #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE).
-     #   - users/callerid-override: allows opers with this priv to message people using callerid without being on their callerid list.
+     #   - users/ignore-callerid: allows opers with this priv to message people using callerid without being on their callerid list.
+     #   - users/ignore-commonchans: allows opers with this priv to send a message to a +c user without sharing common channels.
      #   - users/ignore-noctcp: allows opers with this priv to send a CTCP to a +T user.
+     #   - users/ignore-privdeaf: allows opers with this priv to message users with +D set.
      #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
      #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.
      #   - servers/use-disabled-modes: allows opers with this priv to use disabled modes.
@@ -42,7 +44,7 @@
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message users/flood/no-throttle users/flood/increased-buffers"
 
-     # usermodes: Oper-only usermodes that opers with this class can use.
+     # usermodes: Oper-only user modes that opers with this class can use.
      usermodes="*"
 
      # chanmodes: Oper-only channel modes that opers with this class can use.
@@ -80,7 +82,7 @@
     # Requires the opermodes module to be loaded.
     modes="+s +cCqQ">
 
-<type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.example.org">
+<type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="serverop.omega.example.org">
 <type name="Helper" classes="HostCloak" vhost="helper.omega.example.org">
 
 

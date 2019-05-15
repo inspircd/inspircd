@@ -111,7 +111,7 @@ class ModuleRedirect : public Module
 					}
 					else
 					{
-						user->WriteNumeric(470, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirect channel.");
+						user->WriteNumeric(470, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirected channel.");
 						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}

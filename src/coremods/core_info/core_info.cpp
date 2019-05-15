@@ -174,7 +174,7 @@ class CoreModInfo : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME and VERSION commands", VF_VENDOR|VF_CORE);
+		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, and VERSION commands", VF_VENDOR|VF_CORE);
 	}
 };
 

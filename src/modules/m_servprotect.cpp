@@ -65,7 +65,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 
 	Version GetVersion() override
 	{
-		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
+		return Version("Provides user mode +k to protect services from kicks, kills, and mode changes", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) override

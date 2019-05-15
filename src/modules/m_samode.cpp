@@ -49,8 +49,11 @@ class CommandSamode : public Command
 			}
 
 			// Changing the modes of another user requires a special permission
-			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes", true)))
+			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes")))
+			{
+				user->WriteNotice("*** You are not allowed to /SAMODE other users (the privilege users/samode-usermodes is needed to /SAMODE others).");
 				return CMD_FAILURE;
+			}
 		}
 
 		// XXX: Make ModeParser clear LastParse
@@ -93,7 +96,7 @@ class ModuleSaMode : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
+		return Version("Provides the SAMODE command, allows opers to change modes on channels and users", VF_VENDOR);
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override

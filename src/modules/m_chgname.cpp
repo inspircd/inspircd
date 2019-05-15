@@ -81,7 +81,7 @@ public:
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

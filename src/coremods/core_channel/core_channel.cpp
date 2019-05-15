@@ -251,7 +251,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, keygiven)))
 			{
 				// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-				user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (Incorrect channel key)");
+				user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (incorrect channel key)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -263,7 +263,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
 			if (MOD_RESULT != MOD_RES_ALLOW)
 			{
-				user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (Invite only)");
+				user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (invite only)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -275,7 +275,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
 			if (!MOD_RESULT.check(chan->GetUserCounter() < static_cast<size_t>(limitmode.ext.get(chan))))
 			{
-				user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (Channel is full)");
+				user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (channel is full)");
 				return MOD_RES_DENY;
 			}
 		}

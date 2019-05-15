@@ -22,10 +22,12 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/names.h"
 #include "modules/who.h"
 
 class ModuleNamesX
 	: public Module
+	, public Names::EventListener
 	, public Who::EventListener
 {
  private:
@@ -33,14 +35,15 @@ class ModuleNamesX
 
  public:
 	ModuleNamesX()
-		: Who::EventListener(this)
+		: Names::EventListener(this)
+		, Who::EventListener(this)
 		, cap(this, "multi-prefix")
 	{
 	}
 
 	Version GetVersion() override
 	{
-		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
+		return Version("Provides the NAMESX (CAP multi-prefix) capability", VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
@@ -66,7 +69,7 @@ class ModuleNamesX
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
 		if (cap.get(issuer))
 			prefixes = memb->GetAllPrefixChars();

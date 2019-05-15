@@ -145,7 +145,7 @@ public:
 			const KickRejoinData* data = kr.ext.get(chan);
 			if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user)))
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J)", data->delay));
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)", data->delay));
 				return MOD_RES_DENY;
 			}
 		}
@@ -166,7 +166,7 @@ public:
 
 	Version GetVersion() override
 	{
-		return Version("Channel mode to delay rejoin after kick", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
+		return Version("Provides channel mode +J, delays rejoins after kicks", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
 	}
 };
 

@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/callerid.h"
+#include "modules/ctctags.h"
 
 enum
 {
@@ -345,7 +346,9 @@ class CallerIDAPIImpl : public CallerID::APIBase
 };
 
 
-class ModuleCallerID : public Module
+class ModuleCallerID
+	: public Module
+	, public CTCTags::EventListener
 {
 	CommandAccept cmd;
 	CallerIDAPIImpl api;
@@ -380,7 +383,8 @@ class ModuleCallerID : public Module
 
 public:
 	ModuleCallerID()
-		: cmd(this)
+		: CTCTags::EventListener(this)
+		, cmd(this)
 		, api(this, cmd.extInfo)
 		, myumode(this, "callerid", 'g')
 	{
@@ -388,7 +392,7 @@ public:
 
 	Version GetVersion() override
 	{
-		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
+		return Version("Implementation of callerid, provides user mode +g and the ACCEPT command", VF_COMMON | VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
@@ -397,7 +401,7 @@ public:
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
@@ -406,7 +410,7 @@ public:
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 
-		if (user->HasPrivPermission("users/callerid-override"))
+		if (user->HasPrivPermission("users/ignore-callerid"))
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
@@ -418,13 +422,23 @@ public:
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
-				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have user mode +g set. Use /ACCEPT +%s to allow.",
 						user->nick.c_str()));
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	{
+		return HandleMessage(user, target);
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		return HandleMessage(user, target);
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override

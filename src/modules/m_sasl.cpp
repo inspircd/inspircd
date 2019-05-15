@@ -432,7 +432,7 @@ class ModuleSASL : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE.", VF_VENDOR);
+		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE", VF_VENDOR);
 	}
 };
 

@@ -145,20 +145,6 @@ void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
-std::string ModuleSpanningTree::TimeToStr(time_t secs)
-{
-	time_t mins_up = secs / 60;
-	time_t hours_up = mins_up / 60;
-	time_t days_up = hours_up / 24;
-	secs = secs % 60;
-	mins_up = mins_up % 60;
-	hours_up = hours_up % 24;
-	return ((days_up ? (ConvToStr(days_up) + "d") : "")
-			+ (hours_up ? (ConvToStr(hours_up) + "h") : "")
-			+ (mins_up ? (ConvToStr(mins_up) + "m") : "")
-			+ ConvToStr(secs) + "s");
-}
-
 void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 {
 	if (!a)
@@ -198,40 +184,38 @@ void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 
 void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
-	bool ipvalid = true;
-
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 	{
 		ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
 	}
 
+	irc::sockets::sockaddrs sa;
 #ifndef _WIN32
 	if (x->IPAddr.find('/') != std::string::npos)
 	{
 		struct stat sb;
-		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode))
-			ipvalid = false;
-	}
-#endif
-	if (x->IPAddr.find(':') != std::string::npos)
-	{
-		in6_addr n;
-		if (inet_pton(AF_INET6, x->IPAddr.c_str(), &n) < 1)
-			ipvalid = false;
+		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode) || !irc::sockets::untosa(x->IPAddr, sa))
+		{
+			// We don't use the family() != AF_UNSPEC check below for UNIX sockets as
+			// that results in a DNS lookup.
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s is not a UNIX socket!",
+				x->Name.c_str(), x->IPAddr.c_str());
+			return;
+		}
 	}
 	else
+#endif
 	{
-		in_addr n;
-		if (inet_pton(AF_INET, x->IPAddr.c_str(),&n) < 1)
-			ipvalid = false;
+		// If this fails then the IP sa will be AF_UNSPEC.
+		irc::sockets::aptosa(x->IPAddr, x->Port, sa);
 	}
-
+	
 	/* Do we already have an IP? If so, no need to resolve it. */
-	if (ipvalid)
+	if (sa.family() != AF_UNSPEC)
 	{
 		// Create a TreeServer object that will start connecting immediately in the background
-		TreeSocket* newsocket = new TreeSocket(x, y, x->IPAddr);
+		TreeSocket* newsocket = new TreeSocket(x, y, sa);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */

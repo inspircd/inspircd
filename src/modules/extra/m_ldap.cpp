@@ -617,7 +617,7 @@ class ModuleLDAP : public Module
 
 	Version GetVersion() override
 	{
-		return Version("LDAP support", VF_VENDOR);
+		return Version("Provides LDAP support", VF_VENDOR);
 	}
 };
 

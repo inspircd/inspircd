@@ -161,13 +161,13 @@ void TreeSocket::ProcessLine(std::string &line)
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
-						ServerInstance->SNO.WriteGlobalSno('l',"\2ERROR\2: Your clocks are out by %ld seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",labs((long)delta));
+						ServerInstance->SNO.WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by %ld seconds (this is more than five minutes). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", labs((long)delta));
 						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return;
 					}
 					else if ((delta < -30) || (delta > 30))
 					{
-						ServerInstance->SNO.WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %ld seconds. Please consider synching your clocks.", labs((long)delta));
+						ServerInstance->SNO.WriteGlobalSno('l', "\002WARNING\002: Your clocks are off by %ld seconds. Please consider syncing your clocks.", labs((long)delta));
 					}
 				}
 
@@ -333,7 +333,7 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	}
 
 	// Translate commands coming from servers using an older protocol
-	if (proto_version < ProtocolVersion)
+	if (proto_version < PROTO_NEWEST)
 	{
 		if (!PreProcessOldProtocolMessage(who, command, params))
 			return;
@@ -376,22 +376,25 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	}
 
 	CmdResult res;
+	ClientProtocol::TagMap tags;
+	std::string tag;
+	irc::sepstream tagstream(taglist, ';');
+	while (tagstream.GetToken(tag))
+		ProcessTag(who, tag, tags);
+
+	CommandBase::Params newparams(params, tags);
+
 	if (scmd)
-		res = scmd->Handle(who, params);
+		res = scmd->Handle(who, newparams);
 	else
 	{
-		ClientProtocol::TagMap tags;
-		std::string tag;
-		irc::sepstream tagstream(taglist, ';');
-		while (tagstream.GetToken(tag))
-			ProcessTag(who, tag, tags);
-		res = cmd->Handle(who, CommandBase::Params(params, tags));
+		res = cmd->Handle(who, newparams);
 		if (res == CMD_INVALID)
 			throw ProtocolException("Error in command handler");
 	}
 
 	if (res == CMD_SUCCESS)
-		Utils->RouteCommand(server->GetRoute(), cmdbase, params, who);
+		Utils->RouteCommand(server->GetRoute(), cmdbase, newparams, who);
 }
 
 void TreeSocket::OnTimeout()
@@ -414,13 +417,13 @@ void TreeSocket::Close()
 	if (MyRoot)
 		MyRoot->SQuit(getError());
 
-	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
+	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
 	{
-		std::string timestr = ModuleSpanningTree::TimeToStr(server_uptime);
-		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
+		std::string timestr = InspIRCd::DurationString(server_uptime);
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' was established for %s", linkID.c_str(), timestr.c_str());
 	}
 }
 
