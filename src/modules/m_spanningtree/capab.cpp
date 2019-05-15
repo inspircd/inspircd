@@ -67,8 +67,7 @@ std::string TreeSocket::MyModules(int filter)
 		if ((!do_compat_include) && (!(v.Flags & filter)))
 			continue;
 
-		if (i != modlist.begin())
-			capabilities.push_back(' ');
+		capabilities.push_back(' ');
 		capabilities.append(i->first);
 		if (!v.link_data.empty())
 		{
@@ -80,12 +79,12 @@ std::string TreeSocket::MyModules(int filter)
 	// If we are linked in a 2.0 server and have an ascii casemapping
 	// advertise it as m_ascii.so from inspircd-extras
 	if ((filter & VF_COMMON) && ServerInstance->Config->CaseMapping == "ascii" && proto_version == PROTO_INSPIRCD_20)
-	{
-		if (!capabilities.empty())
-			capabilities += "m_ascii.so";
-	}
+		capabilities.append(" m_ascii.so");
 
-	return capabilities;
+	if (capabilities.empty())
+		return capabilities;
+
+	return capabilities.substr(1);
 }
 
 std::string TreeSocket::BuildModeList(ModeType mtype)
