@@ -187,7 +187,7 @@ class SilenceMessage : public ClientProtocol::Message
 		: ClientProtocol::Message("SILENCE")
 	{
 		PushParam(mask);
-		PushParamRef(flags);
+		PushParam(flags);
 	}
 };
 
