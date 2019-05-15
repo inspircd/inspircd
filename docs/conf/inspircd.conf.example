@@ -465,11 +465,11 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="examples/opers.conf.example">
+#<include file="examples/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="examples/links.conf.example">
+#<include file="examples/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -1012,7 +1012,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="examples/modules.conf.example">
+#<include file="examples/modules.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# SERVICES CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
