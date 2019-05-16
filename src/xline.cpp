@@ -446,9 +446,9 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item, bool sil
 void XLineManager::ApplyLines()
 {
 	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
+	for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); )
 	{
-		LocalUser* u = *j;
+		LocalUser* u = *j++;
 
 		// Don't ban people who are exempt.
 		if (u->exempt)
@@ -458,7 +458,10 @@ void XLineManager::ApplyLines()
 		{
 			XLine *x = *i;
 			if (x->Matches(u))
+			{
 				x->Apply(u);
+				break;
+			}
 		}
 	}
 
