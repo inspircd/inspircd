@@ -187,7 +187,7 @@ if (defined $opt_system) {
 	$config{BINARY_DIR} = $opt_binary_dir // '/usr/sbin';
 	$config{CONFIG_DIR} = $opt_config_dir // '/etc/inspircd';
 	$config{DATA_DIR}   = $opt_data_dir   // '/var/inspircd';
-	$config{LOG_DIR}    = $opt_module_dir // '/var/log/inspircd';
+	$config{LOG_DIR}    = $opt_log_dir    // '/var/log/inspircd';
 	$config{MANUAL_DIR} = $opt_manual_dir // '/usr/share/man/man1';
 	$config{MODULE_DIR} = $opt_module_dir // '/usr/lib/inspircd';
 	$config{SCRIPT_DIR} = $opt_script_dir // '/usr/share/inspircd'
