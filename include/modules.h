@@ -107,7 +107,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 5
+#define INSPIRCD_VERSION_API 6
 
 /**
  * This #define allows us to call a method in all
