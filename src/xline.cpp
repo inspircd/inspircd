@@ -460,7 +460,11 @@ void XLineManager::ApplyLines()
 			if (x->Matches(u))
 			{
 				x->Apply(u);
-				break;
+
+				// If applying the X-line has killed the user then don't
+				// apply any more lines to them.
+				if (u->quitting)
+					break;
 			}
 		}
 	}
