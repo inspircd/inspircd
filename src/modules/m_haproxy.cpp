@@ -367,6 +367,7 @@ class HAProxyHook : public IOHookMiddle
 		: IOHookMiddle(Prov)
 		, sslapi(api)
 		, state(HPS_WAITING_FOR_HEADER)
+		, address_length(0)
 	{
 		sock->AddIOHook(this);
 	}
