@@ -312,7 +312,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
-    const AccountExtItem* accountext = GetAccountExtItem();
+	const AccountExtItem* accountext = GetAccountExtItem();
 
 	if ((filter->flag_no_opers) && user->IsOper())
 		return false;		
