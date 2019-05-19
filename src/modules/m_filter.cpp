@@ -26,6 +26,7 @@
 #include "modules/server.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
+#include modules/account.h
 
 enum FilterFlags
 {
@@ -58,6 +59,7 @@ class FilterResult
 	bool from_config;
 
 	bool flag_no_opers;
+	bool flag_no_registered;
 	bool flag_part_message;
 	bool flag_quit_message;
 	bool flag_privmsg;
@@ -79,7 +81,7 @@ class FilterResult
 
 	char FillFlags(const std::string &fl)
 	{
-		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
+		flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message = flag_privmsg =
 			flag_notice = flag_strip_color = false;
 
 		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
@@ -88,6 +90,9 @@ class FilterResult
 			{
 				case 'o':
 					flag_no_opers = true;
+				break;
+				case 'r':
+				    flag_no_registered = true;
 				break;
 				case 'P':
 					flag_part_message = true;
@@ -105,7 +110,7 @@ class FilterResult
 					flag_strip_color = true;
 				break;
 				case '*':
-					flag_no_opers = flag_part_message = flag_quit_message =
+					flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message =
 						flag_privmsg = flag_notice = flag_strip_color = true;
 				break;
 				default:
@@ -121,6 +126,8 @@ class FilterResult
 		std::string flags;
 		if (flag_no_opers)
 			flags.push_back('o');
+        if (flag_no_registered)
+            flags.push_back('r');
 		if (flag_part_message)
 			flags.push_back('P');
 		if (flag_quit_message)
@@ -305,8 +312,12 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
+    const AccountExtItem* accountext = GetAccountExtItem();
+
 	if ((filter->flag_no_opers) && user->IsOper())
-		return false;
+		return false;		
+	if ((filter->flag_no_registered) && accountext && accountext->get(user))
+        return false;	    
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
 	if ((iflags & FLAG_NOTICE) && (!filter->flag_notice))
