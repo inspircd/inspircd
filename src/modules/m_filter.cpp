@@ -317,7 +317,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	if ((filter->flag_no_opers) && user->IsOper())
 		return false;
 	if ((filter->flag_no_registered) && accountext && accountext->get(user))
-        return false;	    
+		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
 	if ((iflags & FLAG_NOTICE) && (!filter->flag_notice))
