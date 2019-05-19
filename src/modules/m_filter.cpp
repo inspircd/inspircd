@@ -92,7 +92,7 @@ class FilterResult
 					flag_no_opers = true;
 				break;
 				case 'r':
-				    flag_no_registered = true;
+					flag_no_registered = true;
 				break;
 				case 'P':
 					flag_part_message = true;
