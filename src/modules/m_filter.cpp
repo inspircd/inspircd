@@ -26,7 +26,7 @@
 #include "modules/server.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
-#include modules/account.h
+#include "modules/account.h"
 
 enum FilterFlags
 {
