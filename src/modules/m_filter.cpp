@@ -127,7 +127,7 @@ class FilterResult
 		if (flag_no_opers)
 			flags.push_back('o');
 		if (flag_no_registered)
-            flags.push_back('r');
+			flags.push_back('r');
 		if (flag_part_message)
 			flags.push_back('P');
 		if (flag_quit_message)
