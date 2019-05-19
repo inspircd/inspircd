@@ -315,7 +315,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	const AccountExtItem* accountext = GetAccountExtItem();
 
 	if ((filter->flag_no_opers) && user->IsOper())
-		return false;		
+		return false;
 	if ((filter->flag_no_registered) && accountext && accountext->get(user))
         return false;	    
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
