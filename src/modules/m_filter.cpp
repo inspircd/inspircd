@@ -91,9 +91,6 @@ class FilterResult
 				case 'o':
 					flag_no_opers = true;
 				break;
-				case 'r':
-					flag_no_registered = true;
-				break;
 				case 'P':
 					flag_part_message = true;
 				break;
@@ -108,6 +105,9 @@ class FilterResult
 				break;
 				case 'c':
 					flag_strip_color = true;
+				break;
+				case 'r':
+					flag_no_registered = true;
 				break;
 				case '*':
 					flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message =
@@ -126,8 +126,6 @@ class FilterResult
 		std::string flags;
 		if (flag_no_opers)
 			flags.push_back('o');
-		if (flag_no_registered)
-			flags.push_back('r');
 		if (flag_part_message)
 			flags.push_back('P');
 		if (flag_quit_message)
@@ -136,6 +134,8 @@ class FilterResult
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
+		if (flag_no_registered)
+			flags.push_back('r');
 
 		/* Order is important here, 'c' must be the last char in the string as it is unsupported
 		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
