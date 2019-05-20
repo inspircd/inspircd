@@ -134,15 +134,14 @@ class FilterResult
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
-		if (flag_no_registered)
-			flags.push_back('r');
-
 		/* Order is important here, 'c' must be the last char in the string as it is unsupported
 		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
 		 * character.
 		 */
 		if (flag_strip_color)
 			flags.push_back('c');
+		if (flag_no_registered)
+			flags.push_back('r');
 
 		if (flags.empty())
 			flags.push_back('-');
