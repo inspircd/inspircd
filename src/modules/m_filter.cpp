@@ -59,12 +59,12 @@ class FilterResult
 	bool from_config;
 
 	bool flag_no_opers;
-	bool flag_no_registered;
 	bool flag_part_message;
 	bool flag_quit_message;
 	bool flag_privmsg;
 	bool flag_notice;
 	bool flag_strip_color;
+	bool flag_no_registered;
 
 	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
 		: freeform(free)
@@ -81,8 +81,8 @@ class FilterResult
 
 	char FillFlags(const std::string &fl)
 	{
-		flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message = flag_privmsg =
-			flag_notice = flag_strip_color = false;
+		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
+			flag_notice = flag_strip_color = flag_no_registered = false;
 
 		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
 		{
@@ -134,9 +134,11 @@ class FilterResult
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
-		/* Order is important here, 'c' must be the last char in the string as it is unsupported
-		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
-		 * character.
+
+		/* Order is important here, as the logic in FillFlags() stops parsing when it encounters
+		 * an unknown character. So the following characters must be last in the string.
+		 * 'c' is unsupported on < 2.0.10
+		 * 'r' is unsupported on < 3.2.0
 		 */
 		if (flag_strip_color)
 			flags.push_back('c');

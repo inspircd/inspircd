@@ -508,7 +508,7 @@ q    Block quit messages
 o    Don't match against opers
 r    Don't match against registered users
 c    Strip all formatting codes from the message before matching
-*    Represents all of the above flags except r 
+*    Represents all of the above flags except r
 -    Does nothing, a non-op for when you do not want to specify any
      flags
 
