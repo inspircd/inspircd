@@ -28,20 +28,19 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 
-// Fix warnings about the use of commas at end of enumerator lists on C++03.
+// Fix warnings about the use of commas at end of enumerator lists and long long
+// on C++03 and warnings about shadowing in the http_parser library.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
+# pragma clang diagnostic ignored "-Wc++11-long-long"
 #elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+# pragma GCC diagnostic ignored "-Wshadow"
 # if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
 #  pragma GCC diagnostic ignored "-Wpedantic"
 # else
 #  pragma GCC diagnostic ignored "-pedantic"
 # endif
-#endif
-
-// Fix warnings about shadowing in http_parser.
-#ifdef __GNUC__
-# pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 #include <http_parser.c>
@@ -58,7 +57,8 @@ static http_parser_settings parser_settings;
  */
 class HttpServerSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<HttpServerSocket>
 {
-	friend ModuleHttpServer;
+ private:
+	friend class ModuleHttpServer;
 
 	http_parser parser;
 	http_parser_url url;
