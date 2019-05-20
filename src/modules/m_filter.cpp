@@ -110,7 +110,7 @@ class FilterResult
 					flag_no_registered = true;
 				break;
 				case '*':
-					flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message =
+					flag_no_opers = flag_part_message = flag_quit_message =
 						flag_privmsg = flag_notice = flag_strip_color = true;
 				break;
 				default:
