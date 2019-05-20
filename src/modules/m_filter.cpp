@@ -26,6 +26,7 @@
 #include "modules/server.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
+#include "modules/account.h"
 
 enum FilterFlags
 {
@@ -58,6 +59,7 @@ class FilterResult
 	bool from_config;
 
 	bool flag_no_opers;
+	bool flag_no_registered;
 	bool flag_part_message;
 	bool flag_quit_message;
 	bool flag_privmsg;
@@ -79,7 +81,7 @@ class FilterResult
 
 	char FillFlags(const std::string &fl)
 	{
-		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
+		flag_no_opers = flag_no_registered = flag_part_message = flag_quit_message = flag_privmsg =
 			flag_notice = flag_strip_color = false;
 
 		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
@@ -103,6 +105,9 @@ class FilterResult
 				break;
 				case 'c':
 					flag_strip_color = true;
+				break;
+				case 'r':
+					flag_no_registered = true;
 				break;
 				case '*':
 					flag_no_opers = flag_part_message = flag_quit_message =
@@ -129,13 +134,14 @@ class FilterResult
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
-
 		/* Order is important here, 'c' must be the last char in the string as it is unsupported
 		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
 		 * character.
 		 */
 		if (flag_strip_color)
 			flags.push_back('c');
+		if (flag_no_registered)
+			flags.push_back('r');
 
 		if (flags.empty())
 			flags.push_back('-');
@@ -305,7 +311,11 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
+	const AccountExtItem* accountext = GetAccountExtItem();
+
 	if ((filter->flag_no_opers) && user->IsOper())
+		return false;
+	if ((filter->flag_no_registered) && accountext && accountext->get(user))
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
