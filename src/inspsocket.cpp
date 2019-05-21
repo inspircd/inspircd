@@ -206,7 +206,12 @@ static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
 void StreamSocket::DoWrite()
 {
 	if (getSendQSize() == 0)
+	{
+		if (closeonempty)
+			Close();
+
 		return;
+	}
 	if (!error.empty() || fd < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
@@ -242,6 +247,9 @@ void StreamSocket::DoWrite()
 
 	if (psendq)
 		FlushSendQ(*psendq);
+
+	if (getSendQSize() == 0 && closeonempty)
+		Close();
 }
 
 void StreamSocket::FlushSendQ(SendQueue& sq)
@@ -520,4 +528,12 @@ size_t StreamSocket::getSendQSize() const
 		curr = iohm->GetNextHook();
 	}
 	return ret;
+}
+
+void StreamSocket::WriteAllClose()
+{
+	if (getSendQSize() == 0)
+		Close();
+	else
+		closeonempty = true;
 }

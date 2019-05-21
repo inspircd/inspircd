@@ -227,6 +227,9 @@ class CoreExport StreamSocket : public EventHandler
 	};
 
  private:
+	/** Whether this socket should close once its sendq is empty */
+	bool closeonempty;
+
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook;
 
@@ -273,7 +276,8 @@ class CoreExport StreamSocket : public EventHandler
  public:
 	const Type type;
 	StreamSocket(Type sstype = SS_UNKNOWN)
-		: iohook(NULL)
+		: closeonempty(false)
+		, iohook(NULL)
 		, type(sstype)
 	{
 	}
@@ -334,6 +338,12 @@ class CoreExport StreamSocket : public EventHandler
 	 * Close the socket, remove from socket engine, etc
 	 */
 	virtual void Close();
+
+	/**
+	 * Queue the socket to close once all data has been written
+	 */
+	virtual void WriteAllClose();
+
 	/** This ensures that close is called prior to destructor */
 	CullResult cull() CXX11_OVERRIDE;
 
