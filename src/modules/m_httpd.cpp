@@ -77,9 +77,12 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	bool Tick(time_t currtime) CXX11_OVERRIDE
 	{
 		if (!messagecomplete)
+		{
 			AddToCull();
+			return false;
+		}
 
-		return false;
+		return true;
 	}
 
 	template<int (HttpServerSocket::*f)()>
@@ -298,7 +301,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	void Page(std::stringstream* n, unsigned int response, HTTPHeaders* hheaders)
 	{
-		return Page(n->str(), response, hheaders);
+		Page(n->str(), response, hheaders);
 	}
 
 	void AddToCull()
