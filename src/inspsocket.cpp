@@ -95,6 +95,10 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 void StreamSocket::Close()
 {
+	if (closing)
+		return;
+
+	closing = true;
 	if (this->fd > -1)
 	{
 		// final chance, dump as much of the sendq as we can

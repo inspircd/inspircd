@@ -230,6 +230,8 @@ class CoreExport StreamSocket : public EventHandler
 	/** Whether this socket should close once its sendq is empty */
 	bool closeonempty;
 
+	bool closing;
+
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook;
 
@@ -277,6 +279,7 @@ class CoreExport StreamSocket : public EventHandler
 	const Type type;
 	StreamSocket(Type sstype = SS_UNKNOWN)
 		: closeonempty(false)
+		, closing(false)
 		, iohook(NULL)
 		, type(sstype)
 	{
