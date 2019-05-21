@@ -72,10 +72,13 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	/** True if this object is in the cull list
 	 */
 	bool waitingcull;
+	bool messagecomplete;
 
 	bool Tick(time_t currtime) CXX11_OVERRIDE
 	{
-		AddToCull();
+		if (!messagecomplete)
+			AddToCull();
+
 		return false;
 	}
 
@@ -186,6 +189,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	int OnMessageComplete()
 	{
+		messagecomplete = true;
 		ServeData();
 		return 0;
 	}
@@ -197,6 +201,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		, ip(IP)
 		, status_code(0)
 		, waitingcull(false)
+		, messagecomplete(false)
 	{
 		if ((!via->iohookprovs.empty()) && (via->iohookprovs.back()))
 		{
