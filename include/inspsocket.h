@@ -342,7 +342,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	virtual void Close();
 
-	/** If writeblock == True, only close the socket if all data has been sent */
+	/** If writeblock is true then only close the socket if all data has been sent. Otherwise, close immediately. */
 	void Close(bool writeblock);
 
 	/** This ensures that close is called prior to destructor */
