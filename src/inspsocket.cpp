@@ -95,6 +95,10 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 void StreamSocket::Close()
 {
+	if (closing)
+		return;
+
+	closing = true;
 	if (this->fd > -1)
 	{
 		// final chance, dump as much of the sendq as we can
@@ -112,6 +116,14 @@ void StreamSocket::Close()
 		SocketEngine::Shutdown(this, 2);
 		SocketEngine::Close(this);
 	}
+}
+
+void StreamSocket::Close(bool writeblock)
+{
+	if (getSendQSize() != 0 && writeblock)
+		closeonempty = true;
+	else
+		Close();
 }
 
 CullResult StreamSocket::cull()
@@ -206,7 +218,12 @@ static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
 void StreamSocket::DoWrite()
 {
 	if (getSendQSize() == 0)
+	{
+		if (closeonempty)
+			Close();
+
 		return;
+	}
 	if (!error.empty() || fd < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
@@ -242,6 +259,9 @@ void StreamSocket::DoWrite()
 
 	if (psendq)
 		FlushSendQ(*psendq);
+
+	if (getSendQSize() == 0 && closeonempty)
+		Close();
 }
 
 void StreamSocket::FlushSendQ(SendQueue& sq)

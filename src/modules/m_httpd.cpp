@@ -72,11 +72,17 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	/** True if this object is in the cull list
 	 */
 	bool waitingcull;
+	bool messagecomplete;
 
 	bool Tick(time_t currtime) CXX11_OVERRIDE
 	{
-		AddToCull();
-		return false;
+		if (!messagecomplete)
+		{
+			AddToCull();
+			return false;
+		}
+
+		return true;
 	}
 
 	template<int (HttpServerSocket::*f)()>
@@ -186,6 +192,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	int OnMessageComplete()
 	{
+		messagecomplete = true;
 		ServeData();
 		return 0;
 	}
@@ -197,6 +204,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		, ip(IP)
 		, status_code(0)
 		, waitingcull(false)
+		, messagecomplete(false)
 	{
 		if ((!via->iohookprovs.empty()) && (via->iohookprovs.back()))
 		{
@@ -231,9 +239,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			"<html><head></head><body>Server error %u: %s<br>"
 			"<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>", response, http_status_str((http_status)response));
 
-		SendHeaders(data.length(), response, empty);
-		WriteData(data);
-		Close();
+		Page(data, response, &empty);
 	}
 
 	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders &rheaders)
@@ -286,11 +292,16 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		}
 	}
 
+	void Page(const std::string& s, unsigned int response, HTTPHeaders* hheaders)
+	{
+		SendHeaders(s.length(), response, *hheaders);
+		WriteData(s);
+		Close(true);
+	}
+
 	void Page(std::stringstream* n, unsigned int response, HTTPHeaders* hheaders)
 	{
-		SendHeaders(n->str().length(), response, *hheaders);
-		WriteData(n->str());
-		Close();
+		Page(n->str(), response, hheaders);
 	}
 
 	void AddToCull()
