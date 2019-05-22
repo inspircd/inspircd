@@ -342,10 +342,8 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	virtual void Close();
 
-	/**
-	 * Queue the socket to close once all data has been written
-	 */
-	virtual void WriteAllClose();
+	/** If writeblock == True, only close the socket if all data has been sent */
+	void Close(bool writeblock);
 
 	/** This ensures that close is called prior to destructor */
 	CullResult cull() CXX11_OVERRIDE;

@@ -118,6 +118,14 @@ void StreamSocket::Close()
 	}
 }
 
+void StreamSocket::Close(bool writeblock)
+{
+	if (getSendQSize() != 0 && writeblock)
+		closeonempty = true;
+	else
+		Close();
+}
+
 CullResult StreamSocket::cull()
 {
 	Close();
@@ -532,12 +540,4 @@ size_t StreamSocket::getSendQSize() const
 		curr = iohm->GetNextHook();
 	}
 	return ret;
-}
-
-void StreamSocket::WriteAllClose()
-{
-	if (getSendQSize() == 0)
-		Close();
-	else
-		closeonempty = true;
 }

@@ -296,7 +296,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		SendHeaders(s.length(), response, *hheaders);
 		WriteData(s);
-		WriteAllClose();
+		Close(true);
 	}
 
 	void Page(std::stringstream* n, unsigned int response, HTTPHeaders* hheaders)
