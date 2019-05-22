@@ -230,6 +230,7 @@ class CoreExport StreamSocket : public EventHandler
 	/** Whether this socket should close once its sendq is empty */
 	bool closeonempty;
 
+	/** Whether the socket is currently closing or not, used to avoid repeatedly closing a closed socket */
 	bool closing;
 
 	/** The IOHook that handles raw I/O for this socket, or NULL */
