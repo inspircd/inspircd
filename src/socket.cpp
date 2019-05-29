@@ -189,6 +189,17 @@ bool irc::sockets::untosa(const std::string& path, irc::sockets::sockaddrs& sa)
 	return true;
 }
 
+bool irc::sockets::isunix(const std::string& file)
+{
+#ifndef _WIN32
+	struct stat sb;
+	if (stat(file.c_str(), &sb) == 0 && S_ISSOCK(sb.st_mode))
+		return true;
+#endif
+	return false;
+}
+
+
 int irc::sockets::sockaddrs::family() const
 {
 	return sa.sa_family;

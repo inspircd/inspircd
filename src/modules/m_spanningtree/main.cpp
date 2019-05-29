@@ -191,11 +191,9 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 
 	irc::sockets::sockaddrs sa;
-#ifndef _WIN32
 	if (x->IPAddr.find('/') != std::string::npos)
 	{
-		struct stat sb;
-		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode) || !irc::sockets::untosa(x->IPAddr, sa))
+		if (!irc::sockets::isunix(x->IPAddr) || !irc::sockets::untosa(x->IPAddr, sa))
 		{
 			// We don't use the family() != AF_UNSPEC check below for UNIX sockets as
 			// that results in a DNS lookup.
@@ -205,7 +203,6 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		}
 	}
 	else
-#endif
 	{
 		// If this fails then the IP sa will be AF_UNSPEC.
 		irc::sockets::aptosa(x->IPAddr, x->Port, sa);

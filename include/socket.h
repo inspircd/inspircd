@@ -127,6 +127,12 @@ namespace irc
 		 * @return True if the conversion was successful; otherwise, false.
 		 */
 		CoreExport bool untosa(const std::string& path, irc::sockets::sockaddrs& sa);
+
+		/** Determines whether the specified file is a UNIX socket.
+		 * @param file The path to the file to check.
+		 * @return True if the file is a UNIX socket; otherwise, false.
+		 */
+		CoreExport bool isunix(const std::string& file);
 	}
 }
 
