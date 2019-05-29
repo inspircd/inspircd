@@ -98,24 +98,31 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 		const std::string path = tag->getString("path");
 		if (!path.empty())
 		{
+			// Expand the path relative to the config directory.
+			const std::string fullpath = ServerInstance->Config->Paths.PrependData(path);
+
 			// UNIX socket paths are length limited to less than PATH_MAX.
 			irc::sockets::sockaddrs bindspec;
-			if (path.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
+			if (fullpath.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
 			{
 				this->Logs->Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path that is too long!",
-					path.c_str(), tag->getTagLocation().c_str());
+					fullpath.c_str(), tag->getTagLocation().c_str());
 				continue;
 			}
 
 			// Check for characters which are problematic in the IRC message format.
-			if (path.find_first_of("\n\r\t!@: ") != std::string::npos)
+			if (fullpath.find_first_of("\n\r\t!@: ") != std::string::npos)
 			{
 				this->Logs->Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path containing invalid characters!",
-					path.c_str(), tag->getTagLocation().c_str());
+					fullpath.c_str(), tag->getTagLocation().c_str());
 				continue;
 			}
 
-			irc::sockets::untosa(path, bindspec);
+			const bool replace = tag->getBool("replace");
+			if (replace && irc::sockets::isunix(fullpath))
+				remove(fullpath.c_str());
+
+			irc::sockets::untosa(fullpath, bindspec);
 			if (!BindPort(tag, bindspec, old_ports))
 				failed_ports.push_back(std::make_pair(bindspec, errno));
 			else

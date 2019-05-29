@@ -66,6 +66,13 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 #endif
 	}
 
+	if (bind_to.family() == AF_UNIX)
+	{
+		unsigned int permissions = tag->getUInt("permissions", 0, 0, 777);
+		if (permissions)
+			chmod(bind_to.str().c_str(), permissions);
+	}
+
 	SocketEngine::SetReuse(fd);
 	int rv = SocketEngine::Bind(this->fd, bind_to);
 	if (rv >= 0)
