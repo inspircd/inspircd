@@ -33,7 +33,7 @@ class ModuleSSLRehashSignal : public Module
  public:
 	~ModuleSSLRehashSignal()
 	{
-		signal(SIGUSR1, SIG_DFL);
+		signal(SIGUSR1, SIG_IGN);
 	}
 
 	void init()

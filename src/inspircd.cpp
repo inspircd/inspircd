@@ -121,10 +121,11 @@ void InspIRCd::SetSignals()
 {
 #ifndef _WIN32
 	signal(SIGALRM, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
 	signal(SIGHUP, InspIRCd::SetSignal);
 	signal(SIGPIPE, SIG_IGN);
-	signal(SIGCHLD, SIG_IGN);
-	/* We want E2BIG not a signal! */
+	signal(SIGUSR1, SIG_IGN);
+	signal(SIGUSR2, SIG_IGN);
 	signal(SIGXFSZ, SIG_IGN);
 #endif
 	signal(SIGTERM, InspIRCd::SetSignal);
