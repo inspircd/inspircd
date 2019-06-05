@@ -277,10 +277,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
 			return false;
 
-		if (!InspIRCd::Duration(item, settings.Seconds))
-			return false;
-
-		if ((!stream.GetToken(item)) || (settings.Seconds == 0))
+		if ((!stream.GetToken(item)) || !InspIRCd::Duration(item, settings.Seconds) || (settings.Seconds == 0))
 			// Required parameter missing
 			return false;
 
