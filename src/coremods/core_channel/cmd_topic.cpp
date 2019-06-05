@@ -44,7 +44,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 
 	if (parameters.size() == 1)
 	{
-		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
+		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user) && !user->HasPrivPermission("channels/auspex")))
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(c->name));
 			return CMD_FAILURE;
