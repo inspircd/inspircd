@@ -365,9 +365,9 @@ class HAProxyHook : public IOHookMiddle
  public:
 	HAProxyHook(IOHookProvider* Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
+		, address_length(0)
 		, sslapi(api)
 		, state(HPS_WAITING_FOR_HEADER)
-		, address_length(0)
 	{
 		sock->AddIOHook(this);
 	}
