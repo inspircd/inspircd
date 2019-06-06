@@ -263,6 +263,15 @@ configured on the Hardware Node. Failure to do so may result in clock drifting!
 EOW
 }
 
+# Warn the user about OpenBSD shipping incredibly broken compilers/linkers.
+if ($^O eq 'openbsd') {
+	print_warning <<'EOW';
+You are building InspIRCd on OpenBSD. The C++ compilers and linkers
+that OpenBSD ship are incredibly broken. You may have strange linker errors
+and crashes. Please consider using a different OS like FreeBSD/NetBSD instead.
+EOW
+}
+
 # Check that the user actually wants this version.
 if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
