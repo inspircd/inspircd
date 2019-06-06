@@ -283,7 +283,7 @@ class ModuleAlias : public Module
 			if ((a->ULineOnly) && (!u->server->IsULine()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is an imposter! Please inform a server operator as soon as possible.");
+				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is not a network service! Please inform a server operator as soon as possible.");
 				return 1;
 			}
 		}
