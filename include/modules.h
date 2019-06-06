@@ -121,7 +121,8 @@ struct ModResult {
 		_next = _i+1; \
 		try \
 		{ \
-			(*_i)->y x ; \
+			if (!(*_i)->dying) \
+				(*_i)->y x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -144,7 +145,8 @@ do { \
 		_next = _i+1; \
 		try \
 		{ \
-			v = (*_i)->n args;
+			if (!(*_i)->dying) \
+				v = (*_i)->n args;
 
 #define WHILE_EACH_HOOK(n) \
 		} \
