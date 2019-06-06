@@ -1343,6 +1343,12 @@
 # Message flood module: Adds message/notice flood protection via
 # channel mode +f.
 #<module name="messageflood">
+#
+# The weight to give each message type. TAGMSGs are considered to be
+# 1/5 of a NOTICE or PRIVMSG to avoid users being accidentally flooded
+# out of a channel by automatic client features such as typing
+# notifications.
+#<messageflood notice="1.0" privmsg="1.0" tagmsg="0.2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MLOCK module: Adds support for server-side enforcement of services
