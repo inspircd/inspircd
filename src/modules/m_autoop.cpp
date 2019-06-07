@@ -62,9 +62,10 @@ class AutoOpList : public ListModeBase
 		std::string dummy;
 		if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
 			return MOD_RES_DENY;
-		if (mh->GetLevelRequired(true) > mylevel)
+		if (mh->GetLevelRequired(adding) > mylevel)
 		{
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to set mode '%s' to include it in an autoop", mid.c_str()));
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s an autoop containing it",
+				adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str(), adding ? "add" : "remove"));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
