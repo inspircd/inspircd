@@ -403,12 +403,12 @@
 #<module name="chanfilter">
 #
 # If hidemask is set to yes, the user will not be shown the mask when
-# his/her message is blocked.
+# their message is blocked.
 #
 # If maxlen is set then it defines the maximum length of a filter entry.
 #
 # If notifyuser is set to no, the user will not be notified when
-# his/her message is blocked.
+# their message is blocked.
 #<chanfilter hidemask="yes" maxlen="50" notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -856,7 +856,7 @@
 #          at the <module> tag for info on availability.              #
 #                                                                     #
 # If notifyuser is set to no, the user will not be notified when      #
-# his/her message is blocked.                                         #
+# their message is blocked.                                           #
 #<filteropts engine="glob" notifyuser="yes">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide. #
@@ -1679,7 +1679,7 @@
 #<module name="muteban">
 #
 # If notifyuser is set to no, the user will not be notified when
-# his/her message is blocked.
+# their message is blocked.
 #<muteban notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

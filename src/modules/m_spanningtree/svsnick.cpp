@@ -41,7 +41,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		// 4. SVSNICK arrives
 		// 5. Attila_ gets his nick changed to Guest12345 unnecessarily
 		//
-		// In this case when the SVSNICK is processed the target has already changed his nick to something
+		// In this case when the SVSNICK is processed the target has already changed their nick to something
 		// which isn't protected, so changing the nick again to a Guest nick is not desired.
 		// However, if the expected nick TS parameter is present in the SVSNICK then the nick change in step 5
 		// won't happen because the timestamps won't match.

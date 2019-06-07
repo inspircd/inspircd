@@ -271,8 +271,8 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 
 	if (privs)
 	{
-		// If the user was granted prefix modes (in the OnUserPreJoin hook, or he's a
-		// remote user and his own server set the modes), then set them internally now
+		// If the user was granted prefix modes (in the OnUserPreJoin hook, or they're a
+		// remote user and their own server set the modes), then set them internally now
 		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
 		{
 			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);

@@ -68,7 +68,7 @@
  * The ircd thread then mutexes the queue once more, reads the outbound response off the head
  * of the queue, and sends it on its way to the original calling module.
  *
- * XXX: You might be asking "why doesnt he just send the response from within the worker thread?"
+ * XXX: You might be asking "why doesnt it just send the response from within the worker thread?"
  * The answer to this is simple. The majority of InspIRCd, and in fact most ircd's are not
  * threadsafe. This module is designed to be threadsafe and is careful with its use of threads,
  * however, if we were to call a module's OnRequest even from within a thread which was not the
