@@ -179,6 +179,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 
 	bool initing;
 	bool notifyuser;
+	bool warnonselfmsg;
 	RegexFactory* factory;
 	void FreeFilters();
 
@@ -369,6 +370,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)
 	{
+		bool is_selfmsg = false;
 		std::string target;
 		if (msgtarget.type == MessageTarget::TYPE_USER)
 		{
@@ -376,6 +378,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			// Check if the target nick is exempted, if yes, ignore this message
 			if (exemptednicks.count(t->nick))
 				return MOD_RES_PASSTHRU;
+
+			if (user == t)
+				is_selfmsg = true;
 
 			target = t->nick;
 		}
@@ -387,13 +392,20 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 			target = t->name;
 		}
-		if (f->action == FA_WARN)
+
+		if (is_selfmsg & warnonselfmsg)
+		{
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's self message matched %s (%s)",
+				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str()));
+			return MOD_RES_PASSTHRU;
+		}
+		else if (f->action == FA_WARN)
 		{
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's message to %s matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
 			return MOD_RES_PASSTHRU;
 		}
-		if (f->action == FA_BLOCK)
+		else if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
@@ -609,6 +621,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
 	notifyuser = tag->getBool("notifyuser", true);
+	warnonselfmsg = tag->getBool("warnonselfmsg");
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 

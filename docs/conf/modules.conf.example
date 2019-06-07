@@ -857,7 +857,13 @@
 #                                                                     #
 # If notifyuser is set to no, the user will not be notified when      #
 # their message is blocked.                                           #
-#<filteropts engine="glob" notifyuser="yes">
+#                                                                     #
+# If warnonselfmsg is set to yes when a user sends a message to       #
+# themself that matches a filter the filter will be ignored and a     #
+# warning will be sent to opers instead. This stops spambots which    #
+# send their spam message to themselves first to check if it is being #
+# filtered by the server.                                             #
+#<filteropts engine="glob" notifyuser="yes" warnonselfmsg="no">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide. #
 #                                                                     #
