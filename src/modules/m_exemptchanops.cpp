@@ -48,7 +48,7 @@ class ExemptChanOps : public ListModeBase
 			return false;
 
 		restriction.assign(entry, 0, colon);
-		prefix.assign(entry, colon + 1);
+		prefix.assign(entry, colon + 1, std::string::npos);
 		return true;
 	}
 
