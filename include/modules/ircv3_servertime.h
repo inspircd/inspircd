@@ -27,12 +27,15 @@ namespace IRCv3
 		class API;
 
 		/** Format a unix timestamp into the format used by server-time.
-		 * @param t Time to format.
+		 * @param secs UNIX timestamp to format.
+		 * @params millisecs Number of milliseconds to format.
 		 * @return Time in server-time format, as a string.
 		 */
-		inline std::string FormatTime(time_t t)
+		inline std::string FormatTime(time_t secs, long millisecs = 0)
 		{
-			return InspIRCd::TimeString(t, "%Y-%m-%dT%H:%M:%S.000Z", true);
+			std::string timestr = InspIRCd::TimeString(secs, "%Y-%m-%dT%H:%M:%S.Z", true);
+			timestr.insert(20, InspIRCd::Format("%03ld", millisecs));
+			return timestr;
 		}
 	}
 }
