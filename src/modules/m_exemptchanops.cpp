@@ -31,25 +31,71 @@ class ExemptChanOps : public ListModeBase
 	{
 	}
 
+	static PrefixMode* FindMode(const std::string& mode)
+	{
+		if (mode.length() == 1)
+			return ServerInstance->Modes->FindPrefixMode(mode[0]);
+
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+		return mh ? mh->IsPrefixMode() : NULL;
+	}
+
+	static bool ParseEntry(const std::string& entry, std::string& restriction, std::string& prefix)
+	{
+		// The entry must be in the format <restriction>:<prefix>.
+		std::string::size_type colon = entry.find(':');
+		if (colon == std::string::npos || colon == entry.length()-1)
+			return false;
+
+		restriction.assign(entry, 0, colon);
+		prefix.assign(entry, colon + 1);
+		return true;
+	}
+
+	ModResult AccessCheck(User* source, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	{
+		std::string restriction;
+		std::string prefix;
+		if (!ParseEntry(parameter, restriction, prefix))
+			return MOD_RES_PASSTHRU;
+
+		PrefixMode* pm = FindMode(prefix);
+		if (!pm)
+			return MOD_RES_PASSTHRU;
+
+		if (channel->GetPrefixValue(source) >= pm->GetLevelRequired(adding))
+			return MOD_RES_PASSTHRU;
+
+		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s a restriction containing it",
+			adding ? "set" : "unset", pm->GetModeChar(), pm->name.c_str(), adding ? "add" : "remove"));
+		return MOD_RES_DENY;
+	}
+
 	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
-		std::string::size_type p = word.find(':');
-		if (p == std::string::npos)
+		std::string restriction;
+		std::string prefix;
+		if (!ParseEntry(word, restriction, prefix))
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>"));
 			return false;
 		}
 
-		std::string restriction(word, 0, p);
 		// If there is a '-' in the restriction string ignore it and everything after it
 		// to support "auditorium-vis" and "auditorium-see" in m_auditorium
-		p = restriction.find('-');
-		if (p != std::string::npos)
-			restriction.erase(p);
+		std::string::size_type dash = restriction.find('-');
+		if (dash != std::string::npos)
+			restriction.erase(dash);
 
 		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction"));
+			return false;
+		}
+
+		if (prefix != "*" && !FindMode(prefix))
+		{
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown prefix mode"));
 			return false;
 		}
 
@@ -65,15 +111,6 @@ class ExemptHandler : public CheckExemption::EventListener
 		: CheckExemption::EventListener(me)
 		, ec(me)
 	{
-	}
-
-	PrefixMode* FindMode(const std::string& mid)
-	{
-		if (mid.length() == 1)
-			return ServerInstance->Modes->FindPrefixMode(mid[0]);
-
-		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
-		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) CXX11_OVERRIDE
@@ -95,7 +132,7 @@ class ExemptHandler : public CheckExemption::EventListener
 			}
 		}
 
-		PrefixMode* mh = FindMode(minmode);
+		PrefixMode* mh = ExemptChanOps::FindMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
 		if (mh || minmode == "*")
