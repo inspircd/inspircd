@@ -393,7 +393,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			target = t->name;
 		}
 
-		if (is_selfmsg & warnonselfmsg)
+		if (is_selfmsg && warnonselfmsg)
 		{
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's self message matched %s (%s)",
 				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str()));
