@@ -336,13 +336,28 @@ namespace OpenSSL
 		{
 			long setoptions = tag->getInt(ctxname + "setoptions", 0);
 			long clearoptions = tag->getInt(ctxname + "clearoptions", 0);
+
 #ifdef SSL_OP_NO_COMPRESSION
-			if (!tag->getBool("compression", false)) // Disable compression by default
+			// Disable compression by default
+			if (!tag->getBool("compression", false))
 				setoptions |= SSL_OP_NO_COMPRESSION;
 #endif
+
 			// Disable TLSv1.0 by default.
 			if (!tag->getBool("tlsv1", false))
 				setoptions |= SSL_OP_NO_TLSv1;
+
+#ifdef SSL_OP_NO_TLSv1_1
+			// Enable TLSv1.1 by default.
+			if (!tag->getBool("tlsv11", true))
+				setoptions |= SSL_OP_NO_TLSv1_1;
+#endif
+
+#ifdef SSL_OP_NO_TLSv1_2
+			// Enable TLSv1.2 by default.
+			if (!tag->getBool("tlsv12", true))
+				setoptions |= SSL_OP_NO_TLSv1_2;
+#endif
 
 			if (!setoptions && !clearoptions)
 				return; // Nothing to do
