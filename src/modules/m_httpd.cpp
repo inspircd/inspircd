@@ -28,14 +28,16 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
+
 // Fix warnings about the use of commas at end of enumerator lists and long long
 // on C++03.
 #if defined __clang__
-# pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wc++11-extensions"
 # pragma clang diagnostic ignored "-Wc++11-long-long"
 #elif defined __GNUC__
-# pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wlong-long"
 # if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
 #  pragma GCC diagnostic ignored "-Wpedantic"
@@ -51,9 +53,7 @@
 
 #include <http_parser.c>
 
-#if defined __clang__
-# pragma clang diagnostic pop
-#elif defined __GNUC__
+#ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif
 
