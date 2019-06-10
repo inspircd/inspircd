@@ -394,8 +394,29 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
+
 		if (!ParseFile(ServerInstance->Config->Paths.PrependConfig(name), flags, mandatorytag))
 			throw CoreException("Included");
+	}
+	else if (tag->readString("directory", name))
+	{
+		if (tag->getBool("noinclude", false))
+			flags |= FLAG_NO_INC;
+		if (tag->getBool("noexec", false))
+			flags |= FLAG_NO_EXEC;
+
+		const std::string includedir = ServerInstance->Config->Paths.PrependConfig(name);
+		std::vector<std::string> files;
+		if (!FileSystem::GetFileList(includedir, files, "*.conf"))
+			throw CoreException("Unable to read directory for include: " + includedir);
+
+		std::sort(files.begin(), files.end()); 
+		for (std::vector<std::string>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+		{
+			const std::string path = includedir + '/' + *iter;
+			if (!ParseFile(path, flags, mandatorytag))
+				throw CoreException("Included");
+		}
 	}
 	else if (tag->readString("executable", name))
 	{
@@ -405,6 +426,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", true))
 			flags |= FLAG_NO_EXEC;
+
 		if (!ParseFile(name, flags, mandatorytag, true))
 			throw CoreException("Included");
 	}

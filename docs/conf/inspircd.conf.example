@@ -59,6 +59,7 @@
 #                                                                     #
 # Syntax is as follows:                                               #
 #<include file="file.conf">                                           #
+#<include directory="modules">                                        #
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
 # Executable include example:                                         #
