@@ -29,18 +29,22 @@
 #include "modules/httpd.h"
 
 // Fix warnings about the use of commas at end of enumerator lists and long long
-// on C++03 and warnings about shadowing in the http_parser library.
+// on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
 # pragma clang diagnostic ignored "-Wc++11-long-long"
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wlong-long"
-# pragma GCC diagnostic ignored "-Wshadow"
 # if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
 #  pragma GCC diagnostic ignored "-Wpedantic"
 # else
 #  pragma GCC diagnostic ignored "-pedantic"
 # endif
+#endif
+
+// Fix warnings about shadowing in http_parser.
+#ifdef __GNUC__
+//# pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 #include <http_parser.c>
@@ -283,8 +287,8 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
 		if (MOD_RESULT != MOD_RES_DENY)
 		{
-			HTTPRequest url(method, parsed, &headers, this, ip, body);
-			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (url));
+			HTTPRequest request(method, parsed, &headers, this, ip, body);
+			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (request));
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				SendHTTPError(404);
@@ -314,10 +318,10 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 
-	bool ParseURI(const std::string& uri, HTTPRequestURI& out)
+	bool ParseURI(const std::string& uristr, HTTPRequestURI& out)
 	{
 		http_parser_url_init(&url);
-		if (http_parser_parse_url(uri.c_str(), uri.size(), 0, &url) != 0)
+		if (http_parser_parse_url(uristr.c_str(), uristr.size(), 0, &url) != 0)
 			return false;
 
 		if (url.field_set & (1 << UF_PATH))
