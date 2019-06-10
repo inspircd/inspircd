@@ -21,10 +21,6 @@
 #include "exitcodes.h"
 #include <iostream>
 
-#ifndef _WIN32
-#include <dirent.h>
-#endif
-
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
@@ -126,29 +122,29 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	std::cout << std::endl << "Loading core commands" << std::flush;
+	std::cout << "Loading core modules " << std::flush;
 
-	DIR* library = opendir(ServerInstance->Config->Paths.Module.c_str());
-	if (library)
+	std::vector<std::string> files;
+	if (!FileSystem::GetFileList(ServerInstance->Config->Paths.Module, files, "core_*.so"))
 	{
-		dirent* entry = NULL;
-		while (0 != (entry = readdir(library)))
-		{
-			if (InspIRCd::Match(entry->d_name, "core_*.so", ascii_case_insensitive_map))
-			{
-				std::cout << "." << std::flush;
-
-				this->NewServices = &servicemap[entry->d_name];
-
-				if (!Load(entry->d_name, true))
-				{
-					ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
-					std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
-					ServerInstance->Exit(EXIT_STATUS_MODULE);
-				}
-			}
-		}
-		closedir(library);
-		std::cout << std::endl;
+		std::cout << "failed!" << std::endl;
+		ServerInstance->Exit(EXIT_STATUS_MODULE);
 	}
+
+	for (std::vector<std::string>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+	{
+		std::cout << "." << std::flush;
+
+		const std::string& name = *iter;
+		this->NewServices = &servicemap[name];
+
+		if (!Load(name, true))
+		{
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	std::cout << std::endl;
 }

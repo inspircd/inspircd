@@ -106,23 +106,6 @@ extern int optind;
 extern char optarg[514];
 int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 
-struct dirent
-{
-	char d_name[MAX_PATH];
-};
-
-struct DIR
-{
-	dirent dirent_pointer;
-	HANDLE find_handle;
-	WIN32_FIND_DATAA find_data;
-	bool first;
-};
-
-CoreExport DIR * opendir(const char * path);
-CoreExport dirent * readdir(DIR * handle);
-CoreExport void closedir(DIR * handle);
-
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 // Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.
 #pragma warning(disable:4251)
