@@ -313,7 +313,7 @@ class ModuleSSLInfo
 		else if (myclass->config->getBool("requiressl"))
 		{
 			ok = (cert != NULL);
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires any SSL cert. Client %s one.", (ok ? "has" : "does not have"));
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires SSL. Client %s using SSL.", (ok ? "is" : "is not"));
 		}
 
 		if (!ok)
