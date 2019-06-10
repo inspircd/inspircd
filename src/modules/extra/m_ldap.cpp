@@ -26,18 +26,15 @@
 #include "inspircd.h"
 #include "modules/ldap.h"
 
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-#endif
-
 // Ignore OpenLDAP deprecation warnings on OS X Yosemite and newer.
 #if defined __APPLE__
+# pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <ldap.h>
 
-#ifdef __GNUC__
+#ifdef __APPLE__
 # pragma GCC diagnostic pop
 #endif
 
