@@ -34,6 +34,10 @@
 #include "iohook.h"
 #include "modules/ssl.h"
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
+
 // Ignore OpenSSL deprecation warnings on OS X Lion and newer.
 #if defined __APPLE__
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -49,6 +53,10 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/dh.h>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "ssleay32.lib")

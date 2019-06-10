@@ -30,6 +30,10 @@
 #include "inspircd.h"
 #include "modules/sql.h"
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
+
 // Fix warnings about the use of `long long` on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-long-long"
@@ -38,6 +42,10 @@
 #endif
 
 #include <sqlite3.h>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
