@@ -36,7 +36,6 @@ class CTCTags::TagMessage : public ClientProtocol::Message
 	{
 		PushParamRef(targetchan->name);
 		AddTags(Tags);
-		SetSideEffect(true);
 	}
 
 	TagMessage(User* source, const User* targetuser, const ClientProtocol::TagMap& Tags)
@@ -47,7 +46,6 @@ class CTCTags::TagMessage : public ClientProtocol::Message
 		else
 			PushParam("*");
 		AddTags(Tags);
-		SetSideEffect(true);
 	}
 
 	TagMessage(User* source, const char* targetstr, const ClientProtocol::TagMap& Tags)
@@ -55,7 +53,6 @@ class CTCTags::TagMessage : public ClientProtocol::Message
 	{
 		PushParam(targetstr);
 		AddTags(Tags);
-		SetSideEffect(true);
 	}
 };
 

@@ -76,6 +76,7 @@ class CommandTagMsg : public Command
 
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
 		CTCTags::TagMessage message(source, chan, parameters.GetTags());
+		message.SetSideEffect(true);
 		const Channel::MemberMap& userlist = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)
 		{
@@ -117,6 +118,7 @@ class CommandTagMsg : public Command
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
 			CTCTags::TagMessage message(source, "$*", parameters.GetTags());
+			message.SetSideEffect(true);
 			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 			for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
 			{
@@ -184,6 +186,7 @@ class CommandTagMsg : public Command
 		{
 			// Send to the target if they have the capability and are a local user.
 			CTCTags::TagMessage message(source, localtarget, parameters.GetTags());
+			message.SetSideEffect(true);
 			localtarget->Send(msgevprov, message);
 		}
 
