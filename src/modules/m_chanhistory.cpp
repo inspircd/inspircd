@@ -39,11 +39,14 @@ struct HistoryItem
 struct HistoryList
 {
 	std::deque<HistoryItem> lines;
-	unsigned int maxlen, maxtime;
-	std::string param;
+	unsigned int maxlen;
+	unsigned int maxtime;
 
-	HistoryList(unsigned int len, unsigned int time, const std::string& oparam)
-		: maxlen(len), maxtime(time), param(oparam) { }
+	HistoryList(unsigned int len, unsigned int time)
+		: maxlen(len)
+		, maxtime(time)
+	{
+	}
 };
 
 class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
@@ -90,18 +93,19 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 
 			history->maxlen = len;
 			history->maxtime = time;
-			history->param = parameter;
 		}
 		else
 		{
-			ext.set(channel, new HistoryList(len, time, parameter));
+			ext.set(channel, new HistoryList(len, time));
 		}
 		return MODEACTION_ALLOW;
 	}
 
 	void SerializeParam(Channel* chan, const HistoryList* history, std::string& out)
 	{
-		out.append(history->param);
+		out.append(ConvToStr(history->maxlen));
+		out.append(":");
+		out.append(InspIRCd::DurationString(history->maxtime));
 	}
 };
 
