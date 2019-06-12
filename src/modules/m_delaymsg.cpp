@@ -29,6 +29,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 		, jointime("delaymsg", ExtensionItem::EXT_MEMBERSHIP, Parent)
 	{
 		ranktoset = ranktounset = OP_VALUE;
+		syntax = "<seconds>";
 	}
 
 	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) CXX11_OVERRIDE

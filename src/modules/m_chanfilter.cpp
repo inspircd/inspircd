@@ -37,13 +37,14 @@ class ChanFilter : public ListModeBase
 	ChanFilter(Module* Creator)
 		: ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false)
 	{
+		syntax = "<pattern>";
 	}
 
 	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
 	{
 		if (word.length() > maxlen)
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list"));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list."));
 			return false;
 		}
 

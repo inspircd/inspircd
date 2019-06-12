@@ -97,6 +97,7 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
 		, max(60)
 	{
+		syntax = "<seconds>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE

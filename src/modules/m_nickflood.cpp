@@ -84,6 +84,7 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 	NickFlood(Module* Creator)
 		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >(Creator, "nickflood", 'F')
 	{
+		syntax = "<nick-changes>:<seconds>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE

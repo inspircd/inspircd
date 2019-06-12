@@ -29,6 +29,7 @@ class ExemptChanOps : public ListModeBase
 	ExemptChanOps(Module* Creator)
 		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false)
 	{
+		syntax = "<restriction>:<prefix>";
 	}
 
 	static PrefixMode* FindMode(const std::string& mode)
@@ -77,7 +78,7 @@ class ExemptChanOps : public ListModeBase
 		std::string prefix;
 		if (!ParseEntry(word, restriction, prefix))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Invalid exemptchanops entry, format is <restriction>:<prefix>"));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word));
 			return false;
 		}
 
@@ -89,13 +90,13 @@ class ExemptChanOps : public ListModeBase
 
 		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction"));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction."));
 			return false;
 		}
 
 		if (prefix != "*" && !FindMode(prefix))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown prefix mode"));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown prefix mode."));
 			return false;
 		}
 

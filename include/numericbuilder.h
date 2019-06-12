@@ -207,6 +207,29 @@ namespace Numerics
 /* Builder for the ERR_INVALIDMODEPARAM numeric. */
 class Numerics::InvalidModeParameter : public Numeric::Numeric
 {
+ private:
+	void push_message(ModeHandler* mode, const std::string& message)
+	{
+		if (!message.empty())
+		{
+			// The caller has specified their own message.
+			push(message);
+			return;
+		}
+
+		const std::string& syntax = mode->GetSyntax();
+		if (!syntax.empty())
+		{
+			// If the mode has a syntax hint we include it in the message.
+			push(InspIRCd::Format("Invalid %s mode parameter. Syntax: %s.", mode->name.c_str(), syntax.c_str()));
+		}
+		else
+		{
+			// Otherwise, send it without.
+			push(InspIRCd::Format("Invalid %s mode parameter.", mode->name.c_str()));
+		}
+	}
+
  public:
 	InvalidModeParameter(Channel* chan, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
 		: Numeric(ERR_INVALIDMODEPARAM)
@@ -214,7 +237,7 @@ class Numerics::InvalidModeParameter : public Numeric::Numeric
 		push(chan->name);
 		push(mode->GetModeChar());
 		push(parameter);
-		push(message.empty() ? InspIRCd::Format("Invalid %s mode parameter", mode->name.c_str()) : message);
+		push_message(mode, message);
 	}
 
 	InvalidModeParameter(User* user, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
@@ -223,7 +246,7 @@ class Numerics::InvalidModeParameter : public Numeric::Numeric
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(mode->GetModeChar());
 		push(parameter);
-		push(message.empty() ? InspIRCd::Format("Invalid %s mode parameter", mode->name.c_str()) : message);
+		push_message(mode, message);
 	}
 };
 

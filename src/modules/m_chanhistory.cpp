@@ -56,6 +56,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 	HistoryMode(Module* Creator)
 		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
 	{
+		syntax = "<max-messages>:<max-duration>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE

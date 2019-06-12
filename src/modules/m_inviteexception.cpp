@@ -42,6 +42,7 @@ class InviteException : public ListModeBase
 	InviteException(Module* Creator)
 		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true)
 	{
+		syntax = "<mask>";
 	}
 };
 

@@ -30,6 +30,7 @@ class AutoOpList : public ListModeBase
 		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
+		syntax = "<prefix>:<mask>";
 		tidy = false;
 	}
 

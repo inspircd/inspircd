@@ -154,6 +154,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	/** The prefix rank required to unset this mode on channels. */
 	unsigned int ranktounset;
 
+	/** If non-empty then the syntax of the parameter for this mode. */
+	std::string syntax;
+
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -328,6 +331,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	{
 		return adding ? ranktoset : ranktounset;
 	}
+
+	/** Retrieves the syntax of the parameter for this mode. */
+	const std::string& GetSyntax() const { return syntax; }
 
 	friend class ModeParser;
 };

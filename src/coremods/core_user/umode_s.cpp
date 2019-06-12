@@ -26,6 +26,7 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;
+	syntax = "(+|-)<snomasks>";
 }
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)

@@ -97,6 +97,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 	JoinFlood(Module* Creator)
 		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >(Creator, "joinflood", 'j')
 	{
+		syntax = "<joins>:<seconds>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE

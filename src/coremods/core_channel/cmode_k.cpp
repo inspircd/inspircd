@@ -28,6 +28,7 @@ const std::string::size_type ModeChannelKey::maxkeylen = 32;
 ModeChannelKey::ModeChannelKey(Module* Creator)
 	: ParamMode<ModeChannelKey, LocalStringExt>(Creator, "key", 'k', PARAM_ALWAYS)
 {
+	syntax = "<key>";
 }
 
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

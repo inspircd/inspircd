@@ -125,6 +125,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
 		, MemberInfoExt("repeat_memb", ExtensionItem::EXT_MEMBERSHIP, Creator)
 	{
+		syntax = "[~|*]<lines>:<sec>[:<difference>][:<backlog>]";
 	}
 
 	void OnUnset(User* source, Channel* chan) CXX11_OVERRIDE
@@ -140,15 +141,14 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		ChannelSettings settings;
 		if (!ParseSettings(source, parameter, settings))
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-				"Invalid repeat syntax. Syntax is: [~|*]<lines>:<sec>[:<difference>][:<backlog>]"));
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 
 		if ((settings.Backlog > 0) && (settings.Lines > settings.Backlog))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-				"Invalid repeat syntax. You can't set lines higher than backlog."));
+				"You can't set lines higher than backlog."));
 			return MODEACTION_DENY;
 		}
 
@@ -309,14 +309,14 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (ms.MaxLines && settings.Lines > ms.MaxLines)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"Invalid repeat parameter. The line number you specified is too great. Maximum allowed is %u.", ms.MaxLines)));
+				"The line number you specified is too big. Maximum allowed is %u.", ms.MaxLines)));
 			return false;
 		}
 
 		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"Invalid repeat parameter. The seconds you specified are too great. Maximum allowed is %u.", ms.MaxSecs)));
+				"The seconds you specified are too big. Maximum allowed is %u.", ms.MaxSecs)));
 			return false;
 		}
 
@@ -324,10 +324,10 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		{
 			if (ms.MaxDiff == 0)
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-					"Invalid repeat parameter. The server administrator has disabled matching on edit distance."));
+					"The server administrator has disabled matching on edit distance."));
 			else
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"Invalid repeat parameter. The distance you specified is too great. Maximum allowed is %u.", ms.MaxDiff)));
+					"The distance you specified is too big. Maximum allowed is %u.", ms.MaxDiff)));
 			return false;
 		}
 
@@ -335,10 +335,10 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		{
 			if (ms.MaxBacklog == 0)
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
-					"Invalid repeat parameter. The server administrator has disabled backlog matching."));
+					"The server administrator has disabled backlog matching."));
 			else
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"Invalid repeat paramter. The backlog you specified is too great. Maximum allowed is %u.", ms.MaxBacklog)));
+					"The backlog you specified is too big. Maximum allowed is %u.", ms.MaxBacklog)));
 			return false;
 		}
 

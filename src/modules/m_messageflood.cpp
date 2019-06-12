@@ -72,6 +72,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 	MsgFlood(Module* Creator)
 		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
 	{
+		syntax = "[*]<messages>:<seconds>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
