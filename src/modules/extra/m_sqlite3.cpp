@@ -174,6 +174,7 @@ class SQLConn : public SQL::Provider
 
 	void Submit(SQL::Query* query, const std::string& q) CXX11_OVERRIDE
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Executing SQLite3 query: " + q);
 		Query(query, q);
 		delete query;
 	}

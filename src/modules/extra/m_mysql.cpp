@@ -334,6 +334,7 @@ class SQLConnection : public SQL::Provider
 
 	void Submit(SQL::Query* q, const std::string& qs) CXX11_OVERRIDE
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();

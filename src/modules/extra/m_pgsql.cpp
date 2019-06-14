@@ -418,6 +418,7 @@ restart:
 
 	void Submit(SQL::Query *req, const std::string& q) CXX11_OVERRIDE
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Executing PostgreSQL query: " + q);
 		if (qinprog.q.empty())
 		{
 			DoQuery(QueueItem(req,q));
