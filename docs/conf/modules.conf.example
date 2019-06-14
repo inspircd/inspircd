@@ -652,7 +652,7 @@
 #  bootwait          -  Amount of time in seconds to wait before enforcing
 #                       the throttling when the server just booted.
 #
-#<connflood seconds="30" maxconns="3" timeout="30"
+#<connflood period="30" maxconns="3" timeout="30"
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
