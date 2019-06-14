@@ -366,8 +366,22 @@ Note: you can get a <|BOLD free|> CA-signed certificate from Let's Encrypt. See
 https://letsencrypt.org/getting-started/ for more details.
 EOQ
 
-if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, $question, $interactive) {
-	system './tools/genssl', 'auto';
+if (<src/modules/m_ssl_*.cpp>) {
+	if (prompt_bool $interactive, $question, $interactive) {
+		system './tools/genssl', 'auto';
+	}
+} else {
+	print_warning <<"EOM";
+You are building without enabling any SSL modules. This is not
+recommended as SSL greatly enhances the security and privacy of your IRC server
+and in a future version will be <|BOLD required|> for linking servers.
+
+Please read the following documentation pages on how to enable SSL support:
+
+GnuTLS (recommended): https://docs.inspircd.org/3/modules/ssl_gnutls
+mbedTLS:              https://docs.inspircd.org/3/modules/ssl_mbedtls
+OpenSSL:              https://docs.inspircd.org/3/modules/ssl_openssl
+EOM
 }
 
 # Cache the distribution label so that its not lost when --update is run.
