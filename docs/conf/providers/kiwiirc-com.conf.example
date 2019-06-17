@@ -1,0 +1,8 @@
+# This file contains connect classes which are used by KiwiIRC.com users.
+# See https://kiwiirc.com for more information on KiwiIRC.com.
+
+<connect name="KiwiIRC.com" parent="main" globalmax="100" localmax="100" registered="no">
+
+<connect name="KiwiIRC.com-1" parent="KiwiIRC.com" allow="107.161.19.10">
+<connect name="KiwiIRC.com-2" parent="KiwiIRC.com" allow="107.161.19.53">
+<connect name="KiwiIRC.com-3" parent="KiwiIRC.com" allow="109.169.31.4">

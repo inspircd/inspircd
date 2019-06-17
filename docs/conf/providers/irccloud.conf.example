@@ -1,0 +1,12 @@
+# This file contains connect classes which are used by IRCCloud users.
+# See https://www.irccloud.com for more information on IRCCloud.
+
+<connect name="IRCCloud" parent="main" globalmax="100" localmax="100">
+
+<connect name="IRCCloud-Brockwell"  parent="IRCCloud" allow="192.184.10.118">
+<connect name="IRCCloud-Charlton"   parent="IRCCloud" allow="192.184.9.112">
+<connect name="IRCCloud-Ealing"     parent="IRCCloud" allow="192.184.9.110">
+<connect name="IRCCloud-Hathersage" parent="IRCCloud" allow="192.184.8.73">
+<connect name="IRCCloud-Highgate"   parent="IRCCloud" allow="192.184.9.108">
+<connect name="IRCCloud-Stonehaven" parent="IRCCloud" allow="192.184.8.103">
+<connect name="IRCCloud-Tooting"    parent="IRCCloud" allow="192.184.10.9">

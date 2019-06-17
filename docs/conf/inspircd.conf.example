@@ -246,6 +246,12 @@
 # you will probably need a connect block just for user registration.  #
 # This can be done by using <connect registered="no">                 #
 
+# To enable IRCCloud on your network uncomment this:
+#<include file="examples/providers/irccloud.conf.example">
+
+# To enable KiwiIRC.com on your network uncomment this:
+#<include file="examples/services/kiwiirc-com.conf.example">
+
 # A connect class with <connect:deny> set denies connections from the specified host/IP range.
 <connect
          # deny: Will not let people connect if they have specified host/IP.
@@ -254,7 +260,7 @@
          # reason: The message that users will see if they match a deny block.
          reason="The 6bone address space is deprecated">
 
-# A connect class with <connect:allow> set allows connections from the specified host/IP range.
+# A connect class with <connect:allow> set allows c from the specified host/IP range.
 <connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
