@@ -246,13 +246,15 @@
 # you will probably need a connect block just for user registration.  #
 # This can be done by using <connect registered="no">                 #
 
+# A connect class with <connect:deny> set denies connections from the specified host/IP range.
 <connect
          # deny: Will not let people connect if they have specified host/IP.
-         deny="192.0.2.*">
+         deny="3ffe::0/32"
 
-# connect:reason is the message that users will see if they match a deny block
-<connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
+         # reason: The message that users will see if they match a deny block.
+         reason="The 6bone address space is deprecated">
 
+# A connect class with <connect:allow> set allows connections from the specified host/IP range.
 <connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
@@ -456,6 +458,7 @@
          # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x">
+
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
