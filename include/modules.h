@@ -982,7 +982,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	Module::List EventHandlers[I_END];
 
 	/** List of data services keyed by name */
-	std::multimap<std::string, ServiceProvider*> DataProviders;
+	std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviders;
 
 	/** A list of ServiceProviders waiting to be registered.
 	 * Non-NULL when constructing a Module, NULL otherwise.
