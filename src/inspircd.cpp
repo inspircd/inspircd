@@ -30,7 +30,6 @@
 #include <signal.h>
 
 #ifndef _WIN32
-	#include <dirent.h>
 	#include <unistd.h>
 	#include <sys/resource.h>
 	#include <dlfcn.h>

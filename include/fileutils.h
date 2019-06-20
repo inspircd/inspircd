@@ -19,10 +19,6 @@
 
 #pragma once
 
-#ifndef _WIN32
-# include <dirent.h>
-#endif
-
 /** Provides an easy method of reading a text file into memory. */
 class CoreExport FileReader
 {

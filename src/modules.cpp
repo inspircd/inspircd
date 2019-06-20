@@ -28,10 +28,6 @@
 #include "exitcodes.h"
 #include <iostream>
 
-#ifndef _WIN32
-	#include <dirent.h>
-#endif
-
 static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 
 void dynamic_reference_base::reset_all()
