@@ -39,6 +39,7 @@
 ModuleSpanningTree::ModuleSpanningTree()
 	: Away::EventListener(this)
 	, Stats::EventListener(this)
+	, CTCTags::EventListener(this)
 	, rconnect(this)
 	, rsquit(this)
 	, map(this)
@@ -415,6 +416,42 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		par.push_back(*serverglob);
 		par.push_last(details.text);
 		par.Broadcast();
+	}
+}
+
+void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details)
+{
+	if (!IS_LOCAL(user))
+		return;
+
+	switch (target.type)
+	{
+		case MessageTarget::TYPE_USER:
+		{
+			User* d = target.Get<User>();
+			if (!IS_LOCAL(d))
+			{
+				CmdBuilder params(user, "TAGMSG");
+				params.push_tags(details.tags_out);
+				params.push_back(d->uuid);
+				params.Unicast(d);
+			}
+			break;
+		}
+		case MessageTarget::TYPE_CHANNEL:
+		{
+			Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), "", target.status, details.tags_out, details.exemptions, "TAGMSG");
+			break;
+		}
+		case MessageTarget::TYPE_SERVER:
+		{
+			const std::string* serverglob = target.Get<std::string>();
+			CmdBuilder par(user, "TAGMSG");
+			par.push_tags(details.tags_out);
+			par.push_back(*serverglob);
+			par.Broadcast();
+			break;
+		}
 	}
 }
 
