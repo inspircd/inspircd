@@ -28,6 +28,7 @@
 #include "modules/dns.h"
 #include "modules/ssl.h"
 #include "modules/stats.h"
+#include "modules/ctctags.h"
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
@@ -72,6 +73,7 @@ class ModuleSpanningTree
 	: public Module
 	, public Away::EventListener
 	, public Stats::EventListener
+	, public CTCTags::EventListener
 {
 	/** Client to server commands, registered in the core
 	 */
@@ -169,6 +171,7 @@ class ModuleSpanningTree
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) CXX11_OVERRIDE;
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE;
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE;
+	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) CXX11_OVERRIDE;
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE;
 	void OnChangeHost(User* user, const std::string &newhost) CXX11_OVERRIDE;
