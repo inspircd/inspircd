@@ -414,7 +414,8 @@ class ModuleSilence
 				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
 				break;
 			}
-			case MessageTarget::TYPE_SERVER:break;
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 
 		return MOD_RES_PASSTHRU;
