@@ -47,20 +47,27 @@ class ModuleStripColor : public Module
 			return MOD_RES_PASSTHRU;
 
 		bool active = false;
-		if (target.type == MessageTarget::TYPE_USER)
+		switch (target.type)
 		{
-			User* t = target.Get<User>();
-			active = t->IsModeSet(usc);
-		}
-		else if (target.type == MessageTarget::TYPE_CHANNEL)
-		{
-			Channel* t = target.Get<Channel>();
-			ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
+			case MessageTarget::TYPE_USER:
+			{
+				User* t = target.Get<User>();
+				active = t->IsModeSet(usc);
+				break;
+			}
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* t = target.Get<Channel>();
+				ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
 
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
+				if (res == MOD_RES_ALLOW)
+					return MOD_RES_PASSTHRU;
 
-			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
+				active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 
 		if (active)

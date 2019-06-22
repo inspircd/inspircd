@@ -48,26 +48,32 @@ class ModuleIRCv3EchoMessage
 
 		const std::string& text = details.echo_original ? details.original_text : details.text;
 		const ClientProtocol::TagMap& tags = details.echo_original ? details.tags_in : details.tags_out;
-		if (target.type == MessageTarget::TYPE_USER)
+		switch (target.type)
 		{
-			User* destuser = target.Get<User>();
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
-			privmsg.AddTags(tags);
-			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
-		}
-		else if (target.type == MessageTarget::TYPE_CHANNEL)
-		{
-			Channel* chan = target.Get<Channel>();
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
-			privmsg.AddTags(tags);
-			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
-		}
-		else
-		{
-			const std::string* servername = target.Get<std::string>();
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
-			privmsg.AddTags(tags);
-			localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
+			case MessageTarget::TYPE_USER:
+			{
+				User* destuser = target.Get<User>();
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
+				privmsg.AddTags(tags);
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
+				break;
+			}
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* chan = target.Get<Channel>();
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
+				privmsg.AddTags(tags);
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+			{
+				const std::string* servername = target.Get<std::string>();
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
+				privmsg.AddTags(tags);
+				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
+				break;
+			}
 		}
 	}
 
@@ -80,23 +86,29 @@ class ModuleIRCv3EchoMessage
 		LocalUser* const localuser = static_cast<LocalUser*>(user);
 
 		const ClientProtocol::TagMap& tags = details.echo_original ? details.tags_in : details.tags_out;
-		if (target.type == MessageTarget::TYPE_USER)
+		switch (target.type)
 		{
-			User* destuser = target.Get<User>();
-			CTCTags::TagMessage message(user, destuser, tags);
-			localuser->Send(tagmsgprov, message);
-		}
-		else if (target.type == MessageTarget::TYPE_CHANNEL)
-		{
-			Channel* chan = target.Get<Channel>();
-			CTCTags::TagMessage message(user, chan, tags);
-			localuser->Send(tagmsgprov, message);
-		}
-		else
-		{
-			const std::string* servername = target.Get<std::string>();
-			CTCTags::TagMessage message(user, servername->c_str(), tags);
-			localuser->Send(tagmsgprov, message);
+			case MessageTarget::TYPE_USER:
+			{
+				User* destuser = target.Get<User>();
+				CTCTags::TagMessage message(user, destuser, tags);
+				localuser->Send(tagmsgprov, message);
+				break;
+			}
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* chan = target.Get<Channel>();
+				CTCTags::TagMessage message(user, chan, tags);
+				localuser->Send(tagmsgprov, message);
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+			{
+				const std::string* servername = target.Get<std::string>();
+				CTCTags::TagMessage message(user, servername->c_str(), tags);
+				localuser->Send(tagmsgprov, message);
+				break;
+			}
 		}
 	}
 
