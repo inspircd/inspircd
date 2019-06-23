@@ -341,11 +341,13 @@
          # Requires the ident module to be loaded.
          #requireident="yes"
 
-         # requiressl: Require that users of this block use an SSL connection.
-         # This can also be set to "trusted", as to only accept certificates
-         # issued by a certificate authority that you can configure in the
-         # settings of the SSL module that you're using.
-         # Requires the sslinfo module to be loaded.
+         # requiressl: Require that users of this block present an SSL client
+         # certificate. If set to "trusted" then client certificates will also
+         # be verified as signed by a trusted certificate authority. The CAs to
+         # trust for certificate issuance are configured under the settings of
+         # the SSL module handling connections to this class (e.g. openssl).
+         #
+         # Requires the sslinfo module.
          #requiressl="yes"
 
          # requireaccount: Require that users of this block have authenticated to a
