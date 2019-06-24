@@ -214,7 +214,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		FOREACH_MOD(OnUserPostInit, (New));
 }
 
-void UserManager::QuitUser(User* user, const std::string& quitreason, const std::string* operreason)
+void UserManager::QuitUser(User* user, const std::string& quitmessage, const std::string* operquitmessage)
 {
 	if (user->quitting)
 	{
@@ -228,27 +228,42 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		return;
 	}
 
-	user->quitting = true;
+	std::string quitmsg(quitmessage);
+	std::string operquitmsg;
+	if (operquitmessage)
+		operquitmsg.assign(*operquitmessage);
 
-	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
 	LocalUser* const localuser = IS_LOCAL(user);
 	if (localuser)
 	{
-		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operreason ? operreason->c_str() : quitreason.c_str()));
-		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (localuser, quitmsg, operquitmsg));
+		if (MOD_RESULT == MOD_RES_DENY)
+			return;
 	}
 
-	std::string reason;
-	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	if (!operreason)
-		operreason = &reason;
+	if (quitmsg.length() > ServerInstance->Config->Limits.MaxQuit)
+		quitmsg.erase(ServerInstance->Config->Limits.MaxQuit + 1);
+
+	if (operquitmsg.empty())
+		operquitmsg.assign(quitmsg);
+	else if (operquitmsg.length() > ServerInstance->Config->Limits.MaxQuit)
+		operquitmsg.erase(ServerInstance->Config->Limits.MaxQuit + 1);
+
+	user->quitting = true;
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
+	if (localuser)
+	{
+		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operquitmsg.c_str()));
+		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
+	}
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
 	if (user->registered == REG_ALL)
 	{
-		FOREACH_MOD(OnUserQuit, (user, reason, *operreason));
-		WriteCommonQuit(user, reason, *operreason);
+		FOREACH_MOD(OnUserQuit, (user, quitmsg, operquitmsg));
+		WriteCommonQuit(user, quitmsg, operquitmsg);
 	}
 	else
 		unregistered_count--;
@@ -260,7 +275,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		lu->eh.Close();
 
 		if (lu->registered == REG_ALL)
-			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
+			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operquitmsg.c_str());
 		local_users.erase(lu);
 	}
 
