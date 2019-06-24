@@ -22,6 +22,9 @@
 /// $CompilerFlags: -Ivendor_directory("sha2")
 /// $CompilerFlags: require_compiler("GCC") -Wno-long-long
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
 
 // Fix warnings about the use of `long long` on C++03.
 #if defined __clang__
@@ -34,6 +37,10 @@
 #include "modules/hash.h"
 
 #include <sha2.c>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 class HashSHA256 : public HashProvider
 {

@@ -28,6 +28,10 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
+
 // Fix warnings about the use of commas at end of enumerator lists and long long
 // on C++03.
 #if defined __clang__
@@ -44,10 +48,14 @@
 
 // Fix warnings about shadowing in http_parser.
 #ifdef __GNUC__
-//# pragma GCC diagnostic ignored "-Wshadow"
+# pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 #include <http_parser.c>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 class ModuleHttpServer;
 

@@ -37,6 +37,10 @@
 #include "modules/ssl.h"
 #include <memory>
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
+
 // Fix warnings about the use of commas at end of enumerator lists on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
@@ -53,6 +57,10 @@
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #ifndef GNUTLS_VERSION_NUMBER
 #define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER

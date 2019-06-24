@@ -28,10 +28,15 @@
 
 // Ignore OpenLDAP deprecation warnings on OS X Yosemite and newer.
 #if defined __APPLE__
+# pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <ldap.h>
+
+#ifdef __APPLE__
+# pragma GCC diagnostic pop
+#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "libldap_r.lib")
