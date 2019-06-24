@@ -313,7 +313,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message);
+	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message, std::string& oper_message);
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User *user
