@@ -372,25 +372,32 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	{
 		bool is_selfmsg = false;
 		std::string target;
-		if (msgtarget.type == MessageTarget::TYPE_USER)
+		switch (msgtarget.type)
 		{
-			User* t = msgtarget.Get<User>();
-			// Check if the target nick is exempted, if yes, ignore this message
-			if (exemptednicks.count(t->nick))
-				return MOD_RES_PASSTHRU;
+			case MessageTarget::TYPE_USER:
+			{
+				User* t = msgtarget.Get<User>();
+				// Check if the target nick is exempted, if yes, ignore this message
+				if (exemptednicks.count(t->nick))
+					return MOD_RES_PASSTHRU;
 
-			if (user == t)
-				is_selfmsg = true;
+				if (user == t)
+					is_selfmsg = true;
 
-			target = t->nick;
-		}
-		else if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-		{
-			Channel* t = msgtarget.Get<Channel>();
-			if (exemptedchans.count(t->name))
-				return MOD_RES_PASSTHRU;
+				target = t->nick;
+				break;
+			}
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* t = msgtarget.Get<Channel>();
+				if (exemptedchans.count(t->name))
+					return MOD_RES_PASSTHRU;
 
-			target = t->name;
+				target = t->name;
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 
 		if (is_selfmsg && warnonselfmsg)

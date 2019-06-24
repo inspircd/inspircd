@@ -61,33 +61,40 @@ class ModuleNoCTCP : public Module
 		if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
 			return MOD_RES_PASSTHRU;
 
-		if (target.type == MessageTarget::TYPE_CHANNEL)
+		switch (target.type)
 		{
-			if (user->HasPrivPermission("channels/ignore-noctcp"))
-				return MOD_RES_PASSTHRU;
-
-			Channel* c = target.Get<Channel>();
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
-
-			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
+			case MessageTarget::TYPE_CHANNEL:
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
-				return MOD_RES_DENY;
-			}
-		}
-		else if (target.type == MessageTarget::TYPE_USER)
-		{
-			if (user->HasPrivPermission("users/ignore-noctcp"))
-				return MOD_RES_PASSTHRU;
+				if (user->HasPrivPermission("channels/ignore-noctcp"))
+					return MOD_RES_PASSTHRU;
 
-			User* u = target.Get<User>();
-			if (u->IsModeSet(ncu))
-			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
-				return MOD_RES_DENY;
+				Channel* c = target.Get<Channel>();
+				ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
+				if (res == MOD_RES_ALLOW)
+					return MOD_RES_PASSTHRU;
+
+				if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
+				{
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
+					return MOD_RES_DENY;
+				}
+				break;
 			}
+			case MessageTarget::TYPE_USER:
+			{
+				if (user->HasPrivPermission("users/ignore-noctcp"))
+					return MOD_RES_PASSTHRU;
+
+				User* u = target.Get<User>();
+				if (u->IsModeSet(ncu))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
+					return MOD_RES_DENY;
+				}
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 		return MOD_RES_PASSTHRU;
 	}

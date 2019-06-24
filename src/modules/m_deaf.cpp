@@ -89,50 +89,58 @@ class ModuleDeaf : public Module
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (target.type == MessageTarget::TYPE_CHANNEL)
+		switch (target.type)
 		{
-			Channel* chan = target.Get<Channel>();
-			bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
-			bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
-
-			// If we have no bypasschars_uline in config, and this is a bypasschar (regular)
-			// Then it is obviously going to get through +d, no exemption list required
-			if (deaf_bypasschars_uline.empty() && is_bypasschar)
-				return MOD_RES_PASSTHRU;
-			// If it matches both bypasschar and bypasschar_uline, it will get through.
-			if (is_bypasschar && is_bypasschar_uline)
-				return MOD_RES_PASSTHRU;
-
-			const Channel::MemberMap& ulist = chan->GetUsers();
-			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+			case MessageTarget::TYPE_CHANNEL:
 			{
-				// not +d
-				if (!i->first->IsModeSet(deafmode))
-					continue;
+				Channel* chan = target.Get<Channel>();
+				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
+				bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
 
-				bool is_a_uline = i->first->server->IsULine();
-				// matched a U-line only bypass
-				if (is_bypasschar_uline && is_a_uline)
-					continue;
-				// matched a regular bypass
-				if (is_bypasschar && !is_a_uline)
-					continue;
+				// If we have no bypasschars_uline in config, and this is a bypasschar (regular)
+				// Then it is obviously going to get through +d, no exemption list required
+				if (deaf_bypasschars_uline.empty() && is_bypasschar)
+					return MOD_RES_PASSTHRU;
+				// If it matches both bypasschar and bypasschar_uline, it will get through.
+				if (is_bypasschar && is_bypasschar_uline)
+					return MOD_RES_PASSTHRU;
 
-				// don't deliver message!
-				details.exemptions.insert(i->first);
+				const Channel::MemberMap& ulist = chan->GetUsers();
+				for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+				{
+					// not +d
+					if (!i->first->IsModeSet(deafmode))
+						continue;
+
+					bool is_a_uline = i->first->server->IsULine();
+					// matched a U-line only bypass
+					if (is_bypasschar_uline && is_a_uline)
+						continue;
+					// matched a regular bypass
+					if (is_bypasschar && !is_a_uline)
+						continue;
+
+					// don't deliver message!
+					details.exemptions.insert(i->first);
+				}
+				break;
 			}
-		}
-		else if (target.type == MessageTarget::TYPE_USER)
-		{
-			User* targ = target.Get<User>();
-			if (!targ->IsModeSet(privdeafmode))
-				return MOD_RES_PASSTHRU;
+			case MessageTarget::TYPE_USER:
+			{
+				User* targ = target.Get<User>();
+				if (!targ->IsModeSet(privdeafmode))
+					return MOD_RES_PASSTHRU;
 
-			if (!privdeafuline && user->server->IsULine())
-				return MOD_RES_DENY;
+				if (!privdeafuline && user->server->IsULine())
+					return MOD_RES_DENY;
 
-			if (!user->HasPrivPermission("users/ignore-privdeaf"))
-				return MOD_RES_DENY;
+				if (!user->HasPrivPermission("users/ignore-privdeaf"))
+					return MOD_RES_DENY;
+
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 
 		return MOD_RES_PASSTHRU;
