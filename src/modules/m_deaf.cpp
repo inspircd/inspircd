@@ -91,20 +91,6 @@ class ModuleDeaf : public Module
 	{
 		switch (target.type)
 		{
-			case MessageTarget::TYPE_USER:
-			{
-				User* targ = target.Get<User>();
-				if (!targ->IsModeSet(privdeafmode))
-					return MOD_RES_PASSTHRU;
-
-				if (!privdeafuline && user->server->IsULine())
-					return MOD_RES_DENY;
-
-				if (!user->HasPrivPermission("users/ignore-privdeaf"))
-					return MOD_RES_DENY;
-
-				break;
-			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* chan = target.Get<Channel>();
@@ -137,6 +123,20 @@ class ModuleDeaf : public Module
 					// don't deliver message!
 					details.exemptions.insert(i->first);
 				}
+				break;
+			}
+			case MessageTarget::TYPE_USER:
+			{
+				User* targ = target.Get<User>();
+				if (!targ->IsModeSet(privdeafmode))
+					return MOD_RES_PASSTHRU;
+
+				if (!privdeafuline && user->server->IsULine())
+					return MOD_RES_DENY;
+
+				if (!user->HasPrivPermission("users/ignore-privdeaf"))
+					return MOD_RES_DENY;
+
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:

@@ -209,20 +209,6 @@ class ModuleServicesAccount
 
 		switch (target.type)
 		{
-			case MessageTarget::TYPE_USER:
-			{
-				User* targuser = target.Get<User>();
-				if (!targuser->IsModeSet(m3)  || is_registered)
-					return MOD_RES_PASSTHRU;
-
-				if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
-					return MOD_RES_PASSTHRU;
-
-				// User is messaging a +R user and is not registered or on an accept list.
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
-				return MOD_RES_DENY;
-				break;
-			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* targchan = target.Get<Channel>();
@@ -235,6 +221,20 @@ class ModuleServicesAccount
 
 				// User is messaging a +M channel and is not registered or exempt.
 				user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
+				return MOD_RES_DENY;
+				break;
+			}
+			case MessageTarget::TYPE_USER:
+			{
+				User* targuser = target.Get<User>();
+				if (!targuser->IsModeSet(m3)  || is_registered)
+					return MOD_RES_PASSTHRU;
+
+				if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
+					return MOD_RES_PASSTHRU;
+
+				// User is messaging a +R user and is not registered or on an accept list.
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
 				return MOD_RES_DENY;
 				break;
 			}

@@ -386,6 +386,18 @@ class ModuleSilence
 		SilenceEntry::SilenceFlags flag = SilenceEntry::SF_NONE;
 		switch (target.type)
 		{
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				if (is_ctcp)
+					flag = SilenceEntry::SF_CTCP_CHANNEL;
+				else if (details.type == MSG_NOTICE)
+					flag = SilenceEntry::SF_NOTICE_CHANNEL;
+				else if (details.type == MSG_PRIVMSG)
+					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
+
+				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
+				break;
+			}
 			case MessageTarget::TYPE_USER:
 			{
 				if (is_ctcp)
@@ -400,18 +412,6 @@ class ModuleSilence
 					details.echo_original = true;
 					return MOD_RES_DENY;
 				}
-				break;
-			}
-			case MessageTarget::TYPE_CHANNEL:
-			{
-				if (is_ctcp)
-					flag = SilenceEntry::SF_CTCP_CHANNEL;
-				else if (details.type == MSG_NOTICE)
-					flag = SilenceEntry::SF_NOTICE_CHANNEL;
-				else if (details.type == MSG_PRIVMSG)
-					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
-
-				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:

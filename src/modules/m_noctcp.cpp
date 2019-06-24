@@ -63,19 +63,6 @@ class ModuleNoCTCP : public Module
 
 		switch (target.type)
 		{
-			case MessageTarget::TYPE_USER:
-			{
-				if (user->HasPrivPermission("users/ignore-noctcp"))
-					return MOD_RES_PASSTHRU;
-
-				User* u = target.Get<User>();
-				if (u->IsModeSet(ncu))
-				{
-					user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
-					return MOD_RES_DENY;
-				}
-				break;
-			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				if (user->HasPrivPermission("channels/ignore-noctcp"))
@@ -89,6 +76,19 @@ class ModuleNoCTCP : public Module
 				if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
+					return MOD_RES_DENY;
+				}
+				break;
+			}
+			case MessageTarget::TYPE_USER:
+			{
+				if (user->HasPrivPermission("users/ignore-noctcp"))
+					return MOD_RES_PASSTHRU;
+
+				User* u = target.Get<User>();
+				if (u->IsModeSet(ncu))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
 					return MOD_RES_DENY;
 				}
 				break;
