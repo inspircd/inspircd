@@ -1658,7 +1658,12 @@
 #
 # If 'listmodes' is true then all list modes (+b, +I, +e, +g...) will be
 # saved. Defaults to false.
-#<permchanneldb filename="permchannels.conf" listmodes="true">
+#
+# 'saveperiod' determines how often to check if the database needs to be
+# saved to disk. Defaults to every five seconds.
+#<permchanneldb filename="permchannels.conf"
+#               listmodes="true"
+#               saveperiod="5s">
 #<include file="permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
@@ -2316,8 +2321,9 @@
 # be a lot less bans to apply - as most of them will already be there.
 #<module name="xline_db">
 
-# Specify the filename for the xline database here.
-#<xlinedb filename="xline.db">
+# Specify the filename for the xline database and how often to check whether
+# the database needs to be saved here.
+#<xlinedb filename="xline.db" saveperiod="5s">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #

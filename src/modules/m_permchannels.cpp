@@ -156,7 +156,10 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	return true;
 }
 
-class ModulePermanentChannels : public Module
+class ModulePermanentChannels
+	: public Module
+	, public Timer
+
 {
 	PermChannel p;
 	bool dirty;
@@ -165,7 +168,10 @@ class ModulePermanentChannels : public Module
 public:
 
 	ModulePermanentChannels()
-		: p(this), dirty(false), loaded(false)
+		: Timer(0, true)
+		, p(this)
+		, dirty(false)
+		, loaded(false)
 	{
 	}
 
@@ -174,6 +180,7 @@ public:
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes");
+		SetInterval(tag->getDuration("saveperiod", 5));
 
 		if (!permchannelsconf.empty())
 			permchannelsconf = ServerInstance->Config->Paths.PrependConfig(permchannelsconf);
@@ -265,11 +272,12 @@ public:
 			dirty = true;
 	}
 
-	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
+	bool Tick(time_t) CXX11_OVERRIDE
 	{
 		if (dirty)
 			WriteDatabase(p, this, save_listmodes);
 		dirty = false;
+		return true;
 	}
 
 	void Prioritize() CXX11_OVERRIDE
