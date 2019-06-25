@@ -51,7 +51,6 @@ class PermChannel : public ModeHandler
 static std::string permchannelsconf;
 static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_listmodes)
 {
-	ChanModeReference ban(mod, "ban");
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
 	 * So, let's write to a temporary file, flush it, then rename the file..
