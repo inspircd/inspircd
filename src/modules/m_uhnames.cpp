@@ -44,7 +44,10 @@ class ModuleUHNames
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["UHNAMES"];
+		// The legacy PROTOCTL system is a wrapper around the cap.
+		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
+		if (capmanager)
+			tokens["UHNAMES"];
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
