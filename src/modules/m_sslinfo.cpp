@@ -303,7 +303,7 @@ class ModuleSSLInfo
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
+		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		bool ok = true;
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
