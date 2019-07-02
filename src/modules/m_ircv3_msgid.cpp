@@ -22,6 +22,33 @@
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 
+class MsgIdTag : public ClientProtocol::MessageTagProvider
+{
+ private:
+	Cap::Reference ctctagcap;
+
+ public:
+	MsgIdTag(Module* mod)
+		: ClientProtocol::MessageTagProvider(mod)
+		, ctctagcap(mod, "message-tags")
+	{
+	}
+
+	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) CXX11_OVERRIDE
+	{
+		if (!irc::equals(tagname, "msgid"))
+			return MOD_RES_PASSTHRU;
+
+		// We should only allow this tag if it is added by a remote server.
+		return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+	{
+		return ctctagcap.get(user);
+	}
+};
+
 class MsgIdGenerator
 {
 	uint64_t counter;
@@ -44,48 +71,13 @@ class MsgIdGenerator
 	}
 };
 
-class MsgIdTag : public ClientProtocol::MessageTagProvider
-{
- private:
-	Cap::Reference ctctagcap;
-
- public:
-	MsgIdGenerator generator;
-
-	MsgIdTag(Module* mod)
-		: ClientProtocol::MessageTagProvider(mod)
-		, ctctagcap(mod, "message-tags")
-	{
-	}
-
-	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
-	{
-		const ClientProtocol::TagMap& tags = msg.GetTags();
-		if (tags.find("msgid") == tags.end())
-			msg.AddTag("msgid", this, generator.GetNext());
-	}
-
-	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) CXX11_OVERRIDE
-	{
-		if (!irc::equals(tagname, "msgid"))
-			return MOD_RES_PASSTHRU;
-
-		// We should only allow this tag if it is added by a remote server.
-		return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
-	}
-
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
-	{
-		return ctctagcap.get(user);
-	}
-};
-
 class ModuleMsgId
 	: public Module
 	, public CTCTags::EventListener
 {
  private:
 	MsgIdTag tag;
+	MsgIdGenerator generator;
 
 	ModResult CopyMessageId(const ClientProtocol::TagMap& tags_in, ClientProtocol::TagMap& tags_out)
 	{
@@ -95,7 +87,11 @@ class ModuleMsgId
 			// If the remote server has sent a message identifier we should use that as
 			// identifiers need to be the same on all sides of the network.
 			tags_out.insert(*iter);
+			return MOD_RES_PASSTHRU;
 		}
+
+		// Otherwise, we can just create a new message identifier.
+		tags_out.insert(std::make_pair("msgid", ClientProtocol::MessageTagData(&tag, generator.GetNext())));
 		return MOD_RES_PASSTHRU;
 	}
 
