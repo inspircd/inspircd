@@ -50,7 +50,7 @@ use constant {
 
 my $scriptpath = "@SCRIPT_DIR@";
 my $basepath	=	"@BASE_DIR@";
-my $confpath	=	"@CONFIG_DIR@/";
+my $confpath	=	"@CONFIG_DIR@";
 my $binpath	=	"@BINARY_DIR@";
 my $runpath	=	"@BASE_DIR@";
 my $datadir	=       "@DATA_DIR@";
@@ -58,6 +58,15 @@ my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
+
+sub expand_fragment($$) {
+	my ($base, $fragment) = @_;
+	if ($fragment =~ /^\//) {
+		return $fragment;
+	} else {
+		return "$base/$fragment";
+	}
+}
 
 if (!(grep { $_ eq '--runasroot' } @ARGV) && ($< == 0 || $> == 0)) {
 	if ($uid !~ /^\d+$/) {
@@ -88,7 +97,7 @@ for my $a (@ARGV)
 	}
 }
 if (!defined $conf) {
-	$conf = $confpath . "inspircd.conf";
+	$conf = expand_fragment $confpath, "inspircd.conf";
 	push @ARGV, '--config='.$conf;
 }
 
@@ -351,11 +360,9 @@ sub getpidfile
 	if ($pid ne "") {
 		return;
 	}
-	# Are We using a relative path?
-	if ($file !~ /^\//) {
-		# Convert it to a full path.
-		$file = $runpath .'/'. $file;
-	}
+
+	# Expand any relative paths.
+	$file = expand_fragment $confpath, $file;
 
 	# Have we checked this file before?
 	return if $filesparsed{$file};
@@ -377,16 +384,7 @@ sub getpidfile
 		if (($i =~ /<pid file=\"(\S+)\">/i) && ($i !~ /^#/))
 		{
 			# Set the PID file and return.
-			$pidfile = $1;
-			if (-f $pidfile)
-			{
-				return;
-			}
-			elsif (-f "$runpath/$pidfile")
-			{
-				$pidfile = "$runpath/$pidfile";
-				return;
-			}
+			$pidfile = expand_fragment $datadir, $1;
 			return;
 		}
 	}
