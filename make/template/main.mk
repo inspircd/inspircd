@@ -38,14 +38,17 @@ CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinc
 LDLIBS = -lstdc++
 CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
-BASE = "$(DESTDIR)@BASE_DIR@"
+
+BASE    = "$(DESTDIR)@BASE_DIR@"
+BINPATH = "$(DESTDIR)@BINARY_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
+DATPATH = "$(DESTDIR)@DATA_DIR@"
+EXAPATH = "$(DESTDIR)@EXAMPLE_DIR@"
+LOGPATH = "$(DESTDIR)@LOG_DIR@"
 MANPATH = "$(DESTDIR)@MANUAL_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
-LOGPATH = "$(DESTDIR)@LOG_DIR@"
-DATPATH = "$(DESTDIR)@DATA_DIR@"
-BINPATH = "$(DESTDIR)@BINARY_DIR@"
 SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
+
 INSTALL ?= install
 INSTMODE_DIR ?= 0755
 INSTMODE_BIN ?= 0755
@@ -204,11 +207,12 @@ finishmessage: target
 
 install: target
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BASE)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)/examples/services
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)/examples/sql
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/services
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/sql
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
@@ -225,9 +229,9 @@ endif
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(CONPATH)/examples/services
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(CONPATH)/examples/sql
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/*.example $(EXAPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_PRV) *.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
@@ -241,7 +245,7 @@ endif
 	@echo '  Data:' $(DATPATH)
 	@echo 'To start the ircd, run:' $(SCRPATH)/inspircd start
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
-	@echo 'Examples are available at:' $(CONPATH)/examples/
+	@echo 'Examples are available at:' $(EXAPATH)
 
 GNUmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
 	./configure --update
