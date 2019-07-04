@@ -183,7 +183,7 @@ class ModuleChanHistory
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
-				message.append(" spanning up to " + ConvToStr(list->maxtime) + " seconds");
+				message.append(" spanning up to " + InspIRCd::DurationString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 
