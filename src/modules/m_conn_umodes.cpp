@@ -25,12 +25,6 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
