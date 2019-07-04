@@ -121,9 +121,14 @@ class ModuleDenyChannels : public Module
 
 			// If the redirect channel is whitelisted then it is okay.
 			bool whitelisted = false;
-			for (GoodChannels::const_iterator j = goodchans.begin(); j != goodchans.end() && !whitelisted; ++j)
+			for (GoodChannels::const_iterator j = goodchans.begin(); j != goodchans.end(); ++j)
+			{
 				if (InspIRCd::Match(badchan.redirect, *j))
+				{
 					whitelisted = true;
+					break;
+				}
+			}
 
 			if (whitelisted)
 				continue;
