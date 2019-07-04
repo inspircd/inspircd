@@ -432,6 +432,9 @@ bool InspIRCd::IsValidDuration(const std::string& duration)
 
 std::string InspIRCd::DurationString(time_t duration)
 {
+	if (duration == 0)
+		return "0";
+
 	time_t years = duration / 31449600;
 	time_t weeks = (duration / 604800) % 52;
 	time_t days = (duration / 86400) % 7;
