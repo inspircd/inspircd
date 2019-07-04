@@ -320,7 +320,7 @@ class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::C
 	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CoreExport CommandSave : public ServerCommand
+class DllExport CommandSave : public ServerCommand
 {
  public:
 	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
