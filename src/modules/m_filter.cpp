@@ -179,6 +179,7 @@ class ModuleFilter : public Module, public ServerEventListener, public Stats::Ev
 
 	bool initing;
 	bool notifyuser;
+	bool logdetails;
 	bool warnonselfmsg;
 	RegexFactory* factory;
 	void FreeFilters();
@@ -486,8 +487,12 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			else
 				delete zl;
 		}
+		if (logdetails) {
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Line details: " + details.text + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		} else {
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		}
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -628,6 +633,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
 	notifyuser = tag->getBool("notifyuser", true);
+	logdetails = tag->getBool("logdetails", false);
 	warnonselfmsg = tag->getBool("warnonselfmsg");
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
