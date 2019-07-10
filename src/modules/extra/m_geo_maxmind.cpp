@@ -97,6 +97,10 @@ class GeolocationAPIImpl : public Geolocation::APIBase
 
 	Geolocation::Location* GetLocation(irc::sockets::sockaddrs& sa) CXX11_OVERRIDE
 	{
+		// Skip trying to look up a UNIX socket.
+		if (sa.family() != AF_INET && sa.family() != AF_INET6)
+			return NULL;
+
 		// Attempt to look up the socket address.
 		int result;
 		MMDB_lookup_result_s lookup = MMDB_lookup_sockaddr(&mmdb, &sa.sa, &result);
