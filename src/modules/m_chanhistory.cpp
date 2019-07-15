@@ -112,7 +112,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 
 class ModuleChanHistory
 	: public Module
-	, public ServerEventListener
+	, public ServerProtocol::BroadcastEventListener
 {
 	HistoryMode m;
 	bool sendnotice;
@@ -125,7 +125,7 @@ class ModuleChanHistory
 
  public:
 	ModuleChanHistory()
-		: ServerEventListener(this)
+		: ServerProtocol::BroadcastEventListener(this)
 		, m(this)
 		, botmode(this, "bot")
 		, batchcap(this)

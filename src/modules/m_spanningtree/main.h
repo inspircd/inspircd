@@ -93,9 +93,14 @@ class ModuleSpanningTree
 	 */
 	SpanningTreeProtocolInterface protocolinterface;
 
-	/** Event provider for our events
-	 */
-	Events::ModuleEventProvider eventprov;
+	/** Event provider for our broadcast events. */
+	Events::ModuleEventProvider broadcasteventprov;
+
+	/** Event provider for our link events. */
+	Events::ModuleEventProvider linkeventprov;
+
+	/** Event provider for our sync events. */
+	Events::ModuleEventProvider synceventprov;
 
 	/** API for accessing user SSL certificates. */
 	UserCertificateAPI sslapi;
@@ -158,7 +163,14 @@ class ModuleSpanningTree
 	 */
 	ModResult HandleConnect(const CommandBase::Params& parameters, User* user);
 
-	const Events::ModuleEventProvider& GetEventProvider() const { return eventprov; }
+	/** Retrieves the event provider for broadcast events. */
+	const Events::ModuleEventProvider& GetBroadcastEventProvider() const { return broadcasteventprov; }
+
+	/** Retrieves the event provider for link events. */
+	const Events::ModuleEventProvider& GetLinkEventProvider() const { return linkeventprov; }
+
+	/** Retrieves the event provider for sync events. */
+	const Events::ModuleEventProvider& GetSyncEventProvider() const { return synceventprov; }
 
 	/**
 	 ** *** MODULE EVENTS ***

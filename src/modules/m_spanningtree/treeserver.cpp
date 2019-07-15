@@ -117,7 +117,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	this->AddHashEntry();
 	Parent->Children.push_back(this);
 
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnServerLink, (this));
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerLink, (this));
 }
 
 void TreeServer::BeginBurst(uint64_t startms)
@@ -207,7 +207,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 	RemoveHash();
 
 	if (!Utils->Creator->dying)
-		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnServerSplit, (this));
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (this));
 }
 
 unsigned int TreeServer::QuitUsers(const std::string& reason)

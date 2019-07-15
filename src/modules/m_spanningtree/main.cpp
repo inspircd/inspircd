@@ -45,7 +45,9 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, map(this)
 	, commands(this)
 	, currmembid(0)
-	, eventprov(this, "event/server")
+	, broadcasteventprov(this, "event/server-broadcast")
+	, linkeventprov(this, "event/server-link")
+	, synceventprov(this, "event/server-sync")
 	, sslapi(this)
 	, DNS(this, "DNS")
 	, tagevprov(this, "event/messagetag")
@@ -687,7 +689,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			TreeServer* server = i->second;
 			if (!server->IsRoot())
-				FOREACH_MOD_CUSTOM(GetEventProvider(), ServerEventListener, OnServerSplit, (server));
+				FOREACH_MOD_CUSTOM(GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (server));
 		}
 		return;
 	}

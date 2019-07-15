@@ -173,7 +173,10 @@ class CommandFilter : public Command
 	}
 };
 
-class ModuleFilter : public Module, public ServerEventListener, public Stats::EventListener
+class ModuleFilter
+	: public Module
+	, public ServerProtocol::SyncEventListener
+	, public Stats::EventListener
 {
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
@@ -332,7 +335,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter()
-	: ServerEventListener(this)
+	: ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, initing(true)
 	, filtcommand(this)
