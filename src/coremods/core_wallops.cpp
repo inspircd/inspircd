@@ -54,6 +54,12 @@ class CommandWallops : public Command
 
 CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 {
+	if (parameters[0].empty())
+	{
+		user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+		return CMD_FAILURE;
+	}
+
 	ClientProtocol::Message msg("WALLOPS", user);
 	msg.PushParamRef(parameters[0]);
 	ClientProtocol::Event wallopsevent(protoevprov, msg);

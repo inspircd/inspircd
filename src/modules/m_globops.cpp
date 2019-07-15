@@ -35,6 +35,12 @@ class CommandGlobops : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
+		if (parameters[0].empty())
+		{
+			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+			return CMD_FAILURE;
+		}
+
 		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
 		return CMD_SUCCESS;
 	}
