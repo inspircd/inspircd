@@ -131,6 +131,9 @@ sub __error {
 	} else {
 		push @message, 'If you believe this error to be a bug then you can file a bug report';
 		push @message, 'at https://github.com/inspircd/inspircd/issues';
+		push @message, '';
+		push @message, 'You can also refer to the documentation page for this module at';
+		push @message, "https://docs.inspircd.org/3/modules/${\__module $file}";
 	}
 	push @message, '';
 
