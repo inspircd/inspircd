@@ -19,6 +19,7 @@
 /// $CompilerFlags: find_compiler_flags("libmaxminddb" "")
 /// $LinkerFlags: find_linker_flags("libmaxminddb" "-lmaxminddb")
 
+/// $PackageInfo: require_system("arch") libmaxminddb pkgconf
 /// $PackageInfo: require_system("darwin") libmaxminddb pkg-config
 /// $PackageInfo: require_system("debian" "9.0") libmaxminddb-dev pkg-config
 /// $PackageInfo: require_system("ubuntu" "16.04") libmaxminddb-dev pkg-config

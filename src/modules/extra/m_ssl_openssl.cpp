@@ -24,6 +24,7 @@
 /// $CompilerFlags: find_compiler_flags("openssl")
 /// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
 
+/// $PackageInfo: require_system("arch") openssl pkgconf
 /// $PackageInfo: require_system("centos") openssl-devel pkgconfig
 /// $PackageInfo: require_system("darwin") openssl pkg-config
 /// $PackageInfo: require_system("debian") libssl-dev openssl pkg-config
