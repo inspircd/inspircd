@@ -22,6 +22,7 @@
 /// $CompilerFlags: find_compiler_flags("sqlite3")
 /// $LinkerFlags: find_linker_flags("sqlite3")
 
+/// $PackageInfo: require_system("arch") pkgconf sqlite
 /// $PackageInfo: require_system("centos") pkgconfig sqlite-devel
 /// $PackageInfo: require_system("darwin") pkg-config sqlite3
 /// $PackageInfo: require_system("debian") libsqlite3-dev pkg-config
@@ -167,6 +168,7 @@ class SQLConn : public SQL::Provider
 
 	void Submit(SQL::Query* query, const std::string& q) override
 	{
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing SQLite3 query: " + q);
 		Query(query, q);
 		delete query;
 	}

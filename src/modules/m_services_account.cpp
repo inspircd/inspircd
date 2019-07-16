@@ -207,32 +207,39 @@ class ModuleServicesAccount
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
 
-		if (target.type == MessageTarget::TYPE_CHANNEL)
+		switch (target.type)
 		{
-			Channel* targchan = target.Get<Channel>();
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* targchan = target.Get<Channel>();
 
-			if (!targchan->IsModeSet(m2) || is_registered)
-				return MOD_RES_PASSTHRU;
+				if (!targchan->IsModeSet(m2) || is_registered)
+					return MOD_RES_PASSTHRU;
 
-			if (CheckExemption::Call(exemptionprov, user, targchan, "regmoderated") == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
+				if (CheckExemption::Call(exemptionprov, user, targchan, "regmoderated") == MOD_RES_ALLOW)
+					return MOD_RES_PASSTHRU;
 
-			// User is messaging a +M channel and is not registered or exempt.
-			user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
-			return MOD_RES_DENY;
-		}
-		else if (target.type == MessageTarget::TYPE_USER)
-		{
-			User* targuser = target.Get<User>();
-			if (!targuser->IsModeSet(m3)  || is_registered)
-				return MOD_RES_PASSTHRU;
+				// User is messaging a +M channel and is not registered or exempt.
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
+				return MOD_RES_DENY;
+				break;
+			}
+			case MessageTarget::TYPE_USER:
+			{
+				User* targuser = target.Get<User>();
+				if (!targuser->IsModeSet(m3)  || is_registered)
+					return MOD_RES_PASSTHRU;
 
-			if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
-				return MOD_RES_PASSTHRU;
+				if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
+					return MOD_RES_PASSTHRU;
 
-			// User is messaging a +R user and is not registered or on an accept list.
-			user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
-			return MOD_RES_DENY;
+				// User is messaging a +R user and is not registered or on an accept list.
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
+				return MOD_RES_DENY;
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
 		return MOD_RES_PASSTHRU;
 	}

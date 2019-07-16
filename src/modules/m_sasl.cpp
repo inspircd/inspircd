@@ -37,7 +37,8 @@ enum
 
 static std::string sasl_target;
 
-class ServerTracker : public ServerEventListener
+class ServerTracker
+	: public ServerProtocol::LinkEventListener
 {
 	bool online;
 
@@ -65,7 +66,7 @@ class ServerTracker : public ServerEventListener
 
  public:
 	ServerTracker(Module* mod)
-		: ServerEventListener(mod)
+		: ServerProtocol::LinkEventListener(mod)
 	{
 		Reset();
 	}

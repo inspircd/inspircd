@@ -20,10 +20,11 @@
 /// $CompilerFlags: execute("pcre-config --cflags" "PCRE_CXXFLAGS")
 /// $LinkerFlags: execute("pcre-config --libs" "PCRE_LDFLAGS" "-lpcre")
 
-/// $PackageInfo: require_system("centos") pcre-devel pkgconfig
-/// $PackageInfo: require_system("darwin") pcre pkg-config
-/// $PackageInfo: require_system("debian") libpcre3-dev pkg-config
-/// $PackageInfo: require_system("ubuntu") libpcre3-dev pkg-config
+/// $PackageInfo: require_system("arch") pcre
+/// $PackageInfo: require_system("centos") pcre-devel
+/// $PackageInfo: require_system("darwin") pcre 
+/// $PackageInfo: require_system("debian") libpcre3-dev
+/// $PackageInfo: require_system("ubuntu") libpcre3-dev
 
 
 #include "inspircd.h"

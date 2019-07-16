@@ -89,7 +89,10 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 
 void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
-	const std::string message = InspIRCd::Format("You must specify a parameter for the %s mode", name.c_str());
+	std::string message = InspIRCd::Format("You must specify a parameter for the %s mode.", name.c_str());
+	if (!syntax.empty())
+		message.append(InspIRCd::Format(" Syntax: %s.", syntax.c_str()));
+
 	if (channel)
 		user->WriteNumeric(Numerics::InvalidModeParameter(channel, this, "*", message));
 	else
@@ -171,6 +174,7 @@ PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter
 	, selfremove(true)
 {
 	list = true;
+	syntax = "<nick>";
 }
 
 ModResult PrefixMode::AccessCheck(User* src, Channel*, std::string& value, bool adding)

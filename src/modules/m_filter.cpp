@@ -26,6 +26,7 @@
 #include "modules/server.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
+#include "modules/account.h"
 
 enum FilterFlags
 {
@@ -63,6 +64,7 @@ class FilterResult
 	bool flag_privmsg;
 	bool flag_notice;
 	bool flag_strip_color;
+	bool flag_no_registered;
 
 	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
 		: freeform(free)
@@ -80,7 +82,7 @@ class FilterResult
 	char FillFlags(const std::string &fl)
 	{
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
-			flag_notice = flag_strip_color = false;
+			flag_notice = flag_strip_color = flag_no_registered = false;
 
 		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
 		{
@@ -103,6 +105,9 @@ class FilterResult
 				break;
 				case 'c':
 					flag_strip_color = true;
+				break;
+				case 'r':
+					flag_no_registered = true;
 				break;
 				case '*':
 					flag_no_opers = flag_part_message = flag_quit_message =
@@ -130,12 +135,15 @@ class FilterResult
 		if (flag_notice)
 			flags.push_back('n');
 
-		/* Order is important here, 'c' must be the last char in the string as it is unsupported
-		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
-		 * character.
+		/* Order is important here, as the logic in FillFlags() stops parsing when it encounters
+		 * an unknown character. So the following characters must be last in the string.
+		 * 'c' is unsupported on < 2.0.10
+		 * 'r' is unsupported on < 3.2.0
 		 */
 		if (flag_strip_color)
 			flags.push_back('c');
+		if (flag_no_registered)
+			flags.push_back('r');
 
 		if (flags.empty())
 			flags.push_back('-');
@@ -165,12 +173,16 @@ class CommandFilter : public Command
 	}
 };
 
-class ModuleFilter : public Module, public ServerEventListener, public Stats::EventListener
+class ModuleFilter
+	: public Module
+	, public ServerProtocol::SyncEventListener
+	, public Stats::EventListener
 {
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
 	bool initing;
 	bool notifyuser;
+	bool warnonselfmsg;
 	RegexFactory* factory;
 	void FreeFilters();
 
@@ -305,7 +317,11 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
+	const AccountExtItem* accountext = GetAccountExtItem();
+
 	if ((filter->flag_no_opers) && user->IsOper())
+		return false;
+	if ((filter->flag_no_registered) && accountext && accountext->get(user))
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
@@ -319,7 +335,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter()
-	: ServerEventListener(this)
+	: ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, initing(true)
 	, filtcommand(this)
@@ -357,31 +373,49 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)
 	{
+		bool is_selfmsg = false;
 		std::string target;
-		if (msgtarget.type == MessageTarget::TYPE_USER)
+		switch (msgtarget.type)
 		{
-			User* t = msgtarget.Get<User>();
-			// Check if the target nick is exempted, if yes, ignore this message
-			if (exemptednicks.count(t->nick))
-				return MOD_RES_PASSTHRU;
+			case MessageTarget::TYPE_USER:
+			{
+				User* t = msgtarget.Get<User>();
+				// Check if the target nick is exempted, if yes, ignore this message
+				if (exemptednicks.count(t->nick))
+					return MOD_RES_PASSTHRU;
 
-			target = t->nick;
+				if (user == t)
+					is_selfmsg = true;
+
+				target = t->nick;
+				break;
+			}
+			case MessageTarget::TYPE_CHANNEL:
+			{
+				Channel* t = msgtarget.Get<Channel>();
+				if (exemptedchans.count(t->name))
+					return MOD_RES_PASSTHRU;
+
+				target = t->name;
+				break;
+			}
+			case MessageTarget::TYPE_SERVER:
+				break;
 		}
-		else if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
+
+		if (is_selfmsg && warnonselfmsg)
 		{
-			Channel* t = msgtarget.Get<Channel>();
-			if (exemptedchans.count(t->name))
-				return MOD_RES_PASSTHRU;
-
-			target = t->name;
+			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's self message matched %s (%s)",
+				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str()));
+			return MOD_RES_PASSTHRU;
 		}
-		if (f->action == FA_WARN)
+		else if (f->action == FA_WARN)
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's message to %s matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
 			return MOD_RES_PASSTHRU;
 		}
-		if (f->action == FA_BLOCK)
+		else if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
 				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
@@ -596,6 +630,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
 	notifyuser = tag->getBool("notifyuser", true);
+	warnonselfmsg = tag->getBool("warnonselfmsg");
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 

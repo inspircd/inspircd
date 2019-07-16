@@ -19,6 +19,7 @@
 
 /// $LinkerFlags: -llber -lldap_r
 
+/// $PackageInfo: require_system("arch") libldap
 /// $PackageInfo: require_system("centos") openldap-devel
 /// $PackageInfo: require_system("debian") libldap2-dev
 /// $PackageInfo: require_system("ubuntu") libldap2-dev
@@ -28,10 +29,15 @@
 
 // Ignore OpenLDAP deprecation warnings on OS X Yosemite and newer.
 #if defined __APPLE__
+# pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <ldap.h>
+
+#ifdef __APPLE__
+# pragma GCC diagnostic pop
+#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "libldap_r.lib")

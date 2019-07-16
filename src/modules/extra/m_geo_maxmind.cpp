@@ -19,6 +19,7 @@
 /// $CompilerFlags: find_compiler_flags("libmaxminddb" "")
 /// $LinkerFlags: find_linker_flags("libmaxminddb" "-lmaxminddb")
 
+/// $PackageInfo: require_system("arch") libmaxminddb pkgconf
 /// $PackageInfo: require_system("darwin") libmaxminddb pkg-config
 /// $PackageInfo: require_system("debian" "9.0") libmaxminddb-dev pkg-config
 /// $PackageInfo: require_system("ubuntu" "16.04") libmaxminddb-dev pkg-config
@@ -97,6 +98,10 @@ class GeolocationAPIImpl : public Geolocation::APIBase
 
 	Geolocation::Location* GetLocation(irc::sockets::sockaddrs& sa) override
 	{
+		// Skip trying to look up a UNIX socket.
+		if (sa.family() != AF_INET && sa.family() != AF_INET6)
+			return NULL;
+
 		// Attempt to look up the socket address.
 		int result;
 		MMDB_lookup_result_s lookup = MMDB_lookup_sockaddr(&mmdb, &sa.sa, &result);

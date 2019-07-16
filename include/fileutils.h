@@ -79,6 +79,14 @@ public:
 	 */
 	static std::string GetFileName(const std::string& path);
 
+	/** Gets a list of files which exist in the specified directory.
+	 * @param directory The directory to retrieve files from.
+	 * @param entries A vector which entries will be added to.
+	 * @param match If defined then a glob match for files to be matched against.
+	 * @return True if the directory could be opened; otherwise false.
+	 */
+	static bool GetFileList(const std::string& directory, std::vector<std::string>& entries, const std::string& match = "*");
+
 	/** Determines whether the given path starts with a Windows drive letter.
 	 * @param path The path to validate.
 	 * @returns True if the path begins with a Windows drive letter; otherwise, false.

@@ -215,7 +215,7 @@ void DelayJoinMode::RevealUser(User* user, Channel* chan)
 	chan->Write(joinevent, 0, except_list);
 }
 
-/* make the user visible if he receives any mode change */
+/* make the user visible if they receive any mode change */
 ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding)
 {
 	if (!channel || param.empty())

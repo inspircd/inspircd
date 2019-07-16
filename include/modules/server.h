@@ -21,11 +21,19 @@
 
 #include "event.h"
 
-class ServerEventListener : public Events::ModuleEventListener
+namespace ServerProtocol
+{
+	class BroadcastEventListener;
+	class LinkEventListener;
+	class SyncEventListener;
+}
+
+class ServerProtocol::BroadcastEventListener
+	: public Events::ModuleEventListener
 {
  public:
-	ServerEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/server")
+	BroadcastEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/server-broadcast")
 	{
 	}
 
@@ -36,6 +44,16 @@ class ServerEventListener : public Events::ModuleEventListener
 	 *         send the message to the server or MOD_RES_PASSTHRU if no module handled the event.
 	 */
 	virtual ModResult OnBroadcastMessage(Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
+};
+
+class ServerProtocol::LinkEventListener
+	: public Events::ModuleEventListener
+{
+ public:
+	LinkEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/server-link")
+	{
+	}
 
 	/** Fired when a server finishes burst
 	 * @param server Server that recently linked and finished burst
@@ -46,6 +64,16 @@ class ServerEventListener : public Events::ModuleEventListener
 	  * @param server Server that split
 	  */
 	virtual void OnServerSplit(const Server* server) { }
+};
+
+class ServerProtocol::SyncEventListener
+	: public Events::ModuleEventListener
+{
+ public:
+	SyncEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/server-sync")
+	{
+	}
 
 	/** Allows modules to synchronize user metadata during a netburst. This will
 	 * be called for every user visible on your side of the burst.
@@ -65,4 +93,19 @@ class ServerEventListener : public Events::ModuleEventListener
 	 * @param server The target of the burst.
 	 */
 	virtual void OnSyncNetwork(ProtocolServer& server) { }
+};
+
+/** Compatibility struct for <3.3.0 modules. */
+class ServerEventListener
+	: public ServerProtocol::BroadcastEventListener
+	, public ServerProtocol::LinkEventListener
+	, public ServerProtocol::SyncEventListener
+{
+ public:
+	ServerEventListener(Module* mod)
+		: ServerProtocol::BroadcastEventListener(mod)
+		, ServerProtocol::LinkEventListener(mod)
+		, ServerProtocol::SyncEventListener(mod)
+	{
+	}
 };

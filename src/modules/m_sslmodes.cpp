@@ -61,15 +61,20 @@ class SSLMode : public ModeHandler
 						return MODEACTION_DENY;
 					}
 
+					unsigned long nonssl = 0;
 					const Channel::MemberMap& userlist = channel->GetUsers();
 					for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 					{
 						ssl_cert* cert = API->GetCertificate(i->first);
 						if (!cert && !i->first->server->IsULine())
-						{
-							source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "all members of the channel must be connected via SSL");
-							return MODEACTION_DENY;
-						}
+							nonssl++;
+					}
+
+					if (nonssl)
+					{
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via SSL (%lu/%lu are non-SSL)",
+							nonssl, static_cast<unsigned long>(userlist.size())));
+						return MODEACTION_DENY;
 					}
 				}
 				channel->SetMode(this, true);

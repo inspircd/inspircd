@@ -39,12 +39,15 @@
 ModuleSpanningTree::ModuleSpanningTree()
 	: Away::EventListener(this)
 	, Stats::EventListener(this)
+	, CTCTags::EventListener(this)
 	, rconnect(this)
 	, rsquit(this)
 	, map(this)
 	, commands(this)
 	, currmembid(0)
-	, eventprov(this, "event/server")
+	, broadcasteventprov(this, "event/server-broadcast")
+	, linkeventprov(this, "event/server-link")
+	, synceventprov(this, "event/server-sync")
 	, sslapi(this)
 	, DNS(this, "DNS")
 	, tagevprov(this, "event/messagetag")
@@ -191,11 +194,9 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 
 	irc::sockets::sockaddrs sa;
-#ifndef _WIN32
 	if (x->IPAddr.find('/') != std::string::npos)
 	{
-		struct stat sb;
-		if (stat(x->IPAddr.c_str(), &sb) == -1 || !S_ISSOCK(sb.st_mode) || !irc::sockets::untosa(x->IPAddr, sa))
+		if (!irc::sockets::isunix(x->IPAddr) || !irc::sockets::untosa(x->IPAddr, sa))
 		{
 			// We don't use the family() != AF_UNSPEC check below for UNIX sockets as
 			// that results in a DNS lookup.
@@ -205,7 +206,6 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		}
 	}
 	else
-#endif
 	{
 		// If this fails then the IP sa will be AF_UNSPEC.
 		irc::sockets::aptosa(x->IPAddr, x->Port, sa);
@@ -394,30 +394,72 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		return;
 
 	const char* message_type = (details.type == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
-	if (target.type == MessageTarget::TYPE_USER)
+	switch (target.type)
 	{
-		User* d = target.Get<User>();
-		if (!IS_LOCAL(d))
+		case MessageTarget::TYPE_USER:
 		{
-			CmdBuilder params(user, message_type);
-			params.push_tags(details.tags_out);
-			params.push_back(d->uuid);
-			params.push_last(details.text);
-			params.Unicast(d);
+			User* d = target.Get<User>();
+			if (!IS_LOCAL(d))
+			{
+				CmdBuilder params(user, message_type);
+				params.push_tags(details.tags_out);
+				params.push_back(d->uuid);
+				params.push_last(details.text);
+				params.Unicast(d);
+			}
+			break;
+		}
+		case MessageTarget::TYPE_CHANNEL:
+		{
+			Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.tags_out, details.exemptions, message_type);
+			break;
+		}
+		case MessageTarget::TYPE_SERVER:
+		{
+			const std::string* serverglob = target.Get<std::string>();
+			CmdBuilder par(user, message_type);
+			par.push_tags(details.tags_out);
+			par.push_back(*serverglob);
+			par.push_last(details.text);
+			par.Broadcast();
+			break;
 		}
 	}
-	else if (target.type == MessageTarget::TYPE_CHANNEL)
+}
+
+void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details)
+{
+	if (!IS_LOCAL(user))
+		return;
+
+	switch (target.type)
 	{
-		Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.tags_out, details.exemptions, message_type);
-	}
-	else if (target.type == MessageTarget::TYPE_SERVER)
-	{
-		const std::string* serverglob = target.Get<std::string>();
-		CmdBuilder par(user, message_type);
-		par.push_tags(details.tags_out);
-		par.push_back(*serverglob);
-		par.push_last(details.text);
-		par.Broadcast();
+		case MessageTarget::TYPE_USER:
+		{
+			User* d = target.Get<User>();
+			if (!IS_LOCAL(d))
+			{
+				CmdBuilder params(user, "TAGMSG");
+				params.push_tags(details.tags_out);
+				params.push_back(d->uuid);
+				params.Unicast(d);
+			}
+			break;
+		}
+		case MessageTarget::TYPE_CHANNEL:
+		{
+			Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), "", target.status, details.tags_out, details.exemptions, "TAGMSG");
+			break;
+		}
+		case MessageTarget::TYPE_SERVER:
+		{
+			const std::string* serverglob = target.Get<std::string>();
+			CmdBuilder par(user, "TAGMSG");
+			par.push_tags(details.tags_out);
+			par.push_back(*serverglob);
+			par.Broadcast();
+			break;
+		}
 	}
 }
 
@@ -647,7 +689,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			TreeServer* server = i->second;
 			if (!server->IsRoot())
-				FOREACH_MOD_CUSTOM(GetEventProvider(), ServerEventListener, OnServerSplit, (server));
+				FOREACH_MOD_CUSTOM(GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (server));
 		}
 		return;
 	}

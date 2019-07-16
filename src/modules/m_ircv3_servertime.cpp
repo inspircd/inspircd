@@ -24,16 +24,20 @@
 class ServerTimeTag : public IRCv3::ServerTime::Manager, public IRCv3::CapTag<ServerTimeTag>
 {
 	time_t lasttime;
+	long lasttimens;
 	std::string lasttimestring;
 
 	void RefreshTimeString()
 	{
 		const time_t currtime = ServerInstance->Time();
-		if (currtime != lasttime)
+		const long currtimens = ServerInstance->Time_ns();
+		if (currtime != lasttime || currtimens != lasttimens)
 		{
 			lasttime = currtime;
-			// Cache the string so it's not recreated every time a message is sent
-			lasttimestring = IRCv3::ServerTime::FormatTime(currtime);
+			lasttimens = currtimens;
+
+			// Cache the string so it's not recreated every time a message is sent.
+			lasttimestring = IRCv3::ServerTime::FormatTime(currtime, (currtimens ? currtimens / 1000000 : 0));
 		}
 	}
 
@@ -42,6 +46,7 @@ class ServerTimeTag : public IRCv3::ServerTime::Manager, public IRCv3::CapTag<Se
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")
 		, lasttime(0)
+		, lasttimens(0)
 	{
 		tagprov = this;
 	}

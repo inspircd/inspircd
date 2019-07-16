@@ -22,16 +22,24 @@
 /// $CompilerFlags: execute("mysql_config --include" "MYSQL_CXXFLAGS")
 /// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
 
+/// $PackageInfo: require_system("arch") mariadb-libs
 /// $PackageInfo: require_system("centos" "6.0" "6.99") mysql-devel
 /// $PackageInfo: require_system("centos" "7.0") mariadb-devel
 /// $PackageInfo: require_system("darwin") mysql-connector-c
 /// $PackageInfo: require_system("debian") libmysqlclient-dev
 /// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
 
 #include "inspircd.h"
 #include <mysql.h>
 #include "modules/sql.h"
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "libmysql.lib")
@@ -61,7 +69,7 @@
  * The ircd thread then mutexes the queue once more, reads the outbound response off the head
  * of the queue, and sends it on its way to the original calling module.
  *
- * XXX: You might be asking "why doesnt he just send the response from within the worker thread?"
+ * XXX: You might be asking "why doesnt it just send the response from within the worker thread?"
  * The answer to this is simple. The majority of InspIRCd, and in fact most ircd's are not
  * threadsafe. This module is designed to be threadsafe and is careful with its use of threads,
  * however, if we were to call a module's OnRequest even from within a thread which was not the
@@ -327,6 +335,7 @@ class SQLConnection : public SQL::Provider
 
 	void Submit(SQL::Query* q, const std::string& qs) override
 	{
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();

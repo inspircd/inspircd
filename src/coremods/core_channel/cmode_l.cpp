@@ -25,6 +25,7 @@
 ModeChannelLimit::ModeChannelLimit(Module* Creator)
 	: ParamMode<ModeChannelLimit, LocalIntExt>(Creator, "limit", 'l')
 {
+	syntax = "<limit>";
 }
 
 bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)

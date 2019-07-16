@@ -51,8 +51,9 @@
 # P: Block part messages
 # q: Block quit messages
 # o: Don't match against opers
+# r: Don't match against registered users
 # c: Strip color codes from text before trying to match
-# *: Represents all of the above flags
+# *: Represents all of the above flags except r
 # -: Does nothing, a no-op for when you do not want to specify any flags
 
 # Example filters:

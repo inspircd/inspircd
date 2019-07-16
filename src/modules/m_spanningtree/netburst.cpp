@@ -123,7 +123,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 	// Send all xlines
 	this->SendXLines();
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncNetwork, (bs.server));
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetSyncEventProvider(), ServerProtocol::SyncEventListener, OnSyncNetwork, (bs.server));
 	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO.WriteToSnoMask('l',"Finished bursting to \002"+ s->GetName()+"\002.");
 
@@ -265,7 +265,7 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
 	}
 
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncChannel, (chan, bs.server));
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetSyncEventProvider(), ServerProtocol::SyncEventListener, OnSyncChannel, (chan, bs.server));
 }
 
 void TreeSocket::SyncChannel(Channel* chan)
@@ -301,6 +301,6 @@ void TreeSocket::SendUsers(BurstState& bs)
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), ServerEventListener, OnSyncUser, (user, bs.server));
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetSyncEventProvider(), ServerProtocol::SyncEventListener, OnSyncUser, (user, bs.server));
 	}
 }

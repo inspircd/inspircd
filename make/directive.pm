@@ -89,6 +89,13 @@ sub __environment {
 	return $prefix . uc $suffix;
 }
 
+sub __module {
+	my $file = shift;
+	my $name = basename $file, '.cpp';
+	$name =~ s/^m_//;
+	return $name;
+}
+
 sub __error {
 	my ($file, @message) = @_;
 	push @message, '';
@@ -124,6 +131,9 @@ sub __error {
 	} else {
 		push @message, 'If you believe this error to be a bug then you can file a bug report';
 		push @message, 'at https://github.com/inspircd/inspircd/issues';
+		push @message, '';
+		push @message, 'You can also refer to the documentation page for this module at';
+		push @message, "https://docs.inspircd.org/3/modules/${\__module $file}";
 	}
 	push @message, '';
 
@@ -174,19 +184,19 @@ sub __function_find_compiler_flags {
 	# Try to look up the compiler flags with pkg-config...
 	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
-		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
+		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\__module $file}|> using pkg-config: <|BOLD $flags|>\n";
 		return $flags;
 	}
 
 	# If looking up with pkg-config fails then check the environment...
 	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
-		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		print_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\__module $file}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
-	__error $file, "unable to find the <|GREEN $name|> compiler flags for <|GREEN ${\basename $file, '.cpp'}|>!";
+	__error $file, "unable to find the <|GREEN $name|> compiler flags for <|GREEN ${\__module $file}|>!";
 }
 
 sub __function_find_linker_flags {
@@ -195,19 +205,19 @@ sub __function_find_linker_flags {
 	# Try to look up the linker flags with pkg-config...
 	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
-		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using pkg-config: <|BOLD $flags|>\n";
+		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\__module $file}|> using pkg-config: <|BOLD $flags|>\n";
 		return $flags;
 	}
 
 	# If looking up with pkg-config fails then check the environment...
 	my $key = __environment 'INSPIRCD_CXXFLAGS_', $name;
 	if (defined $ENV{$key}) {
-		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		print_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\__module $file}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
-	__error $file, "unable to find the <|GREEN $name|> linker flags for <|GREEN ${\basename $file, '.cpp'}|>!";
+	__error $file, "unable to find the <|GREEN $name|> linker flags for <|GREEN ${\__module $file}|>!";
 }
 
 sub __function_require_compiler {
@@ -275,18 +285,18 @@ sub __function_vendor_directory {
 	# Try to look the directory up in the environment...
 	my $key = __environment 'INSPIRCD_VENDOR_', $name;
 	if (defined $ENV{$key}) {
-		print_format "Found the <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|> using the environment: <|BOLD $ENV{$key}|>\n";
+		print_format "Found the <|GREEN $name|> vendor directory for <|GREEN ${\__module $file}|> using the environment: <|BOLD $ENV{$key}|>\n";
 		return $ENV{$key};
 	}
 
 	my $directory = catdir(VENDOR_DIRECTORY, $name);
 	if (-d $directory) {
-		print_format "Using the default <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|>: <|BOLD $directory|>\n";
+		print_format "Using the default <|GREEN $name|> vendor directory for <|GREEN ${\__module $file}|>: <|BOLD $directory|>\n";
 		return $directory;
 	}
 
 	# We can't find it via the environment or via the filesystem so give up.
-	__error $file, "unable to find the <|GREEN $name|> vendor directory for <|GREEN ${\basename $file, '.cpp'}|>!";
+	__error $file, "unable to find the <|GREEN $name|> vendor directory for <|GREEN ${\__module $file}|>!";
 }
 
 sub __function_warning {

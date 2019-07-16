@@ -75,7 +75,8 @@ class CommandTagMsg : public Command
 			return CMD_FAILURE;
 
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
-		CTCTags::TagMessage message(source, chan, parameters.GetTags());
+		CTCTags::TagMessage message(source, chan, msgdetails.tags_out);
+		message.SetSideEffect(true);
 		const Channel::MemberMap& userlist = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)
 		{
@@ -116,7 +117,8 @@ class CommandTagMsg : public Command
 		// the message out to the local users.
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
-			CTCTags::TagMessage message(source, "$*", parameters.GetTags());
+			CTCTags::TagMessage message(source, "$*", msgdetails.tags_out);
+			message.SetSideEffect(true);
 			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 			for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
 			{
@@ -183,7 +185,8 @@ class CommandTagMsg : public Command
 		if (localtarget && cap.get(localtarget))
 		{
 			// Send to the target if they have the capability and are a local user.
-			CTCTags::TagMessage message(source, localtarget, parameters.GetTags());
+			CTCTags::TagMessage message(source, localtarget, msgdetails.tags_out);
+			message.SetSideEffect(true);
 			localtarget->Send(msgevprov, message);
 		}
 
@@ -230,7 +233,11 @@ class CommandTagMsg : public Command
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
-		return ROUTE_MESSAGE(parameters[0]);
+		if (IS_LOCAL(user))
+			// This is handled by the OnUserPostTagMessage hook to split the LoopCall pieces
+			return ROUTE_LOCALONLY;
+		else
+			return ROUTE_MESSAGE(parameters[0]);
 	}
 };
 

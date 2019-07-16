@@ -3,7 +3,7 @@ before_install:
   - sed --in-place s/@UID@/$(id -u)/g ${TRAVIS_BUILD_DIR}/.travis/Dockerfile
   - docker build --tag inspircd ${TRAVIS_BUILD_DIR}/.travis
 env:
-  - CXX=clang++-3.8
+  - CXX=clang++-3.9
   - CXX=g++-5
 language: minimal
 notifications:

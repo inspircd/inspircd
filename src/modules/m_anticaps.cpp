@@ -101,6 +101,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 	AntiCapsMode(Module* Creator)
 		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings> >(Creator, "anticaps", 'B')
 	{
+		syntax = "{ban|block|mute|kick|kickban}:<minlen>:<percent>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
@@ -113,7 +114,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		// Attempt to parse the method.
 		if (!ParseMethod(stream, method) || !ParseMinimumLength(stream, minlen) || !ParsePercent(stream, percent))
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, "Invalid anticaps mode parameter. Syntax: <ban|block|mute|kick|kickban>:{minlen}:{percent}."));
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return MODEACTION_DENY;
 		}
 
@@ -173,7 +174,7 @@ class ModuleAntiCaps : public Module
 
 	void InformUser(Channel* channel, User* user, const std::string& message)
 	{
-		user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel, message + " and was blocked.");
+		user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, message + " and was blocked.");
 	}
 
  public:

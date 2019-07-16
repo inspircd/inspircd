@@ -44,10 +44,14 @@ struct IRCv3::Batch::BatchInfo
 	std::vector<LocalUser*> users;
 	BatchMessage startmsg;
 	ClientProtocol::Event startevent;
+	BatchMessage endmsg;
+	ClientProtocol::Event endevent;
 
 	BatchInfo(ClientProtocol::EventProvider& protoevprov, IRCv3::Batch::Batch& b)
 		: startmsg(b, true)
 		, startevent(protoevprov, startmsg)
+		, endmsg(b, false)
+		, endevent(protoevprov, endmsg)
 	{
 	}
 };
@@ -151,6 +155,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		batch.manager = this;
 		batch.batchinfo = new IRCv3::Batch::BatchInfo(protoevprov, batch);
 		batch.batchstartmsg = &batch.batchinfo->startmsg;
+		batch.batchendmsg = &batch.batchinfo->endmsg;
 		active_batches.push_back(&batch);
 	}
 
@@ -164,12 +169,10 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 		BatchInfo& batchinfo = *batch.batchinfo;
 		// Send end batch message to all users who got the batch start message and unset bit so it can be reused
-		BatchMessage endbatchmsg(batch, false);
-		ClientProtocol::Event endbatchevent(protoevprov, endbatchmsg);
 		for (std::vector<LocalUser*>::const_iterator i = batchinfo.users.begin(); i != batchinfo.users.end(); ++i)
 		{
 			LocalUser* const user = *i;
-			user->Send(endbatchevent);
+			user->Send(batchinfo.endevent);
 			batchbits.set(user, batchbits.get(user) & ~batch.GetBit());
 		}
 

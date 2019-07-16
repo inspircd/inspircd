@@ -365,7 +365,7 @@ class CoreModWhois : public Module
 		else if (stdalgo::string::equalsci(splitwhois, "splitmsg"))
 			newsplitstate = SPLITWHOIS_SPLITMSG;
 		else
-			throw ModuleException(splitwhois + " is an invalid <security:splitwhois> value, at " + tag->getTagLocation());
+			throw ModuleException(splitwhois + " is an invalid <options:splitwhois> value, at " + tag->getTagLocation());
 
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");

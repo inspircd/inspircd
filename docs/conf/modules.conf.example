@@ -374,12 +374,12 @@
 #<module name="chanfilter">
 #
 # If hidemask is set to yes, the user will not be shown the mask when
-# his/her message is blocked.
+# their message is blocked.
 #
 # If maxlen is set then it defines the maximum length of a filter entry.
 #
 # If notifyuser is set to no, the user will not be notified when
-# his/her message is blocked.
+# their message is blocked.
 #<chanfilter hidemask="yes" maxlen="50" notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -623,7 +623,7 @@
 #  bootwait          -  Amount of time in seconds to wait before enforcing
 #                       the throttling when the server just booted.
 #
-#<connflood seconds="30" maxconns="3" timeout="30"
+#<connflood period="30" maxconns="3" timeout="30"
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -825,8 +825,14 @@
 #          at the <module> tag for info on availability.              #
 #                                                                     #
 # If notifyuser is set to no, the user will not be notified when      #
-# his/her message is blocked.                                         #
-#<filteropts engine="glob" notifyuser="yes">
+# their message is blocked.                                           #
+#                                                                     #
+# If warnonselfmsg is set to yes when a user sends a message to       #
+# themself that matches a filter the filter will be ignored and a     #
+# warning will be sent to opers instead. This stops spambots which    #
+# send their spam message to themselves first to check if it is being #
+# filtered by the server.                                             #
+#<filteropts engine="glob" notifyuser="yes" warnonselfmsg="no">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide. #
 #                                                                     #
@@ -1304,6 +1310,12 @@
 # Message flood module: Adds message/notice flood protection via
 # channel mode +f.
 #<module name="messageflood">
+#
+# The weight to give each message type. TAGMSGs are considered to be
+# 1/5 of a NOTICE or PRIVMSG to avoid users being accidentally flooded
+# out of a channel by automatic client features such as typing
+# notifications.
+#<messageflood notice="1.0" privmsg="1.0" tagmsg="0.2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MLOCK module: Adds support for server-side enforcement of services
@@ -1601,7 +1613,12 @@
 #
 # If 'listmodes' is true then all list modes (+b, +I, +e, +g...) will be
 # saved. Defaults to false.
-#<permchanneldb filename="permchannels.conf" listmodes="true">
+#
+# 'saveperiod' determines how often to check if the database needs to be
+# saved to disk. Defaults to every five seconds.
+#<permchanneldb filename="permchannels.conf"
+#               listmodes="true"
+#               saveperiod="5s">
 #<include file="permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
@@ -1628,7 +1645,7 @@
 #<module name="muteban">
 #
 # If notifyuser is set to no, the user will not be notified when
-# his/her message is blocked.
+# their message is blocked.
 #<muteban notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2240,8 +2257,9 @@
 # be a lot less bans to apply - as most of them will already be there.
 #<module name="xline_db">
 
-# Specify the filename for the xline database here.
-#<xlinedb filename="xline.db">
+# Specify the filename for the xline database and how often to check whether
+# the database needs to be saved here.
+#<xlinedb filename="xline.db" saveperiod="5s">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #

@@ -132,6 +132,9 @@ PATH OPTIONS
   --data-dir=[dir]              The location where the data files, such as the
                                 pid file, are stored.
                                 [$PWD/run/data]
+  --example-dir=[dir]           The location where the example configuration files
+                                and SQL schemas are stored.
+                                [$PWD/run/conf/examples]
   --log-dir=[dir]               The location where the log files are stored.
                                 [$PWD/run/logs]
   --manual-dir=[dir]            The location where the manual files are stored.

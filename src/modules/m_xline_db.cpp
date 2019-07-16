@@ -22,11 +22,20 @@
 #include "xline.h"
 #include <fstream>
 
-class ModuleXLineDB : public Module
+class ModuleXLineDB
+	: public Module
+	, public Timer
 {
+ private:
 	bool dirty;
 	std::string xlinedbpath;
+
  public:
+	ModuleXLineDB()
+		: Timer(0, true)
+	{
+	}
+
 	void init() override
 	{
 		/* Load the configuration
@@ -37,6 +46,7 @@ class ModuleXLineDB : public Module
 		 */
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db"));
+		SetInterval(Conf->getDuration("saveperiod", 5));
 
 		// Read xlines before attaching to events
 		ReadDatabase();
@@ -66,13 +76,14 @@ class ModuleXLineDB : public Module
 			dirty = true;
 	}
 
-	void OnBackgroundTimer(time_t now) override
+	bool Tick(time_t) override
 	{
 		if (dirty)
 		{
 			if (WriteDatabase())
 				dirty = false;
 		}
+		return true;
 	}
 
 	bool WriteDatabase()

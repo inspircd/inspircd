@@ -30,45 +30,6 @@
 #include <errno.h>
 #include <assert.h>
 
-CoreExport DIR * opendir(const char * path)
-{
-	std::string search_path = std::string(path) + "\\*.*";
-	WIN32_FIND_DATAA fd;
-	HANDLE f = FindFirstFileA(search_path.c_str(), &fd);
-	if (f != INVALID_HANDLE_VALUE)
-	{
-		DIR * d = new DIR;
-		memcpy(&d->find_data, &fd, sizeof(WIN32_FIND_DATA));
-		d->find_handle = f;
-		d->first = true;
-		return d;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-CoreExport dirent * readdir(DIR * handle)
-{
-	if (handle->first)
-		handle->first = false;
-	else
-	{
-		if (!FindNextFileA(handle->find_handle, &handle->find_data))
-			return 0;
-	}
-
-	strncpy(handle->dirent_pointer.d_name, handle->find_data.cFileName, MAX_PATH);
-	return &handle->dirent_pointer;
-}
-
-CoreExport void closedir(DIR * handle)
-{
-	FindClose(handle->find_handle);
-	delete handle;
-}
-
 int optind = 1;
 char optarg[514];
 int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind)

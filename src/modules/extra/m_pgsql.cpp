@@ -24,6 +24,7 @@
 /// $CompilerFlags: -Iexecute("pg_config --includedir" "POSTGRESQL_INCLUDE_DIR")
 /// $LinkerFlags: -Lexecute("pg_config --libdir" "POSTGRESQL_LIBRARY_DIR") -lpq
 
+/// $PackageInfo: require_system("arch") postgresql-libs
 /// $PackageInfo: require_system("centos") postgresql-devel
 /// $PackageInfo: require_system("darwin") postgresql
 /// $PackageInfo: require_system("debian") libpq-dev
@@ -418,6 +419,7 @@ restart:
 
 	void Submit(SQL::Query *req, const std::string& q) override
 	{
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing PostgreSQL query: " + q);
 		if (qinprog.q.empty())
 		{
 			DoQuery(QueueItem(req,q));

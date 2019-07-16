@@ -41,6 +41,7 @@ class BanException : public ListModeBase
 	BanException(Module* Creator)
 		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", 348, 349, true)
 	{
+		syntax = "<mask>";
 	}
 };
 

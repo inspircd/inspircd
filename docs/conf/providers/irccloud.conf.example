@@ -1,0 +1,18 @@
+# This file contains connect classes which are used by IRCCloud users.
+# See https://www.irccloud.com for more information on IRCCloud and
+# https://www.irccloud.com/networks for more information on supporting
+# IRCloud on your network.
+
+<connect name="IRCCloud" parent="main" globalmax="100" localmax="100">
+
+<connect name="IRCCloud-Brockwell"  parent="IRCCloud" allow="192.184.10.118">
+<connect name="IRCCloud-Charlton"   parent="IRCCloud" allow="192.184.9.112">
+<connect name="IRCCloud-Ealing"     parent="IRCCloud" allow="192.184.9.110">
+<connect name="IRCCloud-Hathersage" parent="IRCCloud" allow="192.184.8.73">
+<connect name="IRCCloud-Highgate"   parent="IRCCloud" allow="192.184.9.108">
+<connect name="IRCCloud-Stonehaven" parent="IRCCloud" allow="192.184.8.103">
+<connect name="IRCCloud-Tooting"    parent="IRCCloud" allow="192.184.10.9">
+
+# This is not typically needed as each user has their own IPv6 but if you have
+# <cidr:ipv6clone> set to a value lower than 128 you will need to enable this.
+#<connect name="IRCCloud-IPv6" parent="IRCCloud" allow="2001:67c:2f08::/48">

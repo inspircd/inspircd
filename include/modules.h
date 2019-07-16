@@ -121,7 +121,8 @@ struct ModResult {
 		_next = _i+1; \
 		try \
 		{ \
-			(*_i)->y x ; \
+			if (!(*_i)->dying) \
+				(*_i)->y x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -144,7 +145,8 @@ do { \
 		_next = _i+1; \
 		try \
 		{ \
-			v = (*_i)->n args;
+			if (!(*_i)->dying) \
+				v = (*_i)->n args;
 
 #define WHILE_EACH_HOOK(n) \
 		} \
@@ -212,7 +214,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
  */
 enum Implementation
 {
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
+	I_OnUserConnect, I_OnUserPreQuit, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
@@ -304,6 +306,16 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who is connecting
 	 */
 	virtual void OnUserConnect(LocalUser* user);
+
+	/** Called when before a user quits.
+	 * The details of the exiting user are available to you in the parameter User *user
+	 * This event is only called when the user is fully registered when they quit. To catch
+	 * raw disconnections, use the OnUserDisconnect method.
+	 * @param user The user who is quitting
+	 * @param message The user's quit message (as seen by non-opers)
+	 * @param oper_message The user's quit message (as seen by opers)
+	 */
+	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message, std::string& oper_message);
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User *user
@@ -980,7 +992,7 @@ class CoreExport ModuleManager
 	Module::List EventHandlers[I_END];
 
 	/** List of data services keyed by name */
-	std::multimap<std::string, ServiceProvider*> DataProviders;
+	std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviders;
 
 	/** A list of ServiceProviders waiting to be registered.
 	 * Non-NULL when constructing a Module, NULL otherwise.

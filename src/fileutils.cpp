@@ -21,6 +21,10 @@
 
 #include <fstream>
 
+#ifndef _WIN32
+# include <dirent.h>
+#endif
+
 FileReader::FileReader(const std::string& filename)
 {
 	Load(filename);
@@ -85,6 +89,40 @@ bool FileSystem::FileExists(const std::string& file)
 
 	return !access(file.c_str(), F_OK);
 }
+
+bool FileSystem::GetFileList(const std::string& directory, std::vector<std::string>& entries, const std::string& match)
+{
+#ifdef _WIN32
+	const std::string search_path = directory + "\\" + match;
+
+	WIN32_FIND_DATAA wfd;
+	HANDLE fh = FindFirstFileA(search_path.c_str(), &wfd);
+	if (fh == INVALID_HANDLE_VALUE)
+		return false;
+
+	do
+	{
+		entries.push_back(wfd.cFileName);
+	} while (FindNextFile(fh, &wfd) != 0);
+
+	FindClose(fh);
+	return true;
+#else
+	DIR* library = opendir(directory.c_str());
+	if (!library)
+		return false;
+
+	dirent* entry = NULL;
+	while ((entry = readdir(library)))
+	{
+		if (InspIRCd::Match(entry->d_name, match, ascii_case_insensitive_map))
+			entries.push_back(entry->d_name);
+	}
+	closedir(library);
+	return true;
+#endif
+}
+
 
 std::string FileSystem::GetFileName(const std::string& name)
 {

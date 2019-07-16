@@ -28,6 +28,7 @@
 #include "modules/dns.h"
 #include "modules/ssl.h"
 #include "modules/stats.h"
+#include "modules/ctctags.h"
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
@@ -72,6 +73,7 @@ class ModuleSpanningTree
 	: public Module
 	, public Away::EventListener
 	, public Stats::EventListener
+	, public CTCTags::EventListener
 {
 	/** Client to server commands, registered in the core
 	 */
@@ -91,9 +93,14 @@ class ModuleSpanningTree
 	 */
 	SpanningTreeProtocolInterface protocolinterface;
 
-	/** Event provider for our events
-	 */
-	Events::ModuleEventProvider eventprov;
+	/** Event provider for our broadcast events. */
+	Events::ModuleEventProvider broadcasteventprov;
+
+	/** Event provider for our link events. */
+	Events::ModuleEventProvider linkeventprov;
+
+	/** Event provider for our sync events. */
+	Events::ModuleEventProvider synceventprov;
 
 	/** API for accessing user SSL certificates. */
 	UserCertificateAPI sslapi;
@@ -156,7 +163,14 @@ class ModuleSpanningTree
 	 */
 	ModResult HandleConnect(const CommandBase::Params& parameters, User* user);
 
-	const Events::ModuleEventProvider& GetEventProvider() const { return eventprov; }
+	/** Retrieves the event provider for broadcast events. */
+	const Events::ModuleEventProvider& GetBroadcastEventProvider() const { return broadcasteventprov; }
+
+	/** Retrieves the event provider for link events. */
+	const Events::ModuleEventProvider& GetLinkEventProvider() const { return linkeventprov; }
+
+	/** Retrieves the event provider for sync events. */
+	const Events::ModuleEventProvider& GetSyncEventProvider() const { return synceventprov; }
 
 	/**
 	 ** *** MODULE EVENTS ***
@@ -169,6 +183,7 @@ class ModuleSpanningTree
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override;
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) override;
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
+	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
 	void OnBackgroundTimer(time_t curtime) override;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override;
 	void OnChangeHost(User* user, const std::string &newhost) override;

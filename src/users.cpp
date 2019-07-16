@@ -105,7 +105,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	signon = ServerInstance->Time();
 	// The user's default nick is their UUID
 	nick = uuid;
-	ident = "unknown";
+	ident = uuid;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));

@@ -21,11 +21,18 @@
 
 /// $CompilerFlags: -Ivendor_directory("sha2")
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+#endif
 
 #include "inspircd.h"
 #include "modules/hash.h"
 
 #include <sha2.c>
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 class HashSHA256 : public HashProvider
 {

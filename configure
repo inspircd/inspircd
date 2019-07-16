@@ -55,6 +55,7 @@ my ($opt_binary_dir,
     $opt_disable_auto_extras,
     $opt_disable_interactive,
     $opt_distribution_label,
+    $opt_example_dir,
     $opt_gid,
     $opt_log_dir,
     $opt_manual_dir,
@@ -86,6 +87,7 @@ exit 1 unless GetOptions(
 	'disable-auto-extras'  => \$opt_disable_auto_extras,
 	'disable-interactive'  => \$opt_disable_interactive,
 	'distribution-label=s' => \$opt_distribution_label,
+	'example-dir=s'        => \$opt_example_dir,
 	'gid=s'                => \$opt_gid,
 	'log-dir=s'            => \$opt_log_dir,
 	'manual-dir=s'         => \$opt_manual_dir,
@@ -122,6 +124,7 @@ our $interactive = !(
 	defined $opt_disable_auto_extras ||
 	defined $opt_disable_interactive ||
 	defined $opt_distribution_label ||
+	defined $opt_example_dir ||
 	defined $opt_gid ||
 	defined $opt_log_dir ||
 	defined $opt_manual_dir ||
@@ -183,23 +186,25 @@ if (defined $opt_socketengine) {
 $config{SOCKETENGINE} = $opt_socketengine // $socketengines[0];
 
 if (defined $opt_system) {
-	$config{BASE_DIR}   = $opt_prefix     // '/var/lib/inspircd';
-	$config{BINARY_DIR} = $opt_binary_dir // '/usr/sbin';
-	$config{CONFIG_DIR} = $opt_config_dir // '/etc/inspircd';
-	$config{DATA_DIR}   = $opt_data_dir   // '/var/inspircd';
-	$config{LOG_DIR}    = $opt_module_dir // '/var/log/inspircd';
-	$config{MANUAL_DIR} = $opt_manual_dir // '/usr/share/man/man1';
-	$config{MODULE_DIR} = $opt_module_dir // '/usr/lib/inspircd';
-	$config{SCRIPT_DIR} = $opt_script_dir // '/usr/share/inspircd'
+	$config{BASE_DIR}    = $opt_prefix      // '/var/lib/inspircd';
+	$config{BINARY_DIR}  = $opt_binary_dir  // '/usr/sbin';
+	$config{CONFIG_DIR}  = $opt_config_dir  // '/etc/inspircd';
+	$config{DATA_DIR}    = $opt_data_dir    // '/var/inspircd';
+	$config{EXAMPLE_DIR} = $opt_example_dir // '/usr/share/doc/inspircd';
+	$config{LOG_DIR}     = $opt_log_dir     // '/var/log/inspircd';
+	$config{MANUAL_DIR}  = $opt_manual_dir  // '/usr/share/man/man1';
+	$config{MODULE_DIR}  = $opt_module_dir  // '/usr/lib/inspircd';
+	$config{SCRIPT_DIR}  = $opt_script_dir  // '/usr/share/inspircd'
 } else {
-	$config{BASE_DIR}   = $opt_prefix     // $config{BASE_DIR}   // rel2abs 'run';
-	$config{BINARY_DIR} = $opt_binary_dir // $config{BINARY_DIR} // rel2abs $config{BASE_DIR} . '/bin';
-	$config{CONFIG_DIR} = $opt_config_dir // $config{CONFIG_DIR} // rel2abs $config{BASE_DIR} . '/conf';
-	$config{DATA_DIR}   = $opt_data_dir   // $config{DATA_DIR}   // rel2abs $config{BASE_DIR} . '/data';
-	$config{LOG_DIR}    = $opt_log_dir    // $config{LOG_DIR}    // rel2abs $config{BASE_DIR} . '/logs';
-	$config{MANUAL_DIR} = $opt_manual_dir // $config{MANUAL_DIR} // rel2abs $config{BASE_DIR} . '/manuals';
-	$config{MODULE_DIR} = $opt_module_dir // $config{MODULE_DIR} // rel2abs $config{BASE_DIR} . '/modules';
-	$config{SCRIPT_DIR} = $opt_script_dir // $config{SCRIPT_DIR} // $config{BASE_DIR};
+	$config{BASE_DIR}    = $opt_prefix      // $config{BASE_DIR}    // rel2abs 'run';
+	$config{BINARY_DIR}  = $opt_binary_dir  // $config{BINARY_DIR}  // rel2abs $config{BASE_DIR} . '/bin';
+	$config{CONFIG_DIR}  = $opt_config_dir  // $config{CONFIG_DIR}  // rel2abs $config{BASE_DIR} . '/conf';
+	$config{DATA_DIR}    = $opt_data_dir    // $config{DATA_DIR}    // rel2abs $config{BASE_DIR} . '/data';
+	$config{EXAMPLE_DIR} = $opt_example_dir // $config{EXAMPLE_DIR} // $config{CONFIG_DIR} . '/examples';
+	$config{LOG_DIR}     = $opt_log_dir     // $config{LOG_DIR}     // rel2abs $config{BASE_DIR} . '/logs';
+	$config{MANUAL_DIR}  = $opt_manual_dir  // $config{MANUAL_DIR}  // rel2abs $config{BASE_DIR} . '/manuals';
+	$config{MODULE_DIR}  = $opt_module_dir  // $config{MODULE_DIR}  // rel2abs $config{BASE_DIR} . '/modules';
+	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{SCRIPT_DIR}  // $config{BASE_DIR};
 }
 
 # Parse --gid=123 or --gid=foo and extract the group id.
@@ -260,6 +265,15 @@ if (-e '/proc/user_beancounters' || -e '/proc/vz/vzaquota') {
 You are building InspIRCd inside of an OpenVZ container. If you
 plan to use InspIRCd in this container then you should make sure that NTP is
 configured on the Hardware Node. Failure to do so may result in clock drifting!
+EOW
+}
+
+# Warn the user about OpenBSD shipping incredibly broken compilers/linkers.
+if ($^O eq 'openbsd') {
+	print_warning <<'EOW';
+You are building InspIRCd on OpenBSD. The C++ compilers and linkers
+that OpenBSD ship are incredibly broken. You may have strange linker errors
+and crashes. Please consider using a different OS like FreeBSD/NetBSD instead.
 EOW
 }
 
@@ -356,8 +370,22 @@ Note: you can get a <|BOLD free|> CA-signed certificate from Let's Encrypt. See
 https://letsencrypt.org/getting-started/ for more details.
 EOQ
 
-if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, $question, $interactive) {
-	system './tools/genssl', 'auto';
+if (<src/modules/m_ssl_*.cpp>) {
+	if (prompt_bool $interactive, $question, $interactive) {
+		system './tools/genssl', 'auto';
+	}
+} else {
+	print_warning <<"EOM";
+You are building without enabling any SSL modules. This is not
+recommended as SSL greatly enhances the security and privacy of your IRC server
+and in a future version will be <|BOLD required|> for linking servers.
+
+Please read the following documentation pages on how to enable SSL support:
+
+GnuTLS (recommended): https://docs.inspircd.org/3/modules/ssl_gnutls
+mbedTLS:              https://docs.inspircd.org/3/modules/ssl_mbedtls
+OpenSSL:              https://docs.inspircd.org/3/modules/ssl_openssl
+EOM
 }
 
 # Cache the distribution label so that its not lost when --update is run.
@@ -386,14 +414,15 @@ for my $file (<src/modules/m_*>) {
 print_format <<"EOM";
 
 <|GREEN Paths:|>
-  <|GREEN Base:|>   $config{BASE_DIR}
-  <|GREEN Binary:|> $config{BINARY_DIR}
-  <|GREEN Config:|> $config{CONFIG_DIR}
-  <|GREEN Data:|>   $config{DATA_DIR}
-  <|GREEN Log:|>    $config{LOG_DIR}
-  <|GREEN Manual:|> $config{MANUAL_DIR}
-  <|GREEN Module:|> $config{MODULE_DIR}
-  <|GREEN Script:|> $config{SCRIPT_DIR}
+  <|GREEN Base:|>    $config{BASE_DIR}
+  <|GREEN Binary:|>  $config{BINARY_DIR}
+  <|GREEN Config:|>  $config{CONFIG_DIR}
+  <|GREEN Data:|>    $config{DATA_DIR}
+  <|GREEN Example:|> $config{EXAMPLE_DIR}
+  <|GREEN Log:|>     $config{LOG_DIR}
+  <|GREEN Manual:|>  $config{MANUAL_DIR}
+  <|GREEN Module:|>  $config{MODULE_DIR}
+  <|GREEN Script:|>  $config{SCRIPT_DIR}
 
 <|GREEN Execution Group:|> $config{GROUP} ($config{GID})
 <|GREEN Execution User:|>  $config{USER} ($config{UID})

@@ -1,9 +1,9 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Install the required dependencies.
 RUN apt-get update --assume-yes
 RUN apt-get install --assume-yes --no-install-recommends \
-	clang-3.8 \
+	clang-3.9 \
 	g++-5  \
 	git \
 	make \
@@ -11,7 +11,7 @@ RUN apt-get install --assume-yes --no-install-recommends \
 	pkg-config
 RUN apt-get install --assume-yes --no-install-recommends \
 	libgeoip-dev \
-	libgnutls-dev \
+	libgnutls28-dev \
 	libldap2-dev \
 	libmbedtls-dev \
 	libmysqlclient-dev \

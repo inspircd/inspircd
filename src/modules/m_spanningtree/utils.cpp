@@ -171,7 +171,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		ModResult result;
-		FIRST_MOD_RESULT_CUSTOM(Creator->GetEventProvider(), ServerEventListener, OnBroadcastMessage, result, (c, *i));
+		FIRST_MOD_RESULT_CUSTOM(Creator->GetBroadcastEventProvider(), ServerProtocol::BroadcastEventListener, OnBroadcastMessage, result, (c, *i));
 		if (result == MOD_RES_ALLOW)
 			list.insert((*i)->GetSocket());
 	}

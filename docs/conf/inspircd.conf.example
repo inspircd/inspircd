@@ -50,6 +50,7 @@
 #                                                                     #
 # Syntax is as follows:                                               #
 #<include file="file.conf">                                           #
+#<include directory="modules">                                        #
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
 # Executable include example:                                         #
@@ -126,6 +127,7 @@
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT work!                                #
 
+# Listener that binds on a TCP/IP endpoint:
 <bind
       # address: IP address to bind to if the box that you are hosting
       # on has more than one IP, else the ircd will try to bind to all
@@ -166,8 +168,29 @@
       # whether the interface that provides the bind address is available. This
       # is useful for if you are starting InspIRCd on boot when the server may
       # not have brought the network interfaces up yet.
-      free="no"
->
+      free="no">
+
+# Listener that binds on a UNIX endpoint (not supported on Windows):
+#<bind
+
+    # path: The location to store the UNIX socket
+    #path="/tmp/inspircd.sock"
+
+    # type: Type of bind block this is. It can either be clients or
+    # servers. Whichever you select will be the only type able to connect
+    # to this bind section.
+    #type="clients"
+
+    # permissions: The octal permissions to set on the UNIX socket after it has
+    # been created. If you are not familiar with octal permissions you should
+    # not define this or refer to http://permissions-calculator.org for help.
+    #permissions=""
+
+    # replace: if the UNIX socket path already exists then remove it before
+    # attempting to create the new one. This is strongly recommended as it
+    # allows InspIRCd to create sockets in cases where it previously did not
+    # shut down cleanly and left a zombie socket behind.
+    #replace="yes">
 
 <bind address="" port="6660-6669" type="clients">
 
@@ -175,9 +198,6 @@
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
-
-# EXPERIMENTAL: Listener that binds on a UNIX endpoint instead of a TCP/IP endpoint:
-#<bind path="/tmp/inspircd.sock" type="clients">
 
 # You can define a custom <sslprofile> tag which defines the SSL configuration
 # for this listener. See the docs page for the SSL module you are using for
@@ -217,13 +237,21 @@
 # you will probably need a connect block just for user registration.  #
 # This can be done by using <connect registered="no">                 #
 
+# To enable IRCCloud on your network uncomment this:
+#<include file="examples/providers/irccloud.conf.example">
+
+# To enable KiwiIRC.com on your network uncomment this:
+#<include file="examples/providers/kiwiirc-com.conf.example">
+
+# A connect class with <connect:deny> set denies connections from the specified host/IP range.
 <connect
          # deny: Will not let people connect if they have specified host/IP.
-         deny="192.0.2.*">
+         deny="3ffe::0/32"
 
-# connect:reason is the message that users will see if they match a deny block
-<connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
+         # reason: The message that users will see if they match a deny block.
+         reason="The 6bone address space is deprecated">
 
+# A connect class with <connect:allow> set allows c from the specified host/IP range.
 <connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
@@ -427,6 +455,7 @@
          # For the example to work, this also requires that the cloaking
          # module be loaded as well.
          modes="+x">
+
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-

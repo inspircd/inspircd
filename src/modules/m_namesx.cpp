@@ -48,7 +48,10 @@ class ModuleNamesX
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
-		tokens["NAMESX"];
+		// The legacy PROTOCTL system is a wrapper around the cap.
+		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
+		if (capmanager)
+			tokens["NAMESX"];
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

@@ -36,7 +36,7 @@ class STSCap : public Cap::Capability
 			return false;
 
 		// Don't send the cap to clients in a class which has STS disabled.
-		if (user->GetClass()->config->getBool("usests", true))
+		if (!user->GetClass()->config->getBool("usests", true))
 			return false;
 
 		// Plaintext listeners have their own policy.

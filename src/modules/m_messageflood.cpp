@@ -36,7 +36,7 @@ class floodsettings
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
-	insp::flat_map<User*, unsigned int> counters;
+	insp::flat_map<User*, double> counters;
 
 	floodsettings(bool a, unsigned int b, unsigned int c)
 		: ban(a)
@@ -46,7 +46,7 @@ class floodsettings
 		reset = ServerInstance->Time() + secs;
 	}
 
-	bool addmessage(User* who)
+	bool addmessage(User* who, double weight)
 	{
 		if (ServerInstance->Time() > reset)
 		{
@@ -54,7 +54,8 @@ class floodsettings
 			reset = ServerInstance->Time() + secs;
 		}
 
-		return (++counters[who] >= this->lines);
+		counters[who] += weight;
+		return (counters[who] >= this->lines);
 	}
 
 	void clear(User* who)
@@ -71,6 +72,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 	MsgFlood(Module* Creator)
 		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
 	{
+		syntax = "[*]<messages>:<seconds>";
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
@@ -113,6 +115,9 @@ class ModuleMsgFlood
 private:
 	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
+	double notice;
+	double privmsg;
+	double tagmsg;
 
  public:
 	ModuleMsgFlood()
@@ -122,7 +127,15 @@ private:
 	{
 	}
 
-	ModResult HandleMessage(User* user, const MessageTarget& target)	
+	void ReadConfig(ConfigStatus&) override
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("messageflood");
+		notice = tag->getFloat("notice", 1.0);
+		privmsg = tag->getFloat("privmsg", 1.0);
+		tagmsg = tag->getFloat("tagmsg", 0.2);
+	}
+
+	ModResult HandleMessage(User* user, const MessageTarget& target, double weight)
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -138,7 +151,7 @@ private:
 		floodsettings *f = mf.ext.get(dest);
 		if (f)
 		{
-			if (f->addmessage(user))
+			if (f->addmessage(user, weight))
 			{
 				/* Youre outttta here! */
 				f->clear(user);
@@ -163,12 +176,12 @@ private:
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		return HandleMessage(user, target);
+		return HandleMessage(user, target, (details.type == MSG_PRIVMSG ? privmsg : notice));
 	}
 
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
-		return HandleMessage(user, target);
+		return HandleMessage(user, target, tagmsg);
 	}
 
 	void Prioritize() override

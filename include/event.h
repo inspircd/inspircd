@@ -122,6 +122,9 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 			prov->subscribers.erase(this);
 	}
 
+	/** Retrieves the module which created this listener. */
+	const Module* GetModule() const { return prov.creator; }
+
 	friend struct ModuleEventProvider::Comp;
 };
 
@@ -140,7 +143,9 @@ inline bool Events::ModuleEventProvider::Comp::operator()(Events::ModuleEventLis
 	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
 	{ \
 		listenerclass* _t = static_cast<listenerclass*>(*_i); \
-		_t->func params ; \
+		const Module* _m = _t->GetModule(); \
+		if (_m && !_m->dying) \
+			_t->func params ; \
 	} \
 } while (0);
 
@@ -157,6 +162,9 @@ inline bool Events::ModuleEventProvider::Comp::operator()(Events::ModuleEventLis
 	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
 	{ \
 		listenerclass* _t = static_cast<listenerclass*>(*_i); \
+		const Module* _m = _t->GetModule(); \
+		if (!_m || _m->dying) \
+			continue; \
 		result = _t->func params ; \
 		if (result != MOD_RES_PASSTHRU) \
 			break; \
