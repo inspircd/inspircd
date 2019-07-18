@@ -695,8 +695,6 @@
 # Deaf module: Adds support for user modes +d and +D:
 # d - deaf to channel messages and notices.
 # D - deaf to user messages and notices.
-# The +D user mode is not enabled by default to enable link compatibility
-# with 2.0 servers.
 #<module name="deaf">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-  DEAF CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -706,10 +704,9 @@
 #                      the starting character of a message.
 #                      If 'bypasscharsuline' is empty, then 'bypasschars' will
 #                      match for both regular and U-lined users.
-#  enableprivdeaf    - Whether to enable user mode +D (privdeaf).
 #  privdeafuline     - Whether U-lined users bypass user mode +D (privdeaf).
 #
-#<deaf bypasschars="" bypasscharsuline="!" enableprivdeaf="no" privdeafuline="yes">
+#<deaf bypasschars="" bypasscharsuline="!" privdeafuline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Delay join module: Adds the channel mode +D which delays all JOIN

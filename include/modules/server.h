@@ -94,18 +94,3 @@ class ServerProtocol::SyncEventListener
 	 */
 	virtual void OnSyncNetwork(ProtocolServer& server) { }
 };
-
-/** Compatibility struct for <3.3.0 modules. */
-class ServerEventListener
-	: public ServerProtocol::BroadcastEventListener
-	, public ServerProtocol::LinkEventListener
-	, public ServerProtocol::SyncEventListener
-{
- public:
-	ServerEventListener(Module* mod)
-		: ServerProtocol::BroadcastEventListener(mod)
-		, ServerProtocol::LinkEventListener(mod)
-		, ServerProtocol::SyncEventListener(mod)
-	{
-	}
-};

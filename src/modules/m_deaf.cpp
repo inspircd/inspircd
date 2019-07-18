@@ -47,8 +47,6 @@ class PrivDeafMode : public ModeHandler
  public:
 	PrivDeafMode(Module* Creator) : ModeHandler(Creator, "privdeaf", 'D', PARAM_NONE, MODETYPE_USER)
 	{
-		if (!ServerInstance->Config->ConfValue("deaf")->getBool("enableprivdeaf"))
-			DisableAutoRegister();
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
