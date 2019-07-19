@@ -411,7 +411,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		}
 		case MessageTarget::TYPE_CHANNEL:
 		{
-			Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), details.text, target.status, details.tags_out, details.exemptions, message_type);
+			Utils->SendChannelMessage(user, target.Get<Channel>(), details.text, target.status, details.tags_out, details.exemptions, message_type);
 			break;
 		}
 		case MessageTarget::TYPE_SERVER:
@@ -448,7 +448,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 		}
 		case MessageTarget::TYPE_CHANNEL:
 		{
-			Utils->SendChannelMessage(user->uuid, target.Get<Channel>(), "", target.status, details.tags_out, details.exemptions, "TAGMSG");
+			Utils->SendChannelMessage(user, target.Get<Channel>(), "", target.status, details.tags_out, details.exemptions, "TAGMSG");
 			break;
 		}
 		case MessageTarget::TYPE_SERVER:
@@ -625,7 +625,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		CmdBuilder params((user ? user->uuid : ServerInstance->Config->GetSID()), "REHASH");
+		CmdBuilder params(user ? user : ServerInstance->FakeClient, "REHASH");
 		params.push_back(parameter);
 		params.Forward(user ? TreeServer::Get(user)->GetRoute() : NULL);
 	}

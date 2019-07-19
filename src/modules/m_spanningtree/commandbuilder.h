@@ -36,10 +36,10 @@ class CmdBuilder
 		push(cmd);
 	}
 
-	CmdBuilder(const std::string& src, const char* cmd)
+	CmdBuilder(TreeServer* src, const char* cmd)
 		: content(1, ':')
 	{
-		content.append(src);
+		content.append(src->GetID());
 		push(cmd);
 	}
 

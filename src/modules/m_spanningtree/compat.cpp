@@ -286,7 +286,12 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 						// Synthesize a :<newserver> BURST <time> message
 						spcolon = line.find(" :");
-						line = CmdBuilder(line.substr(spcolon-3, 3), "BURST").push_int(ServerInstance->Time()).str();
+
+						TreeServer* const source = Utils->FindServerID(line.substr(spcolon-3, 3));
+						if (!source)
+							return;
+
+						line = CmdBuilder(source, "BURST").push_int(ServerInstance->Time()).str();
 					}
 				}
 				else if (command == "NUM")

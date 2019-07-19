@@ -104,7 +104,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			std::string message;
 			if (parameters.size() >= 2)
 				message.assign(parameters[1]);
-			SendChannelMessage(user->uuid, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
+			SendChannelMessage(user, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{
