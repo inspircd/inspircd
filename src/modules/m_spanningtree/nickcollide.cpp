@@ -108,8 +108,8 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		 * this "local" nick is actually behind us, send a SAVE out.
 		 */
 		CmdBuilder params("SAVE");
-		params.push_back(u->uuid);
-		params.push_back(ConvToStr(u->age));
+		params.push(u->uuid);
+		params.push(ConvToStr(u->age));
 		params.Broadcast();
 
 		u->ChangeNick(u->uuid, CommandSave::SavedTimestamp);

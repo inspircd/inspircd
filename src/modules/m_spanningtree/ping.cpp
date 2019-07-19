@@ -30,10 +30,10 @@ CmdResult CommandPing::Handle(User* user, Params& params)
 	{
 		// PING for us, reply with a PONG
 		CmdBuilder reply("PONG");
-		reply.push_back(user->uuid);
+		reply.push(user->uuid);
 		if (params.size() >= 2)
 			// If there is a second parameter, append it
-			reply.push_back(params[1]);
+			reply.push(params[1]);
 
 		reply.Unicast(user);
 	}

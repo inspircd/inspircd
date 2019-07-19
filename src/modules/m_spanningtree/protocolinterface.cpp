@@ -118,7 +118,7 @@ void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, co
 void SpanningTreeProtocolInterface::SendMessage(User* target, const std::string& text, MessageType msgtype)
 {
 	CmdBuilder p(msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
-	p.push_back(target->uuid);
+	p.push(target->uuid);
 	p.push_last(text);
 	p.Unicast(target);
 }

@@ -151,8 +151,6 @@ class CmdBuilder
 		return *this;
 	}
 
-	void push_back(const std::string& s) { push(s); }
-
 	const std::string& str() const { return content; }
 	operator const std::string&() const { return str(); }
 

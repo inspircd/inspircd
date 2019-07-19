@@ -359,10 +359,10 @@ void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel
 	if (IS_LOCAL(source))
 	{
 		CmdBuilder params(source, "INVITE");
-		params.push_back(dest->uuid);
-		params.push_back(channel->name);
+		params.push(dest->uuid);
+		params.push(channel->name);
 		params.push_int(channel->age);
-		params.push_back(ConvToStr(expiry));
+		params.push(ConvToStr(expiry));
 		params.Broadcast();
 	}
 }
@@ -403,7 +403,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 			{
 				CmdBuilder params(user, message_type);
 				params.push_tags(details.tags_out);
-				params.push_back(d->uuid);
+				params.push(d->uuid);
 				params.push_last(details.text);
 				params.Unicast(d);
 			}
@@ -419,7 +419,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, message_type);
 			par.push_tags(details.tags_out);
-			par.push_back(*serverglob);
+			par.push(*serverglob);
 			par.push_last(details.text);
 			par.Broadcast();
 			break;
@@ -441,7 +441,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 			{
 				CmdBuilder params(user, "TAGMSG");
 				params.push_tags(details.tags_out);
-				params.push_back(d->uuid);
+				params.push(d->uuid);
 				params.Unicast(d);
 			}
 			break;
@@ -456,7 +456,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, "TAGMSG");
 			par.push_tags(details.tags_out);
-			par.push_back(*serverglob);
+			par.push(*serverglob);
 			par.Broadcast();
 			break;
 		}
@@ -513,12 +513,12 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 	else
 	{
 		CmdBuilder params(memb->user, "IJOIN");
-		params.push_back(memb->chan->name);
+		params.push(memb->chan->name);
 		params.push_int(memb->id);
 		if (!memb->modes.empty())
 		{
-			params.push_back(ConvToStr(memb->chan->age));
-			params.push_back(memb->modes);
+			params.push(ConvToStr(memb->chan->age));
+			params.push(memb->modes);
 		}
 		params.Broadcast();
 	}
@@ -553,7 +553,7 @@ void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, 
 	if (IS_LOCAL(memb->user))
 	{
 		CmdBuilder params(memb->user, "PART");
-		params.push_back(memb->chan->name);
+		params.push(memb->chan->name);
 		if (!partmessage.empty())
 			params.push_last(partmessage);
 		params.Broadcast();
@@ -593,8 +593,8 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		// The nick TS is updated by the core, we don't do it
 		CmdBuilder params(user, "NICK");
-		params.push_back(user->nick);
-		params.push_back(ConvToStr(user->age));
+		params.push(user->nick);
+		params.push(ConvToStr(user->age));
 		params.Broadcast();
 	}
 	else if (!loopCall)
@@ -609,8 +609,8 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 		return;
 
 	CmdBuilder params(source, "KICK");
-	params.push_back(memb->chan->name);
-	params.push_back(memb->user->uuid);
+	params.push(memb->chan->name);
+	params.push(memb->user->uuid);
 	// If a remote user is being kicked by us then send the membership id in the kick too
 	if (!IS_LOCAL(memb->user))
 		params.push_int(memb->id);
@@ -626,7 +626,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	if (!parameter.empty() && parameter[0] != '-')
 	{
 		CmdBuilder params(user ? user : ServerInstance->FakeClient, "REHASH");
-		params.push_back(parameter);
+		params.push(parameter);
 		params.Forward(user ? TreeServer::Get(user)->GetRoute() : NULL);
 	}
 }
@@ -749,8 +749,8 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 		user = ServerInstance->FakeClient;
 
 	CmdBuilder params(user, "DELLINE");
-	params.push_back(x->type);
-	params.push_back(x->Displayable());
+	params.push(x->type);
+	params.push(x->Displayable());
 	params.Broadcast();
 }
 
