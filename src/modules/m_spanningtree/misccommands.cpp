@@ -29,6 +29,42 @@
 #include "commands.h"
 #include "treeserver.h"
 
+void CmdBuilder::FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
+{
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
+	UpdateTags();
+}
+
+void CmdBuilder::FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist)
+{
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
+	UpdateTags();
+}
+
+void CmdBuilder::UpdateTags()
+{
+	std::string taglist;
+	if (!tags.empty())
+	{
+		char separator = '@';
+		for (ClientProtocol::TagMap::const_iterator iter = tags.begin(); iter != tags.end(); ++iter)
+		{
+			taglist.push_back(separator);
+			separator = ';';
+			taglist.append(iter->first);
+			if (!iter->second.value.empty())
+			{
+				taglist.push_back('=');
+				taglist.append(iter->second.value);
+			}
+		}
+		taglist.push_back(' ');
+		content.insert(0, taglist);
+	}
+	content.replace(0, tagsize, taglist);
+	tagsize = content.length();
+}
+
 CmdResult CommandSNONotice::Handle(User* user, Params& params)
 {
 	ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);

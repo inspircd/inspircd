@@ -27,7 +27,6 @@
 #include "treeserver.h"
 #include "main.h"
 #include "commands.h"
-#include "modules/server.h"
 
 /**
  * Creates FMODE messages, used only when syncing channels

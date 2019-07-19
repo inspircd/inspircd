@@ -25,7 +25,6 @@
 #include "socket.h"
 #include "xline.h"
 #include "iohook.h"
-#include "modules/server.h"
 
 #include "resolvers.h"
 #include "main.h"
@@ -47,6 +46,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, currmembid(0)
 	, broadcasteventprov(this, "event/server-broadcast")
 	, linkeventprov(this, "event/server-link")
+	, messageeventprov(this, "event/server-message")
 	, synceventprov(this, "event/server-sync")
 	, sslapi(this)
 	, DNS(this, "DNS")

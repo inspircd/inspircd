@@ -28,7 +28,6 @@
 #include "treesocket.h"
 #include "resolvers.h"
 #include "commandbuilder.h"
-#include "modules/server.h"
 
 SpanningTreeUtilities* Utils = NULL;
 

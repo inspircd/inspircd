@@ -26,28 +26,53 @@ class TreeServer;
 class CmdBuilder
 {
  protected:
+	/** The raw message contents. */
 	std::string content;
+
+	/** Tags which have been added to this message. */
+	ClientProtocol::TagMap tags;
+
+	/** The size of tags within the contents. */
+	size_t tagsize;
+
+	/** Fires the ServerProtocol::MessageEventListener::OnBuildMessage event for a server target. */
+	void FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist);
+
+	/** Fires the ServerProtocol::MessageEventListener::OnBuildMessage event for a user target. */
+	void FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist);
+
+	/** Updates the tag string within the buffer. */
+	void UpdateTags();
 
  public:
 	CmdBuilder(const char* cmd)
 		: content(1, ':')
+		, tagsize(0)
 	{
 		content.append(ServerInstance->Config->GetSID());
 		push(cmd);
+		FireEvent(ServerInstance->FakeClient->server, cmd, tags);
 	}
 
 	CmdBuilder(TreeServer* src, const char* cmd)
 		: content(1, ':')
+		, tagsize(0)
 	{
 		content.append(src->GetID());
 		push(cmd);
+		FireEvent(src, cmd, tags);
 	}
 
 	CmdBuilder(User* src, const char* cmd)
 		: content(1, ':')
+		, tagsize(0)
 	{
 		content.append(src->uuid);
 		push(cmd);
+		if (src == ServerInstance->FakeClient)
+			FireEvent(src->server, cmd, tags);
+		else
+			FireEvent(src, cmd, tags);
 	}
 
 	CmdBuilder& push_raw(const std::string& s)
@@ -119,27 +144,12 @@ class CmdBuilder
 		return *this;
 	}
 
-	CmdBuilder& push_tags(const ClientProtocol::TagMap& tags)
+	CmdBuilder& push_tags(ClientProtocol::TagMap newtags)
 	{
-		if (!tags.empty())
-		{
-			char separator = '@';
-			std::string taglist;
-			for (ClientProtocol::TagMap::const_iterator iter = tags.begin(); iter != tags.end(); ++iter)
-			{
-				taglist.push_back(separator);
-				separator = ';';
-
-				taglist.append(iter->first);
-				if (!iter->second.value.empty())
-				{
-					taglist.push_back('=');
-					taglist.append(iter->second.value);
-				}
-			}
-			taglist.push_back(' ');
-			content.insert(0, taglist);
-		}
+		// It has to be this way around so new tags get priority.
+		newtags.insert(tags.begin(), tags.end());
+		std::swap(tags, newtags);
+		UpdateTags();
 		return *this;
 	}
 
