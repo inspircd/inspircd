@@ -114,6 +114,7 @@ class ModuleChanHistory
 	: public Module
 	, public ServerProtocol::BroadcastEventListener
 {
+ private:
 	HistoryMode m;
 	bool sendnotice;
 	UserModeReference botmode;
@@ -122,6 +123,31 @@ class ModuleChanHistory
 	IRCv3::Batch::API batchmanager;
 	IRCv3::Batch::Batch batch;
 	IRCv3::ServerTime::API servertimemanager;
+
+	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list, time_t mintime)
+	{
+		if (batchmanager)
+		{
+			batchmanager->Start(batch);
+			batch.GetBatchStartMessage().PushParamRef(channel->name);
+		}
+
+		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
+		{
+			const HistoryItem& item = *i;
+			if (item.ts >= mintime)
+			{
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text);
+				if (servertimemanager)
+					servertimemanager->Set(msg, item.ts);
+				batch.AddToBatch(msg);
+				user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+			}
+		}
+
+		if (batchmanager)
+			batchmanager->End(batch);
+	}
 
  public:
 	ModuleChanHistory()
@@ -175,9 +201,6 @@ class ModuleChanHistory
 		HistoryList* list = m.ext.get(memb->chan);
 		if (!list)
 			return;
-		time_t mintime = 0;
-		if (list->maxtime)
-			mintime = ServerInstance->Time() - list->maxtime;
 
 		if ((sendnotice) && (!batchcap.get(localuser)))
 		{
@@ -187,27 +210,11 @@ class ModuleChanHistory
 			memb->WriteNotice(message);
 		}
 
-		if (batchmanager)
-		{
-			batchmanager->Start(batch);
-			batch.GetBatchStartMessage().PushParamRef(memb->chan->name);
-		}
+		time_t mintime = 0;
+		if (list->maxtime)
+			mintime = ServerInstance->Time() - list->maxtime;
 
-		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
-		{
-			const HistoryItem& item = *i;
-			if (item.ts >= mintime)
-			{
-				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, memb->chan, item.text);
-				if (servertimemanager)
-					servertimemanager->Set(msg, item.ts);
-				batch.AddToBatch(msg);
-				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
-			}
-		}
-
-		if (batchmanager)
-			batchmanager->End(batch);
+		SendHistory(localuser, memb->chan, list, mintime);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
