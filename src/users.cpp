@@ -308,9 +308,12 @@ bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const i
 	return !user->quitting;
 }
 
-void UserIOHandler::OnError(BufferedSocketError)
+void UserIOHandler::OnError(BufferedSocketError error)
 {
-	ServerInstance->Users->QuitUser(user, getError());
+	ModResult res;
+	FIRST_MOD_RESULT(OnConnectionFail, res, (user, error));
+	if (res != MOD_RES_ALLOW)
+		ServerInstance->Users->QuitUser(user, getError());
 }
 
 CullResult User::cull()

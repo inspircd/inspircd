@@ -223,7 +223,7 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnPreChangeHost, I_OnPreTopicChange,
+	I_OnPreChangeHost, I_OnPreTopicChange, I_OnConnectionFail,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
@@ -942,6 +942,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * deny the message from being sent, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
+
+	/** Called when a user connection has been unexpectedly disconnected.
+	 * @param user The user who has been unexpectedly disconnected.
+	 * @param error The type of error which caused this connection failure.
+	 * @return MOD_RES_ALLOW to explicitly retain the user as a zombie, MOD_RES_DENY to explicitly
+	 * disconnect the user, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnConnectionFail(LocalUser* user, BufferedSocketError error);
 };
 
 /** ModuleManager takes care of all things module-related
