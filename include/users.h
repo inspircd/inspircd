@@ -700,6 +700,11 @@ class CoreExport UserIOHandler : public StreamSocket
 	 * @param data The data to add to the write buffer
 	 */
 	void AddWriteBuf(const std::string &data);
+
+	/** Swaps the internals of this UserIOHandler with another one.
+	 * @param other A UserIOHandler to swap internals with.
+	 */
+	void SwapInternals(UserIOHandler& other);
 };
 
 typedef unsigned int already_sent_t;

@@ -275,7 +275,14 @@ class CoreExport StreamSocket : public EventHandler
 	int HookChainRead(IOHook* hook, std::string& rq);
 
  protected:
+	/** The data which has been received from the socket. */
 	std::string recvq;
+
+	/** Swaps the internals of this StreamSocket with another one.
+	 * @param other A StreamSocket to swap internals with.
+	 */
+	void SwapInternals(StreamSocket& other);
+
  public:
 	const Type type;
 	StreamSocket(Type sstype = SS_UNKNOWN)

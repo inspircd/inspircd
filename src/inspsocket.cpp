@@ -541,3 +541,17 @@ size_t StreamSocket::getSendQSize() const
 	}
 	return ret;
 }
+
+void StreamSocket::SwapInternals(StreamSocket& other)
+{
+	if (type != other.type)
+		return;
+
+	EventHandler::SwapInternals(other);
+	std::swap(closeonempty, other.closeonempty);
+	std::swap(closing, other.closing);
+	std::swap(error, other.error);
+	std::swap(iohook, other.iohook);
+	std::swap(recvq, other.recvq);
+	std::swap(sendq, other.sendq);
+}

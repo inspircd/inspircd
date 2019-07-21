@@ -301,6 +301,12 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
+void UserIOHandler::SwapInternals(UserIOHandler& other)
+{
+	StreamSocket::SwapInternals(other);
+	std::swap(checked_until, other.checked_until);
+}
+
 bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
 {
 	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
