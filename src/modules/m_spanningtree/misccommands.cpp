@@ -59,10 +59,9 @@ void CmdBuilder::UpdateTags()
 			}
 		}
 		taglist.push_back(' ');
-		content.insert(0, taglist);
 	}
 	content.replace(0, tagsize, taglist);
-	tagsize = content.length();
+	tagsize = taglist.length();
 }
 
 CmdResult CommandSNONotice::Handle(User* user, Params& params)

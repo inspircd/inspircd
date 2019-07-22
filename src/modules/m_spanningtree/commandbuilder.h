@@ -69,7 +69,7 @@ class CmdBuilder
 	{
 		content.append(src->uuid);
 		push(cmd);
-		if (src == ServerInstance->FakeClient)
+		if (InspIRCd::IsSID(src->uuid))
 			FireEvent(src->server, cmd, tags);
 		else
 			FireEvent(src, cmd, tags);
