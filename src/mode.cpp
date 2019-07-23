@@ -249,9 +249,9 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	const bool needs_param = mh->NeedsParam(adding);
 
 	std::string& parameter = mcitem.param;
-	// crop mode parameter size to 250 characters
-	if (parameter.length() > 250 && adding)
-		parameter.erase(250);
+	// crop mode parameter size to MODE_PARAM_MAX characters
+	if (parameter.length() > MODE_PARAM_MAX && adding)
+		parameter.erase(MODE_PARAM_MAX);
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh, parameter, adding));

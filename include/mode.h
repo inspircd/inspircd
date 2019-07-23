@@ -544,7 +544,11 @@ class CoreExport ModeWatcher : public classbase
 class CoreExport ModeParser : public fakederef<ModeParser>
 {
  public:
+	/** The maximum number of modes which can be created. */
 	static const ModeHandler::Id MODEID_MAX = 64;
+
+	/** The maximum length of a mode parameter. */
+	static const size_t MODE_PARAM_MAX = 250;
 
 	/** Type of the container that maps mode names to ModeHandlers
 	 */

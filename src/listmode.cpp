@@ -160,9 +160,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		if (tidy)
 			ModeParser::CleanMask(parameter);
 
-		if (parameter.length() > 250)
-			return MODEACTION_DENY;
-
 		// If there was no list
 		if (!cd)
 		{
