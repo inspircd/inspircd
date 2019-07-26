@@ -716,7 +716,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @param user The source of the mode change, can be a server user.
 	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
 	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
- 	 * @param changelist Modes to change in form of a Modes::ChangeList. May not process
+	 * @param changelist Modes to change in form of a Modes::ChangeList. May not process
 	 * the entire list due to MODE line length and max modes limitations.
 	 * @param flags Optional flags controlling how the mode change is processed,
 	 * defaults to MODE_NONE.
@@ -735,11 +735,11 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * is a channel mode change.
 	 * @param parameters List of strings describing the mode change to convert to a ChangeList.
 	 * Must be using the same format as the parameters of a MODE command.
- 	 * @param changelist ChangeList object to populate.
- 	 * @param beginindex Index of the first element that is part of the MODE list in the parameters
- 	 * container. Defaults to 1.
- 	 * @param endindex Index of the first element that is not part of the MODE list. By default,
- 	 * the entire container is considered part of the MODE list.
+	 * @param changelist ChangeList object to populate.
+	 * @param beginindex Index of the first element that is part of the MODE list in the parameters
+	 * container. Defaults to 1.
+	 * @param endindex Index of the first element that is not part of the MODE list. By default,
+	 * the entire container is considered part of the MODE list.
 	 */
 	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex = 1, unsigned int endindex = UINT_MAX);
 

@@ -360,7 +360,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 
 	/** Add a parameter to the parameter list.
 	 * @param str String to add.
- 	 * The string will NOT be copied, it must remain alive until ClearParams() is called or until the object is destroyed.
+	 * The string will NOT be copied, it must remain alive until ClearParams() is called or until the object is destroyed.
 	 */
 	void PushParamRef(const std::string& str) { params.push_back(str); }
 
@@ -479,7 +479,7 @@ class ClientProtocol::Event
 
 	/** Constructor.
 	 * @param protoeventprov Protocol event provider the event is an instance of.
- 	 * @param msg Message to include in this event by default.
+	 * @param msg Message to include in this event by default.
 	 */
 	Event(EventProvider& protoeventprov, ClientProtocol::Message& msg)
 		: event(&protoeventprov)

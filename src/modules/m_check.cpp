@@ -261,8 +261,8 @@ class CommandCheck : public Command
 			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 			{
 				/*
-			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
-			 	 */
+				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
+				 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
 				context.Write("member", InspIRCd::Format("%u %s%s (%s)", clonecount.global,
 					i->second->GetAllPrefixChars().c_str(), i->first->GetFullHost().c_str(),
