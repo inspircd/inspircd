@@ -487,14 +487,20 @@ void LocalUser::CheckClass(bool clone_count)
 		{
 			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
+					a->name.c_str(), a->GetMaxLocal(), this->GetIPString().c_str());
+			}
 			return;
 		}
 		else if ((a->GetMaxGlobal()) && (clonecounts.global > a->GetMaxGlobal()))
 		{
 			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
+				a->name.c_str(), a->GetMaxGlobal(), this->GetIPString().c_str());
+			}
 			return;
 		}
 	}
