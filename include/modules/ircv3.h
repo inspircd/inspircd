@@ -67,6 +67,7 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 template <typename T>
 class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 {
+ protected:
 	Cap::Capability cap;
 	const std::string tagname;
 

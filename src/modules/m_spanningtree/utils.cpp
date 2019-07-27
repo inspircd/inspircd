@@ -28,7 +28,6 @@
 #include "treesocket.h"
 #include "resolvers.h"
 #include "commandbuilder.h"
-#include "modules/server.h"
 
 SpanningTreeUtilities* Utils = NULL;
 
@@ -351,9 +350,9 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	return NULL;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
+void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
 {
-	CmdBuilder msg(prefix, message_type);
+	CmdBuilder msg(source, message_type);
 	msg.push_tags(tags);
 	msg.push_raw(' ');
 	if (status != 0)

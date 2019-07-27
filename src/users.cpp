@@ -301,6 +301,12 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
+void UserIOHandler::SwapInternals(UserIOHandler& other)
+{
+	StreamSocket::SwapInternals(other);
+	std::swap(checked_until, other.checked_until);
+}
+
 bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
 {
 	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
@@ -308,9 +314,12 @@ bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const i
 	return !user->quitting;
 }
 
-void UserIOHandler::OnError(BufferedSocketError)
+void UserIOHandler::OnError(BufferedSocketError error)
 {
-	ServerInstance->Users.QuitUser(user, getError());
+	ModResult res;
+	FIRST_MOD_RESULT(OnConnectionFail, res, (user, error));
+	if (res != MOD_RES_ALLOW)
+		ServerInstance->Users.QuitUser(user, getError());
 }
 
 CullResult User::cull()
@@ -478,14 +487,20 @@ void LocalUser::CheckClass(bool clone_count)
 		{
 			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
+			{
+				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
+					a->name.c_str(), a->GetMaxLocal(), this->GetIPString().c_str());
+			}
 			return;
 		}
 		else if ((a->GetMaxGlobal()) && (clonecounts.global > a->GetMaxGlobal()))
 		{
 			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 			if (a->maxconnwarn)
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
+			{
+				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
+				a->name.c_str(), a->GetMaxGlobal(), this->GetIPString().c_str());
+			}
 			return;
 		}
 	}

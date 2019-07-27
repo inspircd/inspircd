@@ -225,7 +225,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 }
 
 CommandServer::Builder::Builder(TreeServer* server)
-	: CmdBuilder(server->GetParent()->GetID(), "SERVER")
+	: CmdBuilder(server->GetParent(), "SERVER")
 {
 	push(server->GetName());
 	push(server->GetID());

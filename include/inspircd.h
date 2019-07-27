@@ -494,11 +494,11 @@ class CoreExport InspIRCd
 	static unsigned long Duration(const std::string& str);
 
 	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
- 	 * @param str A string containing a time in the form 1y2w3d4h6m5s
- 	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
- 	 * @param duration The location to place the parsed duration valur
- 	 * @return Whether the duration was a valid format or not
- 	 */
+	 * @param str A string containing a time in the form 1y2w3d4h6m5s
+	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
+	 * @param duration The location to place the parsed duration valur
+	 * @return Whether the duration was a valid format or not
+	 */
 	static bool Duration(const std::string& str, unsigned long& duration);
 
 	/** Determines whether a string contains a valid duration.

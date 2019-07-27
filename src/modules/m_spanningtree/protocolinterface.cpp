@@ -112,13 +112,13 @@ void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, co
 	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	CUList exempt_list;
 	ClientProtocol::TagMap tags;
-	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, tags, exempt_list, cmd);
+	Utils->SendChannelMessage(ServerInstance->FakeClient, target, text, status, tags, exempt_list, cmd);
 }
 
 void SpanningTreeProtocolInterface::SendMessage(User* target, const std::string& text, MessageType msgtype)
 {
 	CmdBuilder p(msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
-	p.push_back(target->uuid);
+	p.push(target->uuid);
 	p.push_last(text);
 	p.Unicast(target);
 }

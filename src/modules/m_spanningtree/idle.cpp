@@ -59,10 +59,10 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 		else
 			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
 
-		CmdBuilder reply(params[0], "IDLE");
-		reply.push_back(issuer->uuid);
-		reply.push_back(ConvToStr(target->signon));
-		reply.push_back(ConvToStr(idle));
+		CmdBuilder reply(target, "IDLE");
+		reply.push(issuer->uuid);
+		reply.push(ConvToStr(target->signon));
+		reply.push(ConvToStr(idle));
 		reply.Unicast(issuer);
 	}
 

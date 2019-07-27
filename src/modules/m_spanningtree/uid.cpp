@@ -152,7 +152,7 @@ CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 }
 
 CommandUID::Builder::Builder(User* user)
-	: CmdBuilder(TreeServer::Get(user)->GetID(), "UID")
+	: CmdBuilder(TreeServer::Get(user), "UID")
 {
 	push(user->uuid);
 	push_int(user->age);

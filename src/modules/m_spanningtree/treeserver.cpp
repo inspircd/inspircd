@@ -23,7 +23,6 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "main.h"
-#include "modules/server.h"
 
 #include "utils.h"
 #include "treeserver.h"

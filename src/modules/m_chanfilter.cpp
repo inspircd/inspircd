@@ -71,7 +71,7 @@ class ModuleChanFilter : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
 		hidemask = tag->getBool("hidemask");
-		cf.maxlen = tag->getUInt("maxlen", 35, 10, 100);
+		cf.maxlen = tag->getUInt("maxlen", 35, 10, ModeParser::MODE_PARAM_MAX);
 		notifyuser = tag->getBool("notifyuser", true);
 		cf.DoRehash();
 	}

@@ -285,7 +285,7 @@ class SaslAuthenticator
 		 case SASL_OK:
 			this->user->WriteNumeric(RPL_SASLSUCCESS, "SASL authentication successful");
 			break;
-	 	 case SASL_ABORT:
+		 case SASL_ABORT:
 			this->user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
 			break;
 		 case SASL_FAIL:

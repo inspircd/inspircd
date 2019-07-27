@@ -29,6 +29,7 @@
 #include "modules/ssl.h"
 #include "modules/stats.h"
 #include "modules/ctctags.h"
+#include "modules/server.h"
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
@@ -99,6 +100,9 @@ class ModuleSpanningTree
 	/** Event provider for our link events. */
 	Events::ModuleEventProvider linkeventprov;
 
+	/** Event provider for our message events. */
+	Events::ModuleEventProvider messageeventprov;
+
 	/** Event provider for our sync events. */
 	Events::ModuleEventProvider synceventprov;
 
@@ -168,6 +172,9 @@ class ModuleSpanningTree
 
 	/** Retrieves the event provider for link events. */
 	const Events::ModuleEventProvider& GetLinkEventProvider() const { return linkeventprov; }
+
+	/** Retrieves the event provider for message events. */
+	const Events::ModuleEventProvider& GetMessageEventProvider() const { return messageeventprov; }
 
 	/** Retrieves the event provider for sync events. */
 	const Events::ModuleEventProvider& GetSyncEventProvider() const { return synceventprov; }

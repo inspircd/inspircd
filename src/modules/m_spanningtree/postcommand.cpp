@@ -45,7 +45,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	if (routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
 		params.push('*');
-		params.push_back(command);
+		params.push(command);
 	}
 	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
@@ -64,8 +64,8 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 		if (encap)
 		{
-			params.push_back(sdest->GetID());
-			params.push_back(command);
+			params.push(sdest->GetID());
+			params.push(command);
 		}
 	}
 	else
@@ -83,7 +83,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 	std::string output_text = CommandParser::TranslateUIDs(thiscmd->translation, parameters, true, thiscmd);
 
-	params.push_back(output_text);
+	params.push(output_text);
 
 	if (routing.type == ROUTE_TYPE_MESSAGE)
 	{
@@ -104,7 +104,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			std::string message;
 			if (parameters.size() >= 2)
 				message.assign(parameters[1]);
-			SendChannelMessage(user->uuid, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
+			SendChannelMessage(user, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{
