@@ -101,6 +101,10 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 			if (!capnotify.get(user))
 				continue;
 
+			// Check that this user can actually see the cap.
+			if (!cap->OnList(user))
+				continue;
+
 			// If the cap is being added and the client supports cap values then show the value, if any
 			if ((add) && (capnotify.GetProtocol(user) != Cap::CAP_LEGACY))
 			{
