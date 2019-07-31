@@ -441,6 +441,13 @@ void User::UnOper()
 	 */
 	oper = NULL;
 
+	// Remove the user from the oper list
+	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
+
+	// If the user is quitting we shouldn't remove any modes as it results in
+	// mode messages being broadcast across the network.
+	if (quitting)
+		return;
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
 	Modes::ChangeList changelist;
@@ -453,9 +460,6 @@ void User::UnOper()
 	}
 
 	ServerInstance->Modes->Process(this, NULL, this, changelist);
-
-	// Remove the user from the oper list
-	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
 
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	if (opermh)
