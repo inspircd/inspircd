@@ -104,16 +104,15 @@ class SASLCap : public Cap::Capability
 
 	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
 	{
-		// Requesting this cap is allowed anytime
-		if (adding)
-			return true;
-
-		// But removing it can only be done when unregistered
-		return (user->registered != REG_ALL);
+		// Servers MUST NAK any sasl capability request if the authentication layer
+		// is unavailable.
+		return servertracker.IsOnline();
 	}
 
 	bool OnList(LocalUser* user) CXX11_OVERRIDE
 	{
+		// Servers MUST NOT advertise the sasl capability if the authentication layer
+		// is unavailable.
 		return servertracker.IsOnline();
 	}
 
