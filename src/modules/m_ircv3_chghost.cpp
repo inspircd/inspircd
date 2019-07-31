@@ -28,6 +28,9 @@ class ModuleIRCv3ChgHost : public Module
 
 	void DoChgHost(User* user, const std::string& ident, const std::string& host)
 	{
+		if (!(user->registered & REG_NICKUSER))
+			return;
+
 		ClientProtocol::Message msg("CHGHOST", user);
 		msg.PushParamRef(ident);
 		msg.PushParamRef(host);

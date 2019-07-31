@@ -139,6 +139,9 @@ class ModuleIRCv3
 
 	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
 	{
+		if (!(user->registered & REG_NICKUSER))
+			return;
+
 		// Logged in: 1 parameter which is the account name
 		// Logged out: 1 parameter which is a "*"
 		ClientProtocol::Message msg("ACCOUNT", user);
