@@ -29,6 +29,15 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 {
+	// Are we creating a UNIX socket?
+	if (bind_to.family() == AF_UNIX)
+	{
+		// Is 'replace' enabled?
+		const bool replace = tag->getBool("replace");
+		if (replace && irc::sockets::isunix(bind_to.str()))
+			unlink(bind_to.str().c_str());
+	}
+
 	fd = socket(bind_to.family(), SOCK_STREAM, 0);
 
 	if (this->fd == -1)

@@ -118,10 +118,6 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 				continue;
 			}
 
-			const bool replace = tag->getBool("replace");
-			if (replace && irc::sockets::isunix(fullpath))
-				remove(fullpath.c_str());
-
 			irc::sockets::untosa(fullpath, bindspec);
 			if (!BindPort(tag, bindspec, old_ports))
 				failed_ports.push_back(std::make_pair(bindspec, errno));
