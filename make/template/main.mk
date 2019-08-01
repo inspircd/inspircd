@@ -113,7 +113,7 @@ ifeq ($(INSPIRCD_DEBUG), 2)
   DBGOK=1
 endif
 ifeq ($(INSPIRCD_DEBUG), 3)
-  CORECXXFLAGS += -fno-rtti -O0 -g0
+  CORECXXFLAGS += -fno-rtti -O0 -g0 -Werror
   HEADER = std-header
   DBGOK=1
 endif
