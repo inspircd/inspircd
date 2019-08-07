@@ -219,6 +219,71 @@ Extensible::~Extensible()
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
+void ExtensionItem::FromInternal(Extensible* container, const std::string& value)
+{
+	FromNetwork(container, value);
+}
+
+void ExtensionItem::FromNetwork(Extensible* container, const std::string& value)
+{
+}
+
+std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const
+{
+	// Try to use the network form by default.
+	std::string ret = ToNetwork(container, item);
+
+	// If there's no network form then fall back to the internal form.
+	if (ret.empty())
+		ret = ToInternal(container, item);
+
+	return ret;
+}
+
+std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const
+{
+	return ToNetwork(container, item);
+}
+
+std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const
+{
+	return std::string();
+}
+
+std::string ExtensionItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
+{
+	// Wrap the deprecated API with the new API.
+	switch (format)
+	{
+		case FORMAT_USER:
+			return ToHuman(container, item);
+		case FORMAT_INTERNAL:
+		case FORMAT_PERSIST:
+			return ToInternal(container, item);
+		case FORMAT_NETWORK:
+			return ToNetwork(container, item);
+	}
+	return "";
+}
+
+
+void ExtensionItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+{
+	// Wrap the deprecated API with the new API.
+	switch (format)
+	{
+		case FORMAT_USER:
+			break;
+		case FORMAT_INTERNAL:
+		case FORMAT_PERSIST:
+			FromInternal(container, value);
+			break;
+		case FORMAT_NETWORK:
+			FromNetwork(container, value);
+			break;
+	}
+}
+
 LocalExtItem::LocalExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
 	: ExtensionItem(Key, exttype, mod)
 {

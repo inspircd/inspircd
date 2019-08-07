@@ -50,7 +50,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
 		if ((item) && (item->type == ExtensionItem::EXT_CHANNEL))
-			item->unserialize(FORMAT_NETWORK, c, value);
+			item->FromNetwork(c, value);
 		FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
 	}
 	else
@@ -62,7 +62,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 			std::string value = params.size() < 3 ? "" : params[2];
 
 			if ((item) && (item->type == ExtensionItem::EXT_USER))
-				item->unserialize(FORMAT_NETWORK, u, value);
+				item->FromNetwork(u, value);
 			FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
 		}
 	}

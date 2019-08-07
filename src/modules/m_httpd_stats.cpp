@@ -86,7 +86,7 @@ namespace Stats
 		for (Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_USER, ext, i->second);
+			std::string value = item->ToHuman(ext, i->second);
 			if (!value.empty())
 				data << "<meta name=\"" << item->name << "\">" << Sanitize(value) << "</meta>";
 			else if (!item->name.empty())

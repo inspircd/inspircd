@@ -19,15 +19,12 @@
 
 #pragma once
 
+/** DEPRECATED: use {To,From}{Human,Internal,Network} instead. */
 enum SerializeFormat
 {
-	/** Shown to a human (does not need to be unserializable) */
 	FORMAT_USER,
-	/** Passed internally to this process (i.e. for /RELOADMODULE) */
 	FORMAT_INTERNAL,
-	/** Passed to other servers on the network (i.e. METADATA s2s command) */
 	FORMAT_NETWORK,
-	/** Stored on disk (i.e. permchannel database) */
 	FORMAT_PERSIST
 };
 
@@ -61,20 +58,37 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	/** Destroys an instance of the ExtensionItem class. */
 	virtual ~ExtensionItem();
 
-	/** Serialize this item into a string
-	 *
-	 * @param format The format to serialize to
-	 * @param container The object containing this item
-	 * @param item The item itself
+	/** Sets an ExtensionItem using a value in the internal format.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value A value in the internal format.
 	 */
-	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const = 0;
+	virtual void FromInternal(Extensible* container, const std::string& value);
 
-	/** Convert the string form back into an item
-	 * @param format The format to serialize from (not FORMAT_USER)
-	 * @param container The object that this item applies to
-	 * @param value The return from a serialize() call that was run elsewhere with this key
+	/** Sets an ExtensionItem using a value in the network format.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value A value in the network format.
 	 */
-	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value) = 0;
+	virtual void FromNetwork(Extensible* container, const std::string& value);
+
+	/** Gets an ExtensionItem's value in a human-readable format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to a human-readable format.
+	 * @return The value specified in \p item in a human readable format.
+	 */
+	virtual std::string ToHuman(const Extensible* container, void* item) const;
+	/** Gets an ExtensionItem's value in the internal format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to the internal format.
+	 * @return The value specified in \p item in the internal format.
+	 */
+	virtual std::string ToInternal(const Extensible* container, void* item) const ;
+
+	/** Gets an ExtensionItem's value in the network format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to the network format.
+	 * @return The value specified in \p item in the network format.
+	 */
+	virtual std::string ToNetwork(const Extensible* container, void* item) const;
 
 	/** Deallocates the specified ExtensionItem value.
 	 * @param container The container that the ExtensionItem is set on.
@@ -84,6 +98,12 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 
 	/** Registers this object with the ExtensionManager. */
 	void RegisterService() CXX11_OVERRIDE;
+
+	/** DEPRECATED: use To{Human,Internal,Network} instead. */
+	DEPRECATED_METHOD(virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const);
+
+	/** DEPRECATED: use From{Internal,Network} instead. */
+	DEPRECATED_METHOD(virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value));
 
  protected:
 	/** Retrieves the value for this ExtensionItem from the internal map.
