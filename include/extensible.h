@@ -31,26 +31,36 @@ enum SerializeFormat
 	FORMAT_PERSIST
 };
 
-/** Class represnting an extension of some object
- */
+/** Base class for logic that extends an Extensible object. */
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
-	/** Extensible subclasses
-	 */
+	/** Types of Extensible that an ExtensionItem can apply to. */
 	enum ExtensibleType
 	{
+		/** The ExtensionItem applies to a User object. */
 		EXT_USER,
+
+		/** The ExtensionItem applies to a Channel object. */
 		EXT_CHANNEL,
+
+		/** The ExtensionItem applies to a Membership object. */
 		EXT_MEMBERSHIP
 	};
 
-	/** Type (subclass) of Extensible that this ExtensionItem is valid for
-	 */
+	/** The type of Extensible that this ExtensionItem applies to. */
 	const ExtensibleType type;
 
+	/** Initializes an instance of the ExtensionItem class.
+	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this ExtensionItem applies to.
+	 * @param owner The module which created this ExtensionItem 
+	 */
 	ExtensionItem(const std::string& key, ExtensibleType exttype, Module* owner);
+
+	/** Destroys an instance of the ExtensionItem class. */
 	virtual ~ExtensionItem();
+
 	/** Serialize this item into a string
 	 *
 	 * @param format The format to serialize to
@@ -58,25 +68,41 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	 * @param item The item itself
 	 */
 	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const = 0;
+
 	/** Convert the string form back into an item
 	 * @param format The format to serialize from (not FORMAT_USER)
 	 * @param container The object that this item applies to
 	 * @param value The return from a serialize() call that was run elsewhere with this key
 	 */
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value) = 0;
-	/** Free the item */
+
+	/** Deallocates the specified ExtensionItem value.
+	 * @param container The container that the ExtensionItem is set on.
+	 * @param item The item to deallocate.
+	 */
 	virtual void free(Extensible* container, void* item) = 0;
 
-	/** Register this object in the ExtensionManager
-	 */
+	/** Registers this object with the ExtensionManager. */
 	void RegisterService() CXX11_OVERRIDE;
 
  protected:
-	/** Get the item from the internal map */
+	/** Retrieves the value for this ExtensionItem from the internal map.
+	 * @param container The container that the ExtensionItem is set on.
+	 * @return Either the value of this ExtensionItem or NULL if it is not set.
+	 */
 	void* get_raw(const Extensible* container) const;
-	/** Set the item in the internal map; returns old value */
+
+	/** Stores a value for this ExtensionItem in the internal map and returns the old value if one was set.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value The value to set on the specified container.
+	 * @return Either the old value or NULL if one is not set.
+	 */
 	void* set_raw(Extensible* container, void* value);
-	/** Remove the item from the internal map; returns old value */
+
+	/** Removes the value for this ExtensionItem from the internal map and returns it.
+	 * @param container A container the ExtensionItem should be removed from.
+	 * @return Either the old value or NULL if one is not set.
+	*/
 	void* unset_raw(Extensible* container);
 };
 
