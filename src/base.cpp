@@ -293,15 +293,6 @@ LocalExtItem::~LocalExtItem()
 {
 }
 
-std::string LocalExtItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
-{
-	return "";
-}
-
-void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-{
-}
-
 LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
 	: SimpleExtItem<std::string>(Key, exttype, Owner)
 {
@@ -311,17 +302,14 @@ LocalStringExt::~LocalStringExt()
 {
 }
 
-std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
+std::string LocalStringExt::ToInternal(const Extensible* container, void* item) const
 {
-	if ((item) && (format != FORMAT_NETWORK))
-		return *static_cast<std::string*>(item);
-	return "";
+	return item ? *static_cast<std::string*>(item) : std::string();	
 }
 
-void LocalStringExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+void LocalStringExt::FromInternal(Extensible* container, const std::string& value)
 {
-	if (format != FORMAT_NETWORK)
-		set(container, value);
+	set(container, value);
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
@@ -333,17 +321,14 @@ LocalIntExt::~LocalIntExt()
 {
 }
 
-std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
+std::string LocalIntExt::ToInternal(const Extensible* container, void* item) const
 {
-	if (format == FORMAT_NETWORK)
-		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
 
-void LocalIntExt::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+void LocalIntExt::FromInternal(Extensible* container, const std::string& value)
 {
-	if (format != FORMAT_NETWORK)
-		set(container, ConvToNum<intptr_t>(value));
+	set(container, ConvToNum<intptr_t>(value));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container) const
@@ -377,12 +362,12 @@ std::string* StringExtItem::get(const Extensible* container) const
 	return static_cast<std::string*>(get_raw(container));
 }
 
-std::string StringExtItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
+std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const
 {
-	return item ? *static_cast<std::string*>(item) : "";
+	return item ? *static_cast<std::string*>(item) : std::string();
 }
 
-void StringExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+void StringExtItem::FromNetwork(Extensible* container, const std::string& value)
 {
 	if (value.empty())
 		unset(container);

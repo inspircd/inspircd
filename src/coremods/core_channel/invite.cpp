@@ -179,12 +179,12 @@ Invite::Invite::~Invite()
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::~ %p", (void*) this);
 }
 
-void Invite::Invite::Serialize(SerializeFormat format, bool show_chans, std::string& out)
+void Invite::Invite::Serialize(bool human, bool show_chans, std::string& out)
 {
 	if (show_chans)
 		out.append(this->chan->name);
 	else
-		out.append((format == FORMAT_USER) ? user->nick : user->uuid);
+		out.append(human ? user->nick : user->uuid);
 	out.push_back(' ');
 
 	if (expiretimer)

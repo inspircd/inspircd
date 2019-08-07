@@ -82,12 +82,9 @@ class IRCv3::Monitor::Manager
 			free(container, unset_raw(container));
 		}
 
-		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+		std::string ToInternal(const Extensible* container, void* item) const CXX11_OVERRIDE
 		{
 			std::string ret;
-			if (format == FORMAT_NETWORK)
-				return ret;
-
 			const ExtData* extdata = static_cast<ExtData*>(item);
 			for (WatchedList::const_iterator i = extdata->list.begin(); i != extdata->list.end(); ++i)
 			{
@@ -99,7 +96,7 @@ class IRCv3::Monitor::Manager
 			return ret;
 		}
 
-		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+		void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE;
 
 		void free(Extensible* container, void* item) CXX11_OVERRIDE
 		{
@@ -245,12 +242,8 @@ class IRCv3::Monitor::Manager
  	WatchedList emptywatchedlist;
 };
 
-// inline is needed in static builds to support m_watch including the Manager code from this file
-inline void IRCv3::Monitor::Manager::ExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const std::string& value)
 {
-	if (format == FORMAT_NETWORK)
-		return;
-
 	irc::spacesepstream ss(value);
 	for (std::string nick; ss.GetToken(nick); )
 		manager.Watch(static_cast<LocalUser*>(container), nick, UINT_MAX);

@@ -191,8 +191,6 @@ class CoreExport LocalExtItem : public ExtensionItem
  public:
 	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalExtItem();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
 	void free(Extensible* container, void* item) CXX11_OVERRIDE = 0;
 };
 
@@ -248,8 +246,8 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
  public:
 	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalStringExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+	std::string ToInternal(const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE;
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
@@ -257,8 +255,8 @@ class CoreExport LocalIntExt : public LocalExtItem
  public:
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalIntExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+	std::string ToInternal(const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE;
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
@@ -271,8 +269,8 @@ class CoreExport StringExtItem : public ExtensionItem
 	StringExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE;
+	std::string ToNetwork(const Extensible* container, void* item) const CXX11_OVERRIDE;
+	void FromNetwork(Extensible* container, const std::string& value) CXX11_OVERRIDE;
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);
 	void free(Extensible* container, void* item) CXX11_OVERRIDE;

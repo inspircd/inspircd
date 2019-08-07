@@ -109,16 +109,16 @@ class AccountExtItemImpl : public AccountExtItem
 	{
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
+		StringExtItem::FromInternal(container, value);
+	}
+
+	void FromNetwork(Extensible* container, const std::string& value) CXX11_OVERRIDE
+	{
+		StringExtItem::FromNetwork(container, value);
+
 		User* user = static_cast<User*>(container);
-
-		StringExtItem::unserialize(format, container, value);
-
-		// If we are being reloaded then don't send the numeric or run the event
-		if (format == FORMAT_INTERNAL)
-			return;
-
 		if (IS_LOCAL(user))
 		{
 			if (value.empty())

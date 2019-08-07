@@ -73,6 +73,7 @@ class CommandSVSTOPIC : public Command
 	}
 };
 
+// TODO: add a BoolExtItem to replace this.
 class FlagExtItem : public ExtensionItem
 {
  public:
@@ -86,15 +87,18 @@ class FlagExtItem : public ExtensionItem
 		return (get_raw(container) != NULL);
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string ToHuman(const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
-		if (format == FORMAT_USER)
-			return "true";
+		// Make the human version more readable.
+		return "true";
+	}
 
+	std::string ToNetwork(const Extensible* container, void* item) const CXX11_OVERRIDE
+	{
 		return "1";
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	void FromNetwork(Extensible* container, const std::string& value) CXX11_OVERRIDE
 	{
 		if (value == "1")
 			set_raw(container, this);

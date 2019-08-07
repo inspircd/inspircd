@@ -45,6 +45,21 @@ extern void UnserializeInvite(LocalUser* user, const std::string& value);
 template<typename T, ExtensionItem::ExtensibleType ExtType>
 class Invite::ExtItem : public ExtensionItem
 {
+ private:
+	static std::string ToString(void* item, bool human)
+	{
+		std::string ret;
+		Store<T>* store = static_cast<Store<T>*>(item);
+		for (typename insp::intrusive_list<Invite, T>::iterator i = store->invites.begin(); i != store->invites.end(); ++i)
+		{
+			Invite* inv = *i;
+			inv->Serialize(human, (ExtType == ExtensionItem::EXT_USER), ret);
+		}
+		if (!ret.empty())
+			ret.erase(ret.length()-1);
+		return ret;
+	}
+
  public:
 	ExtItem(Module* owner, const char* extname)
 		: ExtensionItem(extname, ExtType, owner)
@@ -83,26 +98,19 @@ class Invite::ExtItem : public ExtensionItem
 		delete store;
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const CXX11_OVERRIDE
+	std::string ToHuman(const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
-		if (format == FORMAT_NETWORK)
-			return std::string();
-
-		std::string ret;
-		Store<T>* store = static_cast<Store<T>*>(item);
-		for (typename insp::intrusive_list<Invite, T>::iterator i = store->invites.begin(); i != store->invites.end(); ++i)
-		{
-			Invite* inv = *i;
-			inv->Serialize(format, (ExtType == ExtensionItem::EXT_USER), ret);
-		}
-		if (!ret.empty())
-			ret.erase(ret.length()-1);
-		return ret;
+		return ToString(item, true);
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) CXX11_OVERRIDE
+	std::string ToInternal(const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
-		if ((ExtType != ExtensionItem::EXT_CHANNEL) && (format != FORMAT_NETWORK))
+		return ToString(item, false);
+	}
+
+	void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE
+	{
+		if (ExtType != ExtensionItem::EXT_CHANNEL)
 			UnserializeInvite(static_cast<LocalUser*>(container), value);
 	}
 };
