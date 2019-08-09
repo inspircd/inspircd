@@ -19,15 +19,6 @@
 
 #pragma once
 
-/** DEPRECATED: use {To,From}{Human,Internal,Network} instead. */
-enum SerializeFormat
-{
-	FORMAT_USER,
-	FORMAT_INTERNAL,
-	FORMAT_NETWORK,
-	FORMAT_PERSIST
-};
-
 /** Base class for logic that extends an Extensible object. */
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
@@ -99,12 +90,6 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 
 	/** Registers this object with the ExtensionManager. */
 	void RegisterService() override;
-
-	/** DEPRECATED: use To{Human,Internal,Network} instead. */
-	DEPRECATED_METHOD(virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const);
-
-	/** DEPRECATED: use From{Internal,Network} instead. */
-	DEPRECATED_METHOD(virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value));
 
  protected:
 	/** Retrieves the value for this ExtensionItem from the internal map.
@@ -186,21 +171,12 @@ class CoreExport ExtensionManager
 	ExtMap types;
 };
 
-/** Base class for items that are NOT synchronized between servers */
-class CoreExport LocalExtItem : public ExtensionItem
-{
- public:
-	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
-	virtual ~LocalExtItem();
-	void free(Extensible* container, void* item) override = 0;
-};
-
 template <typename T, typename Del = stdalgo::defaultdeleter<T> >
-class SimpleExtItem : public LocalExtItem
+class SimpleExtItem : public ExtensionItem
 {
  public:
 	SimpleExtItem(const std::string& Key, ExtensibleType exttype, Module* parent)
-		: LocalExtItem(Key, exttype, parent)
+		: ExtensionItem(Key, exttype, parent)
 	{
 	}
 
@@ -251,7 +227,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 	void FromInternal(Extensible* container, const std::string& value) override;
 };
 
-class CoreExport LocalIntExt : public LocalExtItem
+class CoreExport LocalIntExt : public ExtensionItem
 {
  public:
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);

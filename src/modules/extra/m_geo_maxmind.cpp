@@ -32,11 +32,11 @@
 #include "modules/geolocation.h"
 #include <maxminddb.h>
 
-class GeolocationExtItem : public LocalExtItem
+class GeolocationExtItem : public ExtensionItem
 {
  public:
 	GeolocationExtItem(Module* parent)
-		: LocalExtItem("geolocation", ExtensionItem::EXT_USER, parent)
+		: ExtensionItem("geolocation", ExtensionItem::EXT_USER, parent)
 	{
 	}
 

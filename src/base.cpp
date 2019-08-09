@@ -250,49 +250,6 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
-std::string ExtensionItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
-{
-	// Wrap the deprecated API with the new API.
-	switch (format)
-	{
-		case FORMAT_USER:
-			return ToHuman(container, item);
-		case FORMAT_INTERNAL:
-		case FORMAT_PERSIST:
-			return ToInternal(container, item);
-		case FORMAT_NETWORK:
-			return ToNetwork(container, item);
-	}
-	return "";
-}
-
-
-void ExtensionItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-{
-	// Wrap the deprecated API with the new API.
-	switch (format)
-	{
-		case FORMAT_USER:
-			break;
-		case FORMAT_INTERNAL:
-		case FORMAT_PERSIST:
-			FromInternal(container, value);
-			break;
-		case FORMAT_NETWORK:
-			FromNetwork(container, value);
-			break;
-	}
-}
-
-LocalExtItem::LocalExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
-{
-}
-
-LocalExtItem::~LocalExtItem()
-{
-}
-
 LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
 	: SimpleExtItem<std::string>(Key, exttype, Owner)
 {
@@ -313,7 +270,7 @@ void LocalStringExt::FromInternal(Extensible* container, const std::string& valu
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: LocalExtItem(Key, exttype, mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 
