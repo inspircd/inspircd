@@ -44,11 +44,6 @@
 # pragma comment(lib, "libgnutls-30.lib")
 #endif
 
-// These don't exist in older GnuTLS versions
-#if INSPIRCD_GNUTLS_HAS_VERSION(2, 1, 7)
-#define GNUTLS_NEW_PRIO_API
-#endif
-
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
@@ -257,7 +252,6 @@ namespace GnuTLS
 		gnutls_x509_crl_t& get() { return crl.crl; }
 	};
 
-#ifdef GNUTLS_NEW_PRIO_API
 	class Priority
 	{
 		gnutls_priority_t priority;
@@ -322,36 +316,6 @@ namespace GnuTLS
 			return ret;
 		}
 	};
-#else
-	/** Dummy class, used when gnutls_priority_set() is not available
-	 */
-	class Priority
-	{
-	 public:
-		Priority(const std::string& priorities)
-		{
-			if (priorities != GetDefault())
-				throw Exception("You've set a non-default priority string, but GnuTLS lacks support for it");
-		}
-
-		static void SetupSession(gnutls_session_t sess)
-		{
-			// Always set the default priorities
-			gnutls_set_default_priority(sess);
-		}
-
-		static const char* GetDefault()
-		{
-			return "NORMAL";
-		}
-
-		static std::string RemoveUnknownTokens(const std::string& prio)
-		{
-			// We don't do anything here because only NORMAL is accepted
-			return prio;
-		}
-	};
-#endif
 
 	class CertCredentials
 	{
