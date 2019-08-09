@@ -58,12 +58,12 @@ class SSLCertExt : public ExtensionItem
 		free(container, unset_raw(container));
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
+	std::string ToNetwork(const Extensible* container, void* item) const override
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
+	void FromNetwork(Extensible* container, const std::string& value) override
 	{
 		ssl_cert* cert = new ssl_cert;
 		set(container, cert);

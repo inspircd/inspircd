@@ -486,7 +486,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
 	{
 		ExtensionItem* item = i->first;
-		std::string value = item->serialize(FORMAT_NETWORK, user, i->second);
+		std::string value = item->ToNetwork(user, i->second);
 		if (!value.empty())
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}

@@ -259,7 +259,7 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
 	{
 		ExtensionItem* item = i->first;
-		std::string value = item->serialize(FORMAT_NETWORK, chan, i->second);
+		std::string value = item->ToNetwork(chan, i->second);
 		if (!value.empty())
 			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
 	}
@@ -295,7 +295,7 @@ void TreeSocket::SendUsers(BurstState& bs)
 		for (Extensible::ExtensibleStore::const_iterator i = exts.begin(); i != exts.end(); ++i)
 		{
 			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
+			std::string value = item->ToNetwork(u->second, i->second);
 			if (!value.empty())
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}

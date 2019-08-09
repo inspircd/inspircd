@@ -19,64 +19,111 @@
 
 #pragma once
 
+/** DEPRECATED: use {To,From}{Human,Internal,Network} instead. */
 enum SerializeFormat
 {
-	/** Shown to a human (does not need to be unserializable) */
 	FORMAT_USER,
-	/** Passed internally to this process (i.e. for /RELOADMODULE) */
 	FORMAT_INTERNAL,
-	/** Passed to other servers on the network (i.e. METADATA s2s command) */
 	FORMAT_NETWORK,
-	/** Stored on disk (i.e. permchannel database) */
 	FORMAT_PERSIST
 };
 
-/** Class represnting an extension of some object
- */
+/** Base class for logic that extends an Extensible object. */
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
-	/** Extensible subclasses
-	 */
+	/** Types of Extensible that an ExtensionItem can apply to. */
 	enum ExtensibleType
 	{
+		/** The ExtensionItem applies to a User object. */
 		EXT_USER,
+
+		/** The ExtensionItem applies to a Channel object. */
 		EXT_CHANNEL,
+
+		/** The ExtensionItem applies to a Membership object. */
 		EXT_MEMBERSHIP
 	};
 
-	/** Type (subclass) of Extensible that this ExtensionItem is valid for
-	 */
+	/** The type of Extensible that this ExtensionItem applies to. */
 	const ExtensibleType type;
 
+	/** Initializes an instance of the ExtensionItem class.
+	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this ExtensionItem applies to.
+	 * @param owner The module which created this ExtensionItem 
+	 */
 	ExtensionItem(const std::string& key, ExtensibleType exttype, Module* owner);
+
+	/** Destroys an instance of the ExtensionItem class. */
 	virtual ~ExtensionItem();
-	/** Serialize this item into a string
-	 *
-	 * @param format The format to serialize to
-	 * @param container The object containing this item
-	 * @param item The item itself
+
+	/** Sets an ExtensionItem using a value in the internal format.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value A value in the internal format.
 	 */
-	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const = 0;
-	/** Convert the string form back into an item
-	 * @param format The format to serialize from (not FORMAT_USER)
-	 * @param container The object that this item applies to
-	 * @param value The return from a serialize() call that was run elsewhere with this key
+	virtual void FromInternal(Extensible* container, const std::string& value);
+
+	/** Sets an ExtensionItem using a value in the network format.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value A value in the network format.
 	 */
-	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value) = 0;
-	/** Free the item */
+	virtual void FromNetwork(Extensible* container, const std::string& value);
+
+	/** Gets an ExtensionItem's value in a human-readable format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to a human-readable format.
+	 * @return The value specified in \p item in a human readable format.
+	 */
+	virtual std::string ToHuman(const Extensible* container, void* item) const;
+
+	/** Gets an ExtensionItem's value in the internal format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to the internal format.
+	 * @return The value specified in \p item in the internal format.
+	 */
+	virtual std::string ToInternal(const Extensible* container, void* item) const ;
+
+	/** Gets an ExtensionItem's value in the network format.
+	 * @param container The container the ExtensionItem is set on.
+	 * @param item The value to convert to the network format.
+	 * @return The value specified in \p item in the network format.
+	 */
+	virtual std::string ToNetwork(const Extensible* container, void* item) const;
+
+	/** Deallocates the specified ExtensionItem value.
+	 * @param container The container that the ExtensionItem is set on.
+	 * @param item The item to deallocate.
+	 */
 	virtual void free(Extensible* container, void* item) = 0;
 
-	/** Register this object in the ExtensionManager
-	 */
+	/** Registers this object with the ExtensionManager. */
 	void RegisterService() override;
 
+	/** DEPRECATED: use To{Human,Internal,Network} instead. */
+	DEPRECATED_METHOD(virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const);
+
+	/** DEPRECATED: use From{Internal,Network} instead. */
+	DEPRECATED_METHOD(virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value));
+
  protected:
-	/** Get the item from the internal map */
+	/** Retrieves the value for this ExtensionItem from the internal map.
+	 * @param container The container that the ExtensionItem is set on.
+	 * @return Either the value of this ExtensionItem or NULL if it is not set.
+	 */
 	void* get_raw(const Extensible* container) const;
-	/** Set the item in the internal map; returns old value */
+
+	/** Stores a value for this ExtensionItem in the internal map and returns the old value if one was set.
+	 * @param container A container the ExtensionItem should be set on.
+	 * @param value The value to set on the specified container.
+	 * @return Either the old value or NULL if one is not set.
+	 */
 	void* set_raw(Extensible* container, void* value);
-	/** Remove the item from the internal map; returns old value */
+
+	/** Removes the value for this ExtensionItem from the internal map and returns it.
+	 * @param container A container the ExtensionItem should be removed from.
+	 * @return Either the old value or NULL if one is not set.
+	*/
 	void* unset_raw(Extensible* container);
 };
 
@@ -145,8 +192,6 @@ class CoreExport LocalExtItem : public ExtensionItem
  public:
 	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalExtItem();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
 	void free(Extensible* container, void* item) override = 0;
 };
 
@@ -202,8 +247,8 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
  public:
 	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalStringExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
+	std::string ToInternal(const Extensible* container, void* item) const override;
+	void FromInternal(Extensible* container, const std::string& value) override;
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
@@ -211,8 +256,8 @@ class CoreExport LocalIntExt : public LocalExtItem
  public:
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~LocalIntExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
+	std::string ToInternal(const Extensible* container, void* item) const override;
+	void FromInternal(Extensible* container, const std::string& value) override;
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
@@ -225,8 +270,8 @@ class CoreExport StringExtItem : public ExtensionItem
 	StringExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
+	std::string ToNetwork(const Extensible* container, void* item) const override;
+	void FromNetwork(Extensible* container, const std::string& value) override;
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);
 	void free(Extensible* container, void* item) override;

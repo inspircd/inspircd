@@ -379,7 +379,7 @@ void DataKeeper::SaveExtensions(Extensible* extensible, std::vector<InstanceData
 		if (it == setexts.end())
 			continue;
 
-		std::string value = item->serialize(FORMAT_INTERNAL, extensible, it->second);
+		std::string value = item->ToInternal(extensible, it->second);
 		// If the serialized value is empty the extension won't be saved and restored
 		if (!value.empty())
 			extdata.push_back(InstanceData(index, value));
@@ -597,7 +597,7 @@ void DataKeeper::RestoreExtensions(const std::vector<InstanceData>& list, Extens
 	for (std::vector<InstanceData>::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		const InstanceData& id = *i;
-		handledexts[id.index].extitem->unserialize(FORMAT_INTERNAL, extensible, id.serialized);
+		handledexts[id.index].extitem->FromInternal(extensible, id.serialized);
 	}
 }
 

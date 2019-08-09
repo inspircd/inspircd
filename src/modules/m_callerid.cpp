@@ -54,7 +54,7 @@ class callerid_data
 
 	callerid_data() : lastnotify(0) { }
 
-	std::string ToString(SerializeFormat format) const
+	std::string ToString(bool human) const
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
@@ -62,7 +62,7 @@ class callerid_data
 		{
 			User* u = *i;
 			// Encode UIDs.
-			oss << "," << (format == FORMAT_USER ? u->nick : u->uuid);
+			oss << "," << (human ? u->nick : u->uuid);
 		}
 		return oss.str();
 	}
@@ -75,22 +75,20 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const override
 	{
-		std::string ret;
-		if (format != FORMAT_NETWORK)
-		{
-			callerid_data* dat = static_cast<callerid_data*>(item);
-			ret = dat->ToString(format);
-		}
-		return ret;
+		callerid_data* dat = static_cast<callerid_data*>(item);
+		return dat->ToString(true);
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override
+	std::string ToInternal(const Extensible* container, void* item) const override
 	{
-		if (format == FORMAT_NETWORK)
-			return;
+		callerid_data* dat = static_cast<callerid_data*>(item);
+		return dat->ToString(false);
+	}
 
+	void FromInternal(Extensible* container, const std::string& value) override
+	{
 		void* old = get_raw(container);
 		if (old)
 			this->free(NULL, old);

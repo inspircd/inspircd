@@ -32,8 +32,9 @@ namespace Cap
 	{
 	 public:
 		ExtItem(Module* mod);
-		std::string serialize(SerializeFormat format, const Extensible* container, void* item) const override;
-		void unserialize(SerializeFormat format, Extensible* container, const std::string& value) override;
+		void FromInternal(Extensible* container, const std::string& value) override;
+		std::string ToHuman(const Extensible* container, void* item) const override;
+		std::string ToInternal(const Extensible* container, void* item) const override;
 	};
 
 	class Capability;

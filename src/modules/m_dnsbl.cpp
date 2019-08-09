@@ -384,6 +384,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 				reversedip.push_back(*it);
 				reversedip.push_back('.');
 			}
+			reversedip.erase(reversedip.length() - 1, 1);
 		}
 		else
 			return;

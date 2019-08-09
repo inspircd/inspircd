@@ -291,42 +291,52 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	}
 };
 
+namespace
+{
+	std::string SerializeCaps(const Extensible* container, void* item, bool human)
+	{
+		// XXX: Cast away the const because IS_LOCAL() doesn't handle it
+		LocalUser* user = IS_LOCAL(const_cast<User*>(static_cast<const User*>(container)));
+		if (!user)
+			return std::string();
+
+		// List requested caps
+		std::string ret;
+		managerimpl->HandleList(ret, user, false, false);
+
+		// Serialize cap protocol version. If building a human-readable string append a new token, otherwise append only a single character indicating the version.
+		Cap::Protocol protocol = managerimpl->GetProtocol(user);
+		if (human)
+			ret.append("capversion=3.");
+		else if (!ret.empty())
+			ret.erase(ret.length()-1);
+
+		if (protocol == Cap::CAP_302)
+			ret.push_back('2');
+		else
+			ret.push_back('1');
+
+		return ret;
+	}
+}
+
 Cap::ExtItem::ExtItem(Module* mod)
 	: LocalIntExt("caps", ExtensionItem::EXT_USER, mod)
 {
 }
 
-std::string Cap::ExtItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
+std::string Cap::ExtItem::ToHuman(const Extensible* container, void* item) const
 {
-	std::string ret;
-	// XXX: Cast away the const because IS_LOCAL() doesn't handle it
-	LocalUser* user = IS_LOCAL(const_cast<User*>(static_cast<const User*>(container)));
-	if ((format == FORMAT_NETWORK) || (!user))
-		return ret;
-
-	// List requested caps
-	managerimpl->HandleList(ret, user, false, false);
-
-	// Serialize cap protocol version. If building a human-readable string append a new token, otherwise append only a single character indicating the version.
-	Protocol protocol = managerimpl->GetProtocol(user);
-	if (format == FORMAT_USER)
-		ret.append("capversion=3.");
-	else if (!ret.empty())
-		ret.erase(ret.length()-1);
-
-	if (protocol == CAP_302)
-		ret.push_back('2');
-	else
-		ret.push_back('1');
-
-	return ret;
+	return SerializeCaps(container, item, true);
 }
 
-void Cap::ExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) const
 {
-	if (format == FORMAT_NETWORK)
-		return;
+	return SerializeCaps(container, item, false);
+}
 
+void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
+{
 	LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 	if (!user)
 		return; // Can't happen
