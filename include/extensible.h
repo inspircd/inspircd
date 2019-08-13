@@ -185,21 +185,15 @@ class CoreExport ExtensionManager
 	ExtMap types;
 };
 
-/** Base class for items that are NOT synchronized between servers */
-class CoreExport LocalExtItem : public ExtensionItem
-{
- public:
-	LocalExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
-	virtual ~LocalExtItem();
-	void free(Extensible* container, void* item) CXX11_OVERRIDE = 0;
-};
+/** DEPRECATED: use ExtensionItem instead. */
+typedef ExtensionItem LocalExtItem;
 
 template <typename T, typename Del = stdalgo::defaultdeleter<T> >
-class SimpleExtItem : public LocalExtItem
+class SimpleExtItem : public ExtensionItem
 {
  public:
 	SimpleExtItem(const std::string& Key, ExtensibleType exttype, Module* parent)
-		: LocalExtItem(Key, exttype, parent)
+		: ExtensionItem(Key, exttype, parent)
 	{
 	}
 
@@ -250,7 +244,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 	void FromInternal(Extensible* container, const std::string& value) CXX11_OVERRIDE;
 };
 
-class CoreExport LocalIntExt : public LocalExtItem
+class CoreExport LocalIntExt : public ExtensionItem
 {
  public:
 	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);

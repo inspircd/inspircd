@@ -284,15 +284,6 @@ void ExtensionItem::unserialize(SerializeFormat format, Extensible* container, c
 	}
 }
 
-LocalExtItem::LocalExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
-{
-}
-
-LocalExtItem::~LocalExtItem()
-{
-}
-
 LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
 	: SimpleExtItem<std::string>(Key, exttype, Owner)
 {
@@ -313,7 +304,7 @@ void LocalStringExt::FromInternal(Extensible* container, const std::string& valu
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: LocalExtItem(Key, exttype, mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 
