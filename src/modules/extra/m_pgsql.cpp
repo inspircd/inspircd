@@ -103,7 +103,7 @@ class PgSQLresult : public SQL::Result
 	{
 		rows = PQntuples(res);
 		if (!rows)
-			rows = atoi(PQcmdTuples(res));
+			rows = ConvToNum<int>(PQcmdTuples(res));
 	}
 
 	~PgSQLresult()
