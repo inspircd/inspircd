@@ -35,8 +35,8 @@ enum
 class CommandNicklock : public Command
 {
  public:
-	LocalIntExt& locked;
-	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKLOCK", 2),
+	IntExtItem& locked;
+	CommandNicklock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKLOCK", 2),
 		locked(ext)
 	{
 		flags_needed = 'o';
@@ -95,8 +95,8 @@ class CommandNicklock : public Command
 class CommandNickunlock : public Command
 {
  public:
-	LocalIntExt& locked;
-	CommandNickunlock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKUNLOCK", 1),
+	IntExtItem& locked;
+	CommandNickunlock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
 		locked(ext)
 	{
 		flags_needed = 'o';
@@ -116,8 +116,9 @@ class CommandNickunlock : public Command
 
 		if (IS_LOCAL(target))
 		{
-			if (locked.set(target, 0))
+			if (locked.get(target))
 			{
+				locked.unset(target);
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
 				user->WriteRemoteNumeric(RPL_NICKLOCKOFF, target->nick, "Nickname now unlocked.");
 			}
@@ -139,7 +140,7 @@ class CommandNickunlock : public Command
 
 class ModuleNickLock : public Module
 {
-	LocalIntExt locked;
+	IntExtItem locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
  public:

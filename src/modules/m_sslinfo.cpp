@@ -99,7 +99,7 @@ class SSLCertExt : public ExtensionItem
 class UserCertificateAPIImpl : public UserCertificateAPIBase
 {
  public:
-	LocalIntExt nosslext;
+	IntExtItem nosslext;
 	SSLCertExt sslext;
 
 	UserCertificateAPIImpl(Module* mod)

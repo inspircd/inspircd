@@ -27,10 +27,10 @@
 class DelayJoinMode : public ModeHandler
 {
  private:
-	LocalIntExt& unjoined;
+	IntExtItem& unjoined;
 
  public:
-	DelayJoinMode(Module* Parent, LocalIntExt& ext)
+	DelayJoinMode(Module* Parent, IntExtItem& ext)
 		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 		, unjoined(ext)
 	{
@@ -52,10 +52,10 @@ namespace
  */
 class JoinHook : public ClientProtocol::EventHook
 {
-	const LocalIntExt& unjoined;
+	const IntExtItem& unjoined;
 
  public:
-	JoinHook(Module* mod, const LocalIntExt& unjoinedref)
+	JoinHook(Module* mod, const IntExtItem& unjoinedref)
 		: ClientProtocol::EventHook(mod, "JOIN", 10)
 		, unjoined(unjoinedref)
 	{
@@ -80,7 +80,7 @@ class ModuleDelayJoin
 	, public Names::EventListener
 {
  public:
-	LocalIntExt unjoined;
+	IntExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
 
@@ -162,14 +162,20 @@ void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
 {
-	if (unjoined.set(memb, 0))
+	if (unjoined.get(memb))
+	{
+		unjoined.unset(memb);
 		populate(except, memb);
+	}
 }
 
 void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except)
 {
-	if (unjoined.set(memb, 0))
+	if (unjoined.get(memb))
+	{
+		unjoined.unset(memb);
 		populate(except, memb);
+	}
 }
 
 void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception)
@@ -205,10 +211,13 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
-	if (!memb || !unjoined.set(memb, 0))
+	if (!memb || !unjoined.get(memb))
+	{
 		return;
+	}
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
+	unjoined.unset(memb);
 	CUList except_list;
 	except_list.insert(user);
 	ClientProtocol::Events::Join joinevent(memb);

@@ -252,15 +252,53 @@ class CoreExport StringExtItem : public SimpleExtItem<std::string>
 	std::string ToNetwork(const Extensible* container, void* item) const override;
 };
 
-class CoreExport LocalIntExt : public ExtensionItem
+/** Encapsulates an ExtensionItem which has a integer value. */
+class CoreExport IntExtItem : public ExtensionItem
 {
+ protected:
+	/** Whether to sync this IntExtItem across the network. */
+	bool synced;
+
  public:
-	LocalIntExt(Module* owner, const std::string& key, ExtensibleType exttype);
-	virtual ~LocalIntExt();
-	std::string ToInternal(const Extensible* container, void* item) const override;
-	void FromInternal(Extensible* container, const std::string& value) override;
-	intptr_t get(const Extensible* container) const;
-	intptr_t set(Extensible* container, intptr_t value);
-	void unset(Extensible* container) { set(container, 0); }
+	/** Initializes an instance of the IntExtItem class.
+	 * @param owner The module which created this IntExtItem.
+	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this IntExtItem applies to.
+	 * @param sync Whether this IntExtItem should be broadcast to other servers.
+	 */
+	IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+
+	/** Destroys an instance of the IntExtItem class. */
+	virtual ~IntExtItem() = default;
+
+	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;
+
+	/** Retrieves the value for this IntExtItem.
+	 * @param container The container that the IntExtItem is set on.
+	 * @return Either the value of this IntExtItem or NULL if it is not set.
+	 */
+	intptr_t get(const Extensible* container) const;
+
+	/** @copydoc ExtensionItem::FromInternal */
+	void FromInternal(Extensible* container, const std::string& value) override;
+
+	/** @copydoc ExtensionItem::FromNetwork */
+	void FromNetwork(Extensible* container, const std::string& value) override;
+
+	/** Sets a value for this IntExtItem. 
+	 * @param container A container that the IntExtItem should be set on.
+	 */
+	void set(Extensible* container, intptr_t value);
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToInternal(const Extensible* container, void* item) const override;
+
+	/** @copydoc ExtensionItem::ToNetwork */
+	std::string ToNetwork(const Extensible* container, void* item) const override;
+
+	/** Removes the value for this IntExtItem.
+	 * @param container A container the ExtensionItem should be removed from.
+	 */
+	void unset(Extensible* container);
 };

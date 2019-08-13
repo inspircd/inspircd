@@ -246,42 +246,6 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
-LocalIntExt::LocalIntExt(Module* mod, const std::string& Key, ExtensibleType exttype)
-	: ExtensionItem(mod, Key, exttype)
-{
-}
-
-LocalIntExt::~LocalIntExt()
-{
-}
-
-std::string LocalIntExt::ToInternal(const Extensible* container, void* item) const
-{
-	return ConvToStr(reinterpret_cast<intptr_t>(item));
-}
-
-void LocalIntExt::FromInternal(Extensible* container, const std::string& value)
-{
-	set(container, ConvToNum<intptr_t>(value));
-}
-
-intptr_t LocalIntExt::get(const Extensible* container) const
-{
-	return reinterpret_cast<intptr_t>(get_raw(container));
-}
-
-intptr_t LocalIntExt::set(Extensible* container, intptr_t value)
-{
-	if (value)
-		return reinterpret_cast<intptr_t>(set_raw(container, reinterpret_cast<void*>(value)));
-	else
-		return reinterpret_cast<intptr_t>(unset_raw(container));
-}
-
-void LocalIntExt::Delete(Extensible* container, void* item)
-{
-}
-
 ModuleException::ModuleException(const std::string &message, Module* who)
 	: CoreException(message, who ? who->ModuleSourceFile : "A Module")
 {

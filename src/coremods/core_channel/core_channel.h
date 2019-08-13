@@ -187,7 +187,7 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, StringExtItem>
 
 /** Channel mode +l
  */
-class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
+class ModeChannelLimit : public ParamMode<ModeChannelLimit, IntExtItem>
 {
  public:
 	ModeChannelLimit(Module* Creator);

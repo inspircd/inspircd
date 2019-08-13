@@ -19,6 +19,55 @@
 
 #include "inspircd.h"
 
+IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
+	: ExtensionItem(owner, key, exttype)
+	, synced(sync)
+{
+}
+
+void IntExtItem::Delete(Extensible* container, void* item)
+{
+	// Intentionally left blank.
+}
+
+void IntExtItem::FromInternal(Extensible* container, const std::string& value)
+{
+	set(container, ConvToNum<intptr_t>(value));
+}
+
+void IntExtItem::FromNetwork(Extensible* container, const std::string& value)
+{
+	if (synced)
+		FromInternal(container, value);
+}
+
+intptr_t IntExtItem::get(const Extensible* container) const
+{
+	return reinterpret_cast<intptr_t>(get_raw(container));
+}
+
+void IntExtItem::set(Extensible* container, intptr_t value)
+{
+	if (value)
+		set_raw(container, reinterpret_cast<void*>(value));
+	else
+		unset_raw(container);
+}
+
+std::string IntExtItem::ToInternal(const Extensible* container, void* item) const
+{
+	return ConvToStr(reinterpret_cast<intptr_t>(item));
+}
+
+std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
+{
+	return synced ? ToInternal(container, item) : std::string();
+}
+
+void IntExtItem::unset(Extensible* container)
+{
+	unset_raw(container);
+}
 
 StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
 	: SimpleExtItem(owner, key, exttype)

@@ -20,12 +20,12 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
+class DelayMsgMode : public ParamMode<DelayMsgMode, IntExtItem>
 {
  public:
-	LocalIntExt jointime;
+	IntExtItem jointime;
 	DelayMsgMode(Module* Parent)
-		: ParamMode<DelayMsgMode, LocalIntExt>(Parent, "delaymsg", 'd')
+		: ParamMode<DelayMsgMode, IntExtItem>(Parent, "delaymsg", 'd')
 		, jointime(Parent, "delaymsg", ExtensionItem::EXT_MEMBERSHIP)
 	{
 		ranktoset = ranktounset = OP_VALUE;
@@ -145,7 +145,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	else
 	{
 		/* Timer has expired, we can stop checking now */
-		djm.jointime.set(memb, 0);
+		djm.jointime.unset(memb);
 	}
 	return MOD_RES_PASSTHRU;
 }

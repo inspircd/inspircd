@@ -321,7 +321,7 @@ namespace
 }
 
 Cap::ExtItem::ExtItem(Module* mod)
-	: LocalIntExt(mod, "caps", ExtensionItem::EXT_USER)
+	: IntExtItem(mod, "caps", ExtensionItem::EXT_USER)
 {
 }
 
@@ -383,7 +383,7 @@ class CommandCap : public SplitCommand
 	}
 
  public:
-	LocalIntExt holdext;
+	IntExtItem holdext;
 
 	CommandCap(Module* mod)
 		: SplitCommand(mod, "CAP", 1)

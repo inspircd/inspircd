@@ -32,12 +32,12 @@ class AuthQuery : public SQL::Query
 {
  public:
 	const std::string uid;
-	LocalIntExt& pendingExt;
+	IntExtItem& pendingExt;
 	bool verbose;
 	const std::string& kdf;
 	const std::string& pwcolumn;
 
-	AuthQuery(Module* me, const std::string& u, LocalIntExt& e, bool v, const std::string& kd, const std::string& pwcol)
+	AuthQuery(Module* me, const std::string& u, IntExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
 		: SQL::Query(me)
 		, uid(u)
 		, pendingExt(e)
@@ -114,7 +114,7 @@ class AuthQuery : public SQL::Query
 
 class ModuleSQLAuth : public Module
 {
-	LocalIntExt pendingExt;
+	IntExtItem pendingExt;
 	dynamic_reference<SQL::Provider> SQL;
 	UserCertificateAPI sslapi;
 

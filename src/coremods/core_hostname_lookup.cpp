@@ -22,7 +22,7 @@
 
 namespace
 {
-	LocalIntExt* dl;
+	IntExtItem* dl;
 	StringExtItem* ph;
 }
 
@@ -177,7 +177,7 @@ class UserResolver : public DNS::Request
 
 class ModuleHostnameLookup : public Module
 {
-	LocalIntExt dnsLookup;
+	IntExtItem dnsLookup;
 	StringExtItem ptrHosts;
 	dynamic_reference<DNS::Manager> DNS;
 
@@ -215,7 +215,7 @@ class ModuleHostnameLookup : public Module
 		}
 		catch (DNS::Exception& e)
 		{
-			this->dnsLookup.set(user, 0);
+			this->dnsLookup.unset(user);
 			delete res_reverse;
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 		}

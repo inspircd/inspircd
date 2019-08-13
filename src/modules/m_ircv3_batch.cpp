@@ -62,7 +62,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;
-	LocalIntExt batchbits;
+	IntExtItem batchbits;
  	BatchList active_batches;
 	bool unloading;
 
@@ -112,7 +112,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		for (UserManager::LocalList::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			LocalUser* const user = *i;
-			batchbits.set(user, 0);
+			batchbits.unset(user);
 		}
 	}
 

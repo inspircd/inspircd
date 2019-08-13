@@ -31,7 +31,7 @@ namespace
 {
 	Module* me;
 	std::string killreason;
-	LocalIntExt* authed;
+	IntExtItem* authed;
 	bool verbose;
 	std::string vhost;
 	StringExtItem* vhosts;
@@ -296,7 +296,7 @@ class AdminBindInterface : public LDAPInterface
 class ModuleLDAPAuth : public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
-	LocalIntExt ldapAuthed;
+	IntExtItem ldapAuthed;
 	StringExtItem ldapVhost;
 	std::string base;
 	std::string attribute;

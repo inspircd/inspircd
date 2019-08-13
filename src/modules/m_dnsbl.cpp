@@ -49,12 +49,12 @@ class DNSBLResolver : public DNS::Request
 {
 	std::string theiruid;
 	StringExtItem& nameExt;
-	LocalIntExt& countExt;
+	IntExtItem& countExt;
 	reference<DNSBLConfEntry> ConfEntry;
 
  public:
 
-	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
 	{
 	}
@@ -235,7 +235,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	DNSBLConfList DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;
 	StringExtItem nameExt;
-	LocalIntExt countExt;
+	IntExtItem countExt;
 
 	/*
 	 *	Convert a string to EnumBanaction

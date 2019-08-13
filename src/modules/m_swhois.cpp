@@ -37,7 +37,7 @@ enum
 class CommandSwhois : public Command
 {
  public:
-	LocalIntExt operblock;
+	IntExtItem operblock;
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
@@ -72,7 +72,7 @@ class CommandSwhois : public Command
 			ServerInstance->SNO.WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 		}
 
-		operblock.set(user, 0);
+		operblock.unset(user);
 		if (parameters[1].empty())
 			swhois.unset(dest);
 		else
@@ -144,7 +144,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		if (!cmd.operblock.get(user))
 			return;
 
-		cmd.operblock.set(user, 0);
+		cmd.operblock.unset(user);
 		cmd.swhois.unset(user);
 		ServerInstance->PI->SendMetaData(user, "swhois", "");
 	}
@@ -153,7 +153,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 	{
 		User* dest = static_cast<User*>(target);
 		if (dest && (extname == "swhois"))
-			cmd.operblock.set(dest, 0);
+			cmd.operblock.unset(dest);
 	}
 
 	Version GetVersion() override

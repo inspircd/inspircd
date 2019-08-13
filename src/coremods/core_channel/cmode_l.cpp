@@ -23,7 +23,7 @@
 #include "core_channel.h"
 
 ModeChannelLimit::ModeChannelLimit(Module* Creator)
-	: ParamMode<ModeChannelLimit, LocalIntExt>(Creator, "limit", 'l')
+	: ParamMode<ModeChannelLimit, IntExtItem>(Creator, "limit", 'l')
 {
 	syntax = "<limit>";
 }

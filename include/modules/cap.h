@@ -28,7 +28,7 @@ namespace Cap
 	static const unsigned int MAX_VALUE_LENGTH = 100;
 
 	typedef intptr_t Ext;
-	class ExtItem : public LocalIntExt
+	class ExtItem : public IntExtItem
 	{
 	 public:
 		ExtItem(Module* mod);
