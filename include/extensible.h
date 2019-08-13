@@ -210,22 +210,19 @@ class SimpleExtItem : public ExtensionItem
 	{
 		T* ptr = new T(value);
 		T* old = static_cast<T*>(set_raw(container, ptr));
-		Del del;
-		del(old);
+		free(container, old);
 	}
 
 	inline void set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(set_raw(container, value));
-		Del del;
-		del(old);
+		free(container, old);
 	}
 
 	inline void unset(Extensible* container)
 	{
 		T* old = static_cast<T*>(unset_raw(container));
-		Del del;
-		del(old);
+		free(container, old);
 	}
 
 	void free(Extensible* container, void* item) CXX11_OVERRIDE
