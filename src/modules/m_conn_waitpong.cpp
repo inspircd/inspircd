@@ -28,7 +28,7 @@ class ModuleWaitPong : public Module
 {
 	bool sendsnotice;
 	bool killonbadreply;
-	LocalStringExt ext;
+	StringExtItem ext;
 
  public:
 	ModuleWaitPong()

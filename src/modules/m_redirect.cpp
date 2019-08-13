@@ -26,11 +26,11 @@
 
 /** Handle channel mode +L
  */
-class Redirect : public ParamMode<Redirect, LocalStringExt>
+class Redirect : public ParamMode<Redirect, StringExtItem>
 {
  public:
 	Redirect(Module* Creator)
-		: ParamMode<Redirect, LocalStringExt>(Creator, "redirect", 'L')
+		: ParamMode<Redirect, StringExtItem>(Creator, "redirect", 'L')
 	{
 		syntax = "<target>";
 	}

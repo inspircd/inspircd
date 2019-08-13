@@ -220,13 +220,36 @@ class SimpleExtItem : public ExtensionItem
 	}
 };
 
-class CoreExport LocalStringExt : public SimpleExtItem<std::string>
+/** Encapsulates an ExtensionItem which has a string value. */
+class CoreExport StringExtItem : public SimpleExtItem<std::string>
 {
+ protected:
+	/** Whether to sync this StringExtItem across the network. */
+	bool synced;
+
  public:
-	LocalStringExt(Module* owner, const std::string& key, ExtensibleType exttype);
-	virtual ~LocalStringExt();
-	std::string ToInternal(const Extensible* container, void* item) const override;
+	/** Initializes an instance of the StringExtItem class.
+	 * @param owner The module which created this StringExtItem.
+	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this IntExtItem applies to.
+	 * @param sync Whether this StringExtItem should be broadcast to other servers.
+	 */
+	StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+
+	/** Destroys an instance of the StringExtItem class. */
+	virtual ~StringExtItem() = default;
+
+	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) override;
+
+	/** @copydoc ExtensionItem::FromNetwork */
+	void FromNetwork(Extensible* container, const std::string& value) override;
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToInternal(const Extensible* container, void* item) const override;
+
+	/** @copydoc ExtensionItem::ToNetwork */
+	std::string ToNetwork(const Extensible* container, void* item) const override;
 };
 
 class CoreExport LocalIntExt : public ExtensionItem
@@ -239,18 +262,5 @@ class CoreExport LocalIntExt : public ExtensionItem
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
-	void Delete(Extensible* container, void* item) override;
-};
-
-class CoreExport StringExtItem : public ExtensionItem
-{
- public:
-	StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype);
-	virtual ~StringExtItem();
-	std::string* get(const Extensible* container) const;
-	std::string ToNetwork(const Extensible* container, void* item) const override;
-	void FromNetwork(Extensible* container, const std::string& value) override;
-	void set(Extensible* container, const std::string& value);
-	void unset(Extensible* container);
 	void Delete(Extensible* container, void* item) override;
 };

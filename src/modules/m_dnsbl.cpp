@@ -48,13 +48,13 @@ class DNSBLConfEntry : public refcountbase
 class DNSBLResolver : public DNS::Request
 {
 	std::string theiruid;
-	LocalStringExt& nameExt;
+	StringExtItem& nameExt;
 	LocalIntExt& countExt;
 	reference<DNSBLConfEntry> ConfEntry;
 
  public:
 
-	DNSBLResolver(DNS::Manager *mgr, Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
 	{
 	}
@@ -234,7 +234,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 {
 	DNSBLConfList DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;
-	LocalStringExt nameExt;
+	StringExtItem nameExt;
 	LocalIntExt countExt;
 
 	/*

@@ -124,9 +124,9 @@ class CommandWebIRC : public SplitCommand
 
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
-		, gateway(Creator, "cgiirc_gateway", ExtensionItem::EXT_USER)
-		, realhost(Creator, "cgiirc_realhost", ExtensionItem::EXT_USER)
-		, realip(Creator, "cgiirc_realip", ExtensionItem::EXT_USER)
+		, gateway(Creator, "cgiirc_gateway", ExtensionItem::EXT_USER, true)
+		, realhost(Creator, "cgiirc_realhost", ExtensionItem::EXT_USER, true)
+		, realip(Creator, "cgiirc_realip", ExtensionItem::EXT_USER, true)
 		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{

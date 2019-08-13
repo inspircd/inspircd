@@ -23,7 +23,7 @@
 namespace
 {
 	LocalIntExt* dl;
-	LocalStringExt* ph;
+	StringExtItem* ph;
 }
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
@@ -178,7 +178,7 @@ class UserResolver : public DNS::Request
 class ModuleHostnameLookup : public Module
 {
 	LocalIntExt dnsLookup;
-	LocalStringExt ptrHosts;
+	StringExtItem ptrHosts;
 	dynamic_reference<DNS::Manager> DNS;
 
  public:

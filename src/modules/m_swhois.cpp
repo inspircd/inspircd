@@ -42,7 +42,7 @@ class CommandSwhois : public Command
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
 		, operblock(Creator, "swhois_operblock", ExtensionItem::EXT_USER)
-		, swhois(Creator, "swhois", ExtensionItem::EXT_USER)
+		, swhois(Creator, "swhois", ExtensionItem::EXT_USER, true)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		translation = { TR_NICK, TR_TEXT };

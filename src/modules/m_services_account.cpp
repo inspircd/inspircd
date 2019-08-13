@@ -104,7 +104,7 @@ class AccountExtItemImpl : public AccountExtItem
 
  public:
 	AccountExtItemImpl(Module* mod)
-		: AccountExtItem(mod, "accountname", ExtensionItem::EXT_USER)
+		: AccountExtItem(mod, "accountname", ExtensionItem::EXT_USER, true)
 		, eventprov(mod, "event/account")
 	{
 	}

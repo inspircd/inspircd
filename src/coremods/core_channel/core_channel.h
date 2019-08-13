@@ -174,7 +174,7 @@ class ModeChannelBan : public ListModeBase
 
 /** Channel mode +k
  */
-class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
+class ModeChannelKey : public ParamMode<ModeChannelKey, StringExtItem>
 {
  public:
 	static const std::string::size_type maxkeylen;

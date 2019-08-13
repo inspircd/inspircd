@@ -246,25 +246,6 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
-LocalStringExt::LocalStringExt(Module* Owner, const std::string& Key, ExtensibleType exttype)
-	: SimpleExtItem<std::string>(Owner, Key, exttype)
-{
-}
-
-LocalStringExt::~LocalStringExt()
-{
-}
-
-std::string LocalStringExt::ToInternal(const Extensible* container, void* item) const
-{
-	return item ? *static_cast<std::string*>(item) : std::string();	
-}
-
-void LocalStringExt::FromInternal(Extensible* container, const std::string& value)
-{
-	set(container, value);
-}
-
 LocalIntExt::LocalIntExt(Module* mod, const std::string& Key, ExtensibleType exttype)
 	: ExtensionItem(mod, Key, exttype)
 {
@@ -299,50 +280,6 @@ intptr_t LocalIntExt::set(Extensible* container, intptr_t value)
 
 void LocalIntExt::Delete(Extensible* container, void* item)
 {
-}
-
-StringExtItem::StringExtItem(Module* mod, const std::string& Key, ExtensibleType exttype)
-	: ExtensionItem(mod, Key, exttype)
-{
-}
-
-StringExtItem::~StringExtItem()
-{
-}
-
-std::string* StringExtItem::get(const Extensible* container) const
-{
-	return static_cast<std::string*>(get_raw(container));
-}
-
-std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const
-{
-	return item ? *static_cast<std::string*>(item) : std::string();
-}
-
-void StringExtItem::FromNetwork(Extensible* container, const std::string& value)
-{
-	if (value.empty())
-		unset(container);
-	else
-		set(container, value);
-}
-
-void StringExtItem::set(Extensible* container, const std::string& value)
-{
-	void* old = set_raw(container, new std::string(value));
-	Delete(container, old);
-}
-
-void StringExtItem::unset(Extensible* container)
-{
-	void* old = unset_raw(container);
-	Delete(container, old);
-}
-
-void StringExtItem::Delete(Extensible* container, void* item)
-{
-	delete static_cast<std::string*>(item);
 }
 
 ModuleException::ModuleException(const std::string &message, Module* who)

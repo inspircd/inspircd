@@ -34,7 +34,7 @@ namespace
 	LocalIntExt* authed;
 	bool verbose;
 	std::string vhost;
-	LocalStringExt* vhosts;
+	StringExtItem* vhosts;
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 }
 
@@ -297,7 +297,7 @@ class ModuleLDAPAuth : public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
 	LocalIntExt ldapAuthed;
-	LocalStringExt ldapVhost;
+	StringExtItem ldapVhost;
 	std::string base;
 	std::string attribute;
 	std::vector<std::string> allowpatterns;
