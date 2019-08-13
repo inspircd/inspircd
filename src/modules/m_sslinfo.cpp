@@ -55,7 +55,7 @@ class SSLCertExt : public ExtensionItem
 
 	void unset(Extensible* container)
 	{
-		free(container, unset_raw(container));
+		Delete(container, unset_raw(container));
 	}
 
 	std::string ToNetwork(const Extensible* container, void* item) const override
@@ -88,7 +88,7 @@ class SSLCertExt : public ExtensionItem
 		}
 	}
 
-	void free(Extensible* container, void* item) override
+	void Delete(Extensible* container, void* item) override
 	{
 		ssl_cert* old = static_cast<ssl_cert*>(item);
 		if (old && old->refcount_dec())

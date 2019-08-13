@@ -81,10 +81,10 @@ class Invite::ExtItem : public ExtensionItem
 	{
 		void* store = unset_raw(ext);
 		if (store)
-			free(ext, store);
+			Delete(ext, store);
 	}
 
-	void free(Extensible* container, void* item) override
+	void Delete(Extensible* container, void* item) override
 	{
 		Store<T>* store = static_cast<Store<T>*>(item);
 		for (typename Store<T>::List::iterator i = store->invites.begin(); i != store->invites.end(); )

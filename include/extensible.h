@@ -86,7 +86,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	 * @param container The container that the ExtensionItem is set on.
 	 * @param item The item to deallocate.
 	 */
-	virtual void free(Extensible* container, void* item) = 0;
+	virtual void Delete(Extensible* container, void* item) = 0;
 
 	/** Registers this object with the ExtensionManager. */
 	void RegisterService() override;
@@ -193,22 +193,22 @@ class SimpleExtItem : public ExtensionItem
 	{
 		T* ptr = new T(value);
 		T* old = static_cast<T*>(set_raw(container, ptr));
-		free(container, old);
+		Delete(container, old);
 	}
 
 	inline void set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(set_raw(container, value));
-		free(container, old);
+		Delete(container, old);
 	}
 
 	inline void unset(Extensible* container)
 	{
 		T* old = static_cast<T*>(unset_raw(container));
-		free(container, old);
+		Delete(container, old);
 	}
 
-	void free(Extensible* container, void* item) override
+	void Delete(Extensible* container, void* item) override
 	{
 		Del del;
 		del(static_cast<T*>(item));
@@ -234,7 +234,7 @@ class CoreExport LocalIntExt : public ExtensionItem
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void unset(Extensible* container) { set(container, 0); }
-	void free(Extensible* container, void* item) override;
+	void Delete(Extensible* container, void* item) override;
 };
 
 class CoreExport StringExtItem : public ExtensionItem
@@ -247,5 +247,5 @@ class CoreExport StringExtItem : public ExtensionItem
 	void FromNetwork(Extensible* container, const std::string& value) override;
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);
-	void free(Extensible* container, void* item) override;
+	void Delete(Extensible* container, void* item) override;
 };

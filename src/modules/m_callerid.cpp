@@ -91,7 +91,7 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 		void* old = get_raw(container);
 		if (old)
-			this->free(NULL, old);
+			this->Delete(NULL, old);
 		callerid_data* dat = new callerid_data;
 		set_raw(container, dat);
 
@@ -125,7 +125,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		return dat;
 	}
 
-	void free(Extensible* container, void* item) override
+	void Delete(Extensible* container, void* item) override
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 

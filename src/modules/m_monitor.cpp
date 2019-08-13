@@ -79,7 +79,7 @@ class IRCv3::Monitor::Manager
 
 		void unset(Extensible* container)
 		{
-			free(container, unset_raw(container));
+			Delete(container, unset_raw(container));
 		}
 
 		std::string ToInternal(const Extensible* container, void* item) const override
@@ -98,7 +98,7 @@ class IRCv3::Monitor::Manager
 
 		void FromInternal(Extensible* container, const std::string& value) override;
 
-		void free(Extensible* container, void* item) override
+		void Delete(Extensible* container, void* item) override
 		{
 			delete static_cast<ExtData*>(item);
 		}

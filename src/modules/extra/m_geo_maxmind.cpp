@@ -40,7 +40,7 @@ class GeolocationExtItem : public ExtensionItem
 	{
 	}
 
-	void free(Extensible* container, void* item) override
+	void Delete(Extensible* container, void* item) override
 	{
 		Geolocation::Location* old = static_cast<Geolocation::Location*>(item);
 		if (old)
@@ -55,12 +55,12 @@ class GeolocationExtItem : public ExtensionItem
 	void set(Extensible* item, Geolocation::Location* value)
 	{
 		value->refcount_inc();
-		free(item, set_raw(item, value));
+		Delete(item, set_raw(item, value));
 	}
 
 	void unset(Extensible* container)
 	{
-		free(container, unset_raw(container));
+		Delete(container, unset_raw(container));
 	}
 };
 
