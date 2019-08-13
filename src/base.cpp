@@ -335,13 +335,13 @@ void StringExtItem::FromNetwork(Extensible* container, const std::string& value)
 void StringExtItem::set(Extensible* container, const std::string& value)
 {
 	void* old = set_raw(container, new std::string(value));
-	delete static_cast<std::string*>(old);
+	free(container, old);
 }
 
 void StringExtItem::unset(Extensible* container)
 {
 	void* old = unset_raw(container);
-	delete static_cast<std::string*>(old);
+	free(container, old);
 }
 
 void StringExtItem::free(Extensible* container, void* item)
