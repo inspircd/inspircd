@@ -50,7 +50,7 @@ class BanRedirect : public ModeWatcher
 	BanRedirect(Module* parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 		, ban(parent, "ban")
-		, extItem("banredirect", ExtensionItem::EXT_CHANNEL, parent)
+		, extItem(parent, "banredirect", ExtensionItem::EXT_CHANNEL)
 	{
 	}
 

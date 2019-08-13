@@ -31,7 +31,7 @@ class ModuleMLock : public Module
 
  public:
 	ModuleMLock()
-		: mlock("mlock", ExtensionItem::EXT_CHANNEL, this)
+		: mlock(this, "mlock", ExtensionItem::EXT_CHANNEL)
 	{
 	}
 

@@ -259,8 +259,8 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	ModuleDNSBL()
 		: Stats::EventListener(this)
 		, DNS(this, "DNS")
-		, nameExt("dnsbl_match", ExtensionItem::EXT_USER, this)
-		, countExt("dnsbl_pending", ExtensionItem::EXT_USER, this)
+		, nameExt(this, "dnsbl_match", ExtensionItem::EXT_USER)
+		, countExt(this, "dnsbl_pending", ExtensionItem::EXT_USER)
 	{
 	}
 

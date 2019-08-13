@@ -61,7 +61,7 @@ class IRCv3::Monitor::Manager
 
 	 public:
 		ExtItem(Module* mod, const std::string& extname, Manager& managerref)
-			: ExtensionItem(extname, ExtensionItem::EXT_USER, mod)
+			: ExtensionItem(mod, extname, ExtensionItem::EXT_USER)
 			, manager(managerref)
 		{
 		}

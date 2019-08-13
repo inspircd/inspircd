@@ -301,7 +301,7 @@ class ModuleDCCAllow : public Module
 
  public:
 	ModuleDCCAllow()
-		: ext("dccallow", ExtensionItem::EXT_USER, this)
+		: ext(this, "dccallow", ExtensionItem::EXT_USER)
 		, cmd(this, ext)
 		, blockchat(false)
 	{

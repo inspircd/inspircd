@@ -84,7 +84,7 @@ class CloakUser : public ModeHandler
 	CloakUser(Module* source)
 		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
 		, active(false)
-		, ext("cloaked_host", ExtensionItem::EXT_USER, source)
+		, ext(source, "cloaked_host", ExtensionItem::EXT_USER)
 		, debounce_ts(0)
 		, debounce_count(0)
 	{

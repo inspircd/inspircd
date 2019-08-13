@@ -23,7 +23,7 @@
 
 CommandQuit::CommandQuit(Module* parent)
 	: Command(parent, "QUIT", 0, 1)
-	, operquit("operquit", ExtensionItem::EXT_USER, parent)
+	, operquit(parent, "operquit", ExtensionItem::EXT_USER)
 {
 	works_before_reg = true;
 	syntax = "[:<message>]";

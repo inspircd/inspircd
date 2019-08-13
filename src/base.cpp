@@ -99,13 +99,9 @@ void ServiceProvider::RegisterService()
 {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensibleType exttype)
 	: ServiceProvider(mod, Key, SERVICE_METADATA)
 	, type(exttype)
-{
-}
-
-ExtensionItem::~ExtensionItem()
 {
 }
 
@@ -250,8 +246,8 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
-LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
-	: SimpleExtItem<std::string>(Key, exttype, Owner)
+LocalStringExt::LocalStringExt(Module* Owner, const std::string& Key, ExtensibleType exttype)
+	: SimpleExtItem<std::string>(Owner, Key, exttype)
 {
 }
 
@@ -269,8 +265,8 @@ void LocalStringExt::FromInternal(Extensible* container, const std::string& valu
 	set(container, value);
 }
 
-LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
+LocalIntExt::LocalIntExt(Module* mod, const std::string& Key, ExtensibleType exttype)
+	: ExtensionItem(mod, Key, exttype)
 {
 }
 
@@ -305,8 +301,8 @@ void LocalIntExt::Delete(Extensible* container, void* item)
 {
 }
 
-StringExtItem::StringExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
+StringExtItem::StringExtItem(Module* mod, const std::string& Key, ExtensibleType exttype)
+	: ExtensionItem(mod, Key, exttype)
 {
 }
 

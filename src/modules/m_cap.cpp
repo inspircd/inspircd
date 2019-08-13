@@ -321,7 +321,7 @@ namespace
 }
 
 Cap::ExtItem::ExtItem(Module* mod)
-	: LocalIntExt("caps", ExtensionItem::EXT_USER, mod)
+	: LocalIntExt(mod, "caps", ExtensionItem::EXT_USER)
 {
 }
 
@@ -390,7 +390,7 @@ class CommandCap : public SplitCommand
 		, evprov(mod, "event/cap")
 		, manager(mod, evprov)
 		, protoevprov(mod, name)
-		, holdext("cap_hold", ExtensionItem::EXT_USER, mod)
+		, holdext(mod, "cap_hold", ExtensionItem::EXT_USER)
 	{
 		works_before_reg = true;
 	}

@@ -183,8 +183,8 @@ class ModuleHostnameLookup : public Module
 
  public:
 	ModuleHostnameLookup()
-		: dnsLookup("dnsLookup", ExtensionItem::EXT_USER, this)
-		, ptrHosts("ptrHosts", ExtensionItem::EXT_USER, this)
+		: dnsLookup(this, "dnsLookup", ExtensionItem::EXT_USER)
+		, ptrHosts(this, "ptrHosts", ExtensionItem::EXT_USER)
 		, DNS(this, "DNS")
 	{
 		dl = &dnsLookup;

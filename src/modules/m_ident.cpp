@@ -298,8 +298,8 @@ class ModuleIdent : public Module
 
  public:
 	ModuleIdent()
-		: socket("ident_socket", ExtensionItem::EXT_USER, this)
-		, state("ident_state", ExtensionItem::EXT_USER, this)
+		: socket(this, "ident_socket", ExtensionItem::EXT_USER)
+		, state(this, "ident_state", ExtensionItem::EXT_USER)
 	{
 	}
 

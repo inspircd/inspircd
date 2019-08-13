@@ -67,7 +67,7 @@ class ModuleConnJoin : public Module
 
  public:
 	ModuleConnJoin()
-		: ext("join_timer", ExtensionItem::EXT_USER, this)
+		: ext(this, "join_timer", ExtensionItem::EXT_USER)
 	{
 	}
 

@@ -71,8 +71,9 @@ class CommandTitle : public Command
 	StringExtItem ctitle;
 	CustomVhostMap configs;
 
-	CommandTitle(Module* Creator) : Command(Creator,"TITLE", 2),
-		ctitle("ctitle", ExtensionItem::EXT_USER, Creator)
+	CommandTitle(Module* Creator)
+		: Command(Creator,"TITLE", 2)
+		, ctitle(Creator, "ctitle", ExtensionItem::EXT_USER)
 	{
 		syntax = "<username> <password>";
 	}

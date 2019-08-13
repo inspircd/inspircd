@@ -99,7 +99,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		: Manager(mod)
 		, cap(mod, "batch")
 		, protoevprov(mod, "BATCH")
-		, batchbits("batchbits", ExtensionItem::EXT_USER, mod)
+		, batchbits(mod, "batchbits", ExtensionItem::EXT_USER)
 		, unloading(false)
 	{
 	}

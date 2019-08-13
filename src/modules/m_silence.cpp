@@ -264,7 +264,7 @@ class CommandSilence : public SplitCommand
 	CommandSilence(Module* Creator)
 		: SplitCommand(Creator, "SILENCE")
 		, msgprov(Creator, "SILENCE")
-		, ext("silence_list", ExtensionItem::EXT_USER, Creator)
+		, ext(Creator, "silence_list", ExtensionItem::EXT_USER)
 	{
 		allow_empty_last_param = false;
 		syntax = "[(+|-)<mask> [CcdiNnPpTtx]]";

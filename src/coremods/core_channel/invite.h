@@ -62,7 +62,7 @@ class Invite::ExtItem : public ExtensionItem
 
  public:
 	ExtItem(Module* owner, const char* extname)
-		: ExtensionItem(extname, ExtType, owner)
+		: ExtensionItem(owner, extname, ExtType)
 	{
 	}
 

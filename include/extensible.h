@@ -40,14 +40,14 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	const ExtensibleType type;
 
 	/** Initializes an instance of the ExtensionItem class.
+	 * @param owner The module which created this ExtensionItem.
 	 * @param key The name of the extension item (e.g. ssl_cert).
 	 * @param exttype The type of Extensible that this ExtensionItem applies to.
-	 * @param owner The module which created this ExtensionItem 
 	 */
-	ExtensionItem(const std::string& key, ExtensibleType exttype, Module* owner);
+	ExtensionItem(Module* owner, const std::string& key, ExtensibleType exttype);
 
 	/** Destroys an instance of the ExtensionItem class. */
-	virtual ~ExtensionItem();
+	virtual ~ExtensionItem() = default;
 
 	/** Sets an ExtensionItem using a value in the internal format.
 	 * @param container A container the ExtensionItem should be set on.
@@ -171,18 +171,23 @@ class CoreExport ExtensionManager
 	ExtMap types;
 };
 
+/** Represents a simple ExtensionItem. */
 template <typename T, typename Del = stdalgo::defaultdeleter<T> >
 class SimpleExtItem : public ExtensionItem
 {
  public:
-	SimpleExtItem(const std::string& Key, ExtensibleType exttype, Module* parent)
-		: ExtensionItem(Key, exttype, parent)
+	/** Initializes an instance of the SimpleExtItem class.
+	 * @param parent The module which created this SimpleExtItem.
+	 * @param Key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this SimpleExtItem applies to.
+	 */
+	SimpleExtItem(Module* parent, const std::string& Key, ExtensibleType exttype)
+		: ExtensionItem(parent, Key, exttype)
 	{
 	}
 
-	virtual ~SimpleExtItem()
-	{
-	}
+	/** Destroys an instance of the SimpleExtItem class. */
+	virtual ~SimpleExtItem() = default;
 
 	inline T* get(const Extensible* container) const
 	{
@@ -218,7 +223,7 @@ class SimpleExtItem : public ExtensionItem
 class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 {
  public:
-	LocalStringExt(const std::string& key, ExtensibleType exttype, Module* owner);
+	LocalStringExt(Module* owner, const std::string& key, ExtensibleType exttype);
 	virtual ~LocalStringExt();
 	std::string ToInternal(const Extensible* container, void* item) const override;
 	void FromInternal(Extensible* container, const std::string& value) override;
@@ -227,7 +232,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 class CoreExport LocalIntExt : public ExtensionItem
 {
  public:
-	LocalIntExt(const std::string& key, ExtensibleType exttype, Module* owner);
+	LocalIntExt(Module* owner, const std::string& key, ExtensibleType exttype);
 	virtual ~LocalIntExt();
 	std::string ToInternal(const Extensible* container, void* item) const override;
 	void FromInternal(Extensible* container, const std::string& value) override;
@@ -240,7 +245,7 @@ class CoreExport LocalIntExt : public ExtensionItem
 class CoreExport StringExtItem : public ExtensionItem
 {
  public:
-	StringExtItem(const std::string& key, ExtensibleType exttype, Module* owner);
+	StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
 	std::string ToNetwork(const Extensible* container, void* item) const override;

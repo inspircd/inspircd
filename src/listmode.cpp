@@ -25,7 +25,7 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 	, endoflistnumeric(eolnum)
 	, endofliststring(eolstr)
 	, tidy(autotidy)
-	, extItem(name + "_mode_list", ExtensionItem::EXT_CHANNEL, Creator)
+	, extItem(Creator, name + "_mode_list", ExtensionItem::EXT_CHANNEL)
 {
 	list = true;
 }

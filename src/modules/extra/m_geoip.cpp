@@ -71,7 +71,7 @@ class ModuleGeoIP : public Module, public Stats::EventListener, public Whois::Ev
 	ModuleGeoIP()
 		: Stats::EventListener(this)
 		, Whois::EventListener(this)
-		, ext("geoip_cc", ExtensionItem::EXT_USER, this)
+		, ext(this, "geoip_cc", ExtensionItem::EXT_USER)
 		, extban(true)
 		, ipv4db(NULL)
 		, ipv6db(NULL)

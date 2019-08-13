@@ -396,7 +396,7 @@ class ModuleSASL : public Module
 
  public:
 	ModuleSASL()
-		: authExt("sasl_auth", ExtensionItem::EXT_USER, this)
+		: authExt(this, "sasl_auth", ExtensionItem::EXT_USER)
 		, servertracker(this)
 		, cap(this, servertracker)
 		, auth(this, authExt, cap)

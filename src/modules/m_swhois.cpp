@@ -41,8 +41,8 @@ class CommandSwhois : public Command
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
-		, operblock("swhois_operblock", ExtensionItem::EXT_USER, Creator)
-		, swhois("swhois", ExtensionItem::EXT_USER, Creator)
+		, operblock(Creator, "swhois_operblock", ExtensionItem::EXT_USER)
+		, swhois(Creator, "swhois", ExtensionItem::EXT_USER)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		translation = { TR_NICK, TR_TEXT };
