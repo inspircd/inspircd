@@ -13,6 +13,7 @@ RUN apt-get install --assume-yes --no-install-recommends \
 	libgeoip-dev \
 	libgnutls28-dev \
 	libldap2-dev \
+	libmaxminddb-dev \
 	libmbedtls-dev \
 	libmysqlclient-dev \
 	libpcre3-dev \
