@@ -8,6 +8,7 @@ RUN apt-get install --assume-yes --no-install-recommends \
 	git \
 	make \
 	libc++-dev \
+	libc++abi-dev \
 	pkg-config
 RUN apt-get install --assume-yes --no-install-recommends \
 	libgeoip-dev \
