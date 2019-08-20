@@ -380,6 +380,9 @@ ModuleSQL::ModuleSQL()
 
 void ModuleSQL::init()
 {
+	if (mysql_library_init(0, NULL, NULL))
+		throw ModuleException("Unable to initialise the MySQL library!");
+
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
 
@@ -397,10 +400,13 @@ ModuleSQL::~ModuleSQL()
 		Dispatcher->OnNotify();
 		delete Dispatcher;
 	}
+
 	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 	{
 		delete i->second;
 	}
+
+	mysql_library_end();
 }
 
 void ModuleSQL::OnRehash(User* user)
