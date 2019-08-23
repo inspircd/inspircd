@@ -51,15 +51,15 @@
 # endif
 #endif
 
-// Fix warnings about using std::auto_ptr on C++11 or newer.
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif
+
+// Fix warnings about using std::auto_ptr on C++11 or newer.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #ifndef GNUTLS_VERSION_NUMBER
 #define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
