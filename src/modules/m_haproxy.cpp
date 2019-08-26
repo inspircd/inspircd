@@ -219,7 +219,16 @@ class HAProxyHook : public IOHookMiddle
 		return true;
 	}
 
-	int ReadProxyAddress(StreamSocket* sock)
+	int ReadData(std::string& destrecvq)
+	{
+		// Once connected we handle no special data.
+		std::string& recvq = GetRecvQ();
+		destrecvq.append(recvq);
+		recvq.clear();
+		return 1;
+	}
+
+	int ReadProxyAddress(StreamSocket* sock, std::string& destrecvq)
 	{
 		// Block until we have the entire address.
 		std::string& recvq = GetRecvQ();
@@ -276,14 +285,15 @@ class HAProxyHook : public IOHookMiddle
 
 				// Erase the processed proxy information from the receive queue.
 				recvq.erase(0, address_length);
+				break;
 		}
 
 		// We're done!
 		state = HPS_CONNECTED;
-		return 1;
+		return ReadData(destrecvq);
 	}
 
-	int ReadProxyHeader(StreamSocket* sock)
+	int ReadProxyHeader(StreamSocket* sock, std::string& destrecvq)
 	{
 		// Block until we have a header.
 		std::string& recvq = GetRecvQ();
@@ -359,7 +369,7 @@ class HAProxyHook : public IOHookMiddle
 		}
 
 		state = HPS_WAITING_FOR_ADDRESS;
-		return ReadProxyAddress(sock);
+		return ReadProxyAddress(sock, destrecvq);
 	}
 
  public:
@@ -384,16 +394,13 @@ class HAProxyHook : public IOHookMiddle
 		switch (state)
 		{
 			case HPS_WAITING_FOR_HEADER:
-				return ReadProxyHeader(sock);
+				return ReadProxyHeader(sock, destrecvq);
 
 			case HPS_WAITING_FOR_ADDRESS:
-				return ReadProxyAddress(sock);
+				return ReadProxyAddress(sock, destrecvq);
 
 			case HPS_CONNECTED:
-				std::string& recvq = GetRecvQ();
-				destrecvq.append(recvq);
-				recvq.clear();
-				return 1;
+				return ReadData(destrecvq);
 		}
 
 		// We should never reach this point.
