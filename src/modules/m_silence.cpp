@@ -282,7 +282,7 @@ class CommandSilence : public SplitCommand
 		std::string mask = parameters[0];
 		if (mask[0] == '-' || mask[0] == '+')
 		{
-			mask.erase(0);
+			mask.erase(0, 1);
 			if (mask.empty())
 				mask.assign("*");
 			ModeParser::CleanMask(mask);
