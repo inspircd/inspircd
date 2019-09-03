@@ -31,6 +31,7 @@
 #include <map>
 #include <set>
 #include "inspircd.h"
+#include "convto.h"
 
 /*******************************************************
  * This file contains classes and templates that deal
@@ -138,6 +139,21 @@ namespace irc
 		 * @return True if tokens still remain, false if there are none left
 		 */
 		bool GetToken(std::string& token);
+
+		/** Fetch the next numeric token from the stream
+		 * @param token The next token from the stream is placed here
+		 * @return True if tokens still remain, false if there are none left
+		 */
+		template<typename Numeric>
+		bool GetNumericToken(Numeric& token)
+		{
+			std::string str;
+			if (!GetToken(str))
+				return false;
+
+			token = ConvToNum<Numeric>(str);
+			return true;
+		}
 
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream
