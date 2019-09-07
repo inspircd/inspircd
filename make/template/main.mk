@@ -219,7 +219,6 @@ install: target
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
@@ -265,12 +264,10 @@ deinstall:
 	-rm -f $(MANPATH)/inspircd-genssl.1
 	-rm -f $(MODPATH)/m_*.so
 	-rm -f $(MODPATH)/core_*.so
-	-rm -f $(SCRPATH)/.gdbargs
 	-rm -f $(SCRPATH)/inspircd.service
 	-rm -f $(SCRPATH)/org.inspircd.plist
 
 configureclean:
-	rm -f .gdbargs
 	-rm -f Makefile
 	rm -f GNUmakefile
 	rm -f include/config.h
