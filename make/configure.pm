@@ -284,21 +284,21 @@ sub parse_templates($$$) {
 			}
 
 			# Does this line match a directive?
-			if ($line =~ /^\s*%(\w+)\s+(.+)$/) {
-				if ($1 eq 'define') {
-					if ($settings{$2}) {
-						push @lines, "#define $2";
+			if ($line =~ /^(\s*)%(\w+)\s+(.+)$/) {
+				if ($2 eq 'define') {
+					if ($settings{$3}) {
+						push @lines, "#$1define $3";
 					} else {
-						push @lines, "#undef $2";
+						push @lines, "#$1undef $3";
 					}
-				} elsif ($1 eq 'mode') {
-					$mode = oct $2;
-				} elsif ($1 eq 'platform') {
-					push @platforms, $2;
-				} elsif ($1 eq 'target') {
-					push @targets, $2
+				} elsif ($2 eq 'mode') {
+					$mode = oct $3;
+				} elsif ($2 eq 'platform') {
+					push @platforms, $3;
+				} elsif ($2 eq 'target') {
+					push @targets, $3
 				} else {
-					print_warning "unknown template command '$1' in $_!";
+					print_warning "unknown template command '$2' in $_!";
 					push @lines, $line;
 				}
 				next;
