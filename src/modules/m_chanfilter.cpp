@@ -110,7 +110,7 @@ class ModuleChanFilter : public Module
 		LocalUser* luser = IS_LOCAL(user);
 
 		std::string oldreason(partmessage);
-		partmessage = "Filtered";
+		partmessage = "Reason filtered";
 		if (!notifyuser)
 		{
 			// Send fake part
