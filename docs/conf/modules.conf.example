@@ -116,6 +116,10 @@
 #                    to successfully trigger. If they are not, then   #
 #                    the user receives a 'no such nick' 401 numeric.  #
 #                                                                     #
+# stripcolor  -      If this is true, the text from the user will be  #
+#                    stripped of color and format codes before        #
+#                    matching against 'text'.                         #
+#                                                                     #
 # uline       -      Setting this to true will ensure that the user   #
 #                    given in 'requires' is also on a U-lined server, #
 #                    as well as actually being on the network. If the #
