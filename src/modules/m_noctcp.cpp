@@ -78,6 +78,14 @@ class ModuleNoCTCP : public Module
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
 					return MOD_RES_DENY;
 				}
+
+				const Channel::MemberMap& members = c->GetUsers();
+				for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
+				{
+					User* u = member->first;
+					if (u->IsModeSet(ncu))
+						details.exemptions.insert(u);
+				}
 				break;
 			}
 			case MessageTarget::TYPE_USER:
