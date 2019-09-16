@@ -554,11 +554,13 @@
 #<cloak mode="half"
 #       key="changeme"
 #       domainparts="3"
-#       prefix="net-">
+#       prefix="net-"
+#       ignorecase="no">
 #
 #<cloak mode="full"
 #       key="changeme"
-#       prefix="net-">
+#       prefix="net-"
+#       ignorecase="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clones module: Adds an oper command /CLONES for detecting cloned

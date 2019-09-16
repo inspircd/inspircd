@@ -49,6 +49,9 @@ struct CloakInfo
 	// The number of parts of the hostname shown when using half cloaking.
 	unsigned int domainparts;
 
+	// Whether to ignore the case of a hostname when cloaking it.
+	bool ignorecase;
+
 	// The secret used for generating cloaks.
 	std::string key;
 
@@ -58,9 +61,10 @@ struct CloakInfo
 	// The suffix for IP cloaks (e.g. .IP).
 	std::string suffix;
 
-	CloakInfo(CloakMode Mode, const std::string& Key, const std::string& Prefix, const std::string& Suffix, unsigned int DomainParts = 0)
+	CloakInfo(CloakMode Mode, const std::string& Key, const std::string& Prefix, const std::string& Suffix, bool IgnoreCase, unsigned int DomainParts = 0)
 		: mode(Mode)
 		, domainparts(DomainParts)
+		, ignorecase(IgnoreCase)
 		, key(Key)
 		, prefix(Prefix)
 		, suffix(Suffix)
@@ -248,7 +252,10 @@ class ModuleCloaking : public Module
 		input.append(1, id);
 		input.append(info.key);
 		input.append(1, '\0'); // null does not terminate a C++ string
-		input.append(item);
+		if (info.ignorecase)
+			std::transform(item.begin(), item.end(), std::back_inserter(input), ::tolower);
+		else
+			input.append(item);
 
 		std::string rv = Hash->GenerateRaw(input).substr(0,len);
 		for(size_t i = 0; i < len; i++)
@@ -388,17 +395,17 @@ class ModuleCloaking : public Module
 			{
 				case MODE_HALF_CLOAK:
 					// Use old cloaking verification to stay compatible with 2.0
-					// But verify domainparts when use 3.0-only features
-					if (info.domainparts == 3)
+					// But verify domainparts and ignorecase when use 3.0-only features
+					if (info.domainparts == 3 && !info.ignorecase)
 						testcloak = info.prefix + SegmentCloak(info, "*", 3, 8) + info.suffix;
 					else
 					{
 						irc::sockets::sockaddrs sa;
-						testcloak = GenCloak(info, sa, "", testcloak + ConvToStr(info.domainparts));
+						testcloak = GenCloak(info, sa, "", testcloak + ConvToStr(info.domainparts)) + (info.ignorecase ? "-ci" : "");
 					}
 					break;
 				case MODE_OPAQUE:
-					testcloak = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix;
+					testcloak = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix + (info.ignorecase ? "-ci" : "");
 			}
 		}
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
@@ -424,16 +431,17 @@ class ModuleCloaking : public Module
 			if (i == tags.first && key.length() < minkeylen)
 				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->getTagLocation());
 
+			const bool ignorecase = tag->getBool("ignorecase");
 			const std::string mode = tag->getString("mode");
 			const std::string prefix = tag->getString("prefix");
 			const std::string suffix = tag->getString("suffix", ".IP");
 			if (stdalgo::string::equalsci(mode, "half"))
 			{
 				unsigned int domainparts = tag->getUInt("domainparts", 3, 1, 10);
-				newcloaks.push_back(CloakInfo(MODE_HALF_CLOAK, key, prefix, suffix, domainparts));
+				newcloaks.push_back(CloakInfo(MODE_HALF_CLOAK, key, prefix, suffix, ignorecase, domainparts));
 			}
 			else if (stdalgo::string::equalsci(mode, "full"))
-				newcloaks.push_back(CloakInfo(MODE_OPAQUE, key, prefix, suffix));
+				newcloaks.push_back(CloakInfo(MODE_OPAQUE, key, prefix, suffix, ignorecase));
 			else
 				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->getTagLocation());
 		}
