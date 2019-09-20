@@ -155,17 +155,17 @@ void TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "BURST")
 			{
-				if (params.size())
+				if (!params.empty())
 				{
 					time_t them = ConvToNum<time_t>(params[0]);
 					time_t delta = them - ServerInstance->Time();
-					if ((delta < -600) || (delta > 600))
+					if ((delta < -60) || (delta > 60))
 					{
-						ServerInstance->SNO->WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by %ld seconds (this is more than five minutes). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", labs((long)delta));
-						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						ServerInstance->SNO->WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by %ld seconds (this is more than one minute). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", labs((long)delta));
+						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than one minute). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return;
 					}
-					else if ((delta < -30) || (delta > 30))
+					else if ((delta < -15) || (delta > 15))
 					{
 						ServerInstance->SNO->WriteGlobalSno('l', "\002WARNING\002: Your clocks are off by %ld seconds. Please consider syncing your clocks.", labs((long)delta));
 					}
