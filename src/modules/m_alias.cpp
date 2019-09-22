@@ -50,6 +50,9 @@ class Alias
 
 	/** Format that must be matched for use */
 	std::string format;
+
+	/** Strip color codes before match? */
+	bool StripColor;
 };
 
 class ModuleAlias : public Module
@@ -94,6 +97,7 @@ class ModuleAlias : public Module
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
+			a.StripColor = tag->getBool("stripcolor");
 
 			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			newAliases.insert(std::make_pair(a.AliasedCommand, a));
@@ -261,10 +265,14 @@ class ModuleAlias : public Module
 
 	int DoAlias(User *user, Channel *c, Alias *a, const std::string& compare, const std::string& safe)
 	{
+		std::string stripped(compare);
+		if (a->StripColor)
+			InspIRCd::StripColor(stripped);
+
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
-			if (!InspIRCd::Match(compare, a->format))
+			if (!InspIRCd::Match(stripped, a->format))
 				return 0;
 		}
 

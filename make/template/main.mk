@@ -117,7 +117,7 @@ ifeq ($(INSPIRCD_DEBUG), 2)
   DBGOK=1
 endif
 ifeq ($(INSPIRCD_DEBUG), 3)
-  CORECXXFLAGS += -fno-rtti -O0 -g0
+  CORECXXFLAGS += -fno-rtti -O0 -g0 -Werror
   HEADER = std-header
   DBGOK=1
 endif
@@ -214,6 +214,7 @@ install: target
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/providers
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/services
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/sql
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
@@ -223,7 +224,6 @@ install: target
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.so $(MODPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) .gdbargs $(SCRPATH)/.gdbargs 2>/dev/null
 ifeq ($(SYSTEM), darwin)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
@@ -234,6 +234,7 @@ endif
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/*.example $(EXAPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/providers/*.example $(EXAPATH)/providers
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_PRV) *.pem $(CONPATH) 2>/dev/null
@@ -264,17 +265,15 @@ clean:
 
 deinstall:
 	-rm -f $(BINPATH)/inspircd
-	-rm -rf $(CONPATH)/examples
+	-rm -rf $(EXAPATH)
 	-rm -f $(MANPATH)/inspircd.1
 	-rm -f $(MANPATH)/inspircd-genssl.1
 	-rm -f $(MODPATH)/m_*.so
 	-rm -f $(MODPATH)/core_*.so
-	-rm -f $(SCRPATH)/.gdbargs
 	-rm -f $(SCRPATH)/inspircd.service
 	-rm -f $(SCRPATH)/org.inspircd.plist
 
 configureclean:
-	rm -f .gdbargs
 	-rm -f Makefile
 	rm -f GNUmakefile
 	rm -f include/config.h

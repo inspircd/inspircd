@@ -98,14 +98,83 @@ typedef std::vector<DCCAllow> dccallowlist;
 dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
-typedef SimpleExtItem<dccallowlist> DCCAllowExt;
+
+class DCCAllowExt : public SimpleExtItem<dccallowlist>
+{
+ public:
+	unsigned int maxentries;
+
+	DCCAllowExt(Module* Creator)
+		: SimpleExtItem<dccallowlist>(Creator, "dccallow", ExtensionItem::EXT_USER)
+	{
+	}
+
+	void FromInternal(Extensible* container, const std::string& value) override
+	{
+		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
+		if (!user)
+			return;
+
+		// Remove the old list and create a new one.
+		unset(user);
+		dccallowlist* list = new dccallowlist();
+
+		irc::spacesepstream ts(value);
+		while (!ts.StreamEnd())
+		{
+			// Check we have space for another entry.
+			if (list->size() >= maxentries)
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Oversized DCC allow list received for %s: %s",
+					user->uuid.c_str(), value.c_str());
+				delete list;
+				return;
+			}
+
+			// Extract the fields.
+			DCCAllow dccallow;
+			if (!ts.GetToken(dccallow.nickname) ||
+				!ts.GetToken(dccallow.hostmask) ||
+				!ts.GetNumericToken(dccallow.set_on) ||
+				!ts.GetNumericToken(dccallow.length))
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Malformed DCC allow list received for %s: %s",
+					user->uuid.c_str(), value.c_str());
+				delete list;
+				return;
+			}
+
+			// Store the DCC allow entry.
+			list->push_back(dccallow);
+		}
+
+	}
+
+	std::string ToInternal(const Extensible* container, void* item) const override
+	{
+		dccallowlist* list = static_cast<dccallowlist*>(item);
+		std::string buf;
+		for (dccallowlist::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+		{
+			if (iter != list->begin())
+				buf.push_back(' ');
+
+			buf.append(iter->nickname);
+			buf.push_back(' ');
+			buf.append(iter->hostmask);
+			buf.push_back(' ');
+			buf.append(ConvToStr(iter->set_on));
+			buf.push_back(' ');
+			buf.append(ConvToStr(iter->length));
+		}
+		return buf;
+	}
+};
 
 class CommandDccallow : public Command
 {
-	DCCAllowExt& ext;
-
  public:
-	unsigned int maxentries;
+	DCCAllowExt& ext;
 	unsigned long defaultlength;
 	CommandDccallow(Module* parent, DCCAllowExt& Ext)
 		: Command(parent, "DCCALLOW", 0)
@@ -191,7 +260,7 @@ class CommandDccallow : public Command
 						ul.push_back(user);
 					}
 
-					if (dl->size() >= maxentries)
+					if (dl->size() >= ext.maxentries)
 					{
 						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, "Too many nicks on DCCALLOW list");
 						return CMD_FAILURE;
@@ -301,7 +370,7 @@ class ModuleDCCAllow : public Module
 
  public:
 	ModuleDCCAllow()
-		: ext(this, "dccallow", ExtensionItem::EXT_USER)
+		: ext(this)
 		, cmd(this, ext)
 		, blockchat(false)
 	{
@@ -521,7 +590,7 @@ class ModuleDCCAllow : public Module
 		bfl.swap(newbfl);
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
-		cmd.maxentries = tag->getUInt("maxentries", 20);
+		cmd.ext.maxentries = tag->getUInt("maxentries", 20);
 		cmd.defaultlength = tag->getDuration("length", 0);
 		blockchat = tag->getBool("blockchat");
 		defaultaction = tag->getString("action");

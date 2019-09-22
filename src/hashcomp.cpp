@@ -303,7 +303,7 @@ long irc::portparser::GetToken()
 	if (x.empty())
 		return 0;
 
-	while (Overlaps(atoi(x.c_str())))
+	while (Overlaps(ConvToNum<long>(x)))
 	{
 		if (!sep.GetToken(x))
 			return 0;
@@ -313,8 +313,8 @@ long irc::portparser::GetToken()
 	if (dash != std::string::npos)
 	{
 		std::string sbegin(x, 0, dash);
-		range_begin = atoi(sbegin.c_str());
-		range_end = atoi(x.c_str()+dash+1);
+		range_begin =  ConvToNum<long>(sbegin);
+		range_end =  ConvToNum<long>(x.c_str() + dash + 1);
 
 		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
 		{
@@ -324,11 +324,11 @@ long irc::portparser::GetToken()
 		else
 		{
 			/* Assume its just the one port */
-			return atoi(sbegin.c_str());
+			return ConvToNum<long>(sbegin);
 		}
 	}
 	else
 	{
-		return atoi(x.c_str());
+		return ConvToNum<long>(x);
 	}
 }

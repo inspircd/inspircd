@@ -507,7 +507,7 @@ void ModuleManager::LoadAll()
 	}
 
 	this->NewServices = NULL;
-	ConfigStatus confstatus;
+	ConfigStatus confstatus(NULL, true);
 
 	// Step 3: Read the configuration for the modules. This must be done as part of
 	// its own step so that services provided by modules can be registered before

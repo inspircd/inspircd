@@ -46,6 +46,8 @@ class ServerTimeTag
 	}
 
  public:
+	using ServerProtocol::MessageEventListener::OnBuildMessage;
+
 	ServerTimeTag(Module* mod)
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")

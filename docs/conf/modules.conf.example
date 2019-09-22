@@ -116,6 +116,10 @@
 #                    to successfully trigger. If they are not, then   #
 #                    the user receives a 'no such nick' 401 numeric.  #
 #                                                                     #
+# stripcolor  -      If this is true, the text from the user will be  #
+#                    stripped of color and format codes before        #
+#                    matching against 'text'.                         #
+#                                                                     #
 # uline       -      Setting this to true will ensure that the user   #
 #                    given in 'requires' is also on a U-lined server, #
 #                    as well as actually being on the network. If the #
@@ -521,11 +525,13 @@
 #<cloak mode="half"
 #       key="changeme"
 #       domainparts="3"
-#       prefix="net-">
+#       prefix="net-"
+#       ignorecase="no">
 #
 #<cloak mode="full"
 #       key="changeme"
-#       prefix="net-">
+#       prefix="net-"
+#       ignorecase="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clones module: Adds an oper command /CLONES for detecting cloned
@@ -646,7 +652,7 @@
 # You can also override the configuration of prefix modes added by both the core
 # and other modules by adding a customprefix tag with change="yes" specified.
 # <customprefix name="op" change="yes" rank="30000" ranktoset="30000">
-# <customprefix name="voice" change="yes" rank="10000" ranktoset="10000" depriv="no">
+# <customprefix name="voice" change="yes" rank="10000" ranktoset="20000" depriv="no">
 #
 # Do /RELOADMODULE customprefix after changing the settings of this module.
 

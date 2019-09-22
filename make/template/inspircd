@@ -59,6 +59,13 @@ my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
 
+my @gdbargs = (
+	'--eval-command', 'handle SIGPIPE pass nostop noprint',
+	'--eval-command', 'handle SIGHUP pass nostop noprint',
+	'--eval-command', 'run',
+	'--args', "$binpath/$executable", qw(--nofork --nolog --debug)
+);
+
 sub expand_fragment($$) {
 	my ($base, $fragment) = @_;
 	if ($fragment =~ /^\//) {
@@ -213,7 +220,7 @@ sub dev_debug(@)
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	exec 'gdb', "--command=$scriptpath/.gdbargs", '--args', "$binpath/$executable", qw(--nofork --debug), @_;
+	exec 'gdb', @gdbargs, @_;
 	die "Failed to start GDB: $!\n";
 }
 
@@ -232,7 +239,7 @@ sub dev_screendebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec qw(screen -m -d gdb), "--command=$scriptpath/.gdbargs", '-args', "$binpath/$executable", qw(--nofork --debug --nolog), @_;
+	exec qw(screen -m -d gdb), @gdbargs, @_;
 	die "Failed to start screen: $!\n";
 }
 

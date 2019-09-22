@@ -492,13 +492,23 @@ class CoreExport ConfigReaderThread : public Thread
 	bool IsDone() { return done.load(); }
 };
 
+/** Represents the status of a config load. */
 class CoreExport ConfigStatus
 {
  public:
+	/** Whether this is the initial config load. */
+	bool const initial;
+
+	/** The user who initiated the config load or NULL if not initiated by a user. */
 	User* const srcuser;
 
-	ConfigStatus(User* user = NULL)
-		: srcuser(user)
+	/** Initializes a new instance of the ConfigStatus class.
+	 * @param user The user who initiated the config load or NULL if not initiated by a user.
+	 * @param isinitial Whether this is the initial config load.
+	 */
+	ConfigStatus(User* user = NULL, bool isinitial = false)
+		: initial(isinitial)
+		, srcuser(user)
 	{
 	}
 };

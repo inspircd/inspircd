@@ -59,6 +59,25 @@ class ModuleChanFilter : public Module
 	bool hidemask;
 	bool notifyuser;
 
+	ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
+	{
+		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "filter");
+		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
+			return NULL;
+
+		ListModeBase::ModeList* list = cf.GetList(chan);
+		if (!list)
+			return NULL;
+
+		for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
+		{
+			if (InspIRCd::Match(text, i->mask))
+				return &*i;
+		}
+
+		return NULL;
+	}
+
  public:
 
 	ModuleChanFilter()
@@ -76,40 +95,62 @@ class ModuleChanFilter : public Module
 		cf.DoRehash();
 	}
 
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
+	{
+		if (!memb)
+			return;
+
+		User* user = memb->user;
+		Channel* chan = memb->chan;
+		ChanFilter::ListItem* match = Match(user, chan, partmessage);
+		if (!match)
+			return;
+
+		// Match() checks the user is local, we can assume from here
+		LocalUser* luser = IS_LOCAL(user);
+
+		std::string oldreason(partmessage);
+		partmessage = "Reason filtered";
+		if (!notifyuser)
+		{
+			// Send fake part
+			ClientProtocol::Messages::Part partmsg(memb, oldreason);
+			ClientProtocol::Event ev(ServerInstance->GetRFCEvents().part, partmsg);
+			luser->Send(ev);
+
+			// Don't send the user the changed message
+			except_list.insert(user);
+			return;
+		}
+
+		if (hidemask)
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your part message contained a censored word)");
+		else
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your part message contained a censored word: " + match->mask + ")");
+	}
+
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = target.Get<Channel>();
-		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "filter");
-
-		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
-			return MOD_RES_PASSTHRU;
-
-		ListModeBase::ModeList* list = cf.GetList(chan);
-
-		if (list)
+		ChanFilter::ListItem* match = Match(user, chan, details.text);
+		if (match)
 		{
-			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
+			if (!notifyuser)
 			{
-				if (InspIRCd::Match(details.text, i->mask))
-				{
-					if (!notifyuser)
-					{
-						details.echo_original = true;
-						return MOD_RES_DENY;
-					}
-
-					if (hidemask)
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");
-					else
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word: " + i->mask + ")");
-					return MOD_RES_DENY;
-				}
+				details.echo_original = true;
+				return MOD_RES_DENY;
 			}
-		}
 
+			if (hidemask)
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");
+			else
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word: " + match->mask + ")");
+
+			return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

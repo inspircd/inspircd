@@ -180,6 +180,84 @@ class SilenceEntry
 
 typedef insp::flat_set<SilenceEntry> SilenceList;
 
+class SilenceExtItem : public SimpleExtItem<SilenceList>
+{
+ public:
+	unsigned int maxsilence;
+
+	SilenceExtItem(Module* Creator)
+		: SimpleExtItem<SilenceList>(Creator, "silence_list", ExtensionItem::EXT_USER)
+	{
+	}
+
+	void FromInternal(Extensible* container, const std::string& value) override
+	{
+		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
+		if (!user)
+			return;
+
+		// Remove the old list and create a new one.
+		unset(user);
+		SilenceList* list = new SilenceList();
+
+		irc::spacesepstream ts(value);
+		while (!ts.StreamEnd())
+		{
+			// Check we have space for another entry.
+			if (list->size() >= maxsilence)
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Oversized silence list received for %s: %s",
+					user->uuid.c_str(), value.c_str());
+				delete list;
+				return;
+			}
+
+			// Extract the mask and the flags.
+			std::string mask;
+			std::string flagstr;
+			if (!ts.GetToken(mask) || !ts.GetToken(flagstr))
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Malformed silence list received for %s: %s",
+					user->uuid.c_str(), value.c_str());
+				delete list;
+				return;
+			}
+
+			// Try to parse the flags.
+			uint32_t flags;
+			if (!SilenceEntry::FlagsToBits(flagstr, flags))
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Malformed silence flags received for %s: %s",
+					user->uuid.c_str(), flagstr.c_str());
+				delete list;
+				return;
+			}
+
+			// Store the silence entry.
+			list->insert(SilenceEntry(flags, mask));
+		}
+
+		// The value was well formed.
+		set(user, list);
+	}
+
+	std::string ToInternal(const Extensible* container, void* item) const override
+	{
+		SilenceList* list = static_cast<SilenceList*>(item);
+		std::string buf;
+		for (SilenceList::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+		{
+			if (iter != list->begin())
+				buf.push_back(' ');
+
+			buf.append(iter->mask);
+			buf.push_back(' ');
+			buf.append(SilenceEntry::BitsToFlags(iter->flags));
+		}
+		return buf;
+	}
+};
+
 class SilenceMessage : public ClientProtocol::Message
 {
  public:
@@ -199,7 +277,7 @@ class CommandSilence : public SplitCommand
 	CmdResult AddSilence(LocalUser* user, const std::string& mask, uint32_t flags)
 	{
 		SilenceList* list = ext.get(user);
-		if (list && list->size() > maxsilence)
+		if (list && list->size() > ext.maxsilence)
 		{
 			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
 			return CMD_FAILURE;
@@ -258,13 +336,12 @@ class CommandSilence : public SplitCommand
 	}
 
  public:
-	SimpleExtItem<SilenceList> ext;
-	unsigned int maxsilence;
+	SilenceExtItem ext;
 
 	CommandSilence(Module* Creator)
 		: SplitCommand(Creator, "SILENCE")
 		, msgprov(Creator, "SILENCE")
-		, ext(Creator, "silence_list", ExtensionItem::EXT_USER)
+		, ext(Creator)
 	{
 		allow_empty_last_param = false;
 		syntax = "[(+|-)<mask> [CcdiNnPpTtx]]";
@@ -282,7 +359,7 @@ class CommandSilence : public SplitCommand
 		std::string mask = parameters[0];
 		if (mask[0] == '-' || mask[0] == '+')
 		{
-			mask.erase(0);
+			mask.erase(0, 1);
 			if (mask.empty())
 				mask.assign("*");
 			ModeParser::CleanMask(mask);
@@ -364,13 +441,13 @@ class ModuleSilence
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
 		exemptuline = tag->getBool("exemptuline", true);
-		cmd.maxsilence = tag->getUInt("maxentries", 32, 1);
+		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) override
 	{
 		tokens["ESILENCE"] = "CcdiNnPpTtx";
-		tokens["SILENCE"] = ConvToStr(cmd.maxsilence);
+		tokens["SILENCE"] = ConvToStr(cmd.ext.maxsilence);
 	}
 
 	ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) override

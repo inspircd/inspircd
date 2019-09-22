@@ -34,7 +34,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, IntExtItem>
 
 	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) override
 	{
-		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
+		return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
 	}
 
 	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) override;
