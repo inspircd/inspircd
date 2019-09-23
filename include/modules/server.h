@@ -61,10 +61,15 @@ class ServerProtocol::LinkEventListener
 	{
 	}
 
-	/** Fired when a server finishes burst
-	 * @param server Server that recently linked and finished burst
+	/** Fired when a server has linked to the network.
+	 * @param server Server that recently linked.
 	 */
 	virtual void OnServerLink(const Server* server) { }
+
+	/** Fired when a server has finished bursting.
+	 * @param server Server that recently finished bursting.
+	 */
+	virtual void OnServerBurst(const Server* server) { }
 
 	/** Fired when a server splits
 	 * @param server Server that split
