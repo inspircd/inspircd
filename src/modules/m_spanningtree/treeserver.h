@@ -51,7 +51,6 @@ class TreeServer : public Server
 	std::string rawversion;
 
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
-	std::string sid;			/* Server ID */
 
 	/** Counter counting how many servers are bursting in front of this server, including
 	 * this server. Set to parents' value on construction then it is increased if the
@@ -193,10 +192,6 @@ class TreeServer : public Server
 	/** Return all child servers
 	 */
 	const ChildServers& GetChildren() const { return Children; }
-
-	/** Get server ID
-	 */
-	const std::string& GetID() const { return sid; }
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */

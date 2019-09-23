@@ -885,13 +885,14 @@ class RemoteUser : public User
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_SERVER)
+	FakeUser(const std::string& uid, Server* srv)
+		: User(uid, srv, USERTYPE_SERVER)
 	{
 		nick = srv->GetName();
 	}
 
 	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
-		: User(uid, new Server(sname, sdesc), USERTYPE_SERVER)
+		: User(uid, new Server(uid, sname, sdesc), USERTYPE_SERVER)
 	{
 		nick = sname;
 	}

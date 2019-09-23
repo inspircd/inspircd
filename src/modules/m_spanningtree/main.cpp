@@ -804,7 +804,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	Server* newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;
