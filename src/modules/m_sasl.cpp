@@ -59,7 +59,7 @@ class ServerTracker
 		Update(server, true);
 	}
 
-	void OnServerSplit(const Server* server) CXX11_OVERRIDE
+	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE
 	{
 		Update(server, false);
 	}

@@ -19,6 +19,11 @@
 
 #pragma once
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "event.h"
 
 namespace ServerProtocol
@@ -61,10 +66,16 @@ class ServerProtocol::LinkEventListener
 	 */
 	virtual void OnServerLink(const Server* server) { }
 
-	 /** Fired when a server splits
-	  * @param server Server that split
-	  */
-	virtual void OnServerSplit(const Server* server) { }
+	/** Fired when a server splits
+	 * @param server Server that split
+	 * @param error Whether the server split because of an error.
+	 */
+	virtual void OnServerSplit(const Server* server, bool error) { OnServerSplit(server); }
+
+	/** Fired when a server splits
+	 * @param server Server that split
+	 */
+	DEPRECATED_METHOD(virtual void OnServerSplit(const Server* server)) { }
 };
 
 class ServerProtocol::MessageEventListener
@@ -134,3 +145,8 @@ class ServerEventListener
 	{
 	}
 };
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+

@@ -172,7 +172,7 @@ void TreeServer::FinishBurst()
 	FinishBurstInternal();
 }
 
-void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
+void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool error)
 {
 	stdalgo::erase(Children, server);
 
@@ -188,7 +188,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	}
 
 	unsigned int num_lost_servers = 0;
-	server->SQuitInternal(num_lost_servers);
+	server->SQuitInternal(num_lost_servers, error);
 
 	const std::string quitreason = GetName() + " " + server->GetName();
 	unsigned int num_lost_users = QuitUsers(quitreason);
@@ -204,14 +204,14 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	ServerInstance->GlobalCulls.AddItem(server);
 }
 
-void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
+void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		server->SQuitInternal(num_lost_servers);
+		server->SQuitInternal(num_lost_servers, error);
 	}
 
 	// Mark server as dead
@@ -220,7 +220,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 	RemoveHash();
 
 	if (!Utils->Creator->dying)
-		FOREACH_MOD_CUSTOM(Utils->Creator->GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (this));
+		FOREACH_MOD_CUSTOM(Utils->Creator->GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (this, error));
 }
 
 unsigned int TreeServer::QuitUsers(const std::string& reason)
