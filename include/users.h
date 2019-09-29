@@ -906,17 +906,17 @@ class CoreExport FakeUser : public User
 /** Is a local user */
 inline LocalUser* IS_LOCAL(User* u)
 {
-	return u->usertype == USERTYPE_LOCAL ? static_cast<LocalUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_LOCAL) ? static_cast<LocalUser*>(u) : NULL;
 }
 /** Is a remote user */
 inline RemoteUser* IS_REMOTE(User* u)
 {
-	return u->usertype == USERTYPE_REMOTE ? static_cast<RemoteUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_REMOTE) ? static_cast<RemoteUser*>(u) : NULL;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)
 {
-	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_SERVER) ? static_cast<FakeUser*>(u) : NULL;
 }
 
 inline bool User::IsModeSet(const ModeHandler* mh) const
