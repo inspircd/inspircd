@@ -40,6 +40,9 @@ static std::string sasl_target;
 class ServerTracker
 	: public ServerProtocol::LinkEventListener
 {
+	// Stop GCC warnings about the deprecated OnServerSplit event.
+	using ServerProtocol::LinkEventListener::OnServerSplit;
+
 	bool online;
 
 	void Update(const Server* server, bool linked)
