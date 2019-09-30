@@ -247,7 +247,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		Connect();
 	}
 
-	int SetOption(int option, void* value)
+	int SetOption(int option, const void* value)
 	{
 		int ret = ldap_set_option(this->con, option, value);
 		if (ret != LDAP_OPT_SUCCESS)
