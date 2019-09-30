@@ -56,8 +56,8 @@ TreeServer::TreeServer()
  * This constructor initializes the server's Route and Parent, and sets up
  * the ping timer for the server.
  */
-TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Server(id, Name, Desc)
+TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& Sid, TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: Server(Sid, Name, Desc)
 	, Parent(Above)
 	, Socket(Sock)
 	, behind_bursting(Parent->behind_bursting)
