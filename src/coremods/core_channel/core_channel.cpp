@@ -205,16 +205,20 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	{
 		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
 
-		// Build a map of limits to their mode character.
 		insp::flat_map<int, std::string> limits;
+		std::string vlist;
 		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
 		{
-			const unsigned int limit = (*iter)->GetLowerLimit();
-			limits[limit].push_back((*iter)->GetModeChar());
+			ListModeBase* lm = *iter;
+
+			const unsigned int limit = lm->GetLowerLimit();
+			limits[limit].push_back(lm->GetModeChar());
+
+			if (lm->HasVariableLength())
+				vlist.push_back(lm->GetModeChar());
 		}
 
-		// Generate the MAXLIST token from the limits map.
 		std::string& buffer = tokens["MAXLIST"];
 		for (insp::flat_map<int, std::string>::const_iterator iter = limits.begin(); iter != limits.end(); ++iter)
 		{
@@ -227,6 +231,12 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 			buffer.append(modes);
 			buffer.push_back(':');
 			buffer.append(ConvToStr(iter->first));
+		}
+
+		if (!vlist.empty())
+		{
+			tokens["VBANLIST"]; // deprecated
+			tokens["VLIST"] = vlist;
 		}
 	}
 
