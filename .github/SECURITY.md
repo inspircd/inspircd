@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Currently the v2 (old stable) and v3 (stable) branches are actively receiving security fixes. Support for v2 will end on 2019-06-01.
+Currently the v2 (old stable) and v3 (stable) branches are actively receiving security fixes. Support for v2 will end on 2020-06-01.
 
 The v4 branch is still early in development and only receives security fixes when they are synced from the v3 branch.
 
