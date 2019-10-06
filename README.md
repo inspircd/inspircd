@@ -16,7 +16,7 @@ InspIRCd is supported on on the following platforms:
 
 Alternate platforms and toolchains may also work but are not officially supported by the InspIRCd team. Generally speaking if you are using a reasonably modern UNIX-like system you should be able to build InspIRCd on it.
 
-If you encounter any bugs then [please file an issue](https://github.com/inspircd/inspircd/issues/new).
+If you encounter any bugs then [please file an issue](https://github.com/inspircd/inspircd/issues/new/choose).
 
 ## Installation
 
