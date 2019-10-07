@@ -1000,6 +1000,7 @@ using their cloak when they quit.">
  nonick              Channel mode +N
  nonotice            Channel mode +T
  regmoderated        Channel mode +M
+ repeat              Channel mode +E
  stripcolor          Channel mode +S
  topiclock           Channel mode +t
 
