@@ -58,7 +58,7 @@ class UserResolver : public DNS::Request
 	 */
 	void OnLookupComplete(const DNS::Query* r) CXX11_OVERRIDE
 	{
-		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (!bound_user)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
@@ -166,7 +166,7 @@ class UserResolver : public DNS::Request
 	 */
 	void OnError(const DNS::Query* query) CXX11_OVERRIDE
 	{
-		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (bound_user)
 		{
 			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");

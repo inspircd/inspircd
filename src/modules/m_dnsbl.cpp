@@ -63,7 +63,7 @@ class DNSBLResolver : public DNS::Request
 	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		/* Check the user still exists */
-		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
+		LocalUser* them = IS_LOCAL(ServerInstance->FindUUID(theiruid));
 		if (!them)
 			return;
 
@@ -209,7 +209,7 @@ class DNSBLResolver : public DNS::Request
 
 	void OnError(const DNS::Query *q) CXX11_OVERRIDE
 	{
-		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
+		LocalUser* them = IS_LOCAL(ServerInstance->FindUUID(theiruid));
 		if (!them)
 			return;
 
