@@ -146,6 +146,7 @@ namespace DNS
 		virtual void Process(Request* req) = 0;
 		virtual void RemoveRequest(Request* req) = 0;
 		virtual std::string GetErrorStr(Error) = 0;
+		virtual std::string GetTypeStr(QueryType) = 0;
 	};
 
 	/** A DNS query.
