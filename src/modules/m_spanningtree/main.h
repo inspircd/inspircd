@@ -212,6 +212,7 @@ class ModuleSpanningTree
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
 	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE;
+	void OnShutdown(const std::string& reason) CXX11_OVERRIDE;
 	CullResult cull() CXX11_OVERRIDE;
 	~ModuleSpanningTree();
 	Version GetVersion() CXX11_OVERRIDE;
