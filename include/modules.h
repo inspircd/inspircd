@@ -217,7 +217,7 @@ enum Implementation
 	I_OnUserConnect, I_OnUserPreQuit, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode,
+	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode, I_OnShutdown,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit, I_OnUserPostInit,
 	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
@@ -950,6 +950,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 * disconnect the user, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnConnectionFail(LocalUser* user, BufferedSocketError error);
+
+	/** Called before a server shuts down.
+	 * @param reason The reason the server is shutting down.
+	 * @param restart Whether the server is restarting.
+	 */
+	virtual void OnShutdown(const std::string& reason);
 };
 
 /** ModuleManager takes care of all things module-related
