@@ -112,8 +112,8 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	ChangeRealHost(GetIPString(), true);
 }
 
-LocalUser::LocalUser(int myfd, const std::string& uuid, Serializable::Data& data)
-	: User(uuid, ServerInstance->FakeClient->server, USERTYPE_LOCAL)
+LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
+	: User(uid, ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
 	, already_sent(0)
 {
