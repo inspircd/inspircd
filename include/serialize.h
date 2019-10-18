@@ -31,10 +31,10 @@ class CoreExport Serializable
 	{
 	public:
 		/** Maps keys to serialised data. */
-		typedef TR1NS::unordered_map<std::string, Data> ChildMap;
+		typedef insp::flat_map<std::string, Data> ChildMap;
 
 		/** Maps keys to simple values. */
-		typedef TR1NS::unordered_map<std::string, std::string> EntryMap;
+		typedef insp::flat_map<std::string, std::string> EntryMap;
 
 	private:
 		/** A mapping of keys to serialised data. */
