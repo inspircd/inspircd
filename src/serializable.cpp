@@ -126,9 +126,9 @@ bool User::Deserialize(Serializable::Data& data)
 	}
 
 	// Deserialize the extensions first.
-	Serializable::Data extensions;
-	data.Load("extensions", extensions);
-	if (!Extensible::Deserialize(extensions))
+	Serializable::Data exts;
+	data.Load("extensions", exts);
+	if (!Extensible::Deserialize(exts))
 		return false;
 
 	long client_port;
@@ -186,10 +186,10 @@ bool User::Serialize(Serializable::Data& data)
 		return false;
 
 	// Serialize the extensions first.
-	Serializable::Data extensions;
-	if (!Extensible::Serialize(extensions))
+	Serializable::Data exts;
+	if (!Extensible::Serialize(exts))
 		return false;
-	data.Store("extensions", extensions);
+	data.Store("extensions", exts);
 
 	// The following member variables not checked above are not serialised:
 	// * cached_fullhost (serialising cache variables is unnecessary)
