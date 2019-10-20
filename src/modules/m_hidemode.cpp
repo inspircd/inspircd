@@ -130,6 +130,9 @@ class ModeHook : public ClientProtocol::EventHook
 		if (!chan)
 			return MOD_RES_PASSTHRU;
 
+		if (user->HasPrivPermission("channels/auspex"))
+			return MOD_RES_PASSTHRU;
+
 		Membership* const memb = chan->GetUser(user);
 		if (!memb)
 			return MOD_RES_PASSTHRU;
