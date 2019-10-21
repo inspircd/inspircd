@@ -29,6 +29,7 @@ class TimedBan
 {
  public:
 	std::string mask;
+	std::string setter;
 	time_t expire;
 	Channel* chan;
 };
@@ -114,18 +115,20 @@ class CommandTban : public Command
 		}
 
 		T.mask = mask;
+		T.setter = user->nick;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
 		T.chan = channel;
 		TimedBanList.push_back(T);
 
-		const std::string addban = user->nick + " added a timed ban on " + mask + " lasting for " + InspIRCd::DurationString(duration) + ".";
+		const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
+			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
 		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		ClientProtocol::Messages::Privmsg notice(ServerInstance->FakeClient, channel, addban, MSG_NOTICE);
+		ClientProtocol::Messages::Privmsg notice(ServerInstance->FakeClient, channel, message, MSG_NOTICE);
 		channel->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
-		ServerInstance->PI->SendChannelNotice(channel, pfxchar, addban);
+		ServerInstance->PI->SendChannelNotice(channel, pfxchar, message);
 		return CMD_SUCCESS;
 	}
 
@@ -207,17 +210,18 @@ class ModuleTimedBans : public Module
 
 		for (timedbans::iterator i = expired.begin(); i != expired.end(); i++)
 		{
-			std::string mask = i->mask;
+			const std::string mask = i->mask;
 			Channel* cr = i->chan;
 			{
-				const std::string expiry = "*** Timed ban on " + cr->name + " expired.";
+				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
+					mask.c_str(), i->setter.c_str(), cr->name.c_str());
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-				ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, expiry, MSG_NOTICE);
+				ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, message, MSG_NOTICE);
 				cr->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
-				ServerInstance->PI->SendChannelNotice(cr, pfxchar, expiry);
+				ServerInstance->PI->SendChannelNotice(cr, pfxchar, message);
 
 				Modes::ChangeList setban;
 				setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
