@@ -67,7 +67,10 @@ class UserResolver : public DNS::Request
 			return;
 		}
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), ans_record->name.c_str(), ans_record->rdata.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "DNS %s result for %s: '%s' -> '%s'%s",
+			this->manager->GetTypeStr(question.type).c_str(), uuid.c_str(),
+			ans_record->name.c_str(), ans_record->rdata.c_str(),
+			r->cached ? " (cached)" : "");
 
 		if (this->question.type == DNS::QUERY_PTR)
 		{
