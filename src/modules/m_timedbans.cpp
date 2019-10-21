@@ -23,8 +23,7 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/** Holds a timed ban
- */
+// Holds a timed ban
 class TimedBan
 {
  public:
@@ -37,8 +36,7 @@ class TimedBan
 typedef std::vector<TimedBan> timedbans;
 timedbans TimedBanList;
 
-/** Handle /TBAN
- */
+// Handle /TBAN
 class CommandTban : public Command
 {
 	ChanModeReference banmode;
@@ -48,6 +46,7 @@ class CommandTban : public Command
 		ListModeBase* banlm = static_cast<ListModeBase*>(*banmode);
 		if (!banlm)
 			return false;
+
 		const ListModeBase::ModeList* bans = banlm->GetList(chan);
 		if (bans)
 		{
@@ -63,7 +62,8 @@ class CommandTban : public Command
 	}
 
  public:
-	CommandTban(Module* Creator) : Command(Creator,"TBAN", 3)
+	CommandTban(Module* Creator)
+		: Command(Creator,"TBAN", 3)
 		, banmode(Creator, "ban")
 	{
 		syntax = "<channel> <duration> <banmask>";
@@ -77,6 +77,7 @@ class CommandTban : public Command
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
+
 		unsigned int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
@@ -92,6 +93,7 @@ class CommandTban : public Command
 			return CMD_FAILURE;
 		}
 		unsigned long expire = duration + ServerInstance->Time();
+
 		std::string mask = parameters[2];
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
 		if (!isextban && !InspIRCd::IsValidMask(mask))
