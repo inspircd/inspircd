@@ -758,17 +758,16 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 		return;
 
 	ServerInstance->Users->RemoveCloneCounts(this);
-
 	User::SetClientIP(sa);
-
-	FOREACH_MOD(OnSetUserIP, (this));
-
 	ServerInstance->Users->AddClone(this);
 
 	// Recheck the connect class.
 	this->MyClass = NULL;
 	this->SetClass();
 	this->CheckClass();
+
+	if (!quitting)
+		FOREACH_MOD(OnSetUserIP, (this));
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
