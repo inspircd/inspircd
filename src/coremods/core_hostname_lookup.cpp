@@ -23,7 +23,6 @@
 namespace
 {
 	LocalIntExt* dl;
-	LocalStringExt* ph;
 }
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
@@ -76,9 +75,6 @@ class UserResolver : public DNS::Request
 
 		if (!fwd)
 		{
-			// first half of resolution is done. We now need to verify that the host matches.
-			ph->set(bound_user, ans_record->rdata);
-
 			UserResolver* res_forward;
 			if (bound_user->client_sa.family() == AF_INET6)
 			{
@@ -130,7 +126,7 @@ class UserResolver : public DNS::Request
 
 			if (rev_match)
 			{
-				std::string* hostname = ph->get(bound_user);
+				std::string* hostname = &(this->question.name);
 
 				if (hostname == NULL)
 				{
@@ -151,8 +147,6 @@ class UserResolver : public DNS::Request
 				{
 					bound_user->WriteNotice("*** Your hostname is longer than the maximum of " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
 				}
-
-				ph->unset(bound_user);
 			}
 			else
 			{
@@ -177,18 +171,16 @@ class UserResolver : public DNS::Request
 
 class ModuleHostnameLookup : public Module
 {
+ private:
 	LocalIntExt dnsLookup;
-	LocalStringExt ptrHosts;
 	dynamic_reference<DNS::Manager> DNS;
 
  public:
 	ModuleHostnameLookup()
 		: dnsLookup("dnsLookup", ExtensionItem::EXT_USER, this)
-		, ptrHosts("ptrHosts", ExtensionItem::EXT_USER, this)
 		, DNS(this, "DNS")
 	{
 		dl = &dnsLookup;
-		ph = &ptrHosts;
 	}
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
