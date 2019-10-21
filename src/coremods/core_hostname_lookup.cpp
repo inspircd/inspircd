@@ -29,12 +29,9 @@ namespace
  */
 class UserResolver : public DNS::Request
 {
+ private:
 	/** UUID we are looking up */
 	const std::string uuid;
-
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	const bool fwd;
 
  public:
 	/** Create a resolver.
@@ -47,7 +44,6 @@ class UserResolver : public DNS::Request
 	UserResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& to_resolve, DNS::QueryType qt)
 		: DNS::Request(mgr, me, to_resolve, qt)
 		, uuid(user->uuid)
-		, fwd(qt == DNS::QUERY_A || qt == DNS::QUERY_AAAA)
 	{
 	}
 
@@ -73,7 +69,7 @@ class UserResolver : public DNS::Request
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), ans_record->name.c_str(), ans_record->rdata.c_str());
 
-		if (!fwd)
+		if (this->question.type == DNS::QUERY_PTR)
 		{
 			UserResolver* res_forward;
 			if (bound_user->client_sa.family() == AF_INET6)
@@ -99,7 +95,7 @@ class UserResolver : public DNS::Request
 				dl->set(bound_user, 0);
 			}
 		}
-		else
+		else if (this->question.type == DNS::QUERY_A || this->question.type == DNS::QUERY_AAAA)
 		{
 			/* Both lookups completed */
 
@@ -126,27 +122,8 @@ class UserResolver : public DNS::Request
 
 			if (rev_match)
 			{
-				std::string* hostname = &(this->question.name);
-
-				if (hostname == NULL)
-				{
-					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: User has no hostname attached when doing a forward lookup");
-					bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
-					return;
-				}
-				else if (hostname->length() <= ServerInstance->Config->Limits.MaxHost)
-				{
-					/* Hostnames starting with : are not a good thing (tm) */
-					if ((*hostname)[0] == ':')
-						hostname->insert(0, "0");
-
-					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->ChangeRealHost(hostname->substr(0, ServerInstance->Config->Limits.MaxHost), true);
-				}
-				else
-				{
-					bound_user->WriteNotice("*** Your hostname is longer than the maximum of " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
-				}
+				bound_user->WriteNotice("*** Found your hostname (" + this->question.name + (r->cached ? ") -- cached" : ")"));
+				bound_user->ChangeRealHost(this->question.name, true);
 			}
 			else
 			{
