@@ -214,21 +214,20 @@ class ModuleTimedBans : public Module
 		{
 			const std::string mask = i->mask;
 			Channel* cr = i->chan;
-			{
-				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
-					mask.c_str(), i->setter.c_str(), cr->name.c_str());
-				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-				ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, message, MSG_NOTICE);
-				cr->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
-				ServerInstance->PI->SendChannelNotice(cr, pfxchar, message);
+			const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
+				mask.c_str(), i->setter.c_str(), cr->name.c_str());
+			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-				Modes::ChangeList setban;
-				setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
-				ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
-			}
+			ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, message, MSG_NOTICE);
+			cr->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
+			ServerInstance->PI->SendChannelNotice(cr, pfxchar, message);
+
+			Modes::ChangeList setban;
+			setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
 		}
 	}
 
