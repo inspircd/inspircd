@@ -130,7 +130,9 @@ class UserResolver : public DNS::Request
 			}
 			else
 			{
+				bool display_is_real = irc::equals(bound_user->GetDisplayedHost(), bound_user->GetRealHost());
 				bound_user->WriteNotice("*** Your hostname does not match up with your IP address. Sorry, using your IP address (" + bound_user->GetIPString() + ") instead.");
+				bound_user->ChangeRealHost(bound_user->GetIPString(), display_is_real);
 			}
 		}
 	}
