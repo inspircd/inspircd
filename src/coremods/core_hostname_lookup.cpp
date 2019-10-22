@@ -74,7 +74,7 @@ class UserResolver : public DNS::Request
 		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
 		if (ans_record == NULL)
 		{
-			HandleError(user, "Could not resolve your hostname: No " + this->manager->GetTypeStr(this->question.type) + " records found");
+			HandleError(bound_user, "Could not resolve your hostname: No " + this->manager->GetTypeStr(this->question.type) + " records found");
 			return;
 		}
 
@@ -151,7 +151,7 @@ class UserResolver : public DNS::Request
 	{
 		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (bound_user)
-			HandleError("Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
+			HandleError(bound_user, "Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}
 };
 
