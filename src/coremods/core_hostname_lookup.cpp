@@ -33,6 +33,17 @@ class UserResolver : public DNS::Request
 	/** UUID we are looking up */
 	const std::string uuid;
 
+	/** Handles errors which happen during DNS resolution. */
+	static void HandleError(LocalUser* user, const std::string& message)
+	{
+		user->WriteNotice("*** " + message + "; using your IP address (" + user->GetIPString() + ") instead.");
+
+		bool display_is_real = user->GetDisplayedHost() == user->GetRealHost();
+		user->ChangeRealHost(user->GetIPString(), display_is_real);
+
+		dl->unset(user);
+	}
+
  public:
 	/** Create a resolver.
 	 * @param mgr DNS Manager
@@ -63,7 +74,7 @@ class UserResolver : public DNS::Request
 		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
 		if (ans_record == NULL)
 		{
-			OnError(r);
+			HandleError(user, "Could not resolve your hostname: No " + this->manager->GetTypeStr(this->question.type) + " records found");
 			return;
 		}
 
@@ -94,8 +105,7 @@ class UserResolver : public DNS::Request
 				delete res_forward;
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 
-				bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
-				dl->set(bound_user, 0);
+				HandleError(bound_user, "There was an internal error resolving your host");
 			}
 		}
 		else if (this->question.type == DNS::QUERY_A || this->question.type == DNS::QUERY_AAAA)
@@ -121,18 +131,15 @@ class UserResolver : public DNS::Request
 				}
 			}
 
-			dl->set(bound_user, 0);
-
 			if (rev_match)
 			{
 				bound_user->WriteNotice("*** Found your hostname (" + this->question.name + (r->cached ? ") -- cached" : ")"));
 				bound_user->ChangeRealHost(this->question.name, true);
+				dl->unset(bound_user);
 			}
 			else
 			{
-				bool display_is_real = irc::equals(bound_user->GetDisplayedHost(), bound_user->GetRealHost());
-				bound_user->WriteNotice("*** Your hostname does not match up with your IP address. Sorry, using your IP address (" + bound_user->GetIPString() + ") instead.");
-				bound_user->ChangeRealHost(bound_user->GetIPString(), display_is_real);
+				HandleError(bound_user, "Your hostname does not match up with your IP address");
 			}
 		}
 	}
@@ -144,10 +151,7 @@ class UserResolver : public DNS::Request
 	{
 		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (bound_user)
-		{
-			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");
-			dl->set(bound_user, 0);
-		}
+			HandleError("Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}
 };
 
