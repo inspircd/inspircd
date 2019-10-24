@@ -54,7 +54,7 @@ public:
 		quitmsg = tag->getString("quitmsg");
 
 		/* seconds to wait when the server just booted */
-		boot_wait = tag->getDuration("bootwait", 10);
+		boot_wait = tag->getDuration("bootwait", 60*2);
 
 		first = ServerInstance->Time();
 	}
