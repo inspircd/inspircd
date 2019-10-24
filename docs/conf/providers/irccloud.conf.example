@@ -3,7 +3,10 @@
 # https://www.irccloud.com/networks for more information on supporting
 # IRCloud on your network.
 
-<connect name="IRCCloud" parent="main" globalmax="100" localmax="100">
+<connect name="IRCCloud"
+         parent="main"
+         globalmax="100"
+         localmax="100">
 
 <connect name="IRCCloud-Brockwell"  parent="IRCCloud" allow="192.184.10.118">
 <connect name="IRCCloud-Charlton"   parent="IRCCloud" allow="192.184.9.112">
