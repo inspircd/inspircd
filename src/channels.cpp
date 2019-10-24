@@ -176,6 +176,8 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	if (!override)
 	{
 		unsigned int maxchans = user->GetClass()->maxchans;
+		if (!maxchans)
+			maxchans = ServerInstance->Config->MaxChans;
 		if (user->IsOper())
 		{
 			unsigned int opermaxchans = ConvToNum<unsigned int>(user->oper->getConfig("maxchans"));

@@ -1197,10 +1197,24 @@ const std::string& FakeUser::GetFullRealHost()
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
-	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
-	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(ServerInstance->Config->MaxChans),
-	limit(0), resolvehostnames(true)
+	: config(tag)
+	, type(t)
+	, fakelag(true)
+	, name("unnamed")
+	, registration_timeout(0)
+	, host(mask)
+	, pingtime(0)
+	, softsendqmax(0)
+	, hardsendqmax(0)
+	, recvqmax(0)
+	, penaltythreshold(0)
+	, commandrate(0)
+	, maxlocal(0)
+	, maxglobal(0)
+	, maxconnwarn(true)
+	, maxchans(0)
+	, limit(0)
+	, resolvehostnames(true)
 {
 }
 
