@@ -13,3 +13,7 @@
 <connect name="KiwiIRC.com-1" parent="KiwiIRC.com" allow="107.161.19.53">
 <connect name="KiwiIRC.com-2" parent="KiwiIRC.com" allow="107.161.19.109">
 <connect name="KiwiIRC.com-3" parent="KiwiIRC.com" allow="109.169.31.4">
+
+<exception host="*@107.161.19.53" reason="KiwiIRC.com WebIRC Gateway">
+<exception host="*@107.161.19.109" reason="KiwiIRC.com WebIRC Gateway">
+<exception host="*@107.169.31.4" reason="KiwiIRC.com WebIRC Gateway">
