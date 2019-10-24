@@ -47,15 +47,21 @@ class DNSBLConfEntry : public refcountbase
  */
 class DNSBLResolver : public DNS::Request
 {
+ private:
+	irc::sockets::sockaddrs theirsa;
 	std::string theiruid;
 	LocalStringExt& nameExt;
 	LocalIntExt& countExt;
 	reference<DNSBLConfEntry> ConfEntry;
 
  public:
-
 	DNSBLResolver(DNS::Manager *mgr, Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
-		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
+		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true)
+		, theirsa(u->client_sa)
+		, theiruid(u->uuid)
+		, nameExt(match)
+		, countExt(ctr)
+		, ConfEntry(conf)
 	{
 	}
 
@@ -64,7 +70,7 @@ class DNSBLResolver : public DNS::Request
 	{
 		/* Check the user still exists */
 		LocalUser* them = IS_LOCAL(ServerInstance->FindUUID(theiruid));
-		if (!them)
+		if (!them || them->client_sa != theirsa)
 			return;
 
 		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
@@ -210,7 +216,7 @@ class DNSBLResolver : public DNS::Request
 	void OnError(const DNS::Query *q) CXX11_OVERRIDE
 	{
 		LocalUser* them = IS_LOCAL(ServerInstance->FindUUID(theiruid));
-		if (!them)
+		if (!them || them->client_sa != theirsa)
 			return;
 
 		int i = countExt.get(them);
