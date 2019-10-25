@@ -19,8 +19,11 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/webirc.h"
 
-class ModuleConnectBan : public Module
+class ModuleConnectBan
+	: public Module
+	, public WebIRC::EventListener
 {
 	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
 	ConnectMap connects;
@@ -52,6 +55,11 @@ class ModuleConnectBan : public Module
 	}
 
  public:
+	ModuleConnectBan()
+		: WebIRC::EventListener(this)
+	{
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood", VF_VENDOR);
@@ -66,6 +74,20 @@ class ModuleConnectBan : public Module
 		threshold = tag->getUInt("threshold", 10, 1);
 		banduration = tag->getDuration("duration", 10*60, 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
+	}
+
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
+	{
+		if (user->exempt)
+			return;
+
+		// HACK: Lower the connection attempts for the gateway IP address. The user
+		// will be rechecked for connect spamming shortly after when their IP address
+		// is changed and OnSetUserIP is called.
+		irc::sockets::cidr_mask mask(user->client_sa, GetRange(user));
+		ConnectMap::iterator iter = connects.find(mask);
+		if (iter != connects.end() && iter->second)
+			iter->second--;
 	}
 
 	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
