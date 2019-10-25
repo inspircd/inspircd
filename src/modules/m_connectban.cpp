@@ -30,6 +30,27 @@ class ModuleConnectBan : public Module
 	unsigned int ipv6_cidr;
 	std::string banmessage;
 
+	unsigned char GetRange(LocalUser* user)
+	{
+		int family = user->client_sa.family();
+		switch (family)
+		{
+			case AF_INET:
+				return ipv4_cidr;
+
+			case AF_INET6:
+				return ipv6_cidr;
+
+			case AF_UNIX:
+				// Ranges for UNIX sockets are ignored entirely.
+				return 0;
+		}
+
+		// If we have reached this point then we have encountered a bug.
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: ModuleConnectBan::GetRange(): socket type %d is unknown!", family);
+		return 0;
+	}
+
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
@@ -52,19 +73,7 @@ class ModuleConnectBan : public Module
 		if (u->exempt)
 			return;
 
-		unsigned char range = 32;
-
-		switch (u->client_sa.family())
-		{
-			case AF_INET6:
-				range = ipv6_cidr;
-			break;
-			case AF_INET:
-				range = ipv4_cidr;
-			break;
-		}
-
-		irc::sockets::cidr_mask mask(u->client_sa, range);
+		irc::sockets::cidr_mask mask(u->client_sa, GetRange(u));
 		ConnectMap::iterator i = connects.find(mask);
 
 		if (i != connects.end())
