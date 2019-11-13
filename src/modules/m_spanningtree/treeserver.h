@@ -51,7 +51,6 @@ class TreeServer : public Server
 	std::string rawversion;
 
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
-	std::string sid;			/* Server ID */
 
 	/** Counter counting how many servers are bursting in front of this server, including
 	 * this server. Set to parents' value on construction then it is increased if the
@@ -75,7 +74,7 @@ class TreeServer : public Server
 
 	/** Used by SQuit logic to recursively remove servers
 	 */
-	void SQuitInternal(unsigned int& num_lost_servers);
+	void SQuitInternal(unsigned int& num_lost_servers, bool error);
 
 	/** Remove the reference to this server from the hash maps
 	 */
@@ -104,15 +103,17 @@ class TreeServer : public Server
 	/** SQuit a server connected to this server, removing the given server and all servers behind it
 	 * @param server Server to squit, must be directly below this server
 	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 * @param error Whether the server is being squit because of an error.
 	 */
-	void SQuitChild(TreeServer* server, const std::string& reason);
+	void SQuitChild(TreeServer* server, const std::string& reason, bool error = false);
 
 	/** SQuit this server, removing this server and all servers behind it
 	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 * @param error Whether the server is being squit because of an error.
 	 */
-	void SQuit(const std::string& reason)
+	void SQuit(const std::string& reason, bool error = false)
 	{
-		GetParent()->SQuitChild(this, reason);
+		GetParent()->SQuitChild(this, reason, error);
 	}
 
 	static unsigned int QuitUsers(const std::string& reason);
@@ -193,10 +194,6 @@ class TreeServer : public Server
 	/** Return all child servers
 	 */
 	const ChildServers& GetChildren() const { return Children; }
-
-	/** Get server ID
-	 */
-	const std::string& GetID() const { return sid; }
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */

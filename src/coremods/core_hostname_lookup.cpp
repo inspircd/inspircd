@@ -23,19 +23,26 @@
 namespace
 {
 	IntExtItem* dl;
-	StringExtItem* ph;
 }
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
 class UserResolver : public DNS::Request
 {
+ private:
 	/** UUID we are looking up */
 	const std::string uuid;
 
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	const bool fwd;
+	/** Handles errors which happen during DNS resolution. */
+	static void HandleError(LocalUser* user, const std::string& message)
+	{
+		user->WriteNotice("*** " + message + "; using your IP address (" + user->GetIPString() + ") instead.");
+
+		bool display_is_real = user->GetDisplayedHost() == user->GetRealHost();
+		user->ChangeRealHost(user->GetIPString(), display_is_real);
+
+		dl->unset(user);
+	}
 
  public:
 	/** Create a resolver.
@@ -48,7 +55,6 @@ class UserResolver : public DNS::Request
 	UserResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& to_resolve, DNS::QueryType qt)
 		: DNS::Request(mgr, me, to_resolve, qt)
 		, uuid(user->uuid)
-		, fwd(qt == DNS::QUERY_A || qt == DNS::QUERY_AAAA)
 	{
 	}
 
@@ -58,7 +64,7 @@ class UserResolver : public DNS::Request
 	 */
 	void OnLookupComplete(const DNS::Query* r) override
 	{
-		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (!bound_user)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
@@ -68,17 +74,17 @@ class UserResolver : public DNS::Request
 		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
 		if (ans_record == NULL)
 		{
-			OnError(r);
+			HandleError(bound_user, "Could not resolve your hostname: No " + this->manager->GetTypeStr(this->question.type) + " records found");
 			return;
 		}
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), ans_record->name.c_str(), ans_record->rdata.c_str());
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "DNS %s result for %s: '%s' -> '%s'%s",
+			this->manager->GetTypeStr(question.type).c_str(), uuid.c_str(),
+			ans_record->name.c_str(), ans_record->rdata.c_str(),
+			r->cached ? " (cached)" : "");
 
-		if (!fwd)
+		if (this->question.type == DNS::QUERY_PTR)
 		{
-			// first half of resolution is done. We now need to verify that the host matches.
-			ph->set(bound_user, ans_record->rdata);
-
 			UserResolver* res_forward;
 			if (bound_user->client_sa.family() == AF_INET6)
 			{
@@ -99,11 +105,10 @@ class UserResolver : public DNS::Request
 				delete res_forward;
 				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 
-				bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
-				dl->set(bound_user, 0);
+				HandleError(bound_user, "There was an internal error resolving your host");
 			}
 		}
-		else
+		else if (this->question.type == DNS::QUERY_A || this->question.type == DNS::QUERY_AAAA)
 		{
 			/* Both lookups completed */
 
@@ -126,37 +131,15 @@ class UserResolver : public DNS::Request
 				}
 			}
 
-			dl->set(bound_user, 0);
-
 			if (rev_match)
 			{
-				std::string* hostname = ph->get(bound_user);
-
-				if (hostname == NULL)
-				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: User has no hostname attached when doing a forward lookup");
-					bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
-					return;
-				}
-				else if (hostname->length() <= ServerInstance->Config->Limits.MaxHost)
-				{
-					/* Hostnames starting with : are not a good thing (tm) */
-					if ((*hostname)[0] == ':')
-						hostname->insert(0, "0");
-
-					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->ChangeRealHost(hostname->substr(0, ServerInstance->Config->Limits.MaxHost), true);
-				}
-				else
-				{
-					bound_user->WriteNotice("*** Your hostname is longer than the maximum of " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
-				}
-
-				ph->unset(bound_user);
+				bound_user->WriteNotice("*** Found your hostname (" + this->question.name + (r->cached ? ") -- cached" : ")"));
+				bound_user->ChangeRealHost(this->question.name, true);
+				dl->unset(bound_user);
 			}
 			else
 			{
-				bound_user->WriteNotice("*** Your hostname does not match up with your IP address. Sorry, using your IP address (" + bound_user->GetIPString() + ") instead.");
+				HandleError(bound_user, "Your hostname does not match up with your IP address");
 			}
 		}
 	}
@@ -166,29 +149,24 @@ class UserResolver : public DNS::Request
 	 */
 	void OnError(const DNS::Query* query) override
 	{
-		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
 		if (bound_user)
-		{
-			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");
-			dl->set(bound_user, 0);
-		}
+			HandleError(bound_user, "Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}
 };
 
 class ModuleHostnameLookup : public Module
 {
+ private:
 	IntExtItem dnsLookup;
-	StringExtItem ptrHosts;
 	dynamic_reference<DNS::Manager> DNS;
 
  public:
 	ModuleHostnameLookup()
 		: dnsLookup(this, "dnsLookup", ExtensionItem::EXT_USER)
-		, ptrHosts(this, "ptrHosts", ExtensionItem::EXT_USER)
 		, DNS(this, "DNS")
 	{
 		dl = &dnsLookup;
-		ph = &ptrHosts;
 	}
 
 	void OnSetUserIP(LocalUser* user) override

@@ -36,7 +36,7 @@ PingTimer::State PingTimer::TickInternal()
 	if (state == PS_SENDPING)
 	{
 		// Last ping was answered, send next ping
-		server->GetSocket()->WriteLine(CmdBuilder("PING").push(server->GetID()));
+		server->GetSocket()->WriteLine(CmdBuilder("PING").push(server->GetId()));
 		LastPingMsec = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 		// Warn next unless warnings are disabled. If they are, jump straight to timeout.
 		if (Utils->PingWarnTime)

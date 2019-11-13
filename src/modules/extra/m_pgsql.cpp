@@ -176,7 +176,11 @@ class SQLConn : public SQL::Provider, public EventHandler
 	QueueItem		qinprog;	/* If there is currently a query in progress */
 
 	SQLConn(Module* Creator, ConfigTag* tag)
-	: SQL::Provider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL, "")
+		: SQL::Provider(Creator, tag->getString("id"))
+		, conf(tag)
+		, sql(NULL)
+		, status(CWRITE)
+		, qinprog(NULL, "")
 	{
 		if (!DoConnect())
 		{

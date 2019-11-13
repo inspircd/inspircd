@@ -58,7 +58,7 @@ class CmdBuilder
 		: content(1, ':')
 		, tagsize(0)
 	{
-		content.append(src->GetID());
+		content.append(src->GetId());
 		push(cmd);
 		FireEvent(src, cmd, tags);
 	}

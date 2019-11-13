@@ -38,7 +38,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	const std::string& modestr = params[8];
 
 	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
-	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetID()))
+	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetId()))
 		throw ProtocolException("Bogus UUID");
 	// Sanity check on mode string: must begin with '+'
 	if (modestr[0] != '+')

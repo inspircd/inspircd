@@ -93,8 +93,11 @@ void InspIRCd::Cleanup()
 	}
 	ports.clear();
 
-	// Disconnect all local users
+	// Tell modules that we're shutting down.
 	const std::string quitmsg = "Server shutting down";
+	FOREACH_MOD(OnShutdown, (quitmsg));
+
+	// Disconnect all local users
 	const UserManager::LocalList& list = Users.GetLocalUsers();
 	while (!list.empty())
 		ServerInstance->Users.QuitUser(list.front(), quitmsg);

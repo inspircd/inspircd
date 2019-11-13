@@ -40,10 +40,10 @@ namespace
 	 */
 	std::vector<struct kevent> changelist(8);
 
-#ifdef __NetBSD__
+#if defined __NetBSD__ && __NetBSD_Version__ <= 999001400
 	inline intptr_t udata_cast(EventHandler* eh)
 	{
-		// On NetBSD the last parameter of EV_SET is intptr_t.
+		// On NetBSD <10 the last parameter of EV_SET is intptr_t.
 		return reinterpret_cast<intptr_t>(eh);
 	}
 #else

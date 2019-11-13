@@ -65,7 +65,7 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 			return false;
 
 		// Use the SID of the target in the message instead of the server name
-		encap.push(server->GetID()).push(cmd).insert(params).Unicast(server->ServerUser);
+		encap.push(server->GetId()).push(cmd).insert(params).Unicast(server->ServerUser);
 	}
 
 	return true;

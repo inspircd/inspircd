@@ -112,6 +112,15 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	ChangeRealHost(GetIPString(), true);
 }
 
+LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
+	: User(uid, ServerInstance->FakeClient->server, USERTYPE_LOCAL)
+	, eh(this)
+	, already_sent(0)
+{
+	eh.SetFd(myfd);
+	Deserialize(data);
+}
+
 User::~User()
 {
 }
@@ -749,17 +758,16 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 		return;
 
 	ServerInstance->Users.RemoveCloneCounts(this);
-
 	User::SetClientIP(sa);
-
-	FOREACH_MOD(OnSetUserIP, (this));
-
 	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.
 	this->MyClass = NULL;
 	this->SetClass();
 	this->CheckClass();
+
+	if (!quitting)
+		FOREACH_MOD(OnSetUserIP, (this));
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
@@ -1189,10 +1197,24 @@ const std::string& FakeUser::GetFullRealHost()
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
-	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
-	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(20),
-	limit(0), resolvehostnames(true)
+	: config(tag)
+	, type(t)
+	, fakelag(true)
+	, name("unnamed")
+	, registration_timeout(0)
+	, host(mask)
+	, pingtime(0)
+	, softsendqmax(0)
+	, hardsendqmax(0)
+	, recvqmax(0)
+	, penaltythreshold(0)
+	, commandrate(0)
+	, maxlocal(0)
+	, maxglobal(0)
+	, maxconnwarn(true)
+	, maxchans(20)
+	, limit(0)
+	, resolvehostnames(true)
 {
 }
 

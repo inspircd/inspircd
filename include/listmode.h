@@ -120,6 +120,9 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string& eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy);
 
+	/** Determines whether some channels have longer lists than others. */
+	bool HasVariableLength() const { return chanlimits.size() > 1; }
+
 	/** Get limit of this mode on a channel
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel

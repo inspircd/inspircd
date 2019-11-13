@@ -119,7 +119,9 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
  * a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and
  * supports arbitary data storage).
  */
-class CoreExport Extensible : public classbase
+class CoreExport Extensible
+	: public classbase
+	, public Serializable
 {
  public:
 	typedef insp::flat_map<reference<ExtensionItem>, void*> ExtensibleStore;
@@ -151,6 +153,12 @@ class CoreExport Extensible : public classbase
 	 * Free all extension items attached to this Extensible
 	 */
 	void FreeAllExtItems();
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Deserialize(Data& data) override;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Serialize(Serializable::Data& data) override;
 };
 
 class CoreExport ExtensionManager

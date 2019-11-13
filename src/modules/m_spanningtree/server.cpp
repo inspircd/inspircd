@@ -188,8 +188,8 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 
 	if (CheckDupe)
 	{
-		this->SendError("Server ID "+CheckDupe->GetID()+" already exists on server "+CheckDupe->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, server ID '"+CheckDupe->GetID()+
+		this->SendError("Server ID "+CheckDupe->GetId()+" already exists on server "+CheckDupe->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
+		ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, server ID '"+CheckDupe->GetId()+
 				"' already exists on server "+CheckDupe->GetName());
 		return false;
 	}
@@ -228,7 +228,7 @@ CommandServer::Builder::Builder(TreeServer* server)
 	: CmdBuilder(server->GetParent(), "SERVER")
 {
 	push(server->GetName());
-	push(server->GetID());
+	push(server->GetId());
 	if (server->IsBursting())
 		push_property("burst", ConvToStr(server->StartBurst));
 	push_property("hidden", ConvToStr(server->Hidden));

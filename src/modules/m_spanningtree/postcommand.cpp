@@ -64,7 +64,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 		if (encap)
 		{
-			params.push(sdest->GetID());
+			params.push(sdest->GetId());
 			params.push(command);
 		}
 	}

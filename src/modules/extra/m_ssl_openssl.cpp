@@ -980,7 +980,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnModuleRehash(User* user, const std::string &param) override
 	{
-		if (param != "ssl")
+		if (!irc::equals(param, "ssl"))
 			return;
 
 		try

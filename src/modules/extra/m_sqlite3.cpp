@@ -97,7 +97,9 @@ class SQLConn : public SQL::Provider
 	reference<ConfigTag> config;
 
  public:
-	SQLConn(Module* Parent, ConfigTag* tag) : SQL::Provider(Parent, "SQL/" + tag->getString("id")), config(tag)
+	SQLConn(Module* Parent, ConfigTag* tag)
+		: SQL::Provider(Parent, tag->getString("id"))
+		, config(tag)
 	{
 		std::string host = tag->getString("hostname");
 		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)

@@ -375,12 +375,14 @@ class ModuleCloaking : public Module
 		{
 			u->SetMode(cu, false);
 
-			if (!IS_LOCAL(u))
+			LocalUser* luser = IS_LOCAL(u);
+			if (!luser)
 				return;
+
 			Modes::ChangeList modechangelist;
 			modechangelist.push_remove(&cu);
 			ClientProtocol::Events::Mode modeevent(ServerInstance->FakeClient, NULL, u, modechangelist);
-			static_cast<LocalUser*>(u)->Send(modeevent);
+			luser->Send(modeevent);
 		}
 		cu.active = false;
 	}

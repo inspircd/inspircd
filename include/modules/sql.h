@@ -228,11 +228,18 @@ class SQL::Query : public classbase
  */
 class SQL::Provider : public DataProvider
 {
+ private:
+	/** The name of the database tag in the config. */
+	const std::string dbid;
+
  public:
 	Provider(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, Name)
+		: DataProvider(Creator, "SQL/" + Name)
 	{
 	}
+
+	/** Retrieves the name of the database tag in the config. */
+	const std::string& GetId() const { return dbid; }
 
 	/** Submit an asynchronous SQL query.
 	 * @param callback The result reporting point

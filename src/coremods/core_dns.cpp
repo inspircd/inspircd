@@ -538,6 +538,25 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 	}
 
+	std::string GetTypeStr(QueryType qt) override
+	{
+		switch (qt)
+		{
+			case QUERY_A:
+				return "A";
+			case QUERY_AAAA:
+				return "AAAA";
+			case QUERY_CNAME:
+				return "CNAME";
+			case QUERY_PTR:
+				return "PTR";
+			case QUERY_TXT:
+				return "TXT";
+			default:
+				return "UNKNOWN";
+		}
+	}
+
 	void OnEventHandlerError(int errcode) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "UDP socket got an error event");

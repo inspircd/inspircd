@@ -20,6 +20,7 @@
 
 
 BEGIN {
+	push @INC, $ENV{SOURCEPATH};
 	require 5.10.0;
 	unless (-f 'configure') {
 		print "Error: $0 must be run from the main source directory!\n";
@@ -31,6 +32,8 @@ use strict;
 use warnings FATAL => qw(all);
 
 use File::Basename qw(basename);
+
+use make::common;
 
 use constant {
 	BUILDPATH  => $ENV{BUILDPATH},
@@ -50,7 +53,7 @@ run;
 exit 0;
 
 sub run() {
-	mkdir BUILDPATH;
+	create_directory(BUILDPATH, 0770) or die "Could not create build directory: $!";
 	chdir BUILDPATH or die "Could not open build directory: $!";
 	unlink 'include';
 	symlink "${\SOURCEPATH}/include", 'include';

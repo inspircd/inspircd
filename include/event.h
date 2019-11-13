@@ -57,7 +57,23 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
 	 */
 	const SubscriberList& GetSubscribers() const { return prov->subscribers; }
 
-	friend class ModuleEventListener;
+	/** Subscribes a listener to this event.
+	 * @param subscriber The listener to subscribe.
+	 */
+	void Subscribe(ModuleEventListener* subscriber)
+	{
+		subscribers.insert(subscriber);
+		OnSubscribe(subscriber);
+	}
+
+	/** Unsubscribes a listener from this event.
+	 * @param subscriber The listener to unsubscribe.
+	 */
+	void Unsubscribe(ModuleEventListener* subscriber)
+	{
+		subscribers.erase(subscriber);
+		OnUnsubscribe(subscriber);
+	}
 
  private:
 	void OnCapture() override
@@ -66,6 +82,16 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
 		if (*prov != this)
 			subscribers.clear();
 	}
+
+	/** Called when a listener subscribes to this event.
+	 * @param subscriber The listener which subscribed.
+	 */
+	virtual void OnSubscribe(ModuleEventListener* subscriber) { }
+
+	/** Called when a listener unsubscribes from this event.
+	 * @param subscriber The listener which unsubscribed.
+	 */
+	virtual void OnUnsubscribe(ModuleEventListener* subscriber) { }
 
 	/** Reference to the active provider for this event. In case multiple event providers
 	 * exist for the same event, only one of them contains the list of subscribers.
@@ -95,7 +121,7 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	 */
 	void OnCapture() override
 	{
-		prov->subscribers.insert(this);
+		prov->Subscribe(this);
 	}
 
  public:
@@ -119,7 +145,7 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	~ModuleEventListener()
 	{
 		if (prov)
-			prov->subscribers.erase(this);
+			prov->Unsubscribe(this);
 	}
 
 	/** Retrieves the module which created this listener. */

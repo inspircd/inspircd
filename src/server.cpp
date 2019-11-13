@@ -200,7 +200,6 @@ void ISupportManager::Build()
 	tokens["STATUSMSG"] = ServerInstance->Modes.BuildPrefixes(false);
 	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
-	tokens["VBANLIST"];
 
 	// Modules can add new tokens and also edit or remove existing tokens
 	FOREACH_MOD(On005Numeric, (tokens));

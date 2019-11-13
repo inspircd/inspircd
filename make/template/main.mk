@@ -32,7 +32,7 @@
 CXX = @CXX@ -std=c++14
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
-BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build
+BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++

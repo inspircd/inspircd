@@ -58,6 +58,14 @@ class ModuleNoCTCP : public Module
 					return MOD_RES_PASSTHRU;
 
 				Channel* c = target.Get<Channel>();
+				const Channel::MemberMap& members = c->GetUsers();
+				for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
+				{
+					User* u = member->first;
+					if (u->IsModeSet(ncu))
+						details.exemptions.insert(u);
+				}
+
 				ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
@@ -66,14 +74,6 @@ class ModuleNoCTCP : public Module
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
 					return MOD_RES_DENY;
-				}
-
-				const Channel::MemberMap& members = c->GetUsers();
-				for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
-				{
-					User* u = member->first;
-					if (u->IsModeSet(ncu))
-						details.exemptions.insert(u);
 				}
 				break;
 			}

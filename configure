@@ -323,6 +323,7 @@ if (prompt_bool $interactive, $question, 0) {
 	$config{MANUAL_DIR} = prompt_dir $interactive, 'In what directory are manual pages to be placed?',        $config{MANUAL_DIR};
 	$config{MODULE_DIR} = prompt_dir $interactive, 'In what directory are modules to be placed?',             $config{MODULE_DIR};
 	$config{SCRIPT_DIR} = prompt_dir $interactive, 'In what directory are scripts to be placed?',             $config{SCRIPT_DIR};
+	$config{EXAMPLE_DIR} = $config{CONFIG_DIR} . '/examples';
 }
 
 # Configure module settings.

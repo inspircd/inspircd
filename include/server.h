@@ -22,6 +22,9 @@
 class CoreExport Server : public classbase
 {
  protected:
+	/** The unique identifier for this server. */
+	const std::string id;
+
 	/** The name of this server
 	 */
 	const std::string name;
@@ -44,8 +47,17 @@ class CoreExport Server : public classbase
 	friend class ConfigReaderThread;
 
  public:
-	Server(const std::string& srvname, const std::string& srvdesc)
-		: name(srvname), description(srvdesc), uline(false), silentuline(false) { }
+	Server(const std::string& srvid, const std::string& srvname, const std::string& srvdesc)
+		: id(srvid)
+		, name(srvname)
+		, description(srvdesc)
+		, uline(false)
+		, silentuline(false)
+	{
+	}
+
+	/** Retrieves the unique identifier for this server (e.g. 36C). */
+	const std::string& GetId() const { return id; }
 
 	/**
 	 * Returns the name of this server

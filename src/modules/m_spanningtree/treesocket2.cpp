@@ -415,7 +415,7 @@ void TreeSocket::Close()
 	// If the connection is fully up (state CONNECTED)
 	// then propogate a netsplit to all peers.
 	if (MyRoot)
-		MyRoot->SQuit(getError());
+		MyRoot->SQuit(getError(), true);
 
 	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 

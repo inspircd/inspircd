@@ -381,7 +381,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 				return false;
 			}
 
-			params[0] = server->GetID();
+			params[0] = server->GetId();
 		}
 	}
 	else if ((cmd == "GLINE") || (cmd == "KLINE") || (cmd == "ELINE") || (cmd == "ZLINE") || (cmd == "QLINE"))
@@ -564,7 +564,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 			// Second parameter becomes the target uuid
 			params[0].swap(params[1]);
 			// Replace first param (now the PUSH payload, not needed) with the source sid
-			params[0] = numericsource->GetID();
+			params[0] = numericsource->GetId();
 
 			params.push_back(InspIRCd::Format("%03u", numeric_number));
 

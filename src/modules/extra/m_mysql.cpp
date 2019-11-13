@@ -277,8 +277,10 @@ class SQLConnection : public SQL::Provider
 	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, ConfigTag* tag) : SQL::Provider(p, "SQL/" + tag->getString("id")),
-		config(tag), connection(NULL)
+	SQLConnection(Module* p, ConfigTag* tag)
+		: SQL::Provider(p, tag->getString("id"))
+		, config(tag)
+		, connection(NULL)
 	{
 	}
 
@@ -291,28 +293,43 @@ class SQLConnection : public SQL::Provider
 	// true upon success.
 	bool Connect()
 	{
-		unsigned int timeout = 1;
 		connection = mysql_init(connection);
-		mysql_options(connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
-		std::string host = config->getString("host");
-		std::string user = config->getString("user");
-		std::string pass = config->getString("pass");
-		std::string dbname = config->getString("name");
-		unsigned int port = config->getUInt("port", 3306);
-		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
-		if (!rv)
-			return rv;
 
-		// Enable character set settings
-		std::string charset = config->getString("charset");
-		if ((!charset.empty()) && (mysql_set_character_set(connection, charset.c_str())))
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: Could not set character set to \"%s\"", charset.c_str());
+		// Set the connection timeout.
+		unsigned int timeout = config->getDuration("timeout", 5, 1, 30);
+		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
-		std::string initquery;
-		if (config->readString("initialquery", initquery))
+		// Attempt to connect to the database.
+		const std::string host = config->getString("host");
+		const std::string user = config->getString("user");
+		const std::string pass = config->getString("pass");
+		const std::string dbname = config->getString("name");
+		unsigned int port = config->getUInt("port", 3306, 1, 65535);
+		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, CLIENT_IGNORE_SIGPIPE))
 		{
-			mysql_query(connection,initquery.c_str());
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Unable to connect to the %s MySQL server: %s",
+				GetId().c_str(), mysql_error(connection));
+			return false;
 		}
+
+		// Set the default character set.
+		const std::string charset = config->getString("charset");
+		if (!charset.empty() && mysql_set_character_set(connection, charset.c_str()))
+		{
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not set character set for %s to \"%s\": %s",
+				GetId().c_str(), charset.c_str(), mysql_error(connection));
+			return false;
+		}
+
+		// Execute the initial SQL query.
+		const std::string initialquery = config->getString("initialquery");
+		if (!initialquery.empty() && mysql_real_query(connection, initialquery.data(), initialquery.length()))
+		{
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not execute initial query \"%s\" for %s: %s",
+				initialquery.c_str(), name.c_str(), mysql_error(connection));
+			return false;
+		}
+
 		return true;
 	}
 

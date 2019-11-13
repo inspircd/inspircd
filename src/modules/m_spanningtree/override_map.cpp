@@ -76,7 +76,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 	std::string buffer = current->GetName();
 	if (user->IsOper())
 	{
-		buffer += " (" + current->GetID();
+		buffer += " (" + current->GetId();
 
 		const std::string& cur_vers = current->GetRawVersion();
 		if (!cur_vers.empty())

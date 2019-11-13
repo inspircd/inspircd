@@ -59,7 +59,7 @@ class ServerTracker
 		Update(server, true);
 	}
 
-	void OnServerSplit(const Server* server) override
+	void OnServerSplit(const Server* server, bool error) override
 	{
 		Update(server, false);
 	}

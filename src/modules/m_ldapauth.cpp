@@ -216,7 +216,7 @@ class SearchInterface : public LDAPInterface
 
 	void OnResult(const LDAPResult& r) override
 	{
-		LocalUser* user = static_cast<LocalUser*>(ServerInstance->FindUUID(uid));
+		LocalUser* user = IS_LOCAL(ServerInstance->FindUUID(uid));
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 		if (!LDAP || r.empty() || !user)
 		{

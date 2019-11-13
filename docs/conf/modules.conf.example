@@ -630,7 +630,7 @@
 #                       the throttling when the server just booted.
 #
 #<connflood period="30" maxconns="3" timeout="30"
-#   quitmsg="Throttled" bootwait="10">
+#   quitmsg="Throttled" bootwait="2m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom prefixes: Allows for channel prefixes to be configured.

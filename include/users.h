@@ -592,6 +592,12 @@ class CoreExport User : public Extensible
 	 */
 	virtual ~User();
 	CullResult cull() override;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Deserialize(Data& data) override;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Serialize(Serializable::Data& data) override;
 };
 
 class CoreExport UserIOHandler : public StreamSocket
@@ -645,6 +651,8 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	LocalUser(int fd, const std::string& uuid, Serializable::Data& data);
+
 	CullResult cull() override;
 
 	UserIOHandler eh;
@@ -788,6 +796,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @param msg Message to send.
 	 */
 	void Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg);
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Deserialize(Data& data) override;
+
+	/** @copydoc Serializable::Deserialize. */
+	bool Serialize(Serializable::Data& data) override;
 };
 
 class RemoteUser : public User
@@ -801,13 +815,14 @@ class RemoteUser : public User
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_SERVER)
+	FakeUser(const std::string& uid, Server* srv)
+		: User(uid, srv, USERTYPE_SERVER)
 	{
 		nick = srv->GetName();
 	}
 
 	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
-		: User(uid, new Server(sname, sdesc), USERTYPE_SERVER)
+		: User(uid, new Server(uid, sname, sdesc), USERTYPE_SERVER)
 	{
 		nick = sname;
 	}
@@ -821,17 +836,17 @@ class CoreExport FakeUser : public User
 /** Is a local user */
 inline LocalUser* IS_LOCAL(User* u)
 {
-	return u->usertype == USERTYPE_LOCAL ? static_cast<LocalUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_LOCAL) ? static_cast<LocalUser*>(u) : NULL;
 }
 /** Is a remote user */
 inline RemoteUser* IS_REMOTE(User* u)
 {
-	return u->usertype == USERTYPE_REMOTE ? static_cast<RemoteUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_REMOTE) ? static_cast<RemoteUser*>(u) : NULL;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)
 {
-	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
+	return (u != NULL && u->usertype == USERTYPE_SERVER) ? static_cast<FakeUser*>(u) : NULL;
 }
 
 inline bool User::IsModeSet(const ModeHandler* mh) const

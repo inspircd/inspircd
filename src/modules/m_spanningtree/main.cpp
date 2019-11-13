@@ -689,7 +689,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			TreeServer* server = i->second;
 			if (!server->IsRoot())
-				FOREACH_MOD_CUSTOM(GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (server));
+				FOREACH_MOD_CUSTOM(GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (server, false));
 		}
 		return;
 	}
@@ -793,6 +793,13 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 	}
 }
 
+void ModuleSpanningTree::OnShutdown(const std::string& reason)
+{
+	const TreeServer::ChildServers& children = Utils->TreeRoot->GetChildren();
+	while (!children.empty())
+		children.front()->SQuit(reason, true);
+}
+
 CullResult ModuleSpanningTree::cull()
 {
 	if (Utils)
@@ -804,7 +811,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	Server* newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;

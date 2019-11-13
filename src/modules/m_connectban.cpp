@@ -19,8 +19,11 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/webirc.h"
 
-class ModuleConnectBan : public Module
+class ModuleConnectBan
+	: public Module
+	, public WebIRC::EventListener
 {
 	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
 	ConnectMap connects;
@@ -30,7 +33,33 @@ class ModuleConnectBan : public Module
 	unsigned int ipv6_cidr;
 	std::string banmessage;
 
+	unsigned char GetRange(LocalUser* user)
+	{
+		int family = user->client_sa.family();
+		switch (family)
+		{
+			case AF_INET:
+				return ipv4_cidr;
+
+			case AF_INET6:
+				return ipv6_cidr;
+
+			case AF_UNIX:
+				// Ranges for UNIX sockets are ignored entirely.
+				return 0;
+		}
+
+		// If we have reached this point then we have encountered a bug.
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: ModuleConnectBan::GetRange(): socket type %d is unknown!", family);
+		return 0;
+	}
+
  public:
+	ModuleConnectBan()
+		: WebIRC::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood", VF_VENDOR);
@@ -47,24 +76,26 @@ class ModuleConnectBan : public Module
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 	}
 
+	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
+	{
+		if (user->exempt)
+			return;
+
+		// HACK: Lower the connection attempts for the gateway IP address. The user
+		// will be rechecked for connect spamming shortly after when their IP address
+		// is changed and OnSetUserIP is called.
+		irc::sockets::cidr_mask mask(user->client_sa, GetRange(user));
+		ConnectMap::iterator iter = connects.find(mask);
+		if (iter != connects.end() && iter->second)
+			iter->second--;
+	}
+
 	void OnSetUserIP(LocalUser* u) override
 	{
 		if (u->exempt)
 			return;
 
-		unsigned char range = 32;
-
-		switch (u->client_sa.family())
-		{
-			case AF_INET6:
-				range = ipv6_cidr;
-			break;
-			case AF_INET:
-				range = ipv4_cidr;
-			break;
-		}
-
-		irc::sockets::cidr_mask mask(u->client_sa, range);
+		irc::sockets::cidr_mask mask(u->client_sa, GetRange(u));
 		ConnectMap::iterator i = connects.find(mask);
 
 		if (i != connects.end())

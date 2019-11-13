@@ -247,6 +247,17 @@ class LDAPService : public LDAPProvider, public SocketThread
 		Connect();
 	}
 
+	int SetOption(int option, const void* value)
+	{
+		int ret = ldap_set_option(this->con, option, value);
+		if (ret != LDAP_OPT_SUCCESS)
+		{
+			ldap_unbind_ext(this->con, NULL, NULL);
+			this->con = NULL;
+		}
+		return ret;
+	}
+
 	void QueueRequest(LDAPRequest* r)
 	{
 		this->LockQueue();
@@ -318,22 +329,14 @@ class LDAPService : public LDAPProvider, public SocketThread
 			throw LDAPException("Unable to connect to LDAP service " + this->name + ": " + ldap_err2string(i));
 
 		const int version = LDAP_VERSION3;
-		i = ldap_set_option(this->con, LDAP_OPT_PROTOCOL_VERSION, &version);
+		i = SetOption(LDAP_OPT_PROTOCOL_VERSION, &version);
 		if (i != LDAP_OPT_SUCCESS)
-		{
-			ldap_unbind_ext(this->con, NULL, NULL);
-			this->con = NULL;
 			throw LDAPException("Unable to set protocol version for " + this->name + ": " + ldap_err2string(i));
-		}
 
 		const struct timeval tv = { 0, 0 };
-		i = ldap_set_option(this->con, LDAP_OPT_NETWORK_TIMEOUT, &tv);
+		i = SetOption(LDAP_OPT_NETWORK_TIMEOUT, &tv);
 		if (i != LDAP_OPT_SUCCESS)
-		{
-			ldap_unbind_ext(this->con, NULL, NULL);
-			this->con = NULL;
 			throw LDAPException("Unable to set timeout for " + this->name + ": " + ldap_err2string(i));
-		}
 	}
 
 	void BindAsManager(LDAPInterface* i) override
