@@ -284,8 +284,10 @@ class SQLConnection : public SQL::Provider
 	Mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, ConfigTag* tag) : SQL::Provider(p, "SQL/" + tag->getString("id")),
-		config(tag), connection(NULL)
+	SQLConnection(Module* p, ConfigTag* tag)
+		: SQL::Provider(p, tag->getString("id"))
+		, config(tag)
+		, connection(NULL)
 	{
 	}
 
