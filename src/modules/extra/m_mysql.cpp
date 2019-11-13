@@ -168,7 +168,10 @@ class MySQLresult : public SQL::Result
 	std::vector<std::string> colnames;
 	std::vector<SQL::Row> fieldlists;
 
-	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL::SUCCESS), currentrow(0), rows(0)
+	MySQLresult(MYSQL_RES* res, int affected_rows)
+		: err(SQL::SUCCESS)
+		, currentrow(0)
+		, rows(0)
 	{
 		if (affected_rows >= 1)
 		{
@@ -211,7 +214,10 @@ class MySQLresult : public SQL::Result
 		}
 	}
 
-	MySQLresult(SQL::Error& e) : err(e)
+	MySQLresult(SQL::Error& e)
+		: err(e)
+		, currentrow(0)
+		, rows(0)
 	{
 
 	}
@@ -308,7 +314,7 @@ class SQLConnection : public SQL::Provider
 
 	~SQLConnection()
 	{
-		Close();
+		mysql_close(connection);
 	}
 
 	// This method connects to the database using the credentials supplied to the constructor, and returns
@@ -387,11 +393,6 @@ class SQLConnection : public SQL::Provider
 		return true;
 	}
 
-	void Close()
-	{
-		mysql_close(connection);
-	}
-
 	void Submit(SQL::Query* q, const std::string& qs) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
@@ -439,8 +440,8 @@ class SQLConnection : public SQL::Provider
 };
 
 ModuleSQL::ModuleSQL()
+	: Dispatcher(NULL)
 {
-	Dispatcher = NULL;
 }
 
 void ModuleSQL::init()
