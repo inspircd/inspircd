@@ -138,10 +138,6 @@ class DispatcherThread : public SocketThread
 	void OnNotify() CXX11_OVERRIDE;
 };
 
-#if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
-#define mysql_field_count mysql_num_fields
-#endif
-
 /** Represents a mysql result set
  */
 class MySQLresult : public SQL::Result
@@ -370,11 +366,6 @@ class SQLConnection : public SQL::Provider
 		if (!connection || mysql_ping(connection) != 0)
 			return Connect();
 		return true;
-	}
-
-	std::string GetError()
-	{
-		return mysql_error(connection);
 	}
 
 	void Close()
