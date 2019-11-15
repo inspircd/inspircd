@@ -336,6 +336,12 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 				return MOD_RES_DENY;
 			}
 
+			if (!x->Port)
+			{
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Server \002%s\002 is configured for inbound only (no port defined).", x->Name.c_str()));
+				return MOD_RES_DENY;
+			}
+
 			TreeServer* CheckDupe = Utils->FindServer(x->Name);
 			if (!CheckDupe)
 			{

@@ -206,12 +206,6 @@ void SpanningTreeUtilities::RefreshIPCache()
 	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
 		Link* L = *i;
-		if (!L->Port)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring a link block without a port.");
-			/* Invalid link block */
-			continue;
-		}
 
 		ValidIPs.insert(ValidIPs.end(), L->AllowMasks.begin(), L->AllowMasks.end());
 
