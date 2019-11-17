@@ -368,7 +368,8 @@ void ServerConfig::Fill()
 			throw CoreException("You must restart to change the server id");
 
 		std::string casemapping = options->getString("casemapping");
-		if (!casemapping.empty() && casemapping != CaseMapping)
+		// Ignore this value if CaseMapping is set to something the core doesn't provide (i.e., m_nationalchars).
+		if (!casemapping.empty() && casemapping != CaseMapping && (CaseMapping == "ascii" || CaseMapping == "rfc1459"))
 			throw CoreException("You must restart to change the server casemapping");
 
 	}
