@@ -122,7 +122,7 @@ class CoreExport ProtocolInterface
 	 * @param status The status character (e.g. %) required to receive.
 	 * @param text The message to send.
 	 */
-	void SendChannelNotice(Channel* target, char status, const std::string &text)
+	DEPRECATED_METHOD(void SendChannelNotice(Channel* target, char status, const std::string& text))
 	{
 		SendMessage(target, status, text, MSG_NOTICE);
 	}
@@ -131,7 +131,7 @@ class CoreExport ProtocolInterface
 	 * @param target The user to message.
 	 * @param text The message to send.
 	 */
-	void SendUserNotice(User* target, const std::string &text)
+	DEPRECATED_METHOD(void SendUserNotice(User* target, const std::string& text))
 	{
 		SendMessage(target, text, MSG_NOTICE);
 	}
