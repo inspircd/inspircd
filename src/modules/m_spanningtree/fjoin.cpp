@@ -276,8 +276,13 @@ void CommandFJoin::RemoveStatus(Channel* c)
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 {
 	if (Utils->AnnounceTSChange)
-		chan->WriteNotice(InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
-			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str()));
+	{
+		// WriteNotice is not used here because the message only needs to go to the local server.
+		const std::string tsmessage  = InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
+			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str());
+		ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, chan, tsmessage, MSG_NOTICE);
+		chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+	}
 
 	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version
 	chan->name = newname;
