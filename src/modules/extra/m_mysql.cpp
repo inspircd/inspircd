@@ -258,6 +258,16 @@ class SQLConnection : public SQLProvider
 		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
 		if (!rv)
 			return rv;
+
+		// Set the default character set.
+		std::string charset = config->getString("charset");
+		if (charset.empty()) {
+			charset = "utf8mb4";
+		}
+		bool rch = mysql_set_character_set(connection, charset.c_str());
+		if (!rch)
+			return rch;
+
 		std::string initquery;
 		if (config->readString("initialquery", initquery))
 		{
