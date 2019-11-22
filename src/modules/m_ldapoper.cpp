@@ -180,14 +180,14 @@ class AdminBindInterface : public LDAPInterface
 	}
 };
 
-class ModuleLDAPAuth : public Module
+class ModuleLDAPOper : public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
 	std::string base;
 	std::string attribute;
 
  public:
-	ModuleLDAPAuth()
+	ModuleLDAPOper()
 		: LDAP(this, "LDAP")
 	{
 		me = this;
@@ -246,4 +246,4 @@ class ModuleLDAPAuth : public Module
 	}
 };
 
-MODULE_INIT(ModuleLDAPAuth)
+MODULE_INIT(ModuleLDAPOper)
