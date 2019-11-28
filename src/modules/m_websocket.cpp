@@ -36,6 +36,9 @@ struct WebSocketConfig
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;
 
+	// Whether to trust the X-Real-IP or X-Forwarded-For headers.
+	bool behindproxy;
+
 	// Whether to send as UTF-8 text instead of binary data.
 	bool sendastext;
 };
@@ -340,6 +343,29 @@ class WebSocketHook : public IOHookMiddle
 			return -1;
 		}
 
+		if (config.behindproxy && sock->type == StreamSocket::SS_USER)
+		{
+			LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
+			irc::sockets::sockaddrs realsa(luser->client_sa);
+
+			HTTPHeaderFinder proxyheader;
+			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend)
+				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			{
+				// Nothing to do here.
+			}
+			else if (proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend)
+				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			{
+				// Nothing to do here.
+			}
+
+			// Give the user their real IP address.
+			if (realsa != luser->client_sa)
+				luser->SetClientIP(realsa);
+		}
+
+
 		HTTPHeaderFinder keyheader;
 		if (!keyheader.Find(recvq, "Sec-WebSocket-Key:", 18, reqend))
 		{
@@ -492,6 +518,7 @@ class ModuleWebSocket : public Module
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
+		config.behindproxy = tag->getBool("behindproxy");
 		config.sendastext = tag->getBool("sendastext", true);
 
 		// Everything is okay; apply the new config.
