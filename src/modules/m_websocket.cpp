@@ -31,12 +31,19 @@ static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static const char whitespace[] = " \t\r\n";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
+struct WebSocketConfig
+{
+	// The HTTP origins that can connect to the server.
+	OriginList allowedorigins;
+
+	// Whether to send as UTF-8 text instead of binary data.
+	bool sendastext;
+};
+
 class WebSocketHookProvider : public IOHookProvider
 {
  public:
-	OriginList allowedorigins;
-	bool sendastext;
-
+	WebSocketConfig config;
 	WebSocketHookProvider(Module* mod)
 		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
 	{
@@ -110,8 +117,7 @@ class WebSocketHook : public IOHookMiddle
 
 	State state;
 	time_t lastpingpong;
-	OriginList& allowedorigins;
-	bool& sendastext;
+	WebSocketConfig& config;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
 	{
@@ -318,7 +324,7 @@ class WebSocketHook : public IOHookMiddle
 		if (originheader.Find(recvq, "Origin:", 7, reqend))
 		{
 			const std::string origin = originheader.ExtractValue(recvq);
-			for (OriginList::const_iterator iter = allowedorigins.begin(); iter != allowedorigins.end(); ++iter)
+			for (OriginList::const_iterator iter = config.allowedorigins.begin(); iter != config.allowedorigins.end(); ++iter)
 			{
 				if (InspIRCd::Match(origin, *iter, ascii_case_insensitive_map))
 				{
@@ -364,12 +370,11 @@ class WebSocketHook : public IOHookMiddle
 	}
 
  public:
-	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, OriginList& AllowedOrigins, bool& SendAsText)
+	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, WebSocketConfig& cfg)
 		: IOHookMiddle(Prov)
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
-		, allowedorigins(AllowedOrigins)
-		, sendastext(SendAsText)
+		, config(cfg)
 	{
 		sock->AddIOHook(this);
 	}
@@ -390,7 +395,7 @@ class WebSocketHook : public IOHookMiddle
 				if (*chr == '\n')
 				{
 					// We have found an entire message. Send it in its own frame.
-					if (sendastext)
+					if (config.sendastext)
 					{
 						// If we send messages as text then we need to ensure they are valid UTF-8.
 						std::string encoded;
@@ -451,7 +456,7 @@ class WebSocketHook : public IOHookMiddle
 
 void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new WebSocketHook(this, sock, allowedorigins, sendastext);
+	new WebSocketHook(this, sock, config);
 }
 
 class ModuleWebSocket : public Module
@@ -473,7 +478,7 @@ class ModuleWebSocket : public Module
 		if (tags.first == tags.second)
 			throw ModuleException("You have loaded the websocket module but not configured any allowed origins!");
 
-		OriginList allowedorigins;
+		WebSocketConfig config;
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
@@ -483,12 +488,14 @@ class ModuleWebSocket : public Module
 			if (allow.empty())
 				throw ModuleException("<wsorigin:allow> is a mandatory field, at " + tag->getTagLocation());
 
-			allowedorigins.push_back(allow);
+			config.allowedorigins.push_back(allow);
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
-		hookprov->sendastext = tag->getBool("sendastext", true);
-		hookprov->allowedorigins.swap(allowedorigins);
+		config.sendastext = tag->getBool("sendastext", true);
+
+		// Everything is okay; apply the new config.
+		hookprov->config = config;
 	}
 
 	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
