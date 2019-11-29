@@ -25,14 +25,13 @@
 
 #include <utf8.h>
 
-typedef std::vector<std::string> OriginList;
-
 static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static const char whitespace[] = " \t\r\n";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig
 {
+	typedef std::vector<std::string> OriginList;
 	typedef std::vector<std::string> ProxyRanges;
 
 	// The HTTP origins that can connect to the server.
@@ -329,7 +328,7 @@ class WebSocketHook : public IOHookMiddle
 		if (originheader.Find(recvq, "Origin:", 7, reqend))
 		{
 			const std::string origin = originheader.ExtractValue(recvq);
-			for (OriginList::const_iterator iter = config.allowedorigins.begin(); iter != config.allowedorigins.end(); ++iter)
+			for (WebSocketConfig::OriginList::const_iterator iter = config.allowedorigins.begin(); iter != config.allowedorigins.end(); ++iter)
 			{
 				if (InspIRCd::Match(origin, *iter, ascii_case_insensitive_map))
 				{
