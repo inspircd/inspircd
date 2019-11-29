@@ -617,7 +617,7 @@
 # killonbadreply -   Whether to kill the user if they send the wrong  #
 #                    PONG reply.                                      #
 #                                                                     #
-#<waitpong sendsnotice="yes" killonbadreply="yes">
+#<waitpong sendsnotice="no" killonbadreply="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel cycle module: Adds the /CYCLE command which is a server-side

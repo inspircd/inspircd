@@ -39,7 +39,7 @@ class ModuleWaitPong : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
-		sendsnotice = tag->getBool("sendsnotice", true);
+		sendsnotice = tag->getBool("sendsnotice", false);
 		killonbadreply = tag->getBool("killonbadreply", true);
 	}
 
