@@ -33,11 +33,13 @@ static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig
 {
+	typedef std::vector<std::string> ProxyRanges;
+
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;
 
-	// Whether to trust the X-Real-IP or X-Forwarded-For headers.
-	bool behindproxy;
+	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
+	ProxyRanges proxyranges;
 
 	// Whether to send as UTF-8 text instead of binary data.
 	bool sendastext;
@@ -343,7 +345,7 @@ class WebSocketHook : public IOHookMiddle
 			return -1;
 		}
 
-		if (config.behindproxy && sock->type == StreamSocket::SS_USER)
+		if (!config.proxyranges.empty() && sock->type == StreamSocket::SS_USER)
 		{
 			LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
 			irc::sockets::sockaddrs realsa(luser->client_sa);
@@ -360,9 +362,16 @@ class WebSocketHook : public IOHookMiddle
 				// Nothing to do here.
 			}
 
-			// Give the user their real IP address.
-			if (realsa != luser->client_sa)
-				luser->SetClientIP(realsa);
+			for (WebSocketConfig::ProxyRanges::const_iterator iter = config.proxyranges.begin(); iter != config.proxyranges.end(); ++iter)
+			{
+				if (InspIRCd::MatchCIDR(*iter, luser->GetIPString(), ascii_case_insensitive_map))
+				{
+					// Give the user their real IP address.
+					if (realsa == luser->client_sa)
+						luser->SetClientIP(realsa);
+					break;
+				}
+			}
 		}
 
 
@@ -518,8 +527,11 @@ class ModuleWebSocket : public Module
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
-		config.behindproxy = tag->getBool("behindproxy");
 		config.sendastext = tag->getBool("sendastext", true);
+
+		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
+		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
+			config.proxyranges.push_back(proxyrange);
 
 		// Everything is okay; apply the new config.
 		hookprov->config = config;
