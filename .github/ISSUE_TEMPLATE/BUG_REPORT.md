@@ -8,6 +8,9 @@ about: Report a non-security issue with InspIRCd.
 GENERAL SUPPORT INFORMATION
 ---------------------------------------------------
 
+PLEASE DO NOT FILE CRASH/SECURITY REPORTS ON GITHUB. You can read our
+security policy at https://github.com/inspircd/inspircd/security/policy
+
 The GitHub issue tracker is for bug reports ONLY. General support can
 be found at the following locations:
 
