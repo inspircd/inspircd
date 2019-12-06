@@ -363,10 +363,10 @@ class WebSocketHook : public IOHookMiddle
 
 			for (WebSocketConfig::ProxyRanges::const_iterator iter = config.proxyranges.begin(); iter != config.proxyranges.end(); ++iter)
 			{
-				if (InspIRCd::MatchCIDR(*iter, luser->GetIPString(), ascii_case_insensitive_map))
+				if (InspIRCd::MatchCIDR(luser->GetIPString(), *iter, ascii_case_insensitive_map))
 				{
 					// Give the user their real IP address.
-					if (realsa == luser->client_sa)
+					if (realsa != luser->client_sa)
 						luser->SetClientIP(realsa);
 					break;
 				}
