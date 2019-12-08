@@ -441,12 +441,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
-#ifdef _WIN32
-	// Set up winsock
-	WSADATA wsadata;
-	WSAStartup(MAKEWORD(2,2), &wsadata);
-#endif
-
 	/* Set the finished argument values */
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
@@ -469,6 +463,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl;
 	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
+
+
 
 #ifndef _WIN32
 	if (!do_root)
