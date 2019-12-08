@@ -181,10 +181,6 @@ class serverstats
 class CoreExport InspIRCd
 {
  private:
-	/** Set up the signal handlers
-	 */
-	void SetSignals();
-
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;

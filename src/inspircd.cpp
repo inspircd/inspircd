@@ -142,6 +142,7 @@ namespace
 	// Attempts to fork into the background.
 	bool ForkIntoBackground()
 	{
+#ifndef _WIN32
 		// We use VoidSignalHandler whilst forking to avoid breaking daemon scripts
 		// if the parent process exits with SIGTERM (15) instead of EXIT_STATUS_NOERROR (0).
 		signal(SIGTERM, VoidSignalHandler);
@@ -167,8 +168,9 @@ namespace
 		{
 			setsid();
 			signal(SIGTERM, InspIRCd::SetSignal);
-			return true;
 		}
+#endif
+		return true;
 	}
 
 	// Increase the size of a core dump file to improve debugging problems.
@@ -197,6 +199,21 @@ namespace
 #elif !defined HAS_ARC4RANDOM_BUF
 		srandom(ts.tv_nsec ^ ts.tv_sec);
 #endif
+	}
+
+	// Sets handlers for various process signals.
+	void SetSignals()
+	{
+#ifndef _WIN32
+		signal(SIGALRM, SIG_IGN);
+		signal(SIGCHLD, SIG_IGN);
+		signal(SIGHUP, InspIRCd::SetSignal);
+		signal(SIGPIPE, SIG_IGN);
+		signal(SIGUSR1, SIG_IGN);
+		signal(SIGUSR2, SIG_IGN);
+		signal(SIGXFSZ, SIG_IGN);
+#endif
+		signal(SIGTERM, InspIRCd::SetSignal);
 	}
 
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
@@ -240,20 +257,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
-}
-
-void InspIRCd::SetSignals()
-{
-#ifndef _WIN32
-	signal(SIGALRM, SIG_IGN);
-	signal(SIGCHLD, SIG_IGN);
-	signal(SIGHUP, InspIRCd::SetSignal);
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGUSR1, SIG_IGN);
-	signal(SIGUSR2, SIG_IGN);
-	signal(SIGXFSZ, SIG_IGN);
-#endif
-	signal(SIGTERM, InspIRCd::SetSignal);
 }
 
 void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
@@ -450,7 +453,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 #endif
 
-	this->SetSignals();
+	SetSignals();
 
 	if (!Config->cmdline.nofork && !ForkIntoBackground())
 	{
