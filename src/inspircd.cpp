@@ -165,6 +165,25 @@ namespace
 #endif
 	}
 
+	// Locates a config file on the file system.
+	bool FindConfigFile(std::string& path)
+	{
+		if (FileSystem::FileExists(path))
+			return true;
+
+#ifdef _WIN32
+		// Windows hides file extensions by default so try appending .txt to the path
+		// to help users who have that feature enabled and can't create .conf files.
+		const std::string txtpath = path + ".txt";
+		if (FileSystem::FileExists(txtpath))
+		{
+			path.assign(txtpath);
+			return true;
+		}
+#endif
+		return false;
+	}
+
 	// Attempts to fork into the background.
 	bool ForkIntoBackground()
 	{
@@ -441,24 +460,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Logs->AddLogTypes("*", fls, true);
 	}
 
-	if (!FileSystem::FileExists(ConfigFileName))
+	if (!FindConfigFile(ConfigFileName))
 	{
-#ifdef _WIN32
-		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
-		std::string txtconf = this->ConfigFileName;
-		txtconf.append(".txt");
-
-		if (FileSystem::FileExists(txtconf))
-		{
-			ConfigFileName = txtconf;
-		}
-		else
-#endif
-		{
-			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
-			Exit(EXIT_STATUS_CONFIG);
-		}
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
+		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
+		Exit(EXIT_STATUS_CONFIG);
 	}
 
 	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl;
