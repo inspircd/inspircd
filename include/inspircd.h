@@ -185,11 +185,6 @@ class CoreExport InspIRCd
 	 */
 	void SetSignals();
 
-	/** Daemonize the ircd and close standard input/output streams
-	 * @return True if the program daemonized succesfully
-	 */
-	bool DaemonSeed();
-
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;

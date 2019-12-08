@@ -78,6 +78,8 @@ const char* ExitCodes[] =
 
 namespace
 {
+	void VoidSignalHandler(int);
+
 	// Deletes a pointer and then zeroes it.
 	template<typename T>
 	void DeleteZero(T*& pr)
@@ -135,6 +137,38 @@ namespace
 			}
 		}
 #endif
+	}
+
+	// Attempts to fork into the background.
+	bool ForkIntoBackground()
+	{
+		// We use VoidSignalHandler whilst forking to avoid breaking daemon scripts
+		// if the parent process exits with SIGTERM (15) instead of EXIT_STATUS_NOERROR (0).
+		signal(SIGTERM, VoidSignalHandler);
+
+		errno = 0;
+		int childpid = fork();
+		if (childpid < 0)
+		{
+			ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "fork() failed: %s", strerror(errno));
+			return false;
+		}
+		else if (childpid > 0)
+		{
+			// Wait until the child process kills the parent so that the shell prompt
+			// doesnt display over the output. Sending a kill with a signal of 0 just
+			// checks that the child pid is still running. If it is not then an error
+			// happened and the parent should exit.
+			while (kill(childpid, 0) != -1)
+				sleep(1);
+			exit(EXIT_STATUS_NOERROR);
+		}
+		else
+		{
+			setsid();
+			signal(SIGTERM, InspIRCd::SetSignal);
+			return true;
+		}
 	}
 
 	// Increase the size of a core dump file to improve debugging problems.
@@ -220,40 +254,6 @@ void InspIRCd::SetSignals()
 	signal(SIGXFSZ, SIG_IGN);
 #endif
 	signal(SIGTERM, InspIRCd::SetSignal);
-}
-
-bool InspIRCd::DaemonSeed()
-{
-#ifdef _WIN32
-	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
-	return true;
-#else
-	// Do not use exit() here: It will exit with status SIGTERM which would break e.g. daemon scripts
-	signal(SIGTERM, VoidSignalHandler);
-
-	int childpid = fork();
-	if (childpid < 0)
-		return false;
-	else if (childpid > 0)
-	{
-		/* We wait here for the child process to kill us,
-		 * so that the shell prompt doesnt come back over
-		 * the output.
-		 * Sending a kill with a signal of 0 just checks
-		 * if the child pid is still around. If theyre not,
-		 * they threw an error and we should give up.
-		 */
-		while (kill(childpid, 0) != -1)
-			sleep(1);
-		exit(EXIT_STATUS_NOERROR);
-	}
-	setsid ();
-	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
-
-	signal(SIGTERM, InspIRCd::SetSignal);
-	IncreaseCoreDumpSize();
-	return true;
-#endif
 }
 
 void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
@@ -452,16 +452,16 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->SetSignals();
 
-	if (!Config->cmdline.nofork)
+	if (!Config->cmdline.nofork && !ForkIntoBackground())
 	{
-		if (!this->DaemonSeed())
-		{
-			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-			Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
-			Exit(EXIT_STATUS_FORK);
-		}
+		std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
+		Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
+		Exit(EXIT_STATUS_FORK);
 	}
 
+	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
+
+	IncreaseCoreDumpSize();
 	SocketEngine::RecoverFromFork();
 
 	/* During startup we read the configuration now, not in
