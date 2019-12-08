@@ -192,11 +192,6 @@ class CoreExport InspIRCd
 
 	ClientProtocol::RFCEvents rfcevents;
 
-	/** Check we aren't running as root, and exit if we are
-	 * with exit code EXIT_STATUS_ROOT.
-	 */
-	void CheckRoot();
-
  public:
 
 	UIDGenerator UIDGen;

@@ -71,7 +71,7 @@ const char* ExitCodes[] =
 		"Bad commandline parameters",			// 5
 		"Can't write PID file",					// 6
 		"SocketEngine could not initialize",	// 7
-		"Refusing to start up as root",			// 8
+		"UNUSED",								// 8
 		"Couldn't load module on startup",		// 9
 		"Received SIGTERM"						// 10
 };
@@ -79,6 +79,23 @@ const char* ExitCodes[] =
 namespace
 {
 	void VoidSignalHandler(int);
+
+	// Warns a user running as root that they probably shouldn't.
+	void CheckRoot()
+	{
+#ifndef _WIN32
+	if (getegid() != 0 && geteuid() != 0)
+		return;
+
+	std::cout << con_red << "Warning!" << con_reset << " You have started as root. Running as root is generally not required" << std::endl
+		<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
+		<< "exploit your IRC server." << std::endl
+		<< std::endl
+		<< "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
+		<< "then you can pass the " << con_bright << "--runasroot" << con_reset << " option to disable this wait." << std::endl;
+	sleep(30);
+#endif
+	}
 
 	// Collects performance statistics for the STATS command.
 	void CollectStats()
@@ -465,24 +482,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_CONFIG);
 	}
 
-#ifndef _WIN32
-	if (!do_root)
-		this->CheckRoot();
-	else
-	{
-		std::cout << "* WARNING * WARNING * WARNING * WARNING * WARNING *" << std::endl
-		<< "YOU ARE RUNNING INSPIRCD AS ROOT. THIS IS UNSUPPORTED" << std::endl
-		<< "AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED" << std::endl
-		<< "OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR" << std::endl
-		<< "SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN" << std::endl
-		<< "TO START INSPIRCD AS ROOT, HIT CTRL+C NOW AND RESTART" << std::endl
-		<< "THE PROGRAM AS A NORMAL USER. YOU HAVE BEEN WARNED!" << std::endl << std::endl
-		<< "InspIRCd starting in 20 seconds, ctrl+c to abort..." << std::endl;
-		sleep(20);
-	}
-#endif
-
 	SetSignals();
+	if (!do_root)
+		CheckRoot();
 
 	if (!Config->cmdline.nofork && !ForkIntoBackground())
 	{
