@@ -76,11 +76,22 @@ const char* ExitCodes[] =
 		"Received SIGTERM"						// 10
 };
 
-template<typename T> static void DeleteZero(T*&n)
+namespace
 {
-	T* t = n;
-	n = NULL;
-	delete t;
+	// Deletes a pointer and then zeroes it.
+	template<typename T>
+	void DeleteZero(T*& pr)
+	{
+		T* p = pr;
+		pr = NULL;
+		delete p;
+	}
+
+	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
+	void VoidSignalHandler(int)
+	{
+		exit(EXIT_STATUS_NOERROR);
+	}
 }
 
 void InspIRCd::Cleanup()
@@ -131,12 +142,6 @@ void InspIRCd::SetSignals()
 	signal(SIGXFSZ, SIG_IGN);
 #endif
 	signal(SIGTERM, InspIRCd::SetSignal);
-}
-
-// Required for returning the proper value of EXIT_SUCCESS for the parent process
-static void VoidSignalHandler(int signalreceived)
-{
-	exit(EXIT_STATUS_NOERROR);
 }
 
 bool InspIRCd::DaemonSeed()
