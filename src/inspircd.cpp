@@ -304,6 +304,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
+	IncreaseCoreDumpSize();
 	SeedRng(TIME);
 	SocketEngine::Init();
 
@@ -464,8 +465,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
-
-	IncreaseCoreDumpSize();
 
 	/* During startup we read the configuration now, not in
 	 * a seperate thread
