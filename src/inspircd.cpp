@@ -137,6 +137,24 @@ namespace
 #endif
 	}
 
+	// Increase the size of a core dump file to improve debugging problems.
+	void IncreaseCoreDumpSize()
+	{
+#ifndef _WIN32
+		errno = 0;
+		rlimit rl;
+		if (getrlimit(RLIMIT_CORE, &rl) == -1)
+		{
+			ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			return;
+		}
+
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+			ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+#endif
+	}
+
 	// Seeds the random number generator if applicable.
 	void SeedRng(timespec ts)
 	{
@@ -233,18 +251,7 @@ bool InspIRCd::DaemonSeed()
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	signal(SIGTERM, InspIRCd::SetSignal);
-
-	rlimit rl;
-	if (getrlimit(RLIMIT_CORE, &rl) == -1)
-	{
-		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to getrlimit()!");
-		return false;
-	}
-	rl.rlim_cur = rl.rlim_max;
-
-	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "setrlimit() failed, cannot increase coredump size.");
-
+	IncreaseCoreDumpSize();
 	return true;
 #endif
 }
