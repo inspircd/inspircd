@@ -87,6 +87,16 @@ namespace
 		delete p;
 	}
 
+	// Seeds the random number generator if applicable.
+	void SeedRng(timespec ts)
+	{
+#if defined _WIN32
+		srand(ts.tv_nsec ^ ts.tv_sec);
+#elif !defined HAS_ARC4RANDOM_BUF
+		srandom(ts.tv_nsec ^ ts.tv_sec);
+#endif
+	}
+
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
 	void VoidSignalHandler(int)
 	{
@@ -233,6 +243,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
+	SeedRng(TIME);
 	SocketEngine::Init();
 
 	this->Config = new ServerConfig;
@@ -243,8 +254,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->cmdline.argc = argc;
 
 #ifdef _WIN32
-	srand(TIME.tv_nsec ^ TIME.tv_sec);
-
 	// Initialize the console values
 	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO bufinf;
@@ -258,8 +267,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
 		g_wBackgroundColor = 0;
 	}
-#else
-	srandom(TIME.tv_nsec ^ TIME.tv_sec);
 #endif
 
 	{
