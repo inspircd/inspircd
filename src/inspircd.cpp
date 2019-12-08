@@ -454,17 +454,16 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Logs->AddLogTypes("*", fls, true);
 	}
 
+	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl
+		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
+		<< std::endl;
+
 	if (!FindConfigFile(ConfigFileName))
 	{
 		this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
 		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
 		Exit(EXIT_STATUS_CONFIG);
 	}
-
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl;
-	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
-
-
 
 #ifndef _WIN32
 	if (!do_root)
