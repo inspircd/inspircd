@@ -80,6 +80,32 @@ namespace
 {
 	void VoidSignalHandler(int);
 
+	// Collects performance statistics for the STATS command.
+	void CollectStats()
+	{
+#ifndef _WIN32
+		static rusage ru;
+		if (getrusage(RUSAGE_SELF, &ru) == -1)
+			return; // Should never happen.
+
+		ServerInstance->stats.LastSampled.tv_sec = ServerInstance->Time();
+		ServerInstance->stats.LastSampled.tv_nsec = ServerInstance->Time_ns();
+		ServerInstance->stats.LastCPU = ru.ru_utime;
+#else
+		if (!QueryPerformanceCounter(&ServerInstance->stats.LastSampled))
+			return; // Should never happen.
+
+		FILETIME CreationTime;
+		FILETIME ExitTime;
+		FILETIME KernelTime;
+		FILETIME UserTime;
+		GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+
+		ServerInstance->stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+		ServerInstance->stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+#endif
+	}
+
 	// Deletes a pointer and then zeroes it.
 	template<typename T>
 	void DeleteZero(T*& pr)
@@ -597,10 +623,6 @@ void InspIRCd::Run()
 
 	while (true)
 	{
-#ifndef _WIN32
-		static rusage ru;
-#endif
-
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
@@ -623,22 +645,7 @@ void InspIRCd::Run()
 		 */
 		if (TIME.tv_sec != OLDTIME)
 		{
-#ifndef _WIN32
-			getrusage(RUSAGE_SELF, &ru);
-			stats.LastSampled = TIME;
-			stats.LastCPU = ru.ru_utime;
-#else
-			if(QueryPerformanceCounter(&stats.LastSampled))
-			{
-				FILETIME CreationTime;
-				FILETIME ExitTime;
-				FILETIME KernelTime;
-				FILETIME UserTime;
-				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
-				stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-				stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
-			}
-#endif
+			CollectStats();
 
 			if (Config->TimeSkipWarn)
 			{
