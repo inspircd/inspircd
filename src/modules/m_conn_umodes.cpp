@@ -32,22 +32,18 @@ class ModuleModesOnConnect : public Module
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		ConfigTag* tag = user->MyClass->config;
-		std::string ThisModes = tag->getString("modes");
-		if (!ThisModes.empty())
-		{
-			std::string buf;
-			irc::spacesepstream ss(ThisModes);
+		const std::string modestr = user->MyClass->config->getString("modes");
+		if (modestr.empty())
+			return;
 
-			CommandBase::Params modes;
-			modes.push_back(user->nick);
+		CommandBase::Params params;
+		params.push_back(user->nick);
 
-			// split ThisUserModes into modes and mode params
-			while (ss.GetToken(buf))
-				modes.push_back(buf);
+		irc::spacesepstream modestream(modestr);
+		for (std::string modetoken; modestream.GetToken(modetoken); )
+			params.push_back(modetoken);
 
-			ServerInstance->Parser.CallHandler("MODE", modes, user);
-		}
+		ServerInstance->Parser.CallHandler("MODE", params, user);
 	}
 };
 

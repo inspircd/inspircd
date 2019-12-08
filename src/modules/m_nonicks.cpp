@@ -50,17 +50,17 @@ class ModuleNoNickChange : public Module
 			Channel* curr = (*i)->chan;
 
 			ModResult res = CheckExemption::Call(exemptionprov, user, curr, "nonick");
-
 			if (res == MOD_RES_ALLOW)
 				continue;
 
 			if (user->HasPrivPermission("channels/ignore-nonicks"))
 				continue;
 
-			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(nn)))
+			bool modeset = curr->IsModeSet(nn);
+			if (!curr->GetExtBanStatus(user, 'N').check(!modeset))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (+N is set)",
-					curr->name.c_str()));
+				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (%s)",
+					curr->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
 				return MOD_RES_DENY;
 			}
 		}

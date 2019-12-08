@@ -64,13 +64,10 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 	// Rehash for me. Try to start the rehash thread
 	if (!ServerInstance->ConfigThread)
 	{
-		std::string m = user->nick + " is rehashing config file " + FileSystem::GetFileName(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
-		ServerInstance->SNO.WriteGlobalSno('a', m);
-
-		if (IS_LOCAL(user))
-			user->WriteNumeric(RPL_REHASHING, FileSystem::GetFileName(ServerInstance->ConfigFileName), "Rehashing");
-		else
-			ServerInstance->PI->SendUserNotice(user, "*** Rehashing server " + FileSystem::GetFileName(ServerInstance->ConfigFileName));
+		const std::string configfile = FileSystem::GetFileName(ServerInstance->ConfigFileName);
+		user->WriteRemoteNumeric(RPL_REHASHING, configfile, "Rehashing " + ServerInstance->Config->ServerName);
+		ServerInstance->SNO.WriteGlobalSno('a', "%s is rehashing %s on %s", user->nick.c_str(),
+			configfile.c_str(), ServerInstance->Config->ServerName.c_str());
 
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.
@@ -83,10 +80,7 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 		 * A rehash is already in progress! ahh shit.
 		 * XXX, todo: we should find some way to kill runaway rehashes that are blocking, this is a major problem for unrealircd users
 		 */
-		if (IS_LOCAL(user))
-			user->WriteNotice("*** Could not rehash: A rehash is already in progress.");
-		else
-			ServerInstance->PI->SendUserNotice(user, "*** Could not rehash: A rehash is already in progress.");
+		user->WriteRemoteNotice("*** Could not rehash: A rehash is already in progress.");
 	}
 
 	// Always return success so spanningtree forwards an incoming REHASH even if we failed

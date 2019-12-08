@@ -45,6 +45,16 @@ class IRCv3::Replies::Reply
 	/** The event provider for this reply. */
 	ClientProtocol::EventProvider evprov;
 
+	/** Wraps a message in an event and sends it to a user.
+	 * @param user The user to send the message to.
+	 * @param msg The message to send to the user.
+	 */
+	void SendInternal(LocalUser* user, ClientProtocol::Message& msg)
+	{
+		ClientProtocol::Event ev(evprov, msg);
+		user->Send(ev);
+	}
+
  protected:
 	/** Initializes a new instance of the Reply class.
 	 * @param Creator The module which created this instance.
@@ -70,20 +80,88 @@ class IRCv3::Replies::Reply
 		msg.PushParamRef(command->name);
 		msg.PushParam(code);
 		msg.PushParam(description);
+		SendInternal(user, msg);
+	}
 
-		ClientProtocol::Event ev(evprov, msg);
-		user->Send(ev);
+	template<typename T1>
+	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const std::string& description)
+	{
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		msg.PushParamRef(command->name);
+		msg.PushParam(code);
+		msg.PushParam(ConvToStr(p1));
+		msg.PushParam(description);
+		SendInternal(user, msg);
+	}
+
+	template<typename T1, typename T2>
+	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
+		const std::string& description)
+	{
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		msg.PushParamRef(command->name);
+		msg.PushParam(code);
+		msg.PushParam(ConvToStr(p1));
+		msg.PushParam(ConvToStr(p2));
+		msg.PushParam(description);
+		SendInternal(user, msg);
+	}
+
+	template<typename T1, typename T2, typename T3>
+	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
+		const T3& p3, const std::string& description)
+	{
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		msg.PushParamRef(command->name);
+		msg.PushParam(code);
+		msg.PushParam(ConvToStr(p1));
+		msg.PushParam(ConvToStr(p2));
+		msg.PushParam(ConvToStr(p3));
+		msg.PushParam(description);
+		SendInternal(user, msg);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4>
+	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
+		const T3& p3, const T4& p4, const std::string& description)
+	{
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		msg.PushParamRef(command->name);
+		msg.PushParam(code);
+		msg.PushParam(ConvToStr(p1));
+		msg.PushParam(ConvToStr(p2));
+		msg.PushParam(ConvToStr(p3));
+		msg.PushParam(ConvToStr(p4));
+		msg.PushParam(description);
+		SendInternal(user, msg);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4, typename T5>
+	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
+		const T3& p3, const T4& p4, const T5& p5, const std::string& description)
+	{
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		msg.PushParamRef(command->name);
+		msg.PushParam(code);
+		msg.PushParam(ConvToStr(p1));
+		msg.PushParam(ConvToStr(p2));
+		msg.PushParam(ConvToStr(p3));
+		msg.PushParam(ConvToStr(p4));
+		msg.PushParam(ConvToStr(p5));
+		msg.PushParam(description);
+		SendInternal(user, msg);
 	}
 
 	/**
 	 * Sends a standard reply to the specified user if they have the specified cap
-	 * or a notice if they do not.s
+	 * or a notice if they do not.
 	 * @param user The user to send the reply to.
 	 * @param command The command that the reply relates to.
 	 * @param code A machine readable code for this reply.
 	 * @param description A human readable description of this reply.
 	 */
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code, const std::string& description)
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const std::string& description)
 	{
 		if (cap.get(user))
 			Send(user, command, code, description);

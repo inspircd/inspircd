@@ -41,20 +41,20 @@ class ModuleNoNotice : public Module
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		ModResult res;
 		if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = target.Get<Channel>();
-			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
+
+			ModResult res = CheckExemption::Call(exemptionprov, user, c, "nonotice");
+			if (res == MOD_RES_ALLOW)
+				return MOD_RES_PASSTHRU;
+
+			bool modeset = c->IsModeSet(nt);
+			if (!c->GetExtBanStatus(user, 'T').check(!modeset))
 			{
-				res = CheckExemption::Call(exemptionprov, user, c, "nonotice");
-				if (res == MOD_RES_ALLOW)
-					return MOD_RES_PASSTHRU;
-				else
-				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send NOTICE to channel (+T is set)");
-					return MOD_RES_DENY;
-				}
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Can't send NOTICE to channel (%s)",
+					modeset ? "+T is set" : "you're extbanned"));
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;

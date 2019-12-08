@@ -57,11 +57,7 @@ class CommandOjoin : public SplitCommand
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
-			{
-				const std::string msg = user->nick + " joined on official network business.";
-				channel->WriteNotice(msg);
-				ServerInstance->PI->SendChannelNotice(channel, 0, msg);
-			}
+				channel->WriteNotice(user->nick + " joined on official network business.");
 		}
 		else
 		{

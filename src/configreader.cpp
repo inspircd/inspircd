@@ -81,11 +81,16 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* ctag = i->second;
-		std::string mask;
-		if (!ctag->readString(key, mask))
-			throw CoreException("<"+tag+":"+key+"> missing at " + ctag->getTagLocation());
-		std::string reason = ctag->getString("reason", "<Config>");
-		XLine* xl = make->Generate(ServerInstance->Time(), 0, "<Config>", reason, mask);
+
+		const std::string mask = ctag->getString(key);
+		if (mask.empty())
+			throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->getTagLocation());
+
+		const std::string reason = ctag->getString("reason");
+		if (reason.empty())
+			throw CoreException("<" + tag + ":reason> missing at " + ctag->getTagLocation());
+
+		XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
 		xl->from_config = true;
 		configlines.insert(xl->Displayable());
 		if (!ServerInstance->XLines->AddLine(xl, NULL))

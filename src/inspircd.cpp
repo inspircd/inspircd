@@ -211,32 +211,19 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 #endif
 }
 
-InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf"),
-	 PI(&DefaultProtocolInterface),
-
-	 /* Functor pointer initialisation.
-	  *
-	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
-	  * themselves within the class.
-	  */
-	 GenRandom(&DefaultGenRandom),
-	 IsChannel(&DefaultIsChannel),
-	 IsNick(&DefaultIsNick),
-	 IsIdent(&DefaultIsIdent)
+InspIRCd::InspIRCd(int argc, char** argv)
+	: FakeClient(NULL)
+	, ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf")
+	, ConfigThread(NULL)
+	, Config(NULL)
+	, XLines(NULL)
+	, PI(&DefaultProtocolInterface)
+	, GenRandom(&DefaultGenRandom)
+	, IsChannel(&DefaultIsChannel)
+	, IsNick(&DefaultIsNick)
+	, IsIdent(&DefaultIsIdent)
 {
 	ServerInstance = this;
-
-	FailedPortList pl;
-	// Flag variables passed to getopt_long() later
-	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_nopid = 0, do_root = 0;
-
-	// Initialize so that if we exit before proper initialization they're not deleted
-	this->Config = 0;
-	this->XLines = 0;
-	this->ConfigThread = NULL;
-	this->FakeClient = NULL;
 
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
@@ -280,6 +267,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}
 
+	// Flag variables passed to getopt_long() later
+	int do_version = 0, do_nofork = 0, do_debug = 0,
+		do_nolog = 0, do_nopid = 0, do_root = 0;
 	struct option longopts[] =
 	{
 		{ "nofork",	no_argument,		&do_nofork,	1	},
@@ -425,6 +415,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
+	FailedPortList pl;
 	int bounditems = BindPorts(pl);
 
 	std::cout << std::endl;

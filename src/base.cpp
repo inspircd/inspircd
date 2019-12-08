@@ -29,26 +29,27 @@
 
 classbase::classbase()
 {
+#ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::+ @%p", (void*)this);
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::+%s @%p", typeid(*this).name(), (void*)this);
+#endif
 }
 
 CullResult classbase::cull()
 {
-	if (ServerInstance)
 #ifdef INSPIRCD_ENABLE_RTTI
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
-			typeid(*this).name(), (void*)this);
-#else
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::- @%p", (void*)this);
+	if (ServerInstance)
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p", typeid(*this).name(), (void*)this);
 #endif
 	return CullResult();
 }
 
 classbase::~classbase()
 {
+#ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::~ @%p", (void*)this);
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::~%s @%p", typeid(*this).name(), (void*)this);
+#endif
 }
 
 CullResult::CullResult()

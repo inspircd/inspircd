@@ -588,7 +588,7 @@
 # killonbadreply -   Whether to kill the user if they send the wrong  #
 #                    PONG reply.                                      #
 #                                                                     #
-#<waitpong sendsnotice="yes" killonbadreply="yes">
+#<waitpong sendsnotice="no" killonbadreply="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel cycle module: Adds the /CYCLE command which is a server-side
@@ -2240,11 +2240,18 @@
 # Requires SHA-1 hash support available in the sha1 module.
 #<module name="websocket">
 #
-# Whether to re-encode messages as UTF-8 before sending to WebSocket
-# clients. This is recommended as the WebSocket protocol requires all
-# text frames to be sent as UTF-8. If you do not have this enabled
-# messages will be sent as binary frames instead.
-#<websocket sendastext="yes">
+# proxyranges: A space-delimited list of glob or CIDR matches to trust
+#              the X-Real-IP or X-Forwarded-For headers from. If enabled
+#              the server will use the IP address specified by those HTTP
+#              headers. You should NOT enable this unless you are using
+#              a HTTP proxy like nginx as it will allow IP spoofing.
+# sendastext: Whether to re-encode messages as UTF-8 before sending to
+#             WebSocket clients. This is recommended as the WebSocket
+#             protocol requires all text frames to be sent as UTF-8.
+#             If you do not have this enabled messages will be sent as
+#             binary frames instead.
+#<websocket proxyranges="192.0.2.0/24 198.51.100.*"
+#           sendastext="yes">
 #
 # If you use the websocket module you MUST specify one or more origins
 # which are allowed to connect to the server. You should set this as

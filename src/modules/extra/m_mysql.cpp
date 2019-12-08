@@ -83,24 +83,43 @@ class SQLConnection;
 class MySQLresult;
 class DispatcherThread;
 
-struct QQueueItem
+struct QueryQueueItem
 {
-	SQL::Query* q;
-	std::string query;
-	SQLConnection* c;
-	QQueueItem(SQL::Query* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
+	// An SQL database which this query is executed on.
+	SQLConnection* connection;
+
+	// An object which handles the result of the query.
+	SQL::Query* query;
+
+	// The SQL query which is to be executed.
+	std::string querystr;
+
+	QueryQueueItem(SQL::Query* q, const std::string& s, SQLConnection* c)
+		: connection(c)
+		, query(q)
+		, querystr(s)
+	{
+	}
 };
 
-struct RQueueItem
+struct ResultQueueItem
 {
-	SQL::Query* q;
-	MySQLresult* r;
-	RQueueItem(SQL::Query* Q, MySQLresult* R) : q(Q), r(R) {}
+	// An object which handles the result of the query.
+	SQL::Query* query;
+
+	// The result returned from executing the MySQL query.
+	MySQLresult* result;
+
+	ResultQueueItem(SQL::Query* q, MySQLresult* r)
+		: query(q)
+		, result(r)
+	{
+	}
 };
 
 typedef insp::flat_map<std::string, SQLConnection*> ConnMap;
-typedef std::deque<QQueueItem> QueryQueue;
-typedef std::deque<RQueueItem> ResultQueue;
+typedef std::deque<QueryQueueItem> QueryQueue;
+typedef std::deque<ResultQueueItem> ResultQueue;
 
 /** MySQL module
  *  */
@@ -131,10 +150,6 @@ class DispatcherThread : public SocketThread
 	void OnNotify() override;
 };
 
-#if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
-#define mysql_field_count mysql_num_fields
-#endif
-
 /** Represents a mysql result set
  */
 class MySQLresult : public SQL::Result
@@ -146,7 +161,10 @@ class MySQLresult : public SQL::Result
 	std::vector<std::string> colnames;
 	std::vector<SQL::Row> fieldlists;
 
-	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL::SUCCESS), currentrow(0), rows(0)
+	MySQLresult(MYSQL_RES* res, int affected_rows)
+		: err(SQL::SUCCESS)
+		, currentrow(0)
+		, rows(0)
 	{
 		if (affected_rows >= 1)
 		{
@@ -189,7 +207,10 @@ class MySQLresult : public SQL::Result
 		}
 	}
 
-	MySQLresult(SQL::Error& e) : err(e)
+	MySQLresult(SQL::Error& e)
+		: err(e)
+		, currentrow(0)
+		, rows(0)
 	{
 
 	}
@@ -286,7 +307,7 @@ class SQLConnection : public SQL::Provider
 
 	~SQLConnection()
 	{
-		Close();
+		mysql_close(connection);
 	}
 
 	// This method connects to the database using the credentials supplied to the constructor, and returns
@@ -365,21 +386,11 @@ class SQLConnection : public SQL::Provider
 		return true;
 	}
 
-	std::string GetError()
-	{
-		return mysql_error(connection);
-	}
-
-	void Close()
-	{
-		mysql_close(connection);
-	}
-
 	void Submit(SQL::Query* q, const std::string& qs) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
 		Parent()->Dispatcher->LockQueue();
-		Parent()->qq.push_back(QQueueItem(q, qs, this));
+		Parent()->qq.push_back(QueryQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
@@ -422,8 +433,8 @@ class SQLConnection : public SQL::Provider
 };
 
 ModuleSQL::ModuleSQL()
+	: Dispatcher(NULL)
 {
-	Dispatcher = NULL;
 }
 
 void ModuleSQL::init()
@@ -488,10 +499,10 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 		for (size_t j = qq.size(); j > 0; j--)
 		{
 			size_t k = j - 1;
-			if (qq[k].c == i->second)
+			if (qq[k].connection == i->second)
 			{
-				qq[k].q->OnError(err);
-				delete qq[k].q;
+				qq[k].query->OnError(err);
+				delete qq[k].query;
 				qq.erase(qq.begin() + k);
 			}
 		}
@@ -510,17 +521,16 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 	while (i > 0)
 	{
 		i--;
-		if (qq[i].q->creator == mod)
+		if (qq[i].query->creator == mod)
 		{
 			if (i == 0)
 			{
 				// need to wait until the query is done
 				// (the result will be discarded)
-				qq[i].c->lock.lock();
-				qq[i].c->lock.unlock();
+				qq[i].connection->lock.lock();
 			}
-			qq[i].q->OnError(err);
-			delete qq[i].q;
+			qq[i].query->OnError(err);
+			delete qq[i].query;
 			qq.erase(qq.begin() + i);
 		}
 	}
@@ -541,23 +551,23 @@ void DispatcherThread::OnStart()
 	{
 		if (!Parent->qq.empty())
 		{
-			QQueueItem i = Parent->qq.front();
-			i.c->lock.lock();
+			QueryQueueItem i = Parent->qq.front();
+			i.connection->lock.lock();
 			this->UnlockQueue();
-			MySQLresult* res = i.c->DoBlockingQuery(i.query);
-			i.c->lock.unlock();
+			MySQLresult* res = i.connection->DoBlockingQuery(i.querystr);
+			i.connection->lock.unlock();
 
 			/*
 			 * At this point, the main thread could be working on:
-			 *  Rehash - delete i.c out from under us. We don't care about that.
-			 *  UnloadModule - delete i.q and the qq item. Need to avoid reporting results.
+			 *  Rehash - delete i.connection out from under us. We don't care about that.
+			 *  UnloadModule - delete i.query and the qq item. Need to avoid reporting results.
 			 */
 
 			this->LockQueue();
-			if (!Parent->qq.empty() && Parent->qq.front().q == i.q)
+			if (!Parent->qq.empty() && Parent->qq.front().query == i.query)
 			{
 				Parent->qq.pop_front();
-				Parent->rq.push_back(RQueueItem(i.q, res));
+				Parent->rq.push_back(ResultQueueItem(i.query, res));
 				NotifyParent();
 			}
 			else
@@ -583,13 +593,13 @@ void DispatcherThread::OnNotify()
 	this->LockQueue();
 	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
 	{
-		MySQLresult* res = i->r;
+		MySQLresult* res = i->result;
 		if (res->err.code == SQL::SUCCESS)
-			i->q->OnResult(*res);
+			i->query->OnResult(*res);
 		else
-			i->q->OnError(res->err);
-		delete i->q;
-		delete i->r;
+			i->query->OnError(res->err);
+		delete i->query;
+		delete i->result;
 	}
 	Parent->rq.clear();
 	this->UnlockQueue();

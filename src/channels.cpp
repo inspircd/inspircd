@@ -468,10 +468,11 @@ const char* Channel::ChanModes(bool showsecret)
 	return scratch.c_str();
 }
 
-void Channel::WriteNotice(const std::string& text)
+void Channel::WriteNotice(const std::string& text, char status)
 {
-	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE);
+	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
 	Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+	ServerInstance->PI->SendMessage(this, status, text, MSG_NOTICE);
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,

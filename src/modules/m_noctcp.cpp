@@ -70,9 +70,11 @@ class ModuleNoCTCP : public Module
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
-				if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
+				bool modeset = c->IsModeSet(nc);
+				if (!c->GetExtBanStatus(user, 'C').check(!modeset))
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, "Can't send CTCP to channel (+C is set)");
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Can't send CTCP to channel (%s)",
+						modeset ? "+C is set" : "you're extbanned"));
 					return MOD_RES_DENY;
 				}
 				break;

@@ -128,9 +128,7 @@ class CommandTban : public Command
 		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		ClientProtocol::Messages::Privmsg notice(ServerInstance->FakeClient, channel, message, MSG_NOTICE);
-		channel->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
-		ServerInstance->PI->SendChannelNotice(channel, pfxchar, message);
+		channel->WriteNotice(message, pfxchar);
 		return CMD_SUCCESS;
 	}
 
@@ -221,9 +219,7 @@ class ModuleTimedBans : public Module
 			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-			ClientProtocol::Messages::Privmsg notice(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, cr, message, MSG_NOTICE);
-			cr->Write(ServerInstance->GetRFCEvents().privmsg, notice, pfxchar);
-			ServerInstance->PI->SendChannelNotice(cr, pfxchar, message);
+			cr->WriteNotice(message, pfxchar);
 
 			Modes::ChangeList setban;
 			setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);

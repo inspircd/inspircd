@@ -222,6 +222,7 @@ class ModuleNationalChars : public Module
 	std::function<bool(const std::string&)> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
+	std::string casemapping_rememberer;
 	unsigned char prev_map[256];
 
 	template <typename T>
@@ -248,7 +249,9 @@ class ModuleNationalChars : public Module
 
  public:
 	ModuleNationalChars()
-		: rememberer(ServerInstance->IsNick), lowermap_rememberer(national_case_insensitive_map)
+		: rememberer(ServerInstance->IsNick)
+		, lowermap_rememberer(national_case_insensitive_map)
+		, casemapping_rememberer(ServerInstance->Config->CaseMapping)
 	{
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 	}
@@ -305,6 +308,9 @@ class ModuleNationalChars : public Module
 	{
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
+		ServerInstance->Config->CaseMapping = casemapping_rememberer;
+		// The core rebuilds ISupport on module unload, but before the dtor.
+		ServerInstance->ISupport.Build();
 		CheckForceQuit("National characters module unloaded");
 		CheckRehash();
 	}

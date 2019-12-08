@@ -986,6 +986,7 @@ class ModuleSSLOpenSSL : public Module
 		try
 		{
 			ReadProfiles();
+			ServerInstance->SNO.WriteToSnoMask('a', "SSL module %s rehashed.", MODNAME);
 		}
 		catch (ModuleException& ex)
 		{

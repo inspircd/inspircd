@@ -283,8 +283,9 @@ class CoreExport Channel : public Extensible
 
 	/** Write a NOTICE to all local users on the channel
 	 * @param text Text to send
+	 * @param status The minimum status rank to send this message to.
 	 */
-	void WriteNotice(const std::string& text);
+	void WriteNotice(const std::string& text, char status = 0);
 };
 
 inline bool Channel::HasUser(User* user)

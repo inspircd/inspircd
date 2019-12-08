@@ -117,28 +117,8 @@ class CoreExport ProtocolInterface
 	 */
 	virtual void SendMessage(User* target, const std::string& text, MessageType type = MSG_PRIVMSG) { }
 
-	/** Send a notice to a channel.
-	 * @param target The channel to message.
-	 * @param status The status character (e.g. %) required to receive.
-	 * @param text The message to send.
-	 */
-	void SendChannelNotice(Channel* target, char status, const std::string &text)
-	{
-		SendMessage(target, status, text, MSG_NOTICE);
-	}
-
-	/** Send a notice to a user.
-	 * @param target The user to message.
-	 * @param text The message to send.
-	 */
-	void SendUserNotice(User* target, const std::string &text)
-	{
-		SendMessage(target, text, MSG_NOTICE);
-	}
-
 	/** Fill a list of servers and information about them.
 	 * @param sl The list of servers to fill.
-	 * XXX: document me properly, this is shit.
 	 */
 	virtual void GetServerList(ServerList& sl) { }
 };
