@@ -654,14 +654,7 @@ void InspIRCd::Run()
 			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
-			{
 				FOREACH_MOD(OnGarbageCollect, ());
-
-				// HACK: ELines are not expired properly at the moment but it can't be fixed as
-				// the 2.0 XLine system is a spaghetti nightmare. Instead we skip over expired
-				// ELines in XLineManager::CheckELines() and expire them here instead.
-				XLines->GetAll("E");
-			}
 
 			Timers.TickTimers(TIME.tv_sec);
 			Users->DoBackgroundUserStuff();
