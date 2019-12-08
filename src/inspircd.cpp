@@ -168,6 +168,7 @@ namespace
 		{
 			setsid();
 			signal(SIGTERM, InspIRCd::SetSignal);
+			SocketEngine::RecoverFromFork();
 		}
 #endif
 		return true;
@@ -465,7 +466,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	IncreaseCoreDumpSize();
-	SocketEngine::RecoverFromFork();
 
 	/* During startup we read the configuration now, not in
 	 * a seperate thread
