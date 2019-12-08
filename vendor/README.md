@@ -41,3 +41,13 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **License** &mdash; Boost Software License
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
+
+## ya_getopt
+
+**Author** &mdash; Kubo Takehiro
+
+**Last Updated** &mdash; 2019-12-08 (6ce431085b81d9bb8639ed2f858c4f4fbc3ab988)
+
+**License** &mdash; 2-clause BSD License
+
+**Website** &mdash; [https://github.com/kubo/ya_getopt](https://github.com/kubo/ya_getopt)

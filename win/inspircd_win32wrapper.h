@@ -60,6 +60,9 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
+// Windows doesn't support getopt_long so we use ya_getopt instead.
+#include "ya_getopt.h"
+
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -90,21 +93,6 @@ typedef SSIZE_T ssize_t;
 /* _popen, _pclose */
 #define popen _popen
 #define pclose _pclose
-
-/* getopt() wrapper */
-#define no_argument            0
-#define required_argument      1
-#define optional_argument      2
-struct option
-{
-	char *name;
-	int has_arg;
-	int *flag;
-	int val;
-};
-extern int optind;
-extern char optarg[514];
-int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 // Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.

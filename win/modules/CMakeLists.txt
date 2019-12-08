@@ -7,13 +7,6 @@ list(SORT INSPIRCD_MODULES)
 
 add_definitions("-DDLL_BUILD")
 
-file(GLOB INSPIRCD_VENDORS "${INSPIRCD_BASE}/vendor/**")
-foreach(INSPIRCD_VENDOR ${INSPIRCD_VENDORS})
-	if(NOT IS_DIRECTORY ${INSPIRCD_VENDOR})
-		list(REMOVE_ITEM INSPIRCD_VENDORS ${INSPIRCD_VENDOR})
-	endif()
-endforeach()
-
 foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	if(IS_DIRECTORY "${MODULE_NAME}")
 		string(REGEX REPLACE "^.*[/\\](.*)$" "\\1" BASE_NAME ${MODULE_NAME})
@@ -33,7 +26,6 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	# Generate the module and set its linker flags, also set it to depend on the main executable to be built beforehand
 	target_link_libraries(${SO_NAME} inspircd)
 	add_dependencies(${SO_NAME} inspircd)
-	target_include_directories(${SO_NAME} PRIVATE ${INSPIRCD_VENDORS})
 	if(MSVC)
 		target_link_libraries(${SO_NAME} win32_memory)
 		add_dependencies(${SO_NAME} win32_memory)

@@ -48,6 +48,13 @@ file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 "${INSPIRCD_BASE}/src/threadengines/threadengine_win32.cpp")
 list(SORT INSPIRCD_SOURCES)
 
+file(GLOB INSPIRCD_VENDORS "${INSPIRCD_BASE}/vendor/**")
+foreach(INSPIRCD_VENDOR ${INSPIRCD_VENDORS})
+	if(IS_DIRECTORY ${INSPIRCD_VENDOR})
+		include_directories(${INSPIRCD_VENDOR})
+	endif()
+endforeach()
+
 include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
 
 include_directories(${EXTRA_INCLUDES})
