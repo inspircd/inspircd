@@ -348,7 +348,7 @@ class CoreExport InspIRCd
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
 	 */
-	int BindPorts(FailedPortList &failed_ports);
+	size_t BindPorts(FailedPortList &failed_ports);
 
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash

@@ -530,7 +530,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines->ApplyLines();
 
 	FailedPortList pl;
-	int bounditems = BindPorts(pl);
+	size_t bounditems = BindPorts(pl);
 
 	std::cout << std::endl;
 
@@ -542,7 +542,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!pl.empty())
 	{
 		std::cout << std::endl << "WARNING: Not all your client ports could be bound -- " << std::endl << "starting anyway with " << bounditems
-			<< " of " << bounditems + (int)pl.size() << " client ports bound." << std::endl << std::endl;
+			<< " of " << (bounditems + pl.size()) << " client ports bound." << std::endl << std::endl;
 		std::cout << "The following port(s) failed to bind:" << std::endl << std::endl;
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)

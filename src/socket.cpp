@@ -54,9 +54,9 @@ bool InspIRCd::BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::
 	return true;
 }
 
-int InspIRCd::BindPorts(FailedPortList& failed_ports)
+size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 {
-	int bound = 0;
+	size_t bound = 0;
 	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
