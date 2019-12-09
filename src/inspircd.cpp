@@ -226,7 +226,7 @@ namespace
 	}
 
 	// Attempts to fork into the background.
-	bool ForkIntoBackground()
+	void ForkIntoBackground()
 	{
 #ifndef _WIN32
 		// We use VoidSignalHandler whilst forking to avoid breaking daemon scripts
@@ -238,7 +238,8 @@ namespace
 		if (childpid < 0)
 		{
 			ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "fork() failed: %s", strerror(errno));
-			return false;
+			std::cout << con_red << "Error:" << con_reset << " unable to fork into background: " << strerror(errno);
+			ServerInstance->Exit(EXIT_STATUS_FORK);
 		}
 		else if (childpid > 0)
 		{
@@ -257,7 +258,6 @@ namespace
 			SocketEngine::RecoverFromFork();
 		}
 #endif
-		return true;
 	}
 
 	// Increase the size of a core dump file to improve debugging problems.
@@ -504,13 +504,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetSignals();
 	if (!Config->cmdline.runasroot)
 		CheckRoot();
-
-	if (!Config->cmdline.nofork && !ForkIntoBackground())
-	{
-		std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-		Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
-		Exit(EXIT_STATUS_FORK);
-	}
+	if (!Config->cmdline.nofork)
+		ForkIntoBackground();
 
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
