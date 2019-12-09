@@ -33,7 +33,7 @@ enum ExitStatus
 	EXIT_STATUS_ARGV = 5,			/* Invalid program arguments */
 	EXIT_STATUS_PID = 6,			/* Couldn't write PID file */
 	EXIT_STATUS_SOCKETENGINE = 7,	/* Couldn't start socket engine */
-	EXIT_STATUS_ROOT = 8,			/* DEPRECATED */
+	EXIT_STATUS_ROOT = 8,			/* Refusing to start as root */
 	EXIT_STATUS_MODULE = 9,			/* Couldn't load a required module */
 	EXIT_STATUS_SIGTERM = 10		/* Received SIGTERM */
 };

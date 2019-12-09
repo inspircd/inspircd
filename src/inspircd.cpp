@@ -71,7 +71,7 @@ const char* ExitCodes[] =
 		"Bad commandline parameters",			// 5
 		"Can't write PID file",					// 6
 		"SocketEngine could not initialize",	// 7
-		"UNUSED",								// 8
+		"Refusing to start up as root",			// 8
 		"Couldn't load module on startup",		// 9
 		"Received SIGTERM"						// 10
 };
@@ -84,16 +84,25 @@ namespace
 	void CheckRoot()
 	{
 #ifndef _WIN32
-	if (getegid() != 0 && geteuid() != 0)
-		return;
+		if (getegid() != 0 && geteuid() != 0)
+			return;
 
-	std::cout << con_red << "Warning!" << con_reset << " You have started as root. Running as root is generally not required" << std::endl
-		<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
-		<< "exploit your IRC server." << std::endl
-		<< std::endl
-		<< "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
-		<< "then you can pass the " << con_bright << "--runasroot" << con_reset << " option to disable this wait." << std::endl;
-	sleep(30);
+		std::cout << con_red << "Warning!" << con_reset << " You have started as root. Running as root is generally not required" << std::endl
+			<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
+			<< "exploit your IRC server." << std::endl
+			<< std::endl;
+		if (isatty(fileno(stdout)))
+		{
+			std::cout << "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
+				<< "then you can pass the " << con_bright << "--runasroot" << con_reset << " option to disable this wait." << std::endl;
+			sleep(30);
+		}
+		else
+		{
+			std::cout << "If you are sure that you need to run as root then you can pass the " << con_bright << "--runasroot" << con_reset << std::endl
+				<< "option to disable this error." << std::endl;
+				ServerInstance->Exit(EXIT_STATUS_ROOT);
+		}
 #endif
 	}
 
