@@ -191,6 +191,21 @@ namespace
 #endif
 	}
 
+	// Expands a path relative to the current working directory.
+	std::string ExpandPath(const char* path)
+	{
+#ifdef _WIN32
+		TCHAR configPath[MAX_PATH + 1];
+		if (GetFullPathName(path, MAX_PATH, configPath, NULL) > 0)
+			return configPath;
+#else
+		char configPath[PATH_MAX + 1];
+		if (realpath(path, configPath))
+			return configPath;
+#endif
+		return path;
+	}
+
 	// Locates a config file on the file system.
 	bool FindConfigFile(std::string& path)
 	{
@@ -263,6 +278,61 @@ namespace
 #endif
 	}
 
+	// Parses the command line options.
+	void ParseOptions()
+	{
+		int do_debug = 0, do_nofork = 0,    do_nolog = 0;
+		int do_nopid = 0, do_runasroot = 0, do_version = 0;
+		struct option longopts[] =
+		{
+			{ "config",    required_argument, NULL,          'c' },
+			{ "debug",     no_argument,       &do_debug,     1 },
+			{ "nofork",    no_argument,       &do_nofork,    1 },
+			{ "nolog",     no_argument,       &do_nolog,     1 },
+			{ "nopid",     no_argument,       &do_nopid,     1 },
+			{ "runasroot", no_argument,       &do_runasroot, 1 },
+			{ "version",   no_argument,       &do_version,   1 },
+			{ 0, 0, 0, 0 }
+		};
+
+		char** argv = ServerInstance->Config->cmdline.argv;
+		int ret;
+		while ((ret = getopt_long(ServerInstance->Config->cmdline.argc, argv, ":c:", longopts, NULL)) != -1)
+		{
+			switch (ret)
+			{
+				case 0:
+					// A long option was specified.
+					break;
+
+				case 'c':
+					// The -c option was specified.
+					ServerInstance->ConfigFileName = ExpandPath(optarg);
+					break;
+
+				default:
+					// An unknown option was specified.
+					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind - 1] << "'." << std::endl
+						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
+						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
+					ServerInstance->Exit(EXIT_STATUS_ARGV);
+					break;
+			}
+		}
+
+		if (do_version)
+		{
+			std::cout << std::endl << INSPIRCD_VERSION << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_NOERROR);
+		}
+
+		// Store the relevant parsed arguments
+		ServerInstance->Config->cmdline.forcedebug = !!do_debug;
+		ServerInstance->Config->cmdline.nofork = !!do_nofork;
+		ServerInstance->Config->cmdline.runasroot = !!do_runasroot;
+		ServerInstance->Config->cmdline.writelog = !do_nolog;
+		ServerInstance->Config->cmdline.writepid = !do_nopid;
+	}
 	// Seeds the random number generator if applicable.
 	void SeedRng(timespec ts)
 	{
@@ -412,77 +482,17 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}
 
-	// Flag variables passed to getopt_long() later
-	int do_version = 0, do_nofork = 0, do_debug = 0,
-		do_nolog = 0, do_nopid = 0, do_root = 0;
-	struct option longopts[] =
-	{
-		{ "nofork",	no_argument,		&do_nofork,	1	},
-		{ "config",	required_argument,	NULL,		'c'	},
-		{ "debug",	no_argument,		&do_debug,	1	},
-		{ "nolog",	no_argument,		&do_nolog,	1	},
-		{ "nopid",	no_argument,		&do_nopid,	1	},
-		{ "runasroot",	no_argument,		&do_root,	1	},
-		{ "version",	no_argument,		&do_version,	1	},
-		{ 0, 0, 0, 0 }
-	};
+	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl
+		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
+		<< std::endl;
 
-	int c;
-	int index;
-	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
-	{
-		switch (c)
-		{
-			case 'c':
-				/* Config filename was set */
-				ConfigFileName = optarg;
-#ifdef _WIN32
-				TCHAR configPath[MAX_PATH + 1];
-				if (GetFullPathName(optarg, MAX_PATH, configPath, NULL) > 0)
-					ConfigFileName = configPath;
-#else
-				char configPath[PATH_MAX + 1];
-				if (realpath(optarg, configPath))
-					ConfigFileName = configPath;
-#endif
-			break;
-			case 0:
-				/* getopt_long_only() set an int variable, just keep going */
-			break;
-			case '?':
-				/* Unknown parameter */
-			default:
-				/* Fall through to handle other weird values too */
-				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
-				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--nopid] [--debug] [--config <config>]" << std::endl <<
-					std::string(static_cast<size_t>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
-				Exit(EXIT_STATUS_ARGV);
-			break;
-		}
-	}
-
-	if (do_version)
-	{
-		std::cout << std::endl << INSPIRCD_VERSION << std::endl;
-		Exit(EXIT_STATUS_NOERROR);
-	}
-
-	/* Set the finished argument values */
-	Config->cmdline.nofork = (do_nofork != 0);
-	Config->cmdline.forcedebug = (do_debug != 0);
-	Config->cmdline.writelog = !do_nolog;
-	Config->cmdline.writepid = !do_nopid;
-
-	if (do_debug)
+	ParseOptions();
+	if (Config->cmdline.forcedebug)
 	{
 		FileWriter* fw = new FileWriter(stdout, 1);
 		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
-
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl
-		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
-		<< std::endl;
 
 	if (!FindConfigFile(ConfigFileName))
 	{
@@ -492,7 +502,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	SetSignals();
-	if (!do_root)
+	if (!Config->cmdline.runasroot)
 		CheckRoot();
 
 	if (!Config->cmdline.nofork && !ForkIntoBackground())
@@ -570,7 +580,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 *
 	 *    -- nenolod
 	 */
-	if ((!do_nofork) && (!Config->cmdline.forcedebug))
+	if ((!Config->cmdline.nofork) && (!Config->cmdline.forcedebug))
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -595,7 +605,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetServiceRunning();
 
 	// Handle forking
-	if(!do_nofork)
+	if(!Config->cmdline.nofork)
 	{
 		FreeConsole();
 	}
