@@ -86,7 +86,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 					continue;
 
 				if (!BindPort(tag, bindspec, old_ports))
-					failed_ports.push_back(std::make_pair(bindspec, errno));
+					failed_ports.push_back(FailedPort(errno, bindspec, tag));
 				else
 					bound++;
 			}
@@ -120,7 +120,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 
 			irc::sockets::untosa(fullpath, bindspec);
 			if (!BindPort(tag, bindspec, old_ports))
-				failed_ports.push_back(std::make_pair(bindspec, errno));
+				failed_ports.push_back(FailedPort(errno, bindspec, tag));
 			else
 				bound++;
 		}

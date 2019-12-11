@@ -358,6 +358,31 @@ namespace
 		signal(SIGTERM, InspIRCd::SetSignal);
 	}
 
+	void TryBindPorts()
+	{
+		FailedPortList pl;
+		ServerInstance->BindPorts(pl);
+
+		if (!pl.empty())
+		{
+			std::cout << con_red << "Warning!" << con_reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
+				<< std::endl;
+
+			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+			{
+				const FailedPort& fp = *iter;
+				std::cout << "  " << con_bright << fp.sa.str() << con_reset << ": " << strerror(fp.error) << '.' << std::endl
+					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl
+					<< std::endl;
+			}
+
+			std::cout << con_bright << "Hints:" << con_reset << std::endl
+				<< "- For TCP/IP listeners try using a public IP address in <bind:address> instead" << std::endl
+				<< "  of * of leaving it blank." << std::endl
+				<< "- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets." << std::endl;
+		}
+	}
+
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
 	void VoidSignalHandler(int)
 	{
@@ -529,9 +554,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
-	FailedPortList pl;
-	size_t bounditems = BindPorts(pl);
-
 	std::cout << std::endl;
 
 	this->Modules->LoadAll();
@@ -539,19 +561,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
 
-	if (!pl.empty())
-	{
-		std::cout << std::endl << "WARNING: Not all your client ports could be bound -- " << std::endl << "starting anyway with " << bounditems
-			<< " of " << (bounditems + pl.size()) << " client ports bound." << std::endl << std::endl;
-		std::cout << "The following port(s) failed to bind:" << std::endl << std::endl;
-		int j = 1;
-		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
-		{
-			std::cout << j << ".\tAddress: " << i->first.str() << " \tReason: " << strerror(i->second) << std::endl;
-		}
-
-		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
-	}
+	TryBindPorts();
 
 	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 

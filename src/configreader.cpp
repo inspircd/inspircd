@@ -510,13 +510,12 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
 		{
-			errstr << "Not all your client ports could be bound." << std::endl
-				<< "The following port(s) failed to bind:" << std::endl;
-
-			int j = 1;
-			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			std::cout << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
+			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
 			{
-				errstr << j << ".\tAddress: " << i->first.str() << "\tReason: " << strerror(i->second) << std::endl;
+				const FailedPort& fp = *iter;
+				errstr << "  " << fp.sa.str() << ": " << strerror(fp.error) << std::endl
+					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl;
 			}
 		}
 	}
