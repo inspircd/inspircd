@@ -520,7 +520,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
+	User* user = useruid.empty() ? NULL : ServerInstance->FindUUID(useruid);
 
 	if (!valid)
 	{
@@ -704,7 +704,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		User* user = ServerInstance->FindNick(TheUserUID);
+		User* user = ServerInstance->FindUUID(TheUserUID);
 
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
