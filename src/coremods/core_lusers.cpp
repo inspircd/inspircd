@@ -26,11 +26,18 @@ struct LusersCounters
 	unsigned int max_global;
 	unsigned int invisible;
 
-	LusersCounters(unsigned int inv)
+	LusersCounters(UserModeReference& invisiblemode)
 		: max_local(ServerInstance->Users.LocalUserCount())
 		, max_global(ServerInstance->Users.RegisteredUserCount())
-		, invisible(inv)
+		, invisible(0)
 	{
+		const user_hash& users = ServerInstance->Users.GetUsers();
+		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+		{
+			User* u = i->second;
+			if (u->IsModeSet(invisiblemode))
+				invisible++;
+		}
 	}
 
 	inline void UpdateMaxUsers()
@@ -129,23 +136,10 @@ class ModuleLusers : public Module
 	CommandLusers cmd;
 	InvisibleWatcher mw;
 
-	unsigned int CountInvisible()
-	{
-		unsigned int c = 0;
-		const user_hash& users = ServerInstance->Users.GetUsers();
-		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
-		{
-			User* u = i->second;
-			if (u->IsModeSet(invisiblemode))
-				c++;
-		}
-		return c;
-	}
-
  public:
 	ModuleLusers()
 		: invisiblemode(this, "invisible")
-		, counters(CountInvisible())
+		, counters(invisiblemode)
 		, cmd(this, counters)
 		, mw(this, counters.invisible)
 	{
