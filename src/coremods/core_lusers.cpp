@@ -94,8 +94,9 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %d users and %d invisible on %d servers",
 			n_users - counters.invisible, counters.invisible, n_serv));
 
-	if (ServerInstance->Users.OperCount())
-		user->WriteNumeric(RPL_LUSEROP, ServerInstance->Users.OperCount(), "operator(s) online");
+	unsigned int opercount = ServerInstance->Users.all_opers.size();
+	if (opercount)
+		user->WriteNumeric(RPL_LUSEROP, opercount, "operator(s) online");
 
 	if (ServerInstance->Users.UnregisteredUserCount())
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");

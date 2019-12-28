@@ -142,20 +142,10 @@ class CoreExport UserManager
 	 */
 	const CloneMap& GetCloneMap() const { return clonemap; }
 
-	/** Return a count of all global users, unknown and known connections
-	 * @return The number of users on the network, including local unregistered users
-	 */
-	unsigned int UserCount() const { return this->clientlist.size(); }
-
 	/** Return a count of fully registered connections on the network
 	 * @return The number of registered users on the network
 	 */
 	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount(); }
-
-	/** Return a count of opered (umode +o) users on the network
-	 * @return The number of opers on the network
-	 */
-	unsigned int OperCount() const { return this->all_opers.size(); }
 
 	/** Return a count of local unregistered (before NICK/USER) users
 	 * @return The number of local unregistered (unknown) connections
