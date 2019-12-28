@@ -78,6 +78,9 @@ User::User(const std::string& uid, Server* srv, UserType type)
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
+	if (srv->IsULine())
+		ServerInstance->Users->uline_count++;
+
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != USERTYPE_SERVER)
 	{
@@ -338,6 +341,9 @@ CullResult User::cull()
 
 	if (client_sa.family() != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
+
+	if (server->IsULine() && ServerInstance->Users->uline_count)
+		ServerInstance->Users->uline_count--;
 
 	return Extensible::cull();
 }
