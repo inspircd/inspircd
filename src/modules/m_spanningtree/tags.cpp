@@ -25,14 +25,14 @@ ServiceTag::ServiceTag(Module* mod)
 {
 }
 
-void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
+void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
 {
 	User* const user = msg.GetSourceUser();
 	if (user && user->server->IsULine())
 		msg.AddTag("inspircd.org/service", this, "");
 }
 
-bool ServiceTag::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+bool ServiceTag::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)
 {
 	return ctctagcap.get(user);
 }
