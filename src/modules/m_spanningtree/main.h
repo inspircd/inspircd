@@ -33,6 +33,7 @@
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
+#include "tags.h"
 
 /** An enumeration of all known protocol versions.
  *
@@ -108,6 +109,9 @@ class ModuleSpanningTree
 
 	/** API for accessing user SSL certificates. */
 	UserCertificateAPI sslapi;
+
+	/** Tag for marking services pseudoclients. */
+	ServiceTag servicetag;
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
