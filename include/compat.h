@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Peter Powell <petpow@saberuk.com>
+ *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *

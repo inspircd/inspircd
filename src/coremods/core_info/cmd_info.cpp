@@ -36,7 +36,7 @@ static const char* const lines[] = {
 	" ",
 	"\002Core Developers\002:",
 	"    Attila Molnar,          Attila,     <attilamolnar@hush.com>",
-	"    Peter Powell,           SaberUK,    <petpow@saberuk.com>",
+	"    Sadie Powell,           SadieCat,   <sadie@witchery.services>",
 	" ",
 	"\002Former Developers\002:",
 	"    Oliver Lupton,          Om,         <om@inspircd.org>",
