@@ -76,11 +76,318 @@ const char* ExitCodes[] =
 		"Received SIGTERM"						// 10
 };
 
-template<typename T> static void DeleteZero(T*&n)
+namespace
 {
-	T* t = n;
-	n = NULL;
-	delete t;
+	void VoidSignalHandler(int);
+
+	// Warns a user running as root that they probably shouldn't.
+	void CheckRoot()
+	{
+#ifndef _WIN32
+		if (getegid() != 0 && geteuid() != 0)
+			return;
+
+		std::cout << con_red << "Warning!" << con_reset << " You have started as root. Running as root is generally not required" << std::endl
+			<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
+			<< "exploit your IRC server." << std::endl
+			<< std::endl;
+		if (isatty(fileno(stdout)))
+		{
+			std::cout << "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
+				<< "then you can pass the " << con_bright << "--runasroot" << con_reset << " option to disable this wait." << std::endl;
+			sleep(30);
+		}
+		else
+		{
+			std::cout << "If you are sure that you need to run as root then you can pass the " << con_bright << "--runasroot" << con_reset << std::endl
+				<< "option to disable this error." << std::endl;
+				ServerInstance->Exit(EXIT_STATUS_ROOT);
+		}
+#endif
+	}
+
+	// Collects performance statistics for the STATS command.
+	void CollectStats()
+	{
+#ifndef _WIN32
+		static rusage ru;
+		if (getrusage(RUSAGE_SELF, &ru) == -1)
+			return; // Should never happen.
+
+		ServerInstance->stats.LastSampled.tv_sec = ServerInstance->Time();
+		ServerInstance->stats.LastSampled.tv_nsec = ServerInstance->Time_ns();
+		ServerInstance->stats.LastCPU = ru.ru_utime;
+#else
+		if (!QueryPerformanceCounter(&ServerInstance->stats.LastSampled))
+			return; // Should never happen.
+
+		FILETIME CreationTime;
+		FILETIME ExitTime;
+		FILETIME KernelTime;
+		FILETIME UserTime;
+		GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+
+		ServerInstance->stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+		ServerInstance->stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+#endif
+	}
+
+	// Deletes a pointer and then zeroes it.
+	template<typename T>
+	void DeleteZero(T*& pr)
+	{
+		T* p = pr;
+		pr = NULL;
+		delete p;
+	}
+
+	// Drops to the unprivileged user/group specified in <security:runas{user,group}>.
+	void DropRoot()
+	{
+#ifndef _WIN32
+		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+
+		const std::string SetGroup = security->getString("runasgroup");
+		if (!SetGroup.empty())
+		{
+			errno = 0;
+			if (setgroups(0, NULL) == -1)
+			{
+				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+				exit(EXIT_STATUS_CONFIG);
+			}
+
+			struct group* g = getgrnam(SetGroup.c_str());
+			if (!g)
+			{
+				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
+				exit(EXIT_STATUS_CONFIG);
+			}
+
+			if (setgid(g->gr_gid) == -1)
+			{
+				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
+				exit(EXIT_STATUS_CONFIG);
+			}
+		}
+
+		const std::string SetUser = security->getString("runasuser");
+		if (!SetUser.empty())
+		{
+			errno = 0;
+			struct passwd* u = getpwnam(SetUser.c_str());
+			if (!u)
+			{
+				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
+				exit(EXIT_STATUS_CONFIG);
+			}
+
+			if (setuid(u->pw_uid) == -1)
+			{
+				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
+				exit(EXIT_STATUS_CONFIG);
+			}
+		}
+#endif
+	}
+
+	// Expands a path relative to the current working directory.
+	std::string ExpandPath(const char* path)
+	{
+#ifdef _WIN32
+		TCHAR configPath[MAX_PATH + 1];
+		if (GetFullPathName(path, MAX_PATH, configPath, NULL) > 0)
+			return configPath;
+#else
+		char configPath[PATH_MAX + 1];
+		if (realpath(path, configPath))
+			return configPath;
+#endif
+		return path;
+	}
+
+	// Locates a config file on the file system.
+	bool FindConfigFile(std::string& path)
+	{
+		if (FileSystem::FileExists(path))
+			return true;
+
+#ifdef _WIN32
+		// Windows hides file extensions by default so try appending .txt to the path
+		// to help users who have that feature enabled and can't create .conf files.
+		const std::string txtpath = path + ".txt";
+		if (FileSystem::FileExists(txtpath))
+		{
+			path.assign(txtpath);
+			return true;
+		}
+#endif
+		return false;
+	}
+
+	// Attempts to fork into the background.
+	void ForkIntoBackground()
+	{
+#ifndef _WIN32
+		// We use VoidSignalHandler whilst forking to avoid breaking daemon scripts
+		// if the parent process exits with SIGTERM (15) instead of EXIT_STATUS_NOERROR (0).
+		signal(SIGTERM, VoidSignalHandler);
+
+		errno = 0;
+		int childpid = fork();
+		if (childpid < 0)
+		{
+			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "fork() failed: %s", strerror(errno));
+			std::cout << con_red << "Error:" << con_reset << " unable to fork into background: " << strerror(errno);
+			ServerInstance->Exit(EXIT_STATUS_FORK);
+		}
+		else if (childpid > 0)
+		{
+			// Wait until the child process kills the parent so that the shell prompt
+			// doesnt display over the output. Sending a kill with a signal of 0 just
+			// checks that the child pid is still running. If it is not then an error
+			// happened and the parent should exit.
+			while (kill(childpid, 0) != -1)
+				sleep(1);
+			exit(EXIT_STATUS_NOERROR);
+		}
+		else
+		{
+			setsid();
+			signal(SIGTERM, InspIRCd::SetSignal);
+			SocketEngine::RecoverFromFork();
+		}
+#endif
+	}
+
+	// Increase the size of a core dump file to improve debugging problems.
+	void IncreaseCoreDumpSize()
+	{
+#ifndef _WIN32
+		errno = 0;
+		rlimit rl;
+		if (getrlimit(RLIMIT_CORE, &rl) == -1)
+		{
+			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			return;
+		}
+
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+#endif
+	}
+
+	// Parses the command line options.
+	void ParseOptions()
+	{
+		int do_debug = 0, do_nofork = 0,    do_nolog = 0;
+		int do_nopid = 0, do_runasroot = 0, do_version = 0;
+		struct option longopts[] =
+		{
+			{ "config",    required_argument, NULL,          'c' },
+			{ "debug",     no_argument,       &do_debug,     1 },
+			{ "nofork",    no_argument,       &do_nofork,    1 },
+			{ "nolog",     no_argument,       &do_nolog,     1 },
+			{ "nopid",     no_argument,       &do_nopid,     1 },
+			{ "runasroot", no_argument,       &do_runasroot, 1 },
+			{ "version",   no_argument,       &do_version,   1 },
+			{ 0, 0, 0, 0 }
+		};
+
+		char** argv = ServerInstance->Config->cmdline.argv;
+		int ret;
+		while ((ret = getopt_long(ServerInstance->Config->cmdline.argc, argv, ":c:", longopts, NULL)) != -1)
+		{
+			switch (ret)
+			{
+				case 0:
+					// A long option was specified.
+					break;
+
+				case 'c':
+					// The -c option was specified.
+					ServerInstance->ConfigFileName = ExpandPath(optarg);
+					break;
+
+				default:
+					// An unknown option was specified.
+					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind - 1] << "'." << std::endl
+						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
+						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
+					ServerInstance->Exit(EXIT_STATUS_ARGV);
+					break;
+			}
+		}
+
+		if (do_version)
+		{
+			std::cout << std::endl << INSPIRCD_VERSION << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_NOERROR);
+		}
+
+		// Store the relevant parsed arguments
+		ServerInstance->Config->cmdline.forcedebug = !!do_debug;
+		ServerInstance->Config->cmdline.nofork = !!do_nofork;
+		ServerInstance->Config->cmdline.runasroot = !!do_runasroot;
+		ServerInstance->Config->cmdline.writelog = !do_nolog;
+		ServerInstance->Config->cmdline.writepid = !do_nopid;
+	}
+	// Seeds the random number generator if applicable.
+	void SeedRng(timespec ts)
+	{
+#if defined _WIN32
+		srand(ts.tv_nsec ^ ts.tv_sec);
+#elif !defined HAS_ARC4RANDOM_BUF
+		srandom(ts.tv_nsec ^ ts.tv_sec);
+#endif
+	}
+
+	// Sets handlers for various process signals.
+	void SetSignals()
+	{
+#ifndef _WIN32
+		signal(SIGALRM, SIG_IGN);
+		signal(SIGCHLD, SIG_IGN);
+		signal(SIGHUP, InspIRCd::SetSignal);
+		signal(SIGPIPE, SIG_IGN);
+		signal(SIGUSR1, SIG_IGN);
+		signal(SIGUSR2, SIG_IGN);
+		signal(SIGXFSZ, SIG_IGN);
+#endif
+		signal(SIGTERM, InspIRCd::SetSignal);
+	}
+
+	void TryBindPorts()
+	{
+		FailedPortList pl;
+		ServerInstance->BindPorts(pl);
+
+		if (!pl.empty())
+		{
+			std::cout << con_red << "Warning!" << con_reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
+				<< std::endl;
+
+			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+			{
+				const FailedPort& fp = *iter;
+				std::cout << "  " << con_bright << fp.sa.str() << con_reset << ": " << strerror(fp.error) << '.' << std::endl
+					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl
+					<< std::endl;
+			}
+
+			std::cout << con_bright << "Hints:" << con_reset << std::endl
+				<< "- For TCP/IP listeners try using a public IP address in <bind:address> instead" << std::endl
+				<< "  of * of leaving it blank." << std::endl
+				<< "- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets." << std::endl;
+		}
+	}
+
+	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
+	void VoidSignalHandler(int)
+	{
+		exit(EXIT_STATUS_NOERROR);
+	}
 }
 
 void InspIRCd::Cleanup()
@@ -117,71 +424,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
 	Logs.CloseLogs();
-}
-
-void InspIRCd::SetSignals()
-{
-#ifndef _WIN32
-	signal(SIGALRM, SIG_IGN);
-	signal(SIGCHLD, SIG_IGN);
-	signal(SIGHUP, InspIRCd::SetSignal);
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGUSR1, SIG_IGN);
-	signal(SIGUSR2, SIG_IGN);
-	signal(SIGXFSZ, SIG_IGN);
-#endif
-	signal(SIGTERM, InspIRCd::SetSignal);
-}
-
-// Required for returning the proper value of EXIT_SUCCESS for the parent process
-static void VoidSignalHandler(int signalreceived)
-{
-	exit(EXIT_STATUS_NOERROR);
-}
-
-bool InspIRCd::DaemonSeed()
-{
-#ifdef _WIN32
-	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
-	return true;
-#else
-	// Do not use exit() here: It will exit with status SIGTERM which would break e.g. daemon scripts
-	signal(SIGTERM, VoidSignalHandler);
-
-	int childpid = fork();
-	if (childpid < 0)
-		return false;
-	else if (childpid > 0)
-	{
-		/* We wait here for the child process to kill us,
-		 * so that the shell prompt doesnt come back over
-		 * the output.
-		 * Sending a kill with a signal of 0 just checks
-		 * if the child pid is still around. If theyre not,
-		 * they threw an error and we should give up.
-		 */
-		while (kill(childpid, 0) != -1)
-			sleep(1);
-		exit(EXIT_STATUS_NOERROR);
-	}
-	setsid ();
-	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
-
-	signal(SIGTERM, InspIRCd::SetSignal);
-
-	rlimit rl;
-	if (getrlimit(RLIMIT_CORE, &rl) == -1)
-	{
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "Failed to getrlimit()!");
-		return false;
-	}
-	rl.rlim_cur = rl.rlim_max;
-
-	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "setrlimit() failed, cannot increase coredump size.");
-
-	return true;
-#endif
 }
 
 void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
@@ -228,6 +470,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
+	IncreaseCoreDumpSize();
+	SeedRng(TIME);
 	SocketEngine::Init();
 
 	this->Config = new ServerConfig;
@@ -238,8 +482,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->cmdline.argc = argc;
 
 #ifdef _WIN32
-	srand(TIME.tv_nsec ^ TIME.tv_sec);
-
 	// Initialize the console values
 	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO bufinf;
@@ -253,8 +495,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
 		g_wBackgroundColor = 0;
 	}
-#else
-	srandom(TIME.tv_nsec ^ TIME.tv_sec);
 #endif
 
 	{
@@ -267,133 +507,33 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}
 
-	// Flag variables passed to getopt_long() later
-	int do_version = 0, do_nofork = 0, do_debug = 0,
-		do_nolog = 0, do_nopid = 0, do_root = 0;
-	struct option longopts[] =
-	{
-		{ "nofork",	no_argument,		&do_nofork,	1	},
-		{ "config",	required_argument,	NULL,		'c'	},
-		{ "debug",	no_argument,		&do_debug,	1	},
-		{ "nolog",	no_argument,		&do_nolog,	1	},
-		{ "nopid",	no_argument,		&do_nopid,	1	},
-		{ "runasroot",	no_argument,		&do_root,	1	},
-		{ "version",	no_argument,		&do_version,	1	},
-		{ 0, 0, 0, 0 }
-	};
+	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl
+		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
+		<< std::endl;
 
-	int c;
-	int index;
-	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
-	{
-		switch (c)
-		{
-			case 'c':
-				/* Config filename was set */
-				ConfigFileName = optarg;
-#ifdef _WIN32
-				TCHAR configPath[MAX_PATH + 1];
-				if (GetFullPathName(optarg, MAX_PATH, configPath, NULL) > 0)
-					ConfigFileName = configPath;
-#else
-				char configPath[PATH_MAX + 1];
-				if (realpath(optarg, configPath))
-					ConfigFileName = configPath;
-#endif
-			break;
-			case 0:
-				/* getopt_long_only() set an int variable, just keep going */
-			break;
-			case '?':
-				/* Unknown parameter */
-			default:
-				/* Fall through to handle other weird values too */
-				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
-				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--nopid] [--debug] [--config <config>]" << std::endl <<
-					std::string(static_cast<size_t>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
-				Exit(EXIT_STATUS_ARGV);
-			break;
-		}
-	}
-
-	if (do_version)
-	{
-		std::cout << std::endl << INSPIRCD_VERSION << std::endl;
-		Exit(EXIT_STATUS_NOERROR);
-	}
-
-#ifdef _WIN32
-	// Set up winsock
-	WSADATA wsadata;
-	WSAStartup(MAKEWORD(2,2), &wsadata);
-#endif
-
-	/* Set the finished argument values */
-	Config->cmdline.nofork = (do_nofork != 0);
-	Config->cmdline.forcedebug = (do_debug != 0);
-	Config->cmdline.writelog = !do_nolog;
-	Config->cmdline.writepid = !do_nopid;
-
-	if (do_debug)
+	ParseOptions();
+	if (Config->cmdline.forcedebug)
 	{
 		FileWriter* fw = new FileWriter(stdout, 1);
 		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs.AddLogTypes("*", fls, true);
 	}
 
-	if (!FileSystem::FileExists(ConfigFileName))
-	{
-#ifdef _WIN32
-		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
-		std::string txtconf = this->ConfigFileName;
-		txtconf.append(".txt");
 
-		if (FileSystem::FileExists(txtconf))
-		{
-			ConfigFileName = txtconf;
-		}
-		else
-#endif
-		{
-			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
-			Exit(EXIT_STATUS_CONFIG);
-		}
+	if (!FindConfigFile(ConfigFileName))
+	{
+		this->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
+		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
+		Exit(EXIT_STATUS_CONFIG);
 	}
 
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl;
-	std::cout << "For contributors & authors: " << con_green << "See /INFO Output" << con_reset << std::endl;
-
-#ifndef _WIN32
-	if (!do_root)
-		this->CheckRoot();
-	else
-	{
-		std::cout << "* WARNING * WARNING * WARNING * WARNING * WARNING *" << std::endl
-		<< "YOU ARE RUNNING INSPIRCD AS ROOT. THIS IS UNSUPPORTED" << std::endl
-		<< "AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED" << std::endl
-		<< "OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR" << std::endl
-		<< "SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN" << std::endl
-		<< "TO START INSPIRCD AS ROOT, HIT CTRL+C NOW AND RESTART" << std::endl
-		<< "THE PROGRAM AS A NORMAL USER. YOU HAVE BEEN WARNED!" << std::endl << std::endl
-		<< "InspIRCd starting in 20 seconds, ctrl+c to abort..." << std::endl;
-		sleep(20);
-	}
-#endif
-
-	this->SetSignals();
-
+	SetSignals();
+	if (!Config->cmdline.runasroot)
+		CheckRoot();
 	if (!Config->cmdline.nofork)
-	{
-		if (!this->DaemonSeed())
-		{
-			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-			Logs.Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
-			Exit(EXIT_STATUS_FORK);
-		}
-	}
+		ForkIntoBackground();
 
-	SocketEngine::RecoverFromFork();
+	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	/* During startup we read the configuration now, not in
 	 * a seperate thread
@@ -415,9 +555,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
-	FailedPortList pl;
-	int bounditems = BindPorts(pl);
-
 	std::cout << std::endl;
 
 	this->Modules.LoadAll();
@@ -425,19 +562,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
 
-	if (!pl.empty())
-	{
-		std::cout << std::endl << "WARNING: Not all your client ports could be bound -- " << std::endl << "starting anyway with " << bounditems
-			<< " of " << bounditems + (int)pl.size() << " client ports bound." << std::endl << std::endl;
-		std::cout << "The following port(s) failed to bind:" << std::endl << std::endl;
-		int j = 1;
-		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
-		{
-			std::cout << j << ".\tAddress: " << i->first.str() << " \tReason: " << strerror(i->second) << std::endl;
-		}
-
-		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
-	}
+	TryBindPorts();
 
 	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
@@ -461,7 +586,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 *
 	 *    -- nenolod
 	 */
-	if ((!do_nofork) && (!Config->cmdline.forcedebug))
+	if ((!Config->cmdline.nofork) && (!Config->cmdline.forcedebug))
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -486,7 +611,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetServiceRunning();
 
 	// Handle forking
-	if(!do_nofork)
+	if(!Config->cmdline.nofork)
 	{
 		FreeConsole();
 	}
@@ -494,74 +619,28 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
+	WritePID(Config->PID);
+	DropRoot();
+
 	Logs.Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
-
-#ifndef _WIN32
-	ConfigTag* security = Config->ConfValue("security");
-
-	const std::string SetGroup = security->getString("runasgroup");
-	if (!SetGroup.empty())
-	{
-		errno = 0;
-		if (setgroups(0, NULL) == -1)
-		{
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
-			exit(EXIT_STATUS_CONFIG);
-		}
-
-		struct group* g = getgrnam(SetGroup.c_str());
-		if (!g)
-		{
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
-			exit(EXIT_STATUS_CONFIG);
-		}
-
-		if (setgid(g->gr_gid) == -1)
-		{
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
-			exit(EXIT_STATUS_CONFIG);
-		}
-	}
-
-	const std::string SetUser = security->getString("runasuser");
-	if (!SetUser.empty())
-	{
-		errno = 0;
-		struct passwd* u = getpwnam(SetUser.c_str());
-		if (!u)
-		{
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
-			exit(EXIT_STATUS_CONFIG);
-		}
-
-		if (setuid(u->pw_uid) == -1)
-		{
-			this->Logs.Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
-			exit(EXIT_STATUS_CONFIG);
-		}
-	}
-
-	this->WritePID(Config->PID);
-#endif
 }
 
 void InspIRCd::UpdateTime()
 {
-#ifdef _WIN32
+#if defined HAS_CLOCK_GETTIME
+	clock_gettime(CLOCK_REALTIME, &TIME);
+#elif defined _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
 	TIME.tv_sec = time(NULL);
 	TIME.tv_nsec = st.wMilliseconds;
 #else
-	#ifdef HAS_CLOCK_GETTIME
-		clock_gettime(CLOCK_REALTIME, &TIME);
-	#else
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		TIME.tv_sec = tv.tv_sec;
-		TIME.tv_nsec = tv.tv_usec * 1000;
-	#endif
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+
+	TIME.tv_sec = tv.tv_sec;
+	TIME.tv_nsec = tv.tv_usec * 1000;
 #endif
 }
 
@@ -572,10 +651,6 @@ void InspIRCd::Run()
 
 	while (true)
 	{
-#ifndef _WIN32
-		static rusage ru;
-#endif
-
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
@@ -594,22 +669,7 @@ void InspIRCd::Run()
 		 */
 		if (TIME.tv_sec != OLDTIME)
 		{
-#ifndef _WIN32
-			getrusage(RUSAGE_SELF, &ru);
-			stats.LastSampled = TIME;
-			stats.LastCPU = ru.ru_utime;
-#else
-			if(QueryPerformanceCounter(&stats.LastSampled))
-			{
-				FILETIME CreationTime;
-				FILETIME ExitTime;
-				FILETIME KernelTime;
-				FILETIME UserTime;
-				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
-				stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-				stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
-			}
-#endif
+			CollectStats();
 
 			if (Config->TimeSkipWarn)
 			{
@@ -625,14 +685,7 @@ void InspIRCd::Run()
 			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
-			{
 				FOREACH_MOD(OnGarbageCollect, ());
-
-				// HACK: ELines are not expired properly at the moment but it can't be fixed as
-				// the 2.0 XLine system is a spaghetti nightmare. Instead we skip over expired
-				// ELines in XLineManager::CheckELines() and expire them here instead.
-				XLines->GetAll("E");
-			}
 
 			Timers.TickTimers(TIME.tv_sec);
 			Users.DoBackgroundUserStuff();

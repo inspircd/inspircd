@@ -136,10 +136,32 @@ namespace irc
 	}
 }
 
+/** Represents information about a failed port binding. */
+struct CoreExport FailedPort
+{
+	
+	/** The error which happened during binding. */
+	int error;
+
+	/** The endpoint on which we were attempting to bind. */
+	irc::sockets::sockaddrs sa;
+
+	/** The config tag that the listener was created from. */
+	ConfigTag* tag;
+
+	FailedPort(int err, irc::sockets::sockaddrs& ep, ConfigTag* cfg)
+		: error(err)
+		, sa(ep)
+		, tag(cfg)
+	{
+	}
+};
+
 /** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<irc::sockets::sockaddrs, int> > FailedPortList;
+typedef std::vector<FailedPort> FailedPortList;
 
 #include "socketengine.h"
+
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
  * and assign it a file descriptor.

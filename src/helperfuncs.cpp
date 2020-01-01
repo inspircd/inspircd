@@ -338,18 +338,6 @@ bool InspIRCd::IsSID(const std::string &str)
 			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
 }
 
-void InspIRCd::CheckRoot()
-{
-#ifndef _WIN32
-	if (geteuid() == 0)
-	{
-		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "Can't start as root");
-		Exit(EXIT_STATUS_ROOT);
-	}
-#endif
-}
-
 /** A lookup table of values for multiplier characters used by
  * InspIRCd::Duration(). In this lookup table, the indexes for
  * the ascii values 'm' and 'M' have the value '60', the indexes

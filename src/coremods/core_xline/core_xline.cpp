@@ -93,6 +93,14 @@ class CoreModXLine : public Module
 		return MOD_RES_DENY;
 	}
 
+	void OnGarbageCollect() override
+	{
+		// HACK: ELines are not expired properly at the moment but it can't be fixed
+		// as the XLine system is a spaghetti nightmare. Instead we skip over expired
+		// ELines in XLineManager::CheckELines() and expire them here instead.
+		ServerInstance->XLines->GetAll("E");
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides the ELINE, GLINE, KLINE, QLINE, and ZLINE commands", VF_VENDOR|VF_CORE);

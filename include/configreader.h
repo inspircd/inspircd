@@ -160,12 +160,13 @@ struct CommandLineConf
 	 */
 	bool writepid;
 
-	/** Saved argc from startup
-	 */
+	/* Whether the --runasroot option was specified at boot. */
+	bool runasroot;
+
+	/** Saved argc from startup. */
 	int argc;
 
-	/** Saved argv from startup
-	 */
+	/** Saved argv from startup. */
 	char** argv;
 };
 

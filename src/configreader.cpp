@@ -495,18 +495,17 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
 		{
-			errstr << "Not all your client ports could be bound." << std::endl
-				<< "The following port(s) failed to bind:" << std::endl;
-
-			int j = 1;
-			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			std::cout << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
+			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
 			{
-				errstr << j << ".\tAddress: " << i->first.str() << "\tReason: " << strerror(i->second) << std::endl;
+				const FailedPort& fp = *iter;
+				errstr << "  " << fp.sa.str() << ": " << strerror(fp.error) << std::endl
+					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl;
 			}
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
+	User* user = useruid.empty() ? NULL : ServerInstance->FindUUID(useruid);
 
 	if (!valid)
 	{
@@ -690,8 +689,8 @@ void ConfigReaderThread::OnStop()
 		ServerInstance->Users.RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		User* user = ServerInstance->FindUUID(UUID);
 
+		User* user = ServerInstance->FindUUID(UUID);
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)

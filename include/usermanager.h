@@ -87,6 +87,9 @@ class CoreExport UserManager
 	 */
 	unsigned int unregistered_count;
 
+	/** The number of users on U-lined servers. */
+	unsigned int uline_count;
+
 	/** Perform background user events for all local users such as PING checks, registration timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
 	 */
@@ -145,12 +148,17 @@ class CoreExport UserManager
 	/** Return a count of fully registered connections on the network
 	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount(); }
+	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ULineCount(); }
 
 	/** Return a count of local unregistered (before NICK/USER) users
 	 * @return The number of local unregistered (unknown) connections
 	 */
 	unsigned int UnregisteredUserCount() const { return this->unregistered_count; }
+
+	/** Return a count of users on a u-lined servers.
+	 * @return The number of users on u-lined servers.
+	 */
+	unsigned int ULineCount() const { return this->uline_count; }
 
 	/** Return a count of local registered users
 	 * @return The number of registered local users

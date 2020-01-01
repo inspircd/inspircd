@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,10 +17,17 @@
  */
 
 
-#include <time.h>
+#pragma once
 
-int main() {
-	timespec time_spec;
-	clock_gettime(CLOCK_REALTIME, &time_spec);
-	return 0;
-}
+#include "modules/cap.h"
+
+class ServiceTag : public ClientProtocol::MessageTagProvider
+{
+ private:
+	Cap::Reference ctctagcap;
+
+ public:
+	ServiceTag(Module* mod);
+	void OnPopulateTags(ClientProtocol::Message& msg) override;
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;
+};

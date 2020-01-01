@@ -281,7 +281,7 @@ class ModuleAlias : public Module
 
 		if (!a->RequiredNick.empty())
 		{
-			User* u = ServerInstance->FindNick(a->RequiredNick);
+			User* u = ServerInstance->FindNickOnly(a->RequiredNick);
 			if (!u)
 			{
 				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is currently unavailable. Please try again later.");

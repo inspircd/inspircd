@@ -54,9 +54,9 @@ bool InspIRCd::BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::
 	return true;
 }
 
-int InspIRCd::BindPorts(FailedPortList& failed_ports)
+size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 {
-	int bound = 0;
+	size_t bound = 0;
 	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
@@ -86,7 +86,7 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 					continue;
 
 				if (!BindPort(tag, bindspec, old_ports))
-					failed_ports.push_back(std::make_pair(bindspec, errno));
+					failed_ports.push_back(FailedPort(errno, bindspec, tag));
 				else
 					bound++;
 			}
@@ -120,7 +120,7 @@ int InspIRCd::BindPorts(FailedPortList& failed_ports)
 
 			irc::sockets::untosa(fullpath, bindspec);
 			if (!BindPort(tag, bindspec, old_ports))
-				failed_ports.push_back(std::make_pair(bindspec, errno));
+				failed_ports.push_back(FailedPort(errno, bindspec, tag));
 			else
 				bound++;
 		}

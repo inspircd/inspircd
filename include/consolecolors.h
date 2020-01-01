@@ -48,90 +48,90 @@ extern WORD g_wOriginalColors;
 extern WORD g_wBackgroundColor;
 extern HANDLE g_hStdout;
 
-inline std::ostream& con_green(std::ostream &s)
+inline std::ostream& con_green(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
-	return s;
+	return stream;
 }
 
-inline std::ostream& con_red(std::ostream &s)
+inline std::ostream& con_red(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_INTENSITY|g_wBackgroundColor);
-	return s;
+	return stream;
 }
 
-inline std::ostream& con_white(std::ostream &s)
+inline std::ostream& con_white(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|g_wBackgroundColor);
-	return s;
+	return stream;
 }
 
-inline std::ostream& con_white_bright(std::ostream &s)
+inline std::ostream& con_white_bright(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
-	return s;
+	return stream;
 }
 
-inline std::ostream& con_bright(std::ostream &s)
+inline std::ostream& con_bright(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, FOREGROUND_INTENSITY|g_wBackgroundColor);
-	return s;
+	return stream;
 }
 
-inline std::ostream& con_reset(std::ostream &s)
+inline std::ostream& con_reset(std::ostream& stream)
 {
 	if (CanUseColors())
 		SetConsoleTextAttribute(g_hStdout, g_wOriginalColors);
-	return s;
+	return stream;
 }
 
 #else
 
-inline std::ostream& con_green(std::ostream &s)
+inline std::ostream& con_green(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[1;32m";
+		return stream;
+	return stream << "\033[1;32m";
 }
 
-inline std::ostream& con_red(std::ostream &s)
+inline std::ostream& con_red(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[1;31m";
+		return stream;
+	return stream << "\033[1;31m";
 }
 
-inline std::ostream& con_white(std::ostream &s)
+inline std::ostream& con_white(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[0m";
+		return stream;
+	return stream << "\033[0m";
 }
 
-inline std::ostream& con_white_bright(std::ostream &s)
+inline std::ostream& con_white_bright(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[1m";
+		return stream;
+	return stream << "\033[1m";
 }
 
-inline std::ostream& con_bright(std::ostream &s)
+inline std::ostream& con_bright(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[1m";
+		return stream;
+	return stream << "\033[1m";
 }
 
-inline std::ostream& con_reset(std::ostream &s)
+inline std::ostream& con_reset(std::ostream& stream)
 {
 	if (!CanUseColors())
-		return s;
-	return s << "\033[0m";
+		return stream;
+	return stream << "\033[0m";
 }
 
 #endif

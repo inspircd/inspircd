@@ -35,6 +35,12 @@ namespace
 
 void SocketEngine::Init()
 {
+#ifdef _WIN32
+	// Set up winsock.
+	WSADATA wsadata;
+	WSAStartup(MAKEWORD(2,2), &wsadata);
+#endif
+
 	MaxSetSize = FD_SETSIZE;
 
 	FD_ZERO(&ReadSet);
