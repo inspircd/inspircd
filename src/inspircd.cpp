@@ -556,12 +556,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	std::cout << std::endl;
 
+	TryBindPorts();
+
 	this->Modules->LoadAll();
 
 	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
-
-	TryBindPorts();
 
 	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
