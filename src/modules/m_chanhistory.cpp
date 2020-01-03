@@ -28,16 +28,18 @@ struct HistoryItem
 {
 	time_t ts;
 	std::string text;
+	MessageType type;
 	HistoryTagMap tags;
 	std::string sourcemask;
 
-	HistoryItem(User* source, const std::string& Text, const ClientProtocol::TagMap& Tags)
+	HistoryItem(User* source, const MessageDetails& details)
 		: ts(ServerInstance->Time())
-		, text(Text)
+		, text(details.text)
+		, type(details.type)
 		, sourcemask(source->GetFullHost())
 	{
-		tags.reserve(Tags.size());
-		for (ClientProtocol::TagMap::const_iterator iter = Tags.begin(); iter != Tags.end(); ++iter)
+		tags.reserve(details.tags_out.size());
+		for (ClientProtocol::TagMap::const_iterator iter = details.tags_out.begin(); iter != details.tags_out.end(); ++iter)
 			tags[iter->first] = iter->second.value;
 	}
 };
@@ -158,7 +160,7 @@ class ModuleChanHistory
 			HistoryItem& item = *i;
 			if (item.ts >= mintime)
 			{
-				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text);
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
 				for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
 					AddTag(msg, iter->first, iter->second);
 				if (servertimemanager)
@@ -200,13 +202,13 @@ class ModuleChanHistory
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (details.type == MSG_PRIVMSG))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0))
 		{
 			Channel* c = target.Get<Channel>();
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				list->lines.push_back(HistoryItem(user, details.text, details.tags_out));
+				list->lines.push_back(HistoryItem(user, details));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
