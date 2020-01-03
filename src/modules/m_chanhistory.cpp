@@ -202,7 +202,7 @@ class ModuleChanHistory
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && !details.IsCTCP())
 		{
 			Channel* c = target.Get<Channel>();
 			HistoryList* list = m.ext.get(c);
