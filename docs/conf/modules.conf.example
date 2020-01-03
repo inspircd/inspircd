@@ -424,10 +424,11 @@
 #
 # Set the maximum number of lines allowed to be stored per channel below.
 # This is the hard limit for 'X'.
-# If notice is set to yes, joining users will get a NOTICE before playback
-# telling them about the following lines being the pre-join history.
+# If prefixmsg is set to yes, joining users without batch support will get
+# a NOTICE before playback telling them about the following lines being
+# the pre-join history.
 # If bots is set to yes, it will also send to users marked with +B
-#<chanhistory maxlines="50" notice="yes" bots="yes">
+#<chanhistory maxlines="50" prefixmsg="yes" bots="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: Used to send snotice output to channels, to

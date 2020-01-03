@@ -124,7 +124,7 @@ class ModuleChanHistory
 {
  private:
 	HistoryMode m;
-	bool sendnotice;
+	bool prefixmsg;
 	UserModeReference botmode;
 	bool dobots;
 	IRCv3::Batch::CapReference batchcap;
@@ -191,7 +191,7 @@ class ModuleChanHistory
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getUInt("maxlines", 50, 1);
-		sendnotice = tag->getBool("notice", true);
+		prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
 		dobots = tag->getBool("bots", true);
 	}
 
@@ -228,11 +228,11 @@ class ModuleChanHistory
 		if (!list)
 			return;
 
-		if ((sendnotice) && (!batchcap.get(localuser)))
+		if ((prefixmsg) && (!batchcap.get(localuser)))
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
-				message.append(" spanning up to " + InspIRCd::DurationString(list->maxtime));
+				message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 
