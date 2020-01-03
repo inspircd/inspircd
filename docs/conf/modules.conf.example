@@ -1195,6 +1195,12 @@
 #<module name="ircv3_invitenotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 labeled-response module: Provides the labeled-response IRCv3
+# extension which allows server responses to be associated with the
+# client message which caused them to be sent.
+#<module name="ircv3_labeledresponse">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 message id module: Provides the msgid IRCv3 extension which
 # adds a unique identifier to each message when the message-tags cap
 # has been requested. This enables support for modern features such as
