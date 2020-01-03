@@ -54,6 +54,7 @@ namespace ClientProtocol
 	class Event;
 	class EventProvider;
 	class Message;
+	class MessageTagEvent;
 	class MessageTagProvider;
 	class Serializer;
 

@@ -117,7 +117,7 @@ class ModuleSpanningTree
 	dynamic_reference<DNS::Manager> DNS;
 
 	/** Event provider for message tags. */
-	Events::ModuleEventProvider tagevprov;
+	ClientProtocol::MessageTagEvent tagevprov;
 
 	ServerCommandManager CmdManager;
 

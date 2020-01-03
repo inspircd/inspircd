@@ -51,7 +51,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, sslapi(this)
 	, servicetag(this)
 	, DNS(this, "DNS")
-	, tagevprov(this, "event/messagetag")
+	, tagevprov(this)
 	, loopCall(false)
 {
 }

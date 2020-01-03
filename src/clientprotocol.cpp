@@ -21,7 +21,7 @@
 
 ClientProtocol::Serializer::Serializer(Module* mod, const char* Name)
 	: DataProvider(mod, std::string("serializer/") + Name)
-	, evprov(mod, "event/messagetag")
+	, evprov(mod)
 {
 }
 
