@@ -22,17 +22,23 @@
 #include "modules/ircv3_batch.h"
 #include "modules/server.h"
 
+typedef insp::flat_map<std::string, std::string> HistoryTagMap;
+
 struct HistoryItem
 {
 	time_t ts;
 	std::string text;
+	HistoryTagMap tags;
 	std::string sourcemask;
 
-	HistoryItem(User* source, const std::string& Text)
+	HistoryItem(User* source, const std::string& Text, const ClientProtocol::TagMap& Tags)
 		: ts(ServerInstance->Time())
 		, text(Text)
 		, sourcemask(source->GetFullHost())
 	{
+		tags.reserve(Tags.size());
+		for (ClientProtocol::TagMap::const_iterator iter = Tags.begin(); iter != Tags.end(); ++iter)
+			tags[iter->first] = iter->second.value;
 	}
 };
 
@@ -123,6 +129,21 @@ class ModuleChanHistory
 	IRCv3::Batch::API batchmanager;
 	IRCv3::Batch::Batch batch;
 	IRCv3::ServerTime::API servertimemanager;
+	ClientProtocol::MessageTagEvent tagevent;
+
+	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
+	{
+		const Events::ModuleEventProvider::SubscriberList& list = tagevent.GetSubscribers();
+		for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+		{
+			ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
+			const ModResult res = tagprov->OnProcessTag(ServerInstance->FakeClient, tagkey, tagval);
+			if (res == MOD_RES_ALLOW)
+				msg.AddTag(tagkey, tagprov, tagval);
+			else if (res == MOD_RES_DENY)
+				break;
+		}
+	}
 
 	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list, time_t mintime)
 	{
@@ -134,10 +155,12 @@ class ModuleChanHistory
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
-			const HistoryItem& item = *i;
+			HistoryItem& item = *i;
 			if (item.ts >= mintime)
 			{
 				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text);
+				for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
+					AddTag(msg, iter->first, iter->second);
 				if (servertimemanager)
 					servertimemanager->Set(msg, item.ts);
 				batch.AddToBatch(msg);
@@ -158,6 +181,7 @@ class ModuleChanHistory
 		, batchmanager(this)
 		, batch("chathistory")
 		, servertimemanager(this)
+		, tagevent(this)
 	{
 	}
 
@@ -182,7 +206,7 @@ class ModuleChanHistory
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				list->lines.push_back(HistoryItem(user, details.text));
+				list->lines.push_back(HistoryItem(user, details.text, details.tags_out));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
