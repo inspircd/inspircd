@@ -39,17 +39,6 @@ enum
 typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
 static HelpopMap helpop_map;
 
-/** Handles user mode +h
- */
-class Helpop : public SimpleUserModeHandler
-{
- public:
-	Helpop(Module* Creator) : SimpleUserModeHandler(Creator, "helpop", 'h')
-	{
-		oper = true;
-	}
-};
-
 /** Handles /HELPOP
  */
 class CommandHelpop : public Command
@@ -107,16 +96,19 @@ class CommandHelpop : public Command
 	}
 };
 
-class ModuleHelpop : public Module, public Whois::EventListener
+class ModuleHelpop
+	: public Module
+	, public Whois::EventListener
 {
+ private:
 		CommandHelpop cmd;
-		Helpop ho;
+		SimpleUserModeHandler ho;
 
 	public:
 		ModuleHelpop()
 			: Whois::EventListener(this)
 			, cmd(this)
-			, ho(this)
+			, ho(this, "helpop", 'h', true)
 		{
 		}
 

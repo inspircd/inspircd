@@ -451,8 +451,12 @@ class CoreExport PrefixMode : public ModeHandler
 class CoreExport SimpleUserModeHandler : public ModeHandler
 {
  public:
-	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter)
-		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER) {}
+	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER)
+	{
+		oper = operonly;
+	}
+
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 
@@ -464,8 +468,12 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 class CoreExport SimpleChannelModeHandler : public ModeHandler
 {
  public:
-	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
-		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
+	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL)
+	{
+		oper = operonly;
+	}
+
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE;
 };
 

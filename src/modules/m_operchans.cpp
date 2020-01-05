@@ -28,26 +28,16 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
-class OperChans : public SimpleChannelModeHandler
-{
- public:
-	/* This is an oper-only mode */
-	OperChans(Module* Creator) : SimpleChannelModeHandler(Creator, "operonly", 'O')
-	{
-		oper = true;
-	}
-};
-
 class ModuleOperChans : public Module
 {
  private:
-	OperChans oc;
+	SimpleChannelModeHandler oc;
 	std::string space;
 	std::string underscore;
 
  public:
 	ModuleOperChans()
-		: oc(this)
+		: oc(this, "operonly", 'O', true)
 		, space(" ")
 		, underscore("_")
 	{
