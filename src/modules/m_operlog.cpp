@@ -20,12 +20,21 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleOperLog : public Module
+class ModuleOperLog
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	bool tosnomask;
 
  public:
+	ModuleOperLog()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	void init() override
 	{
 		ServerInstance->SNO.EnableSnomask('r', "OPERLOG");
@@ -62,7 +71,7 @@ class ModuleOperLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["OPERLOG"];
 	}

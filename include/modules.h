@@ -220,7 +220,7 @@ enum Implementation
 	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode, I_OnShutdown,
 	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit, I_OnUserPostInit,
 	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
-	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
+	I_OnUserPostNick, I_OnPreMode, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnPreChangeHost, I_OnPreTopicChange, I_OnConnectionFail,
@@ -647,12 +647,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param modes Modes being changed, can be edited
 	 */
 	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes);
-
-	/** Called when a 005 numeric is about to be output.
-	 * The module should modify the 005 numeric if needed to indicate its features.
-	* @param tokens The 005 map to be modified if neccessary.
-	*/
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens);
 
 	/** Called when a client is disconnected by KILL.
 	 * If a client is killed by a server, e.g. a nickname collision or protocol error,

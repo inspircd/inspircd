@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/geolocation.h"
+#include "modules/isupport.h"
 #include "modules/whois.h"
 
 enum
@@ -29,6 +30,7 @@ enum
 
 class ModuleGeoBan
 	: public Module
+	, public ISupport::EventListener
 	, public Whois::EventListener
 {
  private:
@@ -36,7 +38,8 @@ class ModuleGeoBan
 
  public:
 	ModuleGeoBan()
-		: Whois::EventListener(this)
+		: ISupport::EventListener(this)
+		, Whois::EventListener(this)
 		, geoapi(this)
 	{
 	}
@@ -46,7 +49,7 @@ class ModuleGeoBan
 		return Version("Provides a way to ban users by country", VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('G');
 	}

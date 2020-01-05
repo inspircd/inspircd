@@ -21,16 +21,25 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/isupport.h"
 
 typedef std::vector<std::string> AllowList;
 
-class ModuleSecureList : public Module
+class ModuleSecureList
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	AllowList allowlist;
 	bool exemptregistered;
 	unsigned int WaitTime;
 
  public:
+	ModuleSecureList()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Disallows the LIST command for recently connected clients to hinder spam bots", VF_VENDOR);
@@ -90,7 +99,7 @@ class ModuleSecureList : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["SECURELIST"];
 	}

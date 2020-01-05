@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/isupport.h"
 #include "modules/who.h"
 
 enum
@@ -575,18 +576,21 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
-class CoreModWho : public Module
+class CoreModWho
+	: public Module
+	, public ISupport::EventListener
 {
  private:
 	CommandWho cmd;
 
  public:
 	CoreModWho()
-		: cmd(this)
+		: ISupport::EventListener(this)
+		, cmd(this)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["WHOX"];
 	}

@@ -21,10 +21,12 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/isupport.h"
 #include "modules/names.h"
 
 class ModuleUHNames
 	: public Module
+	, public ISupport::EventListener
 	, public Names::EventListener
 {
  private:
@@ -32,7 +34,8 @@ class ModuleUHNames
 
  public:
 	ModuleUHNames()
-		: Names::EventListener(this)
+		: ISupport::EventListener(this)
+		, Names::EventListener(this)
 		, cap(this, "userhost-in-names")
 	{
 	}
@@ -42,7 +45,7 @@ class ModuleUHNames
 		return Version("Provides the UHNAMES (CAP userhost-in-names) capability", VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		// The legacy PROTOCTL system is a wrapper around the cap.
 		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");

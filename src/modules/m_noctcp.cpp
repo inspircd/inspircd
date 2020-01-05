@@ -21,16 +21,21 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 
-class ModuleNoCTCP : public Module
+class ModuleNoCTCP
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nc;
 	SimpleUserModeHandler ncu;
 
  public:
 	ModuleNoCTCP()
-		: exemptionprov(this)
+		: ISupport::EventListener(this)
+		, exemptionprov(this)
 		, nc(this, "noctcp", 'C')
 		, ncu(this, "u_noctcp", 'T')
 	{
@@ -98,7 +103,7 @@ class ModuleNoCTCP : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('C');
 	}

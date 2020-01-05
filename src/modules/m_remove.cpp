@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 /*
  * This module supports the use of the +q and +a usermodes, but should work without them too.
@@ -193,7 +194,9 @@ class CommandFpart : public RemoveBase
 	}
 };
 
-class ModuleRemove : public Module
+class ModuleRemove
+	: public Module
+	, public ISupport::EventListener
 {
 	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
@@ -202,13 +205,14 @@ class ModuleRemove : public Module
 
  public:
 	ModuleRemove()
-		: nokicksmode(this, "nokick")
+		: ISupport::EventListener(this)
+		, nokicksmode(this, "nokick")
 		, cmd1(this, supportnokicks, nokicksmode)
 		, cmd2(this, supportnokicks, nokicksmode)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["REMOVE"];
 	}

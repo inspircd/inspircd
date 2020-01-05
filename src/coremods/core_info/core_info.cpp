@@ -47,6 +47,8 @@ class CoreModInfo : public Module
 	CommandTime cmdtime;
 	CommandVersion cmdversion;
 	Numeric::Numeric numeric004;
+	ISupportManager isupport;
+
 
 	/** Returns a list of user or channel mode characters.
 	 * Used for constructing the parts of the mode list in the 004 numeric.
@@ -90,8 +92,9 @@ class CoreModInfo : public Module
 		, cmdmodules(this)
 		, cmdmotd(this)
 		, cmdtime(this)
-		, cmdversion(this)
+		, cmdversion(this, isupport)
 		, numeric004(RPL_MYINFO)
+		, isupport(this)
 	{
 		numeric004.push(ServerInstance->Config->ServerName);
 		numeric004.push(INSPIRCD_BRANCH);
@@ -125,6 +128,8 @@ class CoreModInfo : public Module
 		cmdadmin.AdminName = tag->getString("name");
 		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
 		cmdadmin.AdminNick = tag->getString("nick", "admin");
+
+		isupport.Build();
 	}
 
 	void OnUserConnect(LocalUser* user) override
@@ -133,8 +138,7 @@ class CoreModInfo : public Module
 		user->WriteNumeric(RPL_YOURHOST, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
 		user->WriteNumeric(RPL_CREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);
-
-		ServerInstance->ISupport.SendTo(user);
+		isupport.SendTo(user);
 
 		/* Trigger MOTD and LUSERS output, give modules a chance too */
 		ModResult MOD_RESULT;
@@ -155,6 +159,15 @@ class CoreModInfo : public Module
 			ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 			user->Send(ServerInstance->GetRFCEvents().privmsg, rawlogmsg);
 		}
+	}
+
+	void OnLoadModule(Module* mod) override
+	{
+		isupport.Build();
+	}
+	void OnUnloadModule(Module* mod) override
+	{
+		isupport.Build();
 	}
 
 	void OnServiceAdd(ServiceProvider& service) override

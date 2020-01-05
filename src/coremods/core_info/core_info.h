@@ -2,6 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013-2020 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,6 +21,43 @@
 #pragma once
 
 #include "inspircd.h"
+#include "modules/isupport.h"
+
+/** This class manages the generation and transmission of ISUPPORT. */
+class CoreExport ISupportManager
+{
+ private:
+	/** The generated lines which are sent to clients. */
+	std::vector<Numeric::Numeric> cachedlines;
+
+	/** Provider for the ISupport::EventListener event. */
+	ISupport::EventProvider isupportevprov;
+
+	/** Escapes an ISUPPORT token value and appends it to the buffer.
+	 * @param buffer The buffer to append to.
+	 * @param value An ISUPPORT token value.
+	 */
+	void AppendValue(std::string& buffer, const std::string& value);
+
+ public:
+	ISupportManager(Module* mod);
+
+	/** (Re)build the ISUPPORT vector.
+	 * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
+	 * or unloaded. Calls the OnBuildISupport hook, letting modules manipulate the ISUPPORT tokens.
+	 */
+	void Build();
+
+	/** Returns the cached std::vector of ISUPPORT lines.
+	 * @return A list of Numeric::Numeric objects prepared for sending to users
+	 */
+	const std::vector<Numeric::Numeric>& GetLines() const { return cachedlines; }
+
+	/** Send the 005 numerics (ISUPPORT) to a user.
+	 * @param user The user to send the ISUPPORT numerics to
+	 */
+	void SendTo(LocalUser* user);
+};
 
 /** These commands require no parameters, but if there is a parameter it is a server name where the command will be routed to.
  */
@@ -157,10 +195,13 @@ class CommandTime : public ServerTargetCommand
  */
 class CommandVersion : public Command
 {
+ private:
+	ISupportManager& isupport;
+
  public:
 	/** Constructor for version.
 	 */
-	CommandVersion(Module* parent);
+	CommandVersion(Module* parent, ISupportManager& isupportmgr);
 
 	/** Handle command.
 	 * @param parameters The parameters to the command

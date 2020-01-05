@@ -23,20 +23,25 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 
-class ModuleBlockColor : public Module
+class ModuleBlockColor
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler bc;
- public:
 
+ public:
 	ModuleBlockColor()
-		: exemptionprov(this)
+		: ISupport::EventListener(this)
+		, exemptionprov(this)
 		, bc(this, "blockcolor", 'c')
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('c');
 	}

@@ -19,10 +19,18 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleBadChannelExtban : public Module
+class ModuleBadChannelExtban
+	: public Module
+	, public ISupport::EventListener
 {
  public:
+	ModuleBadChannelExtban()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides extban 'j', ban users that are present in another channel, and optionally on their status there", VF_OPTCOMMON|VF_VENDOR);
@@ -52,7 +60,7 @@ class ModuleBadChannelExtban : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('j');
 	}

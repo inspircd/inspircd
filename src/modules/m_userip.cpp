@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 /** Handle /USERIP
  */
@@ -76,16 +77,21 @@ class CommandUserip : public Command
 	}
 };
 
-class ModuleUserIP : public Module
+class ModuleUserIP
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CommandUserip cmd;
+
  public:
 	ModuleUserIP()
-		: cmd(this)
+		: ISupport::EventListener(this)
+		, cmd(this)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["USERIP"];
 	}

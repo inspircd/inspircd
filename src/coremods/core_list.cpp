@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 /** Handle /LIST.
  */
@@ -191,18 +192,21 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
-class CoreModList : public Module
+class CoreModList
+	: public Module
+	, public ISupport::EventListener
 {
  private:
 	CommandList cmd;
 
  public:
 	CoreModList()
-		: cmd(this)
+		: ISupport::EventListener(this)
+		, cmd(this)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["ELIST"] = "CMNTU";
 		tokens["SAFELIST"];

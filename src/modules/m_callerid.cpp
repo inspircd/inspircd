@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
 
 enum
 {
@@ -347,7 +348,9 @@ class CallerIDAPIImpl : public CallerID::APIBase
 class ModuleCallerID
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 {
+ private:
 	CommandAccept cmd;
 	CallerIDAPIImpl api;
 	SimpleUserModeHandler myumode;
@@ -382,6 +385,7 @@ class ModuleCallerID
 public:
 	ModuleCallerID()
 		: CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 		, cmd(this)
 		, api(this, cmd.extInfo)
 		, myumode(this, "callerid", 'g')
@@ -393,7 +397,7 @@ public:
 		return Version("Implementation of callerid, provides user mode +g and the ACCEPT command", VF_COMMON | VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["ACCEPT"] = ConvToStr(cmd.maxaccepts);
 		tokens["CALLERID"] = ConvToStr(myumode.GetModeChar());

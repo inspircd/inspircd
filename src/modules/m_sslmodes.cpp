@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
 #include "modules/ssl.h"
 
 enum
@@ -141,6 +142,7 @@ class SSLModeUser : public ModeHandler
 class ModuleSSLModes
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 {
  private:
 	UserCertificateAPI api;
@@ -150,6 +152,7 @@ class ModuleSSLModes
  public:
 	ModuleSSLModes()
 		: CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 		, api(this)
 		, sslm(this, api)
 		, sslquery(this, api)
@@ -231,7 +234,7 @@ class ModuleSSLModes
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('z');
 	}

@@ -91,7 +91,6 @@ ModResult	Module::OnUserPreMessage(User*, const MessageTarget&, MessageDetails&)
 ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
 ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::map<std::string, std::string>&) { DetachEvent(I_On005Numeric); }
 ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
 void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
@@ -409,7 +408,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	ServerInstance->GlobalCulls.AddItem(mod);
 
 	ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
-	ServerInstance->ISupport.Build();
 }
 
 void ModuleManager::UnloadAll()

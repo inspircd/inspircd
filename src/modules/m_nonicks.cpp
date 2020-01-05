@@ -21,14 +21,20 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 
-class ModuleNoNickChange : public Module
+class ModuleNoNickChange
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nn;
+
  public:
 	ModuleNoNickChange()
-		: exemptionprov(this)
+		: ISupport::EventListener(this)
+		, exemptionprov(this)
 		, nn(this, "nonick", 'N')
 	{
 	}
@@ -38,7 +44,7 @@ class ModuleNoNickChange : public Module
 		return Version("Provides channel mode +N and extban 'N' which prevents nick changes on the channel", VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('N');
 	}

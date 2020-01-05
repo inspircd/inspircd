@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/isupport.h"
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
@@ -46,16 +47,21 @@ class BanException : public ListModeBase
 };
 
 
-class ModuleBanException : public Module
+class ModuleBanException
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	BanException be;
 
  public:
-	ModuleBanException() : be(this)
+	ModuleBanException()
+		: ISupport::EventListener(this)
+		, be(this)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}

@@ -22,11 +22,13 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
+#include "modules/isupport.h"
 #include "modules/names.h"
 #include "modules/who.h"
 
 class ModuleNamesX
 	: public Module
+	, public ISupport::EventListener
 	, public Names::EventListener
 	, public Who::EventListener
 {
@@ -35,7 +37,8 @@ class ModuleNamesX
 
  public:
 	ModuleNamesX()
-		: Names::EventListener(this)
+		: ISupport::EventListener(this)
+		, Names::EventListener(this)
 		, Who::EventListener(this)
 		, cap(this, "multi-prefix")
 	{
@@ -46,7 +49,7 @@ class ModuleNamesX
 		return Version("Provides the NAMESX (CAP multi-prefix) capability", VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		// The legacy PROTOCTL system is a wrapper around the cap.
 		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");

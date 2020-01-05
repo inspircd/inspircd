@@ -20,10 +20,12 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
 
 class ModuleQuietBan
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 {
  private:
 	bool notifyuser;
@@ -31,6 +33,7 @@ class ModuleQuietBan
  public:
 	ModuleQuietBan()
 		: CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 	{
 	}
 
@@ -76,7 +79,7 @@ class ModuleQuietBan
 		return HandleMessage(user, target, details.echo_original);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('m');
 	}

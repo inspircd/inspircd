@@ -93,7 +93,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "inspstring.h"
 #include "protocol.h"
 #include "bancache.h"
-#include "isupportmanager.h"
 
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
@@ -289,9 +288,6 @@ class CoreExport InspIRCd
 	/** Default implementation of the ProtocolInterface, does nothing
 	 */
 	ProtocolInterface DefaultProtocolInterface;
-
-	/** Manages the generation and transmission of ISUPPORT. */
-	ISupportManager ISupport;
 
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,

@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
 
 enum
 {
@@ -389,6 +390,7 @@ class CommandSilence : public SplitCommand
 class ModuleSilence
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 {
  private:
 	bool exemptuline;
@@ -433,6 +435,7 @@ class ModuleSilence
  public:
 	ModuleSilence()
 		: CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -444,7 +447,7 @@ class ModuleSilence
 		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["ESILENCE"] = "CcdiNnPpTtx";
 		tokens["SILENCE"] = ConvToStr(cmd.ext.maxsilence);

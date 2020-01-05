@@ -18,10 +18,18 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModulePartMsgBan : public Module
+class ModulePartMsgBan
+	: public Module
+	, public ISupport::EventListener
 {
  public:
+	ModulePartMsgBan()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides extban 'p', part message bans", VF_OPTCOMMON|VF_VENDOR);
@@ -36,7 +44,7 @@ class ModulePartMsgBan : public Module
 			partmessage.clear();
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('p');
 	}

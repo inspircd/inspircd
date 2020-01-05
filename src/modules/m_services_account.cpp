@@ -27,6 +27,7 @@
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 #include "modules/whois.h"
 
 enum
@@ -139,8 +140,9 @@ class AccountExtItemImpl : public AccountExtItem
 
 class ModuleServicesAccount
 	: public Module
-	, public Whois::EventListener
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
+	, public Whois::EventListener
 {
  private:
 	CallerID::API calleridapi;
@@ -155,8 +157,9 @@ class ModuleServicesAccount
 
  public:
 	ModuleServicesAccount()
-		: Whois::EventListener(this)
-		, CTCTags::EventListener(this)
+		: CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
+		, Whois::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
 		, m1(this, "reginvite", 'R')
@@ -169,7 +172,7 @@ class ModuleServicesAccount
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('R');
 		tokens["EXTBAN"].push_back('U');

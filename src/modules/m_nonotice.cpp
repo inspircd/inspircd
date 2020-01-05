@@ -21,20 +21,25 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 
-class ModuleNoNotice : public Module
+class ModuleNoNotice
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nt;
- public:
 
+ public:
 	ModuleNoNotice()
-		: exemptionprov(this)
+		: ISupport::EventListener(this)
+		, exemptionprov(this)
 		, nt(this, "nonotice", 'T')
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('T');
 	}

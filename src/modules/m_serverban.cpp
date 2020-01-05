@@ -18,10 +18,18 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleServerBan : public Module
+class ModuleServerBan
+	: public Module
+	, public ISupport::EventListener
 {
  public:
+	ModuleServerBan()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides extban 's' to ban users connected to a specified server", VF_OPTCOMMON|VF_VENDOR);
@@ -37,7 +45,7 @@ class ModuleServerBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('s');
 	}

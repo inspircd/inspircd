@@ -18,18 +18,23 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleAllowInvite : public Module
+class ModuleAllowInvite
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	SimpleChannelModeHandler ni;
- public:
 
+ public:
 	ModuleAllowInvite()
-		: ni(this, "allowinvite", 'A')
+		: ISupport::EventListener(this)
+		, ni(this, "allowinvite", 'A')
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('A');
 	}

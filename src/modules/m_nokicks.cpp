@@ -21,18 +21,23 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleNoKicks : public Module
+class ModuleNoKicks
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	SimpleChannelModeHandler nk;
 
  public:
 	ModuleNoKicks()
-		: nk(this, "nokick", 'Q')
+		: ISupport::EventListener(this)
+		, nk(this, "nokick", 'Q')
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('Q');
 	}

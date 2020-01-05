@@ -18,10 +18,18 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleClassBan : public Module
+class ModuleClassBan
+	: public Module
+	, public ISupport::EventListener
 {
  public:
+	ModuleClassBan()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) override
 	{
 		LocalUser* localUser = IS_LOCAL(user);
@@ -33,7 +41,7 @@ class ModuleClassBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('n');
 	}

@@ -22,8 +22,11 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 #include "modules/httpd.h"
 #include "xline.h"
+
+static ISupport::EventProvider* isevprov;
 
 namespace Stats
 {
@@ -105,12 +108,14 @@ namespace Stats
 	std::ostream& ISupport(std::ostream& data)
 	{
 		data << "<isupport>";
-		const std::vector<Numeric::Numeric>& isupport = ServerInstance->ISupport.GetLines();
-		for (std::vector<Numeric::Numeric>::const_iterator i = isupport.begin(); i != isupport.end(); ++i)
+
+		ISupport::TokenMap tokens;
+		FOREACH_MOD_CUSTOM(*isevprov, ISupport::EventListener, OnBuildISupport, (tokens));
+		for (ISupport::TokenMap::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 		{
-			const Numeric::Numeric& num = *i;
-			for (std::vector<std::string>::const_iterator j = num.GetParams().begin(); j != num.GetParams().end() - 1; ++j)
-				data << "<token>" << Sanitize(*j) << "</token>";
+			data << "<token><name>" << Sanitize(it->first)
+				<< "</name><value>" << Sanitize(it->second)
+				<< "</value></token>";
 		}
 		return data << "</isupport>";
 	}
@@ -392,15 +397,19 @@ namespace Stats
 
 class ModuleHttpStats : public Module, public HTTPRequestEventListener
 {
+ private:
 	HTTPdAPI API;
+	ISupport::EventProvider isupportevprov;
 	bool enableparams;
 
  public:
 	ModuleHttpStats()
 		: HTTPRequestEventListener(this)
 		, API(this)
+		, isupportevprov(this)
 		, enableparams(false)
 	{
+		isevprov = &isupportevprov;
 	}
 
 	void ReadConfig(ConfigStatus& status) override

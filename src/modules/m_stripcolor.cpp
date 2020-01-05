@@ -21,22 +21,27 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "modules/isupport.h"
 
-class ModuleStripColor : public Module
+class ModuleStripColor
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler csc;
 	SimpleUserModeHandler usc;
 
  public:
 	ModuleStripColor()
-		: exemptionprov(this)
+		: ISupport::EventListener(this)
+		, exemptionprov(this)
 		, csc(this, "stripcolor", 'S')
 		, usc(this, "u_stripcolor", 'S')
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('S');
 	}

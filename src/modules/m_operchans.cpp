@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 enum
 {
@@ -38,7 +39,9 @@ class OperChans : public SimpleChannelModeHandler
 	}
 };
 
-class ModuleOperChans : public Module
+class ModuleOperChans
+	: public Module
+	, public ISupport::EventListener
 {
  private:
 	OperChans oc;
@@ -47,7 +50,8 @@ class ModuleOperChans : public Module
 
  public:
 	ModuleOperChans()
-		: oc(this)
+		: ISupport::EventListener(this)
+		, oc(this)
 		, space(" ")
 		, underscore("_")
 	{
@@ -87,7 +91,7 @@ class ModuleOperChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('O');
 	}

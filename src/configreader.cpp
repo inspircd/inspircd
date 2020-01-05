@@ -711,8 +711,6 @@ void ConfigReaderThread::OnStop()
 		// The description of this server may have changed - update it for WHOIS etc.
 		ServerInstance->FakeClient->server->description = Config->ServerDesc;
 
-		ServerInstance->ISupport.Build();
-
 		ServerInstance->Logs.CloseLogs();
 		ServerInstance->Logs.OpenFileLogs();
 

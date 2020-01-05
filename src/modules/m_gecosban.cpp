@@ -18,10 +18,18 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
-class ModuleGecosBan : public Module
+class ModuleGecosBan
+	: public Module
+	, public ISupport::EventListener
 {
  public:
+	ModuleGecosBan()
+		: ISupport::EventListener(this)
+	{
+	}
+
 	Version GetVersion() override
 	{
 		return Version("Provides a way to ban users by their real name with the 'a' and 'r' extbans", VF_OPTCOMMON|VF_VENDOR);
@@ -55,7 +63,7 @@ class ModuleGecosBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('a');
 		tokens["EXTBAN"].push_back('r');

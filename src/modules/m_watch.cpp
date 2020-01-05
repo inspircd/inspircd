@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/away.h"
+#include "modules/isupport.h"
 
 #define INSPIRCD_MONITOR_MANAGER_ONLY
 #include "m_monitor.cpp"
@@ -183,7 +184,9 @@ class CommandWatch : public SplitCommand
 class ModuleWatch
 	: public Module
 	, public Away::EventListener
+	, public ISupport::EventListener
 {
+ private:
 	IRCv3::Monitor::Manager manager;
 	CommandWatch cmd;
 
@@ -215,6 +218,7 @@ class ModuleWatch
  public:
 	ModuleWatch()
 		: Away::EventListener(this)
+		, ISupport::EventListener(this)
 		, manager(this, "watch")
 		, cmd(this, manager)
 	{
@@ -259,7 +263,7 @@ class ModuleWatch
 		SendAlert(user, user->nick, RPL_NOTAWAY, "is no longer away", ServerInstance->Time());
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["WATCH"] = ConvToStr(cmd.maxwatch);
 	}

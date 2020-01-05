@@ -21,8 +21,9 @@
 #include "inspircd.h"
 #include "core_info.h"
 
-CommandVersion::CommandVersion(Module* parent)
+CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
 	: Command(parent, "VERSION", 0, 0)
+	, isupport(isupportmgr)
 {
 	syntax = "[<servername>]";
 }
@@ -35,10 +36,8 @@ CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 		numeric.push(token);
 	user->WriteNumeric(numeric);
 
-	LocalUser *lu = IS_LOCAL(user);
-	if (lu != NULL)
-	{
-		ServerInstance->ISupport.SendTo(lu);
-	}
+	LocalUser* luser = IS_LOCAL(user);
+	if (luser)
+		isupport.SendTo(luser);
 	return CMD_SUCCESS;
 }

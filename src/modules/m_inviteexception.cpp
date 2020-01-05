@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/isupport.h"
 
 /*
  * Written by Om <om@inspircd.org>, April 2005.
@@ -46,16 +47,22 @@ class InviteException : public ListModeBase
 	}
 };
 
-class ModuleInviteException : public Module
+class ModuleInviteException
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	bool invite_bypass_key;
 	InviteException ie;
-public:
-	ModuleInviteException() : ie(this)
+
+ public:
+	ModuleInviteException()
+		: ISupport::EventListener(this)
+		, ie(this)
 	{
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["INVEX"] = ConvToStr(ie.GetModeChar());
 	}

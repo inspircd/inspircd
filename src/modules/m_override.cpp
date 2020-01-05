@@ -26,9 +26,13 @@
 
 #include "inspircd.h"
 #include "modules/invite.h"
+#include "modules/isupport.h"
 
-class ModuleOverride : public Module
+class ModuleOverride
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	bool RequireKey;
 	bool NoisyOverride;
 	SimpleUserModeHandler ou;
@@ -66,7 +70,8 @@ class ModuleOverride : public Module
 
  public:
 	ModuleOverride()
-		: ou(this, "override", 'O')
+		: ISupport::EventListener(this)
+		, ou(this, "override", 'O')
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
@@ -88,7 +93,7 @@ class ModuleOverride : public Module
 		RequireKey = tag->getBool("requirekey");
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["OVERRIDE"];
 	}

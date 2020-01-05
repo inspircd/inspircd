@@ -21,6 +21,7 @@
 #include "core_channel.h"
 #include "invite.h"
 #include "listmode.h"
+#include "modules/isupport.h"
 
 namespace
 {
@@ -87,7 +88,10 @@ class JoinHook : public ClientProtocol::EventHook
 
 }
 
-class CoreModChannel : public Module, public CheckExemption::EventListener
+class CoreModChannel
+	: public Module
+	, public CheckExemption::EventListener
+	, public ISupport::EventListener
 {
 	Invite::APIImpl invapi;
 	CommandInvite cmdinvite;
@@ -123,6 +127,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
  public:
 	CoreModChannel()
 		: CheckExemption::EventListener(this, UINT_MAX)
+		, ISupport::EventListener(this)
 		, invapi(this)
 		, cmdinvite(this, invapi)
 		, cmdjoin(this)
@@ -198,7 +203,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
 

@@ -309,8 +309,6 @@ class ModuleNationalChars : public Module
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
 		ServerInstance->Config->CaseMapping = casemapping_rememberer;
-		// The core rebuilds ISupport on module unload, but before the dtor.
-		ServerInstance->ISupport.Build();
 		CheckForceQuit("National characters module unloaded");
 		CheckRehash();
 	}

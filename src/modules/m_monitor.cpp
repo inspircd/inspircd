@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 namespace IRCv3
 {
@@ -367,8 +368,11 @@ class CommandMonitor : public SplitCommand
 	}
 };
 
-class ModuleMonitor : public Module
+class ModuleMonitor
+	: public Module
+	, public ISupport::EventListener
 {
+ private:
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;
 
@@ -387,7 +391,8 @@ class ModuleMonitor : public Module
 
  public:
 	ModuleMonitor()
-		: manager(this, "monitor")
+		: ISupport::EventListener(this)
+		, manager(this, "monitor")
 		, cmd(this, manager)
 	{
 	}
@@ -421,7 +426,7 @@ class ModuleMonitor : public Module
 		SendAlert(RPL_MONOFFLINE, user->nick);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) override
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
 	}
