@@ -317,7 +317,7 @@ class ModuleNationalChars : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON, charset);
+		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON);
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/
