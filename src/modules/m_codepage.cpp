@@ -62,8 +62,11 @@ class ModuleCodepage
 	// The character map which was set before this module was loaded.
 	const unsigned char* origcasemap;
 
+	// The name of the character map which was set before this module was loaded.
+	const std::string origcasemapname;
+
 	// The IsNick handler which was set before this module was loaded.
-	TR1NS::function<bool(const std::string&)> origisnick;
+	const TR1NS::function<bool(const std::string&)> origisnick;
 
 	template <typename T>
 	void RehashHashmap(T& hashmap)
@@ -87,7 +90,7 @@ class ModuleCodepage
 
 	void CheckRehash(unsigned char* prevmap)
 	{
-		if (!memcmp(prevmap, national_case_insensitive_map, sizeof(origcasemap)))
+		if (!memcmp(prevmap, national_case_insensitive_map, UCHAR_MAX))
 			return;
 
 		RehashHashmap(ServerInstance->Users.clientlist);
@@ -98,6 +101,7 @@ class ModuleCodepage
  public:
 	ModuleCodepage()
 		: origcasemap(national_case_insensitive_map)
+		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->IsNick)
 	{
 	}
@@ -107,6 +111,7 @@ class ModuleCodepage
 		ServerInstance->IsNick = origisnick;
 		CheckInvalidNick();
 
+		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
 		CheckRehash(casemap);
 	}
