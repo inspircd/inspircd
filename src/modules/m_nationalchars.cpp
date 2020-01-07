@@ -68,7 +68,7 @@ char utf8size(unsigned char * mb)
 /* Conditions added */
 bool lwbNickHandler::Call(const std::string& nick)
 {
-	if (nick.empty())
+	if (nick.empty() || isdigit(nick[0]))
 		return false;
 
 	const char* n = nick.c_str();
