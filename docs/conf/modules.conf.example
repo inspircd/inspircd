@@ -572,6 +572,20 @@
 #<module name="clones">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Codepage module: Allows using a custom 8-bit codepage for nicknames
+# and case mapping.
+#
+# You should include one of the following files to set your codepage:
+#<include file="examples/codepages/ascii.conf.example">
+#<include file="examples/codepages/latin1.conf.example">
+#<include file="examples/codepages/rfc1459.conf.example">
+#<include file="examples/codepages/strict-rfc1459.conf.example">
+#
+# You can also define a custom codepage. For details on how to do this
+# please refer to the docs site:
+# https://docs.inspircd.org/3/modules/codepage
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Common channels module: Adds user mode +c, which, when set, requires
 # that users must share a common channel with you to PRIVMSG or NOTICE
 # you.
@@ -1414,6 +1428,9 @@
 # National characters module:
 # 1) Allows using national characters in nicknames.
 # 2) Allows using custom (national) casemapping over the network.
+#
+# This module is incredibly poorly written and documented. You should
+# probably use the codepage module instead for 8-bit codepages.
 #<module name="nationalchars">
 #
 # file - Location of the file which contains casemapping rules. If this

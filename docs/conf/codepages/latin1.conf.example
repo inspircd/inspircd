@@ -1,0 +1,42 @@
+# This file contains ISO 8859-1 codepage rules for use with the codepage module.
+
+<codepage name="latin1">
+
+<cpchars begin="192" end="214" front="yes"> # ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ
+<cpchars begin="216" end="246" front="yes"> # ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö
+<cpchars begin="248" end="255" front="yes"> # øùúûüýþÿ
+
+<cpcase lower="83"  upper="223"> # ß => S
+<cpcase lower="192" upper="224"> # à => À
+<cpcase lower="193" upper="225"> # á => Á
+<cpcase lower="194" upper="226"> # â => Â
+<cpcase lower="195" upper="227"> # ã => Ã
+<cpcase lower="196" upper="228"> # ä => Ä
+<cpcase lower="197" upper="229"> # å => Å
+<cpcase lower="198" upper="230"> # æ => Æ
+<cpcase lower="199" upper="231"> # ç => Ç
+<cpcase lower="200" upper="232"> # è => È
+<cpcase lower="201" upper="233"> # é => É
+<cpcase lower="202" upper="234"> # ê => Ê
+<cpcase lower="203" upper="235"> # ë => Ë
+<cpcase lower="204" upper="236"> # ì => Ì
+<cpcase lower="205" upper="237"> # í => Í
+<cpcase lower="206" upper="238"> # î => Î
+<cpcase lower="207" upper="239"> # ï => Ï
+<cpcase lower="208" upper="240"> # ð => Ð
+<cpcase lower="209" upper="241"> # ñ => Ñ
+<cpcase lower="210" upper="242"> # ò => Ò
+<cpcase lower="211" upper="243"> # ó => Ó
+<cpcase lower="212" upper="244"> # ô => Ô
+<cpcase lower="213" upper="245"> # õ => Õ
+<cpcase lower="214" upper="246"> # ö => Ö
+<cpcase lower="216" upper="248"> # ø => Ø
+<cpcase lower="217" upper="249"> # ù => Ù
+<cpcase lower="218" upper="250"> # ú => Ú
+<cpcase lower="219" upper="251"> # û => Û
+<cpcase lower="220" upper="252"> # ü => Ü
+<cpcase lower="221" upper="253"> # ý => Ý
+<cpcase lower="222" upper="254"> # þ => Þ
+
+# Include the ASCII rules to avoid duplication.
+<include file="examples/codepages/ascii.conf.example">

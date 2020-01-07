@@ -1,0 +1,41 @@
+# This file contains RFC 1459 codepage rules for use with the codepage module.
+
+<codepage name="rfc1459">
+
+<cpchars index="45">                        # -
+<cpchars begin="48"  end="57">              # 01234567899
+<cpchars begin="65"  end="90"  front="yes"> # ABCDEFGHIJKLMNOPQRSTUVWXYZ
+<cpchars begin="91"  end="96"  front="yes"> # [\]^_`
+<cpchars begin="97"  end="122" front="yes"> # abcdefghijklmnopqrstuvwxyz
+<cpchars begin="123" end="125" front="yes"> # {|}
+
+<cpcase lower="97"  upper="65"> # a => A
+<cpcase lower="98"  upper="66"> # b => B
+<cpcase lower="99"  upper="67"> # c => C
+<cpcase lower="100" upper="68"> # d => D
+<cpcase lower="101" upper="69"> # e => E
+<cpcase lower="102" upper="70"> # f => F
+<cpcase lower="103" upper="71"> # g => G
+<cpcase lower="104" upper="72"> # h => H
+<cpcase lower="105" upper="73"> # i => I
+<cpcase lower="106" upper="74"> # j => J
+<cpcase lower="107" upper="75"> # k => K
+<cpcase lower="108" upper="76"> # l => L
+<cpcase lower="109" upper="77"> # m => M
+<cpcase lower="110" upper="78"> # n => N
+<cpcase lower="111" upper="79"> # o => O
+<cpcase lower="112" upper="80"> # p => P
+<cpcase lower="113" upper="81"> # q => Q
+<cpcase lower="114" upper="82"> # r => R
+<cpcase lower="115" upper="83"> # s => S
+<cpcase lower="116" upper="84"> # t => T
+<cpcase lower="117" upper="85"> # u => U
+<cpcase lower="118" upper="86"> # v => V
+<cpcase lower="119" upper="87"> # w => W
+<cpcase lower="120" upper="88"> # x => X
+<cpcase lower="121" upper="89"> # y => Y
+<cpcase lower="122" upper="90"> # z => Z
+<cpcase lower="123" upper="91"> # { => [
+<cpcase lower="124" upper="92"> # | => \
+<cpcase lower="125" upper="93"> # } => ]
+<cpcase lower="126" upper="94"> # ~ => ^
