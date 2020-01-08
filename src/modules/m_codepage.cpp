@@ -114,6 +114,8 @@ class ModuleCodepage
 		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
 		CheckRehash(casemap);
+
+		ServerInstance->ISupport.Build();
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -190,6 +192,8 @@ class ModuleCodepage
 		ServerInstance->Config->CaseMapping = name;
 		national_case_insensitive_map = casemap;
 		CheckRehash(newcasemap);
+
+		ServerInstance->ISupport.Build();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
