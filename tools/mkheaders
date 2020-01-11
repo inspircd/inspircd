@@ -1,0 +1,149 @@
+#!/usr/bin/env perl
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+BEGIN {
+	require 5.10.0;
+	unless (-f 'configure') {
+		print "Error: $0 must be run from the main source directory!\n";
+		exit 1;
+	}
+}
+
+use feature ':5.10';
+use strict;
+use warnings FATAL => qw(all);
+
+use File::Util ();
+use FindBin    qw($RealDir);
+use List::Util qw(uniq);
+use POSIX      qw(strftime);
+
+use lib $RealDir;
+use make::console;
+
+my @ignored_revisions = (
+	'0b4285abd12323920d92fee51e199edd7527dbec', # adding copyright headers
+	'46a39046196f55b52336e19662bb7bac85b731ac', # adding copyright headers
+	'56375392ba94f2552bbeeeab4fd39e1e50295525', # sadie's name change
+	'bab14f0dd2345c9d7dcbc47c918563709e1ac094', # peavey breaking line endings
+	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
+);
+
+my @paths = File::Util->new->list_dir('.' => { recurse => 1 });
+my @updated;
+for my $path (@paths) {
+	next unless -f $path;
+	next if $path =~ /\/\./;
+	next if $path =~ /\/vendor\//;
+
+	if (system "git ls-files --error-unmatch -- $path 1>/dev/null 2>/dev/null") {
+		print_format "Skipping <|YELLOW $path|> as it has not been committed.\n" if defined $ENV{MKHEADERS_VERBOSE};
+		next;
+	}
+
+	open(my $fh, $path) or print_error "unable to read from $path: $!";
+	my ($copyright, $indent, @lines);
+	for my $line (<$fh>) {
+		chomp $line;
+		if ($line =~ /^([^0-9A-Za-z]+\s)Copyright\s+\(C\)\s+[^<]+\s+<[^>]+>$/) {
+			$copyright = scalar @lines;
+			$indent = $1;
+		} else {
+			push @lines, $line;
+		}
+	}
+	close $fh;
+
+	if (defined $copyright) {
+		print_format "Updating copyright headers in <|GREEN $path|>.\n" if defined $ENV{MKHEADERS_VERBOSE};
+		my (%author, %authors);
+		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
+		for my $line (split /\n+/, `git blame $ignored_args --incremental -w HEAD -- $path`) {
+			if ($line =~ /^([0-9a-f]{40})(?:\s\d+){3}$/) {
+				$author{COMMITS} //= [];
+				push @{$author{COMMITS}}, $1;
+			} elsif ($line =~ /^author (.+)/) {
+				$author{NAME} = $1;
+			} elsif ($line =~ /^author-mail <(.+)>/) {
+				$author{EMAIL} = $1;
+			} elsif ($line =~ /^author-time (.+)/) {
+				$author{YEAR} = strftime '%Y', gmtime $1;
+			} elsif ($line =~ /^filename /) {
+				next unless scalar keys %author > 1;
+				my $display = sprintf "%s <%s>", $author{NAME}, $author{EMAIL};
+				$authors{$display} //= [];
+				push $authors{$display}, $author{YEAR};
+				for my $commit (uniq @{$author{COMMITS}}) {
+					my $details = `git rev-list --format=%B --max-count=1 $commit`;
+					while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
+						$authors{$1} //= [];
+						push $authors{$1}, $author{YEAR};
+					}
+				}
+				undef %author;
+			}
+		}
+
+		my @copyrights;
+		while (my ($display, $years) = each %authors) {
+			next if $display eq 'InspIRCd Robot <noreply@inspircd.org>';
+			my ($last_year, $start_year, @year_ranges);
+			for my $year (uniq sort @$years) {
+				if (!defined $last_year) {
+					$start_year = $last_year = $year
+				} elsif ($year == $last_year + 1) {
+					$last_year = $year;
+				} else {
+					if ($last_year == $start_year) {
+						push @year_ranges, $last_year; 
+					} else {
+						push @year_ranges, "$start_year-$last_year";
+					}
+					$start_year = $last_year = $year;
+				}
+			}
+			if (defined $last_year) {
+				if ($last_year == $start_year) {
+					push @year_ranges, $last_year; 
+				} else {
+					push @year_ranges, "$start_year-$last_year";
+				}
+			}
+
+			my $joined_years = join ', ', @year_ranges;
+			push @copyrights, "${\$indent}Copyright (C) $joined_years $display";
+		}
+
+		splice @lines, $copyright, 0, reverse sort @copyrights;
+		open(my $fh, '>', $path) or print_error "unable to write to $path: $!";
+		for my $line (@lines) {
+			say $fh $line;
+		}
+		close $fh;
+		push @updated, $path;
+	} else {
+		print_format "Skipping <|YELLOW $path|> as it contains no copyright headers.\n" if defined $ENV{MKHEADERS_VERBOSE};
+	}
+}
+
+system 'git', 'commit',
+	'--author', 'InspIRCd Robot <noreply@inspircd.org>',
+	'--message', 'Update copyright headers.',
+	'--', @updated;
