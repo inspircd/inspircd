@@ -1,6 +1,5 @@
 %mode 0750
 #!/usr/bin/env perl
-
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #

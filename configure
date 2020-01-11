@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
