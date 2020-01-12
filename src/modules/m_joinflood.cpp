@@ -186,10 +186,7 @@ class ModuleJoinFlood : public Module
 				f->clear();
 				f->lock();
 				if (notify) {
-					std::string message = InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs);
-					ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, memb->chan, message, MSG_NOTICE);
-					memb->chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, notify_onlyops ? '@' : 0);
-					ServerInstance->PI->SendMessage(memb->chan, notify_onlyops ? '@' : 0, message, MSG_NOTICE);
+					memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs), notify_onlyops ? '@' : 0);
 				}
 			}
 		}
