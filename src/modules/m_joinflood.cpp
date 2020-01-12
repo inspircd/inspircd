@@ -34,6 +34,12 @@ enum
 // The number of seconds the channel will be closed for.
 static unsigned int duration;
 
+// Enable notice to channel when it is triggered
+bool notify;
+
+// Only notify to channel operators
+bool notify_onlyops;
+
 /** Holds settings and state associated with channel mode +j
  */
 class joinfloodsettings
@@ -145,6 +151,8 @@ class ModuleJoinFlood : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
+		notify = tag->getBool("notify", true);
+		notify_onlyops = tag->getBool("notify_onlyops", false);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
@@ -177,7 +185,12 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs));
+				if (notify) {
+					std::string message = InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs);
+					ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, memb->chan, message, MSG_NOTICE);
+					memb->chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, notify_onlyops ? '@' : 0);
+					ServerInstance->PI->SendMessage(memb->chan, notify_onlyops ? '@' : 0, message, MSG_NOTICE);
+				}
 			}
 		}
 	}

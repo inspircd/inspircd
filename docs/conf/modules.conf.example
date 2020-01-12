@@ -1232,8 +1232,13 @@
 # Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
 #
-# The number of seconds to close the channel for:
-#<joinflood duration="1m">
+# This tag takes the following attributes:
+#
+# notify         - If enabled, it will send a notice to channel when
+#                  protection is triggered.
+# notify_onlyops - If enabled, only notify to channel operators.
+#
+#<joinflood duration="1m" notify="true" notify_onlyops="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).
