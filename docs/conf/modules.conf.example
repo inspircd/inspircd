@@ -1234,7 +1234,7 @@
 #
 # This tag takes the following attributes:
 #
-# duration       - The number of seconds to close the channel.
+# duration       - Time to close the channel when protection is triggered.
 # notify         - If enabled, it will send a notice to channel when
 #                  protection is triggered.
 # notify_onlyops - If enabled, only notify to channel operators.
