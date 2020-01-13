@@ -621,7 +621,7 @@ Sets your host to the specified host.">
 
 Sets your ident to the specified ident.">
 
-<helpop key="swhois" line="/SWHOIS <nick> :<swhois>
+<helpop key="swhois" value="/SWHOIS <nick> :<swhois>
 
 Sets the user's swhois field to the given swhois message.
 This will be visible in their /WHOIS.
