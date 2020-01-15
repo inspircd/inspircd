@@ -41,6 +41,13 @@ class CommandTagMsg : public Command
 			return false;
 		}
 
+		// Check whether a module zapped the message tags.
+		if (msgdetails.tags_out.empty())
+		{
+			source->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
+			return false;
+		}
+
 		// Inform modules that a TAGMSG is about to be sent.
 		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessage, (source, msgtarget, msgdetails));
 		return true;
@@ -208,6 +215,13 @@ class CommandTagMsg : public Command
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
+
+		// The specified message tags were empty.
+		if (parameters.GetTags().empty())
+		{
+			user->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
+			return CMD_FAILURE;
+		}
 
 		// Check that the source has the message tags capability.
 		if (IS_LOCAL(user) && !cap.get(user))
