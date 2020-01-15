@@ -41,7 +41,22 @@ enum
 
 typedef std::vector<std::string> HelpMessage;
 
-typedef std::map<std::string, HelpMessage, irc::insensitive_swo> HelpMap;
+struct HelpTopic
+{
+	// The body of the help topic.
+	const HelpMessage body;
+
+	// The title of the help topic.
+	const std::string title;
+
+	HelpTopic(const HelpMessage& Body, const std::string& Title)
+		: body(Body)
+		, title(Title)
+	{
+	}
+};
+
+typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
 
 class CommandHelpop : public Command
 {
@@ -69,10 +84,11 @@ class CommandHelpop : public Command
 			return CMD_FAILURE;
 		}
 
-		user->WriteNumeric(RPL_HELPSTART, topic, InspIRCd::Format("*** Help for %s", topic.c_str()));
-		for (HelpMessage::const_iterator liter = titer->second.begin(); liter != titer->second.end(); ++liter)
+		const HelpTopic& entry = titer->second;
+		user->WriteNumeric(RPL_HELPSTART, topic, entry.title);
+		for (HelpMessage::const_iterator liter = entry.body.begin(); liter != entry.body.end(); ++liter)
 			user->WriteNumeric(RPL_HELPTXT, topic, *liter);
-		user->WriteNumeric(RPL_ENDOFHELP, topic, "*** End of help");
+		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELPOP.");
 		return CMD_SUCCESS;
 	}
 };
@@ -126,11 +142,18 @@ class ModuleHelpop
 				irc::sepstream linestream(value, '\n', true);
 				for (std::string line; linestream.GetToken(line); )
 					helpmsg.push_back(line.empty() ? " " : line);
-				newhelp[key] = helpmsg;
+
+				// Read the help title and store the topic.
+				const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
+				if (!newhelp.insert(std::make_pair(key, HelpTopic(helpmsg, title))).second)
+				{
+					throw ModuleException(InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
+						key.c_str(), tag->getTagLocation().c_str()));
+				}
 			}
 
 			// The number of items we can fit on a page.
-			HelpMessage& indexmsg = newhelp["index"];
+			HelpMessage indexmsg;
 			size_t maxcolumns = 80 / (longestkey + 2);
 			for (HelpMap::iterator iter = newhelp.begin(); iter != newhelp.end(); )
 			{
@@ -147,6 +170,7 @@ class ModuleHelpop
 				}
 				indexmsg.push_back(indexline);
 			}
+			newhelp.insert(std::make_pair("index", HelpTopic(indexmsg, "List of help topics")));
 			cmd.help.swap(newhelp);
 
 			ConfigTag* tag = ServerInstance->Config->ConfValue("helpmsg");
