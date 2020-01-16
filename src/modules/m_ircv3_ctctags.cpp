@@ -82,7 +82,7 @@ class CommandTagMsg : public Command
 			return CMD_FAILURE;
 
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
-		CTCTags::TagMessage message(source, chan, msgdetails.tags_out);
+		CTCTags::TagMessage message(source, chan, msgdetails.tags_out, msgtarget.status);
 		message.SetSideEffect(true);
 		const Channel::MemberMap& userlist = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)

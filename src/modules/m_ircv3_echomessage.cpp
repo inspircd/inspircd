@@ -99,7 +99,7 @@ class ModuleIRCv3EchoMessage
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* chan = target.Get<Channel>();
-				CTCTags::TagMessage message(user, chan, tags);
+				CTCTags::TagMessage message(user, chan, tags, target.status);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}
