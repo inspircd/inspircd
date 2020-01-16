@@ -216,16 +216,16 @@ class CommandTagMsg : public Command
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
 
+		// Check that the source has the message tags capability.
+		if (IS_LOCAL(user) && !cap.get(user))
+			return CMD_FAILURE;
+
 		// The specified message tags were empty.
 		if (parameters.GetTags().empty())
 		{
 			user->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
 			return CMD_FAILURE;
 		}
-
-		// Check that the source has the message tags capability.
-		if (IS_LOCAL(user) && !cap.get(user))
-			return CMD_FAILURE;
 
 		// The target is a server glob.
 		if (parameters[0][0] == '$')
