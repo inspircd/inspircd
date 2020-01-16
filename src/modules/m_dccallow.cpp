@@ -206,13 +206,13 @@ class CommandDccallow : public Command
 			// if they didn't specify an action, this is probably a command
 			if (action != '+' && action != '-')
 			{
-				if (!strcasecmp(parameters[0].c_str(), "LIST"))
+				if (irc::equals(parameters[0], "LIST"))
 				{
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
 					return CMD_FAILURE;
 				}
-				else if (!strcasecmp(parameters[0].c_str(), "HELP"))
+				else if (irc::equals(parameters[0], "HELP"))
 				{
 					// display help
 					DisplayHelp(user);

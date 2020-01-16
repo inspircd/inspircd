@@ -255,7 +255,7 @@ void TreeServer::CheckULine()
 	{
 		ConfigTag* tag = i->second;
 		std::string server = tag->getString("server");
-		if (!strcasecmp(server.c_str(), GetName().c_str()))
+		if (irc::equals(server, GetName()))
 		{
 			if (this->IsRoot())
 			{

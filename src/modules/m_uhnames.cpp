@@ -63,7 +63,7 @@ class ModuleUHNames
 		 */
 		if (command == "PROTOCTL")
 		{
-			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"UHNAMES")))
+			if (!parameters.empty() && irc::equals(parameters[0], "UHNAMES"))
 			{
 				cap.set(user, true);
 				return MOD_RES_DENY;

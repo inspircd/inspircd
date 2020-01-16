@@ -62,7 +62,7 @@ class CommandTban : public Command
 			for (ListModeBase::ModeList::const_iterator i = bans->begin(); i != bans->end(); ++i)
 			{
 				const ListModeBase::ListItem& ban = *i;
-				if (!strcasecmp(ban.mask.c_str(), mask.c_str()))
+				if (irc::equals(ban.mask, mask))
 					return true;
 			}
 		}
