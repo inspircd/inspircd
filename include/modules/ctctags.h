@@ -68,8 +68,8 @@ private:
 		AddTags(Tags);
 	}
 
-	TagMessage(const char* sourcestr, const char* targetstr, const ClientProtocol::TagMap& Tags, char status = 0)
-		: ClientProtocol::Message("TAGMSG", sourcestr)
+	TagMessage(const char* source, const char* targetstr, const ClientProtocol::TagMap& Tags, char status = 0)
+		: ClientProtocol::Message("TAGMSG", source)
 	{
 		PushTarget(targetstr, status);
 		AddTags(Tags);
