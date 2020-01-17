@@ -34,7 +34,7 @@ use File::Temp();
 
 sub prompt($$) {
 	my ($question, $default) = @_;
-	return prompt_string(1, $question, $default) if eval 'use FindBin;use lib $FindBin::RealDir;use make::console; 1';
+	return prompt_string(1, $question, $default) if eval 'use File::Basename; use FindBin; use lib dirname($FindBin::RealDir); use make::console; 1';
 	say $question;
 	print "[$default] => ";
 	chomp(my $answer = <STDIN>);

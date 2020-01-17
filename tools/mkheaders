@@ -30,12 +30,13 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use File::Util ();
-use FindBin    qw($RealDir);
-use List::Util qw(uniq);
-use POSIX      qw(strftime);
+use File::Basename qw(dirname);
+use File::Util     ();
+use FindBin        qw($RealDir);
+use List::Util     qw(uniq);
+use POSIX          qw(strftime);
 
-use lib $RealDir;
+use lib dirname $RealDir;
 use make::console;
 
 my @ignored_revisions = (

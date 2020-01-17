@@ -30,9 +30,10 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use FindBin qw($RealDir);
+use File::Basename qw(dirname);
+use FindBin        qw($RealDir);
 
-use lib $RealDir;
+use lib dirname $RealDir;
 use make::common;
 use make::configure;
 
