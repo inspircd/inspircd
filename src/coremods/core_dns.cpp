@@ -682,16 +682,22 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	bool Tick(time_t now) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: purging DNS cache");
-
+		unsigned long expired = 0;
 		for (cache_map::iterator it = this->cache.begin(); it != this->cache.end(); )
 		{
 			const Query& query = it->second;
 			if (IsExpired(query, now))
+			{
+				expired++;
 				this->cache.erase(it++);
+			}
 			else
 				++it;
 		}
+
+		if (expired)
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: purged %lu expired DNS entries", expired);
+
 		return true;
 	}
 
