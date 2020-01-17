@@ -43,8 +43,8 @@
 #include "modules/ssl.h"
 #include <memory>
 
-#include <gnutls/crypto.h>
 #include <gnutls/gnutls.h>
+#include <gnutls/crypto.h>
 #include <gnutls/x509.h>
 
 // Check if the GnuTLS library is at least version major.minor.patch

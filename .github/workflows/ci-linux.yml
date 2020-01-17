@@ -1,0 +1,23 @@
+name: Linux CI
+on:
+  - pull_request
+  - push
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      TEST_BUILD_MODULES: m_geo_maxmind.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_mbedtls.cpp,m_ssl_openssl.cpp,m_sslrehashsignal.cpp
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update --assume-yes
+          sudo apt-get install --assume-yes --no-install-recommends clang-3.9 g++-5 git make libc++-dev libc++abi-dev pkg-config
+          sudo apt-get install --assume-yes --no-install-recommends libgeoip-dev libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libsqlite3-dev libssl-dev libtre-dev
+      - name: Run test-build
+        run: ./tools/test-build ${{ matrix.compiler }}
+    strategy:
+      matrix:
+        compiler:
+          - clang++-3.9
+          - g++-5

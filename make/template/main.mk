@@ -304,7 +304,7 @@ help:
 	@echo ' INSPIRCD_VERBOSE=1  Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' INSPIRCD_DEBUG=1    Enable debug build, for module development or crash tracing'
 	@echo ' INSPIRCD_DEBUG=2    Enable debug build with optimizations, for detailed backtraces'
-	@echo ' INSPIRCD_DEBUG=3    Enable fast build with no optimisations or symbols, for Travis CI'
+	@echo ' INSPIRCD_DEBUG=3    Enable fast build with no optimisations or symbols (only for CI)'
 	@echo ' DESTDIR=            Specify a destination root directory (for tarball creation)'
 	@echo ' -j <N>              Run a parallel build using N jobs'
 	@echo ''
