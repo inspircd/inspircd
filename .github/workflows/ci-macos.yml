@@ -15,13 +15,8 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install pkg-config geoip gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite3 tre
+          brew install pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite3 tre
           brew link --force libpq
           brew link --force mysql-client
       - name: Run test-build
-        run: ./tools/test-build ${{ matrix.compiler }}
-    strategy:
-      matrix:
-        compiler:
-          - clang++
-          - g++
+        run: ./tools/test-build c++
