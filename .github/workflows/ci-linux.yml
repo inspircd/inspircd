@@ -1,0 +1,27 @@
+name: Linux CI
+on:
+  - pull_request
+  - push
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    env:
+      CXXFLAGS: -std=${{ matrix.standard }}
+      TEST_BUILD_MODULES: m_geo_maxmind.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_posix.cpp,m_regex_re2.cpp,m_regex_stdlib.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_mbedtls.cpp,m_ssl_openssl.cpp,m_sslrehashsignal.cpp
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update --assume-yes
+          sudo apt-get install --assume-yes --no-install-recommends clang g++ git make libc++-dev libc++abi-dev pkg-config
+          sudo apt-get install --assume-yes --no-install-recommends libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libre2-dev libsqlite3-dev libssl-dev libtre-dev
+      - name: Run test-build
+        run: ./tools/test-build ${{ matrix.compiler }}
+    strategy:
+      matrix:
+        compiler:
+          - clang++
+          - g++
+        standard:
+          - gnu++98
+          - c++14
