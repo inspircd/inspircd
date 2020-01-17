@@ -1,10 +1,16 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2009 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2009 Craig Edwards <craigedwards@brainbox.cc>
+ *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
+ *   Copyright (C) 2013, 2015, 2017, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2011 jackmcbarn <jackmcbarn@inspircd.org>
+ *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2009 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2009 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -68,7 +74,7 @@ char utf8size(unsigned char * mb)
 /* Conditions added */
 bool lwbNickHandler::Call(const std::string& nick)
 {
-	if (nick.empty())
+	if (nick.empty() || isdigit(nick[0]))
 		return false;
 
 	const char* n = nick.c_str();
@@ -315,7 +321,7 @@ class ModuleNationalChars : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON, charset);
+		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON);
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/

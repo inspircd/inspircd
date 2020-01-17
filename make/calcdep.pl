@@ -1,8 +1,10 @@
 #!/usr/bin/env perl
-
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
+#   Copyright (C) 2014-2015 Attila Molnar <attilamolnar@hush.com>
+#   Copyright (C) 2013, 2015-2019 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2012 Robby <robby@chatbelgie.be>
 #   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can

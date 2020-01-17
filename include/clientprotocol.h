@@ -1,7 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -515,6 +516,16 @@ class ClientProtocol::Event
 	void GetMessagesForUser(LocalUser* user, MessageList& messagelist);
 };
 
+class ClientProtocol::MessageTagEvent
+	: public Events::ModuleEventProvider
+{
+ public:
+	MessageTagEvent(Module* mod)
+		: ModuleEventProvider(mod, "event/messagetag")
+	{
+	}
+};
+
 /** Base class for message tag providers.
  * All message tags belong to a message tag provider. Message tag providers can populate messages
  * with tags before the message is sent and they have the job of determining whether a user should
@@ -667,7 +678,8 @@ struct ClientProtocol::RFCEvents
  */
 class CoreExport ClientProtocol::Serializer : public DataProvider
 {
-	Events::ModuleEventProvider evprov;
+ private:
+	ClientProtocol::MessageTagEvent evprov;
 
 	/** Make a white list containing which tags a user should get.
 	 * @param user User in question.

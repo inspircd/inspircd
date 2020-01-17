@@ -1,11 +1,14 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2005-2009 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2004-2006, 2008 Craig Edwards <craigedwards@brainbox.cc>
+ *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2004-2005 Craig McLure <craig@chatspike.net>
+ *   Copyright (C) 2006-2007 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -36,28 +39,32 @@ enum
 	RPL_ENDOFHELP = 706
 };
 
-typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
-static HelpopMap helpop_map;
+typedef std::vector<std::string> HelpMessage;
 
-/** Handles user mode +h
- */
-class Helpop : public SimpleUserModeHandler
+struct HelpTopic
 {
- public:
-	Helpop(Module* Creator) : SimpleUserModeHandler(Creator, "helpop", 'h')
+	// The body of the help topic.
+	const HelpMessage body;
+
+	// The title of the help topic.
+	const std::string title;
+
+	HelpTopic(const HelpMessage& Body, const std::string& Title)
+		: body(Body)
+		, title(Title)
 	{
-		oper = true;
 	}
 };
 
-/** Handles /HELPOP
- */
+typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
+
 class CommandHelpop : public Command
 {
  private:
 	const std::string startkey;
 
  public:
+	HelpMap help;
 	std::string nohelp;
 
 	CommandHelpop(Module* Creator)
@@ -69,84 +76,102 @@ class CommandHelpop : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		const std::string& parameter = (!parameters.empty() ? parameters[0] : startkey);
-
-		if (parameter == "index")
+		const std::string& topic = parameters.empty() ? startkey : parameters[0];
+		HelpMap::const_iterator titer = help.find(topic);
+		if (titer == help.end())
 		{
-			/* iterate over all helpop items */
-			user->WriteNumeric(RPL_HELPSTART, parameter, "HELPOP topic index");
-			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-				user->WriteNumeric(RPL_HELPTXT, parameter, InspIRCd::Format("  %s", iter->first.c_str()));
-			user->WriteNumeric(RPL_ENDOFHELP, parameter, "*** End of HELPOP topic index");
+			user->WriteNumeric(ERR_HELPNOTFOUND, topic, nohelp);
+			return CMD_FAILURE;
 		}
-		else
-		{
-			HelpopMap::const_iterator iter = helpop_map.find(parameter);
-			if (iter == helpop_map.end())
-			{
-				user->WriteNumeric(ERR_HELPNOTFOUND, parameter, nohelp);
-				return CMD_FAILURE;
-			}
 
-			const std::string& value = iter->second;
-			irc::sepstream stream(value, '\n', true);
-			std::string token = "*";
-
-			user->WriteNumeric(RPL_HELPSTART, parameter, InspIRCd::Format("*** HELPOP for %s", parameter.c_str()));
-			while (stream.GetToken(token))
-			{
-				// Writing a blank line will not work with some clients
-				if (token.empty())
-					user->WriteNumeric(RPL_HELPTXT, parameter, ' ');
-				else
-					user->WriteNumeric(RPL_HELPTXT, parameter, token);
-			}
-			user->WriteNumeric(RPL_ENDOFHELP, parameter, "*** End of HELPOP");
-		}
+		const HelpTopic& entry = titer->second;
+		user->WriteNumeric(RPL_HELPSTART, topic, entry.title);
+		for (HelpMessage::const_iterator liter = entry.body.begin(); liter != entry.body.end(); ++liter)
+			user->WriteNumeric(RPL_HELPTXT, topic, *liter);
+		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELPOP.");
 		return CMD_SUCCESS;
 	}
 };
 
-class ModuleHelpop : public Module, public Whois::EventListener
+class ModuleHelpop
+	: public Module
+	, public Whois::EventListener
 {
+ private:
 		CommandHelpop cmd;
-		Helpop ho;
+		SimpleUserModeHandler ho;
 
 	public:
 		ModuleHelpop()
 			: Whois::EventListener(this)
 			, cmd(this)
-			, ho(this)
+			, ho(this, "helpop", 'h', true)
 		{
 		}
 
 		void ReadConfig(ConfigStatus& status) override
 		{
-			HelpopMap help;
+			size_t longestkey = 0;
 
+			HelpMap newhelp;
 			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
-			for(ConfigIter i = tags.first; i != tags.second; ++i)
+			if (tags.first == tags.second)
+				throw ModuleException("You have loaded the helpop module but not configured any help topics!");
+
+			for (ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;
-				std::string key = tag->getString("key");
+
+				// Attempt to read the help key.
+				const std::string key = tag->getString("key");
+				if (key.empty())
+					throw ModuleException(InspIRCd::Format("<helpop:key> is empty at %s", tag->getTagLocation().c_str()));
+				else if (irc::equals(key, "index"))
+					throw ModuleException(InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->getTagLocation().c_str()));
+				else if (key.length() > longestkey)
+					longestkey = key.length();
+
+				// Attempt to read the help value.
 				std::string value;
-				tag->readString("value", value, true); /* Linefeeds allowed */
+				if (!tag->readString("value", value, true) || value.empty())
+					throw ModuleException(InspIRCd::Format("<helpop:value> is empty at %s", tag->getTagLocation().c_str()));
 
-				if (key == "index")
+				// Parse the help body. Empty lines are replaced with a single
+				// space because some clients are unable to show blank lines.
+				HelpMessage helpmsg;
+				irc::sepstream linestream(value, '\n', true);
+				for (std::string line; linestream.GetToken(line); )
+					helpmsg.push_back(line.empty() ? " " : line);
+
+				// Read the help title and store the topic.
+				const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
+				if (!newhelp.insert(std::make_pair(key, HelpTopic(helpmsg, title))).second)
 				{
-					throw ModuleException("m_helpop: The key 'index' is reserved for internal purposes. Please remove it.");
+					throw ModuleException(InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
+						key.c_str(), tag->getTagLocation().c_str()));
 				}
-
-				help[key] = value;
 			}
 
-			if (help.find("start") == help.end())
+			// The number of items we can fit on a page.
+			HelpMessage indexmsg;
+			size_t maxcolumns = 80 / (longestkey + 2);
+			for (HelpMap::iterator iter = newhelp.begin(); iter != newhelp.end(); )
 			{
-				// error!
-				throw ModuleException("m_helpop: Helpop file is missing important entry 'start'. Please check the example conf.");
-			}
+				std::string indexline;
+				for (size_t column = 0; column != maxcolumns; )
+				{
+					if (iter == newhelp.end())
+						break;
 
-			helpop_map.swap(help);
+					indexline.append(iter->first);
+					if (++column != maxcolumns)
+						indexline.append(longestkey - iter->first.length() + 2, ' ');
+					iter++;
+				}
+				indexmsg.push_back(indexline);
+			}
+			newhelp.insert(std::make_pair("index", HelpTopic(indexmsg, "List of help topics")));
+			cmd.help.swap(newhelp);
 
 			ConfigTag* tag = ServerInstance->Config->ConfValue("helpmsg");
 			cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
@@ -155,14 +180,12 @@ class ModuleHelpop : public Module, public Whois::EventListener
 		void OnWhois(Whois::Context& whois) override
 		{
 			if (whois.GetTarget()->IsModeSet(ho))
-			{
 				whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
-			}
 		}
 
 		Version GetVersion() override
 		{
-			return Version("Provides the HELPOP command for useful information", VF_VENDOR);
+			return Version("Provides help to users via the HELPOP command", VF_VENDOR);
 		}
 };
 

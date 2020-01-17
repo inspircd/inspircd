@@ -1,6 +1,12 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
+ *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
+ *   Copyright (C) 2012-2015, 2018 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -22,17 +28,25 @@
 #include "modules/ircv3_batch.h"
 #include "modules/server.h"
 
+typedef insp::flat_map<std::string, std::string> HistoryTagMap;
+
 struct HistoryItem
 {
 	time_t ts;
 	std::string text;
+	MessageType type;
+	HistoryTagMap tags;
 	std::string sourcemask;
 
-	HistoryItem(User* source, const std::string& Text)
+	HistoryItem(User* source, const MessageDetails& details)
 		: ts(ServerInstance->Time())
-		, text(Text)
+		, text(details.text)
+		, type(details.type)
 		, sourcemask(source->GetFullHost())
 	{
+		tags.reserve(details.tags_out.size());
+		for (ClientProtocol::TagMap::const_iterator iter = details.tags_out.begin(); iter != details.tags_out.end(); ++iter)
+			tags[iter->first] = iter->second.value;
 	}
 };
 
@@ -116,13 +130,28 @@ class ModuleChanHistory
 {
  private:
 	HistoryMode m;
-	bool sendnotice;
+	bool prefixmsg;
 	UserModeReference botmode;
 	bool dobots;
 	IRCv3::Batch::CapReference batchcap;
 	IRCv3::Batch::API batchmanager;
 	IRCv3::Batch::Batch batch;
 	IRCv3::ServerTime::API servertimemanager;
+	ClientProtocol::MessageTagEvent tagevent;
+
+	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
+	{
+		const Events::ModuleEventProvider::SubscriberList& list = tagevent.GetSubscribers();
+		for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+		{
+			ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
+			const ModResult res = tagprov->OnProcessTag(ServerInstance->FakeClient, tagkey, tagval);
+			if (res == MOD_RES_ALLOW)
+				msg.AddTag(tagkey, tagprov, tagval);
+			else if (res == MOD_RES_DENY)
+				break;
+		}
+	}
 
 	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list, time_t mintime)
 	{
@@ -134,10 +163,12 @@ class ModuleChanHistory
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
-			const HistoryItem& item = *i;
+			HistoryItem& item = *i;
 			if (item.ts >= mintime)
 			{
-				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text);
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
+				for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
+					AddTag(msg, iter->first, iter->second);
 				if (servertimemanager)
 					servertimemanager->Set(msg, item.ts);
 				batch.AddToBatch(msg);
@@ -158,6 +189,7 @@ class ModuleChanHistory
 		, batchmanager(this)
 		, batch("chathistory")
 		, servertimemanager(this)
+		, tagevent(this)
 	{
 	}
 
@@ -165,7 +197,7 @@ class ModuleChanHistory
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getUInt("maxlines", 50, 1);
-		sendnotice = tag->getBool("notice", true);
+		prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
 		dobots = tag->getBool("bots", true);
 	}
 
@@ -176,13 +208,13 @@ class ModuleChanHistory
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (details.type == MSG_PRIVMSG))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && !details.IsCTCP())
 		{
 			Channel* c = target.Get<Channel>();
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				list->lines.push_back(HistoryItem(user, details.text));
+				list->lines.push_back(HistoryItem(user, details));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}
@@ -202,11 +234,11 @@ class ModuleChanHistory
 		if (!list)
 			return;
 
-		if ((sendnotice) && (!batchcap.get(localuser)))
+		if ((prefixmsg) && (!batchcap.get(localuser)))
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
-				message.append(" spanning up to " + InspIRCd::DurationString(list->maxtime));
+				message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 

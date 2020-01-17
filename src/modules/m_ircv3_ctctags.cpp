@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
+ *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -41,6 +41,13 @@ class CommandTagMsg : public Command
 			return false;
 		}
 
+		// Check whether a module zapped the message tags.
+		if (msgdetails.tags_out.empty())
+		{
+			source->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
+			return false;
+		}
+
 		// Inform modules that a TAGMSG is about to be sent.
 		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessage, (source, msgtarget, msgdetails));
 		return true;
@@ -75,7 +82,7 @@ class CommandTagMsg : public Command
 			return CMD_FAILURE;
 
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
-		CTCTags::TagMessage message(source, chan, msgdetails.tags_out);
+		CTCTags::TagMessage message(source, chan, msgdetails.tags_out, msgtarget.status);
 		message.SetSideEffect(true);
 		const Channel::MemberMap& userlist = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)
@@ -212,6 +219,13 @@ class CommandTagMsg : public Command
 		// Check that the source has the message tags capability.
 		if (IS_LOCAL(user) && !cap.get(user))
 			return CMD_FAILURE;
+
+		// The specified message tags were empty.
+		if (parameters.GetTags().empty())
+		{
+			user->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
+			return CMD_FAILURE;
+		}
 
 		// The target is a server glob.
 		if (parameters[0][0] == '$')

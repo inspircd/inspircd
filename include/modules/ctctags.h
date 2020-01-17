@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -30,11 +30,24 @@ namespace CTCTags
 
 class CTCTags::TagMessage : public ClientProtocol::Message
 {
+private:
+	void PushTarget(const char* target, char status)
+	{
+		if (status)
+		{
+			std::string rawtarget(1, status);
+			rawtarget.append(target);
+			PushParam(rawtarget);
+		}
+		else
+			PushParamRef(target);
+	}
+
  public:
-	TagMessage(User* source, const Channel* targetchan, const ClientProtocol::TagMap& Tags)
+	TagMessage(User* source, const Channel* targetchan, const ClientProtocol::TagMap& Tags, char status = 0)
 		: ClientProtocol::Message("TAGMSG", source)
 	{
-		PushParamRef(targetchan->name);
+		PushTarget(targetchan->name.c_str(), status);
 		AddTags(Tags);
 	}
 
@@ -48,10 +61,17 @@ class CTCTags::TagMessage : public ClientProtocol::Message
 		AddTags(Tags);
 	}
 
-	TagMessage(User* source, const char* targetstr, const ClientProtocol::TagMap& Tags)
+	TagMessage(User* source, const char* targetstr, const ClientProtocol::TagMap& Tags, char status = 0)
 		: ClientProtocol::Message("TAGMSG", source)
 	{
-		PushParam(targetstr);
+		PushTarget(targetstr, status);
+		AddTags(Tags);
+	}
+
+	TagMessage(const char* source, const char* targetstr, const ClientProtocol::TagMap& Tags, char status = 0)
+		: ClientProtocol::Message("TAGMSG", source)
+	{
+		PushTarget(targetstr, status);
 		AddTags(Tags);
 	}
 };

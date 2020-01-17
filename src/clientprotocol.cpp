@@ -1,7 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,7 +22,7 @@
 
 ClientProtocol::Serializer::Serializer(Module* mod, const char* Name)
 	: DataProvider(mod, std::string("serializer/") + Name)
-	, evprov(mod, "event/messagetag")
+	, evprov(mod)
 {
 }
 

@@ -1,8 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2015 Adam <Adam@anope.org>
- *   Copyright (C) 2003-2015 Anope Team <team@anope.org>
+ *   Copyright (C) 2013, 2015 Adam <Adam@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

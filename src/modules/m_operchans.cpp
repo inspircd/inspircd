@@ -1,10 +1,13 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2004, 2006 Craig Edwards <craigedwards@brainbox.cc>
+ *   Copyright (C) 2006, 2010 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -29,29 +32,19 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
-class OperChans : public SimpleChannelModeHandler
-{
- public:
-	/* This is an oper-only mode */
-	OperChans(Module* Creator) : SimpleChannelModeHandler(Creator, "operonly", 'O')
-	{
-		oper = true;
-	}
-};
-
 class ModuleOperChans
 	: public Module
 	, public ISupport::EventListener
 {
  private:
-	OperChans oc;
-	std::string space;
-	std::string underscore;
+	SimpleChannelModeHandler oc;
+	const std::string space;
+	const std::string underscore;
 
  public:
 	ModuleOperChans()
 		: ISupport::EventListener(this)
-		, oc(this)
+		, oc(this, "operonly", 'O', true)
 		, space(" ")
 		, underscore("_")
 	{
