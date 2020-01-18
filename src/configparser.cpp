@@ -666,9 +666,10 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if(!readString(key, result))
 		return def;
 
-	if (result == "yes" || result == "true" || result == "1" || result == "on")
+	if (stdalgo::string::equalsci(result, "yes") || stdalgo::string::equalsci(result, "true") || stdalgo::string::equalsci(result, "on") || result == "1")
 		return true;
-	if (result == "no" || result == "false" || result == "0" || result == "off")
+
+	if (stdalgo::string::equalsci(result, "no") || stdalgo::string::equalsci(result, "false") || stdalgo::string::equalsci(result, "off") || result == "0")
 		return false;
 
 	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
