@@ -40,7 +40,7 @@ use make::configure;
 $ENV{INSPIRCD_DEBUG} = 3;
 $ENV{INSPIRCD_VERBOSE} = 1;
 
-system 'git', 'clean', '-dfx';
+execute 'git', 'clean', '-dfx';
 
 my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
 foreach my $compiler (@compilers) {
@@ -57,19 +57,19 @@ foreach my $compiler (@compilers) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
 		my @configure_flags;
 		if (defined $ENV{TEST_BUILD_MODULES}) {
-			system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES};
+			execute './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES};
 			push @configure_flags, '--disable-auto-extras';
 		}
-		if (system './configure', '--development', '--socketengine', $socketengine, @configure_flags) {
+		if (execute './configure', '--development', '--socketengine', $socketengine, @configure_flags) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		if (system 'make', '--jobs', get_cpu_count, 'install') {
+		if (execute 'make', '--jobs', get_cpu_count, 'install') {
 			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
 		say "Building using the $compiler compiler and the $socketengine socket engine succeeded!";
 	}
 
-	system 'git', 'clean', '-dfx';
+	execute 'git', 'clean', '-dfx';
 }

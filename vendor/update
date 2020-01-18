@@ -57,14 +57,14 @@ while (my ($name, $info) = each $data) {
 	my $vendordir = catdir $RealDir, $name;
 	my $success = 0;
 	if (defined $info->{git}) {
-		$success ||= system 'git', 'clone', $info->{git}, $unpackdir;
+		$success ||= execute 'git', 'clone', $info->{git}, $unpackdir;
 		chomp(my $tag = `git -C $unpackdir describe --abbrev=0 --tags HEAD 2>/dev/null`) unless $success;
-		$success ||= system 'git', '-C', $unpackdir, 'checkout', $tag if $tag;
+		$success ||= execute 'git', '-C', $unpackdir, 'checkout', $tag if $tag;
 		chomp($info->{version} = `git -C $unpackdir describe --always --tags HEAD 2>/dev/null`);
 	} elsif (defined $info->{tarball}) {
 		my $tarball = catfile $unpackdir, basename $info->{tarball};
-		$success ||= system 'wget', '--output-document', $tarball, $info->{tarball};
-		$success ||= system 'tar', 'fx', $tarball, '-C', $unpackdir, '--strip-components', 1;
+		$success ||= execute 'wget', '--output-document', $tarball, $info->{tarball};
+		$success ||= execute 'tar', 'fx', $tarball, '-C', $unpackdir, '--strip-components', 1;
 	} else {
 		print_error "unable to update $name; no git or tarball specified!";
 	}

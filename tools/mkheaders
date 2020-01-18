@@ -37,6 +37,7 @@ use List::Util     qw(uniq);
 use POSIX          qw(strftime);
 
 use lib dirname $RealDir;
+use make::common;
 use make::console;
 
 my @ignored_revisions = (
@@ -144,7 +145,7 @@ for my $path (@paths) {
 	}
 }
 
-system 'git', 'commit',
+execute 'git', 'commit',
 	'--author', 'InspIRCd Robot <noreply@inspircd.org>',
 	'--message', 'Update copyright headers.',
 	'--', @updated;
