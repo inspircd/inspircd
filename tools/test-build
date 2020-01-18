@@ -55,8 +55,12 @@ foreach my $compiler (@compilers) {
 	push @socketengines, 'poll' if test_header $compiler, 'poll.h';
 	foreach my $socketengine (@socketengines) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
-		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};
-		if (system './configure', '--development', '--socketengine', $socketengine) {
+		my @configure_flags;
+		if (defined $ENV{TEST_BUILD_MODULES}) {
+			system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES};
+			push @configure_flags, '--disable-auto-extras';
+		}
+		if (system './configure', '--development', '--socketengine', $socketengine, @configure_flags) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
