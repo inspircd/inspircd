@@ -401,10 +401,8 @@ class CommandCap : public SplitCommand
 		if (user->registered != REG_ALL)
 			holdext.set(user, 1);
 
-		std::string subcommand(parameters[0].length(), ' ');
-		std::transform(parameters[0].begin(), parameters[0].end(), subcommand.begin(), ::toupper);
-
-		if (subcommand == "REQ")
+		const std::string& subcommand = parameters[0];
+		if (irc::equals(subcommand, "REQ"))
 		{
 			if (parameters.size() < 2)
 				return CMD_FAILURE;
@@ -412,11 +410,11 @@ class CommandCap : public SplitCommand
 			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
 			DisplayResult2(user, replysubcmd, parameters[1]);
 		}
-		else if (subcommand == "END")
+		else if (irc::equals(subcommand, "END"))
 		{
 			holdext.unset(user);
 		}
-		else if ((subcommand == "LS") || (subcommand == "LIST"))
+		else if (irc::equals(subcommand, "LS") || irc::equals(subcommand, "LIST"))
 		{
 			Cap::Protocol capversion = Cap::CAP_LEGACY;
 			const bool is_ls = (subcommand.length() == 2);
@@ -435,7 +433,7 @@ class CommandCap : public SplitCommand
 			manager.HandleList(result, user, is_ls, ((is_ls) && (capversion != Cap::CAP_LEGACY)));
 			DisplayResult(user, subcommand, result);
 		}
-		else if ((subcommand == "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
+		else if (irc::equals(subcommand, "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
 		{
 			std::string result;
 			manager.HandleClear(user, result);
