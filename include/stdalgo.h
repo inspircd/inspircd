@@ -182,6 +182,17 @@ namespace stdalgo
 		std::for_each(cont.begin(), cont.end(), defaultdeleter<T>());
 	}
 
+	/** Deletes a object and zeroes the memory location that pointed to it.
+	 * @param pr A reference to the pointer that contains the object to delete.
+	 */
+	template<typename T>
+	void delete_zero(T*& pr)
+	{
+		T* p = pr;
+		pr = NULL;
+		delete p;
+	}
+
 	/**
 	 * Remove an element from a container
 	 * @param cont Container to remove the element from

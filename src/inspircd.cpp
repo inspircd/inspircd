@@ -136,15 +136,6 @@ namespace
 #endif
 	}
 
-	// Deletes a pointer and then zeroes it.
-	template<typename T>
-	void DeleteZero(T*& pr)
-	{
-		T* p = pr;
-		pr = NULL;
-		delete p;
-	}
-
 	// Drops to the unprivileged user/group specified in <security:runas{user,group}>.
 	void DropRoot()
 	{
@@ -423,9 +414,9 @@ void InspIRCd::Cleanup()
 		delete FakeClient->server;
 		FakeClient->cull();
 	}
-	DeleteZero(this->FakeClient);
-	DeleteZero(this->XLines);
-	DeleteZero(this->Config);
+	stdalgo::delete_zero(this->FakeClient);
+	stdalgo::delete_zero(this->XLines);
+	stdalgo::delete_zero(this->Config);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
 }
