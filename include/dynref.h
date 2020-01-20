@@ -52,7 +52,7 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 	void SetCaptureHook(CaptureHook* h) { hook = h; }
 
 	void check();
-	operator bool() { return (value != NULL); }
+	operator bool() const { return (value != NULL); }
 	static void reset_all();
 };
 
