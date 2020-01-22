@@ -40,7 +40,7 @@ private:
 			PushParam(rawtarget);
 		}
 		else
-			PushParamRef(target);
+			PushParam(target);
 	}
 
  public:
