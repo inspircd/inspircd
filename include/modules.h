@@ -231,7 +231,7 @@ enum Implementation
 	I_OnPreChangeHost, I_OnPreTopicChange, I_OnConnectionFail,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnPostCommand, I_OnCommandBlocked, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
@@ -738,6 +738,13 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param loop Whether the command is being called from LoopCall or directly.
 	 */
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
+
+	/** Called when a command was blocked before it could be executed.
+	 * @param command The command being executed.
+	 * @param parameters The parameters for the command.
+	 * @param user The user issuing the command.
+	 */
+	virtual void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user);
 
 	/** Called after a user object is initialised and added to the user list.
 	 * When this is called the user has not had their I/O hooks checked or had their initial

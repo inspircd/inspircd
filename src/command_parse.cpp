@@ -190,7 +190,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
+		}
 
 		/*
 		 * This double lookup is in case a module (abbreviation) wishes to change a command.
@@ -204,7 +207,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
+
 			ServerInstance->stats.Unknown++;
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 	}
@@ -244,7 +249,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 	if (MOD_RESULT == MOD_RES_DENY)
+	{
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
+	}
 
 	/* activity resets the ping pending timer */
 	user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
@@ -255,6 +263,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		{
 			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 
@@ -263,6 +272,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
 				user->oper->name.c_str(), command.c_str()));
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 	}
@@ -276,6 +286,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
 			user->WriteNumeric(RPL_SYNTAX, handler->name, handler->syntax);
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
 	}
 
@@ -283,6 +294,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	{
 		user->CommandFloodPenalty += failpenalty;
 		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
 	{
@@ -292,7 +304,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		/* module calls too */
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
+		}
 
 		/*
 		 * WARNING: be careful, the user may be deleted soon

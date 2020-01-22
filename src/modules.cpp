@@ -104,6 +104,7 @@ void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
 void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
 ModResult	Module::OnPreCommand(std::string&, CommandBase::Params&, LocalUser*, bool) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
 void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool) { DetachEvent(I_OnPostCommand); }
+void		Module::OnCommandBlocked(const std::string&, const CommandBase::Params&, LocalUser*) { DetachEvent(I_OnCommandBlocked); }
 void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
 void		Module::OnUserPostInit(LocalUser*) { DetachEvent(I_OnUserPostInit); }
 ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
