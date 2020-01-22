@@ -80,29 +80,28 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * for every parameter or parameter pair until there are no more
 	 * left to parse.
 	 */
+	CommandBase::Params splitparams(parameters);
 	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
 		if ((!check_dupes) || (dupes.insert(item).second))
 		{
-			CommandBase::Params new_parameters(parameters);
-			new_parameters[splithere] = item;
+			splitparams[splithere] = item;
 
 			if (extra >= 0)
 			{
 				// If we have two lists then get the next item from the second list.
 				// In case it runs out of elements then 'item' will be an empty string.
 				items2.GetToken(item);
-				new_parameters[extra] = item;
+				splitparams[extra] = item;
 			}
 
-			CommandBase::Params params(new_parameters, parameters.GetTags());
-			CmdResult result = handler->Handle(user, params);
+			CmdResult result = handler->Handle(user, splitparams);
 			if (localuser)
 			{
 				// Run the OnPostCommand hook with the last parameter being true to indicate
 				// that the event is being called in a loop.
 				item.clear();
-				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, true));
+				FOREACH_MOD(OnPostCommand, (handler, splitparams, localuser, result, true));
 			}
 		}
 	}
