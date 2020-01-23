@@ -154,4 +154,18 @@ class CoreExport MessageTarget
 	{
 		return static_cast<T*>(dest);
 	}
+
+	/** Retrieves the name of the target of this message. */
+	const std::string& GetName() const
+	{
+		switch (type)
+		{
+			case TYPE_CHANNEL:
+				return Get<Channel>()->name;
+			case TYPE_USER:
+				return Get<User>()->nick;
+			case TYPE_SERVER:
+				return *Get<std::string>();
+		}
+	}
 };

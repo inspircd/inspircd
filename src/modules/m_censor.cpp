@@ -52,8 +52,6 @@ class ModuleCensor : public Module
 			return MOD_RES_PASSTHRU;
 
 		int numeric = 0;
-		const char* targetname = NULL;
-
 		switch (target.type)
 		{
 			case MessageTarget::TYPE_USER:
@@ -63,7 +61,6 @@ class ModuleCensor : public Module
 					return MOD_RES_PASSTHRU;
 
 				numeric = ERR_CANTSENDTOUSER;
-				targetname = targuser->nick.c_str();
 				break;
 			}
 
@@ -78,7 +75,6 @@ class ModuleCensor : public Module
 					return MOD_RES_PASSTHRU;
 
 				numeric = ERR_CANNOTSENDTOCHAN;
-				targetname = targchan->name.c_str();
 				break;
 			}
 
@@ -93,7 +89,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(numeric, targetname, "Your message contained a censored word (" + index->first + "), and was blocked");
+					user->WriteNumeric(numeric, target.GetName(), "Your message contained a censored word (" + index->first + "), and was blocked");
 					return MOD_RES_DENY;
 				}
 
