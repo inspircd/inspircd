@@ -437,7 +437,7 @@ class ModuleDCCAllow : public Module
 
 					const std::string type = buf.substr(0, s);
 
-					if (stdalgo::string::equalsci(type, "SEND"))
+					if (irc::equals(type, "SEND"))
 					{
 						size_t first;
 
@@ -489,7 +489,7 @@ class ModuleDCCAllow : public Module
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}
-					else if ((blockchat) && (stdalgo::string::equalsci(type, "CHAT")))
+					else if (blockchat && irc::equals(type, "CHAT"))
 					{
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC CHAT requests from you.");
 						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->GetDisplayedHost() + ") attempted to initiate a DCC CHAT session, which was blocked.");
