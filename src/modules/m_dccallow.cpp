@@ -413,14 +413,16 @@ class ModuleDCCAllow : public Module
 			if (user == u)
 				return MOD_RES_PASSTHRU;
 
-			if ((details.text.length()) && (details.text[0] == '\1'))
+			std::string ctcpname;
+			std::string ctcpbody;
+			if (details.IsCTCP(ctcpname, ctcpbody))
 			{
 				Expire();
 
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 
-				if (strncmp(details.text.c_str(), "\1DCC ", 5) == 0)
+				if (irc::equals(ctcpname, "DCC") && !ctcpbody.empty())
 				{
 					dl = ext.get(u);
 					if (dl && dl->size())
@@ -430,18 +432,17 @@ class ModuleDCCAllow : public Module
 								return MOD_RES_PASSTHRU;
 					}
 
-					std::string buf = details.text.substr(5);
-					size_t s = buf.find(' ');
+					size_t s = ctcpbody.find(' ');
 					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;
 
-					const std::string type = buf.substr(0, s);
+					const std::string type = ctcpbody.substr(0, s);
 
 					if (irc::equals(type, "SEND"))
 					{
 						size_t first;
 
-						buf = buf.substr(s + 1);
+						std::string buf = ctcpbody.substr(s + 1);
 
 						if (!buf.empty() && buf[0] == '"')
 						{
