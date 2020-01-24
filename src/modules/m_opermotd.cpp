@@ -75,7 +75,7 @@ class CommandOpermotd : public Command
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format("- %s", i->c_str()));
+			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format(" %s", i->c_str()));
 		}
 
 		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");

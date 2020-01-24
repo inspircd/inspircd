@@ -60,7 +60,7 @@ class CommandShowFile : public Command
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format("- %s", i->c_str()));
+				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", i->c_str()));
 
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
