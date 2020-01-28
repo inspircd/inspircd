@@ -449,13 +449,31 @@ class CommandCap : public SplitCommand
 	}
 };
 
+class PoisonCap : public Cap::Capability
+{
+ public:
+	PoisonCap(Module* mod)
+		: Cap::Capability(mod, "inspircd.org/poison")
+	{
+	}
+
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		// Reject the attempt to enable this capability.
+		return false;
+	}
+};
+
 class ModuleCap : public Module
 {
+ private:
 	CommandCap cmd;
+	PoisonCap cap;
 
  public:
 	ModuleCap()
 		: cmd(this)
+		, cap(this)
 	{
 	}
 
