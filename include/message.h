@@ -167,5 +167,10 @@ class CoreExport MessageTarget
 			case TYPE_SERVER:
 				return *Get<std::string>();
 		}
+
+		// We should never reach this point during a normal execution but
+		// handle it just in case.
+		static const std::string target = "*";
+		return target;
 	}
 };
