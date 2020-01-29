@@ -289,6 +289,7 @@ class CoreExport Channel : public Extensible
 	 * @param status The minimum status rank to send this message to.
 	 */
 	void WriteNotice(const std::string& text, char status = 0);
+	void WriteRemoteNotice(const std::string& text, char status = 0);
 };
 
 inline bool Channel::HasUser(User* user)

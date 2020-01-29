@@ -104,7 +104,7 @@ class CommandUninvite : public Command
 			user->WriteRemoteNumeric(n);
 
 			lu->WriteNumeric(RPL_UNINVITED, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
-			c->WriteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
+			c->WriteRemoteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
 		}
 
 		return CMD_SUCCESS;

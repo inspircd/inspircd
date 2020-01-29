@@ -137,7 +137,7 @@ class CommandTban : public Command
 		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		channel->WriteNotice(message, pfxchar);
+		channel->WriteRemoteNotice(message, pfxchar);
 		return CMD_SUCCESS;
 	}
 
@@ -228,7 +228,7 @@ class ModuleTimedBans : public Module
 			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-			cr->WriteNotice(message, pfxchar);
+			cr->WriteRemoteNotice(message, pfxchar);
 
 			Modes::ChangeList setban;
 			setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);

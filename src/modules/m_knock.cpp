@@ -84,7 +84,7 @@ class CommandKnock : public Command
 		}
 
 		if (sendnotice)
-			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
+			c->WriteRemoteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
 
 		if (sendnumeric)
 		{

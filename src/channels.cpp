@@ -479,6 +479,11 @@ void Channel::WriteNotice(const std::string& text, char status)
 {
 	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
 	Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+}
+
+void Channel::WriteRemoteNotice(const std::string& text, char status)
+{
+	WriteNotice(text, status);
 	ServerInstance->PI->SendMessage(this, status, text, MSG_NOTICE);
 }
 

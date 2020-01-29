@@ -60,7 +60,7 @@ class CommandOjoin : public SplitCommand
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
-				channel->WriteNotice(user->nick + " joined on official network business.");
+				channel->WriteRemoteNotice(user->nick + " joined on official network business.");
 		}
 		else
 		{
