@@ -30,7 +30,7 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;
-	syntax = "(+|-)<snomasks>";
+	syntax = "(+|-)<snomasks>|*";
 }
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
@@ -69,11 +69,6 @@ std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const
 			ret.push_back(n + 'A');
 	}
 	return ret;
-}
-
-void ModeUserServerNoticeMask::OnParameterMissing(User* user, User* dest, Channel* channel)
-{
-	user->WriteNotice("*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.");
 }
 
 std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input)
