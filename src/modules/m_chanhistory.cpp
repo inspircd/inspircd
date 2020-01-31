@@ -208,7 +208,8 @@ class ModuleChanHistory
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && !details.IsCTCP())
+		std::string ctcpname;
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION")))
 		{
 			Channel* c = target.Get<Channel>();
 			HistoryList* list = m.ext.get(c);
