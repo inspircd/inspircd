@@ -30,13 +30,11 @@
 
 #pragma once
 
+#include "moduledefs.h"
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
 #include "inspsocket.h"
-#include <string>
-#include <deque>
-#include <sstream>
 #include "timer.h"
 #include "mode.h"
 
@@ -100,19 +98,6 @@ struct ModResult {
 		return MOD_RES_ALLOW;
 	}
 };
-
-/** InspIRCd major version.
- * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
- */
-#define INSPIRCD_VERSION_MAJ 300
-
-/** InspIRCd API version.
- * If you change any API elements, increment this value. This counter should be
- * reset whenever the major version is changed. Modules can use these two values
- * and numerical comparisons in preprocessor macros if they wish to support
- * multiple versions of InspIRCd in one file.
- */
-#define INSPIRCD_VERSION_API 9
 
 /**
  * This #define allows us to call a method in all
@@ -1190,24 +1175,3 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 */
 	void DelReferent(ServiceProvider* service);
 };
-
-/** Do not mess with these functions unless you know the C preprocessor
- * well enough to explain why they are needed. The order is important.
- */
-#define MODULE_INIT_STR MODULE_INIT_STR_FN_2(MODULE_INIT_SYM)
-#define MODULE_INIT_STR_FN_2(x) MODULE_INIT_STR_FN_1(x)
-#define MODULE_INIT_STR_FN_1(x) #x
-#define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(INSPIRCD_VERSION_MAJ, INSPIRCD_VERSION_API)
-#define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
-#define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
-
-/** This definition is used as shorthand for the various classes
- * and functions needed to make a module loadable by the OS.
- * It defines the class factory and external init_module function.
- */
-#define MODULE_INIT(y) \
-	extern "C" DllExport Module * MODULE_INIT_SYM() \
-	{ \
-		return new y; \
-	} \
-	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;
