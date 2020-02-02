@@ -14,7 +14,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-          brew update
           brew install pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite3 tre
           brew link --force libpq
           brew link --force mysql-client
