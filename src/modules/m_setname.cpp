@@ -26,45 +26,58 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
+#include "modules/ircv3_replies.h"
 
-
-
-class CommandSetname : public Command
+class CommandSetName : public SplitCommand
 {
+private:
+	IRCv3::Replies::Fail fail;
+
  public:
+	Cap::Capability cap;
 	bool notifyopers;
-	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
+
+	CommandSetName(Module* Creator)
+		: SplitCommand(Creator, "SETNAME", 1, 1)
+		, fail(Creator)
+		, cap(Creator, "setname")
 	{
 		allow_empty_last_param = false;
 		syntax = ":<realname>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
 		{
-			user->WriteNotice("*** SETNAME: Real name is too long");
+			fail.SendIfCap(user, cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CMD_FAILURE;
 		}
 
-		if (user->ChangeRealName(parameters[0]))
+		if (!user->ChangeRealName(parameters[0]))
 		{
-			if (notifyopers)
-				ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'",
-					user->nick.c_str(), parameters[0].c_str());
+			fail.SendIfCap(user, cap, this, "CANNOT_CHANGE_REALNAME", "Unable to change your real name");
+			return CMD_FAILURE;
 		}
 
+		if (notifyopers)
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'",
+				user->nick.c_str(), parameters[0].c_str());
 		return CMD_SUCCESS;
 	}
 };
 
-
 class ModuleSetName : public Module
 {
-	CommandSetname cmd;
+ private:
+	CommandSetName cmd;
+	ClientProtocol::EventProvider setnameevprov;
+
  public:
 	ModuleSetName()
 		: cmd(this)
+		, setnameevprov(this, "SETNAME")
 	{
 	}
 
@@ -78,6 +91,17 @@ class ModuleSetName : public Module
 
 		// Whether a snotice should be sent out when a user changes their real name.
 		cmd.notifyopers = tag->getBool("notifyopers", !operonly);
+	}
+
+	void OnChangeRealName(User* user, const std::string& real) CXX11_OVERRIDE
+	{
+		if (!(user->registered & REG_NICKUSER))
+			return;
+
+		ClientProtocol::Message msg("SETNAME", user);
+		msg.PushParamRef(real);
+		ClientProtocol::Event protoev(setnameevprov, msg);
+		IRCv3::WriteNeighborsWithCap(user, protoev, cmd.cap, true);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
