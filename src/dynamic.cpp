@@ -68,7 +68,7 @@ DLLManager::~DLLManager()
 
 Module* DLLManager::CallInit()
 {
-	const uint32_t* abi = GetSymbol<const uint32_t>(MODULE_STR_ABI);
+	const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
 	if (!abi)
 	{
 		err.assign(libname + " is not a module (no ABI symbol)");
@@ -77,9 +77,9 @@ Module* DLLManager::CallInit()
 	else if (*abi != MODULE_ABI)
 	{
 		const char* version = GetVersion();
-		err.assign(InspIRCd::Format("%s was built against %s which is too %s to use with %s",
-			libname.c_str(), version ? version : "an unknown version",
-			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION));
+		err.assign(InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
+			libname.c_str(), version ? version : "an unknown version", *abi,
+			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
 		return NULL;
 	}
 

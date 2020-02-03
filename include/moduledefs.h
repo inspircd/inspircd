@@ -22,7 +22,7 @@
 class Module;
 
 /** The version of the InspIRCd ABI which is presently in use. */
-#define MODULE_ABI 3010
+#define MODULE_ABI 3010UL
 
 /** Stringifies the value of a symbol. */
 #define MODULE_STRINGIFY_SYM1(DEF) MODULE_STRINGIFY_SYM2(DEF)
@@ -42,6 +42,6 @@ class Module;
 
 /** Defines the interface that a shared library must expose in order to be a module. */
 #define MODULE_INIT(klass) \
-	extern "C" DllExport const uint32_t MODULE_SYM_ABI = MODULE_ABI; \
+	extern "C" DllExport const unsigned long MODULE_SYM_ABI = MODULE_ABI; \
 	extern "C" DllExport const char MODULE_SYM_VERSION[] = INSPIRCD_VERSION; \
 	extern "C" DllExport Module* MODULE_SYM_INIT() { return new klass; }
