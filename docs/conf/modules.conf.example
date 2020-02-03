@@ -177,7 +177,7 @@
 # users that send overly capitalised messages to channels. Unlike the
 # blockcaps module this module is more flexible as it has more options
 # for punishment and allows channels to configure their own punishment
-# policies.
+# policies.
 #<module name="anticaps">
 #
 # You may also configure the characters which anticaps considers to be
@@ -1177,7 +1177,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 client-to-client tags module: Provides the message-tags IRCv3
-# extension which allows clients to add extra data to their messages.
+# extension which allows clients to add extra data to their messages.
 # This is used to support new IRCv3 features such as replies and ids.
 #<module name="ircv3_ctctags">
 
