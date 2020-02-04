@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2017-2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -153,5 +153,24 @@ class CoreExport MessageTarget
 	T* Get() const
 	{
 		return static_cast<T*>(dest);
+	}
+
+	/** Retrieves the name of the target of this message. */
+	const std::string& GetName() const
+	{
+		switch (type)
+		{
+			case TYPE_CHANNEL:
+				return Get<Channel>()->name;
+			case TYPE_USER:
+				return Get<User>()->nick;
+			case TYPE_SERVER:
+				return *Get<std::string>();
+		}
+
+		// We should never reach this point during a normal execution but
+		// handle it just in case.
+		static const std::string target = "*";
+		return target;
 	}
 };

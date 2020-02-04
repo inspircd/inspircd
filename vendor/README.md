@@ -4,11 +4,11 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 ## bcrypt
 
-**Author** &mdash; Solar Designer &lt;solar@openwall.com&gt;
-
-**Last Updated** &mdash; 2018-08-14 (v1.3)
+**Author** &mdash; [Solar Designer](mailto:solar@openwall.com)
 
 **License** &mdash; Public Domain
+
+**Version** &mdash; v1.3
 
 **Website** &mdash; [https://www.openwall.com/crypt/](https://www.openwall.com/crypt/)
 
@@ -16,19 +16,19 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Joyent, Inc. and other Node contributors
 
-**Last Updated** &mdash; 2019-04-25 (v2.9.2)
-
 **License** &mdash; MIT License
+
+**Version** &mdash; v2.9.2
 
 **Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
-## sha256
+## sha2
 
-**Author** &mdash; Olivier Gay &lt;olivier.gay@a3.epfl.ch&gt;
-
-**Last Updated** &mdash; 2018-09-06 (2007-02-02)
+**Author** &mdash; [Olivier Gay](mailto:olivier.gay@a3.epfl.ch)
 
 **License** &mdash; 3-clause BSD License
+
+**Version** &mdash; 2007-02-02
 
 **Website** &mdash; [http://www.ouah.org/ogay/sha2/](http://www.ouah.org/ogay/sha2/)
 
@@ -36,9 +36,9 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Nemanja Trifunovic
 
-**Last Updated** &mdash; 2019-08-02 (v3.1)
-
 **License** &mdash; Boost Software License
+
+**Version** &mdash; v3.1
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
 
@@ -46,8 +46,8 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Author** &mdash; Kubo Takehiro
 
-**Last Updated** &mdash; 2019-12-08 (6ce431085b81d9bb8639ed2f858c4f4fbc3ab988)
-
 **License** &mdash; 2-clause BSD License
+
+**Version** &mdash; 6ce4310
 
 **Website** &mdash; [https://github.com/kubo/ya_getopt](https://github.com/kubo/ya_getopt)

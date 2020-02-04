@@ -26,62 +26,89 @@
 
 
 #include "inspircd.h"
-
 #ifndef _WIN32
-#include <dlfcn.h>
-#else
-#define dlopen(path, state) (void*)LoadLibraryA(path)
-#define dlsym(handle, export) (void*)GetProcAddress((HMODULE)handle, export)
-#define dlclose(handle) FreeLibrary((HMODULE)handle)
+# include <dlfcn.h>
 #endif
 
-DLLManager::DLLManager(const char *fname)
+/** The extension that dynamic libraries end with. */
+#define DLL_EXTENSION ".so"
+
+DLLManager::DLLManager(const std::string& name)
+	: lib(NULL)
+	, libname(name)
 {
-	if (!strstr(fname,".so"))
+	static size_t extlen = strlen(DLL_EXTENSION);
+	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION))
 	{
-		err = "This doesn't look like a module file to me...";
-		h = NULL;
+		err.assign(name + " is not a module (no " DLL_EXTENSION " extension)");
 		return;
 	}
 
-	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
-	if (!h)
-	{
+#ifdef _WIN32
+	lib = LoadLibraryA(name.c_str());
+#else
+	lib = dlopen(name.c_str(), RTLD_NOW|RTLD_LOCAL);
+#endif
+
+	if (!lib)
 		RetrieveLastError();
-	}
 }
 
 DLLManager::~DLLManager()
 {
-	/* close the library */
-	if (h)
-		dlclose(h);
+	if (!lib)
+		return;
+
+#ifdef _WIN32
+	FreeLibrary(lib)
+#else
+	dlclose(lib);
+#endif
 }
 
 Module* DLLManager::CallInit()
 {
+	const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
+	if (!abi)
+	{
+		err.assign(libname + " is not a module (no ABI symbol)");
+		return NULL;
+	}
+	else if (*abi != MODULE_ABI)
+	{
+		const char* version = GetVersion();
+		err.assign(InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
+			libname.c_str(), version ? version : "an unknown version", *abi,
+			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
+		return NULL;
+	}
+
 	union
 	{
 		void* vptr;
 		Module* (*fptr)();
 	};
 
-	vptr = GetSymbol(MODULE_INIT_STR);
+	vptr = GetSymbol(MODULE_STR_INIT);
 	if (!vptr)
+	{
+		err.assign(libname + " is not a module (no init symbol)");
 		return NULL;
+	}
 
 	return (*fptr)();
 }
 
-void* DLLManager::GetSymbol(const char* name)
+void* DLLManager::GetSymbol(const char* name) const
 {
-	return h ? dlsym(h, name) : NULL;
-}
+	if (!lib)
+		return NULL;
 
-std::string DLLManager::GetVersion()
-{
-	const char* srcver = static_cast<const char*>(GetSymbol("inspircd_src_version"));
-	return srcver ? srcver : "";
+#if defined _WIN32
+	return GetProcAddress(lib, name);
+#else
+	return dlsym(lib, name);
+#endif
 }
 
 void DLLManager::RetrieveLastError()

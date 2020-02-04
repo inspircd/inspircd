@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -37,10 +37,15 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
  public:
 	struct Comp
 	{
-		bool operator()(ModuleEventListener* one, ModuleEventListener* two) const;
+		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
 	};
 
-	typedef insp::flat_multiset<ModuleEventListener*, Comp, std::less<ModuleEventListener*> > SubscriberList;
+	struct ElementComp
+	{
+		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
+	};
+
+	typedef insp::flat_multiset<ModuleEventListener*, Comp, ElementComp> SubscriberList;
 
 	/** Constructor
 	 * @param mod Module providing the event(s)
@@ -152,12 +157,22 @@ class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
 	/** Retrieves the module which created this listener. */
 	const Module* GetModule() const { return prov.creator; }
 
-	friend struct ModuleEventProvider::Comp;
+	/** Retrieves the priority of this event. */
+	unsigned int GetPriority() const { return eventpriority; }
 };
 
-inline bool Events::ModuleEventProvider::Comp::operator()(Events::ModuleEventListener* one, Events::ModuleEventListener* two) const
+inline bool Events::ModuleEventProvider::Comp::operator()(Events::ModuleEventListener* lhs, Events::ModuleEventListener* rhs) const
 {
-	return (one->eventpriority < two->eventpriority);
+	return (lhs->GetPriority() < rhs->GetPriority());
+}
+
+inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleEventListener* lhs, Events::ModuleEventListener* rhs) const
+{
+	if (lhs->GetPriority() < rhs->GetPriority())
+		return true;
+	if (lhs->GetPriority() > rhs->GetPriority())
+		return false;
+	return std::less<ModuleEventListener*>()(lhs, rhs);
 }
 
 /**

@@ -30,35 +30,34 @@
  */
 class CoreExport DLLManager : public classbase
 {
- protected:
-	/** The last error string
-	 */
+ private:
+	/** The last error string. */
 	std::string err;
 
-	/** Sets the last error string
-	*/
+	/** The module library handle. */
+#ifdef _WIN32
+	HMODULE lib;
+#else
+	void* lib;
+#endif
+
+	/** The filename of the module library. */
+	const std::string libname;
+
+	/** Sets the last error string. */
 	void RetrieveLastError();
 
  public:
-	/** This constructor loads the module using dlopen()
-	 * @param fname The filename to load. This should be within
-	 * the modules dir.
+	/** Attempts to load the specified module.
+	 * @param name The name of the library to load.
 	 */
-	DLLManager(const char *fname);
-	virtual ~DLLManager();
+	DLLManager(const std::string& name);
 
-	/** Get the last error from dlopen() or dlsym().
-	 */
-	const std::string& LastError()
-	{
-		 return err;
-	}
+	/** Unloads the module if one was loaded. */
+	~DLLManager();
 
-	/** The module library handle.
-	 */
-	void *h;
-
-	/** Return a module by calling the init function
+	/** Attempts to create a new module instance from this shared library.
+	 * @return Either a new instance of the Module class or NULL on error.
 	 */
 	Module* CallInit();
 
@@ -66,8 +65,24 @@ class CoreExport DLLManager : public classbase
 	 * @param name The name of the symbol to retrieve.
 	 * @return Either the value of the specified symbol or or NULL if it does not exist.
 	 */
-	void* GetSymbol(const char* name);
+	void* GetSymbol(const char* name) const;
 
-	/** Get detailed version information from the module file */
-	std::string GetVersion();
+	/** Retrieves the value of the specified symbol and casts it to the requested type.
+	 * @param name The name of the symbol to retrieve.
+	 * @return Either the value of the specified symbol or or NULL if it does not exist.
+	 */
+	template <typename TReturn>
+	TReturn* GetSymbol(const char* name) const
+	{
+		return static_cast<TReturn*>(GetSymbol(name));
+	}
+
+	/** Retrieves the module version from the dynamic library. */
+	const char* GetVersion() const { return GetSymbol<const char>(MODULE_STR_VERSION); }
+
+	/** Retrieves the last error which occurred or an empty string if no errors have occurred. */
+	const std::string& LastError() const { return err; }
+
+	/** Retrieves the filename of the underlying shared library. */
+	const std::string& LibraryName() const { return libname; }
 };

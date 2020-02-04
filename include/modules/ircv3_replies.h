@@ -16,9 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// IMPORTANT: The contents of this file are experimental and are not presently
-// covered by the InspIRCd API stability guarantee.
-
 
 #pragma once
 
@@ -40,7 +37,7 @@ class IRCv3::Replies::Reply
 {
  private:
 	/** The name of the command for this reply. */
-	std::string cmd;
+	const std::string cmd;
 
 	/** The event provider for this reply. */
 	ClientProtocol::EventProvider evprov;

@@ -7,7 +7,7 @@
  *   Copyright (C) 2018 Michael Hazell <michaelhazell@hotmail.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2018-2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2011 Adam <Adam@anope.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -385,7 +385,6 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	if (f)
 	{
 		bool is_selfmsg = false;
-		std::string target;
 		switch (msgtarget.type)
 		{
 			case MessageTarget::TYPE_USER:
@@ -397,8 +396,6 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 				if (user == t)
 					is_selfmsg = true;
-
-				target = t->nick;
 				break;
 			}
 			case MessageTarget::TYPE_CHANNEL:
@@ -406,8 +403,6 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				Channel* t = msgtarget.Get<Channel>();
 				if (exemptedchans.count(t->name))
 					return MOD_RES_PASSTHRU;
-
-				target = t->name;
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:
@@ -423,19 +418,19 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_WARN)
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's message to %s matched %s (%s)",
-				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			return MOD_RES_PASSTHRU;
 		}
 		else if (f->action == FA_BLOCK)
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
-				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
 				else
-					user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
+					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked and opers notified: "+f->reason);
 			}
 			else
 				details.echo_original = true;
@@ -445,9 +440,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, target, InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 				else
-					user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
+					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked: "+f->reason);
 			}
 			else
 				details.echo_original = true;
@@ -455,7 +450,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_KILL)
 		{
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s was killed because their message to %s matched %s (%s)",
-				user->nick.c_str(), target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			ServerInstance->Users.QuitUser(user, "Filtered: " + f->reason);
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
@@ -464,7 +459,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), sh->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(sh, NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -478,7 +473,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -492,7 +487,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				target.c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(zl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -501,7 +496,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				delete zl;
 		}
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + msgtarget.GetName() + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;

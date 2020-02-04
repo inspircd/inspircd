@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-18.04
     env:
-      TEST_BUILD_MODULES: m_geo_maxmind.cpp,m_ldap.cpp,m_mysql.cpp,m_pgsql.cpp,m_regex_pcre.cpp,m_regex_tre.cpp,m_sqlite3.cpp,m_ssl_gnutls.cpp,m_ssl_mbedtls.cpp,m_ssl_openssl.cpp,m_sslrehashsignal.cpp
+      TEST_BUILD_MODULES: geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies

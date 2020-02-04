@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -60,7 +60,7 @@ class CommandShowFile : public Command
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format("- %s", i->c_str()));
+				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", i->c_str()));
 
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());

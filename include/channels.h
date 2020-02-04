@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2013-2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
@@ -289,6 +289,7 @@ class CoreExport Channel : public Extensible
 	 * @param status The minimum status rank to send this message to.
 	 */
 	void WriteNotice(const std::string& text, char status = 0);
+	void WriteRemoteNotice(const std::string& text, char status = 0);
 };
 
 inline bool Channel::HasUser(User* user)

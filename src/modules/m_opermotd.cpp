@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -75,7 +75,7 @@ class CommandOpermotd : public Command
 
 		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format("- %s", i->c_str()));
+			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format(" %s", i->c_str()));
 		}
 
 		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");

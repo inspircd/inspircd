@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Justin Crawford <Justasic@Gmail.com>
@@ -142,7 +142,7 @@ class RemoveBase : public Command
 				/* Build up the part reason string. */
 				reason = "Removed by " + user->nick + ": " + reasonparam;
 
-				channel->WriteNotice(InspIRCd::Format("%s removed %s from the channel", user->nick.c_str(), target->nick.c_str()));
+				channel->WriteRemoteNotice(InspIRCd::Format("%s removed %s from the channel", user->nick.c_str(), target->nick.c_str()));
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
 
 				channel->PartUser(target, reason);

@@ -4,7 +4,7 @@
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2016, 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -137,7 +137,7 @@ class CommandTban : public Command
 		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		channel->WriteNotice(message, pfxchar);
+		channel->WriteRemoteNotice(message, pfxchar);
 		return CMD_SUCCESS;
 	}
 
@@ -228,7 +228,7 @@ class ModuleTimedBans : public Module
 			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-			cr->WriteNotice(message, pfxchar);
+			cr->WriteRemoteNotice(message, pfxchar);
 
 			Modes::ChangeList setban;
 			setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);

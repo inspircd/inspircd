@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2014-2017, 2019 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2014-2017, 2019-2020 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -34,6 +34,7 @@ use File::Spec::Functions qw(rel2abs);
 use make::console;
 
 our @EXPORT = qw(create_directory
+                 execute
                  get_cpu_count
                  get_version
                  read_config_file
@@ -45,6 +46,11 @@ sub create_directory($$) {
 		mkpath($location, 0, $permissions);
 		return 1;
 	} // 0;
+}
+
+sub execute(@) {
+	print_format "<|BOLD \$|> @_\n";
+	return system @_;
 }
 
 sub get_version {

@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -30,13 +30,11 @@
 
 #pragma once
 
+#include "moduledefs.h"
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
 #include "inspsocket.h"
-#include <string>
-#include <deque>
-#include <sstream>
 #include "timer.h"
 #include "mode.h"
 
@@ -100,19 +98,6 @@ struct ModResult {
 		return MOD_RES_ALLOW;
 	}
 };
-
-/** InspIRCd major version.
- * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
- */
-#define INSPIRCD_VERSION_MAJ 400
-
-/** InspIRCd API version.
- * If you change any API elements, increment this value. This counter should be
- * reset whenever the major version is changed. Modules can use these two values
- * and numerical comparisons in preprocessor macros if they wish to support
- * multiple versions of InspIRCd in one file.
- */
-#define INSPIRCD_VERSION_API 0
 
 /**
  * This #define allows us to call a method in all
@@ -231,7 +216,7 @@ enum Implementation
 	I_OnPreChangeHost, I_OnPreTopicChange, I_OnConnectionFail,
 	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
 	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnPostCommand, I_OnCommandBlocked, I_OnPostJoin,
 	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnUserMessage, I_OnPassCompare, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
@@ -733,6 +718,13 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
 
+	/** Called when a command was blocked before it could be executed.
+	 * @param command The command being executed.
+	 * @param parameters The parameters for the command.
+	 * @param user The user issuing the command.
+	 */
+	virtual void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user);
+
 	/** Called after a user object is initialised and added to the user list.
 	 * When this is called the user has not had their I/O hooks checked or had their initial
 	 * connect class assigned and may not yet have a serialiser. You probably want to use
@@ -1177,24 +1169,3 @@ class CoreExport ModuleManager
 	 */
 	void DelReferent(ServiceProvider* service);
 };
-
-/** Do not mess with these functions unless you know the C preprocessor
- * well enough to explain why they are needed. The order is important.
- */
-#define MODULE_INIT_STR MODULE_INIT_STR_FN_2(MODULE_INIT_SYM)
-#define MODULE_INIT_STR_FN_2(x) MODULE_INIT_STR_FN_1(x)
-#define MODULE_INIT_STR_FN_1(x) #x
-#define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(INSPIRCD_VERSION_MAJ, INSPIRCD_VERSION_API)
-#define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
-#define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
-
-/** This definition is used as shorthand for the various classes
- * and functions needed to make a module loadable by the OS.
- * It defines the class factory and external init_module function.
- */
-#define MODULE_INIT(y) \
-	extern "C" DllExport Module * MODULE_INIT_SYM() \
-	{ \
-		return new y; \
-	} \
-	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION;

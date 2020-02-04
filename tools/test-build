@@ -2,7 +2,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2013-2019 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2013-2016, 2018-2020 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -31,7 +31,7 @@ use strict;
 use warnings FATAL => qw(all);
 
 use File::Basename qw(dirname);
-use FindBin qw($RealDir);
+use FindBin        qw($RealDir);
 
 use lib dirname $RealDir;
 use make::common;
@@ -40,7 +40,7 @@ use make::configure;
 $ENV{INSPIRCD_DEBUG} = 3;
 $ENV{INSPIRCD_VERBOSE} = 1;
 
-system 'git', 'clean', '-dfx';
+execute 'git', 'clean', '-dfx';
 
 my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
 foreach my $compiler (@compilers) {
@@ -55,17 +55,21 @@ foreach my $compiler (@compilers) {
 	push @socketengines, 'poll' if test_header $compiler, 'poll.h';
 	foreach my $socketengine (@socketengines) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
-		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};
-		if (system './configure', '--development', '--socketengine', $socketengine) {
+		my @configure_flags;
+		if (defined $ENV{TEST_BUILD_MODULES}) {
+			execute './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES};
+			push @configure_flags, '--disable-auto-extras';
+		}
+		if (execute './configure', '--development', '--socketengine', $socketengine, @configure_flags) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		if (system 'make', '--jobs', get_cpu_count, 'install') {
+		if (execute 'make', '--jobs', get_cpu_count, 'install') {
 			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
 		say "Building using the $compiler compiler and the $socketengine socket engine succeeded!";
 	}
 
-	system 'git', 'clean', '-dfx';
+	execute 'git', 'clean', '-dfx';
 }

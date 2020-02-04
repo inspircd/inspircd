@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -60,7 +60,7 @@ class CommandOjoin : public SplitCommand
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
-				channel->WriteNotice(user->nick + " joined on official network business.");
+				channel->WriteRemoteNotice(user->nick + " joined on official network business.");
 		}
 		else
 		{

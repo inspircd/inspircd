@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2015, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2015, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -279,11 +279,9 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 {
 	if (Utils->AnnounceTSChange)
 	{
-		// WriteNotice is not used here because the message only needs to go to the local server.
-		const std::string tsmessage  = InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
-			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str());
-		ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, chan, tsmessage, MSG_NOTICE);
-		chan->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+		// WriteRemoteNotice is not used here because the message only needs to go to the local server.
+		chan->WriteNotice(InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
+			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str()));
 	}
 
 	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version

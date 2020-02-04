@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2014, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2014, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -80,29 +80,28 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * for every parameter or parameter pair until there are no more
 	 * left to parse.
 	 */
+	CommandBase::Params splitparams(parameters);
 	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
 		if ((!check_dupes) || (dupes.insert(item).second))
 		{
-			CommandBase::Params new_parameters(parameters);
-			new_parameters[splithere] = item;
+			splitparams[splithere] = item;
 
 			if (extra >= 0)
 			{
 				// If we have two lists then get the next item from the second list.
 				// In case it runs out of elements then 'item' will be an empty string.
 				items2.GetToken(item);
-				new_parameters[extra] = item;
+				splitparams[extra] = item;
 			}
 
-			CommandBase::Params params(new_parameters, parameters.GetTags());
-			CmdResult result = handler->Handle(user, params);
+			CmdResult result = handler->Handle(user, splitparams);
 			if (localuser)
 			{
 				// Run the OnPostCommand hook with the last parameter being true to indicate
 				// that the event is being called in a loop.
 				item.clear();
-				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, true));
+				FOREACH_MOD(OnPostCommand, (handler, splitparams, localuser, result, true));
 			}
 		}
 	}
@@ -191,7 +190,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
+		}
 
 		/*
 		 * This double lookup is in case a module (abbreviation) wishes to change a command.
@@ -205,7 +207,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
+
 			ServerInstance->stats.Unknown++;
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 	}
@@ -245,7 +249,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
 	if (MOD_RESULT == MOD_RES_DENY)
+	{
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
+	}
 
 	/* activity resets the ping pending timer */
 	user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
@@ -256,6 +263,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		{
 			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 
@@ -264,6 +272,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			user->CommandFloodPenalty += failpenalty;
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
 				user->oper->name.c_str(), command.c_str()));
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
 	}
@@ -277,6 +286,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
 			user->WriteNumeric(RPL_SYNTAX, handler->name, handler->syntax);
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
 	}
 
@@ -284,6 +294,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	{
 		user->CommandFloodPenalty += failpenalty;
 		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
 	{
@@ -293,7 +304,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		/* module calls too */
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true));
 		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
+		}
 
 		/*
 		 * WARNING: be careful, the user may be deleted soon

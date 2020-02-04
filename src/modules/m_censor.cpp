@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -52,8 +52,6 @@ class ModuleCensor : public Module
 			return MOD_RES_PASSTHRU;
 
 		int numeric = 0;
-		const char* targetname = NULL;
-
 		switch (target.type)
 		{
 			case MessageTarget::TYPE_USER:
@@ -63,7 +61,6 @@ class ModuleCensor : public Module
 					return MOD_RES_PASSTHRU;
 
 				numeric = ERR_CANTSENDTOUSER;
-				targetname = targuser->nick.c_str();
 				break;
 			}
 
@@ -78,7 +75,6 @@ class ModuleCensor : public Module
 					return MOD_RES_PASSTHRU;
 
 				numeric = ERR_CANNOTSENDTOCHAN;
-				targetname = targchan->name.c_str();
 				break;
 			}
 
@@ -93,7 +89,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(numeric, targetname, "Your message contained a censored word (" + index->first + "), and was blocked");
+					user->WriteNumeric(numeric, target.GetName(), "Your message contained a censored word (" + index->first + "), and was blocked");
 					return MOD_RES_DENY;
 				}
 

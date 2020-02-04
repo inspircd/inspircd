@@ -36,7 +36,6 @@
 #ifndef _WIN32
 	#include <unistd.h>
 	#include <sys/resource.h>
-	#include <dlfcn.h>
 	#include <getopt.h>
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
@@ -134,15 +133,6 @@ namespace
 		ServerInstance->stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
 		ServerInstance->stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
 #endif
-	}
-
-	// Deletes a pointer and then zeroes it.
-	template<typename T>
-	void DeleteZero(T*& pr)
-	{
-		T* p = pr;
-		pr = NULL;
-		delete p;
 	}
 
 	// Drops to the unprivileged user/group specified in <security:runas{user,group}>.
@@ -423,9 +413,9 @@ void InspIRCd::Cleanup()
 		delete FakeClient->server;
 		FakeClient->cull();
 	}
-	DeleteZero(this->FakeClient);
-	DeleteZero(this->XLines);
-	DeleteZero(this->Config);
+	stdalgo::delete_zero(this->FakeClient);
+	stdalgo::delete_zero(this->XLines);
+	stdalgo::delete_zero(this->Config);
 	SocketEngine::Deinit();
 	Logs.CloseLogs();
 }
@@ -658,7 +648,7 @@ void InspIRCd::Run()
 			/* Rehash has completed */
 			this->Logs.Log("CONFIG", LOG_DEBUG, "New configuration has been read, applying...");
 			ConfigThread->Stop();
-			DeleteZero(ConfigThread);
+			stdalgo::delete_zero(ConfigThread);
 		}
 
 		UpdateTime();

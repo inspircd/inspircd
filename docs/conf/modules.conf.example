@@ -1135,7 +1135,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 client-to-client tags module: Provides the message-tags IRCv3
-# extension which allows clients to add extra data to their messages.
+# extension which allows clients to add extra data to their messages.
 # This is used to support new IRCv3 features such as replies and ids.
 #<module name="ircv3_ctctags">
 
@@ -1151,6 +1151,12 @@
 # extension which notifies supporting clients when a user invites
 # another user into a channel. This respects <options:announceinvites>.
 #<module name="ircv3_invitenotify">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IRCv3 labeled-response module: Provides the labeled-response IRCv3
+# extension which allows server responses to be associated with the
+# client message which caused them to be sent.
+#<module name="ircv3_labeledresponse">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 message id module: Provides the msgid IRCv3 extension which

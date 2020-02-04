@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013-2014, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -641,9 +641,10 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if(!readString(key, result))
 		return def;
 
-	if (result == "yes" || result == "true" || result == "1" || result == "on")
+	if (stdalgo::string::equalsci(result, "yes") || stdalgo::string::equalsci(result, "true") || stdalgo::string::equalsci(result, "on") || result == "1")
 		return true;
-	if (result == "no" || result == "false" || result == "0" || result == "off")
+
+	if (stdalgo::string::equalsci(result, "no") || stdalgo::string::equalsci(result, "false") || stdalgo::string::equalsci(result, "off") || result == "0")
 		return false;
 
 	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +

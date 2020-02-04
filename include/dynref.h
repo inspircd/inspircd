@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -52,7 +52,7 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 	void SetCaptureHook(CaptureHook* h) { hook = h; }
 
 	void check();
-	operator bool() { return (value != NULL); }
+	operator bool() const { return (value != NULL); }
 	static void reset_all();
 };
 

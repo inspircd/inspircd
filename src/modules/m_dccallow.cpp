@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2016 Adam <Adam@anope.org>
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2014, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -413,14 +413,16 @@ class ModuleDCCAllow : public Module
 			if (user == u)
 				return MOD_RES_PASSTHRU;
 
-			if ((details.text.length()) && (details.text[0] == '\1'))
+			std::string ctcpname;
+			std::string ctcpbody;
+			if (details.IsCTCP(ctcpname, ctcpbody))
 			{
 				Expire();
 
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 
-				if (strncmp(details.text.c_str(), "\1DCC ", 5) == 0)
+				if (irc::equals(ctcpname, "DCC") && !ctcpbody.empty())
 				{
 					dl = ext.get(u);
 					if (dl && dl->size())
@@ -430,18 +432,17 @@ class ModuleDCCAllow : public Module
 								return MOD_RES_PASSTHRU;
 					}
 
-					std::string buf = details.text.substr(5);
-					size_t s = buf.find(' ');
+					size_t s = ctcpbody.find(' ');
 					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;
 
-					const std::string type = buf.substr(0, s);
+					const std::string type = ctcpbody.substr(0, s);
 
-					if (stdalgo::string::equalsci(type, "SEND"))
+					if (irc::equals(type, "SEND"))
 					{
 						size_t first;
 
-						buf = buf.substr(s + 1);
+						std::string buf = ctcpbody.substr(s + 1);
 
 						if (!buf.empty() && buf[0] == '"')
 						{
@@ -489,7 +490,7 @@ class ModuleDCCAllow : public Module
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}
-					else if ((blockchat) && (stdalgo::string::equalsci(type, "CHAT")))
+					else if (blockchat && irc::equals(type, "CHAT"))
 					{
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC CHAT requests from you.");
 						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->GetDisplayedHost() + ") attempted to initiate a DCC CHAT session, which was blocked.");

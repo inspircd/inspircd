@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -104,7 +104,7 @@ class CommandUninvite : public Command
 			user->WriteRemoteNumeric(n);
 
 			lu->WriteNumeric(RPL_UNINVITED, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
-			c->WriteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
+			c->WriteRemoteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
 		}
 
 		return CMD_SUCCESS;

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017, 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -30,7 +30,7 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;
-	syntax = "(+|-)<snomasks>";
+	syntax = "(+|-)<snomasks>|*";
 }
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
@@ -69,11 +69,6 @@ std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const
 			ret.push_back(n + 'A');
 	}
 	return ret;
-}
-
-void ModeUserServerNoticeMask::OnParameterMissing(User* user, User* dest, Channel* channel)
-{
-	user->WriteNotice("*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.");
 }
 
 std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input)
