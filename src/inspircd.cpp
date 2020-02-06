@@ -420,7 +420,7 @@ void InspIRCd::Cleanup()
 	Logs.CloseLogs();
 }
 
-void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
+void InspIRCd::WritePID(bool exitonfail)
 {
 #ifndef _WIN32
 	if (!ServerInstance->Config->cmdline.writepid)
@@ -429,8 +429,8 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 		return;
 	}
 
-	std::string fname = ServerInstance->Config->Paths.PrependData(filename.empty() ? "inspircd.pid" : filename);
-	std::ofstream outfile(fname.c_str());
+	const std::string pidfile = ServerInstance->Config->ConfValue("pid")->getString("file", "inspircd.pid", 1);
+	std::ofstream outfile(ServerInstance->Config->Paths.PrependData(pidfile));
 	if (outfile.is_open())
 	{
 		outfile << getpid();
@@ -439,8 +439,8 @@ void InspIRCd::WritePID(const std::string& filename, bool exitonfail)
 	else
 	{
 		if (exitonfail)
-			std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s'%s", fname.c_str(), (exitonfail ? ", exiting." : ""));
+			std::cout << "Failed to write PID-file '" << pidfile << "', exiting." << std::endl;
+		this->Logs.Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s'%s", pidfile.c_str(), (exitonfail ? ", exiting." : ""));
 		if (exitonfail)
 			Exit(EXIT_STATUS_PID);
 	}
@@ -610,7 +610,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
-	WritePID(Config->PID);
+	WritePID(true);
 	DropRoot();
 
 	Logs.Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());

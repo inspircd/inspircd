@@ -385,11 +385,6 @@ class CoreExport ServerConfig
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;
 
-	/** The full pathname and filename of the PID
-	 * file as defined in the configuration.
-	 */
-	std::string PID;
-
 	/** The connect classes in use by the IRC server.
 	 */
 	ClassVector Classes;

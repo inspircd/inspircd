@@ -383,7 +383,6 @@ void ServerConfig::Fill()
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");
-	PID = ConfValue("pid")->getString("file");
 	c_ipv4_range = ConfValue("cidr")->getUInt("ipv4clone", 32, 1, 32);
 	c_ipv6_range = ConfValue("cidr")->getUInt("ipv6clone", 128, 1, 128);
 	Limits = ServerLimits(ConfValue("limits"));
@@ -489,7 +488,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	// write once here, to try it out and make sure its ok
 	if (valid)
-		ServerInstance->WritePID(this->PID, !old);
+		ServerInstance->WritePID(!old);
 
 	ConfigTagList binds = ConfTags("bind");
 	if (binds.first == binds.second)
