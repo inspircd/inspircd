@@ -41,13 +41,11 @@ void FileReader::Load(const std::string& filename)
 	}
 	else
 	{
-		const std::string realName = ServerInstance->Config->Paths.PrependConfig(filename);
-		lines.clear();
-
-		std::ifstream stream(realName.c_str());
+		std::ifstream stream(ServerInstance->Config->Paths.PrependConfig(filename));
 		if (!stream.is_open())
 			throw CoreException(filename + " does not exist or is not readable!");
 
+		lines.clear();
 		std::string line;
 		while (std::getline(stream, line))
 		{

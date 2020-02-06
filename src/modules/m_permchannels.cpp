@@ -69,7 +69,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 		return true;
 
 	std::string permchannelsnewconf = permchannelsconf + ".tmp";
-	std::ofstream stream(permchannelsnewconf.c_str());
+	std::ofstream stream(permchannelsnewconf);
 	if (!stream.is_open())
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Cannot create database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);

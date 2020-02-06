@@ -104,7 +104,7 @@ class ModuleXLineDB
 		 */
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Opening temporary database");
 		std::string xlinenewdbpath = xlinedbpath + ".new";
-		std::ofstream stream(xlinenewdbpath.c_str());
+		std::ofstream stream(xlinenewdbpath);
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cannot create database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
@@ -173,7 +173,7 @@ class ModuleXLineDB
 		if (!FileSystem::FileExists(xlinedbpath))
 			return true;
 
-		std::ifstream stream(xlinedbpath.c_str());
+		std::ifstream stream(xlinedbpath);
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cannot read database \"%s\"! %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
