@@ -39,12 +39,12 @@ class FModeBuilder : public CmdBuilder
 {
 	static const size_t maxline = 480;
 	std::string params;
-	unsigned int modes;
+	unsigned int modes = 0;
 	std::string::size_type startpos;
 
  public:
 	FModeBuilder(Channel* chan)
-		: CmdBuilder("FMODE"), modes(0)
+		: CmdBuilder("FMODE")
 	{
 		push(chan->name).push_int(chan->age).push_raw(" +");
 		startpos = str().size();

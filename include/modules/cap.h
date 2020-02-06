@@ -130,7 +130,7 @@ namespace Cap
 
 		/** True if the cap is active. Only active caps are registered in the manager.
 		 */
-		bool active;
+		bool active = true;
 
 		/** Reference to the cap manager object
 		 */
@@ -172,7 +172,6 @@ namespace Cap
 		 */
 		Capability(Module* mod, const std::string& Name)
 			: ServiceProvider(mod, Name, SERVICE_CUSTOM)
-			, active(true)
 			, manager(mod, "capmanager")
 		{
 			Unregister();

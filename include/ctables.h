@@ -150,7 +150,7 @@ class CoreExport CommandBase : public ServiceProvider
 
 	/** User flags needed to execute the command or 0
 	 */
-	unsigned char flags_needed;
+	unsigned char flags_needed = 0;
 
 	/** Minimum number of parameters command takes
 	*/
@@ -164,11 +164,11 @@ class CoreExport CommandBase : public ServiceProvider
 
 	/** used by /stats m
 	 */
-	unsigned long use_count;
+	unsigned long use_count = 0;
 
 	/** True if the command can be issued before registering
 	 */
-	bool works_before_reg;
+	bool works_before_reg = false;
 
 	/** True if the command allows an empty last parameter.
 	 * When false and the last parameter is empty, it's popped BEFORE
@@ -177,7 +177,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 * param).
 	 * True by default
 	 */
-	bool allow_empty_last_param;
+	bool allow_empty_last_param = true;
 
 	/** Syntax string for the command, displayed if non-empty string.
 	 * This takes place of the text in the 'not enough parameters' numeric.
@@ -191,7 +191,7 @@ class CoreExport CommandBase : public ServiceProvider
 
 	/** How many seconds worth of penalty does this command have?
 	 */
-	unsigned int Penalty;
+	unsigned int Penalty = 1;
 
 	/** Create a new command.
 	 * @param me The module which created this command.
@@ -227,7 +227,7 @@ class CoreExport Command : public CommandBase
 	/** If true, the command will not be forwarded by the linking module even if it comes via ENCAP.
 	 * Can be used to forward commands before their effects.
 	 */
-	bool force_manual_route;
+	bool force_manual_route = false;
 
 	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 

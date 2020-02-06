@@ -38,11 +38,11 @@ class CoreExport Server : public classbase
 
 	/** True if this server is ulined
 	 */
-	bool uline;
+	bool uline = false;
 
 	/** True if this server is a silent uline, i.e. silent="true" in the uline block
 	 */
-	bool silentuline;
+	bool silentuline =  false;
 
 	/** Allow ConfigReaderThread to update the description on a rehash
 	 */
@@ -53,8 +53,6 @@ class CoreExport Server : public classbase
 		: id(srvid)
 		, name(srvname)
 		, description(srvdesc)
-		, uline(false)
-		, silentuline(false)
 	{
 	}
 

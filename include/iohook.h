@@ -115,7 +115,7 @@ class IOHookMiddle : public IOHook
 
 	/** Next IOHook in the chain
 	 */
-	IOHook* nexthook;
+	IOHook* nexthook = nullptr;
 
  protected:
 	/** Get all queued up data which has not yet been passed up the hook chain
@@ -134,7 +134,6 @@ class IOHookMiddle : public IOHook
 	 */
 	IOHookMiddle(IOHookProvider* provider)
 		: IOHook(provider)
-		, nexthook(NULL)
 	{
 	}
 

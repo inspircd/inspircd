@@ -129,8 +129,6 @@ class CoreExport StreamSocket : public EventHandler
 		 */
 		typedef Container::const_iterator const_iterator;
 
-		SendQueue() : nbytes(0) { }
-
 		/** Return whether the queue is empty
 		 * @return True if the queue is empty, false otherwise
 		 */
@@ -220,7 +218,7 @@ class CoreExport StreamSocket : public EventHandler
 
 		/** Length, in bytes, of the sendq
 		 */
-		size_t nbytes;
+		size_t nbytes = 0;
 	};
 
 	/** The type of socket this IOHook represents. */
@@ -232,13 +230,13 @@ class CoreExport StreamSocket : public EventHandler
 
  private:
 	/** Whether this socket should close once its sendq is empty */
-	bool closeonempty;
+	bool closeonempty = false;
 
 	/** Whether the socket is currently closing or not, used to avoid repeatedly closing a closed socket */
-	bool closing;
+	bool closing = false;
 
 	/** The IOHook that handles raw I/O for this socket, or NULL */
-	IOHook* iohook;
+	IOHook* iohook = nullptr;
 
 	/** Send queue of the socket
 	 */
@@ -290,10 +288,7 @@ class CoreExport StreamSocket : public EventHandler
  public:
 	const Type type;
 	StreamSocket(Type sstype = SS_UNKNOWN)
-		: closeonempty(false)
-		, closing(false)
-		, iohook(NULL)
-		, type(sstype)
+		: type(sstype)
 	{
 	}
 	IOHook* GetIOHook() const;

@@ -80,7 +80,7 @@ struct CoreExport ConnectClass : public refcountbase
 	char type;
 
 	/** True if this class uses fake lag to manage flood, false if it kills */
-	bool fakelag;
+	bool fakelag = true;
 
 	/** Connect class name
 	 */
@@ -88,7 +88,7 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Max time to register the connection in seconds
 	 */
-	unsigned int registration_timeout;
+	unsigned int registration_timeout = 0;
 
 	/** Host mask for this line
 	 */
@@ -96,53 +96,53 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Number of seconds between pings for this line
 	 */
-	unsigned int pingtime;
+	unsigned int pingtime = 0;
 
 	/** Maximum size of sendq for users in this class (bytes)
 	 * Users cannot send commands if they go over this limit
 	 */
-	unsigned long softsendqmax;
+	unsigned long softsendqmax = 0;
 
 	/** Maximum size of sendq for users in this class (bytes)
 	 * Users are killed if they go over this limit
 	 */
-	unsigned long hardsendqmax;
+	unsigned long hardsendqmax = 0;
 
 	/** Maximum size of recvq for users in this class (bytes)
 	 */
-	unsigned long recvqmax;
+	unsigned long recvqmax = 0;
 
 	/** Seconds worth of penalty before penalty system activates
 	 */
-	unsigned int penaltythreshold;
+	unsigned int penaltythreshold = 0;
 
 	/** Maximum rate of commands (units: millicommands per second) */
-	unsigned int commandrate;
+	unsigned int commandrate = 0;
 
 	/** Local max when connecting by this connection class
 	 */
-	unsigned long maxlocal;
+	unsigned long maxlocal = 0;
 
 	/** Global max when connecting by this connection class
 	 */
-	unsigned long maxglobal;
+	unsigned long maxglobal = 0;
 
 	/** True if max connections for this class is hit and a warning is wanted
 	 */
-	bool maxconnwarn;
+	bool maxconnwarn = true;
 
 	/** Max channels for this class
 	 */
-	unsigned int maxchans;
+	unsigned int maxchans = 20;
 
 	/** How many users may be in this connect class before they are refused?
 	 * (0 = no limit = default)
 	 */
-	unsigned long limit;
+	unsigned long limit = 0;
 
 	/** If set to true, no user DNS lookups are to be performed
 	 */
-	bool resolvehostnames;
+	bool resolvehostnames = true;
 
 	/**
 	 * If non-empty the server ports which this user has to be using
@@ -296,7 +296,7 @@ class CoreExport User : public Extensible
 	 * may be different from the time the user's classbase object was
 	 * created.
 	 */
-	time_t signon;
+	time_t signon = 0;
 
 	/** Client address that the user is connected from.
 	 * Do not modify this value directly, use SetClientIP() to change it.
@@ -668,23 +668,23 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
 	/** Serializer to use when communicating with the user
 	 */
-	ClientProtocol::Serializer* serializer;
+	ClientProtocol::Serializer* serializer = nullptr;
 
 	/** Stats counter for bytes inbound
 	 */
-	unsigned int bytes_in;
+	unsigned int bytes_in = 0;
 
 	/** Stats counter for bytes outbound
 	 */
-	unsigned int bytes_out;
+	unsigned int bytes_out = 0;
 
 	/** Stats counter for commands inbound
 	 */
-	unsigned int cmds_in;
+	unsigned int cmds_in = 0;
 
 	/** Stats counter for commands outbound
 	 */
-	unsigned int cmds_out;
+	unsigned int cmds_out = 0;
 
 	/** Password specified by the user when they registered (if any).
 	 * This is stored even if the \<connect> block doesnt need a password, so that
@@ -724,18 +724,18 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	unsigned int exempt:1;
 
 	/** The time at which this user should be pinged next. */
-	time_t nextping;
+	time_t nextping = 0;
 
 	/** Time that the connection last sent a message, used to calculate idle time
 	 */
-	time_t idle_lastmsg;
+	time_t idle_lastmsg = 0;
 
 	/** This value contains how far into the penalty threshold the user is.
 	 * This is used either to enable fake lag or for excess flood quits
 	 */
-	unsigned int CommandFloodPenalty;
+	unsigned int CommandFloodPenalty = 0;
 
-	already_sent_t already_sent;
+	already_sent_t already_sent = 0;
 
 	/** Check if the user matches a G- or K-line, and disconnect them if they do.
 	 * @param doZline True if Z-lines should be checked (if IP has changed since initial connect)

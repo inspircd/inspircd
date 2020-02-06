@@ -35,10 +35,10 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 
  private:
 	std::string name;
-	CaptureHook* hook;
+	CaptureHook* hook = nullptr;
 	void resolve();
  protected:
-	ServiceProvider* value;
+	ServiceProvider* value = nullptr;
  public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);

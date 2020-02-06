@@ -448,12 +448,7 @@ void InspIRCd::WritePID(bool exitonfail)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: FakeClient(NULL)
-	, ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf")
-	, ConfigThread(NULL)
-	, Config(NULL)
-	, XLines(NULL)
-	, PI(&DefaultProtocolInterface)
+	: PI(&DefaultProtocolInterface)
 	, GenRandom(&DefaultGenRandom)
 	, IsChannel(&DefaultIsChannel)
 	, IsNick(&DefaultIsNick)

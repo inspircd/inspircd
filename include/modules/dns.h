@@ -103,23 +103,36 @@ namespace DNS
 
 	struct ResourceRecord : Question
 	{
-		unsigned int ttl;
+		unsigned int ttl = 0;
 		std::string rdata;
 		time_t created;
 
-		ResourceRecord(const std::string& n, QueryType t) : Question(n, t), ttl(0), created(ServerInstance->Time()) { }
-		ResourceRecord(const Question& question) : Question(question), ttl(0), created(ServerInstance->Time()) { }
+		ResourceRecord(const std::string& n, QueryType t)
+			: Question(n, t)
+			, created(ServerInstance->Time())
+		{
+		}
+
+		ResourceRecord(const Question& question)
+			: Question(question)
+			, created(ServerInstance->Time())
+		{
+		}
 	};
 
 	struct Query
 	{
 		Question question;
 		std::vector<ResourceRecord> answers;
-		Error error;
-		bool cached;
+		Error error = ERROR_NONE;
+		bool cached = false;
 
-		Query() : error(ERROR_NONE), cached(false) { }
-		Query(const Question& q) : question(q), error(ERROR_NONE), cached(false) { }
+		Query() = default;
+
+		Query(const Question& q)
+			: question(q)
+		{
+		}
 
 		const ResourceRecord* FindAnswerOfType(QueryType qtype) const
 		{
@@ -161,7 +174,7 @@ namespace DNS
 		/* Use result cache if available */
 		bool use_cache;
 		/* Request id */
-	 	RequestId id;
+	 	RequestId id = 0;
 	 	/* Creator of this request */
 		Module* const creator;
 
@@ -170,7 +183,6 @@ namespace DNS
 			, manager(mgr)
 			, question(addr, qt)
 			, use_cache(usecache)
-			, id(0)
 			, creator(mod)
 		{
 		}

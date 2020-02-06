@@ -480,7 +480,7 @@ class OpenSSLIOHook : public SSLIOHook
  private:
 	SSL* sess;
 	issl_status status;
-	bool data_to_write;
+	bool data_to_write = false;
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
 	int Handshake(StreamSocket* user)
@@ -647,7 +647,6 @@ class OpenSSLIOHook : public SSLIOHook
 		: SSLIOHook(hookprov)
 		, sess(session)
 		, status(ISSL_NONE)
-		, data_to_write(false)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
 		BIO* bio = BIO_new(biomethods);

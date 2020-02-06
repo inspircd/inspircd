@@ -191,7 +191,7 @@ class ModuleFilter
 {
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
-	bool initing;
+	bool initing = true;
 	bool notifyuser;
 	bool warnonselfmsg;
 	RegexFactory* factory;
@@ -348,7 +348,6 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 ModuleFilter::ModuleFilter()
 	: ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
-	, initing(true)
 	, filtcommand(this)
 	, RegexEngine(this, "regex")
 {

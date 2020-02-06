@@ -380,7 +380,7 @@ class CoreExport ServerConfig
 	bool HideBans;
 
 	/** True if raw I/O is being logged */
-	bool RawLog;
+	bool RawLog = false;
 
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;
@@ -455,7 +455,7 @@ class CoreExport ServerConfig
 
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */
-	bool NoSnoticeStack;
+	bool NoSnoticeStack = false;
 };
 
 /** The background thread for config reading, so that reading from executable includes

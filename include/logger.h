@@ -52,7 +52,7 @@ class CoreExport FileWriter
 
 	/** Number of write operations that have occured
 	 */
-	unsigned int writeops;
+	unsigned int writeops = 0;
 
  public:
 	/** The constructor takes an already opened logfile.
@@ -128,7 +128,7 @@ class CoreExport LogManager
  private:
 	/** Lock variable, set to true when a log is in progress, which prevents further loggging from happening and creating a loop.
 	 */
-	bool Logging;
+	bool Logging = false;
 
 	/** Map of active log types and what LogStreams will receive them.
 	 */
@@ -148,7 +148,6 @@ class CoreExport LogManager
 	FileLogMap FileLogs;
 
  public:
-	LogManager();
 	~LogManager();
 
 	/** Adds a FileWriter instance to LogManager, or increments the reference count of an existing instance.

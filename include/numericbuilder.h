@@ -143,7 +143,7 @@ class Numeric::GenericParamBuilder
 {
 	Sink sink;
 	Numeric numeric;
-	std::string::size_type currlen;
+	std::string::size_type currlen = 0;
 	std::string::size_type max;
 
 	bool HasRoom(const std::string::size_type additional) const
@@ -155,7 +155,6 @@ class Numeric::GenericParamBuilder
 	GenericParamBuilder(Sink s, unsigned int num, size_t additionalsize)
 		: sink(s)
 		, numeric(num)
-		, currlen(0)
 		, max(ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - additionalsize - 10)
 	{
 	}

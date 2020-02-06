@@ -42,11 +42,12 @@ class joinfloodsettings
 	unsigned int secs;
 	unsigned int joins;
 	time_t reset;
-	time_t unlocktime;
-	unsigned int counter;
+	time_t unlocktime = 0;
+	unsigned int counter = 0;
 
 	joinfloodsettings(unsigned int b, unsigned int c)
-		: secs(b), joins(c), unlocktime(0), counter(0)
+		: secs(b)
+		, joins(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	}

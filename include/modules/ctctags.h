@@ -80,10 +80,10 @@ class CTCTags::TagMessageDetails
 {
  public:
 	/** Whether to echo the tags at all. */
-	bool echo;
+	bool echo = true;
 
 	/* Whether to send the original tags back to clients with echo-message support. */
-	bool echo_original;
+	bool echo_original = false;
 
 	/** The users who are exempted from receiving this message. */
 	CUList exemptions;
@@ -95,9 +95,7 @@ class CTCTags::TagMessageDetails
 	ClientProtocol::TagMap tags_out;
 
 	TagMessageDetails(const ClientProtocol::TagMap& tags)
-		: echo(true)
-		, echo_original(false)
-		, tags_in(tags)
+		: tags_in(tags)
 	{
 	}
 };

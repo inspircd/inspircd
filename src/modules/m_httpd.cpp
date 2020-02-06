@@ -70,12 +70,12 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	HTTPHeaders headers;
 	std::string body;
 	size_t total_buffers;
-	int status_code;
+	int status_code = 0;
 
 	/** True if this object is in the cull list
 	 */
-	bool waitingcull;
-	bool messagecomplete;
+	bool waitingcull = false;
+	bool messagecomplete = false;
 
 	bool Tick(time_t currtime) override
 	{
@@ -205,9 +205,6 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		: BufferedSocket(newfd)
 		, Timer(timeoutsec)
 		, ip(IP)
-		, status_code(0)
-		, waitingcull(false)
-		, messagecomplete(false)
 	{
 		if ((!via->iohookprovs.empty()) && (via->iohookprovs.back()))
 		{

@@ -121,8 +121,8 @@ class WebSocketHook : public IOHookMiddle
 	// Clients sending ping or pong frames faster than this are killed
 	static const time_t MINPINGPONGDELAY = 10;
 
-	State state;
-	time_t lastpingpong;
+	State state = STATE_HTTPREQ;
+	time_t lastpingpong = 0;
 	WebSocketConfig& config;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
@@ -408,8 +408,6 @@ class WebSocketHook : public IOHookMiddle
  public:
 	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, WebSocketConfig& cfg)
 		: IOHookMiddle(Prov)
-		, state(STATE_HTTPREQ)
-		, lastpingpong(0)
 		, config(cfg)
 	{
 		sock->AddIOHook(this);

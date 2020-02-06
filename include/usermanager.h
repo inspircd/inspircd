@@ -33,9 +33,8 @@ class CoreExport UserManager
  public:
 	struct CloneCounts
 	{
-		unsigned int global;
-		unsigned int local;
-		CloneCounts() : global(0), local(0) { }
+		unsigned int global = 0;
+		unsigned int local = 0;
 	};
 
 	/** Container that maps IP addresses to clone counts

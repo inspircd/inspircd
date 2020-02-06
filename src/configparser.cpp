@@ -43,15 +43,13 @@ struct FilePosition
 	std::string name;
 
 	// The line of the file that this position points to.
-	unsigned int line;
+	unsigned int line = 1;
 
 	// The column of the file that this position points to.
-	unsigned int column;
+	unsigned int column = 1;
 
 	FilePosition(const std::string& Name)
 		: name(Name)
-		, line(1)
-		, column(1)
 	{
 	}
 

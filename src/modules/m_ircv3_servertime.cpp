@@ -28,8 +28,8 @@ class ServerTimeTag
 	, public IRCv3::CapTag<ServerTimeTag>
 	, public ServerProtocol::MessageEventListener
 {
-	time_t lasttime;
-	long lasttimens;
+	time_t lasttime = 0;
+	long lasttimens = 0;
 	std::string lasttimestring;
 
 	void RefreshTimeString()
@@ -53,8 +53,6 @@ class ServerTimeTag
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")
 		, ServerProtocol::MessageEventListener(mod)
-		, lasttime(0)
-		, lasttimens(0)
 	{
 		tagprov = this;
 	}

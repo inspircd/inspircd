@@ -133,12 +133,11 @@ typedef std::deque<ResultQueueItem> ResultQueue;
 class ModuleSQL : public Module
 {
  public:
-	DispatcherThread* Dispatcher;
+	DispatcherThread* Dispatcher = nullptr;
 	QueryQueue qq;       // MUST HOLD MUTEX
 	ResultQueue rq;      // MUST HOLD MUTEX
 	ConnMap connections; // main thread only
 
-	ModuleSQL();
 	void init() override;
 	~ModuleSQL();
 	void ReadConfig(ConfigStatus& status) override;
@@ -163,15 +162,13 @@ class MySQLresult : public SQL::Result
 {
  public:
 	SQL::Error err;
-	int currentrow;
-	int rows;
+	int currentrow = 0;
+	int rows = 0;
 	std::vector<std::string> colnames;
 	std::vector<SQL::Row> fieldlists;
 
 	MySQLresult(MYSQL_RES* res, int affected_rows)
 		: err(SQL::SUCCESS)
-		, currentrow(0)
-		, rows(0)
 	{
 		if (affected_rows >= 1)
 		{
@@ -216,8 +213,6 @@ class MySQLresult : public SQL::Result
 
 	MySQLresult(SQL::Error& e)
 		: err(e)
-		, currentrow(0)
-		, rows(0)
 	{
 
 	}
@@ -301,14 +296,13 @@ class SQLConnection : public SQL::Provider
 
  public:
 	reference<ConfigTag> config;
-	MYSQL *connection;
+	MYSQL* connection = nullptr;
 	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
 	SQLConnection(Module* p, ConfigTag* tag)
 		: SQL::Provider(p, tag->getString("id"))
 		, config(tag)
-		, connection(NULL)
 	{
 	}
 
@@ -438,11 +432,6 @@ class SQLConnection : public SQL::Provider
 		Submit(call, res);
 	}
 };
-
-ModuleSQL::ModuleSQL()
-	: Dispatcher(NULL)
-{
-}
 
 void ModuleSQL::init()
 {

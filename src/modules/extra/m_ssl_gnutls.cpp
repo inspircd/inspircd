@@ -611,10 +611,10 @@ namespace GnuTLS
 class GnuTLSIOHook : public SSLIOHook
 {
  private:
-	gnutls_session_t sess;
-	issl_status status;
+	gnutls_session_t sess = nullptr;
+	issl_status status = ISSL_NONE;
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
-	size_t gbuffersize;
+	size_t gbuffersize = 0;
 #endif
 
 	void CloseSession()
@@ -909,11 +909,6 @@ info_done_dealloc:
  public:
 	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, unsigned int flags)
 		: SSLIOHook(hookprov)
-		, sess(NULL)
-		, status(ISSL_NONE)
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
-		, gbuffersize(0)
-#endif
 	{
 		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));

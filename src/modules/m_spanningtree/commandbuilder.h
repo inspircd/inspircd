@@ -35,7 +35,7 @@ class CmdBuilder
 	ClientProtocol::TagMap tags;
 
 	/** The size of tags within the contents. */
-	size_t tagsize;
+	size_t tagsize = 0;
 
 	/** Fires the ServerProtocol::MessageEventListener::OnBuildMessage event for a server target. */
 	void FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist);
@@ -49,7 +49,6 @@ class CmdBuilder
  public:
 	CmdBuilder(const char* cmd)
 		: content(1, ':')
-		, tagsize(0)
 	{
 		content.append(ServerInstance->Config->GetSID());
 		push(cmd);
@@ -58,7 +57,6 @@ class CmdBuilder
 
 	CmdBuilder(TreeServer* src, const char* cmd)
 		: content(1, ':')
-		, tagsize(0)
 	{
 		content.append(src->GetId());
 		push(cmd);
@@ -67,7 +65,6 @@ class CmdBuilder
 
 	CmdBuilder(User* src, const char* cmd)
 		: content(1, ':')
-		, tagsize(0)
 	{
 		content.append(src->uuid);
 		push(cmd);

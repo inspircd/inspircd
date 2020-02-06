@@ -89,7 +89,7 @@ class CoreExport interfacebase
  */
 class CoreExport refcountbase
 {
-	mutable unsigned int refcount;
+	mutable unsigned int refcount = 0;
  public:
 	refcountbase();
 	virtual ~refcountbase();
@@ -112,9 +112,9 @@ class CoreExport refcountbase
  */
 class CoreExport usecountbase
 {
-	mutable unsigned int usecount;
+	mutable unsigned int usecount = 0;
  public:
-	usecountbase() : usecount(0) { }
+	usecountbase() = default;
 	~usecountbase();
 	inline unsigned int GetUseCount() const { return usecount; }
 	inline void refcount_inc() const { usecount++; }
@@ -128,9 +128,9 @@ class CoreExport usecountbase
 template <typename T>
 class reference
 {
-	T* value;
+	T* value = nullptr;
  public:
-	reference() : value(0) { }
+	reference() = default;
 	reference(T* v) : value(v) { if (value) value->refcount_inc(); }
 	reference(const reference<T>& v) : value(v.value) { if (value) value->refcount_inc(); }
 	reference<T>& operator=(const reference<T>& other)

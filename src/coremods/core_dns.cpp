@@ -226,13 +226,10 @@ class Packet : public Query
 	static const int HEADER_LENGTH = 12;
 
 	/* ID for this packet */
-	RequestId id;
-	/* Flags on the packet */
-	unsigned short flags;
+	RequestId id = 0;
 
-	Packet() : id(0), flags(0)
-	{
-	}
+	/* Flags on the packet */
+	unsigned short flags = 0;
 
 	void Fill(const unsigned char* input, const unsigned short len)
 	{
@@ -348,7 +345,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	cache_map cache;
 
 	irc::sockets::sockaddrs myserver;
-	bool unloading;
+	bool unloading = false;
 
 	/** Maximum number of entries in cache
 	 */
@@ -412,8 +409,9 @@ class MyManager : public Manager, public Timer, public EventHandler
  public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 
-	MyManager(Module* c) : Manager(c), Timer(5*60, true)
-		, unloading(false)
+	MyManager(Module* c)
+		: Manager(c)
+		, Timer(5*60, true)
 	{
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
@@ -764,7 +762,7 @@ class ModuleDNS : public Module
 	MyManager manager;
 	std::string DNSServer;
 	std::string SourceIP;
-	unsigned int SourcePort;
+	unsigned int SourcePort = 0;
 
 	void FindDNSServer()
 	{
@@ -825,8 +823,8 @@ class ModuleDNS : public Module
 	}
 
  public:
-	ModuleDNS() : manager(this)
-		, SourcePort(0)
+	ModuleDNS()
+		: manager(this)
 	{
 	}
 

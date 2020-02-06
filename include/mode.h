@@ -128,7 +128,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * True if the mode requires oper status
 	 * to set.
 	 */
-	bool oper;
+	bool oper = false;
 
 	/**
 	 * Mode is a 'list' mode. The behaviour
@@ -140,7 +140,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * wether your module can produce 'lists' or not
 	 * (e.g. banlists, etc)
 	 */
-	bool list;
+	bool list = false;
 
 	/**
 	 * The mode type, either MODETYPE_USER or
@@ -153,10 +153,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	const Class type_id;
 
 	/** The prefix rank required to set this mode on channels. */
-	unsigned int ranktoset;
+	unsigned int ranktoset = HALFOP_VALUE;
 
 	/** The prefix rank required to unset this mode on channels. */
-	unsigned int ranktounset;
+	unsigned int ranktounset = HALFOP_VALUE;
 
 	/** If non-empty then the syntax of the parameter for this mode. */
 	std::string syntax;
@@ -370,7 +370,7 @@ class CoreExport PrefixMode : public ModeHandler
 	unsigned int prefixrank;
 
 	/** Whether a client with this prefix can remove it from themself. */
-	bool selfremove;
+	bool selfremove = true;
 
  public:
 	/**

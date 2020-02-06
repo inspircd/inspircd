@@ -39,7 +39,7 @@ class Numeric::Numeric
 
 	/** Source server of the numeric, if NULL (the default) then it is the local server
 	 */
-	Server* sourceserver;
+	Server* sourceserver = nullptr;
 
  public:
 	/** Constructor
@@ -47,7 +47,6 @@ class Numeric::Numeric
 	 */
 	Numeric(unsigned int num)
 		: numeric(num)
-		, sourceserver(NULL)
 	{
 	}
 

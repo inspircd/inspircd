@@ -34,7 +34,8 @@ namespace
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
-	: name(cname), age(ts), topicset(0)
+	: name(cname)
+	, age(ts)
 {
 	if (!ServerInstance->chanlist.insert(std::make_pair(cname, this)).second)
 		throw CoreException("Cannot create duplicate channel " + cname);

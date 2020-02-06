@@ -67,15 +67,6 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 
 	typedef iterator const_iterator;
 
-	INSPIRCD_INTRUSIVE_LIST_NAME()
-		: listhead(NULL)
-#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
-		, listtail(NULL)
-#endif
-		, listsize(0)
-	{
-	}
-
 	bool empty() const
 	{
 		return (size() == 0);
@@ -162,11 +153,11 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 	}
 
  private:
-	T* listhead;
+	T* listhead = nullptr;
 #ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
-	T* listtail;
+	T* listtail = nullptr;
 #endif
-	size_t listsize;
+	size_t listsize = 0;
 };
 
 } // namespace insp

@@ -39,7 +39,7 @@ class Snomask
 	 */
 	std::string LastMessage;
 	char LastLetter;
-	unsigned int Count;
+	unsigned int Count = 0;
 
 	/** Log and send a message to all opers who have the given snomask set
 	 * @param letter The target users of this message
@@ -49,10 +49,6 @@ class Snomask
 	static void Send(char letter, const std::string& desc, const std::string& msg);
 
  public:
-	/** Create a new Snomask
-	 */
-	Snomask();
-
 	/** Sends a message to all opers with this snomask.
 	 * @param message The message to send
 	 * @param letter The snomask character to send the message to.

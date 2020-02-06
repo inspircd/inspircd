@@ -36,9 +36,9 @@ class CoreExport DLLManager : public classbase
 
 	/** The module library handle. */
 #ifdef _WIN32
-	HMODULE lib;
+	HMODULE lib = INVALID_HANDLE_VALUE;
 #else
-	void* lib;
+	void* lib = nullptr;
 #endif
 
 	/** The filename of the module library. */

@@ -86,11 +86,6 @@ bool SnomaskManager::IsSnomaskUsable(char ch) const
 	return ((isalpha(ch)) && (!masks[tolower(ch) - 'a'].Description.empty()));
 }
 
-Snomask::Snomask()
-	: Count(0)
-{
-}
-
 void Snomask::SendMessage(const std::string& message, char letter)
 {
 	if ((!ServerInstance->Config->NoSnoticeStack) && (message == LastMessage) && (letter == LastLetter))

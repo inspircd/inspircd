@@ -49,7 +49,7 @@ class callerid_data
  	typedef insp::flat_set<User*> UserSet;
 	typedef std::vector<callerid_data*> CallerIdDataSet;
 
-	time_t lastnotify;
+	time_t lastnotify = 0;
 
 	/** Users I accept messages from
 	 */
@@ -58,8 +58,6 @@ class callerid_data
 	/** Users who list me as accepted
 	 */
 	CallerIdDataSet wholistsme;
-
-	callerid_data() : lastnotify(0) { }
 
 	std::string ToString(bool human) const
 	{

@@ -40,8 +40,9 @@
  * and only do minor initialization tasks ourselves.
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& dest)
-	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
-	, burstsent(false), age(ServerInstance->Time())
+	: linkID(link->Name)
+	, LinkState(CONNECTING)
+	, age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->link = link;
@@ -77,8 +78,9 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockad
  */
 TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd)
-	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
-	, burstsent(false), age(ServerInstance->Time())
+	, linkID("inbound from " + client->addr())
+	, LinkState(WAIT_AUTH_1)
+	, age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;

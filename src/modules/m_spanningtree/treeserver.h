@@ -66,7 +66,7 @@ class TreeServer : public Server
 
 	/** True if this server has been lost in a split and is awaiting destruction
 	 */
-	bool isdead;
+	bool isdead = false;
 
 	/** Timer handling PINGing the server and killing it on timeout
 	 */
@@ -91,7 +91,7 @@ class TreeServer : public Server
 	const time_t age;
 
 	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
-	unsigned int OperCount;			/* How many opers are on this server? */
+	unsigned int OperCount = 0;			/* How many opers are on this server? */
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
@@ -157,11 +157,11 @@ class TreeServer : public Server
 
 	/** Round trip time of last ping
 	 */
-	unsigned long rtt;
+	unsigned long rtt = 0;
 
 	/** When we received BURST from this server, used to calculate total burst time at ENDBURST.
 	 */
-	uint64_t StartBurst;
+	uint64_t StartBurst = 0;
 
 	/** True if this server is hidden
 	 */

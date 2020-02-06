@@ -157,7 +157,7 @@ class ModuleServicesAccount
 	Channel_r chanregmode;
 	User_r userregmode;
 	AccountExtItemImpl accountname;
-	bool checking_ban;
+	bool checking_ban = false;
 
  public:
 	ModuleServicesAccount()
@@ -172,7 +172,6 @@ class ModuleServicesAccount
 		, chanregmode(this)
 		, userregmode(this)
 		, accountname(this)
-		, checking_ban(false)
 	{
 	}
 

@@ -66,8 +66,8 @@ enum ModuleFlags
  * the compiler will inline accesses to have the same efficiency as integer operations.
  */
 struct ModResult {
-	int res;
-	ModResult() : res(0) {}
+	int res = 0;
+	ModResult() = default;
 	explicit ModResult(int r) : res(r) {}
 	inline bool operator==(const ModResult& r) const
 	{
@@ -246,18 +246,12 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Reference to the dlopen() value
 	 */
-	DLLManager* ModuleDLLManager;
+	DLLManager* ModuleDLLManager = nullptr;
 
 	/** If true, this module will be unloaded soon, further unload attempts will fail
 	 * Value is used by the ModuleManager internally, you should not modify it
 	 */
-	bool dying;
-
-	/** Default constructor.
-	 * Creates a module class. Don't do any type of hook registration or checks
-	 * for other modules here; do that in init().
-	 */
-	Module();
+	bool dying = false;
 
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.

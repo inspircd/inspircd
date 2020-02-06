@@ -35,12 +35,8 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
 	, mode(modeletter)
-	, oper(false)
-	, list(false)
 	, m_type(type)
 	, type_id(mclass)
-	, ranktoset(HALFOP_VALUE)
-	, ranktounset(HALFOP_VALUE)
 {
 }
 
@@ -176,7 +172,6 @@ PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
 	, prefix(PrefixChar)
 	, prefixrank(Rank)
-	, selfremove(true)
 {
 	list = true;
 	syntax = "<nick>";

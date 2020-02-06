@@ -27,11 +27,11 @@ class CoreExport FileReader
 	std::vector<std::string> lines;
 
 	/** File size in bytes. */
-	unsigned long totalSize;
+	unsigned long totalSize = 0;
 
  public:
 	/** Initializes a new file reader. */
-	FileReader() : totalSize(0) { }
+	FileReader() = default;
 
 	/** Initializes a new file reader and reads the specified file.
 	 * @param filename The file to read into memory.

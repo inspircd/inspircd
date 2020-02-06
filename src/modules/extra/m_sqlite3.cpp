@@ -49,14 +49,10 @@ typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 class SQLite3Result : public SQL::Result
 {
  public:
-	int currentrow;
-	int rows;
+	int currentrow = 0;
+	int rows = 0;
 	std::vector<std::string> columns;
 	std::vector<SQL::Row> fieldlists;
-
-	SQLite3Result() : currentrow(0), rows(0)
-	{
-	}
 
 	int Rows() override
 	{

@@ -109,45 +109,57 @@ class serverstats
   public:
 	/** Number of accepted connections
 	 */
-	unsigned long Accept;
+	unsigned long Accept = 0;
+
 	/** Number of failed accepts
 	 */
-	unsigned long Refused;
+	unsigned long Refused = 0;
+
 	/** Number of unknown commands seen
 	 */
-	unsigned long Unknown;
+	unsigned long Unknown = 0;
+
 	/** Number of nickname collisions handled
 	 */
-	unsigned long Collisions;
+	unsigned long Collisions = 0;
+
 	/** Number of DNS queries sent out
 	 */
-	unsigned long Dns;
+	unsigned long Dns = 0;
+
 	/** Number of good DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long DnsGood;
+	unsigned long DnsGood = 0;
+
 	/** Number of bad (negative) DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long DnsBad;
+	unsigned long DnsBad = 0;
+
 	/** Number of inbound connections seen
 	 */
-	unsigned long Connects;
+	unsigned long Connects = 0;
+
 	/** Total bytes of data transmitted
 	 */
-	unsigned long Sent;
+	unsigned long Sent = 0;
+
 	/** Total bytes of data received
 	 */
-	unsigned long Recv;
+	unsigned long Recv = 0;
+
 #ifdef _WIN32
 	/** Cpu usage at last sample
 	*/
 	FILETIME LastCPU;
+
 	/** Time QP sample was read
 	*/
 	LARGE_INTEGER LastSampled;
+
 	/** QP frequency
 	*/
 	LARGE_INTEGER QPFrequency;
@@ -155,17 +167,11 @@ class serverstats
 	/** Cpu usage at last sample
 	 */
 	timeval LastCPU;
+ 
 	/** Time last sample was read
 	 */
 	timespec LastSampled;
 #endif
-	/** The constructor initializes all the counts to zero
-	 */
-	serverstats()
-		: Accept(0), Refused(0), Unknown(0), Collisions(0), Dns(0),
-		DnsGood(0), DnsBad(0), Connects(0), Sent(0), Recv(0)
-	{
-	}
 };
 
 /** The main class of the irc server.
@@ -206,7 +212,7 @@ class CoreExport InspIRCd
 	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
 	 * falls into the abyss :p
 	 */
-	FakeUser* FakeClient;
+	FakeUser* FakeClient = nullptr;
 
 	/** Find a user in the UUID hash
 	 * @param uid The UUID to find
@@ -220,7 +226,7 @@ class CoreExport InspIRCd
 
 	/** Config file pathname specified on the commandline or via ./configure
 	 */
-	std::string ConfigFileName;
+	std::string ConfigFileName = INSPIRCD_CONFIG_PATH "/inspircd.conf";
 
 	ExtensionManager Extensions;
 
@@ -234,7 +240,7 @@ class CoreExport InspIRCd
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
-	ConfigReaderThread* ConfigThread;
+	ConfigReaderThread* ConfigThread = nullptr;
 
 	/** LogManager handles logging.
 	 */
@@ -256,7 +262,7 @@ class CoreExport InspIRCd
 
 	/**  Server Config class, holds configuration file data
 	 */
-	ServerConfig* Config;
+	ServerConfig* Config = nullptr;
 
 	/** Snomask manager - handles routing of snomask messages
 	 * to opers.
@@ -269,7 +275,7 @@ class CoreExport InspIRCd
 
 	/** X-line manager. Handles G/K/Q/E-line setting, removal and matching
 	 */
-	XLineManager* XLines;
+	XLineManager* XLines = nullptr;
 
 	/** User manager. Various methods and data associated with users.
 	 */

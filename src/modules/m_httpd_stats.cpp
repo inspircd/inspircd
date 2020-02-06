@@ -408,14 +408,13 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
  private:
 	HTTPdAPI API;
 	ISupport::EventProvider isupportevprov;
-	bool enableparams;
+	bool enableparams = false;
 
  public:
 	ModuleHttpStats()
 		: HTTPRequestEventListener(this)
 		, API(this)
 		, isupportevprov(this)
-		, enableparams(false)
 	{
 		isevprov = &isupportevprov;
 	}

@@ -27,7 +27,7 @@ class CommandMode : public Command
 {
  private:
 	unsigned int sent[256];
-	unsigned int seq;
+	unsigned int seq = 0;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 
@@ -74,7 +74,6 @@ class CommandMode : public Command
 
 CommandMode::CommandMode(Module* parent)
 	: Command(parent, "MODE", 1)
-	, seq(0)
 	, secretmode(creator, "secret")
 	, privatemode(creator, "private")
 {

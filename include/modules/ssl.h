@@ -45,9 +45,10 @@ class ssl_cert : public refcountbase
 	std::string issuer;
 	std::string error;
 	std::string fingerprint;
-	bool trusted, invalid, unknownsigner, revoked;
-
-	ssl_cert() : trusted(false), invalid(true), unknownsigner(true), revoked(false) {}
+	bool trusted = false;
+	bool invalid = true;
+	bool unknownsigner = true;
+	bool revoked = false;
 
 	/** Get certificate distinguished name
 	 * @return Certificate DN

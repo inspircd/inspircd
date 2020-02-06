@@ -50,13 +50,12 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 class ModuleChannelNames : public Module
 {
 	std::function<bool(const std::string&)> rememberer;
-	bool badchan;
+	bool badchan = false;
 	ChanModeReference permchannelmode;
 
  public:
 	ModuleChannelNames()
 		: rememberer(ServerInstance->IsChannel)
-		, badchan(false)
 		, permchannelmode(this, "permanent")
 	{
 	}

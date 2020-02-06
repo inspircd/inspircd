@@ -135,10 +135,6 @@ namespace WhoWas
 		 */
 		bool IsEnabled() const;
 
-		/** Constructor
-		 */
-		Manager();
-
 		/** Destructor
 		 */
 		~Manager();
@@ -162,16 +158,16 @@ namespace WhoWas
 
 		/** Max number of WhoWas entries per user.
 		 */
-		unsigned int GroupSize;
+		unsigned int GroupSize = 0;
 
 		/** Max number of cumulative user-entries in WhoWas.
 		 * When max reached and added to, push out oldest entry FIFO style.
 		 */
-		unsigned int MaxGroups;
+		unsigned int MaxGroups = 0;
 
 		/** Max seconds a user is kept in WhoWas before being pruned.
 		 */
-		unsigned int MaxKeep;
+		unsigned int MaxKeep = 0;
 
 		/** Shrink all data structures to honor the current settings
 		 */

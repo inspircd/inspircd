@@ -169,16 +169,14 @@ class ModulePermanentChannels
 
 {
 	PermChannel p;
-	bool dirty;
-	bool loaded;
+	bool dirty = false;
+	bool loaded = false;
 	bool save_listmodes;
 public:
 
 	ModulePermanentChannels()
 		: Timer(0, true)
 		, p(this)
-		, dirty(false)
-		, loaded(false)
 	{
 	}
 

@@ -50,14 +50,13 @@ class MsgIdTag : public ClientProtocol::MessageTagProvider
 
 class MsgIdGenerator
 {
-	uint64_t counter;
+	uint64_t counter = 0;
 	std::string strid;
 	const std::string::size_type baselen;
 
  public:
 	MsgIdGenerator()
-		: counter(0)
-		, strid(InspIRCd::Format("%s~%lu~", ServerInstance->Config->GetSID().c_str(), ServerInstance->startup_time))
+		: strid(InspIRCd::Format("%s~%lu~", ServerInstance->Config->GetSID().c_str(), ServerInstance->startup_time))
 		, baselen(strid.length())
 	{
 	}

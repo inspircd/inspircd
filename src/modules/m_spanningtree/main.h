@@ -94,7 +94,7 @@ class ModuleSpanningTree
 
 	/** Next membership id assigned when a local user joins a channel
 	 */
-	Membership::Id currmembid;
+	Membership::Id currmembid = 0;
 
 	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
 	 */
@@ -129,7 +129,7 @@ class ModuleSpanningTree
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source
 	 */
-	bool loopCall;
+	bool loopCall = false;
 
 	/** Constructor
 	 */

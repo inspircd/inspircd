@@ -170,7 +170,6 @@ void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value)
 Invite::Invite::Invite(LocalUser* u, Channel* c)
 	: user(u)
 	, chan(c)
-	, expiretimer(NULL)
 {
 }
 

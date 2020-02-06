@@ -32,8 +32,8 @@ template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_lis
 template <typename T, typename Tag = intrusive_list_def_tag>
 class intrusive_list_node
 {
-	T* ptr_next;
-	T* ptr_prev;
+	T* ptr_next = nullptr;
+	T* ptr_prev = nullptr;
 
 	void unlink()
 	{
@@ -45,12 +45,6 @@ class intrusive_list_node
 	}
 
  public:
-	intrusive_list_node()
-		: ptr_next(NULL)
-		, ptr_prev(NULL)
-	{
-	}
-
 	friend class intrusive_list<T, Tag>;
 	friend class intrusive_list_tail<T, Tag>;
 };

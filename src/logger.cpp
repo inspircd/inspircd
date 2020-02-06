@@ -58,11 +58,6 @@
 const char LogStream::LogHeader[] =
 	"Log started for " INSPIRCD_VERSION;
 
-LogManager::LogManager()
-	: Logging(false)
-{
-}
-
 LogManager::~LogManager()
 {
 }
@@ -317,7 +312,6 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 FileWriter::FileWriter(FILE* logfile, unsigned int flushcount)
 	: log(logfile)
 	, flush(flushcount)
-	, writeops(0)
 {
 }
 

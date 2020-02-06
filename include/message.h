@@ -34,10 +34,10 @@ class CoreExport MessageDetails
 {
  public:
 	/** Whether to echo the message at all. */
-	bool echo;
+	bool echo = true;
 
 	/* Whether to send the original message back to clients with echo-message support. */
-	bool echo_original;
+	bool echo_original = false;
 
 	 /** The users who are exempted from receiving this message. */
 	CUList exemptions;
@@ -76,9 +76,7 @@ class CoreExport MessageDetails
 
  protected:
 	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
-		: echo(true)
-		, echo_original(false)
-		, original_text(msg)
+		: original_text(msg)
 		, tags_in(tags)
 		, text(msg)
 		, type(mt)
@@ -109,7 +107,7 @@ class CoreExport MessageTarget
 
  public:
 	/** If type is TYPE_CHANNEL and the user specified a status rank. */
-	char status;
+	char status = 0;
 
 	/** The type of the target of the message. If this is TYPE_CHANNEL then dest
 	 * is a Channel*, TYPE_USER then dest is a User*, and TYPE_SERVER then dest is
@@ -133,7 +131,6 @@ class CoreExport MessageTarget
 	 */
 	MessageTarget(User* user)
 		: dest(user)
-		, status(0)
 		, type(TYPE_USER)
 	{
 	}
@@ -143,7 +140,6 @@ class CoreExport MessageTarget
 	 */
 	MessageTarget(std::string* server)
 		: dest(server)
-		, status(0)
 		, type(TYPE_SERVER)
 	{
 	}

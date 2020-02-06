@@ -92,8 +92,8 @@ struct QueueItem
 class PgSQLresult : public SQL::Result
 {
 	PGresult* res;
-	int currentrow;
-	int rows;
+	int currentrow = 0;
+	int rows = 0;
 	std::vector<std::string> colnames;
 
 	void getColNames()
@@ -105,7 +105,8 @@ class PgSQLresult : public SQL::Result
 		}
 	}
  public:
-	PgSQLresult(PGresult* result) : res(result), currentrow(0)
+	PgSQLresult(PGresult* result)
+		: res(result)
 	{
 		rows = PQntuples(res);
 		if (!rows)
@@ -177,15 +178,13 @@ class SQLConn : public SQL::Provider, public EventHandler
  public:
 	reference<ConfigTag> conf;	/* The <database> entry */
 	std::deque<QueueItem> queue;
-	PGconn* 		sql;		/* PgSQL database connection handle */
-	SQLstatus		status;		/* PgSQL database connection status */
+	PGconn* 		sql = nullptr; /* PgSQL database connection handle */
+	SQLstatus		status = CWRITE; /* PgSQL database connection status */
 	QueueItem		qinprog;	/* If there is currently a query in progress */
 
 	SQLConn(Module* Creator, ConfigTag* tag)
 		: SQL::Provider(Creator, tag->getString("id"))
 		, conf(tag)
-		, sql(NULL)
-		, status(CWRITE)
 		, qinprog(NULL, "")
 	{
 		if (!DoConnect())
@@ -536,12 +535,7 @@ class ModulePgSQL : public Module
 {
  public:
 	ConnMap connections;
-	ReconnectTimer* retimer;
-
-	ModulePgSQL()
-		: retimer(NULL)
-	{
-	}
+	ReconnectTimer* retimer = nullptr;
 
 	~ModulePgSQL()
 	{

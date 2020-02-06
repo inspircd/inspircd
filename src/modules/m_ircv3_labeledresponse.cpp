@@ -27,14 +27,13 @@ class LabeledResponseTag : public ClientProtocol::MessageTagProvider
 	const Cap::Capability& cap;
 
  public:
-	LocalUser* labeluser;
+	LocalUser* labeluser = nullptr;
 	std::string label;
 	const std::string labeltag;
 
 	LabeledResponseTag(Module* mod, const Cap::Capability& capref)
 		: ClientProtocol::MessageTagProvider(mod)
 		, cap(capref)
-		, labeluser(NULL)
 		, labeltag("label")
 	{
 	}
@@ -76,7 +75,7 @@ class ModuleIRCv3LabeledResponse : public Module
 	ClientProtocol::EventProvider ackmsgprov;
 	ClientProtocol::EventProvider labelmsgprov;
 	insp::aligned_storage<ClientProtocol::Message> firstmsg;
-	size_t msgcount;
+	size_t msgcount = 0;
 
 	void FlushFirstMsg(LocalUser* user)
 	{
@@ -95,8 +94,6 @@ class ModuleIRCv3LabeledResponse : public Module
 		, batchcap(this)
 		, ackmsgprov(this, "ACK")
 		, labelmsgprov(this, "labeled")
-		, msgcount(0)
-
 	{
 	}
 

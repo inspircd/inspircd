@@ -36,10 +36,10 @@
 class HideOper : public SimpleUserModeHandler
 {
  public:
-	size_t opercount;
+	size_t opercount = 0;
 
-	HideOper(Module* Creator) : SimpleUserModeHandler(Creator, "hideoper", 'H')
-		, opercount(0)
+	HideOper(Module* Creator)
+		: SimpleUserModeHandler(Creator, "hideoper", 'H')
 	{
 		oper = true;
 	}
@@ -66,7 +66,7 @@ class ModuleHideOper
 {
  private:
 	HideOper hm;
-	bool active;
+	bool active = false;
 
  public:
 	ModuleHideOper()
@@ -74,7 +74,6 @@ class ModuleHideOper
 		, Who::EventListener(this)
 		, Whois::LineEventListener(this)
 		, hm(this)
-		, active(false)
 	{
 	}
 

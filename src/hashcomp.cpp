@@ -164,7 +164,6 @@ size_t irc::insensitive::operator()(const std::string &s) const
 
 irc::tokenstream::tokenstream(const std::string& msg, size_t start, size_t end)
 	: message(msg, start, end)
-	, position(0)
 {
 }
 
@@ -213,7 +212,9 @@ bool irc::tokenstream::GetTrailing(std::string& token)
 }
 
 irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
-	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
+	: tokens(source)
+	, sep(separator)
+	, allow_empty(allowempty)
 {
 }
 

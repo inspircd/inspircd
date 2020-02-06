@@ -55,7 +55,7 @@ class Who::Request
 	std::bitset<UCHAR_MAX> flags;
 
 	/** Whether we are matching using a wildcard or a flag. */
-	bool fuzzy_match;
+	bool fuzzy_match = false;
 
 	/** The text to match against. */
 	std::string matchtext;
@@ -64,7 +64,7 @@ class Who::Request
 	std::vector<Numeric::Numeric> results;
 
 	/** Whether the source requested a WHOX response. */
-	bool whox;
+	bool whox = false;
 
 	/** The fields to include in the WHOX response. */
 	std::bitset<UCHAR_MAX> whox_fields;
@@ -84,9 +84,5 @@ class Who::Request
 	virtual bool GetFieldIndex(char flag, size_t& out) const = 0;
 
  protected:
-	Request()
-		: fuzzy_match(false)
-		, whox(false)
-	{
-	}
+	Request() = default;
 };

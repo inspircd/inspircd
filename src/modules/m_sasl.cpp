@@ -174,9 +174,9 @@ class SaslAuthenticator
  private:
 	std::string agent;
 	LocalUser* user;
-	SaslState state;
+	SaslState state = SASL_INIT;
 	SaslResult result;
-	bool state_announced;
+	bool state_announced = false;
 
 	void SendHostIP(UserCertificateAPI& sslapi)
 	{
@@ -191,8 +191,6 @@ class SaslAuthenticator
  public:
 	SaslAuthenticator(LocalUser* user_, const std::string& method, UserCertificateAPI& sslapi)
 		: user(user_)
-		, state(SASL_INIT)
-		, state_announced(false)
 	{
 		SendHostIP(sslapi);
 

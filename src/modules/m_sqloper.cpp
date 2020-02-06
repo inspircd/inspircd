@@ -164,7 +164,7 @@ class OperQuery : public SQL::Query
 class ModuleSQLOper : public Module
 {
 	// Whether OperQuery is running
-	bool active;
+	bool active = false;
 	std::string query;
 	// Stores oper blocks from DB
 	std::vector<std::string> my_blocks;
@@ -172,8 +172,7 @@ class ModuleSQLOper : public Module
 
 public:
 	ModuleSQLOper()
-		: active(false)
-		, SQL(this, "SQL")
+		: SQL(this, "SQL")
 	{
 	}
 

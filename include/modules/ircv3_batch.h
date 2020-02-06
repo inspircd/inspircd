@@ -83,14 +83,14 @@ class IRCv3::Batch::Manager : public DataProvider, public ClientProtocol::Messag
  */
 class IRCv3::Batch::Batch
 {
-	Manager* manager;
+	Manager* manager = nullptr;
 	const std::string type;
 	RefTag reftag;
 	std::string reftagstr;
 	unsigned int bit;
-	BatchInfo* batchinfo;
-	ClientProtocol::Message* batchstartmsg;
-	ClientProtocol::Message* batchendmsg;
+	BatchInfo* batchinfo = nullptr;
+	ClientProtocol::Message* batchstartmsg = nullptr;
+	ClientProtocol::Message* batchendmsg = nullptr;
 
 	void Setup(unsigned int b)
 	{
@@ -108,10 +108,7 @@ class IRCv3::Batch::Batch
 	 * @param Type Batch type string, used to indicate what kind of grouping the batch does. May be empty.
 	 */
 	Batch(const std::string& Type)
-		: manager(NULL)
-		, type(Type)
-		, batchinfo(NULL)
-		, batchstartmsg(NULL)
+		: type(Type)
 	{
 	}
 

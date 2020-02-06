@@ -79,18 +79,16 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	struct MemberInfo
 	{
 		RepeatItemList ItemList;
-		unsigned int Counter;
-		MemberInfo() : Counter(0) {}
+		unsigned int Counter = 0;
 	};
 
 	struct ModuleSettings
 	{
-		unsigned int MaxLines;
-		unsigned int MaxSecs;
-		unsigned int MaxBacklog;
-		unsigned int MaxDiff;
-		unsigned int MaxMessageSize;
-		ModuleSettings() : MaxLines(0), MaxSecs(0), MaxBacklog(0), MaxDiff() { }
+		unsigned int MaxLines = 0;
+		unsigned int MaxSecs = 0;
+		unsigned int MaxBacklog = 0;
+		unsigned int MaxDiff = 0;
+		unsigned int MaxMessageSize = 0;
 	};
 
 	std::vector<unsigned int> mx[2];

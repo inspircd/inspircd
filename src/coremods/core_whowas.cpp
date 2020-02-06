@@ -81,11 +81,6 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	return CMD_SUCCESS;
 }
 
-WhoWas::Manager::Manager()
-	: GroupSize(0), MaxGroups(0), MaxKeep(0)
-{
-}
-
 const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 {
 	whowas_users::const_iterator it = whowas.find(nickname);

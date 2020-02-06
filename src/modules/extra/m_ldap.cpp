@@ -54,16 +54,14 @@ class LDAPRequest
  public:
 	LDAPService* service;
 	LDAPInterface* inter;
-	LDAPMessage* message; /* message returned by ldap_ */
-	LDAPResult* result; /* final result */
+	LDAPMessage* message = nullptr; /* message returned by ldap_ */
+	LDAPResult* result = nullptr; /* final result */
 	struct timeval tv;
 	QueryType type;
 
 	LDAPRequest(LDAPService* s, LDAPInterface* i)
 		: service(s)
 		, inter(i)
-		, message(NULL)
-		, result(NULL)
 	{
 		type = QUERY_UNKNOWN;
 		tv.tv_sec = 0;
@@ -183,9 +181,9 @@ class LDAPCompare : public LDAPRequest
 
 class LDAPService : public LDAPProvider, public SocketThread
 {
-	LDAP* con;
+	LDAP* con = nullptr;
 	reference<ConfigTag> config;
-	time_t last_connect;
+	time_t last_connect = 0;
 	int searchscope;
 	time_t timeout;
 
@@ -275,7 +273,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 	LDAPService(Module* c, ConfigTag* tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
-		, con(NULL), config(tag), last_connect(0)
+		, config(tag)
 	{
 		std::string scope = config->getString("searchscope");
 		if (stdalgo::string::equalsci(scope, "base"))

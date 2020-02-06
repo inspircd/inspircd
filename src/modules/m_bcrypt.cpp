@@ -42,7 +42,7 @@ class BCryptProvider : public HashProvider
 	}
 
  public:
-	unsigned int rounds;
+	unsigned int rounds = 10;
 
 	std::string Generate(const std::string& data, const std::string& salt)
 	{
@@ -74,7 +74,6 @@ class BCryptProvider : public HashProvider
 
 	BCryptProvider(Module* parent)
 		: HashProvider(parent, "bcrypt", 60)
-		, rounds(10)
 	{
 	}
 };

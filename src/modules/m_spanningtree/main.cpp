@@ -47,7 +47,6 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, rsquit(this)
 	, map(this)
 	, commands(this)
-	, currmembid(0)
 	, broadcasteventprov(this, "event/server-broadcast")
 	, linkeventprov(this, "event/server-link")
 	, messageeventprov(this, "event/server-message")
@@ -56,7 +55,6 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, servicetag(this)
 	, DNS(this, "DNS")
 	, tagevprov(this)
-	, loopCall(false)
 {
 }
 

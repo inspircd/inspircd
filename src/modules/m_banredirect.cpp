@@ -248,14 +248,13 @@ class BanRedirect : public ModeWatcher
 class ModuleBanRedirect : public Module
 {
 	BanRedirect re;
-	bool nofollow;
+	bool nofollow = false;
 	ChanModeReference limitmode;
 	ChanModeReference redirectmode;
 
  public:
 	ModuleBanRedirect()
 		: re(this)
-		, nofollow(false)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")
 	{

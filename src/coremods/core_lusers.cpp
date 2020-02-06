@@ -29,12 +29,11 @@ struct LusersCounters
 {
 	unsigned int max_local;
 	unsigned int max_global;
-	unsigned int invisible;
+	unsigned int invisible = 0;
 
 	LusersCounters(UserModeReference& invisiblemode)
 		: max_local(ServerInstance->Users.LocalUserCount())
 		, max_global(ServerInstance->Users.RegisteredUserCount())
-		, invisible(0)
 	{
 		const user_hash& users = ServerInstance->Users.GetUsers();
 		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)

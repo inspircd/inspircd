@@ -232,20 +232,15 @@ class CoreExport SocketEngine
 	 */
 	class Statistics
 	{
-		mutable size_t indata;
-		mutable size_t outdata;
-		mutable time_t lastempty;
+		mutable size_t indata = 0;
+		mutable size_t outdata = 0;
+		mutable time_t lastempty = 0;
 
 		/** Reset the byte counters and lastempty if there wasn't a reset in this second.
 		 */
 		void CheckFlush() const;
 
 	 public:
-		/** Constructor, initializes member vars except indata and outdata because those are set to 0
-		 * in CheckFlush() the first time Update() or GetBandwidth() is called.
-		 */
-		Statistics() : lastempty(0), TotalEvents(0), ReadEvents(0), WriteEvents(0), ErrorEvents(0) { }
-
 		/** Update counters for network data received.
 		 * This should be called after every read-type syscall.
 		 * @param len_in Number of bytes received, or -1 for error, as typically
@@ -267,10 +262,10 @@ class CoreExport SocketEngine
 		 */
 		void CoreExport GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const;
 
-		unsigned long TotalEvents;
-		unsigned long ReadEvents;
-		unsigned long WriteEvents;
-		unsigned long ErrorEvents;
+		unsigned long TotalEvents = 0;
+		unsigned long ReadEvents = 0;
+		unsigned long WriteEvents = 0;
+		unsigned long ErrorEvents = 0;
 	};
 
  private:

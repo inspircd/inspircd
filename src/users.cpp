@@ -79,7 +79,6 @@ std::string User::GetModeLetters(bool includeparams) const
 
 User::User(const std::string& uid, Server* srv, UserType type)
 	: age(ServerInstance->Time())
-	, signon(0)
 	, uuid(uid)
 	, server(srv)
 	, registered(REG_NONE)
@@ -104,18 +103,9 @@ User::User(const std::string& uid, Server* srv, UserType type)
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
-	, serializer(NULL)
-	, bytes_in(0)
-	, bytes_out(0)
-	, cmds_in(0)
-	, cmds_out(0)
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
-	, nextping(0)
-	, idle_lastmsg(0)
-	, CommandFloodPenalty(0)
-	, already_sent(0)
 {
 	signon = ServerInstance->Time();
 	// The user's default nick is their UUID
@@ -130,7 +120,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
 	: User(uid, ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
-	, already_sent(0)
 {
 	eh.SetFd(myfd);
 	Deserialize(data);
@@ -1217,22 +1206,8 @@ const std::string& FakeUser::GetFullRealHost()
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag)
 	, type(t)
-	, fakelag(true)
 	, name("unnamed")
-	, registration_timeout(0)
 	, host(mask)
-	, pingtime(0)
-	, softsendqmax(0)
-	, hardsendqmax(0)
-	, recvqmax(0)
-	, penaltythreshold(0)
-	, commandrate(0)
-	, maxlocal(0)
-	, maxglobal(0)
-	, maxconnwarn(true)
-	, maxchans(20)
-	, limit(0)
-	, resolvehostnames(true)
 {
 }
 

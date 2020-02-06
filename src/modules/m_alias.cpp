@@ -77,7 +77,7 @@ class ModuleAlias : public Module
 	UserModeReference botmode;
 
 	// Whether we are actively executing an alias.
-	bool active;
+	bool active = false;
 
  public:
 	void ReadConfig(ConfigStatus& status) override
@@ -116,7 +116,6 @@ class ModuleAlias : public Module
 
 	ModuleAlias()
 		: botmode(this, "bot")
-		, active(false)
 	{
 	}
 

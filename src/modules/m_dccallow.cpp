@@ -371,14 +371,13 @@ class ModuleDCCAllow : public Module
 {
 	DCCAllowExt ext;
 	CommandDccallow cmd;
-	bool blockchat;
+	bool blockchat = false;
 	std::string defaultaction;
 
  public:
 	ModuleDCCAllow()
 		: ext(this)
 		, cmd(this, ext)
-		, blockchat(false)
 	{
 	}
 

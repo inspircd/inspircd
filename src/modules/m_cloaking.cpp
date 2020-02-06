@@ -85,18 +85,15 @@ typedef std::vector<std::string> CloakList;
 class CloakUser : public ModeHandler
 {
  public:
-	bool active;
+	bool active = false;
 	SimpleExtItem<CloakList> ext;
 	std::string debounce_uid;
-	time_t debounce_ts;
-	int debounce_count;
+	time_t debounce_ts = 0;
+	int debounce_count = 0;
 
 	CloakUser(Module* source)
 		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
-		, active(false)
 		, ext(source, "cloaked_host", ExtensionItem::EXT_USER)
-		, debounce_ts(0)
-		, debounce_count(0)
 	{
 	}
 

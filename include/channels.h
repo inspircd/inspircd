@@ -103,7 +103,7 @@ class CoreExport Channel : public Extensible
 	/** Time topic was set.
 	 * If no topic was ever set, this will be equal to Channel::created
 	 */
-	time_t topicset;
+	time_t topicset = 0;
 
 	/** The last user to set the topic.
 	 * If this member is an empty string, no topic was ever set.

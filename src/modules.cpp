@@ -55,13 +55,6 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 }
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
-
-Module::Module()
-	: ModuleDLLManager(NULL)
-	, dying(false)
-{
-}
-
 CullResult Module::cull()
 {
 	return classbase::cull();
@@ -630,7 +623,8 @@ std::string ModuleManager::ExpandModName(const std::string& modname)
 }
 
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name), hook(NULL), value(NULL), creator(Creator)
+	: name(Name)
+	, creator(Creator)
 {
 	if (!dynrefs)
 		dynrefs = new insp::intrusive_list<dynamic_reference_base>;

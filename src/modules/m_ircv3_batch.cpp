@@ -65,7 +65,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 	ClientProtocol::EventProvider protoevprov;
 	IntExtItem batchbits;
  	BatchList active_batches;
-	bool unloading;
+	bool unloading = false;
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
@@ -101,7 +101,6 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		, cap(mod, "batch")
 		, protoevprov(mod, "BATCH")
 		, batchbits(mod, "batchbits", ExtensionItem::EXT_USER)
-		, unloading(false)
 	{
 	}
 

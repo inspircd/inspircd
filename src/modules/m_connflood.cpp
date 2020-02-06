@@ -30,18 +30,13 @@ class ModuleConnFlood : public Module
 	unsigned int seconds;
 	unsigned int timeout;
 	unsigned int boot_wait;
-	unsigned int conns;
+	unsigned int conns = 0;
 	unsigned int maxconns;
-	bool throttled;
+	bool throttled = false;
 	time_t first;
 	std::string quitmsg;
 
 public:
-	ModuleConnFlood()
-		: conns(0), throttled(false)
-	{
-	}
-
 	Version GetVersion() override
 	{
 		return Version("Connection throttle", VF_VENDOR);

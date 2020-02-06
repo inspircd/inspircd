@@ -31,7 +31,7 @@ typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 class ModuleRestrictChans : public Module
 {
 	AllowChans allowchans;
-	bool allowregistered;
+	bool allowregistered = false;
 
 	bool CanCreateChannel(LocalUser* user, const std::string& name)
 	{
@@ -52,11 +52,6 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
-	ModuleRestrictChans()
-		: allowregistered(false)
-	{
-	}
-
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowChans newallows;

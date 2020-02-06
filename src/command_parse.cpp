@@ -327,13 +327,8 @@ void CommandParser::RemoveCommand(Command* x)
 
 CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
 	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
-	, flags_needed(0)
 	, min_params(minpara)
 	, max_params(maxpara)
-	, use_count(0)
-	, works_before_reg(false)
-	, allow_empty_last_param(true)
-	, Penalty(1)
 {
 }
 
@@ -352,7 +347,6 @@ RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
 
 Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
 	: CommandBase(mod, cmd, minpara, maxpara)
-	, force_manual_route(false)
 {
 }
 

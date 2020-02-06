@@ -34,8 +34,7 @@
 #define DLL_EXTENSION ".so"
 
 DLLManager::DLLManager(const std::string& name)
-	: lib(NULL)
-	, libname(name)
+	: libname(name)
 {
 	static size_t extlen = strlen(DLL_EXTENSION);
 	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION))

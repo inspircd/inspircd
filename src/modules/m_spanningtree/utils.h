@@ -86,7 +86,7 @@ class SpanningTreeUtilities : public classbase
 	unsigned int PingWarnTime;
 	/** This variable represents the root of the server tree
 	 */
-	TreeServer *TreeRoot;
+	TreeServer *TreeRoot = nullptr;
 	/** IPs allowed to link to us
 	 */
 	std::vector<std::string> ValidIPs;
@@ -107,8 +107,12 @@ class SpanningTreeUtilities : public classbase
 	std::vector<reference<Autoconnect> > AutoconnectBlocks;
 
 	/** Ping frequency of server to server links
+	 * XXX: TreeServer constructor reads this and TreeRoot is created before the
+	 * config is read, so init it to something (value doesn't matter) to avoid a
+	 * valgrind warning in TimerManager on unload
 	 */
-	unsigned int PingFreq;
+	unsigned int PingFreq = 60;
+	
 
 	/** Initialise utility class
 	 */

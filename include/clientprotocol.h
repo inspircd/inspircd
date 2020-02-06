@@ -227,7 +227,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 		operator const std::string&() const { return (owned ? *str : *ptr); }
 
 		Param()
-			: ptr(NULL)
+			: ptr(nullptr)
 			, owned(false)
 		{
 		}
@@ -285,9 +285,9 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	ParamList params;
 	TagMap tags;
 	std::string command;
-	bool msginit_done;
+	bool msginit_done = false;
 	mutable SerializedList serlist;
-	bool sideeffect;
+	bool sideeffect = false;
 
  protected:
 	/** Set command string.
@@ -309,8 +309,6 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	Message(const char* cmd, User* Sourceuser = NULL)
 		: ClientProtocol::MessageSource(Sourceuser)
 		, command(cmd ? cmd : std::string())
-		, msginit_done(false)
-		, sideeffect(false)
 	{
 		params.reserve(8);
 		serlist.reserve(8);
@@ -326,8 +324,6 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	Message(const char* cmd, const std::string& Sourcestr, User* Sourceuser = NULL)
 		: ClientProtocol::MessageSource(Sourcestr, Sourceuser)
 		, command(cmd ? cmd : std::string())
-		, msginit_done(false)
-		, sideeffect(false)
 	{
 		params.reserve(8);
 		serlist.reserve(8);
@@ -462,9 +458,9 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 class ClientProtocol::Event
 {
 	EventProvider* event;
-	Message* initialmsg;
-	const MessageList* initialmsglist;
-	bool eventinit_done;
+	Message* initialmsg = nullptr;
+	const MessageList* initialmsglist = nullptr;
+	bool eventinit_done = false;
 
  public:
 	/** Constructor.
@@ -472,9 +468,6 @@ class ClientProtocol::Event
 	 */
 	Event(EventProvider& protoeventprov)
 		: event(&protoeventprov)
-		, initialmsg(NULL)
-		, initialmsglist(NULL)
-		, eventinit_done(false)
 	{
 	}
 
@@ -484,9 +477,6 @@ class ClientProtocol::Event
 	 */
 	Event(EventProvider& protoeventprov, ClientProtocol::Message& msg)
 		: event(&protoeventprov)
-		, initialmsg(&msg)
-		, initialmsglist(NULL)
-		, eventinit_done(false)
 	{
 	}
 

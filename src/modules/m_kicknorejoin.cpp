@@ -93,11 +93,10 @@ class KickRejoinData
  */
 class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 {
-	const unsigned int max;
+	const unsigned int max = 60;
  public:
 	KickRejoin(Module* Creator)
 		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
-		, max(60)
 	{
 		syntax = "<seconds>";
 	}

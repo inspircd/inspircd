@@ -36,11 +36,12 @@ class nickfloodsettings
 	unsigned int secs;
 	unsigned int nicks;
 	time_t reset;
-	time_t unlocktime;
-	unsigned int counter;
+	time_t unlocktime = 0;
+	unsigned int counter = 0;
 
 	nickfloodsettings(unsigned int b, unsigned int c)
-		: secs(b), nicks(c), unlocktime(0), counter(0)
+		: secs(b)
+		, nicks(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	}

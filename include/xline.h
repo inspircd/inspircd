@@ -59,7 +59,6 @@ class CoreExport XLine : public classbase
 		, source(src)
 		, reason(re)
 		, type(t)
-		, from_config(false)
 	{
 		expiry = set_time + duration;
 	}
@@ -150,7 +149,7 @@ class CoreExport XLine : public classbase
 	const std::string type;
 
 	// Whether this XLine was loaded from the server config.
-	bool from_config;
+	bool from_config = false;
 
 	virtual bool IsBurstable();
 };

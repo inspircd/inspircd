@@ -113,7 +113,7 @@ class Invite::Invite : public insp::intrusive_list_node<Invite, LocalUser>, publ
  private:
 	/** Timer handling expiration. If NULL this invite doesn't expire.
 	 */
-	Timer* expiretimer;
+	Timer* expiretimer = nullptr;
 
 	/** Constructor, only available to the module providing the invite API (core_channel).
 	 * To create Invites use InviteAPI::Create().

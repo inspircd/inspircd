@@ -75,7 +75,7 @@ void refcountbase::operator delete(void* obj)
 	::operator delete(obj);
 }
 
-refcountbase::refcountbase() : refcount(0)
+refcountbase::refcountbase()
 {
 	if (this != last_heap)
 		throw CoreException("Reference allocate on the stack!");

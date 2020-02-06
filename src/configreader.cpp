@@ -70,9 +70,7 @@ ServerConfig::ServerConfig()
 	: EmptyTag(CreateEmptyTag())
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
-	, RawLog(false)
 	, CaseMapping("ascii")
-	, NoSnoticeStack(false)
 {
 }
 

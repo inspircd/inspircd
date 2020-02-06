@@ -125,7 +125,7 @@ namespace irc
 		char sep;
 		/** Current string position
 		 */
-		size_t pos;
+		size_t pos = 0;
 		/** If set then GetToken() can return an empty string
 		 */
 		bool allow_empty;
@@ -215,7 +215,7 @@ namespace irc
 		std::string message;
 
 		/** The current position within the message. */
-		size_t position;
+		size_t position = 0;
 
 	 public:
 		/** Create a tokenstream and fill it with the provided data. */

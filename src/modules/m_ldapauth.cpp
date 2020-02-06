@@ -40,9 +40,9 @@ class BindInterface : public LDAPInterface
 	const std::string provider;
 	const std::string uid;
 	std::string DN;
-	bool checkingAttributes;
-	bool passed;
-	int attrCount;
+	bool checkingAttributes = false;
+	bool passed = false;
+	int attrCount = 0;
 
 	static std::string SafeReplace(const std::string& text, std::map<std::string, std::string>& replacements)
 	{
@@ -100,7 +100,9 @@ class BindInterface : public LDAPInterface
  public:
 	BindInterface(Module* c, const std::string& p, const std::string& u, const std::string& dn)
 		: LDAPInterface(c)
-		, provider(p), uid(u), DN(dn), checkingAttributes(false), passed(false), attrCount(0)
+		, provider(p)
+		, uid(u)
+		, DN(dn)
 	{
 	}
 

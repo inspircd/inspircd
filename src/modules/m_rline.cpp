@@ -226,7 +226,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 	RLineFactory f;
 	CommandRLine r;
 	bool MatchOnNickChange;
-	bool initing;
+	bool initing = true;
 	RegexFactory* factory;
 
  public:
@@ -235,7 +235,6 @@ class ModuleRLine : public Module, public Stats::EventListener
 		, rxfactory(this, "regex")
 		, f(rxfactory)
 		, r(this, f)
-		, initing(true)
 	{
 	}
 
