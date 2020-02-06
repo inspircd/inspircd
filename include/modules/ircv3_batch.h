@@ -112,6 +112,7 @@ class IRCv3::Batch::Batch
 		, type(Type)
 		, batchinfo(NULL)
 		, batchstartmsg(NULL)
+		, batchendmsg(NULL)
 	{
 	}
 
