@@ -40,7 +40,7 @@ class CommandSanick : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->Users.Find(parameters[0]);
 
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))

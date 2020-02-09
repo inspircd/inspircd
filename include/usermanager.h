@@ -192,6 +192,13 @@ class CoreExport UserManager
 	 */
 	already_sent_t NextAlreadySentId();
 
+	/** Find a user by their nickname or UUID.
+	 * IMPORTANT: You probably want to use FindNick or FindUUID instead of this.
+	 * @param nickuuid The nickname or UUID of the user to find.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	User* Find(const std::string& nickuuid);
+
 	/** Find a user by their UUID.
 	 * @param uuid The UUID of the user to find.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.

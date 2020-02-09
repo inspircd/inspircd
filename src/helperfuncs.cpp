@@ -39,13 +39,6 @@
 #include <iostream>
 
 /* Find a user record by nickname and return a pointer to it */
-User* InspIRCd::FindNick(const std::string &nick)
-{
-	if (!nick.empty() && isdigit(*nick.begin()))
-		return FindUUID(nick);
-	return FindNickOnly(nick);
-}
-
 User* InspIRCd::FindNickOnly(const std::string &nick)
 {
 	user_hash::iterator iter = this->Users.clientlist.find(nick);

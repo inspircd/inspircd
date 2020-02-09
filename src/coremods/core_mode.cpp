@@ -91,7 +91,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 		if (IS_LOCAL(user))
 			targetuser = ServerInstance->FindNickOnly(target);
 		else
-			targetuser = ServerInstance->FindNick(target);
+			targetuser = ServerInstance->Users.Find(target);
 	}
 
 	if ((!targetchannel || !CanSeeChan(user, targetchannel)) && (!targetuser))

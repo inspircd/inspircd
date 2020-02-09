@@ -92,7 +92,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 
 			/* Check if the parameter is a valid nick/uuid
 			 */
-			User *u = ServerInstance->FindNick(param);
+			User *u = ServerInstance->Users.Find(param);
 			if (u)
 			{
 				Membership* memb = chan->GetUser(u);

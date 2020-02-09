@@ -53,7 +53,7 @@ class CommandUninvite : public Command
 		if (IS_LOCAL(user))
 			u = ServerInstance->FindNickOnly(parameters[0]);
 		else
-			u = ServerInstance->FindNick(parameters[0]);
+			u = ServerInstance->Users.Find(parameters[0]);
 
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 

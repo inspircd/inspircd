@@ -435,6 +435,17 @@ already_sent_t UserManager::NextAlreadySentId()
 	return already_sent_id;
 }
 
+User* UserManager::Find(const std::string& nickuuid)
+{
+	if (nickuuid.empty())
+		return nullptr;
+
+	if (isdigit(nickuuid[0]))
+		return FindUUID(nickuuid);
+
+	return FindNick(nickuuid);
+}
+
 User* UserManager::FindUUID(const std::string& uuid)
 {
 	if (uuid.empty())

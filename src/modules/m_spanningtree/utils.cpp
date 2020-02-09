@@ -99,7 +99,7 @@ TreeServer* SpanningTreeUtilities::FindRouteTarget(const std::string& target)
 	if (server)
 		return server;
 
-	User* const user = ServerInstance->FindNick(target);
+	User* const user = ServerInstance->Users.Find(target);
 	if (user)
 		return TreeServer::Get(user);
 

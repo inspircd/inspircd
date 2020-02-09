@@ -110,7 +110,7 @@ class AuthQuery : public SQL::Query
 
 	void OnError(SQL::Error& error) override
 	{
-		User* user = ServerInstance->FindNick(uid);
+		User* user = ServerInstance->Users.Find(uid);
 		if (!user)
 			return;
 		pendingExt.set(user, AUTH_STATE_FAIL);

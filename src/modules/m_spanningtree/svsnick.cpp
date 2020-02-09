@@ -29,7 +29,7 @@
 
 CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 {
-	User* u = ServerInstance->FindNick(parameters[0]);
+	User* u = ServerInstance->Users.Find(parameters[0]);
 
 	if (u && IS_LOCAL(u))
 	{

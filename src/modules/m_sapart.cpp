@@ -42,7 +42,7 @@ class CommandSapart : public Command
 		if (CommandParser::LoopCall(user, this, parameters, 1))
 			return CMD_FAILURE;
 
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->Users.Find(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
 		std::string reason;
 

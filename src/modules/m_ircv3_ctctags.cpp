@@ -172,7 +172,7 @@ class CommandTagMsg : public Command
 		else
 		{
 			// Remote users can only specify a nick or UUID as the target.
-			target = ServerInstance->FindNick(parameters[0]);
+			target = ServerInstance->Users.Find(parameters[0]);
 		}
 
 		if (!target || target->registered != REG_ALL)

@@ -107,7 +107,7 @@ struct CallerIDExtInfo : public ExtensionItem
 
 		while (s.GetToken(tok))
 		{
-			User *u = ServerInstance->FindNick(tok);
+			User *u = ServerInstance->Users.Find(tok);
 			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
 			{
 				if (dat->accepting.insert(u).second)
@@ -166,7 +166,7 @@ class CommandAccept : public Command
 
 		User* target;
 		if (!cmdfrom || !IS_LOCAL(cmdfrom))
-			target = ServerInstance->FindNick(tok);
+			target = ServerInstance->Users.Find(tok);
 		else
 			target = ServerInstance->FindNickOnly(tok);
 

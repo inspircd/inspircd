@@ -34,7 +34,7 @@ std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List& mod
 
 		if (mh->IsPrefixMode())
 		{
-			User* target = ServerInstance->FindNick(item.param);
+			User* target = ServerInstance->Users.Find(item.param);
 			if (target)
 			{
 				ret.append(target->uuid);

@@ -59,11 +59,11 @@ class WhoisNoticeCmd : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->Users.Find(parameters[0]);
 		if (!dest)
 			return CMD_FAILURE;
 
-		User* source = ServerInstance->FindNick(parameters[1]);
+		User* source = ServerInstance->Users.Find(parameters[1]);
 
 		if (IS_LOCAL(dest) && source)
 			HandleFast(dest, source);

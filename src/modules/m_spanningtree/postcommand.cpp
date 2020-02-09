@@ -116,7 +116,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		else
 		{
 			// user target?
-			User* d = ServerInstance->FindNick(dest);
+			User* d = ServerInstance->Users.Find(dest);
 			if (!d || IS_LOCAL(d))
 				return;
 			TreeServer* tsd = TreeServer::Get(d)->GetRoute();

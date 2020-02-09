@@ -162,7 +162,7 @@ class CommandCheck : public Command
 		Channel *targchan;
 		std::string chliststr;
 
-		targuser = ServerInstance->FindNick(parameters[0]);
+		targuser = ServerInstance->Users.Find(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);
 
 		/*

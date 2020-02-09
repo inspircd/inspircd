@@ -93,7 +93,7 @@ class NetworkPrefix : public PrefixMode
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) override
 	{
-		User* theuser = ServerInstance->FindNick(parameter);
+		User* theuser = ServerInstance->Users.Find(parameter);
 		// remove own privs?
 		if (source == theuser && !adding)
 			return MOD_RES_ALLOW;

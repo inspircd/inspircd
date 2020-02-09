@@ -339,13 +339,6 @@ class CoreExport InspIRCd
 	 */
 	size_t BindPorts(FailedPortList &failed_ports);
 
-	/** Find a user in the nick hash.
-	 * If the user cant be found in the nick hash check the uuid hash
-	 * @param nick The nickname to find
-	 * @return A pointer to the user, or NULL if the user does not exist
-	 */
-	User* FindNick(const std::string &nick);
-
 	/** Find a user in the nick hash ONLY
 	 */
 	User* FindNickOnly(const std::string &nick);

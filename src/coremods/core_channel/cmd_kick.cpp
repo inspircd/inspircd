@@ -48,7 +48,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 	if (IS_LOCAL(user))
 		u = ServerInstance->FindNickOnly(parameters[1]);
 	else
-		u = ServerInstance->FindNick(parameters[1]);
+		u = ServerInstance->Users.Find(parameters[1]);
 
 	if (!c)
 	{

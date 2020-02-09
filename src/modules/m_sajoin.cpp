@@ -49,7 +49,7 @@ class CommandSajoin : public Command
 		const std::string& channel = parameters[channelindex];
 		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
 
-		User* dest = ServerInstance->FindNick(nickname);
+		User* dest = ServerInstance->Users.Find(nickname);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
 			if (user != dest && !user->HasPrivPermission("users/sajoin-others"))

@@ -50,7 +50,7 @@ class CommandNicklock : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->Users.Find(parameters[0]);
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
@@ -110,7 +110,7 @@ class CommandNickunlock : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->Users.Find(parameters[0]);
 
 		if (!target)
 		{

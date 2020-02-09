@@ -50,7 +50,7 @@ class CommandSwhois : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->Users.Find(parameters[0]);
 
 		if (!dest) // allow setting swhois using SWHOIS before reg
 		{

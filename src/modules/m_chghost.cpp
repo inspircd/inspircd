@@ -58,7 +58,7 @@ class CommandChghost : public Command
 			}
 		}
 
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->Users.Find(parameters[0]);
 
 		// Allow services to change the host of unregistered users
 		if ((!dest) || ((dest->registered != REG_ALL) && (!user->server->IsULine())))

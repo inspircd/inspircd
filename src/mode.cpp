@@ -190,7 +190,7 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 	if (IS_LOCAL(source))
 		target = ServerInstance->FindNickOnly(parameter);
 	else
-		target = ServerInstance->FindNick(parameter);
+		target = ServerInstance->Users.Find(parameter);
 
 	if (!target)
 	{
