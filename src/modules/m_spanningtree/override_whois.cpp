@@ -28,7 +28,7 @@
 
 ModResult ModuleSpanningTree::HandleRemoteWhois(const CommandBase::Params& parameters, User* user)
 {
-	User* remote = ServerInstance->FindNickOnly(parameters[1]);
+	User* remote = ServerInstance->Users.FindNick(parameters[1]);
 	if (remote && !IS_LOCAL(remote))
 	{
 		CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);

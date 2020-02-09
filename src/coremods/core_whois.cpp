@@ -318,7 +318,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 	if (parameters.size() > 1)
 		userindex = 1;
 
-	dest = ServerInstance->FindNickOnly(parameters[userindex]);
+	dest = ServerInstance->Users.FindNick(parameters[userindex]);
 
 	if ((dest) && (dest->registered == REG_ALL))
 	{

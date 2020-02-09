@@ -46,7 +46,7 @@ class CommandUserip : public Command
 
 		for (size_t i = 0; i < parameters.size(); i++)
 		{
-			User *u = ServerInstance->FindNickOnly(parameters[i]);
+			User *u = ServerInstance->Users.FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
 				// Anyone may query their own IP

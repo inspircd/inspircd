@@ -168,7 +168,7 @@ class CommandAccept : public Command
 		if (!cmdfrom || !IS_LOCAL(cmdfrom))
 			target = ServerInstance->Users.Find(tok);
 		else
-			target = ServerInstance->FindNickOnly(tok);
+			target = ServerInstance->Users.FindNick(tok);
 
 		if ((!target) || (target->registered != REG_ALL) || (target->quitting))
 			target = NULL;

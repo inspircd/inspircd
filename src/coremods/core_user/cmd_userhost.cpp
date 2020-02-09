@@ -38,7 +38,7 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 	for (unsigned int i = 0; i < max; i++)
 	{
-		User *u = ServerInstance->FindNickOnly(parameters[i]);
+		User *u = ServerInstance->Users.FindNick(parameters[i]);
 
 		if ((u) && (u->registered == REG_ALL))
 		{

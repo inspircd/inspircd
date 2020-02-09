@@ -607,7 +607,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		return false;
 	}
 
-	User* const InUse = ServerInstance->FindNickOnly(newnick);
+	User* const InUse = ServerInstance->Users.FindNick(newnick);
 	if (InUse == this)
 	{
 		// case change, don't need to check campers

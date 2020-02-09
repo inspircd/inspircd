@@ -226,7 +226,7 @@ class CommandDccallow : public Command
 			}
 
 			std::string nick(parameters[0], 1);
-			User *target = ServerInstance->FindNickOnly(nick);
+			User *target = ServerInstance->Users.FindNick(nick);
 
 			if ((target) && (!target->quitting) && (target->registered == REG_ALL))
 			{

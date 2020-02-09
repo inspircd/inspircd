@@ -35,7 +35,7 @@ class IsonReplyBuilder : public Numeric::Builder<' ', true>
 
 	void AddNick(const std::string& nickname)
 	{
-		User* const user = ServerInstance->FindNickOnly(nickname);
+		User* const user = ServerInstance->Users.FindNick(nickname);
 		if ((user) && (user->registered == REG_ALL))
 			Add(user->nick);
 	}

@@ -446,6 +446,18 @@ User* UserManager::Find(const std::string& nickuuid)
 	return FindNick(nickuuid);
 }
 
+User* UserManager::FindNick(const std::string& nick)
+{
+	if (nick.empty())
+		return nullptr;
+
+	user_hash::iterator uiter = this->clientlist.find(nick);
+	if (uiter == this->clientlist.end())
+		return nullptr;
+
+	return uiter->second;
+}
+
 User* UserManager::FindUUID(const std::string& uuid)
 {
 	if (uuid.empty())

@@ -240,7 +240,7 @@ class ModuleWatch
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		// Detect and ignore nickname case change
-		if (ServerInstance->FindNickOnly(oldnick) == user)
+		if (ServerInstance->Users.FindNick(oldnick) == user)
 			return;
 
 		Offline(user, oldnick);

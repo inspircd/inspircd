@@ -240,7 +240,7 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* 
 
 	User* dest;
 	if (IS_LOCAL(user))
-		dest = ServerInstance->FindNickOnly(param);
+		dest = ServerInstance->Users.FindNick(param);
 	else
 		dest = ServerInstance->Users.Find(param);
 

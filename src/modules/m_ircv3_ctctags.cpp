@@ -159,14 +159,14 @@ class CommandTagMsg : public Command
 			if (targetserver)
 			{
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
-				target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
 				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
 					target = NULL;
 			}
 			else
 			{
 				// If the source is a local user then we only look up the target by nick.
-				target = ServerInstance->FindNickOnly(parameters[0]);
+				target = ServerInstance->Users.FindNick(parameters[0]);
 			}
 		}
 		else

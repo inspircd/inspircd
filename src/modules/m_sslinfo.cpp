@@ -158,7 +158,7 @@ class CommandSSLInfo : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->FindNickOnly(parameters[0]);
+		User* target = ServerInstance->Users.FindNick(parameters[0]);
 
 		if ((!target) || (target->registered != REG_ALL))
 		{

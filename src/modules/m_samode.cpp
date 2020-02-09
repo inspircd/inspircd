@@ -45,7 +45,7 @@ class CommandSamode : public Command
 	{
 		if (parameters[0].c_str()[0] != '#')
 		{
-			User* target = ServerInstance->FindNickOnly(parameters[0]);
+			User* target = ServerInstance->Users.FindNick(parameters[0]);
 			if ((!target) || (target->registered != REG_ALL))
 			{
 				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));

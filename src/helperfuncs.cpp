@@ -38,17 +38,6 @@
 #include "exitcodes.h"
 #include <iostream>
 
-/* Find a user record by nickname and return a pointer to it */
-User* InspIRCd::FindNickOnly(const std::string &nick)
-{
-	user_hash::iterator iter = this->Users.clientlist.find(nick);
-
-	if (iter == this->Users.clientlist.end())
-		return NULL;
-
-	return iter->second;
-}
-
 /* find a channel record by channel name and return a pointer to it */
 
 Channel* InspIRCd::FindChan(const std::string &chan)

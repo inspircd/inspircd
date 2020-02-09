@@ -339,10 +339,6 @@ class CoreExport InspIRCd
 	 */
 	size_t BindPorts(FailedPortList &failed_ports);
 
-	/** Find a user in the nick hash ONLY
-	 */
-	User* FindNickOnly(const std::string &nick);
-
 	/** Find a channel in the channels hash
 	 * @param chan The channel to find
 	 * @return A pointer to the channel, or NULL if the channel does not exist

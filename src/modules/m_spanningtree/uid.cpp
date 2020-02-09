@@ -49,7 +49,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		throw ProtocolException("Invalid mode string");
 
 	// See if there is a nick collision
-	User* collideswith = ServerInstance->FindNickOnly(params[2]);
+	User* collideswith = ServerInstance->Users.FindNick(params[2]);
 	if ((collideswith) && (collideswith->registered != REG_ALL))
 	{
 		// User that the incoming user is colliding with is not fully registered, we force nick change the

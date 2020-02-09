@@ -73,7 +73,7 @@ class RemoveBase : public Command
 
 		/* Look up the user we're meant to be removing from the channel */
 		if (IS_LOCAL(user))
-			target = ServerInstance->FindNickOnly(username);
+			target = ServerInstance->Users.FindNick(username);
 		else
 			target = ServerInstance->Users.Find(username);
 

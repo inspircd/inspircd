@@ -184,7 +184,7 @@ class IRCv3::Monitor::Manager
 
 	static User* FindNick(const std::string& nick)
 	{
-		User* user = ServerInstance->FindNickOnly(nick);
+		User* user = ServerInstance->Users.FindNick(nick);
 		if ((user) && (user->registered == REG_ALL))
 			return user;
 		return NULL;
@@ -413,7 +413,7 @@ class ModuleMonitor
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		// Detect and ignore nickname case change
-		if (ServerInstance->FindNickOnly(oldnick) == user)
+		if (ServerInstance->Users.FindNick(oldnick) == user)
 			return;
 
 		SendAlert(RPL_MONOFFLINE, oldnick);
