@@ -510,7 +510,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindUUID(useruid);
+	User* user = ServerInstance->Users.FindUUID(useruid);
 
 	if (!valid)
 	{
@@ -695,7 +695,7 @@ void ConfigReaderThread::OnStop()
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 
-		User* user = ServerInstance->FindUUID(UUID);
+		User* user = ServerInstance->Users.FindUUID(UUID);
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)

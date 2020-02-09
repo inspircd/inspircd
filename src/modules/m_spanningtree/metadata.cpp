@@ -60,7 +60,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	}
 	else
 	{
-		User* u = ServerInstance->FindUUID(params[0]);
+		User* u = ServerInstance->Users.FindUUID(params[0]);
 		if (u)
 		{
 			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);

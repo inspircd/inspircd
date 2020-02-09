@@ -56,7 +56,7 @@ class AuthQuery : public SQL::Query
 
 	void OnResult(SQL::Result& res) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->FindUUID(uid));
+		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uid));
 		if (!user)
 			return;
 

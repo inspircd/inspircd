@@ -108,7 +108,7 @@ class BindInterface : public LDAPInterface
 
 	void OnResult(const LDAPResult& r) override
 	{
-		User* user = ServerInstance->FindUUID(uid);
+		User* user = ServerInstance->Users.FindUUID(uid);
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 
 		if (!user || !LDAP)
@@ -190,7 +190,7 @@ class BindInterface : public LDAPInterface
 			return;
 		}
 
-		User* user = ServerInstance->FindUUID(uid);
+		User* user = ServerInstance->Users.FindUUID(uid);
 		if (user)
 		{
 			if (verbose)
@@ -215,7 +215,7 @@ class SearchInterface : public LDAPInterface
 
 	void OnResult(const LDAPResult& r) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->FindUUID(uid));
+		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uid));
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 		if (!LDAP || r.empty() || !user)
 		{
@@ -248,7 +248,7 @@ class SearchInterface : public LDAPInterface
 	void OnError(const LDAPResult& err) override
 	{
 		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
-		User* user = ServerInstance->FindUUID(uid);
+		User* user = ServerInstance->Users.FindUUID(uid);
 		if (user)
 			ServerInstance->Users.QuitUser(user, killreason);
 		delete this;

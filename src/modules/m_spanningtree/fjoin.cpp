@@ -206,7 +206,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 	// Comma not required anymore if the user has no modes
 	const std::string::size_type ubegin = (comma == std::string::npos ? 0 : comma+1);
 	std::string uuid(item, ubegin, UIDGenerator::UUID_LENGTH);
-	User* who = ServerInstance->FindUUID(uuid);
+	User* who = ServerInstance->Users.FindUUID(uuid);
 	if (!who)
 	{
 		// Probably KILLed, ignore

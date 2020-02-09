@@ -66,7 +66,7 @@ class UserResolver : public DNS::Request
 	 */
 	void OnLookupComplete(const DNS::Query* r) override
 	{
-		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
 		if (!bound_user)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
@@ -151,7 +151,7 @@ class UserResolver : public DNS::Request
 	 */
 	void OnError(const DNS::Query* query) override
 	{
-		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
+		LocalUser* bound_user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
 		if (bound_user)
 			HandleError(bound_user, "Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}

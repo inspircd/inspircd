@@ -52,7 +52,7 @@ class LDAPOperBase : public LDAPInterface
 
 	void Fallback()
 	{
-		User* user = ServerInstance->FindUUID(uid);
+		User* user = ServerInstance->Users.FindUUID(uid);
 		Fallback(user);
 	}
 
@@ -81,7 +81,7 @@ class BindInterface : public LDAPOperBase
 
 	void OnResult(const LDAPResult& r) override
 	{
-		User* user = ServerInstance->FindUUID(uid);
+		User* user = ServerInstance->Users.FindUUID(uid);
 		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->oper_blocks.find(opername);
 
 		if (!user || iter == ServerInstance->Config->oper_blocks.end())

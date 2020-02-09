@@ -28,7 +28,7 @@
 
 CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
 {
-	User* u = ServerInstance->FindUUID(parameters[0]);
+	User* u = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!u)
 		return CMD_FAILURE;
 

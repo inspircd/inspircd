@@ -39,7 +39,7 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 	 * the number of seconds 'issuer' has been idle.
 	 */
 
-	User* target = ServerInstance->FindUUID(params[0]);
+	User* target = ServerInstance->Users.FindUUID(params[0]);
 	if ((!target) || (target->registered != REG_ALL))
 		return CMD_FAILURE;
 

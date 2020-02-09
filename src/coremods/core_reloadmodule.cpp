@@ -471,7 +471,7 @@ void DataKeeper::RestoreMemberData(Channel* chan, const std::vector<ChanData::Me
 	for (std::vector<ChanData::MemberData>::const_iterator i = memberdatalist.begin(); i != memberdatalist.end(); ++i)
 	{
 		const ChanData::MemberData& md = *i;
-		User* const user = ServerInstance->FindUUID(md.owner);
+		User* const user = ServerInstance->Users.FindUUID(md.owner);
 		if (!user)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone (while processing %s)", md.owner.c_str(), chan->name.c_str());
@@ -645,7 +645,7 @@ void DataKeeper::DoRestoreUsers()
 	for (std::vector<UserData>::const_iterator i = userdatalist.begin(); i != userdatalist.end(); ++i)
 	{
 		const UserData& userdata = *i;
-		User* const user = ServerInstance->FindUUID(userdata.owner);
+		User* const user = ServerInstance->Users.FindUUID(userdata.owner);
 		if (!user)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone", userdata.owner.c_str());
@@ -736,7 +736,7 @@ class ReloadAction : public ActionBase
 			datakeeper.Fail();
 
 		ServerInstance->SNO.WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
-		User* user = ServerInstance->FindUUID(uuid);
+		User* user = ServerInstance->Users.FindUUID(uuid);
 		if (user)
 			user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));
 

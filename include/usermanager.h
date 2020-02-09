@@ -191,4 +191,10 @@ class CoreExport UserManager
 	 * @return Next already_sent id
 	 */
 	already_sent_t NextAlreadySentId();
+
+	/** Find a user by their UUID.
+	 * @param uuid The UUID of the user to find.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	User* FindUUID(const std::string& uuid);
 };

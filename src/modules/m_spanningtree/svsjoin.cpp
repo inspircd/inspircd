@@ -33,7 +33,7 @@ CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
 		return CMD_FAILURE;
 
 	// Check target exists
-	User* u = ServerInstance->FindUUID(parameters[0]);
+	User* u = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!u)
 		return CMD_FAILURE;
 

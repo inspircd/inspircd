@@ -434,3 +434,15 @@ already_sent_t UserManager::NextAlreadySentId()
 	}
 	return already_sent_id;
 }
+
+User* UserManager::FindUUID(const std::string& uuid)
+{
+	if (uuid.empty())
+		return nullptr;
+
+	user_hash::iterator uiter = this->uuidlist.find(uuid);
+	if (uiter == this->uuidlist.end())
+		return nullptr;
+
+	return uiter->second;
+}

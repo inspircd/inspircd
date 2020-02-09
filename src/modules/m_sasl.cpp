@@ -363,7 +363,7 @@ class CommandSASL : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->FindUUID(parameters[1]);
+		User* target = ServerInstance->Users.FindUUID(parameters[1]);
 		if (!target)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());

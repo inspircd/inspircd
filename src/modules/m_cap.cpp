@@ -135,7 +135,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			for (std::vector<std::string>::const_iterator j = capdata.users.begin(); j != capdata.users.end(); ++j)
 			{
 				const std::string& uuid = *j;
-				User* user = ServerInstance->FindUUID(uuid);
+				User* user = ServerInstance->Users.FindUUID(uuid);
 				if (!user)
 				{
 					ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());

@@ -151,7 +151,7 @@ std::string UIDGenerator::GetUID()
 		// Add one to the last UID
 		this->IncrementUID(UUID_LENGTH - 1);
 
-		if (!ServerInstance->FindUUID(current_uid))
+		if (!ServerInstance->Users.FindUUID(current_uid))
 			break;
 
 		/*

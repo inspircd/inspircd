@@ -310,7 +310,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						return;
 
 					// The nick of the target is necessary for building the PUSH message
-					User* const target = ServerInstance->FindUUID(line.substr(13, UIDGenerator::UUID_LENGTH));
+					User* const target = ServerInstance->Users.FindUUID(line.substr(13, UIDGenerator::UUID_LENGTH));
 					if (!target)
 						return;
 
@@ -481,7 +481,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		// Translate user mode changes with timestamp to MODE
 		if (params[0][0] != '#')
 		{
-			User* user = ServerInstance->FindUUID(params[0]);
+			User* user = ServerInstance->Users.FindUUID(params[0]);
 			if (!user)
 				return false;
 

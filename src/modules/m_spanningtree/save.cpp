@@ -32,7 +32,7 @@
  */
 CmdResult CommandSave::Handle(User* user, Params& params)
 {
-	User* u = ServerInstance->FindUUID(params[0]);
+	User* u = ServerInstance->Users.FindUUID(params[0]);
 	if (!u)
 		return CMD_FAILURE;
 

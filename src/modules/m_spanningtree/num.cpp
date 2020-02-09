@@ -26,7 +26,7 @@
 
 CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
-	User* const target = ServerInstance->FindUUID(params[1]);
+	User* const target = ServerInstance->Users.FindUUID(params[1]);
 	if (!target)
 		return CMD_FAILURE;
 
