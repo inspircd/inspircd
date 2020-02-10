@@ -431,7 +431,7 @@ print_format <<"EOM";
 <|GREEN Execution User:|>  $config{USER} ($config{UID})
 <|GREEN Socket Engine:|>   $config{SOCKETENGINE}
 
-To build with these settings run '<|GREEN make -j${\get_cpu_count} install|>' now.
+To build with these settings run '<|GREEN make -j${\get_cpu_count + 1} install|>' now.
 
 EOM
 
