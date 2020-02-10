@@ -35,5 +35,5 @@ Tick the boxes for the checks you have made.
 I have ensured that:
 
   - [ ] This pull request does not introduce any incompatible API changes.
-  - [ ] If ABI changes have been made I have incremented INSPIRCD_VERSION_API.
+  - [ ] If ABI changes have been made I have incremented MODULE_ABI in `moduledefs.h`.
   - [ ] I have documented any features added by this pull request.
