@@ -943,7 +943,7 @@
 # other modules that need it using the libMaxMindDB library.          #
 #                                                                     #
 # This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras=m_geo_maxmind.cpp
+# ./configure --enable-extras geo_maxmind
 # and run make install, then uncomment this module to enable it.      #
 #                                                                     #
 # This module requires libMaxMindDB to be installed on your system.   #
@@ -1262,7 +1262,7 @@
 # LDAP module: Allows other SQL modules to access a LDAP database
 # through a unified API.
 # This modules is in extras. Re-run configure with:
-# ./configure --enable-extras=m_ldap.cpp
+# ./configure --enable-extras ldap
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="ldap">
@@ -1406,7 +1406,7 @@
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
 # This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_mysql.cpp
+# ./configure --enable-extras mysql
 # and run make install, then uncomment this module to enable it.
 #<module name="mysql">
 #
@@ -1703,7 +1703,7 @@
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API.
 # This module is in extras. Re-run configure with:
-# ./configure --enable-extras=m_pgsql.cpp
+# ./configure --enable-extras pgsql
 # and run make install, then uncomment this module to enable it.
 #<module name="pgsql">
 #
@@ -2125,7 +2125,7 @@
 # SSL rehash signal module: Allows the SSL modules to be rehashed by
 # sending SIGUSR1 to a running InspIRCd process.
 # This modules is in extras. Re-run configure with:
-# ./configure --enable-extras=m_sslrehashsignal.cpp
+# ./configure --enable-extras sslrehashsignal
 # and run make install, then uncomment this module to enable it.
 #<module name="sslrehashsignal">
 
@@ -2202,7 +2202,7 @@
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
 # databases through a unified API.                                    #
 # This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras=m_sqlite3.cpp
+# ./configure --enable-extras sqlite3
 # and run make install, then uncomment this module to enable it.      #
 #
 #<module name="sqlite3">
