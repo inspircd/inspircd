@@ -720,11 +720,9 @@ class ReloadAction : public ActionBase
 		ReloadModule::DataKeeper datakeeper;
 		datakeeper.Save(mod);
 
-		DLLManager* dll = mod->ModuleDLLManager;
 		std::string name = mod->ModuleSourceFile;
 		ServerInstance->Modules->DoSafeUnload(mod);
 		ServerInstance->GlobalCulls.Apply();
-		delete dll;
 		bool result = ServerInstance->Modules->Load(name);
 
 		if (result)

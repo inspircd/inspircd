@@ -64,6 +64,8 @@ Module::Module()
 
 CullResult Module::cull()
 {
+	if (ModuleDLLManager)
+		ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
 	return classbase::cull();
 }
 
@@ -450,11 +452,8 @@ namespace
 		UnloadAction(Module* m) : mod(m) {}
 		void Call() CXX11_OVERRIDE
 		{
-			DLLManager* dll = mod->ModuleDLLManager;
 			ServerInstance->Modules->DoSafeUnload(mod);
 			ServerInstance->GlobalCulls.Apply();
-			// In pure static mode this is always NULL
-			delete dll;
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
