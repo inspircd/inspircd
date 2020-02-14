@@ -70,6 +70,7 @@ class STSCap : public Cap::Capability
 	STSCap(Module* mod)
 		: Cap::Capability(mod, "sts")
 	{
+		DisableAutoRegister();
 	}
 
 	~STSCap()
@@ -173,6 +174,9 @@ class ModuleIRCv3STS : public Module
 		unsigned long duration = tag->getDuration("duration", 60*60*24*30*2);
 		bool preload = tag->getBool("preload");
 		cap.SetPolicy(host, duration, port, preload);
+
+		if (!cap.IsRegistered())
+			ServerInstance->Modules->AddService(cap);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
