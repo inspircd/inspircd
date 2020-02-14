@@ -489,12 +489,14 @@ class ModuleCap : public Module
 {
  private:
 	CommandCap cmd;
-	PoisonCap cap;
+	PoisonCap poisoncap;
+	Cap::Capability stdrplcap;
 
  public:
 	ModuleCap()
 		: cmd(this)
-		, cap(this)
+		, poisoncap(this)
+		, stdrplcap(this, "inspircd.org/standard-replies")
 	{
 	}
 
