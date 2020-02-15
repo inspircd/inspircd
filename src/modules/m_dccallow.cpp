@@ -154,6 +154,8 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 			list->push_back(dccallow);
 		}
 
+		// The value was well formed.
+		set(user, list);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const CXX11_OVERRIDE
