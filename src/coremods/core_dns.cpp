@@ -703,7 +703,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void Rehash(const std::string& dnsserver, std::string sourceaddr, unsigned int sourceport)
 	{
-		if (this->GetFd() > -1)
+		if (this->HasFd())
 		{
 			SocketEngine::Shutdown(this, 2);
 			SocketEngine::Close(this);

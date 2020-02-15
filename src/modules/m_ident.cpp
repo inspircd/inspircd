@@ -187,7 +187,7 @@ class IdentRequestSocket : public EventHandler
 		/* Remove ident socket from engine, and close it, but dont detatch it
 		 * from its parent user class, or attempt to delete its memory.
 		 */
-		if (GetFd() > -1)
+		if (HasFd())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
 			SocketEngine::Close(this);

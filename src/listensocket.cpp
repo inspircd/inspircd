@@ -130,7 +130,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 
 ListenSocket::~ListenSocket()
 {
-	if (this->GetFd() > -1)
+	if (this->HasFd())
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
 		SocketEngine::Shutdown(this, 2);

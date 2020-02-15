@@ -47,7 +47,7 @@ bool InspIRCd::BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::
 	}
 
 	ListenSocket* ll = new ListenSocket(tag, sa);
-	if (ll->GetFd() < 0)
+	if (!ll->HasFd())
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to listen on %s from tag at %s: %s",
 			sa.str().c_str(), tag->getTagLocation().c_str(), strerror(errno));
