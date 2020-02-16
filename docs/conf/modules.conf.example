@@ -839,6 +839,8 @@
 # glob   - Glob patterns, provided via regex_glob.                    #
 # pcre   - PCRE regexps, provided via regex_pcre, needs libpcre.      #
 # tre    - TRE regexps, provided via regex_tre, requires libtre.      #
+# posix  - POSIX regexps, provided via regex_posix, not available     #
+#          on Windows, no dependencies on other operating systems.    #
 # stdlib - stdlib regexps, provided via regex_stdlib, see comment     #
 #          at the <module> tag for info on availability.              #
 #                                                                     #
@@ -1713,6 +1715,15 @@
 # You need libre2 installed and in your include/library paths in order
 # to compile and load this module.
 #<module name="regex_re2">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular expression provider for POSIX regular expressions.
+# You shouldn't need any additional libraries on a POSIX-compatible
+# system (i.e.: any Linux, BSD, but not Windows). You must have at
+# least 1 provider loaded to use the filter or R-line modules.
+# On POSIX-compliant systems, regex syntax can be found by using the
+# command: 'man 7 regex'.
+#<module name="regex_posix">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for C++11 std::regex regular expressions.
