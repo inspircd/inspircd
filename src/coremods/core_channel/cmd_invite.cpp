@@ -31,6 +31,13 @@
 #include "core_channel.h"
 #include "invite.h"
 
+enum
+{
+	// From ircd-hybrid.
+	RPL_INVITELIST = 336,
+	RPL_ENDOFINVITELIST = 337
+};
+
 CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 	: Command(parent, "INVITE", 0, 0)
 	, invapi(invapiimpl)

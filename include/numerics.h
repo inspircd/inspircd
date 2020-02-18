@@ -86,8 +86,6 @@ enum
 
 	RPL_USERIP                      = 340,
 	RPL_INVITING                    = 341,
-	RPL_INVITELIST                  = 346, // insp-specific (stolen from ircu)
-	RPL_ENDOFINVITELIST             = 347, // insp-specific (stolen from ircu)
 	RPL_VERSION                     = 351,
 	RPL_NAMREPLY                    = 353,
 	RPL_LINKS                       = 364,
