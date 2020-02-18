@@ -187,7 +187,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		if (stats.GetSymbol() != 'H')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SHUN", 223, stats);
+		ServerInstance->XLines->InvokeStats("SHUN", stats);
 		return MOD_RES_DENY;
 	}
 

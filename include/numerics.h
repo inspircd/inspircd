@@ -50,6 +50,7 @@ enum
 	RPL_ENDMAP                      = 17, // ircu
 	RPL_MAPUSERS                    = 18, // insp-specific
 
+	RPL_STATS                       = 210, // From aircd.
 	RPL_UMODEIS                     = 221,
 
 	RPL_LUSERCLIENT                 = 251,

@@ -307,7 +307,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 		if (stats.GetSymbol() != 'R')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("R", 223, stats);
+		ServerInstance->XLines->InvokeStats("R", stats);
 		return MOD_RES_DENY;
 	}
 
