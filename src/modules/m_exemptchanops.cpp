@@ -25,13 +25,17 @@
 #include "listmode.h"
 #include "modules/exemption.h"
 
-/** Handles channel mode +X
- */
+enum
+{
+	RPL_ENDOFEXEMPTIONLIST = 953,
+	RPL_EXEMPTIONLIST = 954
+};
+
 class ExemptChanOps : public ListModeBase
 {
  public:
 	ExemptChanOps(Module* Creator)
-		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false)
+		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", RPL_EXEMPTIONLIST, RPL_ENDOFEXEMPTIONLIST, false)
 	{
 		syntax = "<restriction>:<prefix>";
 	}

@@ -26,23 +26,18 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/*
- * Written by Om <om@inspircd.org>, April 2005.
- * Based on m_exception, which was originally based on m_chanprotect and m_silence
- *
- * The +I channel mode takes a nick!ident@host, glob patterns allowed,
- * and if a user matches an entry on the +I list then they can join the channel,
- * ignoring if +i is set on the channel
- * Now supports CIDR and IP addresses -- Brain
- */
+enum
+{
+	// From RFC 2812.
+	RPL_INVEXLIST = 346,
+	RPL_ENDOFINVEXLIST = 347
+};
 
-/** Handles channel mode +I
- */
 class InviteException : public ListModeBase
 {
  public:
 	InviteException(Module* Creator)
-		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true)
+		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
 	{
 		syntax = "<mask>";
 	}
