@@ -899,7 +899,7 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 	{
 		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			stats.AddRow(223, RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->duration)+" :"+i->reason);
+			stats.AddRow(223, RegexEngine.GetProvider(), i->freeform, i->GetFlags(), FilterActionToString(i->action), i->duration, i->reason);
 		}
 		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
 		{
