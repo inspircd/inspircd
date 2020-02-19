@@ -203,7 +203,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 		if (stats.GetSymbol() != 'S')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, stats);
+		ServerInstance->XLines->InvokeStats("SVSHOLD", stats);
 		return MOD_RES_DENY;
 	}
 

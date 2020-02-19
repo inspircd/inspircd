@@ -528,14 +528,12 @@ class CoreExport XLineManager
 	 */
 	void ApplyLines();
 
-	/** Handle /STATS for a given type.
-	 * NOTE: Any items in the list for this particular line type which have expired
-	 * will be expired and removed before the list is displayed.
-	 * @param type The type of stats to show
-	 * @param numeric The numeric to give to each result line
-	 * @param stats Stats context
+	/** Generates a /STATS response for the given X-line type.
+	 * @param type The type of X-line to look up.
+	 * @param context The stats context to respond with.
+	 * @return True if a response was sent; otherwise, false.
 	 */
-	void InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats);
+	bool InvokeStats(const std::string& type, Stats::Context& context);
 
 	/** Expire X-lines which were added by the server configuration and have been removed. */
 	void ExpireRemovedConfigLines(const std::string& type, const insp::flat_set<std::string>& configlines);

@@ -188,7 +188,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		if (stats.GetSymbol() != 'C')
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->XLines->InvokeStats("CBAN", 210, stats);
+		ServerInstance->XLines->InvokeStats("CBAN", stats);
 		return MOD_RES_DENY;
 	}
 

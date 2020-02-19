@@ -180,11 +180,7 @@ EventHandler* SocketEngine::GetRef(int fd)
 
 bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 {
-	if (!eh)
-		return false;
-	if (eh->GetFd() < 0)
-		return false;
-	return true;
+	return eh && eh->HasFd();
 }
 
 

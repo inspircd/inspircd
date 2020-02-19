@@ -195,19 +195,19 @@ void CommandStats::DoStats(Stats::Context& stats)
 		break;
 
 		case 'k':
-			ServerInstance->XLines->InvokeStats("K",216,stats);
+			ServerInstance->XLines->InvokeStats("K", stats);
 		break;
 		case 'g':
-			ServerInstance->XLines->InvokeStats("G",223,stats);
+			ServerInstance->XLines->InvokeStats("G", stats);
 		break;
 		case 'q':
-			ServerInstance->XLines->InvokeStats("Q",217,stats);
+			ServerInstance->XLines->InvokeStats("Q", stats);
 		break;
 		case 'Z':
-			ServerInstance->XLines->InvokeStats("Z",223,stats);
+			ServerInstance->XLines->InvokeStats("Z", stats);
 		break;
 		case 'e':
-			ServerInstance->XLines->InvokeStats("E",223,stats);
+			ServerInstance->XLines->InvokeStats("E", stats);
 		break;
 		case 'E':
 		{

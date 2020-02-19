@@ -50,6 +50,13 @@ namespace Invite
 	};
 }
 
+enum
+{
+	// From RFC 1459.
+	RPL_BANLIST = 367,
+	RPL_ENDOFBANLIST = 368
+};
+
 /** Handle /INVITE.
  */
 class CommandInvite : public Command
@@ -164,7 +171,7 @@ class ModeChannelBan : public ListModeBase
 {
  public:
 	ModeChannelBan(Module* Creator)
-		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", 367, 368, true)
+		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", RPL_BANLIST, RPL_ENDOFBANLIST, true)
 	{
 		syntax = "<mask>";
 	}

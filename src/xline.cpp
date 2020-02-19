@@ -477,34 +477,30 @@ void XLineManager::ApplyLines()
 	pending_lines.clear();
 }
 
-void XLineManager::InvokeStats(const std::string& type, unsigned int numeric, Stats::Context& stats)
+bool XLineManager::InvokeStats(const std::string& type, Stats::Context& context)
 {
-	ContainerIter n = lookup_lines.find(type);
+	ContainerIter citer = lookup_lines.find(type);
+	if (citer == lookup_lines.end())
+		return false;
 
-	time_t current = ServerInstance->Time();
-
-	LookupIter safei;
-
-	if (n != lookup_lines.end())
+	for (LookupIter liter = citer->second.begin(); liter != citer->second.end(); )
 	{
-		XLineLookup& list = n->second;
-		for (LookupIter i = list.begin(); i != list.end(); )
+		// We might be about to expire the XLine so we have to increment the
+		// iterator early to avoid doing that causing iterator invalidation.
+		LookupIter current = liter++;
+
+		XLine* xline = current->second;
+		if (xline->duration && xline->expiry <= ServerInstance->Time())
 		{
-			safei = i;
-			safei++;
-
-			if (i->second->duration && current > i->second->expiry)
-			{
-				ExpireLine(n, i);
-			}
-			else
-				stats.AddRow(numeric, i->second->Displayable()+" "+
-					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+i->second->source+" :"+i->second->reason);
-			i = safei;
+			// This XLine has expired so remove and skip it.
+			ExpireLine(citer, current);
+			continue;
 		}
-	}
-}
 
+		context.AddRow(RPL_STATS, context.GetSymbol(), xline->Displayable(), xline->set_time, xline->duration, xline->source, xline->reason);
+	}
+	return true;
+}
 
 XLineManager::XLineManager()
 {

@@ -182,6 +182,9 @@ class CoreExport EventHandler : public classbase
 	 */
 	inline int GetFd() const { return fd; }
 
+	/** Checks if this event handler has a fd associated with it. */
+	inline bool HasFd() const { return fd >= 0; }
+
 	inline int GetEventMask() const { return event_mask; }
 
 	/** Set a new file desciptor

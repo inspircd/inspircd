@@ -103,7 +103,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 				continue;
 
 			// Check that this user can actually see the cap.
-			if (!cap->OnList(user))
+			if (add && (!cap || !cap->OnList(user)))
 				continue;
 
 			// If the cap is being added and the client supports cap values then show the value, if any

@@ -103,7 +103,13 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BlockAccess (%u)", returnval);
 
-		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
+		std::stringstream data;
+		data << "<html><head></head><body style='font-family: sans-serif; text-align: center'>"
+			<< "<h1 style='font-size: 48pt'>Error " << returnval << "</h1>"
+			<< "<h2 style='font-size: 24pt'>Access to this resource is denied by an access control list.</h2>"
+			<< "<h2 style='font-size: 24pt'>Please contact your IRC administrator.</h2><hr>"
+			<< "<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>";
+
 		HTTPDocumentResponse response(this, *http, &data, returnval);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		if (!extraheaderkey.empty())

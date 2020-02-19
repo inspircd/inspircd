@@ -24,13 +24,18 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/** Handles +w channel mode
- */
+enum
+{
+	// InspIRCd-specific.
+	RPL_ACCESSLIST = 910,
+	RPL_ENDOFACCESSLIST = 911
+};
+
 class AutoOpList : public ListModeBase
 {
  public:
 	AutoOpList(Module* Creator)
-		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
+		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		syntax = "<prefix>:<mask>";

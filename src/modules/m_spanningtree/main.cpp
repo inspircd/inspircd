@@ -219,11 +219,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	{
 		// Create a TreeServer object that will start connecting immediately in the background
 		TreeSocket* newsocket = new TreeSocket(x, y, sa);
-		if (newsocket->GetFd() > -1)
-		{
-			/* Handled automatically on success */
-		}
-		else
+		if (!newsocket->HasFd())
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
 				x->Name.c_str(), newsocket->getError().c_str());

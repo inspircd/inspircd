@@ -52,6 +52,11 @@ class IRCv3::Replies::Reply
 		user->Send(ev);
 	}
 
+	void SendNoticeInternal(LocalUser* user, Command* command, const std::string& description)
+	{
+		user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
+	}
+
  protected:
 	/** Initializes a new instance of the Reply class.
 	 * @param Creator The module which created this instance.
@@ -163,7 +168,57 @@ class IRCv3::Replies::Reply
 		if (cap.get(user))
 			Send(user, command, code, description);
 		else
-			user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
+			SendNoticeInternal(user, command, description);
+	}
+
+	template<typename T1>
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const T1& p1, const std::string& description)
+	{
+		if (cap.get(user))
+			Send(user, command, code, p1, description);
+		else
+			SendNoticeInternal(user, command, description);
+	}
+
+	template<typename T1, typename T2>
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const std::string& description)
+	{
+		if (cap.get(user))
+			Send(user, command, code, p1, p2, description);
+		else
+			SendNoticeInternal(user, command, description);
+	}
+
+	template<typename T1, typename T2, typename T3>
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const std::string& description)
+	{
+		if (cap.get(user))
+			Send(user, command, code, p1, p2, p3, description);
+		else
+			SendNoticeInternal(user, command, description);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4>
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const std::string& description)
+	{
+		if (cap.get(user))
+			Send(user, command, code, p1, p2, p3, p4, description);
+		else
+			SendNoticeInternal(user, command, description);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4, typename T5>
+	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const T5& p5, const std::string& description)
+	{
+		if (cap.get(user))
+			Send(user, command, code, p1, p2, p3, p4, p5, description);
+		else
+			SendNoticeInternal(user, command, description);
 	}
 };
 

@@ -27,15 +27,20 @@
 #include "listmode.h"
 #include "modules/exemption.h"
 
-/** Handles channel mode +g
- */
+enum
+{
+	// InspIRCd-specific.
+	RPL_ENDOFSPAMFILTER = 940,
+	RPL_SPAMFILTER = 941
+};
+
 class ChanFilter : public ListModeBase
 {
  public:
 	unsigned long maxlen;
 
 	ChanFilter(Module* Creator)
-		: ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false)
+		: ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER, false)
 	{
 		syntax = "<pattern>";
 	}

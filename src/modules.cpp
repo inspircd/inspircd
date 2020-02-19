@@ -57,6 +57,8 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 // These declarations define the behavours of the base class Module (which does nothing at all)
 CullResult Module::cull()
 {
+	if (ModuleDLLManager)
+		ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
 	return classbase::cull();
 }
 
@@ -441,11 +443,8 @@ namespace
 		UnloadAction(Module* m) : mod(m) {}
 		void Call() override
 		{
-			DLLManager* dll = mod->ModuleDLLManager;
 			ServerInstance->Modules.DoSafeUnload(mod);
 			ServerInstance->GlobalCulls.Apply();
-			// In pure static mode this is always NULL
-			delete dll;
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};

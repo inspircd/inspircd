@@ -71,11 +71,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
 		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, sa);
-		if (newsocket->GetFd() > -1)
-		{
-			/* We're all OK */
-		}
-		else
+		if (!newsocket->HasFd())
 		{
 			/* Something barfed, show the opers */
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",

@@ -27,27 +27,22 @@
 #include "listmode.h"
 #include "modules/isupport.h"
 
-/* Written by Om<om@inspircd.org>, April 2005. */
-/* Rewritten to use the listmode utility by Om, December 2005 */
-/* Adapted from m_exception, which was originally based on m_chanprotect and m_silence */
+enum
+{
+	// From RFC 2812.
+	RPL_EXCEPTLIST = 348,
+	RPL_ENDOFEXCEPTLIST = 349
+};
 
-// The +e channel mode takes a nick!ident@host, glob patterns allowed,
-// and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
-// Now supports CIDR and IP addresses -- Brain
-
-
-/** Handles +e channel mode
- */
 class BanException : public ListModeBase
 {
  public:
 	BanException(Module* Creator)
-		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", 348, 349, true)
+		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
 	{
 		syntax = "<mask>";
 	}
 };
-
 
 class ModuleBanException
 	: public Module
