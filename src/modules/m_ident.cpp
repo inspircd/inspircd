@@ -113,8 +113,7 @@ class IdentRequestSocket : public EventHandler
 		age = ServerInstance->Time();
 
 		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
-
-		if (GetFd() == -1)
+		if (!HasFd())
 			throw ModuleException("Could not create socket");
 
 		done = false;
