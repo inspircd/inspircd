@@ -95,7 +95,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		if (!messagecomplete)
 		{
-			AddToCull();
+			Close();
 			return false;
 		}
 
@@ -229,7 +229,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			// IOHook may have errored
 			if (!getError().empty())
 			{
-				AddToCull();
+				Close();
 				return;
 			}
 		}
@@ -244,9 +244,19 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		sockets.erase(this);
 	}
 
+	void Close() CXX11_OVERRIDE
+	{
+		if (waitingcull || !HasFd())
+			return;
+
+		waitingcull = true;
+		BufferedSocket::Close();
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
 	void OnError(BufferedSocketError) CXX11_OVERRIDE
 	{
-		AddToCull();
+		Close();
 	}
 
 	void SendHTTPError(unsigned int response)
@@ -315,22 +325,12 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		SendHeaders(s.length(), response, *hheaders);
 		WriteData(s);
-		Close(true);
+		BufferedSocket::Close(true);
 	}
 
 	void Page(std::stringstream* n, unsigned int response, HTTPHeaders* hheaders)
 	{
 		Page(n->str(), response, hheaders);
-	}
-
-	void AddToCull()
-	{
-		if (waitingcull)
-			return;
-
-		waitingcull = true;
-		Close();
-		ServerInstance->GlobalCulls.AddItem(this);
 	}
 
 	bool ParseURI(const std::string& uristr, HTTPRequestURI& out)
@@ -439,7 +439,7 @@ class ModuleHttpServer : public Module
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			HttpServerSocket* sock = *i;
-			sock->AddToCull();
+			sock->Close();
 		}
 		return Module::cull();
 	}
