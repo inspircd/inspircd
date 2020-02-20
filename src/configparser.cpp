@@ -205,7 +205,7 @@ struct Parser
 				while (1)
 				{
 					ch = next();
-					if (isalnum(ch) || (varname.empty() && ch == '#'))
+					if (isalnum(ch) || (varname.empty() && ch == '#') || ch == '.')
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
@@ -232,6 +232,13 @@ struct Parser
 					if (*endptr != '\0' || lvalue > 255)
 						throw CoreException("Invalid numeric character reference '&" + varname + ";'");
 					value.push_back(static_cast<char>(lvalue));
+				}
+				else if (varname.compare(0, 4, "env.") == 0)
+				{
+					const char* envstr = getenv(varname.c_str() + 4);
+					if (!envstr)
+						throw CoreException("Undefined XML environment entity reference '&" + varname + ";'");
+					value.append(envstr);
 				}
 				else
 				{
