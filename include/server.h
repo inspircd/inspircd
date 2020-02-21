@@ -40,7 +40,7 @@ class CoreExport Server : public classbase
 	 */
 	bool uline;
 
-	/** True if this server is a silent uline, i.e. silent="true" in the uline block
+	/** True if this server is a silent uline, i.e. silent="yes" in the uline block
 	 */
 	bool silentuline;
 

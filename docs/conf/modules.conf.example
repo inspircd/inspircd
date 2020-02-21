@@ -1597,7 +1597,7 @@
 #                                                                     #
 # enableumode   - If enabled, user mode +O is required for override.  #
 #                                                                     #
-#<override noisy="yes" requirekey="no" enableumode="true">
+#<override noisy="yes" requirekey="no" enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -1693,7 +1693,7 @@
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
 #<permchanneldb filename="permchannels.conf"
-#               listmodes="true"
+#               listmodes="yes"
 #               saveperiod="5s">
 #<include file="permchannels.conf">
 #
@@ -1804,7 +1804,7 @@
 # nokicks (+Q) mode is set. Defaults to false.
 # protectedrank: Members having this rank or above may not be /REMOVE'd
 # by anyone. Set to 0 to disable this feature. Defaults to 50000.
-#<remove supportnokicks="true" protectedrank="50000">
+#<remove supportnokicks="yes" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Repeat module: Allows to block, kick or ban upon similar messages
