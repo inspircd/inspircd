@@ -1951,7 +1951,10 @@
 # You must define <sasl:target> to the name of your services server so
 # that InspIRCd knows where to send SASL authentication messages and
 # when it should enable the SASL capability.
-#<sasl target="services.mynetwork.com">
+# You can also define <sasl:requiressl> to require users to use SSL in
+# order to be able to use SASL.
+#<sasl target="services.mynetwork.com"
+#      requiressl="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,

@@ -109,11 +109,16 @@ class ServerTracker
 
 class SASLCap : public Cap::Capability
 {
+ private:
 	std::string mechlist;
 	const ServerTracker& servertracker;
+	UserCertificateAPI sslapi;
 
 	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
 	{
+		if (requiressl && sslapi && !sslapi->GetCertificate(user))
+			return false;
+
 		// Servers MUST NAK any sasl capability request if the authentication layer
 		// is unavailable.
 		return servertracker.IsOnline();
@@ -121,6 +126,9 @@ class SASLCap : public Cap::Capability
 
 	bool OnList(LocalUser* user) CXX11_OVERRIDE
 	{
+		if (requiressl && sslapi && !sslapi->GetCertificate(user))
+			return false;
+
 		// Servers MUST NOT advertise the sasl capability if the authentication layer
 		// is unavailable.
 		return servertracker.IsOnline();
@@ -132,9 +140,11 @@ class SASLCap : public Cap::Capability
 	}
 
  public:
+	bool requiressl;
 	SASLCap(Module* mod, const ServerTracker& tracker)
 		: Cap::Capability(mod, "sasl")
 		, servertracker(tracker)
+		, sslapi(mod)
 	{
 	}
 
@@ -426,10 +436,13 @@ class ModuleSASL : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		std::string target = ServerInstance->Config->ConfValue("sasl")->getString("target");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("sasl");
+
+		const std::string target = tag->getString("target");
 		if (target.empty())
 			throw ModuleException("<sasl:target> must be set to the name of your services server!");
 
+		cap.requiressl = tag->getBool("requiressl");
 		sasl_target = target;
 		servertracker.Reset();
 	}
