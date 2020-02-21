@@ -44,19 +44,44 @@ class AccountTag : public IRCv3::CapTag<AccountTag>
 	}
 };
 
+class AccountIdTag : public IRCv3::CapTag<AccountIdTag>
+{
+ public:
+	const std::string* GetValue(const ClientProtocol::Message& msg) const
+	{
+		User* const user = msg.GetSourceUser();
+		if (!user)
+			return NULL;
+
+		AccountExtItem* const accextitem = GetAccountIdExtItem();
+		if (!accextitem)
+			return NULL;
+
+		return accextitem->get(user);
+	}
+
+	AccountIdTag(Module* mod)
+		: IRCv3::CapTag<AccountIdTag>(mod, "draft/account-id-tag", "draft/account-id")
+	{
+	}
+};
+
 class ModuleIRCv3AccountTag : public Module
 {
+ private:
 	AccountTag tag;
+	AccountIdTag idtag;
 
  public:
 	ModuleIRCv3AccountTag()
 		: tag(this)
+		, idtag(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the IRCv3 account-tag client capability.", VF_VENDOR);
+		return Version("Provides the IRCv3 account-tag and DRAFT account-id client capability.", VF_VENDOR);
 	}
 };
 
