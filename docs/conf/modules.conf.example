@@ -1947,11 +1947,10 @@
 # Layer via AUTHENTICATE. Note: You also need to have cap loaded
 # for SASL to work.
 #<module name="sasl">
-# Define the following to your services server name to improve security
-# by ensuring the SASL messages are only sent to the services server
-# and not to all connected servers. This prevents a rogue server from
-# capturing SASL messages and disables the SASL cap when services is
-# down.
+
+# You must define <sasl:target> to the name of your services server so
+# that InspIRCd knows where to send SASL authentication messages and
+# when it should enable the SASL capability.
 #<sasl target="services.mynetwork.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
