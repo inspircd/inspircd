@@ -104,4 +104,7 @@ class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 		, tagname(Tagname)
 	{
 	}
+
+	/** Retrieves the underlying capability. */
+	const Cap::Capability& GetCap() const { return cap; }
 };

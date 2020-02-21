@@ -148,6 +148,7 @@ class ModuleServicesAccount
 	SimpleUserModeHandler regdeafmode;
 	Channel_r chanregmode;
 	User_r userregmode;
+	AccountExtItem accountid;
 	AccountExtItemImpl accountname;
 	bool checking_ban;
 
@@ -162,6 +163,7 @@ class ModuleServicesAccount
 		, regdeafmode(this, "regdeaf", 'R')
 		, chanregmode(this)
 		, userregmode(this)
+		, accountid("accountid", ExtensionItem::EXT_USER, this)
 		, accountname(this)
 		, checking_ban(false)
 	{

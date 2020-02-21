@@ -36,6 +36,11 @@ inline AccountExtItem* GetAccountExtItem()
 	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
 }
 
+inline AccountExtItem* GetAccountIdExtItem()
+{
+	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountid"));
+}
+
 class AccountEventListener : public Events::ModuleEventListener
 {
  public:
