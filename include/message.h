@@ -39,6 +39,9 @@ class CoreExport MessageDetails
 	/* Whether to send the original message back to clients with echo-message support. */
 	bool echo_original;
 
+	/** Whether to update the source user's idle time. */
+	bool update_idle;
+
 	 /** The users who are exempted from receiving this message. */
 	CUList exemptions;
 
@@ -78,6 +81,7 @@ class CoreExport MessageDetails
 	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
 		: echo(true)
 		, echo_original(false)
+		, update_idle(true)
 		, original_text(msg)
 		, tags_in(tags)
 		, text(msg)

@@ -128,7 +128,7 @@ namespace
 	{
 		// If the source is local and was not sending a CTCP reply then update their idle time.
 		LocalUser* lsource = IS_LOCAL(source);
-		if (lsource && (msgdetails.type != MSG_NOTICE || !msgdetails.IsCTCP()))
+		if (lsource && msgdetails.update_idle && (msgdetails.type != MSG_NOTICE || !msgdetails.IsCTCP()))
 			lsource->idle_lastmsg = ServerInstance->Time();
 
 		// Inform modules that a message was sent.

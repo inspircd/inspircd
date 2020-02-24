@@ -85,6 +85,9 @@ class CTCTags::TagMessageDetails
 	/* Whether to send the original tags back to clients with echo-message support. */
 	bool echo_original;
 
+	/** Whether to update the source user's idle time. */
+	bool update_idle;
+
 	/** The users who are exempted from receiving this message. */
 	CUList exemptions;
 
@@ -97,6 +100,7 @@ class CTCTags::TagMessageDetails
 	TagMessageDetails(const ClientProtocol::TagMap& tags)
 		: echo(true)
 		, echo_original(false)
+		, update_idle(true)
 		, tags_in(tags)
 	{
 	}
