@@ -215,7 +215,7 @@ class ModuleSSLInfo
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("SSL Certificate Utilities", VF_VENDOR);
+		return Version("Provides user SSL information and certificate utilities", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
