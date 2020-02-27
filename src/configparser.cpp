@@ -158,12 +158,20 @@ struct Parser
 		}
 	}
 
+	bool wordchar(char ch)
+	{
+		return isalnum(ch)
+			|| ch == '-'
+			|| ch == '.'
+			|| ch == '_';
+	}
+
 	void nextword(std::string& rv)
 	{
 		int ch = next();
 		while (isspace(ch))
 			ch = next();
-		while (isalnum(ch) || ch == '_'|| ch == '-')
+		while (wordchar(ch))
 		{
 			rv.push_back(ch);
 			ch = next();
@@ -205,7 +213,7 @@ struct Parser
 				while (1)
 				{
 					ch = next();
-					if (isalnum(ch) || (varname.empty() && ch == '#') || ch == '.')
+					if (wordchar(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
