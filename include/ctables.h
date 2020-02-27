@@ -148,10 +148,6 @@ class CoreExport CommandBase : public ServiceProvider
 		const ClientProtocol::TagMap& GetTags() const { return tags; }
 	};
 
-	/** User flags needed to execute the command or 0
-	 */
-	unsigned char flags_needed;
-
 	/** Minimum number of parameters command takes
 	*/
 	const unsigned int min_params;
@@ -162,14 +158,6 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	const unsigned int max_params;
 
-	/** used by /stats m
-	 */
-	unsigned long use_count;
-
-	/** True if the command can be issued before registering
-	 */
-	bool works_before_reg;
-
 	/** True if the command allows an empty last parameter.
 	 * When false and the last parameter is empty, it's popped BEFORE
 	 * checking there are enough params, etc. (i.e. the handler won't
@@ -179,19 +167,10 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	bool allow_empty_last_param;
 
-	/** Syntax string for the command, displayed if non-empty string.
-	 * This takes place of the text in the 'not enough parameters' numeric.
-	 */
-	std::string syntax;
-
 	/** Translation type list for possible parameters, used to tokenize
 	 * parameters into UIDs and SIDs etc.
 	 */
 	std::vector<TranslateType> translation;
-
-	/** How many seconds worth of penalty does this command have?
-	 */
-	unsigned int Penalty;
 
 	/** Create a new command.
 	 * @param me The module which created this command.
@@ -211,23 +190,31 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	virtual void EncodeParameter(std::string& parameter, unsigned int index);
 
-	/** @return true if the command works before registration.
-	 */
-	bool WorksBeforeReg()
-	{
-		return works_before_reg;
-	}
-
 	virtual ~CommandBase();
 };
 
 class CoreExport Command : public CommandBase
 {
  public:
+	/** The user modes required to be able to execute this command. */
+	unsigned char flags_needed;
+
 	/** If true, the command will not be forwarded by the linking module even if it comes via ENCAP.
 	 * Can be used to forward commands before their effects.
 	 */
 	bool force_manual_route;
+
+	/** The number of seconds worth of penalty that executing this command gives. */
+	unsigned int Penalty;
+
+	/** The number of times this command has been executed. */
+	unsigned long use_count;
+
+	/** If non-empty then the syntax of the parameter for this command. */
+	std::string syntax;
+
+	/** Whether the command can be issued before registering. */
+	bool works_before_reg;
 
 	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
