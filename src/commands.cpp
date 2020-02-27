@@ -24,6 +24,11 @@
 
 #include "inspircd.h"
 
+SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: Command(me, cmd, minpara, maxpara)
+{
+}
+
 CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 {
 	switch (user->usertype)
