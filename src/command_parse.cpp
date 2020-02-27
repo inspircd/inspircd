@@ -325,48 +325,6 @@ void CommandParser::RemoveCommand(Command* x)
 		cmdlist.erase(n);
 }
 
-CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
-	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
-	, min_params(minpara)
-	, max_params(maxpara)
-	, allow_empty_last_param(true)
-{
-}
-
-CommandBase::~CommandBase()
-{
-}
-
-void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
-{
-}
-
-RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
-{
-	return ROUTE_LOCALONLY;
-}
-
-Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
-	: CommandBase(mod, cmd, minpara, maxpara)
-	, flags_needed(0)
-	, force_manual_route(false)
-	, Penalty(1)
-	, use_count(0)
-	, works_before_reg(false)
-{
-}
-
-Command::~Command()
-{
-	ServerInstance->Parser.RemoveCommand(this);
-}
-
-void Command::RegisterService()
-{
-	if (!ServerInstance->Parser.AddCommand(this))
-		throw ModuleException("Command already exists: " + name);
-}
-
 void CommandParser::ProcessBuffer(LocalUser* user, const std::string& buffer)
 {
 	ClientProtocol::ParseOutput parseoutput;
