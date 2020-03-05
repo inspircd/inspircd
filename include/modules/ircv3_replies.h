@@ -143,7 +143,10 @@ class IRCv3::Replies::Reply
 		const T3& p3, const T4& p4, const T5& p5, const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(ConvToStr(p1));
 		msg.PushParam(ConvToStr(p2));
