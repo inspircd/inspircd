@@ -64,7 +64,7 @@ foreach my $compiler (@compilers) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		if (execute 'make', '--jobs', get_cpu_count + 1, 'install') {
+		if (execute 'make', '--jobs', get_cpu_count() + 1, 'install') {
 			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
