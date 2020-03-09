@@ -45,7 +45,8 @@ class CommandOpermotd : public Command
 
 	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
 	{
-		flags_needed = 'o'; syntax = "[<servername>]";
+		flags_needed = 'o';
+		syntax = "[<servername>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE

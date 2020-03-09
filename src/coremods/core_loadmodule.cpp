@@ -33,7 +33,13 @@ class CommandLoadmodule : public Command
  public:
 	/** Constructor for loadmodule.
 	 */
-	CommandLoadmodule ( Module* parent) : Command(parent,"LOADMODULE",1,1) { flags_needed='o'; syntax = "<modulename>"; }
+	CommandLoadmodule(Module* parent)
+		: Command(parent,"LOADMODULE", 1, 1)
+	{
+		flags_needed = 'o';
+		syntax = "<modulename>";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command

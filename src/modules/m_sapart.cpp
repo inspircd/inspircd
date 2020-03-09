@@ -32,7 +32,8 @@ class CommandSapart : public Command
  public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
-		flags_needed = 'o'; syntax = "<nick> <channel>[,<channel>]+ [:<reason>]";
+		flags_needed = 'o';
+		syntax = "<nick> <channel>[,<channel>]+ [:<reason>]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
