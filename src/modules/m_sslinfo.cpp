@@ -314,7 +314,8 @@ class ModuleSSLInfo
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		bool ok = true;
-		if (myclass->config->getString("requiressl") == "trusted")
+		const std::string requiressl = myclass->config->getString("requiressl");
+		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{
 			ok = (cert && cert->IsCAVerified());
 			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted SSL cert. Client %s one.", (ok ? "has" : "does not have"));
