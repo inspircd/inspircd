@@ -149,6 +149,12 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	insp::flat_set<int> ports;
 
+	/** If non-empty then the password a user must specify in PASS to be assigned to this class. */
+	std::string password;
+
+	/** If non-empty then the hash algorithm that the password field is hashed with. */
+	std::string passwordhash;
+
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
