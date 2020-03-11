@@ -39,7 +39,7 @@ bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::s
 		return false;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
-	if (!hashtype.empty() && hashtype != "plaintext")
+	if (!hashtype.empty() && !stdalgo::string::equalsci(hashtype, "plaintext"))
 		return false;
 
 	return TimingSafeCompare(data, input);
