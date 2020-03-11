@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "modules/cap.h"
+#include "modules/ctctags.h"
 
 class ServiceTag : public ClientProtocol::MessageTagProvider
 {
  private:
-	Cap::Reference ctctagcap;
+	CTCTags::CapReference ctctagcap;
 
  public:
 	ServiceTag(Module* mod);

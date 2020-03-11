@@ -20,13 +20,24 @@
 #pragma once
 
 #include "event.h"
+#include "modules/cap.h"
 
 namespace CTCTags
 {
+	class CapReference;
 	class EventListener;
 	class TagMessage;
 	class TagMessageDetails;
 }
+
+class CTCTags::CapReference : public Cap::Reference
+{
+ public:
+	CapReference(Module* mod)
+		: Cap::Reference(mod, "message-tags")
+	{
+	}
+};
 
 class CTCTags::TagMessage : public ClientProtocol::Message
 {

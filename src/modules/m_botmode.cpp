@@ -24,7 +24,7 @@
 
 
 #include "inspircd.h"
-#include "modules/cap.h"
+#include "modules/ctctags.h"
 #include "modules/whois.h"
 
 enum
@@ -37,13 +37,13 @@ class BotTag : public ClientProtocol::MessageTagProvider
 {
  private:
 	SimpleUserModeHandler& botmode;
-	Cap::Reference ctctagcap;
+	CTCTags::CapReference ctctagcap;
 
  public:
 	BotTag(Module* mod, SimpleUserModeHandler& bm)
 		: ClientProtocol::MessageTagProvider(mod)
 		, botmode(bm)
-		, ctctagcap(mod, "message-tags")
+		, ctctagcap(mod)
 	{
 	}
 
