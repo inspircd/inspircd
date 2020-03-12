@@ -285,6 +285,12 @@ class CoreModMode : public Module
 	{
 	}
 
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
+		tokens["USERMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_USER);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the MODE command", VF_VENDOR|VF_CORE);
