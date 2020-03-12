@@ -78,6 +78,7 @@ class LDAPRequest
 	}
 
 	virtual int run() = 0;
+	virtual std::string info() = 0;
 };
 
 class LDAPBind : public LDAPRequest
@@ -94,6 +95,7 @@ class LDAPBind : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPSearch : public LDAPRequest
@@ -113,6 +115,7 @@ class LDAPSearch : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPAdd : public LDAPRequest
@@ -130,6 +133,7 @@ class LDAPAdd : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPDel : public LDAPRequest
@@ -145,6 +149,7 @@ class LDAPDel : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPModify : public LDAPRequest
@@ -162,6 +167,7 @@ class LDAPModify : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPCompare : public LDAPRequest
@@ -179,6 +185,7 @@ class LDAPCompare : public LDAPRequest
 	}
 
 	int run() CXX11_OVERRIDE;
+	std::string info() CXX11_OVERRIDE;
 };
 
 class LDAPService : public LDAPProvider, public SocketThread
@@ -396,7 +403,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 		if (res != LDAP_SUCCESS)
 		{
-			ldap_result->error = ldap_err2string(res);
+			ldap_result->error = std::string(ldap_err2string(res)) + " (" + req->info() + ")";
 			return;
 		}
 
@@ -646,9 +653,19 @@ int LDAPBind::run()
 	return i;
 }
 
+std::string LDAPBind::info()
+{
+	return "bind dn=" + who;
+}
+
 int LDAPSearch::run()
 {
 	return ldap_search_ext_s(service->GetConnection(), base.c_str(), searchscope, filter.c_str(), NULL, 0, NULL, NULL, &tv, 0, &message);
+}
+
+std::string LDAPSearch::info()
+{
+	return "search base=" + base + " filter=" + filter;
 }
 
 int LDAPAdd::run()
@@ -659,9 +676,19 @@ int LDAPAdd::run()
 	return i;
 }
 
+std::string LDAPAdd::info()
+{
+	return "add dn=" + dn;
+}
+
 int LDAPDel::run()
 {
 	return ldap_delete_ext_s(service->GetConnection(), dn.c_str(), NULL, NULL);
+}
+
+std::string LDAPDel::info()
+{
+	return "del dn=" + dn;
 }
 
 int LDAPModify::run()
@@ -670,6 +697,11 @@ int LDAPModify::run()
 	int i = ldap_modify_ext_s(service->GetConnection(), base.c_str(), mods, NULL, NULL);
 	LDAPService::FreeMods(mods);
 	return i;
+}
+
+std::string LDAPModify::info()
+{
+	return "modify base=" + base;
 }
 
 int LDAPCompare::run()
@@ -683,7 +715,11 @@ int LDAPCompare::run()
 	free(cred.bv_val);
 
 	return ret;
+}
 
+std::string LDAPCompare::info()
+{
+	return "compare dn=" + dn + " attr=" + attr;
 }
 
 MODULE_INIT(ModuleLDAP)
