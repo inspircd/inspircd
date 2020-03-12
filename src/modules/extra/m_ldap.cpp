@@ -403,7 +403,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 		if (res != LDAP_SUCCESS)
 		{
-			ldap_result->error = std::string(ldap_err2string(res)) + " (" + req->info() + ")";
+			ldap_result->error = InspIRCd::Format("%s (%s)", ldap_err2string(res), req->info().c_str());
 			return;
 		}
 
