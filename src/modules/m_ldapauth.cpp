@@ -118,6 +118,9 @@ class BindInterface : public LDAPInterface
 
 		if (!checkingAttributes && requiredattributes.empty())
 		{
+			if (verbose)
+				ServerInstance->SNO->WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
+
 			// We're done, there are no attributes to check
 			SetVHost(user, DN);
 			authed->set(user, 1);
@@ -133,6 +136,9 @@ class BindInterface : public LDAPInterface
 			{
 				// Only one has to pass
 				passed = true;
+
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
 
 				SetVHost(user, DN);
 				authed->set(user, 1);
@@ -171,7 +177,7 @@ class BindInterface : public LDAPInterface
 		if (!attrCount)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (unable to validate attributes)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (dn=%s) (unable to validate attributes)", user->GetFullRealHost().c_str(), DN.c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			delete this;
 		}
