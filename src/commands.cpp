@@ -66,6 +66,17 @@ void Command::RegisterService()
 		throw ModuleException("Command already exists: " + name);
 }
 
+void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
+	if (ServerInstance->Config->SyntaxHints && user->registered == REG_ALL && syntax.length())
+		user->WriteNumeric(RPL_SYNTAX, name, syntax);
+}
+
+void Command::TellNotRegistered(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NOTREGISTERED, name, "You have not registered.");
+}
 
 SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
 	: Command(me, cmd, minpara, maxpara)

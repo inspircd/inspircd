@@ -236,6 +236,18 @@ class CoreExport Command : public CommandBase
 
 	/** Registers this command with the command parser. */
 	void RegisterService() CXX11_OVERRIDE;
+
+	/** Tells the user they did not specify enough parameters.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 */
+	virtual void TellNotEnoughParameters(LocalUser* user, const Params& parameters);
+
+	/** Tells the user they need to be registered to execute this command.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 */
+	virtual void TellNotRegistered(LocalUser* user, const Params& parameters);
 };
 
 class CoreExport SplitCommand : public Command

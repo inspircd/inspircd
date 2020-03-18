@@ -283,9 +283,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	if (command_p.size() < handler->min_params)
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
-		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, handler->name, handler->syntax);
+		handler->TellNotEnoughParameters(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
 	}
@@ -293,7 +291,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	if ((user->registered != REG_ALL) && (!handler->works_before_reg))
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
+		handler->TellNotRegistered(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
