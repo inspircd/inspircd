@@ -57,7 +57,7 @@ class CommandTagMsg : public Command
 	{
 		// If the source is local then update its idle time.
 		LocalUser* lsource = IS_LOCAL(source);
-		if (lsource)
+		if (lsource && msgdetails.update_idle)
 			lsource->idle_lastmsg = ServerInstance->Time();
 
 		// Inform modules that a TAGMSG was sent.

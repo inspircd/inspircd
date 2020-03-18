@@ -119,7 +119,6 @@ namespace
 UserManager::UserManager()
 	: already_sent_id(0)
 	, unregistered_count(0)
-	, uline_count(0)
 {
 }
 

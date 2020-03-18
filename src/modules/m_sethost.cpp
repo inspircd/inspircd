@@ -36,7 +36,8 @@ class CommandSethost : public Command
 		: Command(Creator,"SETHOST", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; syntax = "<host>";
+		flags_needed = 'o';
+		syntax = "<host>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

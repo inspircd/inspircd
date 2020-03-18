@@ -44,7 +44,8 @@ class CommandSwhois : public Command
 		, operblock(Creator, "swhois_operblock", ExtensionItem::EXT_USER)
 		, swhois(Creator, "swhois", ExtensionItem::EXT_USER, true)
 	{
-		flags_needed = 'o'; syntax = "<nick> :<swhois>";
+		flags_needed = 'o';
+		syntax = "<nick> :<swhois>";
 		translation = { TR_NICK, TR_TEXT };
 	}
 

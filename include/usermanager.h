@@ -45,6 +45,9 @@ class CoreExport UserManager
 	 */
 	typedef std::vector<User*> OperList;
 
+	/** A list containing users who are on a U-lined servers. */
+	typedef std::vector<User*> ULineList;
+
 	/** A list holding local users
 	*/
 	typedef insp::intrusive_list<LocalUser> LocalList;
@@ -88,13 +91,13 @@ class CoreExport UserManager
 	 */
 	OperList all_opers;
 
+	/** A list of users on U-lined servers. */
+	ULineList all_ulines;
+
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
 	 */
 	unsigned int unregistered_count;
-
-	/** The number of users on U-lined servers. */
-	unsigned int uline_count;
 
 	/** Perform background user events for all local users such as PING checks, registration timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
@@ -164,7 +167,7 @@ class CoreExport UserManager
 	/** Return a count of users on a u-lined servers.
 	 * @return The number of users on u-lined servers.
 	 */
-	unsigned int ULineCount() const { return this->uline_count; }
+	unsigned int ULineCount() const { return this->all_ulines.size(); }
 
 	/** Return a count of local registered users
 	 * @return The number of registered local users

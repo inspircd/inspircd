@@ -153,12 +153,20 @@ struct Parser
 		}
 	}
 
+	bool wordchar(char ch)
+	{
+		return isalnum(ch)
+			|| ch == '-'
+			|| ch == '.'
+			|| ch == '_';
+	}
+
 	void nextword(std::string& rv)
 	{
 		int ch = next();
 		while (isspace(ch))
 			ch = next();
-		while (isalnum(ch) || ch == '_'|| ch == '-')
+		while (wordchar(ch))
 		{
 			rv.push_back(ch);
 			ch = next();
@@ -200,7 +208,7 @@ struct Parser
 				while (1)
 				{
 					ch = next();
-					if (isalnum(ch) || (varname.empty() && ch == '#'))
+					if (wordchar(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
@@ -227,6 +235,13 @@ struct Parser
 					if (*endptr != '\0' || lvalue > 255)
 						throw CoreException("Invalid numeric character reference '&" + varname + ";'");
 					value.push_back(static_cast<char>(lvalue));
+				}
+				else if (varname.compare(0, 4, "env.") == 0)
+				{
+					const char* envstr = getenv(varname.c_str() + 4);
+					if (!envstr)
+						throw CoreException("Undefined XML environment entity reference '&" + varname + ";'");
+					value.append(envstr);
 				}
 				else
 				{

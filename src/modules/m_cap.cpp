@@ -78,9 +78,9 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			used |= cap->GetMask();
 		}
 
-		for (unsigned int i = 0; i < MAX_CAPS; i++)
+		for (size_t i = 0; i < MAX_CAPS; i++)
 		{
-			Capability::Bit bit = (1 << i);
+			Capability::Bit bit = (static_cast<Capability::Bit>(1) << i);
 			if (!(used & bit))
 				return bit;
 		}
@@ -255,7 +255,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		return true;
 	}
 
-	void HandleList(std::string& out, LocalUser* user, bool show_all, bool show_values, bool minus_prefix = false) const
+	void HandleList(std::vector<std::string>& out, LocalUser* user, bool show_all, bool show_values, bool minus_prefix = false) const
 	{
 		Ext show_caps = (show_all ? ~0 : capext.get(user));
 
@@ -268,24 +268,25 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			if ((show_all) && (!cap->OnList(user)))
 				continue;
 
+			std::string token;
 			if (minus_prefix)
-				out.push_back('-');
-			out.append(cap->GetName());
+				token.push_back('-');
+			token.append(cap->GetName());
 
 			if (show_values)
 			{
 				const std::string* capvalue = cap->GetValue(user);
 				if ((capvalue) && (!capvalue->empty()) && (capvalue->find(' ') == std::string::npos))
 				{
-					out.push_back('=');
-					out.append(*capvalue, 0, MAX_VALUE_LENGTH);
+					token.push_back('=');
+					token.append(*capvalue, 0, MAX_VALUE_LENGTH);
 				}
 			}
-			out.push_back(' ');
+			out.push_back(token);
 		}
 	}
 
-	void HandleClear(LocalUser* user, std::string& result)
+	void HandleClear(LocalUser* user, std::vector<std::string>& result)
 	{
 		HandleList(result, user, false, false, true);
 		capext.unset(user);
@@ -302,22 +303,26 @@ namespace
 			return std::string();
 
 		// List requested caps
-		std::string ret;
-		managerimpl->HandleList(ret, user, false, false);
+		std::vector<std::string> result;
+		managerimpl->HandleList(result, user, false, false);
 
-		// Serialize cap protocol version. If building a human-readable string append a new token, otherwise append only a single character indicating the version.
-		Cap::Protocol protocol = managerimpl->GetProtocol(user);
+		// Serialize cap protocol version. If building a human-readable string append a
+		// new token, otherwise append only a single character indicating the version.
+		std::string version;
 		if (human)
-			ret.append("capversion=3.");
-		else if (!ret.empty())
-			ret.erase(ret.length()-1);
+			version.append("capversion=3.");
+		switch (managerimpl->GetProtocol(user))
+		{
+			case Cap::CAP_302:
+				version.push_back('2');
+				break;
+			default:
+				version.push_back('1');
+				break;
+		}
+		result.push_back(version);
 
-		if (protocol == Cap::CAP_302)
-			ret.push_back('2');
-		else
-			ret.push_back('1');
-
-		return ret;
+		return stdalgo::string::join(result, ' ');
 	}
 }
 
@@ -355,30 +360,46 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 class CapMessage : public Cap::MessageBase
 {
  public:
-	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result)
+	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
 		: Cap::MessageBase(subcmd)
 	{
 		SetUser(user);
+		if (asterisk)
+			PushParam("*");
 		PushParamRef(result);
 	}
 };
 
 class CommandCap : public SplitCommand
 {
+ private:
 	Events::ModuleEventProvider evprov;
 	Cap::ManagerImpl manager;
 	ClientProtocol::EventProvider protoevprov;
 
-	void DisplayResult(LocalUser* user, const std::string& subcmd, std::string& result)
+	void DisplayResult(LocalUser* user, const std::string& subcmd, std::vector<std::string> result, bool asterisk)
 	{
-		if (*result.rbegin() == ' ')
-			result.erase(result.end()-1);
-		DisplayResult2(user, subcmd, result);
+		size_t maxline = ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - user->nick.length() - subcmd.length() - 11;
+		std::string line;
+		for (std::vector<std::string>::const_iterator iter = result.begin(); iter != result.end(); ++iter)
+		{
+			if (line.length() + iter->length() < maxline)
+			{
+				line.append(*iter);
+				line.push_back(' ');
+			}
+			else
+			{
+				DisplaySingleResult(user, subcmd, line, asterisk);
+				line.clear();
+			}
+		}
+		DisplaySingleResult(user, subcmd, line, false);
 	}
 
-	void DisplayResult2(LocalUser* user, const std::string& subcmd, const std::string& result)
+	void DisplaySingleResult(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
 	{
-		CapMessage msg(user, subcmd, result);
+		CapMessage msg(user, subcmd, result, asterisk);
 		ClientProtocol::Event ev(protoevprov, msg);
 		user->Send(ev);
 	}
@@ -408,7 +429,7 @@ class CommandCap : public SplitCommand
 				return CMD_FAILURE;
 
 			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
-			DisplayResult2(user, replysubcmd, parameters[1]);
+			DisplaySingleResult(user, replysubcmd, parameters[1], false);
 		}
 		else if (irc::equals(subcommand, "END"))
 		{
@@ -428,16 +449,16 @@ class CommandCap : public SplitCommand
 				}
 			}
 
-			std::string result;
+			std::vector<std::string> result;
 			// Show values only if supports v3.2 and doing LS
 			manager.HandleList(result, user, is_ls, ((is_ls) && (capversion != Cap::CAP_LEGACY)));
-			DisplayResult(user, subcommand, result);
+			DisplayResult(user, subcommand, result, (capversion != Cap::CAP_LEGACY));
 		}
 		else if (irc::equals(subcommand, "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
 		{
-			std::string result;
+			std::vector<std::string> result;
 			manager.HandleClear(user, result);
-			DisplayResult(user, "ACK", result);
+			DisplayResult(user, "ACK", result, false);
 		}
 		else
 		{

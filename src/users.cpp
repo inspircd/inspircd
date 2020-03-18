@@ -90,7 +90,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	if (srv->IsULine())
-		ServerInstance->Users.uline_count++;
+		ServerInstance->Users.all_ulines.push_back(this);	
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != USERTYPE_SERVER)
@@ -343,8 +343,8 @@ CullResult User::cull()
 	if (client_sa.family() != AF_UNSPEC)
 		ServerInstance->Users.RemoveCloneCounts(this);
 
-	if (server->IsULine() && ServerInstance->Users.uline_count)
-		ServerInstance->Users.uline_count--;
+	if (server->IsULine())
+		stdalgo::erase(ServerInstance->Users.all_ulines, this);
 
 	return Extensible::cull();
 }
@@ -1144,9 +1144,9 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				}
 			}
 
-			if (regdone && !c->config->getString("password").empty())
+			if (regdone && !c->password.empty())
 			{
-				if (!ServerInstance->PassCompare(this, c->config->getString("password"), password, c->config->getString("hash")))
+				if (!ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
 				{
 					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
 					continue;
@@ -1265,4 +1265,6 @@ void ConnectClass::Update(const ConnectClass* src)
 	limit = src->limit;
 	resolvehostnames = src->resolvehostnames;
 	ports = src->ports;
+	password = src->password;
+	passwordhash = src->passwordhash;
 }

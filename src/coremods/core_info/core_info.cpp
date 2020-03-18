@@ -46,6 +46,7 @@ class CoreModInfo : public Module
 	CommandInfo cmdinfo;
 	CommandModules cmdmodules;
 	CommandMotd cmdmotd;
+	CommandServList cmdservlist;
 	CommandTime cmdtime;
 	CommandVersion cmdversion;
 	Numeric::Numeric numeric004;
@@ -93,6 +94,7 @@ class CoreModInfo : public Module
 		, cmdinfo(this)
 		, cmdmodules(this)
 		, cmdmotd(this)
+		, cmdservlist(this)
 		, cmdtime(this)
 		, cmdversion(this, isupport)
 		, numeric004(RPL_MYINFO)
@@ -189,7 +191,7 @@ class CoreModInfo : public Module
 
 	Version GetVersion() override
 	{
-		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, and VERSION commands", VF_VENDOR|VF_CORE);
+		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands", VF_VENDOR|VF_CORE);
 	}
 };
 

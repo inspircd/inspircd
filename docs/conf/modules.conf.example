@@ -1184,14 +1184,15 @@
 #
 # host     - A glob match for the SNI hostname to apply this policy to.
 # duration - The amount of time that the policy lasts for. Defaults to
-#            approximately two months by default.
+#            five minutes by default. You should raise this to a month
+#            or two once you know that your config is valid.
 # port     - The port on which TLS connections to the server are being
 #            accepted. You MUST have a CA-verified certificate on this
 #            port. Self signed certificates are not acceptable.
 # preload  - Whether client developers can include your certificate in
 #            preload lists.
 #
-# <sts host="*.example.com" duration="60d" port="6697" preload="yes">
+# <sts host="*.example.com" duration="5m" port="6697" preload="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection +j X:Y.
@@ -1550,7 +1551,13 @@
 # requirekey    - If enabled, overriding on join requires a channel   #
 #                 key of "override" to be specified.                  #
 #                                                                     #
+<<<<<<< HEAD
 #<override noisy="yes" requirekey="no">
+=======
+# enableumode   - If enabled, user mode +O is required for override.  #
+#                                                                     #
+#<override noisy="yes" requirekey="no" enableumode="yes">
+>>>>>>> insp3
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -1646,7 +1653,7 @@
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
 #<permchanneldb filename="permchannels.conf"
-#               listmodes="true"
+#               listmodes="yes"
 #               saveperiod="5s">
 #<include file="permchannels.conf">
 #
@@ -1751,7 +1758,7 @@
 # nokicks (+Q) mode is set. Defaults to false.
 # protectedrank: Members having this rank or above may not be /REMOVE'd
 # by anyone. Set to 0 to disable this feature. Defaults to 50000.
-#<remove supportnokicks="true" protectedrank="50000">
+#<remove supportnokicks="yes" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Repeat module: Allows to block, kick or ban upon similar messages
@@ -1894,12 +1901,14 @@
 # Layer via AUTHENTICATE. Note: You also need to have cap loaded
 # for SASL to work.
 #<module name="sasl">
-# Define the following to your services server name to improve security
-# by ensuring the SASL messages are only sent to the services server
-# and not to all connected servers. This prevents a rogue server from
-# capturing SASL messages and disables the SASL cap when services is
-# down.
-#<sasl target="services.mynetwork.com">
+
+# You must define <sasl:target> to the name of your services server so
+# that InspIRCd knows where to send SASL authentication messages and
+# when it should enable the SASL capability.
+# You can also define <sasl:requiressl> to require users to use SSL in
+# order to be able to use SASL.
+#<sasl target="services.mynetwork.com"
+#      requiressl="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,

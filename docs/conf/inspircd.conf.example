@@ -709,7 +709,7 @@
              # Turning this option off will make the server spend more time on users we may
              # potentially not want. Normally this should be neglible, though.
              # Default value is true
-             clonesonconnect="true"
+             clonesonconnect="yes"
 
              # timeskipwarn: The time period that a server clock can jump by before
              # operators will be warned that the server is having performance issues.

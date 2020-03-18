@@ -39,6 +39,9 @@ class CoreExport MessageDetails
 	/* Whether to send the original message back to clients with echo-message support. */
 	bool echo_original = false;
 
+	/** Whether to update the source user's idle time. */
+	bool update_idle = true;
+
 	 /** The users who are exempted from receiving this message. */
 	CUList exemptions;
 

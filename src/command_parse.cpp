@@ -39,7 +39,7 @@ bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::s
 		return false;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
-	if (!hashtype.empty() && hashtype != "plaintext")
+	if (!hashtype.empty() && !stdalgo::string::equalsci(hashtype, "plaintext"))
 		return false;
 
 	return TimingSafeCompare(data, input);
@@ -283,17 +283,15 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	if (command_p.size() < handler->min_params)
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NEEDMOREPARAMS, command, "Not enough parameters.");
-		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, handler->name, handler->syntax);
+		handler->TellNotEnoughParameters(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
 	}
 
-	if ((user->registered != REG_ALL) && (!handler->WorksBeforeReg()))
+	if ((user->registered != REG_ALL) && (!handler->works_before_reg))
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NOTREGISTERED, command, "You have not registered");
+		handler->TellNotRegistered(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
@@ -323,42 +321,6 @@ void CommandParser::RemoveCommand(Command* x)
 	CommandMap::iterator n = cmdlist.find(x->name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
-}
-
-CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
-	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
-	, min_params(minpara)
-	, max_params(maxpara)
-{
-}
-
-CommandBase::~CommandBase()
-{
-}
-
-void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
-{
-}
-
-RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
-{
-	return ROUTE_LOCALONLY;
-}
-
-Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
-	: CommandBase(mod, cmd, minpara, maxpara)
-{
-}
-
-Command::~Command()
-{
-	ServerInstance->Parser.RemoveCommand(this);
-}
-
-void Command::RegisterService()
-{
-	if (!ServerInstance->Parser.AddCommand(this))
-		throw ModuleException("Command already exists: " + name);
 }
 
 void CommandParser::ProcessBuffer(LocalUser* user, const std::string& buffer)

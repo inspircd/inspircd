@@ -24,6 +24,59 @@
 
 #include "inspircd.h"
 
+CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
+	, min_params(minpara)
+	, max_params(maxpara)
+{
+}
+
+CommandBase::~CommandBase()
+{
+}
+
+void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
+{
+}
+
+RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
+{
+	return ROUTE_LOCALONLY;
+}
+
+Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: CommandBase(mod, cmd, minpara, maxpara)
+{
+}
+
+Command::~Command()
+{
+	ServerInstance->Parser.RemoveCommand(this);
+}
+
+void Command::RegisterService()
+{
+	if (!ServerInstance->Parser.AddCommand(this))
+		throw ModuleException("Command already exists: " + name);
+}
+
+void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
+	if (ServerInstance->Config->SyntaxHints && user->registered == REG_ALL && syntax.length())
+		user->WriteNumeric(RPL_SYNTAX, name, syntax);
+}
+
+void Command::TellNotRegistered(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NOTREGISTERED, name, "You have not registered.");
+}
+
+SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: Command(me, cmd, minpara, maxpara)
+{
+}
+
 CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 {
 	switch (user->usertype)

@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 class CommandMode : public Command
 {
@@ -273,15 +274,24 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 	}
 }
 
-class CoreModMode : public Module
+class CoreModMode
+	: public Module
+	, public ISupport::EventListener
 {
  private:
 	CommandMode cmdmode;
 
  public:
 	CoreModMode()
-		: cmdmode(this)
+		: ISupport::EventListener(this)
+		, cmdmode(this)
 	{
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		tokens["CHANMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL);
+		tokens["USERMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_USER);
 	}
 
 	Version GetVersion() override

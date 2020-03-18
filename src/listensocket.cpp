@@ -48,8 +48,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	}
 
 	fd = socket(bind_to.family(), SOCK_STREAM, 0);
-
-	if (this->fd == -1)
+	if (!HasFd())
 		return;
 
 #ifdef IPV6_V6ONLY

@@ -148,10 +148,6 @@ class CoreExport CommandBase : public ServiceProvider
 		const ClientProtocol::TagMap& GetTags() const { return tags; }
 	};
 
-	/** User flags needed to execute the command or 0
-	 */
-	unsigned char flags_needed = 0;
-
 	/** Minimum number of parameters command takes
 	*/
 	const unsigned int min_params;
@@ -162,14 +158,6 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	const unsigned int max_params;
 
-	/** used by /stats m
-	 */
-	unsigned long use_count = 0;
-
-	/** True if the command can be issued before registering
-	 */
-	bool works_before_reg = false;
-
 	/** True if the command allows an empty last parameter.
 	 * When false and the last parameter is empty, it's popped BEFORE
 	 * checking there are enough params, etc. (i.e. the handler won't
@@ -179,19 +167,10 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	bool allow_empty_last_param = true;
 
-	/** Syntax string for the command, displayed if non-empty string.
-	 * This takes place of the text in the 'not enough parameters' numeric.
-	 */
-	std::string syntax;
-
 	/** Translation type list for possible parameters, used to tokenize
 	 * parameters into UIDs and SIDs etc.
 	 */
 	std::vector<TranslateType> translation;
-
-	/** How many seconds worth of penalty does this command have?
-	 */
-	unsigned int Penalty = 1;
 
 	/** Create a new command.
 	 * @param me The module which created this command.
@@ -211,50 +190,102 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	virtual void EncodeParameter(std::string& parameter, unsigned int index);
 
-	/** @return true if the command works before registration.
-	 */
-	bool WorksBeforeReg()
-	{
-		return works_before_reg;
-	}
-
 	virtual ~CommandBase();
 };
 
 class CoreExport Command : public CommandBase
 {
- public:
-	/** If true, the command will not be forwarded by the linking module even if it comes via ENCAP.
-	 * Can be used to forward commands before their effects.
+ protected:
+	/** Initializes a new instance of the Command class.
+	 * @param me The module which created this instance.
+	 * @param cmd The name of the command.
+	 * @param minpara The minimum number of parameters that the command accepts.
+	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
+	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+	
+ public:
+	/** Unregisters this command from the command parser. */
+	~Command() override;
+
+	/** The user modes required to be able to execute this command. */
+	unsigned char flags_needed = 0;
+
+	/** Whether the command will not be forwarded by the linking module even if it comes via ENCAP. */
 	bool force_manual_route = false;
 
-	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+	/** The number of seconds worth of penalty that executing this command gives. */
+	unsigned int Penalty = 1;
+
+	/** The number of times this command has been executed. */
+	unsigned long use_count = 0;
+
+	/** If non-empty then the syntax of the parameter for this command. */
+	std::string syntax;
+
+	/** Whether the command can be issued before registering. */
+	bool works_before_reg = false;
 
 	/** Handle the command from a user.
-	 * @param parameters The parameters for the command.
 	 * @param user The user who issued the command.
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
+	 * @param parameters The parameters for the command.
+	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 *         if the command was malformed.
 	 */
 	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
 
-	/** Register this object in the CommandParser
-	 */
+	/** Registers this command with the command parser. */
 	void RegisterService() override;
 
-	/** Destructor
-	 * Removes this command from the command parser
+	/** Tells the user they did not specify enough parameters.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
 	 */
-	~Command();
+	virtual void TellNotEnoughParameters(LocalUser* user, const Params& parameters);
+
+	/** Tells the user they need to be registered to execute this command.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 */
+	virtual void TellNotRegistered(LocalUser* user, const Params& parameters);
 };
 
 class CoreExport SplitCommand : public Command
 {
+protected:
+	/** Initializes a new instance of the SplitCommand class.
+	 * @param me The module which created this instance.
+	 * @param cmd The name of the command.
+	 * @param minpara The minimum number of parameters that the command accepts.
+	 * @param maxpara The maximum number of parameters that the command accepts.
+	 */
+	SplitCommand(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+
  public:
-	SplitCommand(Module* me, const std::string &cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
-		: Command(me, cmd, minpara, maxpara) {}
+	/** @copydoc Commmand::Handle */
 	CmdResult Handle(User* user, const Params& parameters) override;
+
+	/** Handle the command from a local user.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 *         if the command was malformed.
+	 */
 	virtual CmdResult HandleLocal(LocalUser* user, const Params& parameters);
+
+	/** Handle the command from a remote user.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 *         if the command was malformed.
+	 */
 	virtual CmdResult HandleRemote(RemoteUser* user, const Params& parameters);
+
+	/** Handle the command from a server user.
+	 * @param user The user who issued the command.
+	 * @param parameters The parameters for the command.
+	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 *         if the command was malformed.
+	 */
 	virtual CmdResult HandleServer(FakeUser* user, const Params& parameters);
 };

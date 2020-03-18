@@ -123,7 +123,8 @@ class CommandGreloadmodule : public Command
  public:
 	CommandGreloadmodule(Module* Creator) : Command(Creator, "GRELOADMODULE", 1)
 	{
-		flags_needed = 'o'; syntax = "<modulename> [<servermask>]";
+		flags_needed = 'o';
+		syntax = "<modulename> [<servermask>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

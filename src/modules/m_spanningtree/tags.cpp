@@ -21,7 +21,7 @@
 
 ServiceTag::ServiceTag(Module* mod)
 	: ClientProtocol::MessageTagProvider(mod)
-	, ctctagcap(mod, "message-tags")
+	, ctctagcap(mod)
 {
 }
 

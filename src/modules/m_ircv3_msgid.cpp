@@ -18,18 +18,17 @@
 
 
 #include "inspircd.h"
-#include "modules/cap.h"
 #include "modules/ctctags.h"
 
 class MsgIdTag : public ClientProtocol::MessageTagProvider
 {
  private:
-	Cap::Reference ctctagcap;
+	CTCTags::CapReference ctctagcap;
 
  public:
 	MsgIdTag(Module* mod)
 		: ClientProtocol::MessageTagProvider(mod)
-		, ctctagcap(mod, "message-tags")
+		, ctctagcap(mod)
 	{
 	}
 

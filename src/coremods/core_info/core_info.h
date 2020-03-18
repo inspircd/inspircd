@@ -174,6 +174,16 @@ class CommandMotd : public ServerTargetCommand
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
+class CommandServList : public SplitCommand
+{
+ private:
+	UserModeReference invisiblemode;
+
+ public:
+	CommandServList(Module* parent);
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
+};
+
 /** Handle /TIME.
  */
 class CommandTime : public ServerTargetCommand

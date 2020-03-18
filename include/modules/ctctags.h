@@ -20,13 +20,24 @@
 #pragma once
 
 #include "event.h"
+#include "modules/cap.h"
 
 namespace CTCTags
 {
+	class CapReference;
 	class EventListener;
 	class TagMessage;
 	class TagMessageDetails;
 }
+
+class CTCTags::CapReference : public Cap::Reference
+{
+ public:
+	CapReference(Module* mod)
+		: Cap::Reference(mod, "message-tags")
+	{
+	}
+};
 
 class CTCTags::TagMessage : public ClientProtocol::Message
 {
@@ -84,6 +95,9 @@ class CTCTags::TagMessageDetails
 
 	/* Whether to send the original tags back to clients with echo-message support. */
 	bool echo_original = false;
+
+	/** Whether to update the source user's idle time. */
+	bool update_idle = true;
 
 	/** The users who are exempted from receiving this message. */
 	CUList exemptions;

@@ -303,6 +303,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getUInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
+			me->password = tag->getString("password", me->password);
+
+			me->passwordhash = tag->getString("hash", me->passwordhash);
+			if (!me->password.empty() && (me->passwordhash.empty() || stdalgo::string::equalsci(me->passwordhash, "plaintext")))
+			{
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEFAULT, "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
+					name.c_str(), tag->getTagLocation().c_str());
+			}
 
 			std::string ports = tag->getString("port");
 			if (!ports.empty())

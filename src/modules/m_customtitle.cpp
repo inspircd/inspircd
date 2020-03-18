@@ -137,7 +137,13 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 			if (pass.empty())
 				throw ModuleException("<title:password> is empty at " + tag->getTagLocation());
 
-			std::string hash = tag->getString("hash");
+			const std::string hash = tag->getString("hash", "plaintext", 1);
+			if (stdalgo::string::equalsci(hash, "plaintext"))
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<title> tag for %s at %s contains an plain text password, this is insecure!",
+					name.c_str(), tag->getTagLocation().c_str());
+			}
+
 			std::string host = tag->getString("host", "*@*");
 			std::string title = tag->getString("title");
 			std::string vhost = tag->getString("vhost");

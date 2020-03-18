@@ -307,12 +307,19 @@ class ModuleCgiIRC
 				// The IP address will be received via the WEBIRC command.
 				const std::string fingerprint = tag->getString("fingerprint");
 				const std::string password = tag->getString("password");
+				const std::string passwordhash = tag->getString("hash", "plaintext", 1);
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
 					throw ModuleException("When using <cgihost type=\"webirc\"> either the fingerprint or password field is required, at " + tag->getTagLocation());
 
-				webirchosts.push_back(WebIRCHost(mask, fingerprint, password, tag->getString("hash")));
+				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
+				{
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<cgihost> tag at %s contains an plain text password, this is insecure!",
+						tag->getTagLocation().c_str());
+				}
+
+				webirchosts.push_back(WebIRCHost(mask, fingerprint, password, passwordhash));
 			}
 			else
 			{
