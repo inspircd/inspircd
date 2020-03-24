@@ -104,14 +104,14 @@ template<> inline char ConvToNum<char>(const std::string& in)
 {
 	// We specialise ConvToNum for char to avoid istringstream treating
 	// the input as a character literal.
-	uint16_t num = ConvToNum<uint16_t>(in);
-	return num <= UINT8_MAX ? num : 0;
+	int16_t num = ConvToNum<int16_t>(in);
+	return num >= INT8_MIN && num <= INT8_MAX ? num : 0;
 }
 
 template<> inline unsigned char ConvToNum<unsigned char>(const std::string& in)
 {
 	// We specialise ConvToNum for unsigned char to avoid istringstream
 	// treating the input as a character literal.
-	int16_t num = ConvToNum<int16_t>(in);
-	return num >= INT8_MIN && num <= INT8_MAX ? num : 0;
+	uint16_t num = ConvToNum<uint16_t>(in);
+	return num <= UINT8_MAX ? num : 0;
 }
