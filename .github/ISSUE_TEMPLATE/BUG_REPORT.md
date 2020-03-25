@@ -3,10 +3,10 @@ name: Bug report
 about: Report a non-security issue with InspIRCd.
 ---
 
-<!-- 
----------------------------------------------------
-GENERAL SUPPORT INFORMATION
----------------------------------------------------
+<!--
+*PLEASE* fill in the issue template below rather than just deleting
+it. Failure to do so may result in your issue being ignored and/or
+closed.
 
 PLEASE DO NOT FILE CRASH/SECURITY REPORTS ON GITHUB. You can read our
 security policy at https://github.com/inspircd/inspircd/security/policy
@@ -20,7 +20,6 @@ IRC: irc.inspircd.org #inspircd
 Example configs:
 3.0 (stable) - https://github.com/inspircd/inspircd/tree/insp3/docs/conf
 2.0 (old stable) - https://github.com/inspircd/inspircd/tree/insp20/docs/conf
-
 -->
 
 **Description**
