@@ -196,7 +196,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 
 		ShunEnabledCommands.clear();
-		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "PING PONG QUIT", 1));
+		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
 		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
 		{
 			std::transform(enabledcmd.begin(), enabledcmd.end(), enabledcmd.begin(), ::toupper);
