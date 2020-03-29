@@ -212,19 +212,13 @@ class ModuleShun : public Module, public Stats::EventListener
 		if (validated)
 			return MOD_RES_PASSTHRU;
 
-		if (!ServerInstance->XLines->MatchesLine("SHUN", user))
-		{
-			/* Not shunned, don't touch. */
-			return MOD_RES_PASSTHRU;
-		}
+		// Exempt the user from shuns if:
+		//   (1) They are an oper and affectopers is disabled.
+		//   (2) They have the servers/ignore-shun privilege.
+		if ((!affectopers && user->IsOper()) || user->HasPrivPermission("servers/ignore-shun"))
+				return MOD_RES_PASSTHRU;
 
-		if (!affectopers && user->IsOper())
-		{
-			/* Don't do anything if the user is an operator and affectopers isn't set */
-			return MOD_RES_PASSTHRU;
-		}
-
-		if (!ShunEnabledCommands.count(command))
+		if (ServerInstance->XLines->MatchesLine("SHUN", user) && !ShunEnabledCommands.count(command))
 		{
 			if (NotifyOfShun)
 				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
