@@ -290,7 +290,7 @@
          password="secret"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time.
+         # can be in at one time.
          maxchans="20"
 
          # timeout: How long the server will wait before disconnecting
@@ -388,7 +388,7 @@
          allow="*"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time.
+         # can be in at one time.
          maxchans="20"
 
          # timeout: How long the server will wait before disconnecting
