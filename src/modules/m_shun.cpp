@@ -194,20 +194,13 @@ class ModuleShun : public Module, public Stats::EventListener
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
-		std::string cmds = tag->getString("enabledcommands");
-		std::transform(cmds.begin(), cmds.end(), cmds.begin(), ::toupper);
-
-		if (cmds.empty())
-			cmds = "PING PONG QUIT";
 
 		ShunEnabledCommands.clear();
-
-		irc::spacesepstream dcmds(cmds);
-		std::string thiscmd;
-
-		while (dcmds.GetToken(thiscmd))
+		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "PING PONG QUIT", 1));
+		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
 		{
-			ShunEnabledCommands.insert(thiscmd);
+			std::transform(enabledcmd.begin(), enabledcmd.end(), enabledcmd.begin(), ::toupper);
+			ShunEnabledCommands.insert(enabledcmd);
 		}
 
 		NotifyOfShun = tag->getBool("notifyuser", true);
