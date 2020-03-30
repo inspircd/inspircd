@@ -89,7 +89,7 @@ class CommandTagMsg : public Command
 		{
 			LocalUser* luser = IS_LOCAL(iter->first);
 
-			// Don't send to remote users or the user who is the source. 
+			// Don't send to remote users or the user who is the source.
 			if (!luser || luser == source)
 				continue;
 

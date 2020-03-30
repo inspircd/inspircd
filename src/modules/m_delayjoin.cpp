@@ -78,7 +78,7 @@ class JoinHook : public ClientProtocol::EventHook
 
 }
 
-class ModuleDelayJoin 
+class ModuleDelayJoin
 	: public Module
 	, public CTCTags::EventListener
 	, public Names::EventListener

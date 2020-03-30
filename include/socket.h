@@ -143,7 +143,6 @@ namespace irc
 /** Represents information about a failed port binding. */
 struct CoreExport FailedPort
 {
-	
 	/** The error which happened during binding. */
 	int error;
 

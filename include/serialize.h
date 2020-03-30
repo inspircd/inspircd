@@ -82,19 +82,19 @@ class CoreExport Serializable
 
 		/** Stores the serialised data against the specified key.
 		 * @param key The key by which this serialised data should be stored against.
-		 * @param out The serialised data to store.
+		 * @param value The serialised data to store.
 		 */
 		Data& Store(const std::string& key, const Data& value);
 
 		/** Stores the value against the specified key.
 		 * @param key The key by which this value should be stored against.
-		 * @param out The value to store.
+		 * @param value The value to store.
 		 */
 		Data& Store(const std::string& key, const std::string& value);
 
 		/** Stores the value against the specified key. The value will be converted to a string using ConvToStr.
 		 * @param key The key by which this value should be stored against.
-		 * @param out The value to store.
+		 * @param value The value to store.
 		 */
 		template <typename T>
 		Data& Store(const std::string& key, const T& value)

@@ -54,7 +54,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	/** Initializes an instance of the ExtensionItem class.
 	 * @param key The name of the extension item (e.g. ssl_cert).
 	 * @param exttype The type of Extensible that this ExtensionItem applies to.
-	 * @param owner The module which created this ExtensionItem 
+	 * @param owner The module which created this ExtensionItem.
 	 */
 	ExtensionItem(const std::string& key, ExtensibleType exttype, Module* owner);
 
@@ -171,10 +171,10 @@ class CoreExport Extensible
 	 */
 	void FreeAllExtItems();
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) CXX11_OVERRIDE;
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Serialize(Serializable::Data& data) CXX11_OVERRIDE;
 };
 

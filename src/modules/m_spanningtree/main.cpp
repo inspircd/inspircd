@@ -215,7 +215,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		// If this fails then the IP sa will be AF_UNSPEC.
 		irc::sockets::aptosa(x->IPAddr, x->Port, sa);
 	}
-	
+
 	/* Do we already have an IP? If so, no need to resolve it. */
 	if (sa.family() != AF_UNSPEC)
 	{

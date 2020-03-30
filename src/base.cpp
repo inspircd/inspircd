@@ -299,7 +299,7 @@ LocalStringExt::~LocalStringExt()
 
 std::string LocalStringExt::ToInternal(const Extensible* container, void* item) const
 {
-	return item ? *static_cast<std::string*>(item) : std::string();	
+	return item ? *static_cast<std::string*>(item) : std::string();
 }
 
 void LocalStringExt::FromInternal(Extensible* container, const std::string& value)

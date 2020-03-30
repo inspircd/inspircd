@@ -284,7 +284,7 @@ class ModuleIdent : public Module
 		// Check that they haven't been prefixed already.
 		if (user->ident[0] == '~')
 			return;
-		
+
 		// All invalid usernames are prefixed with a tilde.
 		std::string newident(user->ident);
 		newident.insert(newident.begin(), '~');

@@ -950,7 +950,6 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called before a server shuts down.
 	 * @param reason The reason the server is shutting down.
-	 * @param restart Whether the server is restarting.
 	 */
 	virtual void OnShutdown(const std::string& reason);
 };

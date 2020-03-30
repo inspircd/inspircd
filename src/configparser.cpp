@@ -431,7 +431,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 		if (!FileSystem::GetFileList(includedir, files, "*.conf"))
 			throw CoreException("Unable to read directory for include: " + includedir);
 
-		std::sort(files.begin(), files.end()); 
+		std::sort(files.begin(), files.end());
 		for (std::vector<std::string>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
 		{
 			const std::string path = includedir + '/' + *iter;

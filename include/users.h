@@ -692,10 +692,10 @@ class CoreExport User : public Extensible
 	virtual ~User();
 	CullResult cull() CXX11_OVERRIDE;
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) CXX11_OVERRIDE;
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Serialize(Serializable::Data& data) CXX11_OVERRIDE;
 };
 
@@ -896,10 +896,10 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg);
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) CXX11_OVERRIDE;
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Serialize(Serializable::Data& data) CXX11_OVERRIDE;
 };
 

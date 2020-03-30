@@ -203,7 +203,7 @@ class CoreExport Command : public CommandBase
 	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
 	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
-	
+
  public:
 	/** Unregisters this command from the command parser. */
 	~Command() CXX11_OVERRIDE;
@@ -262,7 +262,7 @@ protected:
 	SplitCommand(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
  public:
-	/** @copydoc Commmand::Handle */
+	/** @copydoc Command::Handle */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 
 	/** Handle the command from a local user.

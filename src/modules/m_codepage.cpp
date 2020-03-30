@@ -133,7 +133,7 @@ class ModuleCodepage
 			unsigned char begin = tag->getUInt("begin", tag->getUInt("index", 0), 1, UCHAR_MAX);
 			if (!begin)
 				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->getTagLocation());
-	
+
 			unsigned char end = tag->getUInt("end", begin, 1, UCHAR_MAX);
 			if (begin > end)
 				throw ModuleException("<cpchars:begin> must be lower than <cpchars:end> at " + tag->getTagLocation());

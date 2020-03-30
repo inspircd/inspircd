@@ -179,7 +179,7 @@ class ModuleGeoMaxMind : public Module
 	void OnGarbageCollect() CXX11_OVERRIDE
 	{
 		for (LocationMap::iterator iter = geoapi.locations.begin(); iter != geoapi.locations.end(); )
-		{	
+		{
 			Geolocation::Location* location = iter->second;
 			if (location->GetUseCount())
 			{

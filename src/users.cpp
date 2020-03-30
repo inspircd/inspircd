@@ -91,7 +91,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	if (srv->IsULine())
-		ServerInstance->Users.all_ulines.push_back(this);	
+		ServerInstance->Users.all_ulines.push_back(this);
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != USERTYPE_SERVER)

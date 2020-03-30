@@ -137,7 +137,7 @@ class CTCTags::EventListener
 	 *         message, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, TagMessageDetails& details) { return MOD_RES_PASSTHRU; }
-	
+
 	/** Called immediately after a user sends a tag message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.
 	 * @param target The target of the message. This can either be a channel, a user, or a server
