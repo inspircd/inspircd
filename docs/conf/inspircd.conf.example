@@ -661,6 +661,10 @@
          # link with servers running 2.0. Defaults to yes.
          allowzerolimit="no"
 
+         # modesinlist: If enabled then the current channel modes will be shown
+         # in the /LIST response. Defaults to yes.
+         modesinlist="no"
+
          # exemptchanops: Allows users with with a status mode to be exempt
          # from various channel restrictions. Possible restrictions are:
          #  - anticaps        Channel mode +B - blocks messages with too many capital
