@@ -136,7 +136,8 @@ class UserResolver : public DNS::Request
 			if (rev_match)
 			{
 				bound_user->WriteNotice("*** Found your hostname (" + this->question.name + (r->cached ? ") -- cached" : ")"));
-				bound_user->ChangeRealHost(this->question.name, true);
+				bool display_is_real = bound_user->GetDisplayedHost() == bound_user->GetRealHost();
+				bound_user->ChangeRealHost(this->question.name, display_is_real);
 				dl->unset(bound_user);
 			}
 			else
