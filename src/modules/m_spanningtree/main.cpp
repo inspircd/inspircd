@@ -420,7 +420,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, message_type);
 			par.push_tags(details.tags_out);
-			par.push(*serverglob);
+			par.push(std::string("$") + *serverglob);
 			par.push_last(details.text);
 			par.Broadcast();
 			break;
@@ -457,7 +457,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, "TAGMSG");
 			par.push_tags(details.tags_out);
-			par.push(*serverglob);
+			par.push(std::string("$") + *serverglob);
 			par.Broadcast();
 			break;
 		}
