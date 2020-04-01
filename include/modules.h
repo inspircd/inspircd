@@ -262,7 +262,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
-	virtual void init() {}
+	virtual void init() { }
 
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup
@@ -274,9 +274,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ~Module();
 
-	virtual void Prioritize()
-	{
-	}
+	/** Called when the hooks provided by a module need to be prioritised. */
+	virtual void Prioritize() { }
 
 	/** This method is called when you should reload module specific configuration:
 	 * on boot, on a /REHASH and on module load.
