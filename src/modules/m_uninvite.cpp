@@ -30,6 +30,8 @@
 enum
 {
 	// InspIRCd-specific.
+	ERR_INVITEREMOVED = 494,
+	ERR_NOTINVITED = 505,
 	RPL_UNINVITED = 653
 };
 
@@ -91,14 +93,14 @@ class CommandUninvite : public Command
 			// so they don't see where the target user is connected to
 			if (!invapi->Remove(lu, c))
 			{
-				Numeric::Numeric n(505);
+				Numeric::Numeric n(ERR_NOTINVITED);
 				n.SetServer(user->server);
 				n.push(u->nick).push(c->name).push(InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
 				user->WriteRemoteNumeric(n);
 				return CMD_FAILURE;
 			}
 
-			Numeric::Numeric n(494);
+			Numeric::Numeric n(ERR_INVITEREMOVED);
 			n.SetServer(user->server);
 			n.push(c->name).push(u->nick).push("Uninvited");
 			user->WriteRemoteNumeric(n);
