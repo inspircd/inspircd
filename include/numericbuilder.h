@@ -200,10 +200,54 @@ class Numeric::ParamBuilder : public GenericParamBuilder<NumStaticParams, SendEm
 
 namespace Numerics
 {
+	class CannotSendTo;
 	class InvalidModeParameter;
 	class NoSuchChannel;
 	class NoSuchNick;
 }
+
+/** Builder for the ERR_CANNOTSENDTOCHAN and ERR_CANTSENDTOUSER numerics. */
+class Numerics::CannotSendTo : public Numeric::Numeric
+{
+ public:
+	CannotSendTo(Channel* chan, const std::string& message)
+		: Numeric(ERR_CANNOTSENDTOCHAN)
+	{
+		push(chan->name);
+		push(message);
+	}
+
+	CannotSendTo(Channel* chan, const std::string& what, ModeHandler* mh)
+		: Numeric(ERR_CANNOTSENDTOCHAN)
+	{
+		push(chan->name);
+		push(InspIRCd::Format("You cannot send %s to this channel whilst the +%c (%s) mode is set.",
+			what.c_str(), mh->GetModeChar(), mh->name.c_str()));
+	}
+
+	CannotSendTo(Channel* chan, const std::string& what, char extban, const std::string& extbandesc)
+		: Numeric(ERR_CANNOTSENDTOCHAN)
+	{
+		push(chan->name);
+		push(InspIRCd::Format("You cannot send %s to this channel whilst %s %c: (%s) extban is set on you.",
+			what.c_str(), strchr("AEIOUaeiou", extban) ? "an" : "a", extban, extbandesc.c_str()));
+	}
+
+	CannotSendTo(User* user, const std::string& message)
+		: Numeric(ERR_CANNOTSENDTOCHAN)
+	{
+		push(user->registered & REG_NICK ? user->nick : "*");
+		push(message);
+	}
+
+	CannotSendTo(User* user, const std::string& what, ModeHandler* mh, bool self = false)
+		: Numeric(ERR_CANNOTSENDTOCHAN)
+	{
+		push(user->registered & REG_NICK ? user->nick : "*");
+		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
+			what.c_str(), self ? "you" : "they", mh->GetModeChar(), mh->name.c_str()));
+	}
+};
 
 /* Builder for the ERR_INVALIDMODEPARAM numeric. */
 class Numerics::InvalidModeParameter : public Numeric::Numeric

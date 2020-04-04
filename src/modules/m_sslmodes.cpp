@@ -198,7 +198,7 @@ class ModuleSSLModes
 			if (!api || !api->GetCertificate(user))
 			{
 				/* The sending user is not on an SSL connection */
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z is set)");
+				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));
 				return MOD_RES_DENY;
 			}
 		}
@@ -207,7 +207,7 @@ class ModuleSSLModes
 		{
 			if (!api || !api->GetCertificate(target))
 			{
-				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove user mode 'z' before you are able to send private messages to a non-SSL user.");
+				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery, true));
 				return MOD_RES_DENY;
 			}
 		}

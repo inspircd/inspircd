@@ -43,7 +43,7 @@ class ModuleCommonChans
 		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
 			return MOD_RES_PASSTHRU;
 
-		user->WriteNumeric(ERR_CANTSENDTOUSER, targuser->nick, "You are not permitted to send private messages to this user (+c is set)");
+		user->WriteNumeric(Numerics::CannotSendTo(targuser, "messages", &mode));
 		return MOD_RES_DENY;
 	}
 

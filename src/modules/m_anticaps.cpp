@@ -175,7 +175,7 @@ class ModuleAntiCaps : public Module
 
 	void InformUser(Channel* channel, User* user, const std::string& message)
 	{
-		user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, message + " and was blocked.");
+		user->WriteNumeric(Numerics::CannotSendTo(channel, message + " and was blocked."));
 	}
 
  public:

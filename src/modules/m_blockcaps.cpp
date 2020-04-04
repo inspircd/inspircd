@@ -97,7 +97,8 @@ public:
 				// any upper case letters.
 				if (length > 0 && round((upper * 100) / length) >= percent)
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %d characters", percent, minlen));
+					const std::string msg = InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %d characters", percent, minlen);
+					user->WriteNumeric(Numerics::CannotSendTo(c, msg));
 					return MOD_RES_DENY;
 				}
 			}

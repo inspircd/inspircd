@@ -64,7 +64,7 @@ class ModuleQuietBan
 				return MOD_RES_DENY;
 			}
 
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're muted)");
+			user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", 'm', "mute"));
 			return MOD_RES_DENY;
 		}
 

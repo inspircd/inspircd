@@ -43,10 +43,9 @@ class ModuleRestrictMsg
 			// (3) the recipient is on a ulined server
 			// anything else, blocked.
 			if (u->IsOper() || user->IsOper() || u->server->IsULine())
-			{
 				return MOD_RES_PASSTHRU;
-			}
-			user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "You are not permitted to send private messages to this user");
+
+			user->WriteNumeric(Numerics::CannotSendTo(u, "You cannot send messages to this user."));
 			return MOD_RES_DENY;
 		}
 
