@@ -406,7 +406,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:
-				break;
+				return MOD_RES_PASSTHRU;
 		}
 
 		if (is_selfmsg && warnonselfmsg)
