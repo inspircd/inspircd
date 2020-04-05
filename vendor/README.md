@@ -22,6 +22,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
+## optional-lite
+
+**Author** &mdash; [Martin Moene](mailto:martin.moene@gmail.com)
+
+**License** &mdash; Boost Software License
+
+**Version** &mdash; v3.2.0
+
+**Website** &mdash; [https://github.com/martinmoene/optional-lite](https://github.com/martinmoene/optional-lite)
+
 ## sha2
 
 **Author** &mdash; [Olivier Gay](mailto:olivier.gay@a3.epfl.ch)
