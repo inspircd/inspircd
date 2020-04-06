@@ -234,14 +234,14 @@ class Numerics::CannotSendTo : public Numeric::Numeric
 	}
 
 	CannotSendTo(User* user, const std::string& message)
-		: Numeric(ERR_CANNOTSENDTOCHAN)
+		: Numeric(ERR_CANTSENDTOUSER)
 	{
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(message);
 	}
 
 	CannotSendTo(User* user, const std::string& what, ModeHandler* mh, bool self = false)
-		: Numeric(ERR_CANNOTSENDTOCHAN)
+		: Numeric(ERR_CANTSENDTOUSER)
 	{
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
