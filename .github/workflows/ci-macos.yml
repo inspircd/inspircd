@@ -8,7 +8,7 @@ jobs:
     env:
       CXXFLAGS: -std=${{ matrix.standard }} -I/usr/local/opt/openssl@1.1/include -Wno-error=deprecated-declarations
       LDFLAGS: -L/usr/local/opt/openssl@1.1/lib
-      PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig
+      PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/sqlite/lib/pkgconfig
       TEST_BUILD_MODULES: geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
         run: |
           brew update
           brew upgrade
-          brew install pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite3 tre
+          brew install pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite tre
           brew link --force --overwrite libpq
           brew link --force --overwrite mysql-client
       - name: Run test-build
