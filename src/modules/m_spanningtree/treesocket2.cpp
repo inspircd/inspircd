@@ -407,7 +407,7 @@ void TreeSocket::OnTimeout()
 
 void TreeSocket::Close()
 {
-	if (fd < 0)
+	if (!HasFd())
 		return;
 
 	ServerInstance->GlobalCulls.AddItem(this);
