@@ -41,7 +41,7 @@ class ModulePassForward : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
 		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired");
-		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $pass");
+		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $pass", 1);
 	}
 
 	void FormatStr(std::string& result, const std::string& format, const LocalUser* user)

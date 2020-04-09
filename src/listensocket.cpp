@@ -207,7 +207,7 @@ void ListenSocket::OnEventHandlerRead()
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
 	if (res == MOD_RES_PASSTHRU)
 	{
-		std::string type = bind_tag->getString("type", "clients");
+		const std::string type = bind_tag->getString("type", "clients", 1);
 		if (stdalgo::string::equalsci(type, "clients"))
 		{
 			ServerInstance->Users->AddUser(incomingSockfd, this, &client, &server);

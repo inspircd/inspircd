@@ -118,7 +118,7 @@ public:
 			lowercase.set(static_cast<unsigned char>(*iter));
 
 		uppercase.reset();
-		const std::string upper = tag->getString("uppercase", tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		const std::string upper = tag->getString("uppercase", tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1));
 		for (std::string::const_iterator iter = upper.begin(); iter != upper.end(); ++iter)
 			uppercase.set(static_cast<unsigned char>(*iter));
 	}

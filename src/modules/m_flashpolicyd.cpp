@@ -124,7 +124,10 @@ class ModuleFlashPD : public Module
 		for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
 		{
 				ListenSocket* ls = *i;
-				if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients"), "clients") || !ls->bind_tag->getString("ssl").empty())
+				if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients", 1), "clients"))
+					continue;
+
+				if (!ls->bind_tag->getString("ssl").empty())
 					continue;
 
 				to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');

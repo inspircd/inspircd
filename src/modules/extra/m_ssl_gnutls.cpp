@@ -664,12 +664,12 @@ namespace GnuTLS
 
 			Config(const std::string& profilename, ConfigTag* tag)
 				: name(profilename)
-				, certstr(ReadFile(tag->getString("certfile", "cert.pem")))
-				, keystr(ReadFile(tag->getString("keyfile", "key.pem")))
-				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem"))))
+				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
+				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))
+				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
 				, priostr(GetPrioStr(profilename, tag))
 				, mindh(tag->getUInt("mindhbits", 1024))
-				, hashstr(tag->getString("hash", "md5"))
+				, hashstr(tag->getString("hash", "md5", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
 				// Load trusted CA and revocation list, if set

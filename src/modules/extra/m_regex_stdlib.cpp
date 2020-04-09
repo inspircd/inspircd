@@ -75,8 +75,8 @@ public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
-		std::string regextype = Conf->getString("type", "ecmascript");
 
+		const std::string regextype = Conf->getString("type", "ecmascript", 1);
 		if (stdalgo::string::equalsci(regextype, "bre"))
 			ref.regextype = std::regex::basic;
 		else if (stdalgo::string::equalsci(regextype, "ere"))

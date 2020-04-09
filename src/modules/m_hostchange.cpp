@@ -176,7 +176,9 @@ private:
 			}
 		}
 
-		const std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("hostname");
+		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
+
 		hostmap.reset();
 		for (std::string::const_iterator iter = hmap.begin(); iter != hmap.end(); ++iter)
 			hostmap.set(static_cast<unsigned char>(*iter));

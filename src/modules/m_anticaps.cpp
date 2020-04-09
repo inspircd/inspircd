@@ -190,7 +190,7 @@ class ModuleAntiCaps : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
-		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1);
 		for (std::string::const_iterator iter = upper.begin(); iter != upper.end(); ++iter)
 			uppercase.set(static_cast<unsigned char>(*iter));
 

@@ -386,7 +386,7 @@ namespace OpenSSL
 	 public:
 		Profile(const std::string& profilename, ConfigTag* tag)
 			: name(profilename)
-			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem")))
+			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
@@ -395,7 +395,7 @@ namespace OpenSSL
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
 
-			std::string hash = tag->getString("hash", "md5");
+			const std::string hash = tag->getString("hash", "md5", 1);
 			digest = EVP_get_digestbyname(hash.c_str());
 			if (digest == NULL)
 				throw Exception("Unknown hash type " + hash);
@@ -411,7 +411,7 @@ namespace OpenSSL
 			}
 
 #ifndef OPENSSL_NO_ECDH
-			std::string curvename = tag->getString("ecdhcurve", "prime256v1");
+			const std::string curvename = tag->getString("ecdhcurve", "prime256v1", 1);
 			if (!curvename.empty())
 				ctx.SetECDH(curvename);
 #endif
@@ -422,14 +422,14 @@ namespace OpenSSL
 			/* Load our keys and certificates
 			 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
 			 */
-			std::string filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("certfile", "cert.pem"));
+			std::string filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("certfile", "cert.pem", 1));
 			if ((!ctx.SetCerts(filename)) || (!clictx.SetCerts(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
 				throw Exception("Can't read certificate file: " + lasterr);
 			}
 
-			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("keyfile", "key.pem"));
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("keyfile", "key.pem", 1));
 			if ((!ctx.SetPrivateKey(filename)) || (!clictx.SetPrivateKey(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
@@ -437,7 +437,7 @@ namespace OpenSSL
 			}
 
 			// Load the CAs we trust
-			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem"));
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem", 1));
 			if ((!ctx.SetCA(filename)) || (!clictx.SetCA(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
@@ -445,9 +445,9 @@ namespace OpenSSL
 			}
 
 			// Load the CRLs.
-			std::string crlfile  = tag->getString("crlfile");
-			std::string crlpath  = tag->getString("crlpath");
-			std::string crlmode  = tag->getString("crlmode", "chain");
+			const std::string crlfile = tag->getString("crlfile");
+			const std::string crlpath = tag->getString("crlpath");
+			const std::string crlmode = tag->getString("crlmode", "chain", 1);
 			ctx.SetCRL(crlfile, crlpath, crlmode);
 
 			clictx.SetVerifyCert();

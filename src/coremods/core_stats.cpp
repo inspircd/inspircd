@@ -117,8 +117,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
 			{
 				ListenSocket* ls = *i;
-				std::string type = ls->bind_tag->getString("type", "clients");
-				std::string hook = ls->bind_tag->getString("ssl", "plaintext");
+				const std::string type = ls->bind_tag->getString("type", "clients", 1);
+				const std::string hook = ls->bind_tag->getString("ssl", "plaintext", 1);
 
 				stats.AddRow(249, ls->bind_sa.str() + " (" + type + ", " + hook + ")");
 			}
@@ -149,7 +149,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				else
 					param.append(c->host);
 
-				row.push(param).push(c->config->getString("port", "*"));
+				row.push(param).push(c->config->getString("port", "*", 1));
 				row.push(ConvToStr(c->GetRecvqMax())).push(ConvToStr(c->GetSendqSoftMax())).push(ConvToStr(c->GetSendqHardMax())).push(ConvToStr(c->GetCommandRate()));
 
 				param = ConvToStr(c->GetPenaltyThreshold());

@@ -364,7 +364,7 @@ class CoreModWhois : public Module
 	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
-		const std::string splitwhois = tag->getString("splitwhois", "no");
+		const std::string splitwhois = tag->getString("splitwhois", "no", 1);
 		SplitWhoisState newsplitstate;
 		if (stdalgo::string::equalsci(splitwhois, "no"))
 			newsplitstate = SPLITWHOIS_NONE;

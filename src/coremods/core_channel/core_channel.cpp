@@ -170,7 +170,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		}
 
 		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
-		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic");
+		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic", 1);
 		Invite::AnnounceState newannouncestate;
 		if (stdalgo::string::equalsci(announceinvites, "none"))
 			newannouncestate = Invite::ANNOUNCE_NONE;
