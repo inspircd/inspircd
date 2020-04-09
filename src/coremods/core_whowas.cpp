@@ -452,7 +452,7 @@ class ModuleWhoWas : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the WHOWAS command", VF_VENDOR);
+		return Version("Provides the WHOWAS command", VF_CORE | VF_VENDOR);
 	}
 };
 
