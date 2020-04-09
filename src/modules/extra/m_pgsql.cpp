@@ -620,7 +620,7 @@ class ModulePgSQL : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
+		return Version("Provides PostgreSQL support to modules", VF_VENDOR);
 	}
 };
 
