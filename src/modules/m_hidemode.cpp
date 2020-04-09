@@ -190,18 +190,14 @@ class ModuleHideMode : public Module
 
  public:
 	ModuleHideMode()
-		: modehook(this)
+		: Module(VF_VENDOR, "Provides support for hiding mode changes")
+		, modehook(this)
 	{
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
 		modehook.settings.Load();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for hiding mode changes", VF_VENDOR);
 	}
 };
 

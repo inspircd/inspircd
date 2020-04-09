@@ -55,7 +55,8 @@ class ModuleRestrictMsg
 
  public:
 	ModuleRestrictMsg()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Forbids users from messaging each other, but users may still message opers and opers may message other opers")
+		, CTCTags::EventListener(this)
 	{
 	}
 
@@ -67,11 +68,6 @@ class ModuleRestrictMsg
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		return HandleMessage(user, target);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Forbids users from messaging each other, but users may still message opers and opers may message other opers", VF_VENDOR);
 	}
 };
 

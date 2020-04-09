@@ -54,7 +54,8 @@ class ModuleInviteException
 
  public:
 	ModuleInviteException()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +I, invite exceptions")
+		, ISupport::EventListener(this)
 		, ie(this)
 	{
 	}
@@ -92,11 +93,6 @@ class ModuleInviteException
 	{
 		ie.DoRehash();
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +I, invite exceptions", VF_VENDOR);
 	}
 };
 

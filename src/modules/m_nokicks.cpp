@@ -37,7 +37,8 @@ class ModuleNoKicks
 
  public:
 	ModuleNoKicks()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +Q to prevent kicks on the channel")
+		, ISupport::EventListener(this)
 		, nk(this, "nokick", 'Q')
 	{
 	}
@@ -58,11 +59,6 @@ class ModuleNoKicks
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +Q to prevent kicks on the channel", VF_VENDOR);
 	}
 };
 

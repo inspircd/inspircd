@@ -411,7 +411,8 @@ class ModuleWhoWas : public Module, public Stats::EventListener
 
  public:
 	ModuleWhoWas()
-		: Stats::EventListener(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the WHOWAS command")
+		, Stats::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -443,11 +444,6 @@ class ModuleWhoWas : public Module, public Stats::EventListener
 		unsigned int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
 
 		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the WHOWAS command", VF_VENDOR);
 	}
 };
 

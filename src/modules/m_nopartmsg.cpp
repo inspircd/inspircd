@@ -32,13 +32,9 @@ class ModulePartMsgBan
 {
  public:
 	ModulePartMsgBan()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'p', part message bans")
+		, ISupport::EventListener(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides extban 'p', part message bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override

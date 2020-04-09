@@ -35,18 +35,14 @@ class ModuleOperLog
 
  public:
 	ModuleOperLog()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides logging of all oper commands to the ircd log at the default loglevel")
+		, ISupport::EventListener(this)
 	{
 	}
 
 	void init() override
 	{
 		ServerInstance->SNO.EnableSnomask('r', "OPERLOG");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides logging of all oper commands to the ircd log at the default loglevel", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

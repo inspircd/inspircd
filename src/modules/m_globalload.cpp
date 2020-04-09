@@ -159,19 +159,18 @@ class CommandGreloadmodule : public Command
 
 class ModuleGlobalLoad : public Module
 {
+ private:
 	CommandGloadmodule cmd1;
 	CommandGunloadmodule cmd2;
 	CommandGreloadmodule cmd3;
 
  public:
 	ModuleGlobalLoad()
-		: cmd1(this), cmd2(this), cmd3(this)
+		: Module(VF_VENDOR | VF_COMMON, "Allows global loading of a module")
+		, cmd1(this)
+		, cmd2(this)
+		, cmd3(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allows global loading of a module", VF_COMMON | VF_VENDOR);
 	}
 };
 

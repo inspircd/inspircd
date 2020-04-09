@@ -86,7 +86,9 @@ class ModuleAutoOp : public Module
 	AutoOpList mh;
 
  public:
-	ModuleAutoOp() : mh(this)
+	ModuleAutoOp()
+		: Module(VF_VENDOR, "Provides channel mode +w, basic channel access controls")
+		, mh(this)
 	{
 	}
 
@@ -118,11 +120,6 @@ class ModuleAutoOp : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		mh.DoRehash();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +w, basic channel access controls", VF_VENDOR);
 	}
 };
 

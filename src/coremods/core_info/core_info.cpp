@@ -89,7 +89,8 @@ class CoreModInfo : public Module
 	}
  public:
 	CoreModInfo()
-		: cmdadmin(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
+		, cmdadmin(this)
 		, cmdcommands(this)
 		, cmdinfo(this)
 		, cmdmodules(this)
@@ -187,11 +188,6 @@ class CoreModInfo : public Module
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands", VF_VENDOR|VF_CORE);
 	}
 };
 

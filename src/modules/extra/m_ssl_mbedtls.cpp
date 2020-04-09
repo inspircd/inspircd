@@ -855,6 +855,7 @@ mbedTLS::Profile& mbedTLSIOHook::GetProfile()
 
 class ModuleSSLmbedTLS : public Module
 {
+ private:
 	typedef std::vector<reference<mbedTLSIOHookProvider> > ProfileList;
 
 	mbedTLS::Entropy entropy;
@@ -926,6 +927,11 @@ class ModuleSSLmbedTLS : public Module
 	}
 
  public:
+	ModuleSSLmbedTLS()
+		: Module(VF_VENDOR, "Provides SSL support via mbedTLS (PolarSSL)")
+	{
+	}
+
 	void init() override
 	{
 		char verbuf[16]; // Should be at least 9 bytes in size
@@ -973,11 +979,6 @@ class ModuleSSLmbedTLS : public Module
 		if ((iohook) && (!iohook->IsHandshakeDone()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides SSL support via mbedTLS (PolarSSL)", VF_VENDOR);
 	}
 };
 

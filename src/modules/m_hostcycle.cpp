@@ -95,7 +95,8 @@ class ModuleHostCycle : public Module
 
  public:
 	ModuleHostCycle()
-		: chghostcap(this, "chghost")
+		: Module(VF_VENDOR, "Cycles users in all their channels when their host or ident changes")
+		, chghostcap(this, "chghost")
 		, quitmsghost("Changing host")
 		, quitmsgident("Changing ident")
 	{
@@ -109,11 +110,6 @@ class ModuleHostCycle : public Module
 	void OnChangeHost(User* user, const std::string& newhost) override
 	{
 		DoHostCycle(user, user->ident, newhost, quitmsghost);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Cycles users in all their channels when their host or ident changes", VF_VENDOR);
 	}
 };
 

@@ -92,16 +92,14 @@ class CommandSapart : public Command
 
 class ModuleSapart : public Module
 {
+ private:
 	CommandSapart cmd;
+
  public:
 	ModuleSapart()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAPART command, allows opers to force-part users from channels")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SAPART command, allows opers to force-part users from channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

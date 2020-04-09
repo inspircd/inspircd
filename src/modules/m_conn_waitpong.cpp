@@ -33,7 +33,8 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong()
-		: ext(this, "waitpong_pingstr", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Require pong prior to registration")
+		, ext(this, "waitpong_pingstr", ExtensionItem::EXT_USER)
 	{
 	}
 
@@ -86,11 +87,6 @@ class ModuleWaitPong : public Module
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Require pong prior to registration", VF_VENDOR);
 	}
 };
 

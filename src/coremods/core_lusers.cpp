@@ -146,7 +146,8 @@ class ModuleLusers : public Module
 
  public:
 	ModuleLusers()
-		: invisiblemode(this, "invisible")
+		: Module(VF_CORE | VF_VENDOR, "Provides the LUSERS command")
+		, invisiblemode(this, "invisible")
 		, counters(invisiblemode)
 		, cmd(this, counters)
 		, mw(this, counters.invisible)
@@ -164,11 +165,6 @@ class ModuleLusers : public Module
 	{
 		if (!user->server->IsULine() && user->IsModeSet(invisiblemode))
 			counters.invisible--;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the LUSERS command", VF_VENDOR | VF_CORE);
 	}
 };
 

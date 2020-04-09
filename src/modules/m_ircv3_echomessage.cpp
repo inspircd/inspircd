@@ -33,7 +33,8 @@ class ModuleIRCv3EchoMessage
 
  public:
 	ModuleIRCv3EchoMessage()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides the echo-message IRCv3 extension")
+		, CTCTags::EventListener(this)
 		, cap(this, "echo-message")
 		, tagmsgprov(this, "TAGMSG")
 	{
@@ -125,11 +126,6 @@ class ModuleIRCv3EchoMessage
 		// Prevent spammers from knowing that their spam was blocked.
 		if (details.echo_original)
 			OnUserPostTagMessage(user, target, details);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the echo-message IRCv3 extension", VF_VENDOR);
 	}
 };
 

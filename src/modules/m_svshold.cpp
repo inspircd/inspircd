@@ -176,13 +176,15 @@ class CommandSvshold : public Command
 
 class ModuleSVSHold : public Module, public Stats::EventListener
 {
+ private:
 	CommandSvshold cmd;
 	SVSHoldFactory s;
 
 
  public:
 	ModuleSVSHold()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Implements SVSHOLD, like Q-lines, but can only be added/removed by Services")
+		, Stats::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -224,11 +226,6 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
 		ServerInstance->XLines->UnregisterFactory(&s);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements SVSHOLD, like Q-lines, but can only be added/removed by Services", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -154,7 +154,8 @@ class ModuleSSLModes
 
  public:
 	ModuleSSLModes()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides user and channel mode +z to allow for SSL-only channels, queries and notices")
+		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, api(this)
 		, sslm(this, api)
@@ -240,11 +241,6 @@ class ModuleSSLModes
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('z');
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices", VF_VENDOR);
 	}
 };
 

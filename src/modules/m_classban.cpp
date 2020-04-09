@@ -27,7 +27,8 @@ class ModuleClassBan
 {
  public:
 	ModuleClassBan()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'n', connection class bans")
+		, ISupport::EventListener(this)
 	{
 	}
 
@@ -45,11 +46,6 @@ class ModuleClassBan
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('n');
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides extban 'n', connection class bans", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

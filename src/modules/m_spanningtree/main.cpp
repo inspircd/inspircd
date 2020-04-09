@@ -40,7 +40,8 @@
 #include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: Away::EventListener(this)
+	: Module(VF_VENDOR, "Allows servers to be linked")
+	, Away::EventListener(this)
 	, Stats::EventListener(this)
 	, CTCTags::EventListener(this)
 	, rconnect(this)
@@ -665,12 +666,15 @@ void ModuleSpanningTree::OnLoadModule(Module* mod)
 	std::string data;
 	data.push_back('+');
 	data.append(mod->ModuleSourceFile);
-	Version v = mod->GetVersion();
-	if (!v.link_data.empty())
+
+	std::string link_data;
+	mod->GetLinkData(link_data);
+	if (!link_data.empty())
 	{
 		data.push_back('=');
-		data.append(v.link_data);
+		data.append(link_data);
 	}
+
 	ServerInstance->PI->SendMetaData("modules", data);
 }
 
@@ -814,11 +818,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;
-}
-
-Version ModuleSpanningTree::GetVersion()
-{
-	return Version("Allows servers to be linked", VF_VENDOR);
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain

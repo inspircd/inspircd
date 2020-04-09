@@ -371,6 +371,7 @@ class CommandDccallow : public Command
 
 class ModuleDCCAllow : public Module
 {
+ private:
 	DCCAllowExt ext;
 	CommandDccallow cmd;
 	bool blockchat = false;
@@ -378,7 +379,8 @@ class ModuleDCCAllow : public Module
 
  public:
 	ModuleDCCAllow()
-		: ext(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides the DCCALLOW command")
+		, ext(this)
 		, cmd(this, ext)
 	{
 	}
@@ -602,11 +604,6 @@ class ModuleDCCAllow : public Module
 		cmd.defaultlength = tag->getDuration("length", 0);
 		blockchat = tag->getBool("blockchat");
 		defaultaction = tag->getString("action");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the DCCALLOW command", VF_COMMON | VF_VENDOR);
 	}
 };
 

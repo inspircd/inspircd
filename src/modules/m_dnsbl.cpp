@@ -268,7 +268,8 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	}
  public:
 	ModuleDNSBL()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR, "Provides handling of DNS blacklists")
+		, Stats::EventListener(this)
 		, DNS(this, "DNS")
 		, nameExt(this, "dnsbl_match", ExtensionItem::EXT_USER)
 		, countExt(this, "dnsbl_pending", ExtensionItem::EXT_USER)
@@ -280,13 +281,6 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		ServerInstance->SNO.EnableSnomask('d', "DNSBL");
 	}
 
-	Version GetVersion() override
-	{
-		return Version("Provides handling of DNS blacklists", VF_VENDOR);
-	}
-
-	/** Fill our conf vector with data
-	 */
 	void ReadConfig(ConfigStatus& status) override
 	{
 		DNSBLConfList newentries;

@@ -184,18 +184,14 @@ class CoreModStub : public Module
 
  public:
 	CoreModStub()
-		: cmdconnect(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides stubs for unimplemented commands")
+		, cmdconnect(this)
 		, cmdlinks(this)
 		, cmdserver(this)
 		, cmdsquit(this)
 		, cmdsummon(this)
 		, cmdusers(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides stubs for unimplemented commands", VF_VENDOR|VF_CORE);
 	}
 };
 

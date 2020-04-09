@@ -182,7 +182,8 @@ class ModuleChanHistory
 
  public:
 	ModuleChanHistory()
-		: ServerProtocol::BroadcastEventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +H, allows for the channel message history to be replayed on join")
+		, ServerProtocol::BroadcastEventListener(this)
 		, m(this)
 		, botmode(this, "bot")
 		, batchcap(this)
@@ -248,11 +249,6 @@ class ModuleChanHistory
 			mintime = ServerInstance->Time() - list->maxtime;
 
 		SendHistory(localuser, memb->chan, list, mintime);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +H, allows for the channel message history to be replayed on join", VF_VENDOR);
 	}
 };
 

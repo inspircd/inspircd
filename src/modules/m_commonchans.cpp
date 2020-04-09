@@ -25,8 +25,8 @@
 #include "modules/ctctags.h"
 
 class ModuleCommonChans
-	: public CTCTags::EventListener
-	, public Module
+	: public Module
+	, public CTCTags::EventListener
 {
  private:
 	SimpleUserModeHandler mode;
@@ -49,14 +49,10 @@ class ModuleCommonChans
 
  public:
 	ModuleCommonChans()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides user mode +c, requires users to share a common channel with you to private message you")
+		, CTCTags::EventListener(this)
 		, mode(this, "deaf_commonchan", 'c')
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user mode +c, requires users to share a common channel with you to private message you", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override

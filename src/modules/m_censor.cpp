@@ -32,6 +32,7 @@ typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> censor_t;
 
 class ModuleCensor : public Module
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	censor_t censors;
 	SimpleUserModeHandler cu;
@@ -39,7 +40,8 @@ class ModuleCensor : public Module
 
  public:
 	ModuleCensor()
-		: exemptionprov(this)
+		: Module(VF_VENDOR, "Provides user and channel mode +G")
+		, exemptionprov(this)
 		, cu(this, "u_censor", 'G')
 		, cc(this, "censor", 'G')
 	{
@@ -119,12 +121,6 @@ class ModuleCensor : public Module
 		}
 		censors.swap(newcensors);
 	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user and channel mode +G", VF_VENDOR);
-	}
-
 };
 
 MODULE_INIT(ModuleCensor)

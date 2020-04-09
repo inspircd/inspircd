@@ -40,7 +40,8 @@ class ModuleXLineDB
 
  public:
 	ModuleXLineDB()
-		: Timer(0, true)
+		: Module(VF_VENDOR, "Provides the ability to store X-lines in a database file")
+		, Timer(0, true)
 	{
 	}
 
@@ -232,11 +233,6 @@ class ModuleXLineDB
 		}
 		stream.close();
 		return true;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ability to store X-lines in a database file", VF_VENDOR);
 	}
 };
 

@@ -35,6 +35,11 @@ class ModuleChanLog : public Module
 	ChanLogTargets logstreams;
 
  public:
+	ModuleChanLog()
+		: Module(VF_VENDOR, "Logs snomask output to channel(s)")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		std::string snomasks;
@@ -82,11 +87,6 @@ class ModuleChanLog : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Logs snomask output to channel(s)", VF_VENDOR);
 	}
 };
 

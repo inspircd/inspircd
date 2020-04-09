@@ -82,13 +82,15 @@ class CommandStartTLS : public SplitCommand
 
 class ModuleStartTLS : public Module
 {
+ private:
 	CommandStartTLS starttls;
 	Cap::Capability tls;
 	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:
 	ModuleStartTLS()
-		: starttls(this, ssl)
+		: Module(VF_VENDOR, "Provides the STARTTLS command")
+		, starttls(this, ssl)
 		, tls(this, "tls")
 		, ssl(this, "ssl")
 	{
@@ -103,11 +105,6 @@ class ModuleStartTLS : public Module
 			ssl.SetProvider("ssl");
 		else
 			ssl.SetProvider("ssl/" + newprovider);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the STARTTLS command", VF_VENDOR);
 	}
 };
 

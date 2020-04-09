@@ -172,8 +172,8 @@ namespace Stats
 
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 		{
-			Version v = i->second->GetVersion();
-			data << "<module><name>" << i->first << "</name><description>" << Sanitize(v.description) << "</description></module>";
+			Module* mod = i->second;
+			data << "<module><name>" << i->first << "</name><description>" << Sanitize(mod->description) << "</description></module>";
 		}
 		return data << "</modulelist>";
 	}
@@ -412,7 +412,8 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
  public:
 	ModuleHttpStats()
-		: HTTPRequestEventListener(this)
+		: Module(VF_VENDOR, "Provides statistics over HTTP via m_httpd")
+		, HTTPRequestEventListener(this)
 		, API(this)
 		, isupportevprov(this)
 	{
@@ -489,11 +490,6 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 	ModResult OnHTTPRequest(HTTPRequest& req) override
 	{
 		return HandleRequest(&req);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides statistics over HTTP via m_httpd", VF_VENDOR);
 	}
 };
 

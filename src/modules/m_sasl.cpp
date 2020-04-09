@@ -47,6 +47,7 @@ static std::string sasl_target;
 class ServerTracker
 	: public ServerProtocol::LinkEventListener
 {
+ private:
 	bool online;
 
 	void Update(const Server* server, bool linked)
@@ -401,6 +402,7 @@ class CommandSASL : public Command
 
 class ModuleSASL : public Module
 {
+ private:
 	SimpleExtItem<SaslAuthenticator> authExt;
 	ServerTracker servertracker;
 	SASLCap cap;
@@ -411,7 +413,8 @@ class ModuleSASL : public Module
 
  public:
 	ModuleSASL()
-		: authExt(this, "sasl_auth", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE")
+		, authExt(this, "sasl_auth", ExtensionItem::EXT_USER)
 		, servertracker(this)
 		, cap(this, servertracker)
 		, auth(this, authExt, cap)
@@ -446,11 +449,6 @@ class ModuleSASL : public Module
 	{
 		if ((target == NULL) && (extname == "saslmechlist"))
 			cap.SetMechlist(extdata);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE", VF_VENDOR);
 	}
 };
 

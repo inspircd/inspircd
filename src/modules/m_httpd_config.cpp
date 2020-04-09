@@ -28,11 +28,13 @@
 
 class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 {
+ private:
 	HTTPdAPI API;
 
  public:
 	ModuleHttpConfig()
-		: HTTPRequestEventListener(this)
+		: Module(VF_VENDOR, "Allows for the server configuration to be viewed over HTTP via m_httpd")
+		, HTTPRequestEventListener(this)
 		, API(this)
 	{
 	}
@@ -71,11 +73,6 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		response.headers.SetHeader("Content-Type", "text/plain");
 		API->SendResponse(response);
 		return MOD_RES_DENY;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd", VF_VENDOR);
 	}
 };
 

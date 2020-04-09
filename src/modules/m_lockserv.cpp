@@ -94,7 +94,10 @@ class ModuleLockserv : public Module
 	CommandUnlockserv unlockcommand;
 
  public:
-	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
+	ModuleLockserv()
+		: Module(VF_VENDOR, "Provides the LOCKSERV and UNLOCKSERV commands to lock the server and block all incoming connections until unlocked again")
+		, lockcommand(this, locked)
+		, unlockcommand(this, locked)
 	{
 	}
 
@@ -124,11 +127,6 @@ class ModuleLockserv : public Module
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return !locked.empty() ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the LOCKSERV and UNLOCKSERV commands to lock the server and block all incoming connections until unlocked again", VF_VENDOR);
 	}
 };
 

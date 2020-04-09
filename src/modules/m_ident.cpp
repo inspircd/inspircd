@@ -299,14 +299,10 @@ class ModuleIdent : public Module
 
  public:
 	ModuleIdent()
-		: socket(this, "ident_socket", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Provides support for RFC1413 ident lookups")
+		, socket(this, "ident_socket", ExtensionItem::EXT_USER)
 		, state(this, "ident_state", ExtensionItem::EXT_USER)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

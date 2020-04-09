@@ -38,15 +38,11 @@ class ModuleUHNames
 
  public:
 	ModuleUHNames()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides the UHNAMES (CAP userhost-in-names) capability")
+		, ISupport::EventListener(this)
 		, Names::EventListener(this)
 		, cap(this, "userhost-in-names")
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the UHNAMES (CAP userhost-in-names) capability", VF_VENDOR);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

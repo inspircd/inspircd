@@ -185,11 +185,13 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 class ModuleIRCv3Batch : public Module
 {
+ private:
 	IRCv3::Batch::ManagerImpl manager;
 
  public:
 	ModuleIRCv3Batch()
-		: manager(this)
+		: Module(VF_VENDOR, "Provides the batch IRCv3 extension")
+		, manager(this)
 	{
 	}
 
@@ -208,11 +210,6 @@ class ModuleIRCv3Batch : public Module
 	{
 		// Remove the user from all internal lists
 		manager.RemoveFromAll(user);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the batch IRCv3 extension", VF_VENDOR);
 	}
 };
 

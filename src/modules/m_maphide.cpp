@@ -26,8 +26,15 @@
 
 class ModuleMapHide : public Module
 {
+ private:
 	std::string url;
+
  public:
+	ModuleMapHide()
+		: Module(VF_VENDOR, "Replaces the output of the MAP and LINKS commands with an URL")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
@@ -42,11 +49,6 @@ class ModuleMapHide : public Module
 		}
 		else
 			return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Replaces the output of the MAP and LINKS commands with an URL", VF_VENDOR);
 	}
 };
 

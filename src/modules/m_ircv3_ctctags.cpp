@@ -314,7 +314,8 @@ class ModuleIRCv3CTCTags
 
  public:
 	ModuleIRCv3CTCTags()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides the message-tags IRCv3 extension")
+		, CTCTags::EventListener(this)
 		, cap(this, "message-tags")
 		, cmd(this, cap)
 		, c2ctags(this, cap)
@@ -358,11 +359,6 @@ class ModuleIRCv3CTCTags
 		}
 
 		return CopyClientTags(details.tags_in, details.tags_out);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the message-tags IRCv3 extension", VF_VENDOR | VF_COMMON);
 	}
 };
 

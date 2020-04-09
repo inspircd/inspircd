@@ -126,16 +126,16 @@ class DummyZ : public ModeHandler
 
 class ModuleNamedModes : public Module
 {
+ private:
 	CommandProp cmd;
 	DummyZ dummyZ;
- public:
-	ModuleNamedModes() : cmd(this), dummyZ(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleNamedModes()
+		: Module(VF_VENDOR, "Provides the ability to manipulate modes via long names")
+		, cmd(this)
+		, dummyZ(this)
 	{
-		return Version("Provides the ability to manipulate modes via long names", VF_VENDOR);
 	}
 
 	void Prioritize() override

@@ -193,12 +193,14 @@ class ChannelMatcher
 
 class ModuleTimedBans : public Module
 {
+ private:
 	CommandTban cmd;
 	BanWatcher banwatcher;
 
  public:
 	ModuleTimedBans()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides the TBAN command, timed channel bans")
+		, cmd(this)
 		, banwatcher(this)
 	{
 	}
@@ -240,11 +242,6 @@ class ModuleTimedBans : public Module
 	{
 		// Remove all timed bans affecting the channel from internal bookkeeping
 		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the TBAN command, timed channel bans", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -43,13 +43,15 @@ class HTTPACL
 
 class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 {
+ private:
 	std::string stylesheet;
 	std::vector<HTTPACL> acl_list;
 	HTTPdAPI API;
 
  public:
  	ModuleHTTPAccessList()
-		: HTTPACLEventListener(this)
+		: Module(VF_VENDOR, "Provides access control lists (passwording of resources, IP restrictions, etc) to m_httpd dependent modules")
+		, HTTPACLEventListener(this)
 		, API(this)
 	{
 	}
@@ -232,11 +234,6 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 		if (IsAccessAllowed(&req))
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides access control lists (passwording of resources, IP restrictions, etc) to m_httpd dependent modules", VF_VENDOR);
 	}
 };
 

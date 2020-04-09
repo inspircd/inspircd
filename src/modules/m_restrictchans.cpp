@@ -30,6 +30,7 @@ typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 
 class ModuleRestrictChans : public Module
 {
+ private:
 	AllowChans allowchans;
 	bool allowregistered = false;
 
@@ -52,6 +53,11 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
+	ModuleRestrictChans()
+		: Module(VF_VENDOR, "Allows restricting who can create channels")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowChans newallows;
@@ -81,11 +87,6 @@ class ModuleRestrictChans : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allows restricting who can create channels", VF_VENDOR);
 	}
 };
 

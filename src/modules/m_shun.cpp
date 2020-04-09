@@ -152,6 +152,7 @@ class CommandShun : public Command
 
 class ModuleShun : public Module, public Stats::EventListener
 {
+ private:
 	CommandShun cmd;
 	ShunFactory f;
 	insp::flat_set<std::string> ShunEnabledCommands;
@@ -159,7 +160,8 @@ class ModuleShun : public Module, public Stats::EventListener
 
  public:
 	ModuleShun()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides the SHUN command, which stops a user from executing all except configured commands")
+		, Stats::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -234,11 +236,6 @@ class ModuleShun : public Module, public Stats::EventListener
 
 		/* if we're here, allow the command. */
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SHUN command, which stops a user from executing all except configured commands", VF_VENDOR|VF_COMMON);
 	}
 };
 

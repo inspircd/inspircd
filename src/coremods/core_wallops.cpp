@@ -87,13 +87,9 @@ class CoreModWallops : public Module
 
  public:
 	CoreModWallops()
-		: cmd(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the WALLOPS command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the WALLOPS command", VF_CORE | VF_VENDOR);
 	}
 };
 

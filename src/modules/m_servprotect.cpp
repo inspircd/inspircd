@@ -55,20 +55,21 @@ class ServProtectMode : public ModeHandler
 	}
 };
 
-class ModuleServProtectMode : public Module, public Whois::EventListener, public Whois::LineEventListener
+class ModuleServProtectMode
+	: public Module
+	, public Whois::EventListener
+	, public Whois::LineEventListener
 {
+ private:
 	ServProtectMode bm;
+
  public:
 	ModuleServProtectMode()
-		: Whois::EventListener(this)
+		: Module(VF_VENDOR, "Provides user mode +k to protect services from kicks, kills, and mode changes")
+		, Whois::EventListener(this)
 		, Whois::LineEventListener(this)
 		, bm(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user mode +k to protect services from kicks, kills, and mode changes", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) override

@@ -74,7 +74,8 @@ class ModuleAuditorium
 
  public:
 	ModuleAuditorium()
-		: Names::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +u, auditorium channels where nobody can see others joining and parting or the nick list")
+		, Names::EventListener(this)
 		, Who::EventListener(this)
 		, exemptionprov(this)
 		, aum(this)
@@ -88,11 +89,6 @@ class ModuleAuditorium
 		OpsVisible = tag->getBool("opvisible");
 		OpsCanSee = tag->getBool("opcansee");
 		OperCanSee = tag->getBool("opercansee", true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +u, auditorium channels where nobody can see others joining and parting or the nick list", VF_VENDOR);
 	}
 
 	/* Can they be seen by everyone? */

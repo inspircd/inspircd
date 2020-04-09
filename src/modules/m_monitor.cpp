@@ -393,7 +393,8 @@ class ModuleMonitor
 
  public:
 	ModuleMonitor()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides MONITOR support")
+		, ISupport::EventListener(this)
 		, manager(this, "monitor")
 		, cmd(this, manager)
 	{
@@ -431,11 +432,6 @@ class ModuleMonitor
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides MONITOR support", VF_VENDOR);
 	}
 };
 

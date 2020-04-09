@@ -220,8 +220,11 @@ class CommandRLine : public Command
 	}
 };
 
-class ModuleRLine : public Module, public Stats::EventListener
+class ModuleRLine
+	: public Module
+	, public Stats::EventListener
 {
+ private:
 	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
 	CommandRLine r;
@@ -231,7 +234,8 @@ class ModuleRLine : public Module, public Stats::EventListener
 
  public:
 	ModuleRLine()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides support for banning users through regular expression patterns")
+		, Stats::EventListener(this)
 		, rxfactory(this, "regex")
 		, f(rxfactory)
 		, r(this, f)
@@ -249,9 +253,10 @@ class ModuleRLine : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
-		return Version("Provides support for banning users through regular expression patterns", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
+		if (rxfactory)
+			data = rxfactory->name;
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override

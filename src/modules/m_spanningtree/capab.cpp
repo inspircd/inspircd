@@ -40,17 +40,18 @@ std::string TreeSocket::MyModules(int filter)
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
 		Module* const mod = i->second;
-		Version v = mod->GetVersion();
-		if ((!(v.Flags & filter)))
+		if ((!(mod->flags & filter)))
 			continue;
 
 		if (i != modlist.begin())
 			capabilities.push_back(' ');
-		capabilities.append(i->first);
-		if (!v.link_data.empty())
+
+		std::string link_data;
+		mod->GetLinkData(link_data);
+		if (!link_data.empty())
 		{
 			capabilities.push_back('=');
-			capabilities.append(v.link_data);
+			capabilities.append(link_data);
 		}
 	}
 

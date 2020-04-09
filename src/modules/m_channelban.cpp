@@ -32,13 +32,9 @@ class ModuleBadChannelExtban
 {
  public:
 	ModuleBadChannelExtban()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'j', ban users that are present in another channel, and optionally on their status there")
+		, ISupport::EventListener(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides extban 'j', ban users that are present in another channel, and optionally on their status there", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override

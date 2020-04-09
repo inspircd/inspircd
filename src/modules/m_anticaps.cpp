@@ -180,7 +180,8 @@ class ModuleAntiCaps : public Module
 
  public:
 	ModuleAntiCaps()
-		: exemptionprov(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides support for punishing users that send capitalised messages")
+		, exemptionprov(this)
 		, mode(this)
 	{
 	}
@@ -295,11 +296,6 @@ class ModuleAntiCaps : public Module
 				break;
 		}
 		return MOD_RES_DENY;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for punishing users that send capitalised messages", VF_COMMON|VF_VENDOR);
 	}
 };
 

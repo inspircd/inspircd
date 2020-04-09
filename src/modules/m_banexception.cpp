@@ -53,7 +53,8 @@ class ModuleBanException
 
  public:
 	ModuleBanException()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +e, ban exceptions")
+		, ISupport::EventListener(this)
 		, be(this)
 	{
 	}
@@ -107,11 +108,6 @@ class ModuleBanException
 	void ReadConfig(ConfigStatus& status) override
 	{
 		be.DoRehash();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +e, ban exceptions", VF_VENDOR);
 	}
 };
 

@@ -80,10 +80,13 @@ class BCryptProvider : public HashProvider
 
 class ModuleBCrypt : public Module
 {
+ private:
 	BCryptProvider bcrypt;
 
  public:
-	ModuleBCrypt() : bcrypt(this)
+	ModuleBCrypt()
+		: Module(VF_VENDOR, "Implements bcrypt hashing")
+		, bcrypt(this)
 	{
 	}
 
@@ -91,11 +94,6 @@ class ModuleBCrypt : public Module
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
 		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements bcrypt hashing", VF_VENDOR);
 	}
 };
 

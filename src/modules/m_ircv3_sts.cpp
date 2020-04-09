@@ -152,7 +152,8 @@ class ModuleIRCv3STS : public Module
 
  public:
 	ModuleIRCv3STS()
-		: cap(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides IRCv3 Strict Transport Security policy advertisement")
+		, cap(this)
 	{
 	}
 
@@ -177,11 +178,6 @@ class ModuleIRCv3STS : public Module
 
 		if (!cap.IsRegistered())
 			ServerInstance->Modules.AddService(cap);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides IRCv3 Strict Transport Security policy advertisement", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

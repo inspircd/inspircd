@@ -130,7 +130,8 @@ class CoreModChannel
 
  public:
 	CoreModChannel()
-		: CheckExemption::EventListener(this, UINT_MAX)
+		: Module(VF_CORE | VF_VENDOR, "Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands")
+		, CheckExemption::EventListener(this, UINT_MAX)
 		, ISupport::EventListener(this)
 		, invapi(this)
 		, cmdinvite(this, invapi)
@@ -371,11 +372,6 @@ class CoreModChannel
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnPostJoin, PRIORITY_FIRST);
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_LAST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands", VF_VENDOR|VF_CORE);
 	}
 };
 

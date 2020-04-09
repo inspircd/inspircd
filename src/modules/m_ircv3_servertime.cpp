@@ -75,17 +75,14 @@ class ServerTimeTag
 
 class ModuleIRCv3ServerTime : public Module
 {
+ private:
 	ServerTimeTag tag;
 
  public:
 	ModuleIRCv3ServerTime()
-		: tag(this)
+		: Module(VF_VENDOR, "Provides the server-time IRCv3 extension")
+		, tag(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the server-time IRCv3 extension", VF_VENDOR);
 	}
 };
 

@@ -74,6 +74,7 @@ class WhoisNoticeCmd : public Command
 
 class ModuleShowwhois : public Module, public Whois::EventListener
 {
+ private:
 	bool ShowWhoisFromOpers;
 	SeeWhois sw;
 	WhoisNoticeCmd cmd;
@@ -81,7 +82,8 @@ class ModuleShowwhois : public Module, public Whois::EventListener
  public:
 
 	ModuleShowwhois()
-		: Whois::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides user mode +W for opers to see when a user uses WHOIS on them")
+		, Whois::EventListener(this)
 		, sw(this)
 		, cmd(this)
 	{
@@ -93,11 +95,6 @@ class ModuleShowwhois : public Module, public Whois::EventListener
 
 		sw.SetOperOnly(tag->getBool("opersonly", true));
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user mode +W for opers to see when a user uses WHOIS on them", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) override

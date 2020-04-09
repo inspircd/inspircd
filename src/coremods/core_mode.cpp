@@ -283,7 +283,8 @@ class CoreModMode
 
  public:
 	CoreModMode()
-		: ISupport::EventListener(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
+		, ISupport::EventListener(this)
 		, cmdmode(this)
 	{
 	}
@@ -292,11 +293,6 @@ class CoreModMode
 	{
 		tokens["CHANMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL);
 		tokens["USERMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_USER);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the MODE command", VF_VENDOR|VF_CORE);
 	}
 };
 

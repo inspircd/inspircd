@@ -60,12 +60,12 @@ class ModuleDelayMsg
 
  public:
 	ModuleDelayMsg()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +d <int>, to deny messages to a channel until <int> seconds have passed")
+		, CTCTags::EventListener(this)
 		, djm(this)
 	{
 	}
 
-	Version GetVersion() override;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) override;
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override;
@@ -91,11 +91,6 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 	const Channel::MemberMap& users = chan->GetUsers();
 	for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 		jointime.set(n->second, 0);
-}
-
-Version ModuleDelayMsg::GetVersion()
-{
-	return Version("Provides channel mode +d <int>, to deny messages to a channel until <int> seconds have passed", VF_VENDOR);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)

@@ -70,16 +70,12 @@ class ModuleHideOper
 
  public:
 	ModuleHideOper()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR, "Provides support for hiding oper status with user mode +H")
+		, Stats::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::LineEventListener(this)
 		, hm(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
 	void OnUserQuit(User* user, const std::string&, const std::string&) override

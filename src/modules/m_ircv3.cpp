@@ -115,14 +115,15 @@ class ModuleIRCv3
 	, public AccountEventListener
 	, public Away::EventListener
 {
+ private:
 	Cap::Capability cap_accountnotify;
 	JoinHook joinhook;
-
 	ClientProtocol::EventProvider accountprotoev;
 
  public:
 	ModuleIRCv3()
-		: AccountEventListener(this)
+		: Module(VF_VENDOR, "Provides support for extended-join, away-notify and account-notify CAP capabilities")
+		, AccountEventListener(this)
 		, Away::EventListener(this)
 		, cap_accountnotify(this, "account-notify")
 		, joinhook(this)
@@ -172,11 +173,6 @@ class ModuleIRCv3
 		AwayMessage msg(user);
 		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
 		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for extended-join, away-notify and account-notify CAP capabilities", VF_VENDOR);
 	}
 };
 

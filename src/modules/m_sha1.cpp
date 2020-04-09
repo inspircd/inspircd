@@ -182,18 +182,15 @@ class SHA1HashProvider : public HashProvider
 
 class ModuleSHA1 : public Module
 {
+ private:
 	SHA1HashProvider sha1;
 
  public:
 	ModuleSHA1()
-		: sha1(this)
+		: Module(VF_VENDOR, "Implements SHA-1 hashing")
+		, sha1(this)
 	{
 		big_endian = (htonl(1337) == 1337);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements SHA-1 hashing", VF_VENDOR);
 	}
 };
 

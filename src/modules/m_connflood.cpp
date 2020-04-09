@@ -27,6 +27,7 @@
 
 class ModuleConnFlood : public Module
 {
+ private:
 	unsigned int seconds;
 	unsigned int timeout;
 	unsigned int boot_wait;
@@ -36,10 +37,10 @@ class ModuleConnFlood : public Module
 	time_t first;
 	std::string quitmsg;
 
-public:
-	Version GetVersion() override
+ public:
+	ModuleConnFlood()
+		: Module(VF_VENDOR, "Connection throttle")
 	{
-		return Version("Connection throttle", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

@@ -53,18 +53,15 @@ class CommandAlltime : public Command
 
 class Modulealltime : public Module
 {
+ private:
 	CommandAlltime mycommand;
+
  public:
 	Modulealltime()
-		: mycommand(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the ALLTIME command, displays timestamps from all servers connected to the network")
+		, mycommand(this)
 	{
 	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ALLTIME command, displays timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
-	}
-
 };
 
 MODULE_INIT(Modulealltime)

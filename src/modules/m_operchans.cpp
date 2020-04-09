@@ -43,7 +43,8 @@ class ModuleOperChans
 
  public:
 	ModuleOperChans()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides support for oper-only channels via channel mode +O and extban 'O'")
+		, ISupport::EventListener(this)
 		, oc(this, "operonly", 'O', true)
 		, space(" ")
 		, underscore("_")
@@ -87,11 +88,6 @@ class ModuleOperChans
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["EXTBAN"].push_back('O');
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for oper-only channels via channel mode +O and extban 'O'", VF_VENDOR);
 	}
 };
 

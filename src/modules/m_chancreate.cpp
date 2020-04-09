@@ -28,14 +28,14 @@
 class ModuleChanCreate : public Module
 {
  public:
+	ModuleChanCreate()
+		: Module(VF_VENDOR, "Provides snomasks 'j' and 'J', to which notices about newly created channels are sent")
+	{
+	}
+
 	void init() override
 	{
 		ServerInstance->SNO.EnableSnomask('j', "CHANCREATE");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent", VF_VENDOR);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override

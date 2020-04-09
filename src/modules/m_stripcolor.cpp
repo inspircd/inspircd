@@ -41,7 +41,8 @@ class ModuleStripColor
 
  public:
 	ModuleStripColor()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +S, strip ansi color")
+		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, csc(this, "stripcolor", 'S')
 		, usc(this, "u_stripcolor", 'S')
@@ -106,12 +107,6 @@ class ModuleStripColor
 				InspIRCd::StripColor(partmessage);
 		}
 	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +S, strip ansi color", VF_VENDOR);
-	}
-
 };
 
 MODULE_INIT(ModuleStripColor)

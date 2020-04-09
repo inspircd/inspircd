@@ -219,7 +219,8 @@ class ModuleWatch
 
  public:
 	ModuleWatch()
-		: Away::EventListener(this)
+		: Module(VF_VENDOR, "Provides WATCH support")
+		, Away::EventListener(this)
 		, ISupport::EventListener(this)
 		, manager(this, "watch")
 		, cmd(this, manager)
@@ -268,11 +269,6 @@ class ModuleWatch
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["WATCH"] = ConvToStr(cmd.maxwatch);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides WATCH support", VF_VENDOR);
 	}
 };
 

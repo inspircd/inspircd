@@ -81,15 +81,14 @@ class PCREFactory : public RegexFactory
 
 class ModuleRegexPCRE : public Module
 {
- public:
+ private:
 	PCREFactory ref;
-	ModuleRegexPCRE() : ref(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleRegexPCRE()
+		: Module(VF_VENDOR, "Regex Provider Module for PCRE")
+		, ref(this)
 	{
-		return Version("Regex Provider Module for PCRE", VF_VENDOR);
 	}
 };
 

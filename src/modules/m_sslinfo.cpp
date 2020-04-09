@@ -206,16 +206,12 @@ class ModuleSSLInfo
 
  public:
 	ModuleSSLInfo()
-		: WebIRC::EventListener(this)
+		: Module(VF_VENDOR, "Provides user SSL information and certificate utilities")
+		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, Who::EventListener(this)
 		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user SSL information and certificate utilities", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) override

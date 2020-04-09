@@ -59,15 +59,14 @@ class StdRegexFactory : public RegexFactory
 
 class ModuleRegexStd : public Module
 {
-public:
+ private:
 	StdRegexFactory ref;
-	ModuleRegexStd() : ref(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleRegexStd()
+		: Module(VF_VENDOR, "Regex Provider Module for std::regex")
+		, ref(this)
 	{
-		return Version("Regex Provider Module for std::regex", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

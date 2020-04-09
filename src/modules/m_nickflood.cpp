@@ -124,12 +124,14 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 
 class ModuleNickFlood : public Module
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	NickFlood nf;
 
  public:
 	ModuleNickFlood()
-		: exemptionprov(this)
+		: Module(VF_VENDOR, "Provides channel mode +F, nick flood protection")
+		, exemptionprov(this)
 		, nf(this)
 	{
 	}
@@ -200,11 +202,6 @@ class ModuleNickFlood : public Module
 				f->addnick();
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +F, nick flood protection", VF_VENDOR);
 	}
 };
 

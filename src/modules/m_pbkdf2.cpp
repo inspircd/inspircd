@@ -204,6 +204,11 @@ class ModulePBKDF2 : public Module
 	}
 
  public:
+	ModulePBKDF2()
+		: Module(VF_VENDOR, "Implements PBKDF2 hashing")
+	{
+	}
+	
 	~ModulePBKDF2()
 	{
 		stdalgo::delete_all(providers);
@@ -244,11 +249,6 @@ class ModulePBKDF2 : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		GetConfig();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements PBKDF2 hashing", VF_VENDOR);
 	}
 };
 

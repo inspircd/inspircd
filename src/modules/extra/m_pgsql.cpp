@@ -537,6 +537,11 @@ class ModulePgSQL : public Module
 	ConnMap connections;
 	ReconnectTimer* retimer = nullptr;
 
+	ModulePgSQL()
+		: Module(VF_VENDOR, "PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API")
+	{
+	}
+
 	~ModulePgSQL()
 	{
 		delete retimer;
@@ -610,11 +615,6 @@ class ModulePgSQL : public Module
 					j++;
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
 	}
 };
 

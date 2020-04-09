@@ -81,16 +81,14 @@ class CommandChgident : public Command
 
 class ModuleChgIdent : public Module
 {
+ private:
 	CommandChgident cmd;
 
-public:
-	ModuleChgIdent() : cmd(this)
+ public:
+	ModuleChgIdent()
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGIDENT command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CHGIDENT command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

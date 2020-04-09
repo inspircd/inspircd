@@ -91,16 +91,14 @@ class CommandSanick : public Command
 
 class ModuleSanick : public Module
 {
+ private:
 	CommandSanick cmd;
+
  public:
 	ModuleSanick()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SANICK command, allows opers to change the nicknames of users")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SANICK command, allows opers to change the nicknames of users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -311,7 +311,8 @@ class ModuleLDAPAuth : public Module
 
 public:
 	ModuleLDAPAuth()
-		: LDAP(this, "LDAP")
+		: Module(VF_VENDOR, "Allow/deny connections based upon answers from an LDAP server")
+		, LDAP(this, "LDAP")
 		, ldapAuthed(this, "ldapauth", ExtensionItem::EXT_USER)
 		, ldapVhost(this, "ldapauth_vhost", ExtensionItem::EXT_USER)
 	{
@@ -441,11 +442,6 @@ public:
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allow/deny connections based upon answers from an LDAP server", VF_VENDOR);
 	}
 };
 

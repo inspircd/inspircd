@@ -31,9 +31,9 @@ class ModulePassForward : public Module
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:
-	Version GetVersion() override
+	ModulePassForward()
+		: Module(VF_VENDOR, "Sends server password to NickServ")
 	{
-		return Version("Sends server password to NickServ", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

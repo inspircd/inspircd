@@ -41,7 +41,8 @@ class ModuleIRCv3ChgHost : public Module
 
  public:
 	ModuleIRCv3ChgHost()
-		: cap(this, "chghost")
+		: Module(VF_VENDOR, "Provides the chghost IRCv3 extension")
+		, cap(this, "chghost")
 		, protoevprov(this, "CHGHOST")
 	{
 	}
@@ -54,11 +55,6 @@ class ModuleIRCv3ChgHost : public Module
 	void OnChangeHost(User* user, const std::string& newhost) override
 	{
 		DoChgHost(user, user->ident, newhost);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the chghost IRCv3 extension", VF_VENDOR);
 	}
 };
 

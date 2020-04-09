@@ -92,16 +92,14 @@ class CommandSamode : public Command
 
 class ModuleSaMode : public Module
 {
+ private:
 	CommandSamode cmd;
+
  public:
 	ModuleSaMode()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the SAMODE command, allows opers to change modes on channels and users")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SAMODE command, allows opers to change modes on channels and users", VF_VENDOR);
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override

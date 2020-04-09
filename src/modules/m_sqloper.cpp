@@ -163,6 +163,7 @@ class OperQuery : public SQL::Query
 
 class ModuleSQLOper : public Module
 {
+ private:
 	// Whether OperQuery is running
 	bool active = false;
 	std::string query;
@@ -172,7 +173,8 @@ class ModuleSQLOper : public Module
 
 public:
 	ModuleSQLOper()
-		: SQL(this, "SQL")
+		: Module(VF_VENDOR, "Allows storage of oper credentials in an SQL table")
+		, SQL(this, "SQL")
 	{
 	}
 
@@ -244,11 +246,6 @@ public:
 		 *  We issue a DENY first, and will re-run OnPreCommand later to trigger the other hooks post-DB update.
 		 */
 		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}
 };
 

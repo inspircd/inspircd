@@ -56,15 +56,14 @@ class HashSHA256 : public HashProvider
 
 class ModuleSHA256 : public Module
 {
+ private:
 	HashSHA256 sha;
- public:
-	ModuleSHA256() : sha(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleSHA256()
+		: Module(VF_VENDOR, "Implements SHA-256 hashing")
+		, sha(this)
 	{
-		return Version("Implements SHA-256 hashing", VF_VENDOR);
 	}
 };
 

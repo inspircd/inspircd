@@ -99,7 +99,8 @@ class ModuleCodepage
 
  public:
 	ModuleCodepage()
-		: origcasemap(national_case_insensitive_map)
+		: Module(VF_VENDOR | VF_COMMON, "Provides support for custom 8-bit codepages")
+		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->IsNick)
 	{
@@ -191,7 +192,7 @@ class ModuleCodepage
 		CheckRehash(newcasemap);
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
 		std::stringstream linkdata;
 
@@ -210,7 +211,7 @@ class ModuleCodepage
 			if (casemap[i] != i)
 				linkdata << static_cast<unsigned char>(i) << casemap[i] << ',';
 
-		return Version("Provides support for custom 8-bit codepages", VF_COMMON | VF_VENDOR, linkdata.str());
+		data = linkdata.str();
 	}
 };
 MODULE_INIT(ModuleCodepage)

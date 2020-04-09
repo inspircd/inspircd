@@ -66,22 +66,20 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
   	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 	{
 		Module* m = i->second;
-		Version V = m->GetVersion();
-
 		if (IS_LOCAL(user) && user->HasPrivPermission("servers/auspex"))
 		{
 			std::string flags("VCO");
 			size_t pos = 0;
 			for (int mult = 2; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
-				if (!(V.Flags & mult))
+				if (!(m->flags & mult))
 					flags[pos] = '-';
 
 			const char* srcrev = m->ModuleDLLManager->GetVersion();
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev ? "*" : srcrev, flags, V.description);
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev ? "*" : srcrev, flags, m->description);
 		}
 		else
 		{
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, '*', '*', V.description);
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, '*', '*', m->description);
 		}
 	}
 	user->WriteRemoteNumeric(RPL_ENDOFMODLIST, "End of MODULES list");

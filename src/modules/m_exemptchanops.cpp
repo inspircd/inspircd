@@ -153,16 +153,14 @@ class ExemptHandler : public CheckExemption::EventListener
 
 class ModuleExemptChanOps : public Module
 {
+ private:
 	ExemptHandler eh;
 
  public:
-	ModuleExemptChanOps() : eh(this)
+	ModuleExemptChanOps()
+		: Module(VF_VENDOR, "Provides the ability to allow channel operators to be exempt from certain modes")
+		, eh(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

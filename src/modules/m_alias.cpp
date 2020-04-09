@@ -115,13 +115,9 @@ class ModuleAlias : public Module
 	}
 
 	ModuleAlias()
-		: botmode(this, "bot")
+		: Module(VF_VENDOR, "Provides aliases of commands")
+		, botmode(this, "bot")
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides aliases of commands", VF_VENDOR);
 	}
 
 	std::string GetVar(std::string varname, const std::string &original_line)

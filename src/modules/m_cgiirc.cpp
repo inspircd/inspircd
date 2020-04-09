@@ -268,7 +268,8 @@ class ModuleCgiIRC
 
  public:
 	ModuleCgiIRC()
-		: WebIRC::EventListener(this)
+		: Module(VF_VENDOR, "Enables forwarding the real IP address of a user from a gateway to the IRC server")
+		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, cmd(this)
 	{
@@ -462,11 +463,6 @@ class ModuleCgiIRC
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an ident gateway");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Enables forwarding the real IP address of a user from a gateway to the IRC server", VF_VENDOR);
 	}
 };
 

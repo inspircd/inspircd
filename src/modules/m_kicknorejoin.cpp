@@ -135,7 +135,8 @@ class ModuleKickNoRejoin : public Module
 
 public:
 	ModuleKickNoRejoin()
-		: kr(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides channel mode +J, delays rejoins after kicks")
+		, kr(this)
 		, invapi(this)
 	{
 	}
@@ -166,9 +167,9 @@ public:
 		}
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
-		return Version("Provides channel mode +J, delays rejoins after kicks", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
+		data = kr.GetModuleSettings();
 	}
 };
 

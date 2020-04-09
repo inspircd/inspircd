@@ -1185,6 +1185,7 @@ class ModuleSSLGnuTLS : public Module
 
  public:
 	ModuleSSLGnuTLS()
+		: Module(VF_VENDOR, "Provides SSL support via GnuTLS")
 	{
 		thismod = this;
 	}
@@ -1230,11 +1231,6 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->Users.QuitUser(user, "SSL module unloading");
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides SSL support via GnuTLS", VF_VENDOR);
 	}
 
 	ModResult OnCheckReady(LocalUser* user) override

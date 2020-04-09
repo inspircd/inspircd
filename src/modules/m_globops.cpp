@@ -54,19 +54,21 @@ class CommandGlobops : public Command
 
 class ModuleGlobops : public Module
 {
+ private:
 	CommandGlobops cmd;
+
  public:
-	ModuleGlobops() : cmd(this) {}
+	ModuleGlobops()
+		: Module(VF_VENDOR, "Provides the GLOBOPS command and snomask 'g'")
+		, cmd(this)
+	{
+	}
 
 	void init() override
 	{
 		ServerInstance->SNO.EnableSnomask('g',"GLOBOPS");
 	}
 
-	Version GetVersion() override
-	{
-		return Version("Provides the GLOBOPS command and snomask 'g'", VF_VENDOR);
-	}
 };
 
 MODULE_INIT(ModuleGlobops)

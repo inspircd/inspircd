@@ -99,14 +99,14 @@ class CommandRMode : public Command
 
 class ModuleRMode : public Module
 {
+ private:
 	CommandRMode cmd;
 
  public:
-	ModuleRMode() : cmd(this) { }
-
-	Version GetVersion() override
+	ModuleRMode()
+		: Module(VF_VENDOR, "Allows glob-based removal of list modes")
+		, cmd(this)
 	{
-		return Version("Allows glob-based removal of list modes", VF_VENDOR);
 	}
 };
 

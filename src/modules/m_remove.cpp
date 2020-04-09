@@ -204,6 +204,7 @@ class ModuleRemove
 	: public Module
 	, public ISupport::EventListener
 {
+ private:
 	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
 	CommandFpart cmd2;
@@ -211,7 +212,8 @@ class ModuleRemove
 
  public:
 	ModuleRemove()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the REMOVE command as an alternative to KICK, it makes users appear to have left the channel")
+		, ISupport::EventListener(this)
 		, nokicksmode(this, "nokick")
 		, cmd1(this, supportnokicks, nokicksmode)
 		, cmd2(this, supportnokicks, nokicksmode)
@@ -228,11 +230,6 @@ class ModuleRemove
 		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
 		supportnokicks = tag->getBool("supportnokicks");
 		cmd1.protectedrank = cmd2.protectedrank = tag->getUInt("protectedrank", 50000);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the REMOVE command as an alternative to KICK, it makes users appear to have left the channel", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -30,9 +30,9 @@
 class ModuleOperLevels : public Module
 {
 	public:
-		Version GetVersion() override
+		ModuleOperLevels()
+			: Module(VF_VENDOR, "Gives each oper type a 'level', cannot kill opers 'above' your level")
 		{
-			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level", VF_VENDOR);
 		}
 
 		ModResult OnKill(User* source, User* dest, const std::string &reason) override

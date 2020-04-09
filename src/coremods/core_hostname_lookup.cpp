@@ -166,7 +166,8 @@ class ModuleHostnameLookup : public Module
 
  public:
 	ModuleHostnameLookup()
-		: dnsLookup(this, "dnsLookup", ExtensionItem::EXT_USER)
+		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
+		, dnsLookup(this, "dnsLookup", ExtensionItem::EXT_USER)
 		, DNS(this, "DNS")
 	{
 		dl = &dnsLookup;
@@ -205,11 +206,6 @@ class ModuleHostnameLookup : public Module
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return this->dnsLookup.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for DNS lookups on connecting clients", VF_CORE|VF_VENDOR);
 	}
 };
 

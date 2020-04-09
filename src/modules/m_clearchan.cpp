@@ -144,11 +144,13 @@ class CommandClearChan : public Command
 
 class ModuleClearChan : public Module
 {
+ private:
 	CommandClearChan cmd;
 
  public:
 	ModuleClearChan()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CLEARCHAN command that allows opers to masskick, masskill or mass G/Z-line users on a channel")
+		, cmd(this)
 	{
 	}
 
@@ -209,11 +211,6 @@ class ModuleClearChan : public Module
 			if ((IS_LOCAL(curr)) && (!curr->IsOper()) && (curr != leaving))
 				excepts.insert(curr);
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CLEARCHAN command that allows opers to masskick, masskill or mass G/Z-line users on a channel", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

@@ -64,7 +64,12 @@ class CoreModXLine : public Module
 
  public:
 	CoreModXLine()
-		: cmdeline(this), cmdgline(this), cmdkline(this), cmdqline(this), cmdzline(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the ELINE, GLINE, KLINE, QLINE, and ZLINE commands")
+		, cmdeline(this)
+		, cmdgline(this)
+		, cmdkline(this)
+		, cmdqline(this)
+		, cmdzline(this)
 	{
 	}
 
@@ -103,11 +108,6 @@ class CoreModXLine : public Module
 		// as the XLine system is a spaghetti nightmare. Instead we skip over expired
 		// ELines in XLineManager::CheckELines() and expire them here instead.
 		ServerInstance->XLines->GetAll("E");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ELINE, GLINE, KLINE, QLINE, and ZLINE commands", VF_VENDOR|VF_CORE);
 	}
 };
 

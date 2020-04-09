@@ -167,7 +167,8 @@ class ModuleCBan : public Module, public Stats::EventListener
 
  public:
 	ModuleCBan()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides the CBAN command, like Q-lines, but for channels")
+		, Stats::EventListener(this)
 		, mycommand(this)
 	{
 	}
@@ -206,11 +207,6 @@ class ModuleCBan : public Module, public Stats::EventListener
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CBAN command, like Q-lines, but for channels", VF_COMMON | VF_VENDOR);
 	}
 };
 

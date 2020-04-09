@@ -76,7 +76,8 @@ class ModuleSetName : public Module
 
  public:
 	ModuleSetName()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the SETNAME command")
+		, cmd(this)
 		, setnameevprov(this, "SETNAME")
 	{
 	}
@@ -102,11 +103,6 @@ class ModuleSetName : public Module
 		msg.PushParamRef(real);
 		ClientProtocol::Event protoev(setnameevprov, msg);
 		IRCv3::WriteNeighborsWithCap(user, protoev, cmd.cap, true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SETNAME command", VF_VENDOR);
 	}
 };
 

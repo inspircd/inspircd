@@ -38,15 +38,11 @@ class ModuleGeoBan
 
  public:
 	ModuleGeoBan()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides a way to ban users by country")
+		, ISupport::EventListener(this)
 		, Whois::EventListener(this)
 		, geoapi(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides a way to ban users by country", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

@@ -960,6 +960,7 @@ class ModuleSSLOpenSSL : public Module
 
  public:
 	ModuleSSLOpenSSL()
+		: Module(VF_VENDOR, "Provides SSL support via OpenSSL")
 	{
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, NULL);
@@ -1021,11 +1022,6 @@ class ModuleSSLOpenSSL : public Module
 		if ((iohook) && (!iohook->IsHandshakeDone()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides SSL support via OpenSSL", VF_VENDOR);
 	}
 };
 

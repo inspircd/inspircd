@@ -30,6 +30,11 @@ class ModuleSSLRehashSignal : public Module
 	}
 
  public:
+	 ModuleSSLRehashSignal()
+		: Module(VF_VENDOR, "Reloads SSL credentials on SIGUSR1")
+	{
+	}
+
 	~ModuleSSLRehashSignal()
 	{
 		signal(SIGUSR1, SIG_IGN);
@@ -52,11 +57,6 @@ class ModuleSSLRehashSignal : public Module
 		const std::string str = "ssl";
 		FOREACH_MOD(OnModuleRehash, (NULL, str));
 		signaled = 0;
-	}
-
-	Version GetVersion()
-	{
-		return Version("Reloads SSL credentials on SIGUSR1", VF_VENDOR);
 	}
 };
 

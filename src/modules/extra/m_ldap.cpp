@@ -621,6 +621,11 @@ class ModuleLDAP : public Module
 		}
 	}
 
+	ModuleLDAP()
+		: Module(VF_VENDOR, "Provides LDAP support")
+	{
+	}
+
 	~ModuleLDAP()
 	{
 		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
@@ -630,11 +635,6 @@ class ModuleLDAP : public Module
 			conn->OnNotify();
 			delete conn;
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides LDAP support", VF_VENDOR);
 	}
 };
 

@@ -218,7 +218,7 @@ class ModuleFilter
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
-	Version GetVersion() override;
+	void GetLinkData(std::string& data) override;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) override;
@@ -346,7 +346,8 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter()
-	: ServerProtocol::SyncEventListener(this)
+	: Module(VF_VENDOR | VF_COMMON, "Provides text (spam) filtering")
+	, ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, filtcommand(this)
 	, RegexEngine(this, "regex")
@@ -666,9 +667,10 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ReadFilters();
 }
 
-Version ModuleFilter::GetVersion()
+void ModuleFilter::GetLinkData(std::string& data)
 {
-	return Version("Provides text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
+	if (RegexEngine)
+		data = RegexEngine->name;
 }
 
 std::string ModuleFilter::EncodeFilter(FilterResult* filter)

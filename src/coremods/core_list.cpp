@@ -213,7 +213,8 @@ class CoreModList
 
  public:
 	CoreModList()
-		: ISupport::EventListener(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the LIST command")
+		, ISupport::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -228,11 +229,6 @@ class CoreModList
 	{
 		tokens["ELIST"] = "CMNTU";
 		tokens["SAFELIST"];
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the LIST command", VF_VENDOR|VF_CORE);
 	}
 };
 

@@ -388,17 +388,13 @@ class ModuleCallerID
 
 public:
 	ModuleCallerID()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR | VF_COMMON, "Implementation of callerid, provides user mode +g and the ACCEPT command")
+		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, cmd(this)
 		, api(this, cmd.extInfo)
 		, myumode(this, "callerid", 'g')
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implementation of callerid, provides user mode +g and the ACCEPT command", VF_COMMON | VF_VENDOR);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

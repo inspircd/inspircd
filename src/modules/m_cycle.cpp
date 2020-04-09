@@ -83,17 +83,14 @@ class CommandCycle : public SplitCommand
 
 class ModuleCycle : public Module
 {
+ private:
 	CommandCycle cmd;
 
  public:
 	ModuleCycle()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the CYCLE command, acts as a server-side HOP command to part and rejoin a channel")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CYCLE command, acts as a server-side HOP command to part and rejoin a channel", VF_VENDOR);
 	}
 };
 

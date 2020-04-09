@@ -75,7 +75,8 @@ class ModuleOverride
 
  public:
 	ModuleOverride()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides support for allowing opers to override certain things")
+		, ISupport::EventListener(this)
 		, ou(this, "override", 'O')
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
@@ -212,11 +213,6 @@ class ModuleOverride
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for allowing opers to override certain things",VF_VENDOR);
 	}
 };
 

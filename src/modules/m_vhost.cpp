@@ -85,11 +85,13 @@ class CommandVhost : public Command
 
 class ModuleVHost : public Module
 {
+ private:
 	CommandVhost cmd;
 
  public:
 	ModuleVHost()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides masking of user hostnames via the VHOST command")
+		, cmd(this)
 	{
 	}
 
@@ -124,11 +126,6 @@ class ModuleVHost : public Module
 		}
 
 		cmd.vhosts.swap(newhosts);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides masking of user hostnames via the VHOST command", VF_VENDOR);
 	}
 };
 

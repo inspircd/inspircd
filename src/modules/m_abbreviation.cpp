@@ -32,14 +32,14 @@ enum
 class ModuleAbbreviation : public Module
 {
  public:
+	ModuleAbbreviation()
+		: Module(VF_VENDOR, "Provides the ability to abbreviate commands a-la BBC BASIC keywords")
+	{
+	}
+
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords", VF_VENDOR);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

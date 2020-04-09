@@ -82,14 +82,14 @@ class ModuleHideList : public Module
 			watchers.push_back(new ListWatcher(this, i->first, i->second));
 	}
 
+	ModuleHideList()
+		: Module(VF_VENDOR, "Provides support for hiding the list of listmodes")
+	{
+	}
+
 	~ModuleHideList()
 	{
 		stdalgo::delete_all(watchers);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for hiding the list of listmodes", VF_VENDOR);
 	}
 };
 

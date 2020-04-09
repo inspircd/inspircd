@@ -229,7 +229,8 @@ class ModuleCoreRFCSerializer : public Module
 
  public:
 	ModuleCoreRFCSerializer()
-		: rfcserializer(this)
+		: Module(VF_CORE | VF_VENDOR, "RFC client protocol serializer and unserializer")
+		, rfcserializer(this)
 	{
 	}
 
@@ -247,11 +248,6 @@ class ModuleCoreRFCSerializer : public Module
 	{
 		if (!user->serializer)
 			user->serializer = &rfcserializer;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("RFC client protocol serializer and unserializer", VF_CORE|VF_VENDOR);
 	}
 };
 

@@ -52,16 +52,14 @@ class GlobFactory : public RegexFactory
 
 class ModuleRegexGlob : public Module
 {
+ private:
 	GlobFactory gf;
-public:
-	ModuleRegexGlob()
-		: gf(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleRegexGlob()
+		: Module(VF_VENDOR, "Regex provider module using plain wildcard matching")
+		, gf(this)
 	{
-		return Version("Regex provider module using plain wildcard matching", VF_VENDOR);
 	}
 };
 

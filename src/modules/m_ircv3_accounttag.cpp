@@ -46,17 +46,14 @@ class AccountTag : public IRCv3::CapTag<AccountTag>
 
 class ModuleIRCv3AccountTag : public Module
 {
+ private:
 	AccountTag tag;
 
  public:
 	ModuleIRCv3AccountTag()
-		: tag(this)
+		: Module(VF_VENDOR, "Provides the account-tag IRCv3 extension")
+		, tag(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the account-tag IRCv3 extension", VF_VENDOR);
 	}
 };
 

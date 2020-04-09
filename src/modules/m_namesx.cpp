@@ -40,16 +40,12 @@ class ModuleNamesX
 
  public:
 	ModuleNamesX()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides the NAMESX (CAP multi-prefix) capability")
+		, ISupport::EventListener(this)
 		, Names::EventListener(this)
 		, Who::EventListener(this)
 		, cap(this, "multi-prefix")
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the NAMESX (CAP multi-prefix) capability", VF_VENDOR);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

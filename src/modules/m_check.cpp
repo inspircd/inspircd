@@ -319,15 +319,14 @@ class CommandCheck : public Command
 
 class ModuleCheck : public Module
 {
-	CommandCheck mycommand;
- public:
-	ModuleCheck() : mycommand(this)
-	{
-	}
+ private:
+	CommandCheck cmd;
 
-	Version GetVersion() override
+ public:
+	ModuleCheck()
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHECK command to view user, channel, IP address or hostname information")
+		, cmd(this)
 	{
-		return Version("Provides the CHECK command to view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

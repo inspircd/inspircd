@@ -186,7 +186,8 @@ class ModuleLDAPOper : public Module
 
  public:
 	ModuleLDAPOper()
-		: LDAP(this, "LDAP")
+		: Module(VF_VENDOR, "Adds the ability to authenticate opers via LDAP")
+		, LDAP(this, "LDAP")
 	{
 		me = this;
 	}
@@ -236,11 +237,6 @@ class ModuleLDAPOper : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Adds the ability to authenticate opers via LDAP", VF_VENDOR);
 	}
 };
 

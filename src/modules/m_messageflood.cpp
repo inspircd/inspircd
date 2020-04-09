@@ -122,7 +122,8 @@ private:
 
  public:
 	ModuleMsgFlood()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +f, message flood protection")
+		, CTCTags::EventListener(this)
 		, exemptionprov(this)
 		, mf(this)
 	{
@@ -189,11 +190,6 @@ private:
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +f, message flood protection", VF_VENDOR);
 	}
 };
 

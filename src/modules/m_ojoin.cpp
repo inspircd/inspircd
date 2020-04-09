@@ -105,13 +105,15 @@ class NetworkPrefix : public PrefixMode
 
 class ModuleOjoin : public Module
 {
+ private:
 	NetworkPrefix np;
 	CommandOjoin mycommand;
 
  public:
 
 	ModuleOjoin()
-		: np(this, ServerInstance->Config->ConfValue("ojoin")->getString("prefix").c_str()[0])
+		: Module(VF_VENDOR, "Provides the OJOIN command, allows an oper to join a channel and be immune to kicks")
+		, np(this, ServerInstance->Config->ConfValue("ojoin")->getString("prefix").c_str()[0])
 		, mycommand(this, np)
 	{
 	}
@@ -153,11 +155,6 @@ class ModuleOjoin : public Module
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the OJOIN command, allows an oper to join a channel and be immune to kicks", VF_VENDOR);
 	}
 };
 

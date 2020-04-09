@@ -68,16 +68,14 @@ class CommandSATopic : public Command
 
 class ModuleSATopic : public Module
 {
+ private:
 	CommandSATopic cmd;
+
  public:
 	ModuleSATopic()
-	: cmd(this)
+		: Module(VF_VENDOR, "Provides the SATOPIC command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SATOPIC command", VF_VENDOR);
 	}
 };
 

@@ -34,13 +34,9 @@ class ModuleMLock : public Module
 
  public:
 	ModuleMLock()
-		: mlock(this, "mlock", ExtensionItem::EXT_CHANNEL, true)
+		: Module(VF_VENDOR, "Implements the ability to have server-side MLOCK enforcement")
+		, mlock(this, "mlock", ExtensionItem::EXT_CHANNEL, true)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements the ability to have server-side MLOCK enforcement", VF_VENDOR);
 	}
 
 	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding) override

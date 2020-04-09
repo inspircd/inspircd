@@ -83,16 +83,14 @@ class TREFactory : public RegexFactory
 
 class ModuleRegexTRE : public Module
 {
+ private:
 	TREFactory trf;
 
  public:
-	ModuleRegexTRE() : trf(this)
+	ModuleRegexTRE()
+		: Module(VF_VENDOR, "Regex Provider Module for TRE Regular Expressions")
+		, trf(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
 	}
 };
 

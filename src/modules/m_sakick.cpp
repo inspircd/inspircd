@@ -86,16 +86,14 @@ class CommandSakick : public Command
 
 class ModuleSakick : public Module
 {
+ private:
 	CommandSakick cmd;
+
  public:
 	ModuleSakick()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAKICK command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SAKICK command", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

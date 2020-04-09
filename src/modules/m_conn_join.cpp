@@ -66,13 +66,15 @@ class JoinTimer : public Timer
 
 class ModuleConnJoin : public Module
 {
+ private:
 	SimpleExtItem<JoinTimer> ext;
 	std::string defchans;
 	unsigned int defdelay;
 
  public:
 	ModuleConnJoin()
-		: ext(this, "join_timer", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Forces users to join the specified channel(s) on connect")
+		, ext(this, "join_timer", ExtensionItem::EXT_USER)
 	{
 	}
 
@@ -86,11 +88,6 @@ class ModuleConnJoin : public Module
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
 	}
 
 	void OnPostConnect(User* user) override

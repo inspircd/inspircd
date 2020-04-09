@@ -44,13 +44,9 @@ void dynamic_reference_base::reset_all()
 		(*i)->resolve();
 }
 
-// Version is a simple class for holding a modules version number
-Version::Version(const std::string &desc, int flags) : description(desc), Flags(flags)
-{
-}
-
-Version::Version(const std::string &desc, int flags, const std::string& linkdata)
-: description(desc), Flags(flags), link_data(linkdata)
+Module::Module(int mflags, const std::string& mdesc)
+	: description(mdesc)
+	, flags(mflags)
 {
 }
 
@@ -71,6 +67,8 @@ void Module::DetachEvent(Implementation i)
 	ServerInstance->Modules.Detach(i, this);
 }
 
+void		Module::GetLinkData(std::string& out) { }
+void		Module::Prioritize() { }
 void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }

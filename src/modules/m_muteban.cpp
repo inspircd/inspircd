@@ -37,7 +37,8 @@ class ModuleQuietBan
 
  public:
 	ModuleQuietBan()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'm', mute bans")
+		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 	{
 	}
@@ -46,11 +47,6 @@ class ModuleQuietBan
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
 		notifyuser = tag->getBool("notifyuser", true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides extban 'm', mute bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)

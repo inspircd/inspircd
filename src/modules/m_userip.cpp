@@ -91,7 +91,8 @@ class ModuleUserIP
 
  public:
 	ModuleUserIP()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides the USERIP command")
+		, ISupport::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -99,11 +100,6 @@ class ModuleUserIP
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["USERIP"];
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the USERIP command", VF_VENDOR);
 	}
 };
 

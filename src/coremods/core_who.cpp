@@ -591,7 +591,8 @@ class CoreModWho
 
  public:
 	CoreModWho()
-		: ISupport::EventListener(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the WHO command")
+		, ISupport::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -599,11 +600,6 @@ class CoreModWho
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["WHOX"];
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the WHO command", VF_VENDOR|VF_CORE);
 	}
 };
 

@@ -357,7 +357,8 @@ class RepeatModule : public Module
 
  public:
 	RepeatModule()
-		: exemptionprov(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides channel mode +E, blocking of similar messages")
+		, exemptionprov(this)
 		, rm(this)
 	{
 	}
@@ -411,9 +412,9 @@ class RepeatModule : public Module
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
-		return Version("Provides channel mode +E, blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
+		data = rm.GetModuleSettings();
 	}
 };
 

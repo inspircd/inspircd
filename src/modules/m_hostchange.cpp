@@ -124,6 +124,11 @@ private:
 	}
 
  public:
+	ModuleHostChange()
+		: Module(VF_VENDOR, "Provides rule-based masking of user hostnames")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		HostRules rules;
@@ -183,11 +188,6 @@ private:
 		for (std::string::const_iterator iter = hmap.begin(); iter != hmap.end(); ++iter)
 			hostmap.set(static_cast<unsigned char>(*iter));
 		hostrules.swap(rules);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides rule-based masking of user hostnames", VF_VENDOR);
 	}
 
 	void OnUserConnect(LocalUser* user) override

@@ -54,13 +54,16 @@ class HideOperWatcher : public ModeWatcher
 
 class ModuleOperPrefixMode : public Module
 {
+ private:
 	OperPrefixMode opm;
 	HideOperWatcher hideoperwatcher;
 	UserModeReference hideopermode;
 
  public:
 	ModuleOperPrefixMode()
-		: opm(this), hideoperwatcher(this)
+		: Module(VF_VENDOR, "Gives opers channel mode +y which provides a staff prefix")
+		, opm(this)
+		, hideoperwatcher(this)
 		, hideopermode(this, "hideoper")
 	{
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
@@ -102,11 +105,6 @@ class ModuleOperPrefixMode : public Module
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Gives opers channel mode +y which provides a staff prefix", VF_VENDOR);
 	}
 
 	void Prioritize() override

@@ -78,6 +78,11 @@ class ModuleDisable : public Module
 	}
 
  public:
+	ModuleDisable()
+		: Module(VF_VENDOR, "Provides support for disabling commands and modes")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("disabled");
@@ -180,11 +185,6 @@ class ModuleDisable : public Module
 		user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c (%s) is disabled",
 			what, mh->GetModeChar(), mh->name.c_str()));
 		return MOD_RES_DENY;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for disabling commands and modes", VF_VENDOR);
 	}
 };
 

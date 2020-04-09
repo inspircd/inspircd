@@ -27,7 +27,8 @@ class ModuleIRCv3InviteNotify : public Module
 
  public:
 	ModuleIRCv3InviteNotify()
-		: cap(this, "invite-notify")
+		: Module(VF_VENDOR, "Provides the invite-notify IRCv3 extension")
+		, cap(this, "invite-notify")
 	{
 	}
 
@@ -60,11 +61,6 @@ class ModuleIRCv3InviteNotify : public Module
 	{
 		// Prioritize after all modules to see all excepted users
 		ServerInstance->Modules.SetPriority(this, I_OnUserInvite, PRIORITY_LAST);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the invite-notify IRCv3 extension", VF_VENDOR);
 	}
 };
 

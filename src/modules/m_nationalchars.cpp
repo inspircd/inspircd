@@ -255,7 +255,8 @@ class ModuleNationalChars : public Module
 
  public:
 	ModuleNationalChars()
-		: rememberer(ServerInstance->IsNick)
+		: Module(VF_VENDOR | VF_COMMON, "Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING")
+		, rememberer(ServerInstance->IsNick)
 		, lowermap_rememberer(national_case_insensitive_map)
 		, casemapping_rememberer(ServerInstance->Config->CaseMapping)
 	{
@@ -317,11 +318,6 @@ class ModuleNationalChars : public Module
 		ServerInstance->Config->CaseMapping = casemapping_rememberer;
 		CheckForceQuit("National characters module unloaded");
 		CheckRehash();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON);
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/

@@ -89,7 +89,8 @@ class ModuleDelayJoin
 	DelayJoinMode djm;
 
 	ModuleDelayJoin()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +D, delay-join, users don't appear as joined to others until they speak")
+		, CTCTags::EventListener(this)
 		, Names::EventListener(this)
 		, unjoined(this, "delayjoin", ExtensionItem::EXT_MEMBERSHIP)
 		, joinhook(this, unjoined)
@@ -97,7 +98,6 @@ class ModuleDelayJoin
 	{
 	}
 
-	Version GetVersion() override;
 	ModResult OnNamesListItem(LocalUser* issuer, Membership*, std::string& prefixes, std::string& nick) override;
 	void OnUserJoin(Membership*, bool, bool, CUList&) override;
 	void CleanUser(User* user);
@@ -127,11 +127,6 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 	}
 	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
-}
-
-Version ModuleDelayJoin::GetVersion()
-{
-	return Version("Provides channel mode +D, delay-join, users don't appear as joined to others until they speak", VF_VENDOR);
 }
 
 ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick)

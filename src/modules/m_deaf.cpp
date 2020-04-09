@@ -69,6 +69,7 @@ class PrivDeafMode : public ModeHandler
 
 class ModuleDeaf : public Module
 {
+ private:
 	DeafMode deafmode;
 	PrivDeafMode privdeafmode;
 	std::string deaf_bypasschars;
@@ -77,7 +78,8 @@ class ModuleDeaf : public Module
 
  public:
 	ModuleDeaf()
-		: deafmode(this)
+		: Module(VF_VENDOR, "Provides user modes +d and +D to block channel and user messages/notices")
+		, deafmode(this)
 		, privdeafmode(this)
 	{
 	}
@@ -147,11 +149,6 @@ class ModuleDeaf : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user modes +d and +D to block channel and user messages/notices", VF_VENDOR);
 	}
 };
 

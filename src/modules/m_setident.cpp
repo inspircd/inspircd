@@ -61,16 +61,14 @@ class CommandSetident : public Command
 
 class ModuleSetIdent : public Module
 {
+ private:
 	CommandSetident cmd;
 
  public:
-	ModuleSetIdent() : cmd(this)
+	ModuleSetIdent()
+		: Module(VF_VENDOR, "Provides the SETIDENT command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SETIDENT command", VF_VENDOR);
 	}
 };
 

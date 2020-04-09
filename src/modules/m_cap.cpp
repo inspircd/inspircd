@@ -493,7 +493,8 @@ class ModuleCap : public Module
 
  public:
 	ModuleCap()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides support for CAP capability negotiation")
+		, cmd(this)
 		, cap(this)
 	{
 	}
@@ -501,11 +502,6 @@ class ModuleCap : public Module
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		return (cmd.holdext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for CAP capability negotiation", VF_VENDOR);
 	}
 };
 

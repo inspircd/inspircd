@@ -123,13 +123,10 @@ class CoreModLoadModule : public Module
 
  public:
 	CoreModLoadModule()
-		: cmdloadmod(this), cmdunloadmod(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the LOADMODULE and UNLOADMODULE commands")
+		, cmdloadmod(this)
+		, cmdunloadmod(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
 	}
 };
 

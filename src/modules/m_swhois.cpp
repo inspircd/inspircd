@@ -92,13 +92,17 @@ class CommandSwhois : public Command
 
 };
 
-class ModuleSWhois : public Module, public Whois::LineEventListener
+class ModuleSWhois
+	: public Module
+	, public Whois::LineEventListener
 {
+ private:
 	CommandSwhois cmd;
 
  public:
 	ModuleSWhois()
-		: Whois::LineEventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SWHOIS command which allows setting of arbitrary WHOIS lines")
+		, Whois::LineEventListener(this)
 		, cmd(this)
 	{
 	}
@@ -155,11 +159,6 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 		User* dest = static_cast<User*>(target);
 		if (dest && (extname == "swhois"))
 			cmd.operblock.unset(dest);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

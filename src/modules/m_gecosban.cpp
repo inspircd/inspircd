@@ -32,13 +32,9 @@ class ModuleGecosBan
 {
  public:
 	ModuleGecosBan()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides a way to ban users by their real name with the 'a' and 'r' extbans")
+		, ISupport::EventListener(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides a way to ban users by their real name with the 'a' and 'r' extbans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override

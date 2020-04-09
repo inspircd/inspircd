@@ -113,11 +113,13 @@ class CommandTitle : public Command
 
 class ModuleCustomTitle : public Module, public Whois::LineEventListener
 {
+ private:
 	CommandTitle cmd;
 
  public:
 	ModuleCustomTitle()
-		: Whois::LineEventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the TITLE command, custom titles for users")
+		, Whois::LineEventListener(this)
 		, cmd(this)
 	{
 	}
@@ -168,11 +170,6 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 		}
 		/* Don't block anything */
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the TITLE command, custom titles for users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -71,16 +71,14 @@ class RE2Factory : public RegexFactory
 
 class ModuleRegexRE2 : public Module
 {
+ private:
 	RE2Factory ref;
 
  public:
-	ModuleRegexRE2() : ref(this)
+	ModuleRegexRE2()
+		: Module(VF_VENDOR, "Regex Provider Module for RE2")
+		, ref(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Regex Provider Module for RE2", VF_VENDOR);
 	}
 };
 

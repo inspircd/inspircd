@@ -103,7 +103,8 @@ class ModuleHelpop
 
 	public:
 		ModuleHelpop()
-			: Whois::EventListener(this)
+			: Module(VF_VENDOR, "Provides help to users via the HELPOP command")
+			, Whois::EventListener(this)
 			, cmd(this)
 			, ho(this, "helpop", 'h', true)
 		{
@@ -181,11 +182,6 @@ class ModuleHelpop
 		{
 			if (whois.GetTarget()->IsModeSet(ho))
 				whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
-		}
-
-		Version GetVersion() override
-		{
-			return Version("Provides help to users via the HELPOP command", VF_VENDOR);
 		}
 };
 

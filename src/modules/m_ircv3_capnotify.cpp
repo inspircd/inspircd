@@ -125,7 +125,8 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 
  public:
 	ModuleIRCv3CapNotify()
-		: Cap::EventListener(this)
+		: Module(VF_VENDOR, "Provides the cap-notify IRCv3 extension")
+		, Cap::EventListener(this)
 		, ReloadModule::EventListener(this)
 		, capnotify(this)
 		, protoev(this, "CAP_NOTIFY")
@@ -179,11 +180,6 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		}
 		reloadedmod.clear();
 		reloadedcaps.clear();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the cap-notify IRCv3 extension", VF_VENDOR);
 	}
 };
 

@@ -29,9 +29,9 @@
 class ModuleModesOnOper : public Module
 {
  public:
-	Version GetVersion() override
+	ModuleModesOnOper()
+		: Module(VF_VENDOR, "Sets (and unsets) modes on opers when they oper up")
 	{
-		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR);
 	}
 
 	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override

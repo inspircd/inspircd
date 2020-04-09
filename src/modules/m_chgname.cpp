@@ -78,16 +78,14 @@ class CommandChgname : public Command
 
 class ModuleChgName : public Module
 {
+ private:
 	CommandChgname cmd;
 
-public:
-	ModuleChgName() : cmd(this)
+ public:
+	ModuleChgName()
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGNAME command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -39,15 +39,11 @@ class ModuleNoNickChange
 
  public:
 	ModuleNoNickChange()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +N and extban 'N' which prevents nick changes on the channel")
+		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nn(this, "nonick", 'N')
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +N and extban 'N' which prevents nick changes on the channel", VF_VENDOR);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

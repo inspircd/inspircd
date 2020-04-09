@@ -84,7 +84,8 @@ class ModulePasswordHash : public Module
 
  public:
 	ModulePasswordHash()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the ability to hash passwords to other modules")
+		, cmd(this)
 	{
 	}
 
@@ -130,11 +131,6 @@ class ModulePasswordHash : public Module
 
 		// We don't handle this type, let other mods or the core decide
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the ability to hash passwords to other modules", VF_VENDOR);
 	}
 };
 

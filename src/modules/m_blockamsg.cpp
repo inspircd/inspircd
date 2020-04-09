@@ -55,15 +55,10 @@ class ModuleBlockAmsg : public Module
 
  public:
 	ModuleBlockAmsg()
-		: blockamsg(this, "blockamsg", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Attempt to block /amsg or /ame, at least some of the irritating client scripts")
+		, blockamsg(this, "blockamsg", ExtensionItem::EXT_USER)
 	{
 	}
-
-	Version GetVersion() override
-	{
-		return Version("Attempt to block /amsg or /ame, at least some of the irritating client scripts", VF_VENDOR);
-	}
-
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");

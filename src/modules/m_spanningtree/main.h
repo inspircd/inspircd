@@ -224,6 +224,5 @@ class ModuleSpanningTree
 	void OnShutdown(const std::string& reason) override;
 	CullResult cull() override;
 	~ModuleSpanningTree();
-	Version GetVersion() override;
 	void Prioritize() override;
 };

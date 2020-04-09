@@ -144,20 +144,18 @@ class CommandNickunlock : public Command
 
 class ModuleNickLock : public Module
 {
+ private:
 	IntExtItem locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
+ 
  public:
 	ModuleNickLock()
-		: locked(this, "nick_locked", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit")
+		, locked(this, "nick_locked", ExtensionItem::EXT_USER)
 		, cmd1(this, locked)
 		, cmd2(this, locked)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override

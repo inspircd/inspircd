@@ -26,9 +26,9 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	Version GetVersion() override
+	ModuleModesOnConnect()
+		: Module(VF_VENDOR, "Sets (and unsets) modes on users when they connect")
 	{
-		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
 	void OnUserConnect(LocalUser* user) override

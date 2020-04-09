@@ -164,31 +164,6 @@ do { \
 	WHILE_EACH_HOOK(n); \
 } while (0)
 
-/** Holds a module's Version information.
- * The members (set by the constructor only) indicate details as to the version number
- * of a module. A class of type Version is returned by the GetVersion method of the Module class.
- */
-class CoreExport Version
-{
- public:
-	/** Module description
-	 */
-	const std::string description;
-
-	/** Flags
-	 */
-	const int Flags;
-
-	/** Server linking description string */
-	const std::string link_data;
-
-	/** Simple module version */
-	Version(const std::string &desc, int flags = VF_NONE);
-
-	/** Complex version information, including linking compatability data */
-	Version(const std::string &desc, int flags, const std::string& linkdata);
-};
-
 class CoreExport DataProvider : public ServiceProvider
 {
  public:
@@ -231,6 +206,13 @@ enum Implementation
  */
 class CoreExport Module : public classbase, public usecountbase
 {
+ protected:
+	/** Initializes a new instance of the Module class.
+	 * @param mdesc A description of this module.
+	 * @param mflags The properties of this module.
+	 */
+	Module(int mflags, const std::string& mdesc);
+
 	/** Detach an event from this module
 	 * @param i Event type to detach
 	 */
@@ -253,6 +235,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	bool dying = false;
 
+	/** A description of this module. */
+	const std::string description;
+
+	/** The properties of this module. */
+	const int flags;
+
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
@@ -268,21 +256,19 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ~Module();
 
-	/** Called when the hooks provided by a module need to be prioritised. */
-	virtual void Prioritize() { }
+	/** Retrieves link compatibility data for this module.
+	 * @param data The location to store link compatibility data.
+	 */
+	virtual void GetLinkData(std::string& data);
 
 	/** This method is called when you should reload module specific configuration:
 	 * on boot, on a /REHASH and on module load.
-	 * @param status The current status, can be inspected for more information;
-	 * also used for reporting configuration errors and warnings.
+	 * @param status The current status, can be inspected for more information.
 	 */
 	virtual void ReadConfig(ConfigStatus& status);
 
-	/** Returns the version number of a Module.
-	 * The method should return a Version object with its version information assigned via
-	 * Version::Version
-	 */
-	virtual Version GetVersion() = 0;
+	/** Called when the hooks provided by a module need to be prioritised. */
+	virtual void Prioritize();
 
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter User *user

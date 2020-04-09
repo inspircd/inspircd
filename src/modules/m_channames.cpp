@@ -55,7 +55,8 @@ class ModuleChannelNames : public Module
 
  public:
 	ModuleChannelNames()
-		: rememberer(ServerInstance->IsChannel)
+		: Module(VF_VENDOR, "Implements config tags which allow changing characters allowed in channel names")
+		, rememberer(ServerInstance->IsChannel)
 		, permchannelmode(this, "permanent")
 	{
 	}
@@ -148,11 +149,6 @@ class ModuleChannelNames : public Module
 		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
 		return Module::cull();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR);
 	}
 };
 

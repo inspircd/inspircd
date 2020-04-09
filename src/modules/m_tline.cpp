@@ -75,16 +75,14 @@ class CommandTline : public Command
 
 class ModuleTLine : public Module
 {
+ private:
 	CommandTline cmd;
+
  public:
 	ModuleTLine()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the TLINE command, used to test how many users a mask matches against")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the TLINE command, used to test how many users a mask matches against", VF_VENDOR);
 	}
 };
 

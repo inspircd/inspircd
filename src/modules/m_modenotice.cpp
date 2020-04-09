@@ -58,17 +58,14 @@ next_user:	;
 
 class ModuleModeNotice : public Module
 {
+ private:
 	CommandModeNotice cmd;
 
  public:
 	ModuleModeNotice()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the MODENOTICE command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the MODENOTICE command", VF_VENDOR);
 	}
 };
 

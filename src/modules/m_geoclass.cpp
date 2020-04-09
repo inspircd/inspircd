@@ -36,14 +36,10 @@ class ModuleGeoClass
 
  public:
 	ModuleGeoClass()
-		: Stats::EventListener(this)
+		: Module(VF_VENDOR, "Provides a way to assign users to connect classes by country")
+		, Stats::EventListener(this)
 		, geoapi(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides a way to assign users to connect classes by country", VF_VENDOR);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override

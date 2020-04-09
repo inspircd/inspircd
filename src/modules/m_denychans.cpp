@@ -62,7 +62,8 @@ class ModuleDenyChannels : public Module
 
  public:
 	ModuleDenyChannels()
-		: antiredirectmode(this, "antiredirect")
+		: Module(VF_VENDOR, "Implements config tags which allow blocking of joins to channels")
+		, antiredirectmode(this, "antiredirect")
 		, redirectmode(this, "redirect")
 	{
 	}
@@ -147,12 +148,6 @@ class ModuleDenyChannels : public Module
 		badchannels.swap(badchans);
 		goodchannels.swap(goodchans);
 	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);
-	}
-
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{

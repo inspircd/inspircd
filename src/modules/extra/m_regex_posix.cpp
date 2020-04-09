@@ -77,16 +77,14 @@ class PosixFactory : public RegexFactory
 
 class ModuleRegexPOSIX : public Module
 {
+ private:
 	PosixFactory ref;
 
  public:
-	ModuleRegexPOSIX() : ref(this)
+	ModuleRegexPOSIX()
+		: Module(VF_VENDOR, "Regex Provider Module for POSIX Regular Expressions")
+		, ref(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

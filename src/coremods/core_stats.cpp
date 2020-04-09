@@ -412,7 +412,8 @@ class CoreModStats : public Module
 
  public:
 	CoreModStats()
-		: cmd(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the STATS command")
+		, cmd(this)
 	{
 	}
 
@@ -422,10 +423,6 @@ class CoreModStats : public Module
 		cmd.userstats = security->getString("userstats");
 	}
 
-	Version GetVersion() override
-	{
-		return Version("Provides the STATS command", VF_CORE | VF_VENDOR);
-	}
 };
 
 MODULE_INIT(CoreModStats)

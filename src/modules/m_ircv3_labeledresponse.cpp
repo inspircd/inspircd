@@ -87,7 +87,8 @@ class ModuleIRCv3LabeledResponse : public Module
 
  public:
 	ModuleIRCv3LabeledResponse()
-		: cap(this, "labeled-response")
+		: Module(VF_VENDOR, "Provides the labeled-response IRCv3 extension")
+		, cap(this, "labeled-response")
 		, tag(this, cap)
 		, batchmanager(this)
 		, batch("labeled-response")
@@ -227,11 +228,6 @@ class ModuleIRCv3LabeledResponse : public Module
 	{
 		Module* alias = ServerInstance->Modules.Find("m_alias.so");
 		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the labeled-response IRCv3 extension", VF_VENDOR);
 	}
 };
 

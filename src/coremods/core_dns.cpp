@@ -824,7 +824,8 @@ class ModuleDNS : public Module
 
  public:
 	ModuleDNS()
-		: manager(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups")
+		, manager(this)
 	{
 	}
 
@@ -863,11 +864,6 @@ class ModuleDNS : public Module
 				delete req;
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for DNS lookups", VF_CORE|VF_VENDOR);
 	}
 };
 

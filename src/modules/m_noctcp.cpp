@@ -41,16 +41,12 @@ class ModuleNoCTCP
 
  public:
 	ModuleNoCTCP()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides user mode +T and channel mode +C to block CTCPs")
+		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nc(this, "noctcp", 'C')
 		, ncu(this, "u_noctcp", 'T')
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user mode +T and channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override

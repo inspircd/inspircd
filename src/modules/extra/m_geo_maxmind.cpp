@@ -142,7 +142,8 @@ class ModuleGeoMaxMind : public Module
 
  public:
 	ModuleGeoMaxMind()
-		: geoapi(this)
+		: Module(VF_VENDOR, "Provides Geolocation lookups using the libMaxMindDB library")
+		, geoapi(this)
 	{
 		memset(&geoapi.mmdb, 0, sizeof(geoapi.mmdb));
 	}
@@ -150,11 +151,6 @@ class ModuleGeoMaxMind : public Module
 	~ModuleGeoMaxMind()
 	{
 		MMDB_close(&geoapi.mmdb);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides Geolocation lookups using the libMaxMindDB library", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

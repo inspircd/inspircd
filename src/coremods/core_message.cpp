@@ -391,7 +391,8 @@ class ModuleCoreMessage : public Module
 
  public:
 	ModuleCoreMessage()
-		: cmdprivmsg(this, MSG_PRIVMSG)
+		: Module(VF_CORE | VF_VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
+		, cmdprivmsg(this, MSG_PRIVMSG)
 		, cmdnotice(this, MSG_NOTICE)
 		, cmdsquery(this)
 		, moderatedmode(this, "moderated")
@@ -429,11 +430,6 @@ class ModuleCoreMessage : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the NOTICE, PRIVMSG, and SQUERY commands", VF_CORE|VF_VENDOR);
 	}
 };
 

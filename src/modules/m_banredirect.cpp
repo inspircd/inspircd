@@ -247,6 +247,7 @@ class BanRedirect : public ModeWatcher
 
 class ModuleBanRedirect : public Module
 {
+ private:
 	BanRedirect re;
 	bool nofollow = false;
 	ChanModeReference limitmode;
@@ -254,7 +255,8 @@ class ModuleBanRedirect : public Module
 
  public:
 	ModuleBanRedirect()
-		: re(this)
+		: Module(VF_VENDOR | VF_COMMON, "Allows an extended ban (+b) syntax redirecting banned users to another channel")
+		, re(this)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")
 	{
@@ -348,11 +350,6 @@ class ModuleBanRedirect : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
 	}
 };
 

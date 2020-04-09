@@ -63,13 +63,9 @@ class ModuleConnectBan
 
  public:
 	ModuleConnectBan()
-		: WebIRC::EventListener(this)
+		: Module(VF_VENDOR, "Throttles the connections of IP ranges who try to connect flood")
+		, WebIRC::EventListener(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Throttles the connections of IP ranges who try to connect flood", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

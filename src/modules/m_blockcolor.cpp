@@ -41,7 +41,8 @@ class ModuleBlockColor
 
  public:
 	ModuleBlockColor()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +c to block color")
+		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, bc(this, "blockcolor", 'c')
 	{
@@ -80,11 +81,6 @@ class ModuleBlockColor
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +c to block color",VF_VENDOR);
 	}
 };
 

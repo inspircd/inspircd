@@ -81,13 +81,15 @@ class Redirect : public ParamMode<Redirect, StringExtItem>
 
 class ModuleRedirect : public Module
 {
+ private:
 	Redirect re;
 	SimpleUserModeHandler antiredirectmode;
 	ChanModeReference limitmode;
 
  public:
 	ModuleRedirect()
-		: re(this)
+		: Module(VF_VENDOR, "Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)")
+		, re(this)
 		, antiredirectmode(this, "antiredirect", 'L')
 		, limitmode(this, "limit")
 	{
@@ -126,11 +128,6 @@ class ModuleRedirect : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);
 	}
 };
 

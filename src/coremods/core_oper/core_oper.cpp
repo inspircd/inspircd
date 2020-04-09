@@ -32,7 +32,8 @@ class CoreModOper : public Module
 
  public:
 	CoreModOper()
-		: cmddie(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the DIE, KILL, OPER, REHASH, and RESTART commands")
+		, cmddie(this)
 		, cmdkill(this)
 		, cmdoper(this)
 		, cmdrehash(this)
@@ -60,11 +61,6 @@ class CoreModOper : public Module
 		const std::string klass = luser->oper->getConfig("class");
 		if (!klass.empty())
 			luser->SetClass(klass);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);
 	}
 };
 

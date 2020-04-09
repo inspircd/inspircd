@@ -86,18 +86,15 @@ class CommandOpermotd : public Command
 
 class ModuleOpermotd : public Module
 {
+ private:
 	CommandOpermotd cmd;
 	bool onoper;
+
  public:
-
 	ModuleOpermotd()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Shows a message to opers after oper-up and adds the OPERMOTD command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Shows a message to opers after oper-up and adds the OPERMOTD command", VF_VENDOR | VF_OPTCOMMON);
 	}
 
 	void OnOper(User* user, const std::string &opertype) override

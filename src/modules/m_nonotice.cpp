@@ -39,7 +39,8 @@ class ModuleNoNotice
 
  public:
 	ModuleNoNotice()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +T to block notices to the channel")
+		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nt(this, "nonotice", 'T')
 	{
@@ -73,11 +74,6 @@ class ModuleNoNotice
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);
 	}
 };
 

@@ -70,11 +70,13 @@ class CommandSethost : public Command
 
 class ModuleSetHost : public Module
 {
+ private:
 	CommandSethost cmd;
 
  public:
 	ModuleSetHost()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the SETHOST command")
+		, cmd(this)
 	{
 	}
 
@@ -86,11 +88,6 @@ class ModuleSetHost : public Module
 		cmd.hostmap.reset();
 		for (std::string::const_iterator n = hmap.begin(); n != hmap.end(); n++)
 			cmd.hostmap.set(static_cast<unsigned char>(*n));
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SETHOST command", VF_VENDOR);
 	}
 };
 

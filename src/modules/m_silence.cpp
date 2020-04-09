@@ -437,7 +437,8 @@ class ModuleSilence
 
  public:
 	ModuleSilence()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides support for blocking users with the SILENCE command")
+		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, cmd(this)
 	{
@@ -516,11 +517,6 @@ class ModuleSilence
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for blocking users with the SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

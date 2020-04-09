@@ -250,15 +250,14 @@ class MD5Provider : public HashProvider
 
 class ModuleMD5 : public Module
 {
+ private:
 	MD5Provider md5;
- public:
-	ModuleMD5() : md5(this)
-	{
-	}
 
-	Version GetVersion() override
+ public:
+	ModuleMD5()
+		: Module(VF_VENDOR, "Implements MD5 hashing")
+		, md5(this)
 	{
-		return Version("Implements MD5 hashing",VF_VENDOR);
 	}
 };
 

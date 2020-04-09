@@ -86,9 +86,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 				newmod->init();
 				newmod->ReadConfig(confstatus);
 
-				Version v = newmod->GetVersion();
 				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)%s",
-					filename.c_str(), version, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+					filename.c_str(), version, (!(newmod->flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 		}
 		else

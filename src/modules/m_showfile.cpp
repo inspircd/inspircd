@@ -100,6 +100,7 @@ class CommandShowFile : public Command
 
 class ModuleShowFile : public Module
 {
+ private:
 	std::vector<CommandShowFile*> cmds;
 
 	void ReadTag(ConfigTag* tag, std::vector<CommandShowFile*>& newcmds)
@@ -140,6 +141,11 @@ class ModuleShowFile : public Module
 	}
 
  public:
+	ModuleShowFile()
+		: Module(VF_VENDOR, "Provides support for showing text files to users")
+	{
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<CommandShowFile*> newcmds;
@@ -170,11 +176,6 @@ class ModuleShowFile : public Module
 	~ModuleShowFile()
 	{
 		stdalgo::delete_all(cmds);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for showing text files to users", VF_VENDOR);
 	}
 };
 

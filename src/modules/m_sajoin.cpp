@@ -116,16 +116,14 @@ class CommandSajoin : public Command
 
 class ModuleSajoin : public Module
 {
+ private:
 	CommandSajoin cmd;
+
  public:
 	ModuleSajoin()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAJOIN command, allows opers to force-join users to channels")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SAJOIN command, allows opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

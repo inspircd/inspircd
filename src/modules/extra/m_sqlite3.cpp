@@ -228,9 +228,15 @@ class SQLConn : public SQL::Provider
 
 class ModuleSQLite3 : public Module
 {
+ private:
 	ConnMap conns;
 
  public:
+	ModuleSQLite3()
+		: Module(VF_VENDOR, "Provides SQLite3 support")
+	{
+	}
+
 	~ModuleSQLite3()
 	{
 		ClearConns();
@@ -259,11 +265,6 @@ class ModuleSQLite3 : public Module
 			conns.insert(std::make_pair(i->second->getString("id"), conn));
 			ServerInstance->Modules.AddService(*conn);
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides SQLite3 support", VF_VENDOR);
 	}
 };
 

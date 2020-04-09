@@ -773,13 +773,9 @@ class CoreModReloadmodule : public Module
 
  public:
 	CoreModReloadmodule()
-		: cmd(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the RELOADMODULE command")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the RELOADMODULE command", VF_CORE | VF_VENDOR);
 	}
 };
 

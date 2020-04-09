@@ -135,7 +135,8 @@ class ModuleSQLAuth : public Module
 
  public:
 	ModuleSQLAuth()
-		: pendingExt(this, "sqlauth-wait", ExtensionItem::EXT_USER)
+		: Module(VF_VENDOR, "Allow/deny connections based upon an arbitrary SQL table")
+		, pendingExt(this, "sqlauth-wait", ExtensionItem::EXT_USER)
 		, SQL(this, "SQL")
 		, sslapi(this)
 	{
@@ -215,11 +216,6 @@ class ModuleSQLAuth : public Module
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Allow/deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}
 };
 

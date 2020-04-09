@@ -67,16 +67,14 @@ class CommandSetidle : public SplitCommand
 
 class ModuleSetIdle : public Module
 {
+ private:
 	CommandSetidle cmd;
+
  public:
 	ModuleSetIdle()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the SETIDLE command, allows opers to set their idle time")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SETIDLE command, allows opers to set their idle time", VF_VENDOR);
 	}
 };
 

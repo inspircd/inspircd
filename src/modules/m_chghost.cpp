@@ -88,11 +88,13 @@ class CommandChghost : public Command
 
 class ModuleChgHost : public Module
 {
+ private:
 	CommandChghost cmd;
 
  public:
 	ModuleChgHost()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGHOST command")
+		, cmd(this)
 	{
 	}
 
@@ -104,11 +106,6 @@ class ModuleChgHost : public Module
 		cmd.hostmap.reset();
 		for (std::string::const_iterator n = hmap.begin(); n != hmap.end(); n++)
 			cmd.hostmap.set(static_cast<unsigned char>(*n));
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

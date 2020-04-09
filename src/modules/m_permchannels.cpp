@@ -175,7 +175,8 @@ class ModulePermanentChannels
 public:
 
 	ModulePermanentChannels()
-		: Timer(0, true)
+		: Module(VF_VENDOR, "Provides channel mode +P to provide permanent channels")
+		, Timer(0, true)
 		, p(this)
 	{
 	}
@@ -313,11 +314,6 @@ public:
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +P to provide permanent channels", VF_VENDOR);
 	}
 
 	ModResult OnChannelPreDelete(Channel *c) override

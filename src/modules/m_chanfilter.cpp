@@ -86,7 +86,8 @@ class ModuleChanFilter : public Module
  public:
 
 	ModuleChanFilter()
-		: exemptionprov(this)
+		: Module(VF_VENDOR, "Provides channel-specific censor lists (like mode +G but varies from channel to channel)")
+		, exemptionprov(this)
 		, cf(this)
 	{
 	}
@@ -161,14 +162,11 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
 		// We don't send any link data if the length is 35 for compatibility with the 2.0 branch.
-		std::string maxfilterlen;
 		if (cf.maxlen != 35)
-			maxfilterlen.assign(ConvToStr(cf.maxlen));
-
-		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR, maxfilterlen);
+			data.assign(ConvToStr(cf.maxlen));
 	}
 };
 

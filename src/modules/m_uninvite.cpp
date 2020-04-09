@@ -120,17 +120,14 @@ class CommandUninvite : public Command
 
 class ModuleUninvite : public Module
 {
+ private:
 	CommandUninvite cmd;
 
  public:
-
-	ModuleUninvite() : cmd(this)
+	ModuleUninvite()
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the UNINVITE command which lets users un-invite other users from channels")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

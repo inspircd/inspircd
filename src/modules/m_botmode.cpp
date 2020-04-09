@@ -68,15 +68,11 @@ class ModuleBotMode : public Module, public Whois::EventListener
 
  public:
 	ModuleBotMode()
-		: Whois::EventListener(this)
+		: Module(VF_VENDOR, "Provides user mode +B to mark the user as a bot")
+		, Whois::EventListener(this)
 		, bm(this, "bot", 'B')
 		, tag(this, bm)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) override

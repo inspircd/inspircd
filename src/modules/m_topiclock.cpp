@@ -128,12 +128,15 @@ class FlagExtItem : public ExtensionItem
 
 class ModuleTopicLock : public Module
 {
+ private:
 	CommandSVSTOPIC cmd;
 	FlagExtItem topiclock;
 
  public:
 	ModuleTopicLock()
-		: cmd(this), topiclock("topiclock", this)
+		: Module(VF_VENDOR | VF_COMMON, "Implements server-side topic locks and the server-to-server command SVSTOPIC")
+		, cmd(this)
+		, topiclock("topiclock", this)
 	{
 	}
 
@@ -147,11 +150,6 @@ class ModuleTopicLock : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Implements server-side topic locks and the server-to-server command SVSTOPIC", VF_COMMON | VF_VENDOR);
 	}
 };
 

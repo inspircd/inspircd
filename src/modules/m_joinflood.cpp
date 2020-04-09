@@ -138,7 +138,8 @@ class ModuleJoinFlood : public Module
 
  public:
 	ModuleJoinFlood()
-		: jf(this)
+		: Module(VF_VENDOR, "Provides channel mode +j, join flood protection")
+		, jf(this)
 	{
 	}
 
@@ -181,11 +182,6 @@ class ModuleJoinFlood : public Module
 				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs));
 			}
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +j, join flood protection", VF_VENDOR);
 	}
 };
 

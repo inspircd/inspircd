@@ -357,7 +357,8 @@ class CoreModWhois : public Module
 
  public:
 	CoreModWhois()
-		: cmd(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the WHOIS command")
+		, cmd(this)
 	{
 	}
 
@@ -378,11 +379,6 @@ class CoreModWhois : public Module
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
 		cmd.splitwhois = newsplitstate;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the WHOIS command", VF_VENDOR|VF_CORE);
 	}
 };
 

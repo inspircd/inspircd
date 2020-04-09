@@ -74,16 +74,14 @@ class CommandSaquit : public Command
 
 class ModuleSaquit : public Module
 {
+ private:
 	CommandSaquit cmd;
+
  public:
 	ModuleSaquit()
-		: cmd(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAQUIT command, allows opers to force-quit users")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the SAQUIT command, allows opers to force-quit users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

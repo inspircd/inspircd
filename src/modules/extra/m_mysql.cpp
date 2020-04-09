@@ -139,10 +139,10 @@ class ModuleSQL : public Module
 	ConnMap connections; // main thread only
 
 	void init() override;
+	ModuleSQL();
 	~ModuleSQL();
 	void ReadConfig(ConfigStatus& status) override;
 	void OnUnloadModule(Module* mod) override;
-	Version GetVersion() override;
 };
 
 class DispatcherThread : public SocketThread
@@ -442,6 +442,11 @@ void ModuleSQL::init()
 	Dispatcher->Start();
 }
 
+ModuleSQL::ModuleSQL()
+	: Module(VF_VENDOR, "Provides MySQL support")
+{
+}
+
 ModuleSQL::~ModuleSQL()
 {
 	if (Dispatcher)
@@ -533,11 +538,6 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 	Dispatcher->UnlockQueue();
 	// clean up any result queue entries
 	Dispatcher->OnNotify();
-}
-
-Version ModuleSQL::GetVersion()
-{
-	return Version("Provides MySQL support", VF_VENDOR);
 }
 
 void DispatcherThread::OnStart()

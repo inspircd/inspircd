@@ -89,18 +89,14 @@ class CommandClones : public SplitCommand
 
 class ModuleClones : public Module
 {
- public:
+ private:
 	CommandClones cmd;
 
  public:
 	ModuleClones()
-		: cmd(this)
+		: Module(VF_VENDOR, "Provides the CLONES command to retrieve information on clones")
+		, cmd(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the CLONES command to retrieve information on clones", VF_VENDOR);
 	}
 };
 

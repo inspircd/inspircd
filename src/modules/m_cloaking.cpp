@@ -190,7 +190,8 @@ class ModuleCloaking : public Module
 	dynamic_reference<HashProvider> Hash;
 
 	ModuleCloaking()
-		: cu(this)
+		: Module(VF_VENDOR | VF_COMMON, "Provides masking of user hostnames")
+		, cu(this)
 		, ck(this)
 		, Hash(this, "hash/md5")
 	{
@@ -390,9 +391,9 @@ class ModuleCloaking : public Module
 		cu.active = false;
 	}
 
-	Version GetVersion() override
+	void GetLinkData(std::string& data) override
 	{
-		std::string testcloak = "broken";
+		data = "broken";
 		if (Hash && !cloaks.empty())
 		{
 			const CloakInfo& info = cloaks.front();
@@ -402,18 +403,17 @@ class ModuleCloaking : public Module
 					// Use old cloaking verification to stay compatible with 2.0
 					// But verify domainparts and ignorecase when use 3.0-only features
 					if (info.domainparts == 3 && !info.ignorecase)
-						testcloak = info.prefix + SegmentCloak(info, "*", 3, 8) + info.suffix;
+						data = info.prefix + SegmentCloak(info, "*", 3, 8) + info.suffix;
 					else
 					{
 						irc::sockets::sockaddrs sa;
-						testcloak = GenCloak(info, sa, "", testcloak + ConvToStr(info.domainparts)) + (info.ignorecase ? "-ci" : "");
+						data = GenCloak(info, sa, "", data + ConvToStr(info.domainparts)) + (info.ignorecase ? "-ci" : "");
 					}
 					break;
 				case MODE_OPAQUE:
-					testcloak = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix + (info.ignorecase ? "-ci" : "");
+					data = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix + (info.ignorecase ? "-ci" : "");
 			}
 		}
-		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

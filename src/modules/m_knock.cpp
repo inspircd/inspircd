@@ -118,7 +118,8 @@ class ModuleKnock : public Module
 
  public:
 	ModuleKnock()
-		: kn(this, "noknock", 'K')
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the KNOCK command and channel mode +K")
+		, kn(this, "noknock", 'K')
 		, cmd(this, kn)
 	{
 	}
@@ -141,11 +142,6 @@ class ModuleKnock : public Module
 			cmd.sendnotice = true;
 			cmd.sendnumeric = false;
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the KNOCK command and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

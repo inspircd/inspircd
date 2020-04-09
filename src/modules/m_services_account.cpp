@@ -161,7 +161,8 @@ class ModuleServicesAccount
 
  public:
 	ModuleServicesAccount()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides support for ircu-style services accounts, including channel mode +R, etc")
+		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, Whois::EventListener(this)
 		, calleridapi(this)
@@ -321,11 +322,6 @@ class ModuleServicesAccount
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for ircu-style services accounts, including channel mode +R, etc", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

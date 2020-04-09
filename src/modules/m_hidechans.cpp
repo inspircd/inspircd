@@ -36,18 +36,16 @@ class HideChans : public SimpleUserModeHandler
 
 class ModuleHideChans : public Module, public Whois::LineEventListener
 {
+ private:
 	bool AffectsOpers;
 	HideChans hm;
+
  public:
 	ModuleHideChans()
-		: Whois::LineEventListener(this)
+		: Module(VF_VENDOR, "Provides support for hiding channels with user mode +I")
+		, Whois::LineEventListener(this)
 		, hm(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

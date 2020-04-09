@@ -372,6 +372,7 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 
 class ModuleHttpServer : public Module
 {
+ private:
 	HTTPdAPIImpl APIImpl;
 	unsigned int timeoutsec;
 	Events::ModuleEventProvider acleventprov;
@@ -379,7 +380,8 @@ class ModuleHttpServer : public Module
 
  public:
 	ModuleHttpServer()
-		: APIImpl(this)
+		: Module(VF_VENDOR, "Provides HTTP serving facilities to modules")
+		, APIImpl(this)
 		, acleventprov(this, "event/http-acl")
 		, reqeventprov(this, "event/http-request")
 	{
@@ -430,11 +432,6 @@ class ModuleHttpServer : public Module
 			sock->Close();
 		}
 		return Module::cull();
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides HTTP serving facilities to modules", VF_VENDOR);
 	}
 };
 

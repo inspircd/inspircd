@@ -94,7 +94,8 @@ class ModuleMsgId
 
  public:
 	ModuleMsgId()
-		: CTCTags::EventListener(this)
+		: Module(VF_VENDOR, "Provides the msgid IRCv3 tag")
+		, CTCTags::EventListener(this)
 		, tag(this)
 	{
 	}
@@ -107,11 +108,6 @@ class ModuleMsgId
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		return CopyMessageId(details.tags_in, details.tags_out);
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the msgid IRCv3 tag", VF_VENDOR);
 	}
 };
 

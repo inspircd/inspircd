@@ -32,13 +32,9 @@ class ModuleServerBan
 {
  public:
 	ModuleServerBan()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 's' to ban users connected to a specified server")
+		, ISupport::EventListener(this)
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides extban 's' to ban users connected to a specified server", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override

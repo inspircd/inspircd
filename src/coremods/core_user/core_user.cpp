@@ -156,7 +156,8 @@ class CoreModUser : public Module
 
  public:
 	CoreModUser()
-		: cmdaway(this)
+		: Module(VF_CORE | VF_VENDOR, "Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands")
+		, cmdaway(this)
 		, cmdnick(this)
 		, cmdpart(this)
 		, cmdpass(this)
@@ -176,11 +177,6 @@ class CoreModUser : public Module
 	{
 		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
 		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands", VF_VENDOR|VF_CORE);
 	}
 };
 

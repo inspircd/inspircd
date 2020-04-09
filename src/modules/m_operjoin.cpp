@@ -28,10 +28,16 @@
 
 class ModuleOperjoin : public Module
 {
+	private:
 		std::vector<std::string> operChans;
 		bool override;
 
 	public:
+		ModuleOperjoin()
+			: Module(VF_VENDOR, "Forces opers to join the specified channel(s) on oper-up")
+		{
+		}
+
 		void ReadConfig(ConfigStatus& status) override
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
@@ -42,11 +48,6 @@ class ModuleOperjoin : public Module
 
 			for (std::string channame; ss.GetToken(channame); )
 				operChans.push_back(channame);
-		}
-
-		Version GetVersion() override
-		{
-			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
 		}
 
 		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override

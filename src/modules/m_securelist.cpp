@@ -41,14 +41,11 @@ class ModuleSecureList
 
  public:
 	ModuleSecureList()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Disallows the LIST command for recently connected clients to hinder spam bots")
+		, ISupport::EventListener(this)
 	{
 	}
 
-	Version GetVersion() override
-	{
-		return Version("Disallows the LIST command for recently connected clients to hinder spam bots", VF_VENDOR);
-	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{

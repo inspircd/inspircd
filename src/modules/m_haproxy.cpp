@@ -427,13 +427,9 @@ class ModuleHAProxy : public Module
 
  public:
 	ModuleHAProxy()
-		: hookprov(new HAProxyHookProvider(this))
+		: Module(VF_VENDOR, "Provides support for the HAProxy PROXY protocol")
+		, hookprov(new HAProxyHookProvider(this))
 	{
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides support for the HAProxy PROXY protocol", VF_VENDOR);
 	}
 };
 

@@ -35,7 +35,8 @@ class ModuleAllowInvite
 
  public:
 	ModuleAllowInvite()
-		: ISupport::EventListener(this)
+		: Module(VF_VENDOR, "Provides channel mode +A to allow /INVITE freely on a channel, and extban 'A' to deny specific users it")
+		, ISupport::EventListener(this)
 		, ni(this, "allowinvite", 'A')
 	{
 	}
@@ -64,11 +65,6 @@ class ModuleAllowInvite
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides channel mode +A to allow /INVITE freely on a channel, and extban 'A' to deny specific users it", VF_VENDOR);
 	}
 };
 

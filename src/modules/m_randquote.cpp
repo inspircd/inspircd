@@ -32,6 +32,11 @@ class ModuleRandQuote : public Module
 	std::vector<std::string> quotes;
 
  public:
+	ModuleRandQuote()
+		: Module(VF_VENDOR, "Provides random quotes on connect")
+	{
+	}
+
 	void init() override
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
@@ -48,11 +53,6 @@ class ModuleRandQuote : public Module
 			unsigned long random = ServerInstance->GenRandomInt(quotes.size());
 			user->WriteNotice(prefix + quotes[random] + suffix);
 		}
-	}
-
-	Version GetVersion() override
-	{
-		return Version("Provides random quotes on connect", VF_VENDOR);
 	}
 };
 
