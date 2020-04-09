@@ -105,11 +105,14 @@ class ModulePassForward : public Module
 		}
 
 		std::string tmp;
-		FormatStr(tmp, forwardmsg, user);
-		ServerInstance->Parser.ProcessBuffer(user, tmp);
+		if (!forwardmsg.empty())
+		{
+			FormatStr(tmp, forwardmsg, user);
+			ServerInstance->Parser.ProcessBuffer(user, tmp);
+			tmp.clear();
+		}
 
-		tmp.clear();
-		FormatStr(tmp,forwardcmd, user);
+		FormatStr(tmp, forwardcmd, user);
 		ServerInstance->Parser.ProcessBuffer(user, tmp);
 	}
 };
