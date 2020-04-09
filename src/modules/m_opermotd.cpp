@@ -114,7 +114,7 @@ class ModuleOpermotd : public Module
 
 		try
 		{
-			FileReader reader(conf->getString("file", "opermotd"));
+			FileReader reader(conf->getString("file", "opermotd", 1));
 			cmd.opermotd = reader.GetVector();
 			InspIRCd::ProcessColors(cmd.opermotd);
 		}

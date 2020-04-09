@@ -48,8 +48,9 @@ class CommandList : public Command
 	}
 
  public:
-	/** Constructor for list.
-	 */
+	// Whether to show modes in the LIST response.
+	bool showmodes;
+
 	CommandList(Module* parent)
 		: Command(parent,"LIST", 0, 0)
 		, secretmode(creator, "secret")
@@ -186,10 +187,15 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 				// Channel is private (+p) and user is outside/not privileged
 				user->WriteNumeric(RPL_LIST, '*', users, "");
 			}
+			else if (showmodes)
+			{
+				// Show the list response with the modes and topic.
+				user->WriteNumeric(RPL_LIST, chan->name, users, InspIRCd::Format("[+%s] %s", chan->ChanModes(n), chan->topic.c_str()));
+			}
 			else
 			{
-				/* User is in the channel/privileged, channel is not +s */
-				user->WriteNumeric(RPL_LIST, chan->name, users, InspIRCd::Format("[+%s] %s", chan->ChanModes(n), chan->topic.c_str()));
+				// Show the list response with just the modes.
+				user->WriteNumeric(RPL_LIST, chan->name, users, chan->topic);
 			}
 		}
 	}
@@ -210,6 +216,12 @@ class CoreModList
 		: ISupport::EventListener(this)
 		, cmd(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+		cmd.showmodes = tag->getBool("modesinlist");
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

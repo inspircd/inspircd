@@ -129,9 +129,10 @@ class ModuleChanFilter : public Module
 		}
 
 		if (hidemask)
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your part message contained a censored word)");
+			user->WriteNumeric(Numerics::CannotSendTo(chan, "Your part message contained a banned phrase and was blocked."));
 		else
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your part message contained a censored word: " + match->mask + ")");
+			user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your part message contained a banned phrase (%s) and was blocked.",
+				match->mask.c_str())));
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -150,9 +151,10 @@ class ModuleChanFilter : public Module
 			}
 
 			if (hidemask)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word)");
+				user->WriteNumeric(Numerics::CannotSendTo(chan, "Your message to this channel contained a banned phrase and was blocked."));
 			else
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (your message contained a censored word: " + match->mask + ")");
+				user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.",
+					match->mask.c_str())));
 
 			return MOD_RES_DENY;
 		}

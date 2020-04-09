@@ -175,7 +175,7 @@ class ModuleAntiCaps : public Module
 
 	void InformUser(Channel* channel, User* user, const std::string& message)
 	{
-		user->WriteNumeric(ERR_CANNOTSENDTOCHAN, channel->name, message + " and was blocked.");
+		user->WriteNumeric(Numerics::CannotSendTo(channel, message + " and was blocked."));
 	}
 
  public:
@@ -190,7 +190,7 @@ class ModuleAntiCaps : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
-		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1);
 		for (std::string::const_iterator iter = upper.begin(); iter != upper.end(); ++iter)
 			uppercase.set(static_cast<unsigned char>(*iter));
 

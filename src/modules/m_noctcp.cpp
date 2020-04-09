@@ -82,11 +82,15 @@ class ModuleNoCTCP
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
-				bool modeset = c->IsModeSet(nc);
-				if (!c->GetExtBanStatus(user, 'C').check(!modeset))
+				if (c->IsModeSet(nc))
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Can't send CTCP to channel (%s)",
-						modeset ? "+C is set" : "you're extbanned"));
+					user->WriteNumeric(Numerics::CannotSendTo(c, "CTCPs", &nc));
+					return MOD_RES_DENY;
+				}
+
+				if (c->GetExtBanStatus(user, 'C') == MOD_RES_DENY)
+				{
+					user->WriteNumeric(Numerics::CannotSendTo(c, "CTCPs", 'C', "noctcp"));
 					return MOD_RES_DENY;
 				}
 				break;
@@ -99,7 +103,7 @@ class ModuleNoCTCP
 				User* u = target.Get<User>();
 				if (u->IsModeSet(ncu))
 				{
-					user->WriteNumeric(ERR_CANTSENDTOUSER, u->nick, "Can't send CTCP to user (+T is set)");
+					user->WriteNumeric(Numerics::CannotSendTo(u, "CTCPs", &ncu));
 					return MOD_RES_DENY;
 				}
 				break;

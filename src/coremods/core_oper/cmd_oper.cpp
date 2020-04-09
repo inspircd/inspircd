@@ -65,7 +65,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	if (!match_pass)
 		fields.append("password ");
 	if (!match_hosts)
-		fields.append("hosts");
+		fields.append("hosts ");
+	fields.erase(fields.length() - 1, 1);
 
 	// tell them they suck, and lag them up to help prevent brute-force attacks
 	user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");

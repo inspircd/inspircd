@@ -60,11 +60,15 @@ class ModuleNoNotice
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			bool modeset = c->IsModeSet(nt);
-			if (!c->GetExtBanStatus(user, 'T').check(!modeset))
+			if (c->IsModeSet(nt))
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Can't send NOTICE to channel (%s)",
-					modeset ? "+T is set" : "you're extbanned"));
+				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", &nt));
+				return MOD_RES_DENY;
+			}
+
+			if (c->GetExtBanStatus(user, 'T') == MOD_RES_DENY)
+			{
+				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", 'T', "nonotice"));
 				return MOD_RES_DENY;
 			}
 		}

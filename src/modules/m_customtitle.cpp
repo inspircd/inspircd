@@ -144,7 +144,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 					name.c_str(), tag->getTagLocation().c_str());
 			}
 
-			std::string host = tag->getString("host", "*@*");
+			std::string host = tag->getString("host", "*@*", 1);
 			std::string title = tag->getString("title");
 			std::string vhost = tag->getString("vhost");
 			CustomTitle config(name, pass, hash, host, title, vhost);

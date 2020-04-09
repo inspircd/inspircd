@@ -70,8 +70,10 @@ class ModuleBlockColor
 					// Block all control codes except \001 for CTCP
 					if ((*i >= 0) && (*i < 32) && (*i != 1))
 					{
-						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, c->name, InspIRCd::Format("Can't send colors to channel (%s)",
-							modeset ? "+c is set" : "you're extbanned"));
+						if (modeset)
+							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
+						else
+							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", 'c', "nocolor"));
 						return MOD_RES_DENY;
 					}
 				}

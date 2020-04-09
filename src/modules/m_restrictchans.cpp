@@ -75,7 +75,10 @@ class ModuleRestrictChans : public Module
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!chan && !CanCreateChannel(user, cname))
+		{
+			user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "You are not allowed to create new channels.");
 			return MOD_RES_DENY;
+		}
 
 		return MOD_RES_PASSTHRU;
 	}

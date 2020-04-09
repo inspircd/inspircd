@@ -408,7 +408,7 @@ class ModuleCoreMessage : public Module
 		if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
 		{
 			// The noextmsg mode is set and the user is not in the channel.
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (no external messages)");
+			user->WriteNumeric(Numerics::CannotSendTo(chan, "external messages", *noextmsgmode));
 			return MOD_RES_DENY;
 		}
 
@@ -416,7 +416,7 @@ class ModuleCoreMessage : public Module
 		if (no_chan_priv && chan->IsModeSet(moderatedmode))
 		{
 			// The moderated mode is set and the user has no status rank.
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (+m is set)");
+			user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", *moderatedmode));
 			return MOD_RES_DENY;
 		}
 
@@ -424,7 +424,7 @@ class ModuleCoreMessage : public Module
 		{
 			// The user is banned in the channel and restrictbannedusers is enabled.
 			if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, chan->name, "Cannot send to channel (you're banned)");
+				user->WriteNumeric(Numerics::CannotSendTo(chan, "You cannot send messages to this channel whilst banned."));
 			return MOD_RES_DENY;
 		}
 

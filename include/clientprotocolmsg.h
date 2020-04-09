@@ -488,11 +488,21 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 	 * @param target Target string.
 	 * @param text Privmsg text, will be copied.
 	 * @param mt Message type.
+	 * @param status Prefix character for status messages. If non-zero the message is a status message. Optional, defaults to 0.
 	 */
-	Privmsg(const std::string& source, const std::string& target, const std::string& text, MessageType mt = MSG_PRIVMSG)
+	Privmsg(const std::string& source, const std::string& target, const std::string& text, MessageType mt = MSG_PRIVMSG, char status = 0)
 		: ClientProtocol::Message(CommandStrFromMsgType(mt), source)
 	{
-		PushParam(target);
+		if (status)
+		{
+			std::string rawtarget(1, status);
+			rawtarget.append(target);
+			PushParam(rawtarget);
+		}
+		else
+		{
+			PushParam(target);
+		}
 		PushParam(text);
 	}
 

@@ -1551,13 +1551,7 @@
 # requirekey    - If enabled, overriding on join requires a channel   #
 #                 key of "override" to be specified.                  #
 #                                                                     #
-<<<<<<< HEAD
 #<override noisy="yes" requirekey="no">
-=======
-# enableumode   - If enabled, user mode +O is required for override.  #
-#                                                                     #
-#<override noisy="yes" requirekey="no" enableumode="yes">
->>>>>>> insp3
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -2063,7 +2057,7 @@
 # You can optionally let the user know that their command was blocked.
 #
 # You may also let SHUN affect opers (defaults to no).
-#<shun enabledcommands="ADMIN PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
+#<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL mode module: Adds support for SSL-only channels via the '+z'

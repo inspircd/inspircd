@@ -83,6 +83,11 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 #endif
 	}
 
+	SocketEngine::SetReuse(fd);
+	int rv = SocketEngine::Bind(this->fd, bind_to);
+	if (rv >= 0)
+		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
+
 	if (bind_to.family() == AF_UNIX)
 	{
 		const std::string permissionstr = tag->getString("permissions");
@@ -90,11 +95,6 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 		if (permissions && permissions <= 07777)
 			chmod(bind_to.str().c_str(), permissions);
 	}
-
-	SocketEngine::SetReuse(fd);
-	int rv = SocketEngine::Bind(this->fd, bind_to);
-	if (rv >= 0)
-		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first
 	int timeout = tag->getDuration("defer", (tag->getString("ssl").empty() ? 0 : 3));
@@ -207,7 +207,7 @@ void ListenSocket::OnEventHandlerRead()
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
 	if (res == MOD_RES_PASSTHRU)
 	{
-		std::string type = bind_tag->getString("type", "clients");
+		const std::string type = bind_tag->getString("type", "clients", 1);
 		if (stdalgo::string::equalsci(type, "clients"))
 		{
 			ServerInstance->Users.AddUser(incomingSockfd, this, &client, &server);

@@ -141,7 +141,7 @@ namespace
 		if (!ServerInstance->Config->TimeSkipWarn)
 			return;
 
-		time_t timediff = oldtime - newtime;
+		time_t timediff = newtime - oldtime;
 
 		if (timediff > ServerInstance->Config->TimeSkipWarn)
 			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by %lu seconds!", timediff);

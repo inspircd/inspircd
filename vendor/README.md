@@ -18,9 +18,19 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; v2.9.3
+**Version** &mdash; v2.9.4
 
 **Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
+
+## optional-lite
+
+**Author** &mdash; [Martin Moene](mailto:martin.moene@gmail.com)
+
+**License** &mdash; Boost Software License
+
+**Version** &mdash; v3.2.0
+
+**Website** &mdash; [https://github.com/martinmoene/optional-lite](https://github.com/martinmoene/optional-lite)
 
 ## sha2
 

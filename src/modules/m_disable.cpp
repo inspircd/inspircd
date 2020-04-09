@@ -163,8 +163,9 @@ class ModuleDisable : public Module
 
 		// The user has tried to change a disabled mode!
 		const char* what = mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
-		WriteLog("%s was blocked from executing the disabled %s mode %c (%s)",
-			user->GetFullRealHost().c_str(), what, mh->GetModeChar(), mh->name.c_str());
+		WriteLog("%s was blocked from %ssetting the disabled %s mode %c (%s)",
+			user->GetFullRealHost().c_str(), adding ? "" : "un",
+			what, mh->GetModeChar(), mh->name.c_str());
 
 		if (fakenonexistent)
 		{

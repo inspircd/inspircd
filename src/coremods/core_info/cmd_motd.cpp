@@ -48,7 +48,8 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 	LocalUser* localuser = IS_LOCAL(user);
 	if (localuser)
 		tag = localuser->GetClass()->config;
-	std::string motd_name = tag->getString("motd", "motd");
+
+	const std::string motd_name = tag->getString("motd", "motd", 1);
 	ConfigFileCache::iterator motd = motds.find(motd_name);
 	if (motd == motds.end())
 	{

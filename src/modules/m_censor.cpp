@@ -51,7 +51,6 @@ class ModuleCensor : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		int numeric = 0;
 		switch (target.type)
 		{
 			case MessageTarget::TYPE_USER:
@@ -59,8 +58,6 @@ class ModuleCensor : public Module
 				User* targuser = target.Get<User>();
 				if (!targuser->IsModeSet(cu))
 					return MOD_RES_PASSTHRU;
-
-				numeric = ERR_CANTSENDTOUSER;
 				break;
 			}
 
@@ -73,8 +70,6 @@ class ModuleCensor : public Module
 				ModResult result = CheckExemption::Call(exemptionprov, user, targchan, "censor");
 				if (result == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
-
-				numeric = ERR_CANNOTSENDTOCHAN;
 				break;
 			}
 
@@ -89,7 +84,11 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(numeric, target.GetName(), "Your message contained a censored word (" + index->first + "), and was blocked");
+					const std::string msg = InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.", index->first.c_str());
+					if (target.type == MessageTarget::TYPE_CHANNEL)
+						user->WriteNumeric(Numerics::CannotSendTo(target.Get<Channel>(), msg));
+					else
+						user->WriteNumeric(Numerics::CannotSendTo(target.Get<User>(), msg));
 					return MOD_RES_DENY;
 				}
 

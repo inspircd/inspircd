@@ -157,10 +157,10 @@ class CoreExport Extensible
 	 */
 	void FreeAllExtItems();
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) override;
 
-	/** @copydoc Serializable::Deserialize. */
+	/** @copydoc Serializable::Deserialize */
 	bool Serialize(Serializable::Data& data) override;
 };
 

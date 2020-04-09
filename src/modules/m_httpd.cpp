@@ -81,6 +81,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		if (!messagecomplete)
 		{
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d timed out", GetFd());
 			Close();
 			return false;
 		}
@@ -212,6 +213,8 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			// IOHook may have errored
 			if (!getError().empty())
 			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered a hook error: %s",
+					GetFd(), getError().c_str());
 				Close();
 				return;
 			}
@@ -237,8 +240,10 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 
-	void OnError(BufferedSocketError) override
+	void OnError(BufferedSocketError err) override
 	{
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered an error: %d - %s",
+			GetFd(), err, getError().c_str());
 		Close();
 	}
 

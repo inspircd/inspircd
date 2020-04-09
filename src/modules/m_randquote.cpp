@@ -37,7 +37,7 @@ class ModuleRandQuote : public Module
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
-		FileReader reader(conf->getString("file", "quotes"));
+		FileReader reader(conf->getString("file", "quotes", 1));
 		quotes = reader.GetVector();
 	}
 

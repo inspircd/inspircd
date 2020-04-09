@@ -189,7 +189,7 @@ public:
 		else
 			SQL.SetProvider("SQL/" + dbid);
 
-		query = tag->getString("query", "SELECT * FROM ircd_opers WHERE active=1;");
+		query = tag->getString("query", "SELECT * FROM ircd_opers WHERE active=1;", 1);
 		// Update sqloper list from the database.
 		GetOperBlocks();
 	}

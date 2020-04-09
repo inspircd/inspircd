@@ -213,7 +213,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		// If this fails then the IP sa will be AF_UNSPEC.
 		irc::sockets::aptosa(x->IPAddr, x->Port, sa);
 	}
-	
+
 	/* Do we already have an IP? If so, no need to resolve it. */
 	if (sa.family() != AF_UNSPEC)
 	{
@@ -418,7 +418,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, message_type);
 			par.push_tags(details.tags_out);
-			par.push(*serverglob);
+			par.push(std::string("$") + *serverglob);
 			par.push_last(details.text);
 			par.Broadcast();
 			break;
@@ -455,7 +455,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 			const std::string* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, "TAGMSG");
 			par.push_tags(details.tags_out);
-			par.push(*serverglob);
+			par.push(std::string("$") + *serverglob);
 			par.Broadcast();
 			break;
 		}

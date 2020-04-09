@@ -613,12 +613,13 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 
 std::string ModuleManager::ExpandModName(const std::string& modname)
 {
-	// Transform "callerid" -> "m_callerid.so" unless it already has a ".so" extension,
-	// so coremods in the "core_*.so" form aren't changed
-	std::string ret = modname;
-	if ((modname.length() < 3) || (modname.compare(modname.size() - 3, 3, ".so")))
-		ret.insert(0, "m_").append(".so");
-	return ret;
+	std::string fullname;
+	if (modname.compare(0, 5, "core_") != 0 && modname.compare(0, 2, "m_") != 0)
+		fullname.append("m_");
+	fullname.append(modname);
+	if (modname.length() < 3 || modname.compare(modname.size() - 3, 3, ".so") != 0)
+		fullname.append(".so");
+	return fullname;
 }
 
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)

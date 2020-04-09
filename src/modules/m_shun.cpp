@@ -156,7 +156,6 @@ class ModuleShun : public Module, public Stats::EventListener
 	ShunFactory f;
 	insp::flat_set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
-	bool affectopers;
 
  public:
 	ModuleShun()
@@ -194,24 +193,16 @@ class ModuleShun : public Module, public Stats::EventListener
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
-		std::string cmds = tag->getString("enabledcommands");
-		std::transform(cmds.begin(), cmds.end(), cmds.begin(), ::toupper);
-
-		if (cmds.empty())
-			cmds = "PING PONG QUIT";
 
 		ShunEnabledCommands.clear();
-
-		irc::spacesepstream dcmds(cmds);
-		std::string thiscmd;
-
-		while (dcmds.GetToken(thiscmd))
+		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
+		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
 		{
-			ShunEnabledCommands.insert(thiscmd);
+			std::transform(enabledcmd.begin(), enabledcmd.end(), enabledcmd.begin(), ::toupper);
+			ShunEnabledCommands.insert(enabledcmd);
 		}
 
 		NotifyOfShun = tag->getBool("notifyuser", true);
-		affectopers = tag->getBool("affectopers", false);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
@@ -219,19 +210,11 @@ class ModuleShun : public Module, public Stats::EventListener
 		if (validated)
 			return MOD_RES_PASSTHRU;
 
-		if (!ServerInstance->XLines->MatchesLine("SHUN", user))
-		{
-			/* Not shunned, don't touch. */
+		// Exempt the user from shuns if they have the servers/ignore-shun privilege.
+		if (user->HasPrivPermission("servers/ignore-shun"))
 			return MOD_RES_PASSTHRU;
-		}
 
-		if (!affectopers && user->IsOper())
-		{
-			/* Don't do anything if the user is an operator and affectopers isn't set */
-			return MOD_RES_PASSTHRU;
-		}
-
-		if (!ShunEnabledCommands.count(command))
+		if (ServerInstance->XLines->MatchesLine("SHUN", user) && !ShunEnabledCommands.count(command))
 		{
 			if (NotifyOfShun)
 				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");

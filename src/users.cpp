@@ -90,7 +90,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	if (srv->IsULine())
-		ServerInstance->Users.all_ulines.push_back(this);	
+		ServerInstance->Users.all_ulines.push_back(this);
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != USERTYPE_SERVER)
@@ -497,7 +497,7 @@ void LocalUser::CheckClass(bool clone_count)
 	}
 	else if (a->type == CC_DENY)
 	{
-		ServerInstance->Users.QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
+		ServerInstance->Users.QuitUser(this, a->config->getString("reason", "Unauthorised connection", 1));
 		return;
 	}
 	else if (clone_count)

@@ -226,6 +226,7 @@ unprivileged user/group to build and run as or pass the '--gid [id|name]' flag
 to specify an unprivileged group to run as.
 EOW
 		if (!prompt_bool $interactive, "Are you sure you want to build as the $group[0] group?", 0) {
+			# PACKAGERS: You do not need to delete this check. Use `--gid $(id -g)` or `--gid 0` instead.
 			say STDERR "If you are sure you want to build as the $group[0] group pass the --gid $group[2] flag." unless $interactive;
 			exit 1;
 		}
@@ -252,6 +253,7 @@ unprivileged user/group to build and run as or pass the '--uid [id|name]' flag
 to specify an unprivileged user to run as.
 EOW
 		if (!prompt_bool $interactive, "Are you sure you want to build as the $user[0] user?", 0) {
+			# PACKAGERS: You do not need to delete this check. Use `--uid $(id -u)` or `--uid 0` instead.
 			say STDERR "If you are sure you want to build as the $user[0] user pass the --uid $user[2] flag." unless $interactive;
 			exit 1;
 		}

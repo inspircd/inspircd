@@ -405,7 +405,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:
-				break;
+				return MOD_RES_PASSTHRU;
 		}
 
 		if (is_selfmsg && warnonselfmsg)
@@ -427,9 +427,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked and opers notified (%s)", f->reason.c_str()));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
 				else
-					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked and opers notified: "+f->reason);
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
 			}
 			else
 				details.echo_original = true;
@@ -439,9 +439,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
 				else
-					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked: "+f->reason);
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
 			}
 			else
 				details.echo_original = true;

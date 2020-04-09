@@ -70,6 +70,9 @@ class ModuleGeoBan
 
 	void OnWhois(Whois::Context& whois) override
 	{
+		if (whois.GetTarget()->server->IsULine())
+			return;
+
 		Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : NULL;
 		if (location)
 			whois.SendLine(RPL_WHOISCOUNTRY, location->GetCode(), "is connecting from " + location->GetName());

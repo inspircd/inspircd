@@ -98,10 +98,11 @@ class ModuleChgHost : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("hostname");
+		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		cmd.hostmap.reset();
-		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
+		for (std::string::const_iterator n = hmap.begin(); n != hmap.end(); n++)
 			cmd.hostmap.set(static_cast<unsigned char>(*n));
 	}
 

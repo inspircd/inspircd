@@ -706,8 +706,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 			SocketEngine::Shutdown(this, 2);
 			SocketEngine::Close(this);
 
-			/* Remove expired entries from the cache */
-			this->Tick(ServerInstance->Time());
+			// Remove all entries from the cache.
+			cache.clear();
 		}
 
 		irc::sockets::aptosa(dnsserver, DNS::PORT, myserver);

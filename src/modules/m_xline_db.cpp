@@ -53,7 +53,7 @@ class ModuleXLineDB
 		 * 		...and so is discarding all current in-memory XLines for the ones in the database.
 		 */
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
-		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db"));
+		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db", 1));
 		SetInterval(Conf->getDuration("saveperiod", 5));
 
 		// Read xlines before attaching to events
