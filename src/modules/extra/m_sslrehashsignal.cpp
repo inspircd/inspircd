@@ -40,7 +40,7 @@ class ModuleSSLRehashSignal : public Module
 		signal(SIGUSR1, SignalHandler);
 	}
 
-	void OnBackgroundTimer(time_t)
+	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
 	{
 		if (!signaled)
 			return;
@@ -54,7 +54,7 @@ class ModuleSSLRehashSignal : public Module
 		signaled = 0;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Reloads SSL credentials on SIGUSR1", VF_VENDOR);
 	}
