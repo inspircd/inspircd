@@ -257,6 +257,7 @@ class ModuleSSLInfo
 				{
 					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires an SSL connection.");
 					user->CommandFloodPenalty += 10000;
+					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': secure connection required.", user->GetFullRealHost().c_str(), parameters[0].c_str());
 					return MOD_RES_DENY;
 				}
 
@@ -265,6 +266,7 @@ class ModuleSSLInfo
 				{
 					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
+					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
 					return MOD_RES_DENY;
 				}
 			}
