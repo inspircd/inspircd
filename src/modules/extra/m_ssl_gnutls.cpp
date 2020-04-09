@@ -553,7 +553,7 @@ namespace GnuTLS
 				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
 				, priostr(GetPrioStr(profilename, tag))
 				, mindh(tag->getUInt("mindhbits", 1024))
-				, hashstr(tag->getString("hash", "md5", 1))
+				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
 				// Load trusted CA and revocation list, if set

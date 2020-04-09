@@ -352,7 +352,7 @@ namespace OpenSSL
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
 
-			const std::string hash = tag->getString("hash", "md5", 1);
+			const std::string hash = tag->getString("hash", "sha256", 1);
 			digest = EVP_get_digestbyname(hash.c_str());
 			if (digest == NULL)
 				throw Exception("Unknown hash type " + hash);
