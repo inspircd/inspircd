@@ -43,7 +43,7 @@ class HTTPACL
 
 class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 {
-	std::string stylesheet;
+ private:
 	std::vector<HTTPACL> acl_list;
 	HTTPdAPI API;
 
