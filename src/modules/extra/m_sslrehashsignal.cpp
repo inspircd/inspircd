@@ -35,7 +35,7 @@ class ModuleSSLRehashSignal : public Module
 		signal(SIGUSR1, SIG_IGN);
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		signal(SIGUSR1, SignalHandler);
 	}
