@@ -977,7 +977,7 @@ class ModuleSSLmbedTLS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides SSL support via mbedTLS (PolarSSL)", VF_VENDOR);
+		return Version("Allows TLS (SSL) encrypted connections using the mbedTLS library.", VF_VENDOR);
 	}
 };
 

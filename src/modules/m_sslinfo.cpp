@@ -215,7 +215,7 @@ class ModuleSSLInfo
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds user facing SSL information, various SSL configuration options, and the /SSLINFO command to look up SSL certificate information for other users.", VF_VENDOR);
+		return Version("Adds user facing TLS (SSL) information, various TLS (SSL) configuration options, and the /SSLINFO command to look up TLS (SSL) certificate information for other users.", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

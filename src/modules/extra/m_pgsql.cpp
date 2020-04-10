@@ -620,7 +620,7 @@ class ModulePgSQL : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides PostgreSQL support to modules", VF_VENDOR);
+		return Version("Provides the ability for SQL modules to query a PostgreSQL database.", VF_VENDOR);
 	}
 };
 

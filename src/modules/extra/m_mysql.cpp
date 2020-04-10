@@ -556,7 +556,7 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 
 Version ModuleSQL::GetVersion()
 {
-	return Version("Provides MySQL support", VF_VENDOR);
+	return Version("Provides the ability for SQL modules to query a MySQL database.", VF_VENDOR);
 }
 
 void DispatcherThread::Run()

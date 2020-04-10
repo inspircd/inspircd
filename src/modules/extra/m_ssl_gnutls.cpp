@@ -1405,7 +1405,7 @@ class ModuleSSLGnuTLS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows TLS encrypted connections using the GnuTLS library.", VF_VENDOR);
+		return Version("Allows TLS (SSL) encrypted connections using the GnuTLS library.", VF_VENDOR);
 	}
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE

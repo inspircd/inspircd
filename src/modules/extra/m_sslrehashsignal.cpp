@@ -56,7 +56,7 @@ class ModuleSSLRehashSignal : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows the SIGUSR1 signal to be sent to the server to reload SSL certificates.", VF_VENDOR);
+		return Version("Allows the SIGUSR1 signal to be sent to the server to reload TLS (SSL) certificates.", VF_VENDOR);
 	}
 };
 

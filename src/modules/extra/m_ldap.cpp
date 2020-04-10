@@ -636,7 +636,7 @@ class ModuleLDAP : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides LDAP support", VF_VENDOR);
+		return Version("Provides the ability for LDAP modules to query a LDAP directory.", VF_VENDOR);
 	}
 };
 

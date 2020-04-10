@@ -154,7 +154,7 @@ class ModuleGeoMaxMind : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides Geolocation lookups using the libMaxMindDB library", VF_VENDOR);
+		return Version("Allows the server to perform geolocation lookups on both IP addresses and users.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
