@@ -90,7 +90,7 @@ class ModuleSetHost : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SETHOST command", VF_VENDOR);
+		return Version("Adds the /SETHOST command which allows server operators to change their displayed hostname.", VF_VENDOR);
 	}
 };
 

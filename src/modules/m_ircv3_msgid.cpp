@@ -112,7 +112,7 @@ class ModuleMsgId
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the msgid IRCv3 tag", VF_VENDOR);
+		return Version("Provides support for the IRCv3 Message IDs specification.", VF_VENDOR);
 	}
 };
 

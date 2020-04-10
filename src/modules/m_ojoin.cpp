@@ -157,7 +157,7 @@ class ModuleOjoin : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the OJOIN command, allows an oper to join a channel and be immune to kicks", VF_VENDOR);
+		return Version("Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.", VF_VENDOR);
 	}
 };
 

@@ -56,7 +56,7 @@ class ModuleIRCv3AccountTag : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the account-tag IRCv3 extension", VF_VENDOR);
+		return Version("Provides the IRCv3 account-tag client capability.", VF_VENDOR);
 	}
 };
 

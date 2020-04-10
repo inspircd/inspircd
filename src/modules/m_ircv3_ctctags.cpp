@@ -362,7 +362,7 @@ class ModuleIRCv3CTCTags
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the message-tags IRCv3 extension", VF_VENDOR | VF_COMMON);
+		return Version("Provides the IRCv3 message-tags client capability.", VF_VENDOR | VF_COMMON);
 	}
 };
 

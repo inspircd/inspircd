@@ -236,7 +236,7 @@ class ModuleXLineDB
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ability to store X-lines in a database file", VF_VENDOR);
+		return Version("Allows X-lines to be saved and reloaded on restart.", VF_VENDOR);
 	}
 };
 

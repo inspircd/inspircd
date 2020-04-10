@@ -92,7 +92,7 @@ class ModuleAuditorium
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +u, auditorium channels where nobody can see others joining and parting or the nick list", VF_VENDOR);
+		return Version("Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.", VF_VENDOR);
 	}
 
 	/* Can they be seen by everyone? */

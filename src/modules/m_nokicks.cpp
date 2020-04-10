@@ -57,7 +57,7 @@ class ModuleNoKicks : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +Q to prevent kicks on the channel", VF_VENDOR);
+		return Version("Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.", VF_VENDOR);
 	}
 };
 

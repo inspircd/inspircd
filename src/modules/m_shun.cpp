@@ -242,7 +242,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SHUN command, which stops a user from executing all except configured commands", VF_VENDOR|VF_COMMON);
+		return Version("Adds the /SHUN command which allows server operators to prevent users from executing commands.", VF_VENDOR|VF_COMMON);
 	}
 };
 

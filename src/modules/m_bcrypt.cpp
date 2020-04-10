@@ -96,7 +96,7 @@ class ModuleBCrypt : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements bcrypt hashing", VF_VENDOR);
+		return Version("Allows other modules to generate bcrypt hashes.", VF_VENDOR);
 	}
 };
 

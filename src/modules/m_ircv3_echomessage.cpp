@@ -129,7 +129,7 @@ class ModuleIRCv3EchoMessage
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the echo-message IRCv3 extension", VF_VENDOR);
+		return Version("Provides the IRCv3 echo-message client capability.", VF_VENDOR);
 	}
 };
 

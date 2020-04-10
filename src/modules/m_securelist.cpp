@@ -38,7 +38,7 @@ class ModuleSecureList : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Disallows the LIST command for recently connected clients to hinder spam bots", VF_VENDOR);
+		return Version("Prevents users from using the /LIST command until a predefined period has passed.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

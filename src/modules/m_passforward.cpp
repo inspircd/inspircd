@@ -33,7 +33,7 @@ class ModulePassForward : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Sends server password to NickServ", VF_VENDOR);
+		return Version("Allows the /PASS password to be forwarded to a services pseudoclient such as NickServ.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

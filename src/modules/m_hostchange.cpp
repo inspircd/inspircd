@@ -187,7 +187,7 @@ private:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides rule-based masking of user hostnames", VF_VENDOR);
+		return Version("Allows the server administrator to define custom rules for applying hostnames to users.", VF_VENDOR);
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE

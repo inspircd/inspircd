@@ -125,7 +125,7 @@ class ModuleSajoin : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SAJOIN command, allows opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /SAJOIN command which allows server operators to force users to join one or more channels.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

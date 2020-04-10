@@ -169,7 +169,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +J, delays rejoins after kicks", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
+		return Version("Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
 	}
 };
 

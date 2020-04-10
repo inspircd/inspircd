@@ -130,7 +130,7 @@ class ModuleUninvite : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

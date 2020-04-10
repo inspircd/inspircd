@@ -134,7 +134,7 @@ class ModulePasswordHash : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ability to hash passwords to other modules", VF_VENDOR);
+		return Version("Adds the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.", VF_VENDOR);
 	}
 };
 

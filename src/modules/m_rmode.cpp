@@ -106,7 +106,7 @@ class ModuleRMode : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows glob-based removal of list modes", VF_VENDOR);
+		return Version("Allows removal of channel list modes using glob patterns.", VF_VENDOR);
 	}
 };
 

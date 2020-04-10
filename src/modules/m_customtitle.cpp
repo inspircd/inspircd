@@ -171,7 +171,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the TITLE command, custom titles for users", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Allows the server administrator to define accounts which can grant a custom title in /WHOIS and an optional virtual host.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -282,7 +282,7 @@ class ModuleSQLite3 : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides SQLite3 support", VF_VENDOR);
+		return Version("Provides the ability for SQL modules to query a SQLite 3 database.", VF_VENDOR);
 	}
 };
 

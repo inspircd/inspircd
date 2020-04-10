@@ -150,7 +150,7 @@ class ModuleDenyChannels : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);
+		return Version("Allows the server administrator to prevent users from joining channels matching a glob.", VF_VENDOR);
 	}
 
 

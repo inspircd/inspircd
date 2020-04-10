@@ -40,7 +40,7 @@ class ModuleMLock : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements the ability to have server-side MLOCK enforcement", VF_VENDOR);
+		return Version("Allows services to lock channel modes so that they can not be changed.", VF_VENDOR);
 	}
 
 	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding) CXX11_OVERRIDE

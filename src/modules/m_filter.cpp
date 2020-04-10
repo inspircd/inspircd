@@ -670,7 +670,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 Version ModuleFilter::GetVersion()
 {
-	return Version("Provides text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
+	return Version("Adds the /FILTER command which allows server operators to define regex matches for inappropriate phrases that are not allowed to be used in channel messages, private messages, part messages, or quit messages.", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
 }
 
 std::string ModuleFilter::EncodeFilter(FilterResult* filter)

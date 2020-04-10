@@ -56,7 +56,7 @@ class ModuleCommonChans
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user mode +c, requires users to share a common channel with you to private message you", VF_VENDOR);
+		return Version("Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE

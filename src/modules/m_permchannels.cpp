@@ -319,7 +319,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +P to provide permanent channels", VF_VENDOR);
+		return Version("Adds channel mode P (permanent) which prevents the channel from being deleted when the last user leaves.", VF_VENDOR);
 	}
 
 	ModResult OnChannelPreDelete(Channel *c) CXX11_OVERRIDE

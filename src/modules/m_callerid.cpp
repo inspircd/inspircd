@@ -396,7 +396,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implementation of callerid, provides user mode +g and the ACCEPT command", VF_COMMON | VF_VENDOR);
+		return Version("Provides user mode g (bot) which allows users to require that other users are on their whitelist before messaging them.", VF_COMMON | VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

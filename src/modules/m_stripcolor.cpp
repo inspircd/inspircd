@@ -104,7 +104,7 @@ class ModuleStripColor : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +S, strip ansi color", VF_VENDOR);
+		return Version("Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.", VF_VENDOR);
 	}
 
 };

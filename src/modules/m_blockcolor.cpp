@@ -79,7 +79,7 @@ class ModuleBlockColor : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +c to block color",VF_VENDOR);
+		return Version("Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.",VF_VENDOR);
 	}
 };
 

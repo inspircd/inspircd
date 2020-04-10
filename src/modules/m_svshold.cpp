@@ -228,7 +228,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements SVSHOLD, like Q-lines, but can only be added/removed by Services", VF_COMMON | VF_VENDOR);
+		return Version("Adds the /SVSHOLD command which allows services to reserve nicknames.", VF_COMMON | VF_VENDOR);
 	}
 };
 

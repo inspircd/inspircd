@@ -97,7 +97,7 @@ class ModuleOpermotd : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Shows a message to opers after oper-up and adds the OPERMOTD command", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Adds the /OPERMOTD command which adds a special message of the day for server operators.", VF_VENDOR | VF_OPTCOMMON);
 	}
 
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE

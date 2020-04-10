@@ -46,7 +46,7 @@ class ModuleOperjoin : public Module
 
 		Version GetVersion() CXX11_OVERRIDE
 		{
-			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
+			return Version("Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.", VF_VENDOR);
 		}
 
 		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE

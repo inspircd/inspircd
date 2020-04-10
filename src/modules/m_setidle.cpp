@@ -76,7 +76,7 @@ class ModuleSetIdle : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SETIDLE command, allows opers to set their idle time", VF_VENDOR);
+		return Version("Adds the /SETIDLE command which allows server operators to change their idle time.", VF_VENDOR);
 	}
 };
 

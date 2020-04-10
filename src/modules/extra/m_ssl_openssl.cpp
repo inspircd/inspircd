@@ -1095,7 +1095,7 @@ class ModuleSSLOpenSSL : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides SSL support via OpenSSL", VF_VENDOR);
+		return Version("Allows TLS encrypted connections using the OpenSSL library.", VF_VENDOR);
 	}
 };
 

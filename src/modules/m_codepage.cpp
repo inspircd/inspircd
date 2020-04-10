@@ -214,7 +214,7 @@ class ModuleCodepage
 			if (casemap[i] != i)
 				linkdata << static_cast<unsigned char>(i) << casemap[i] << ',';
 
-		return Version("Provides support for custom 8-bit codepages", VF_COMMON | VF_VENDOR, linkdata.str());
+		return Version("Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.", VF_COMMON | VF_VENDOR, linkdata.str());
 	}
 };
 MODULE_INIT(ModuleCodepage)

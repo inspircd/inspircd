@@ -95,7 +95,7 @@ class ModuleSakick : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SAKICK command", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds the /SAKICK command which allows server operators to kick users from a channel without having any privileges in the channel.", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

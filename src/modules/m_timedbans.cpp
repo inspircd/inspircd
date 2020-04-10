@@ -244,7 +244,7 @@ class ModuleTimedBans : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the TBAN command, timed channel bans", VF_COMMON | VF_VENDOR);
+		return Version("Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.", VF_COMMON | VF_VENDOR);
 	}
 };
 

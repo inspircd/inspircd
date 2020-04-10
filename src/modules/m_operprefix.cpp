@@ -106,7 +106,7 @@ class ModuleOperPrefixMode : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Gives opers channel mode +y which provides a staff prefix", VF_VENDOR);
+		return Version("Adds the server operator-only y (operprefix) channel prefix mode.", VF_VENDOR);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

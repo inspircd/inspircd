@@ -323,7 +323,7 @@ class ModuleServicesAccount
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for ircu-style services accounts, including channel mode +R, etc", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds various channel and user modes relating to services accounts.", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

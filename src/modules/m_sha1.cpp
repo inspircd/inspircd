@@ -193,7 +193,7 @@ class ModuleSHA1 : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements SHA-1 hashing", VF_VENDOR);
+		return Version("Allows other modules to generate SHA-1 hashes.", VF_VENDOR);
 	}
 };
 

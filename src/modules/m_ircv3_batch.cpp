@@ -213,7 +213,7 @@ class ModuleIRCv3Batch : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the batch IRCv3 extension", VF_VENDOR);
+		return Version("Provides the IRCv3 batch client capability.", VF_VENDOR);
 	}
 };
 

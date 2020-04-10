@@ -353,7 +353,7 @@ class ModuleBanRedirect : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
+		return Version("Allows specifying a channel to redirect a banned user to in the ban mask.", VF_COMMON|VF_VENDOR);
 	}
 };
 

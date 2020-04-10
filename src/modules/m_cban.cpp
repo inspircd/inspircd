@@ -210,7 +210,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CBAN command, like Q-lines, but for channels", VF_COMMON | VF_VENDOR);
+		return Version("Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.", VF_COMMON | VF_VENDOR);
 	}
 };
 

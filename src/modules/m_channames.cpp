@@ -153,7 +153,7 @@ class ModuleChannelNames : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR);
+		return Version("Allows the server administrator to define what characters are allowed in channel names.", VF_VENDOR);
 	}
 };
 

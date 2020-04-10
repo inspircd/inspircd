@@ -151,7 +151,7 @@ class ModuleTopicLock : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements server-side topic locks and the server-to-server command SVSTOPIC", VF_COMMON | VF_VENDOR);
+		return Version("Allows services to lock the channel topic so that it can not be changed.", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -61,7 +61,7 @@ class ModuleBlockAmsg : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Attempt to block /amsg or /ame, at least some of the irritating client scripts", VF_VENDOR);
+		return Version("Blocks mass messages sent using the /AME and /AMSG commands that exist in clients such as mIRC and HexChat.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

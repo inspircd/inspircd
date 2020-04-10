@@ -87,7 +87,7 @@ class ModuleOperChans : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for oper-only channels via channel mode +O and extban 'O'", VF_VENDOR);
+		return Version("Adds channel mode O (operonly) which prevents non-server operators from joining the channel.", VF_VENDOR);
 	}
 };
 

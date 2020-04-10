@@ -455,7 +455,7 @@ class ModuleSASL : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE", VF_VENDOR);
+		return Version("Provides the IRCv3 sasl client capability.", VF_VENDOR);
 	}
 };
 

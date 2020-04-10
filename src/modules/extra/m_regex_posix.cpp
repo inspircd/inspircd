@@ -86,7 +86,7 @@ class ModuleRegexPOSIX : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
+		return Version("Provides a regular expression engine which uses the POSIX.2 regular expression matching system.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

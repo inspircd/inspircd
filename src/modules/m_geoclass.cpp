@@ -43,7 +43,7 @@ class ModuleGeoClass
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a way to assign users to connect classes by country", VF_VENDOR);
+		return Version("Allows the server administrator to assign users to connect classes by the country they are connecting from.", VF_VENDOR);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE

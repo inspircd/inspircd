@@ -234,7 +234,7 @@ class ModuleIRCv3LabeledResponse : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the labeled-response IRCv3 extension", VF_VENDOR);
+		return Version("Provides support for the IRCv3 Labeled Response specification.", VF_VENDOR);
 	}
 };
 

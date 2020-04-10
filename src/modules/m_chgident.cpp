@@ -90,7 +90,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CHGIDENT command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

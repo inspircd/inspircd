@@ -225,7 +225,7 @@ class ModuleOverride : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for allowing opers to override certain things",VF_VENDOR);
+		return Version("Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.",VF_VENDOR);
 	}
 };
 

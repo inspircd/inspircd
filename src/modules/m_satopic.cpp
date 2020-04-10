@@ -77,7 +77,7 @@ class ModuleSATopic : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SATOPIC command", VF_VENDOR);
+		return Version("Adds the /SATOPIC command which allows server operators to change the topic of a channel that they would not otherwise have the privileges to change.", VF_VENDOR);
 	}
 };
 

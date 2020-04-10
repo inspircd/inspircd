@@ -466,7 +466,7 @@ class ModuleCgiIRC
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Enables forwarding the real IP address of a user from a gateway to the IRC server", VF_VENDOR);
+		return Version("Adds the ability for IRC gateways to forward the real IP address of users connecting through them.", VF_VENDOR);
 	}
 };
 

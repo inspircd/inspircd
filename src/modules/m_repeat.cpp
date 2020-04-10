@@ -415,7 +415,7 @@ class RepeatModule : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +E, blocking of similar messages", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
+		return Version("Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.", VF_COMMON|VF_VENDOR, rm.GetModuleSettings());
 	}
 };
 

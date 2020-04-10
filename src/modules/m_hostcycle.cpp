@@ -113,7 +113,7 @@ class ModuleHostCycle : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Cycles users in all their channels when their host or ident changes", VF_VENDOR);
+		return Version("Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.", VF_VENDOR);
 	}
 };
 

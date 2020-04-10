@@ -90,7 +90,7 @@ class ModuleWaitPong : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Require pong prior to registration", VF_VENDOR);
+		return Version("Requires all clients to respond to a PING request before they can fully connect.", VF_VENDOR);
 	}
 };
 

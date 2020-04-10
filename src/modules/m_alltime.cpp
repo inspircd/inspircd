@@ -62,7 +62,7 @@ class Modulealltime : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ALLTIME command, displays timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

@@ -135,7 +135,7 @@ class ModuleNamedModes : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ability to manipulate modes via long names", VF_VENDOR);
+		return Version("Provides support for adding and removing modes via their long names.", VF_VENDOR);
 	}
 
 	void Prioritize() CXX11_OVERRIDE

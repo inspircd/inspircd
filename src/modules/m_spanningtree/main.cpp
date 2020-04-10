@@ -820,7 +820,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 Version ModuleSpanningTree::GetVersion()
 {
-	return Version("Allows servers to be linked", VF_VENDOR);
+	return Version("Allows linking multiple servers together as part of one network.", VF_VENDOR);
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain

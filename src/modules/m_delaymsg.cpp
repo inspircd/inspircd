@@ -95,7 +95,7 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 
 Version ModuleDelayMsg::GetVersion()
 {
-	return Version("Provides channel mode +d <int>, to deny messages to a channel until <int> seconds have passed", VF_VENDOR);
+	return Version("Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.", VF_VENDOR);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)

@@ -97,7 +97,7 @@ class ModuleUserIP : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the USERIP command", VF_VENDOR);
+		return Version("Adds the /USERIP command which allows users to find out the IP address of one or more connected users.", VF_VENDOR);
 	}
 };
 

@@ -228,7 +228,7 @@ class ModuleRemove : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the REMOVE command as an alternative to KICK, it makes users appear to have left the channel", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /FPART and /REMOVE commands which allows channel operators to force part users from a channel.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

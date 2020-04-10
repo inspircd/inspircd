@@ -32,7 +32,7 @@ class ModuleOperLevels : public Module
 	public:
 		Version GetVersion() CXX11_OVERRIDE
 		{
-			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level", VF_VENDOR);
+			return Version("Allows the server administrator to define ranks for server operators which prevent lower ranked server operators from using /KILL on higher ranked server operators.", VF_VENDOR);
 		}
 
 		ModResult OnKill(User* source, User* dest, const std::string &reason) CXX11_OVERRIDE

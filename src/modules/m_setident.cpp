@@ -70,7 +70,7 @@ class ModuleSetIdent : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SETIDENT command", VF_VENDOR);
+		return Version("Adds the /SETIDENT command which allows server operators to change their username (ident).", VF_VENDOR);
 	}
 };
 

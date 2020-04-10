@@ -76,7 +76,7 @@ class ModuleBotMode : public Module, public Whois::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
+		return Version("Adds user mode B (bot) which marks users with it set as bots in their /WHOIS response.",VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

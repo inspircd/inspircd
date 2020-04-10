@@ -159,7 +159,7 @@ class ModuleSWhois : public Module, public Whois::LineEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /SWHOIS command which adds custom lines to a user's WHOIS response.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

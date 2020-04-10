@@ -65,7 +65,7 @@ class ModuleGlobops : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the GLOBOPS command and snomask 'g'", VF_VENDOR);
+		return Version("Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.", VF_VENDOR);
 	}
 };
 

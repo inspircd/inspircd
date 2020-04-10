@@ -44,7 +44,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Connection throttle", VF_VENDOR);
+		return Version("Throttles IP addresses which make excessive connections to the server.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

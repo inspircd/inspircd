@@ -176,7 +176,7 @@ class ModuleIRCv3
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for extended-join, away-notify and account-notify CAP capabilities", VF_VENDOR);
+		return Version("Provides the IRCv3 account-notify, away-notify, and extended-join client capabilities.", VF_VENDOR);
 	}
 };
 

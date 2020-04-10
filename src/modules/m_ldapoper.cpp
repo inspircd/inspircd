@@ -240,7 +240,7 @@ class ModuleLDAPOper : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds the ability to authenticate opers via LDAP", VF_VENDOR);
+		return Version("Allows server operators to be authenticated against an LDAP database.", VF_VENDOR);
 	}
 };
 

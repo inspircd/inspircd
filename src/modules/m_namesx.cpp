@@ -46,7 +46,7 @@ class ModuleNamesX
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the NAMESX (CAP multi-prefix) capability", VF_VENDOR);
+		return Version("Provides the IRCv3 multi-prefix client capability.", VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

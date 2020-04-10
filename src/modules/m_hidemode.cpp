@@ -201,7 +201,7 @@ class ModuleHideMode : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for hiding mode changes", VF_VENDOR);
+		return Version("Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.", VF_VENDOR);
 	}
 };
 

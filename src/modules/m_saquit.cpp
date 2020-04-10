@@ -83,7 +83,7 @@ class ModuleSaquit : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SAQUIT command, allows opers to force-quit users", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /SAQUIT command which allows server operators to disconnect users from the server.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

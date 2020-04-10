@@ -156,7 +156,7 @@ class ModuleNickLock : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE

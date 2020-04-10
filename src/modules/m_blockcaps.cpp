@@ -125,7 +125,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support to block all-CAPS channel messages and notices", VF_VENDOR);
+		return Version("Adds channel mode B (blockcaps) which allows channels to block messages which are excessively capitalised.", VF_VENDOR);
 	}
 };
 

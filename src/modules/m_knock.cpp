@@ -145,7 +145,7 @@ class ModuleKnock : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the KNOCK command and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /KNOCK command which allows users to request access to an invite-only channel and channel mode K (noknock) which allows channels to disable usage of this command.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

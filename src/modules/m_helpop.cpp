@@ -185,7 +185,7 @@ class ModuleHelpop
 
 		Version GetVersion() CXX11_OVERRIDE
 		{
-			return Version("Provides help to users via the HELPOP command", VF_VENDOR);
+			return Version("Adds the /HELPOP command which allows users to view help on various topics and user mode h (helpop) which marks a server operator as being available for help.", VF_VENDOR);
 		}
 };
 

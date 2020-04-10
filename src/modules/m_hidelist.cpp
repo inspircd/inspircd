@@ -89,7 +89,7 @@ class ModuleHideList : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for hiding the list of listmodes", VF_VENDOR);
+		return Version("Allows list mode lists to be hidden from users without a prefix mode ranked equal to or higher than a defined level.", VF_VENDOR);
 	}
 };
 

@@ -68,7 +68,7 @@ class ModuleModeNotice : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the MODENOTICE command", VF_VENDOR);
+		return Version("Adds the /MODENOTICE command which sends a message to all users with the specified user modes set.", VF_VENDOR);
 	}
 };
 

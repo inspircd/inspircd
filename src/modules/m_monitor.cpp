@@ -430,7 +430,7 @@ class ModuleMonitor : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides MONITOR support", VF_VENDOR);
+		return Version("Adds the /MONITOR command which allows users to find out when their friends are connected to the server.", VF_VENDOR);
 	}
 };
 

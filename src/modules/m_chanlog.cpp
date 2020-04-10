@@ -86,7 +86,7 @@ class ModuleChanLog : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Logs snomask output to channel(s)", VF_VENDOR);
+		return Version("Allows messages sent to snomasks to be logged to a channel.", VF_VENDOR);
 	}
 };
 

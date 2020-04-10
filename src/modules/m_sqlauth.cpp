@@ -219,7 +219,7 @@ class ModuleSQLAuth : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allow/deny connections based upon an arbitrary SQL table", VF_VENDOR);
+		return Version("Allows connecting users to be authenticated against an arbitrary SQL table.", VF_VENDOR);
 	}
 };
 

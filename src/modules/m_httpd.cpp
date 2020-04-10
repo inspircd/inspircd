@@ -451,7 +451,7 @@ class ModuleHttpServer : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides HTTP serving facilities to modules", VF_VENDOR);
+		return Version("Allows the server administrator to serve various useful resources over HTTP.", VF_VENDOR);
 	}
 };
 

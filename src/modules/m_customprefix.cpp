@@ -106,7 +106,7 @@ class ModuleCustomPrefix : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides custom prefix channel modes", VF_VENDOR);
+		return Version("Allows the server administrator to configure custom channel prefix modes.", VF_VENDOR);
 	}
 };
 

@@ -84,7 +84,7 @@ class ModuleTLine : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the TLINE command, used to test how many users a mask matches against", VF_VENDOR);
+		return Version("Adds the /TLINE command which allows server operators to determine how many users would be affected by an X-line on a specified pattern.", VF_VENDOR);
 	}
 };
 

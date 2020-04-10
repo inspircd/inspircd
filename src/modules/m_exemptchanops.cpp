@@ -162,7 +162,7 @@ class ModuleExemptChanOps : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes", VF_VENDOR);
+		return Version("Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

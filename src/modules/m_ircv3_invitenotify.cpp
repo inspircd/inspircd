@@ -64,7 +64,7 @@ class ModuleIRCv3InviteNotify : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the invite-notify IRCv3 extension", VF_VENDOR);
+		return Version("Provides the IRCv3 invite-notify client capability.", VF_VENDOR);
 	}
 };
 

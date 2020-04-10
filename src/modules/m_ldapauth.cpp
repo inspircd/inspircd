@@ -443,7 +443,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allow/deny connections based upon answers from an LDAP server", VF_VENDOR);
+		return Version("Allows connecting users to be authenticated against an LDAP database.", VF_VENDOR);
 	}
 };
 

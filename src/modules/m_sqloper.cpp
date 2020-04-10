@@ -249,7 +249,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
+		return Version("Allows server operators to be authenticated against an SQL table.", VF_VENDOR);
 	}
 };
 

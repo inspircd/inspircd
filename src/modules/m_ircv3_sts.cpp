@@ -181,7 +181,7 @@ class ModuleIRCv3STS : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides IRCv3 Strict Transport Security policy advertisement", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds support for the IRCv3 Strict Transport Security specification.", VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

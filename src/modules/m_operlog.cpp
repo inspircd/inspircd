@@ -37,7 +37,7 @@ class ModuleOperLog : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides logging of all oper commands to the ircd log at the default loglevel", VF_VENDOR);
+		return Version("Allows the server administrator to make the server log when a server operator-only command is executed.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

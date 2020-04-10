@@ -43,7 +43,7 @@ class ModuleUHNames
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the UHNAMES (CAP userhost-in-names) capability", VF_VENDOR);
+		return Version("Provides the IRCv3 userhost-in-names client capability.", VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

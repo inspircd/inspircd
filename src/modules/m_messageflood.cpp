@@ -193,7 +193,7 @@ private:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +f, message flood protection", VF_VENDOR);
+		return Version("Adds channel mode f (flood) which helps protect against spammers which mass-message channels.", VF_VENDOR);
 	}
 };
 

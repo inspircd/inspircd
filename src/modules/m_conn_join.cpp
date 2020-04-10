@@ -90,7 +90,7 @@ class ModuleConnJoin : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
+		return Version("Allows the server administrator to force users to join one or more channels on connect.", VF_VENDOR);
 	}
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE

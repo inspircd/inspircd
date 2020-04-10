@@ -47,7 +47,7 @@ class ModuleHideChans : public Module, public Whois::LineEventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
+		return Version("Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

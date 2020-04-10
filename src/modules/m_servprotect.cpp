@@ -68,7 +68,7 @@ class ModuleServProtectMode : public Module, public Whois::EventListener, public
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user mode +k to protect services from kicks, kills, and mode changes", VF_VENDOR);
+		return Version("Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their user modes changed.", VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

@@ -100,7 +100,7 @@ class ModuleClones : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CLONES command to retrieve information on clones", VF_VENDOR);
+		return Version("Adds the /CLONES command which allows server operators to view IP addresses from which there are more than a specified number of connections.", VF_VENDOR);
 	}
 };
 

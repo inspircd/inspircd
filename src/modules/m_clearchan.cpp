@@ -213,7 +213,7 @@ class ModuleClearChan : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CLEARCHAN command that allows opers to masskick, masskill or mass G/Z-line users on a channel", VF_VENDOR|VF_OPTCOMMON);
+		return Version("Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

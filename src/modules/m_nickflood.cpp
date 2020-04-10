@@ -203,7 +203,7 @@ class ModuleNickFlood : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +F, nick flood protection", VF_VENDOR);
+		return Version("Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.", VF_VENDOR);
 	}
 };
 

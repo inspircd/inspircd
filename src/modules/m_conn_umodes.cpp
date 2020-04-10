@@ -28,7 +28,7 @@ class ModuleModesOnConnect : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
+		return Version("Allows the server administrator to set user modes on connecting users.", VF_VENDOR);
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE

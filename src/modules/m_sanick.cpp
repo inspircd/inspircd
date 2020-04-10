@@ -100,7 +100,7 @@ class ModuleSanick : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SANICK command, allows opers to change the nicknames of users", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /SANICK command which allows server operators to change the nickname of a user.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

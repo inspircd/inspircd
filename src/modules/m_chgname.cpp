@@ -87,7 +87,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Adds the /CHGNAME command which allows server operators to change the real name (gecos) of a user.", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

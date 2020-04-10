@@ -101,7 +101,7 @@ class ModuleSaMode : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SAMODE command, allows opers to change modes on channels and users", VF_VENDOR);
+		return Version("Adds the /SAMODE command which allows server operators to change the modes of a target (channel, user) that they would not otherwise have the privileges to change.", VF_VENDOR);
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE

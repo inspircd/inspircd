@@ -87,7 +87,7 @@ class ModuleIRCv3ServerTime : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the server-time IRCv3 extension", VF_VENDOR);
+		return Version("Provides the IRCv3 server-time client capability.", VF_VENDOR);
 	}
 };
 

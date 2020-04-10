@@ -505,7 +505,7 @@ class ModuleCap : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for CAP capability negotiation", VF_VENDOR);
+		return Version("Implements support for the IRCv3 Client Capability Negotiation extension.", VF_VENDOR);
 	}
 };
 

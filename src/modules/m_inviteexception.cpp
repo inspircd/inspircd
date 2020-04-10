@@ -89,7 +89,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +I, invite exceptions", VF_VENDOR);
+		return Version("Adds channel mode I (invex) which allows channel operators to exempt user masks from the i (inviteonly) channel mode.", VF_VENDOR);
 	}
 };
 

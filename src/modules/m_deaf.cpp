@@ -153,7 +153,7 @@ class ModuleDeaf : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user modes +d and +D to block channel and user messages/notices", VF_VENDOR);
+		return Version("Adds user mode d (deaf) which prevents users from receiving channel messages.", VF_VENDOR);
 	}
 };
 

@@ -607,7 +607,7 @@ class ModuleDCCAllow : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the DCCALLOW command", VF_COMMON | VF_VENDOR);
+		return Version("Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.", VF_COMMON | VF_VENDOR);
 	}
 };
 

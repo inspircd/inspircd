@@ -72,7 +72,7 @@ class ModuleNoNotice : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);
+		return Version("Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.", VF_VENDOR);
 	}
 };
 

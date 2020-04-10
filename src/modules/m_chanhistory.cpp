@@ -252,7 +252,7 @@ class ModuleChanHistory
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +H, allows for the channel message history to be replayed on join", VF_VENDOR);
+		return Version("Adds channel mode H (history) which allows message history to be viewed on joining the channel.", VF_VENDOR);
 	}
 };
 

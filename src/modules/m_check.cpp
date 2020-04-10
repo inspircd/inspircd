@@ -327,7 +327,7 @@ class ModuleCheck : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the CHECK command to view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
+		return Version("Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 

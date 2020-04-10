@@ -268,7 +268,7 @@ class ModuleWatch
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides WATCH support", VF_VENDOR);
+		return Version("Adds the /WATCH command which allows users to find out when their friends are connected to the server.", VF_VENDOR);
 	}
 };
 

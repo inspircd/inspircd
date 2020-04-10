@@ -122,7 +122,7 @@ class ModuleCensor : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user and channel mode +G", VF_VENDOR);
+		return Version("Allows the server administrator to define inappropriate phrases that are not allowed to be used in private or channel messages.", VF_VENDOR);
 	}
 
 };

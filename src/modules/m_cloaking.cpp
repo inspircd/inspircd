@@ -416,7 +416,7 @@ class ModuleCloaking : public Module
 					testcloak = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix + (info.ignorecase ? "-ci" : "");
 			}
 		}
-		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
+		return Version("Adds user mode x (cloak) which allows user hostnames to be hidden.", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

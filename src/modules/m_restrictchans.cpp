@@ -90,7 +90,7 @@ class ModuleRestrictChans : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows restricting who can create channels", VF_VENDOR);
+		return Version("Prevents unprivileged users from creating new channels.", VF_VENDOR);
 	}
 };
 

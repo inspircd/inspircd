@@ -282,7 +282,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides handling of DNS blacklists", VF_VENDOR);
+		return Version("Allows the server administrator to check the IP address of connecting users against a DNSBL.", VF_VENDOR);
 	}
 
 	/** Fill our conf vector with data

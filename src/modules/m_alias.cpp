@@ -122,7 +122,7 @@ class ModuleAlias : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides aliases of commands", VF_VENDOR);
+		return Version("Allows the server administrator to define custom channel commands (e.g. !kick) and server commands (e.g. /OPERSERV).", VF_VENDOR);
 	}
 
 	std::string GetVar(std::string varname, const std::string &original_line)

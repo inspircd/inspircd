@@ -122,7 +122,7 @@ class ModuleAutoOp : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +w, basic channel access controls", VF_VENDOR);
+		return Version("Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.", VF_VENDOR);
 	}
 };
 

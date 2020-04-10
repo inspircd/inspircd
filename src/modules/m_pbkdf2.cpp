@@ -248,7 +248,7 @@ class ModulePBKDF2 : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Implements PBKDF2 hashing", VF_VENDOR);
+		return Version("Allows other modules to generate PBKDF2 hashes.", VF_VENDOR);
 	}
 };
 

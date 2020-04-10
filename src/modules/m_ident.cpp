@@ -306,7 +306,7 @@ class ModuleIdent : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
+		return Version("Allows the usernames (idents) of users to be looked up using the RFC 1413 Identification Protocol.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

@@ -184,7 +184,7 @@ class ModuleJoinFlood : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +j, join flood protection", VF_VENDOR);
+		return Version("Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.", VF_VENDOR);
 	}
 };
 

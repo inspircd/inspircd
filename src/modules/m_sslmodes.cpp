@@ -243,7 +243,7 @@ class ModuleSSLModes
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices", VF_VENDOR);
+		return Version("Adds channel mode z (sslonly) which prevents users who are not connecting using SSL from joining the channel and user mode z (sslqueries) to prevent messages from non-SSL users.", VF_VENDOR);
 	}
 };
 

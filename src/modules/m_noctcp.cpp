@@ -56,7 +56,7 @@ class ModuleNoCTCP : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user mode +T and channel mode +C to block CTCPs", VF_VENDOR);
+		return Version("Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs.", VF_VENDOR);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE

@@ -168,7 +168,7 @@ class ModuleChanFilter : public Module
 		if (cf.maxlen != 35)
 			maxfilterlen.assign(ConvToStr(cf.maxlen));
 
-		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR, maxfilterlen);
+		return Version("Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.", VF_VENDOR, maxfilterlen);
 	}
 };
 

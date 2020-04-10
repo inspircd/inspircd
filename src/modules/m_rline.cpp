@@ -252,7 +252,7 @@ class ModuleRLine : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for banning users through regular expression patterns", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
+		return Version("Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE

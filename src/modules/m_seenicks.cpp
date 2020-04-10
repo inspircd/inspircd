@@ -33,7 +33,7 @@ class ModuleSeeNicks : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides snomasks 'n' and 'N' to see local and remote nickchanges", VF_VENDOR);
+		return Version("Sends a notice to snomasks n (local) and N (remote) when a user changes their nickname.", VF_VENDOR);
 	}
 
 	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE

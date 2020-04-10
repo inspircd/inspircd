@@ -69,7 +69,7 @@ class ModuleConnectBan
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Throttles the connections of IP ranges who try to connect flood", VF_VENDOR);
+		return Version("Z-lines IP addresses which make excessive connections to the server.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

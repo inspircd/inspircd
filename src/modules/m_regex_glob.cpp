@@ -61,7 +61,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Regex provider module using plain wildcard matching", VF_VENDOR);
+		return Version("Provides a regular expression engine which uses the built-in glob matching system.", VF_VENDOR);
 	}
 };
 

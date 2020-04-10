@@ -89,7 +89,7 @@ class ModuleRegexPCRE : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Regex Provider Module for PCRE", VF_VENDOR);
+		return Version("Provides a regular expression engine which uses the PCRE library.", VF_VENDOR);
 	}
 };
 

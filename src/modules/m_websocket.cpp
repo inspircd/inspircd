@@ -550,7 +550,7 @@ class ModuleWebSocket : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides RFC 6455 WebSocket support", VF_VENDOR);
+		return Version("Allows WebSocket clients to connect to the IRC server.", VF_VENDOR);
 	}
 };
 

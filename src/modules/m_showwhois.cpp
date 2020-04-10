@@ -97,7 +97,7 @@ class ModuleShowwhois : public Module, public Whois::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides user mode +W for opers to see when a user uses WHOIS on them", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

@@ -130,7 +130,7 @@ class ModuleRedirect : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);
+		return Version("Allows users to be redirected to another channel when the user limit is reached.", VF_VENDOR);
 	}
 };
 

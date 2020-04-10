@@ -172,7 +172,7 @@ class ModuleGlobalLoad : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows global loading of a module", VF_COMMON | VF_VENDOR);
+		return Version("Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.", VF_COMMON | VF_VENDOR);
 	}
 };
 

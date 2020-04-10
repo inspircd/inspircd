@@ -43,7 +43,7 @@ class ModuleGeoBan
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a way to ban users by country", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds extended ban G which matches against two letter country codes.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

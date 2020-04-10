@@ -174,7 +174,7 @@ class ModuleShowFile : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for showing text files to users", VF_VENDOR);
+		return Version("Adds support for showing the contents of files to users when they execute a command.", VF_VENDOR);
 	}
 };
 

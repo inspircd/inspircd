@@ -80,7 +80,7 @@ class ModuleHideOper
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
+		return Version("Adds user mode H (hideoper) which hides the server operator status of a user from unprivileged users.", VF_VENDOR);
 	}
 
 	void OnUserQuit(User* user, const std::string&, const std::string&) CXX11_OVERRIDE

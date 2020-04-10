@@ -106,7 +106,7 @@ class ModuleSetName : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides the SETNAME command", VF_VENDOR);
+		return Version("Adds the /SETNAME command which allows users to change their real name (gecos).", VF_VENDOR);
 	}
 };
 

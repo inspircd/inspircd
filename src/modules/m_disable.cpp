@@ -184,7 +184,7 @@ class ModuleDisable : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for disabling commands and modes", VF_VENDOR);
+		return Version("Allows commands, channel modes, and user modes to be disabled.", VF_VENDOR);
 	}
 };
 

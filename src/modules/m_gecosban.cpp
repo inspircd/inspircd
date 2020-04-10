@@ -30,7 +30,7 @@ class ModuleGecosBan : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a way to ban users by their real name with the 'a' and 'r' extbans", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds the r extended ban which checks whether users have a real name (gecos) matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
