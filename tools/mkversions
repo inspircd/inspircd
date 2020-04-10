@@ -1,0 +1,87 @@
+#!/usr/bin/env perl
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+BEGIN {
+	require 5.10.0;
+	unless (-f 'configure') {
+		print "Error: $0 must be run from the main source directory!\n";
+		exit 1;
+	}
+}
+
+use feature ':5.10';
+use strict;
+use warnings FATAL => qw(all);
+
+use File::Basename          qw(basename dirname);
+use File::Spec::Functions   qw(catdir catfile rel2abs);
+use FindBin                 qw($RealDir);
+use HTML::FormatText        ();
+use HTML::TreeBuilder       ();
+use Text::Markdown::Hoedown qw(HOEDOWN_HTML_SKIP_HTML markdown);
+use Text::Sentence          qw(split_sentences);
+
+use lib dirname $RealDir;
+use make::common;
+use make::console;
+
+if (scalar @ARGV < 1) {
+	print_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>\n", *STDERR;
+	exit 1;
+}
+
+my %version = get_version();
+my $docdir = rel2abs catdir $ARGV[0], 'docs', $version{MAJOR}, 'modules';
+print_error "unable to find the module directory at $docdir!" unless -d $docdir;
+
+for my $module (<src/modules/m_*.cpp>, <src/modules/m_*/main.cpp>) {
+	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
+	my $docfile = catfile $docdir, "$1.md";
+	print_error "unable to find the module documentation at $docfile!" unless -f $docfile;
+
+	open(my $dh, $docfile) or print_error "unable to read from $docfile: $!";
+	my $docdata = do { local $/; <$dh> };
+	close $dh;
+	print_error "unable to find the module description in $docfile!" unless $docdata =~ /\#\#\# Description\n\n(?:This module )?([^\n]+)/;
+
+	my $docrendered = markdown ucfirst $1, extensions => HOEDOWN_HTML_SKIP_HTML;
+	my $docplain = HTML::FormatText->new(leftmargin => 0, rightmargin => ~0)->format(HTML::TreeBuilder->new->parse($docrendered));
+
+	my $description = (split_sentences $docplain)[0] =~ s/"/\\"/gr;
+	chomp($description);
+
+	open(my $mih, $module) or print_error "unable to read from $module: $!";
+	my @lines;
+	for my $line (<$mih>) {
+		chomp $line;
+		if ($line =~ /(\t+return Version\(")[^"]+(",.+)/) {
+			push @lines, join '', $1, $description, $2;
+		} else {
+			push @lines, $line;
+		}
+	}
+	close $mih;
+
+	open(my $moh, '>', $module) or print_error "unable to write to $module: $!";
+	for my $line (@lines) {
+		say $moh $line;
+	}
+	close $moh;
+}
