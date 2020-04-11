@@ -229,6 +229,19 @@ bool LocalUser::HasPrivPermission(const std::string& privstr)
 	return oper->AllowedPrivs.Contains(privstr);
 }
 
+bool User::HasSnomaskPermission(char chr) const
+{
+	return true;
+}
+
+bool LocalUser::HasSnomaskPermission(char chr) const
+{
+	if (!this->IsOper() || !ModeParser::IsModeChar(chr))
+		return false;
+
+	return this->oper->AllowedSnomasks[chr - 'A'];
+}
+
 void UserIOHandler::OnDataReady()
 {
 	if (user->quitting)
@@ -419,6 +432,7 @@ void OperInfo::init()
 	AllowedPrivs.Clear();
 	AllowedUserModes.reset();
 	AllowedChanModes.reset();
+	AllowedSnomasks.reset();
 	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
 	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
@@ -446,6 +460,16 @@ void OperInfo::init()
 				this->AllowedChanModes.set();
 			else if (ModeParser::IsModeChar(chr))
 				this->AllowedChanModes[chr - 'A'] = true;
+		}
+
+		const std::string snomasks = tag->getString("snomasks", "*");
+		for (std::string::const_iterator c = snomasks.begin(); c != snomasks.end(); ++c)
+		{
+			const char& chr = *c;
+			if (chr == '*')
+				this->AllowedSnomasks.set();
+			else if (ModeParser::IsModeChar(chr))
+				this->AllowedSnomasks[chr - 'A'] = true;
 		}
 	}
 }

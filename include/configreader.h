@@ -188,6 +188,9 @@ class CoreExport OperInfo : public refcountbase
 	/** Allowed channel modes from oper classes. */
 	std::bitset<64> AllowedChanModes;
 
+	/** Allowed snomasks from oper classes. */
+	std::bitset<64> AllowedSnomasks;
+
 	/** \<oper> block used for this oper-up. May be NULL. */
 	reference<ConfigTag> oper_block;
 	/** \<type> block used for this oper-up. Valid for local users, may be NULL on remote */
