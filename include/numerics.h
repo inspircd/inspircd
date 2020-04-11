@@ -160,7 +160,7 @@ enum
 	ERR_NOOPERHOST                  = 491,
 	ERR_UNKNOWNSNOMASK              = 501, // insp-specific
 	ERR_USERSDONTMATCH              = 502,
-	ERR_CANTSENDTOUSER              = 531, // ???
+	ERR_CANNOTSENDTOUSER            = 531, // ???
 
 	RPL_SYNTAX                      = 650, // insp-specific
 	ERR_INVALIDMODEPARAM            = 696, // insp-specific

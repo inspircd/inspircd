@@ -205,7 +205,7 @@ namespace Numerics
 	class NoSuchNick;
 }
 
-/** Builder for the ERR_CANNOTSENDTOCHAN and ERR_CANTSENDTOUSER numerics. */
+/** Builder for the ERR_CANNOTSENDTOCHAN and ERR_CANNOTSENDTOUSER numerics. */
 class Numerics::CannotSendTo : public Numeric::Numeric
 {
  public:
@@ -233,14 +233,14 @@ class Numerics::CannotSendTo : public Numeric::Numeric
 	}
 
 	CannotSendTo(User* user, const std::string& message)
-		: Numeric(ERR_CANTSENDTOUSER)
+		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(message);
 	}
 
 	CannotSendTo(User* user, const std::string& what, ModeHandler* mh, bool self = false)
-		: Numeric(ERR_CANTSENDTOUSER)
+		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
