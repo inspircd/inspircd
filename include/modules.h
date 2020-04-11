@@ -208,10 +208,10 @@ class CoreExport Module : public classbase, public usecountbase
 {
  protected:
 	/** Initializes a new instance of the Module class.
+	 * @param mprops The properties of this module.
 	 * @param mdesc A description of this module.
-	 * @param mflags The properties of this module.
 	 */
-	Module(int mflags, const std::string& mdesc);
+	Module(int mprops, const std::string& mdesc);
 
 	/** Detach an event from this module
 	 * @param i Event type to detach
@@ -239,7 +239,7 @@ class CoreExport Module : public classbase, public usecountbase
 	const std::string description;
 
 	/** The properties of this module. */
-	const int flags;
+	const int properties;
 
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.

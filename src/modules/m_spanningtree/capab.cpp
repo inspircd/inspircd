@@ -40,7 +40,7 @@ std::string TreeSocket::MyModules(int filter)
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
 		Module* const mod = i->second;
-		if ((!(mod->flags & filter)))
+		if ((!(mod->properties & filter)))
 			continue;
 
 		if (i != modlist.begin())

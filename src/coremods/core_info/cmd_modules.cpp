@@ -71,7 +71,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 			std::string flags("VCO");
 			size_t pos = 0;
 			for (int mult = 2; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
-				if (!(m->flags & mult))
+				if (!(m->properties & mult))
 					flags[pos] = '-';
 
 			const char* srcrev = m->ModuleDLLManager->GetVersion();

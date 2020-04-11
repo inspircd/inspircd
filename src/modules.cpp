@@ -44,9 +44,9 @@ void dynamic_reference_base::reset_all()
 		(*i)->resolve();
 }
 
-Module::Module(int mflags, const std::string& mdesc)
+Module::Module(int mprops, const std::string& mdesc)
 	: description(mdesc)
-	, flags(mflags)
+	, properties(mprops)
 {
 }
 
