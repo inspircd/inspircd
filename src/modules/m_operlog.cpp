@@ -35,7 +35,7 @@ class ModuleOperLog
 
  public:
 	ModuleOperLog()
-		: Module(VF_VENDOR, "Provides logging of all oper commands to the ircd log at the default loglevel")
+		: Module(VF_VENDOR, "Allows the server administrator to make the server log when a server operator-only command is executed.")
 		, ISupport::EventListener(this)
 	{
 	}

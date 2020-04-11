@@ -86,7 +86,7 @@ class ModuleChanFilter : public Module
  public:
 
 	ModuleChanFilter()
-		: Module(VF_VENDOR, "Provides channel-specific censor lists (like mode +G but varies from channel to channel)")
+		: Module(VF_VENDOR, "Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.")
 		, exemptionprov(this)
 		, cf(this)
 	{

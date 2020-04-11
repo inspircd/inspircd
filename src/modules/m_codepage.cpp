@@ -99,7 +99,7 @@ class ModuleCodepage
 
  public:
 	ModuleCodepage()
-		: Module(VF_VENDOR | VF_COMMON, "Provides support for custom 8-bit codepages")
+		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->IsNick)

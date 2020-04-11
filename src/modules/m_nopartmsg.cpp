@@ -32,7 +32,7 @@ class ModulePartMsgBan
 {
  public:
 	ModulePartMsgBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'p', part message bans")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the p extended ban which blocks the part message of matching users.")
 		, ISupport::EventListener(this)
 	{
 	}

@@ -121,7 +121,7 @@ class ModuleSajoin : public Module
 
  public:
 	ModuleSajoin()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAJOIN command, allows opers to force-join users to channels")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAJOIN command which allows server operators to force users to join one or more channels.")
 		, cmd(this)
 	{
 	}

@@ -115,7 +115,7 @@ class ModuleAlias : public Module
 	}
 
 	ModuleAlias()
-		: Module(VF_VENDOR, "Provides aliases of commands")
+		: Module(VF_VENDOR, "Allows the server administrator to define custom channel commands (e.g. !kick) and server commands (e.g. /OPERSERV).")
 		, botmode(this, "bot")
 	{
 	}

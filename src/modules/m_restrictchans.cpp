@@ -54,7 +54,7 @@ class ModuleRestrictChans : public Module
 
  public:
 	ModuleRestrictChans()
-		: Module(VF_VENDOR, "Allows restricting who can create channels")
+		: Module(VF_VENDOR, "Prevents unprivileged users from creating new channels.")
 	{
 	}
 

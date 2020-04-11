@@ -93,7 +93,7 @@ class ModuleChgHost : public Module
 
  public:
 	ModuleChgHost()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGHOST command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGHOST command which allows server operators to change the displayed hostname of a user.")
 		, cmd(this)
 	{
 	}

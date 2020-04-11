@@ -75,7 +75,7 @@ class ModuleOverride
 
  public:
 	ModuleOverride()
-		: Module(VF_VENDOR, "Provides support for allowing opers to override certain things")
+		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
 		, ISupport::EventListener(this)
 		, ou(this, "override", 'O')
 		, topiclock(this, "topiclock")

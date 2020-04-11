@@ -32,7 +32,7 @@ class ModuleServerBan
 {
  public:
 	ModuleServerBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 's' to ban users connected to a specified server")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the s extended ban which check whether users are on a server matching the specified glob pattern.")
 		, ISupport::EventListener(this)
 	{
 	}

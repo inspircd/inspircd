@@ -33,7 +33,7 @@ class ModuleIRCv3EchoMessage
 
  public:
 	ModuleIRCv3EchoMessage()
-		: Module(VF_VENDOR, "Provides the echo-message IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 echo-message client capability.")
 		, CTCTags::EventListener(this)
 		, cap(this, "echo-message")
 		, tagmsgprov(this, "TAGMSG")

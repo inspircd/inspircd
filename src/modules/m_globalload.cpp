@@ -166,7 +166,7 @@ class ModuleGlobalLoad : public Module
 
  public:
 	ModuleGlobalLoad()
-		: Module(VF_VENDOR | VF_COMMON, "Allows global loading of a module")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.")
 		, cmd1(this)
 		, cmd2(this)
 		, cmd3(this)

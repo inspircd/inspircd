@@ -112,7 +112,7 @@ class ModuleOjoin : public Module
  public:
 
 	ModuleOjoin()
-		: Module(VF_VENDOR, "Provides the OJOIN command, allows an oper to join a channel and be immune to kicks")
+		: Module(VF_VENDOR, "Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.")
 		, np(this, ServerInstance->Config->ConfValue("ojoin")->getString("prefix").c_str()[0])
 		, mycommand(this, np)
 	{

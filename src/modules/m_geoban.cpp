@@ -38,7 +38,7 @@ class ModuleGeoBan
 
  public:
 	ModuleGeoBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides a way to ban users by country")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G which matches against two letter country codes.")
 		, ISupport::EventListener(this)
 		, Whois::EventListener(this)
 		, geoapi(this)

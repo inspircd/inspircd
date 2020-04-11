@@ -49,7 +49,7 @@ class ModuleCustomPrefix : public Module
 
  public:
 	ModuleCustomPrefix()
-		: Module(VF_VENDOR, "Provides custom prefix channel modes")
+		: Module(VF_VENDOR, "Allows the server administrator to configure custom channel prefix modes.")
 	{
 	}
 

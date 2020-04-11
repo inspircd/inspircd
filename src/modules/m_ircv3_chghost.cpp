@@ -41,7 +41,7 @@ class ModuleIRCv3ChgHost : public Module
 
  public:
 	ModuleIRCv3ChgHost()
-		: Module(VF_VENDOR, "Provides the chghost IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 chghost client capability.")
 		, cap(this, "chghost")
 		, protoevprov(this, "CHGHOST")
 	{

@@ -493,7 +493,7 @@ class ModuleCap : public Module
 
  public:
 	ModuleCap()
-		: Module(VF_VENDOR, "Provides support for CAP capability negotiation")
+		: Module(VF_VENDOR, "Implements support for the IRCv3 Client Capability Negotiation extension.")
 		, cmd(this)
 		, cap(this)
 	{

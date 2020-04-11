@@ -88,7 +88,7 @@ class ModuleRedirect : public Module
 
  public:
 	ModuleRedirect()
-		: Module(VF_VENDOR, "Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)")
+		: Module(VF_VENDOR, "Allows users to be redirected to another channel when the user limit is reached.")
 		, re(this)
 		, antiredirectmode(this, "antiredirect", 'L')
 		, limitmode(this, "limit")

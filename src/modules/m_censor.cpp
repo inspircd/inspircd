@@ -40,7 +40,7 @@ class ModuleCensor : public Module
 
  public:
 	ModuleCensor()
-		: Module(VF_VENDOR, "Provides user and channel mode +G")
+		: Module(VF_VENDOR, "Allows the server administrator to define inappropriate phrases that are not allowed to be used in private or channel messages.")
 		, exemptionprov(this)
 		, cu(this, "u_censor", 'G')
 		, cc(this, "censor", 'G')

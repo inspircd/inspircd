@@ -190,7 +190,7 @@ class ModuleIRCv3Batch : public Module
 
  public:
 	ModuleIRCv3Batch()
-		: Module(VF_VENDOR, "Provides the batch IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 batch client capability.")
 		, manager(this)
 	{
 	}

@@ -199,7 +199,7 @@ class ModuleTimedBans : public Module
 
  public:
 	ModuleTimedBans()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the TBAN command, timed channel bans")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
 		, cmd(this)
 		, banwatcher(this)
 	{

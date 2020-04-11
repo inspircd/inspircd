@@ -96,7 +96,7 @@ class ModuleSanick : public Module
 
  public:
 	ModuleSanick()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SANICK command, allows opers to change the nicknames of users")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SANICK command which allows server operators to change the nickname of a user.")
 		, cmd(this)
 	{
 	}

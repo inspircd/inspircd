@@ -72,7 +72,7 @@ class ModuleSetIdle : public Module
 
  public:
 	ModuleSetIdle()
-		: Module(VF_VENDOR, "Provides the SETIDLE command, allows opers to set their idle time")
+		: Module(VF_VENDOR, "Adds the /SETIDLE command which allows server operators to change their idle time.")
 		, cmd(this)
 	{
 	}

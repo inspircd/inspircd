@@ -960,7 +960,7 @@ class ModuleSSLOpenSSL : public Module
 
  public:
 	ModuleSSLOpenSSL()
-		: Module(VF_VENDOR, "Provides SSL support via OpenSSL")
+		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the OpenSSL library.")
 	{
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, NULL);

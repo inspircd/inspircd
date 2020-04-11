@@ -79,7 +79,7 @@ class ModuleDisable : public Module
 
  public:
 	ModuleDisable()
-		: Module(VF_VENDOR, "Provides support for disabling commands and modes")
+		: Module(VF_VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
 	{
 	}
 

@@ -175,7 +175,7 @@ class ModulePermanentChannels
 public:
 
 	ModulePermanentChannels()
-		: Module(VF_VENDOR, "Provides channel mode +P to provide permanent channels")
+		: Module(VF_VENDOR, "Adds channel mode P (permanent) which prevents the channel from being deleted when the last user leaves.")
 		, Timer(0, true)
 		, p(this)
 	{

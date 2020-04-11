@@ -41,7 +41,7 @@ class ModuleNoCTCP
 
  public:
 	ModuleNoCTCP()
-		: Module(VF_VENDOR, "Provides user mode +T and channel mode +C to block CTCPs")
+		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs.")
 		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nc(this, "noctcp", 'C')

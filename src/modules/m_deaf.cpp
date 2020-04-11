@@ -78,7 +78,7 @@ class ModuleDeaf : public Module
 
  public:
 	ModuleDeaf()
-		: Module(VF_VENDOR, "Provides user modes +d and +D to block channel and user messages/notices")
+		: Module(VF_VENDOR, "Adds user mode d (deaf) which prevents users from receiving channel messages.")
 		, deafmode(this)
 		, privdeafmode(this)
 	{

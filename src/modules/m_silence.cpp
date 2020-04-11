@@ -437,7 +437,7 @@ class ModuleSilence
 
  public:
 	ModuleSilence()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides support for blocking users with the SILENCE command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SILENCE command which allows users to ignore other users on server-side.")
 		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, cmd(this)

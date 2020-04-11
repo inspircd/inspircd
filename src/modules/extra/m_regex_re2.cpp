@@ -76,7 +76,7 @@ class ModuleRegexRE2 : public Module
 
  public:
 	ModuleRegexRE2()
-		: Module(VF_VENDOR, "Regex Provider Module for RE2")
+		: Module(VF_VENDOR, "Provides a regular expression engine which uses the RE2 library.")
 		, ref(this)
 	{
 	}

@@ -173,7 +173,7 @@ class ModuleSQLOper : public Module
 
 public:
 	ModuleSQLOper()
-		: Module(VF_VENDOR, "Allows storage of oper credentials in an SQL table")
+		: Module(VF_VENDOR, "Allows server operators to be authenticated against an SQL table.")
 		, SQL(this, "SQL")
 	{
 	}

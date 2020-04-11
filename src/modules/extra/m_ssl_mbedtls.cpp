@@ -928,7 +928,7 @@ class ModuleSSLmbedTLS : public Module
 
  public:
 	ModuleSSLmbedTLS()
-		: Module(VF_VENDOR, "Provides SSL support via mbedTLS (PolarSSL)")
+		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the mbedTLS library.")
 	{
 	}
 

@@ -380,7 +380,7 @@ class ModuleHttpServer : public Module
 
  public:
 	ModuleHttpServer()
-		: Module(VF_VENDOR, "Provides HTTP serving facilities to modules")
+		: Module(VF_VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
 		, APIImpl(this)
 		, acleventprov(this, "event/http-acl")
 		, reqeventprov(this, "event/http-request")

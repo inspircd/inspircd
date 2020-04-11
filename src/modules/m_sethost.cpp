@@ -75,7 +75,7 @@ class ModuleSetHost : public Module
 
  public:
 	ModuleSetHost()
-		: Module(VF_VENDOR, "Provides the SETHOST command")
+		: Module(VF_VENDOR, "Adds the /SETHOST command which allows server operators to change their displayed hostname.")
 		, cmd(this)
 	{
 	}

@@ -118,7 +118,7 @@ class ModuleKnock : public Module
 
  public:
 	ModuleKnock()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the KNOCK command and channel mode +K")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /KNOCK command which allows users to request access to an invite-only channel and channel mode K (noknock) which allows channels to disable usage of this command.")
 		, kn(this, "noknock", 'K')
 		, cmd(this, kn)
 	{

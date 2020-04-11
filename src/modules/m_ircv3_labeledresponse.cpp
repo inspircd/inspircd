@@ -87,7 +87,7 @@ class ModuleIRCv3LabeledResponse : public Module
 
  public:
 	ModuleIRCv3LabeledResponse()
-		: Module(VF_VENDOR, "Provides the labeled-response IRCv3 extension")
+		: Module(VF_VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
 		, cap(this, "labeled-response")
 		, tag(this, cap)
 		, batchmanager(this)

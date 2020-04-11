@@ -33,7 +33,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 
  public:
 	ModuleHttpConfig()
-		: Module(VF_VENDOR, "Allows for the server configuration to be viewed over HTTP via m_httpd")
+		: Module(VF_VENDOR, "Allows the server configuration to be viewed over HTTP via the /config path.")
 		, HTTPRequestEventListener(this)
 		, API(this)
 	{

@@ -79,7 +79,7 @@ class ModuleSaquit : public Module
 
  public:
 	ModuleSaquit()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAQUIT command, allows opers to force-quit users")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAQUIT command which allows server operators to disconnect users from the server.")
 		, cmd(this)
 	{
 	}

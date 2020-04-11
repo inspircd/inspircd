@@ -80,7 +80,7 @@ class ModuleIRCv3ServerTime : public Module
 
  public:
 	ModuleIRCv3ServerTime()
-		: Module(VF_VENDOR, "Provides the server-time IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 server-time client capability.")
 		, tag(this)
 	{
 	}

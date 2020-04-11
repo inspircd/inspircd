@@ -190,7 +190,7 @@ class ModuleHideMode : public Module
 
  public:
 	ModuleHideMode()
-		: Module(VF_VENDOR, "Provides support for hiding mode changes")
+		: Module(VF_VENDOR, "Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
 		, modehook(this)
 	{
 	}

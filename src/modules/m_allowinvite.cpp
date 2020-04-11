@@ -35,7 +35,7 @@ class ModuleAllowInvite
 
  public:
 	ModuleAllowInvite()
-		: Module(VF_VENDOR, "Provides channel mode +A to allow /INVITE freely on a channel, and extban 'A' to deny specific users it")
+		: Module(VF_VENDOR, "Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A which bans specific masks from using the /INVITE command.")
 		, ISupport::EventListener(this)
 		, ni(this, "allowinvite", 'A')
 	{

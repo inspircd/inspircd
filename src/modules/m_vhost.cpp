@@ -90,7 +90,7 @@ class ModuleVHost : public Module
 
  public:
 	ModuleVHost()
-		: Module(VF_VENDOR, "Provides masking of user hostnames via the VHOST command")
+		: Module(VF_VENDOR, "Allows the server administrator to define accounts which can grant a custom virtual host.")
 		, cmd(this)
 	{
 	}

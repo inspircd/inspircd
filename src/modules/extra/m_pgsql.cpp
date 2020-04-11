@@ -538,7 +538,7 @@ class ModulePgSQL : public Module
 	ReconnectTimer* retimer = nullptr;
 
 	ModulePgSQL()
-		: Module(VF_VENDOR, "PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API")
+		: Module(VF_VENDOR, "Provides the ability for SQL modules to query a PostgreSQL database.")
 	{
 	}
 

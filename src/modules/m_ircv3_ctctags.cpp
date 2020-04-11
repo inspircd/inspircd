@@ -314,7 +314,7 @@ class ModuleIRCv3CTCTags
 
  public:
 	ModuleIRCv3CTCTags()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the message-tags IRCv3 extension")
+		: Module(VF_VENDOR | VF_COMMON, "Provides the IRCv3 message-tags client capability.")
 		, CTCTags::EventListener(this)
 		, cap(this, "message-tags")
 		, cmd(this, cap)

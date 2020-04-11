@@ -268,7 +268,7 @@ class ModuleCgiIRC
 
  public:
 	ModuleCgiIRC()
-		: Module(VF_VENDOR, "Enables forwarding the real IP address of a user from a gateway to the IRC server")
+		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, cmd(this)

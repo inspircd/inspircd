@@ -183,7 +183,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
  public:
 	ModuleSVSHold()
-		: Module(VF_VENDOR | VF_COMMON, "Implements SVSHOLD, like Q-lines, but can only be added/removed by Services")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /SVSHOLD command which allows services to reserve nicknames.")
 		, Stats::EventListener(this)
 		, cmd(this)
 	{

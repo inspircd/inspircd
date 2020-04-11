@@ -180,7 +180,7 @@ class ModuleAntiCaps : public Module
 
  public:
 	ModuleAntiCaps()
-		: Module(VF_VENDOR | VF_COMMON, "Provides support for punishing users that send capitalised messages")
+		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
 		, exemptionprov(this)
 		, mode(this)
 	{

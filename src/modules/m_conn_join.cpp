@@ -73,7 +73,7 @@ class ModuleConnJoin : public Module
 
  public:
 	ModuleConnJoin()
-		: Module(VF_VENDOR, "Forces users to join the specified channel(s) on connect")
+		: Module(VF_VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
 		, ext(this, "join_timer", ExtensionItem::EXT_USER)
 	{
 	}

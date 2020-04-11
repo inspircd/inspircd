@@ -33,7 +33,7 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong()
-		: Module(VF_VENDOR, "Require pong prior to registration")
+		: Module(VF_VENDOR, "Requires all clients to respond to a PING request before they can fully connect.")
 		, ext(this, "waitpong_pingstr", ExtensionItem::EXT_USER)
 	{
 	}

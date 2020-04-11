@@ -91,7 +91,7 @@ class ModuleUserIP
 
  public:
 	ModuleUserIP()
-		: Module(VF_VENDOR, "Provides the USERIP command")
+		: Module(VF_VENDOR, "Adds the /USERIP command which allows users to find out the IP address of one or more connected users.")
 		, ISupport::EventListener(this)
 		, cmd(this)
 	{

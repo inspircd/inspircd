@@ -233,7 +233,7 @@ class ModuleSQLite3 : public Module
 
  public:
 	ModuleSQLite3()
-		: Module(VF_VENDOR, "Provides SQLite3 support")
+		: Module(VF_VENDOR, "Provides the ability for SQL modules to query a SQLite 3 database.")
 	{
 	}
 

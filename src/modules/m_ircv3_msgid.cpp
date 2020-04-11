@@ -94,7 +94,7 @@ class ModuleMsgId
 
  public:
 	ModuleMsgId()
-		: Module(VF_VENDOR, "Provides the msgid IRCv3 tag")
+		: Module(VF_VENDOR, "Provides support for the IRCv3 Message IDs specification.")
 		, CTCTags::EventListener(this)
 		, tag(this)
 	{

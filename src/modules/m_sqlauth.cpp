@@ -135,7 +135,7 @@ class ModuleSQLAuth : public Module
 
  public:
 	ModuleSQLAuth()
-		: Module(VF_VENDOR, "Allow/deny connections based upon an arbitrary SQL table")
+		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
 		, pendingExt(this, "sqlauth-wait", ExtensionItem::EXT_USER)
 		, SQL(this, "SQL")
 		, sslapi(this)

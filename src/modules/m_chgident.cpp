@@ -86,7 +86,7 @@ class ModuleChgIdent : public Module
 
  public:
 	ModuleChgIdent()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGIDENT command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.")
 		, cmd(this)
 	{
 	}

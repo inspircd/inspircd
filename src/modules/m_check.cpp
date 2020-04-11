@@ -324,7 +324,7 @@ class ModuleCheck : public Module
 
  public:
 	ModuleCheck()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHECK command to view user, channel, IP address or hostname information")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.")
 		, cmd(this)
 	{
 	}

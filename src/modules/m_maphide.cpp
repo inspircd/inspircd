@@ -31,7 +31,7 @@ class ModuleMapHide : public Module
 
  public:
 	ModuleMapHide()
-		: Module(VF_VENDOR, "Replaces the output of the MAP and LINKS commands with an URL")
+		: Module(VF_VENDOR, "Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.")
 	{
 	}
 

@@ -379,7 +379,7 @@ class ModuleDCCAllow : public Module
 
  public:
 	ModuleDCCAllow()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the DCCALLOW command")
+		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.")
 		, ext(this)
 		, cmd(this, ext)
 	{

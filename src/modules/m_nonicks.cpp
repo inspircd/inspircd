@@ -39,7 +39,7 @@ class ModuleNoNickChange
 
  public:
 	ModuleNoNickChange()
-		: Module(VF_VENDOR, "Provides channel mode +N and extban 'N' which prevents nick changes on the channel")
+		: Module(VF_VENDOR, "Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.")
 		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nn(this, "nonick", 'N')

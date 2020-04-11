@@ -89,7 +89,7 @@ class ModuleDelayJoin
 	DelayJoinMode djm;
 
 	ModuleDelayJoin()
-		: Module(VF_VENDOR, "Provides channel mode +D, delay-join, users don't appear as joined to others until they speak")
+		: Module(VF_VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
 		, CTCTags::EventListener(this)
 		, Names::EventListener(this)
 		, unjoined(this, "delayjoin", ExtensionItem::EXT_MEMBERSHIP)

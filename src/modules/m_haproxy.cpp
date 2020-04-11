@@ -427,7 +427,7 @@ class ModuleHAProxy : public Module
 
  public:
 	ModuleHAProxy()
-		: Module(VF_VENDOR, "Provides support for the HAProxy PROXY protocol")
+		: Module(VF_VENDOR, "Allows IRC connections to be made using reverse proxies that implement the HAProxy PROXY protocol.")
 		, hookprov(new HAProxyHookProvider(this))
 	{
 	}

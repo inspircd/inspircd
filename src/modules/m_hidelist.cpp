@@ -83,7 +83,7 @@ class ModuleHideList : public Module
 	}
 
 	ModuleHideList()
-		: Module(VF_VENDOR, "Provides support for hiding the list of listmodes")
+		: Module(VF_VENDOR, "Allows list mode lists to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
 	{
 	}
 

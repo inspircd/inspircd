@@ -34,7 +34,7 @@ class ModuleMLock : public Module
 
  public:
 	ModuleMLock()
-		: Module(VF_VENDOR, "Implements the ability to have server-side MLOCK enforcement")
+		: Module(VF_VENDOR, "Allows services to lock channel modes so that they can not be changed.")
 		, mlock(this, "mlock", ExtensionItem::EXT_CHANNEL, true)
 	{
 	}

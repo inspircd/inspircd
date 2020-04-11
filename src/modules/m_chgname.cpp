@@ -83,7 +83,7 @@ class ModuleChgName : public Module
 
  public:
 	ModuleChgName()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CHGNAME command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGNAME command which allows server operators to change the real name (gecos) of a user.")
 		, cmd(this)
 	{
 	}

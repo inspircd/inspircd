@@ -80,7 +80,7 @@ class ModuleTLine : public Module
 
  public:
 	ModuleTLine()
-		: Module(VF_VENDOR, "Provides the TLINE command, used to test how many users a mask matches against")
+		: Module(VF_VENDOR, "Adds the /TLINE command which allows server operators to determine how many users would be affected by an X-line on a specified pattern.")
 		, cmd(this)
 	{
 	}

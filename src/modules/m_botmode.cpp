@@ -68,7 +68,7 @@ class ModuleBotMode : public Module, public Whois::EventListener
 
  public:
 	ModuleBotMode()
-		: Module(VF_VENDOR, "Provides user mode +B to mark the user as a bot")
+		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots in their /WHOIS response.")
 		, Whois::EventListener(this)
 		, bm(this, "bot", 'B')
 		, tag(this, bm)

@@ -70,7 +70,7 @@ class ModuleHideOper
 
  public:
 	ModuleHideOper()
-		: Module(VF_VENDOR, "Provides support for hiding oper status with user mode +H")
+		: Module(VF_VENDOR, "Adds user mode H (hideoper) which hides the server operator status of a user from unprivileged users.")
 		, Stats::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::LineEventListener(this)

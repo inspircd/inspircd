@@ -205,7 +205,7 @@ class ModulePBKDF2 : public Module
 
  public:
 	ModulePBKDF2()
-		: Module(VF_VENDOR, "Implements PBKDF2 hashing")
+		: Module(VF_VENDOR, "Allows other modules to generate PBKDF2 hashes.")
 	{
 	}
 	

@@ -101,7 +101,7 @@ class ModuleSWhois
 
  public:
 	ModuleSWhois()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SWHOIS command which allows setting of arbitrary WHOIS lines")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SWHOIS command which adds custom lines to a user's WHOIS response.")
 		, Whois::LineEventListener(this)
 		, cmd(this)
 	{

@@ -38,7 +38,7 @@ class ModuleUHNames
 
  public:
 	ModuleUHNames()
-		: Module(VF_VENDOR, "Provides the UHNAMES (CAP userhost-in-names) capability")
+		: Module(VF_VENDOR, "Provides the IRCv3 userhost-in-names client capability.")
 		, ISupport::EventListener(this)
 		, Names::EventListener(this)
 		, cap(this, "userhost-in-names")

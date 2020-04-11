@@ -36,7 +36,7 @@ class ModuleChanLog : public Module
 
  public:
 	ModuleChanLog()
-		: Module(VF_VENDOR, "Logs snomask output to channel(s)")
+		: Module(VF_VENDOR, "Allows messages sent to snomasks to be logged to a channel.")
 	{
 	}
 

@@ -61,7 +61,7 @@ class ModuleOperPrefixMode : public Module
 
  public:
 	ModuleOperPrefixMode()
-		: Module(VF_VENDOR, "Gives opers channel mode +y which provides a staff prefix")
+		: Module(VF_VENDOR, "Adds the server operator-only y (operprefix) channel prefix mode.")
 		, opm(this)
 		, hideoperwatcher(this)
 		, hideopermode(this, "hideoper")

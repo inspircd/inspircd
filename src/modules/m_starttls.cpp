@@ -89,7 +89,7 @@ class ModuleStartTLS : public Module
 
  public:
 	ModuleStartTLS()
-		: Module(VF_VENDOR, "Provides the STARTTLS command")
+		: Module(VF_VENDOR, "Provides the IRCv3 tls client capability.")
 		, starttls(this, ssl)
 		, tls(this, "tls")
 		, ssl(this, "ssl")

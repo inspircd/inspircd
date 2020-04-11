@@ -95,7 +95,7 @@ class ModuleHostCycle : public Module
 
  public:
 	ModuleHostCycle()
-		: Module(VF_VENDOR, "Cycles users in all their channels when their host or ident changes")
+		: Module(VF_VENDOR, "Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.")
 		, chghostcap(this, "chghost")
 		, quitmsghost("Changing host")
 		, quitmsgident("Changing ident")

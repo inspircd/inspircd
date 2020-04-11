@@ -104,7 +104,7 @@ class ModuleRMode : public Module
 
  public:
 	ModuleRMode()
-		: Module(VF_VENDOR, "Allows glob-based removal of list modes")
+		: Module(VF_VENDOR, "Allows removal of channel list modes using glob patterns.")
 		, cmd(this)
 	{
 	}

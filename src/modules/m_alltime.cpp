@@ -58,7 +58,7 @@ class Modulealltime : public Module
 
  public:
 	Modulealltime()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the ALLTIME command, displays timestamps from all servers connected to the network")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.")
 		, mycommand(this)
 	{
 	}

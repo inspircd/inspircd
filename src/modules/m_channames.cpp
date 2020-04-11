@@ -55,7 +55,7 @@ class ModuleChannelNames : public Module
 
  public:
 	ModuleChannelNames()
-		: Module(VF_VENDOR, "Implements config tags which allow changing characters allowed in channel names")
+		: Module(VF_VENDOR, "Allows the server administrator to define what characters are allowed in channel names.")
 		, rememberer(ServerInstance->IsChannel)
 		, permchannelmode(this, "permanent")
 	{

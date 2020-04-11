@@ -160,7 +160,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
  public:
 	ModuleShun()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the SHUN command, which stops a user from executing all except configured commands")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
 		, Stats::EventListener(this)
 		, cmd(this)
 	{

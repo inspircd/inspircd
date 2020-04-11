@@ -167,7 +167,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 
  public:
 	ModuleCBan()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the CBAN command, like Q-lines, but for channels")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.")
 		, Stats::EventListener(this)
 		, mycommand(this)
 	{

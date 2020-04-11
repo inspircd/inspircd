@@ -103,7 +103,7 @@ class ModuleHelpop
 
 	public:
 		ModuleHelpop()
-			: Module(VF_VENDOR, "Provides help to users via the HELPOP command")
+			: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics and user mode h (helpop) which marks a server operator as being available for help.")
 			, Whois::EventListener(this)
 			, cmd(this)
 			, ho(this, "helpop", 'h', true)

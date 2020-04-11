@@ -186,7 +186,7 @@ class ModuleLDAPOper : public Module
 
  public:
 	ModuleLDAPOper()
-		: Module(VF_VENDOR, "Adds the ability to authenticate opers via LDAP")
+		: Module(VF_VENDOR, "Allows server operators to be authenticated against an LDAP database.")
 		, LDAP(this, "LDAP")
 	{
 		me = this;

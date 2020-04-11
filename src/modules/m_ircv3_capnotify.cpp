@@ -125,7 +125,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 
  public:
 	ModuleIRCv3CapNotify()
-		: Module(VF_VENDOR, "Provides the cap-notify IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 cap-notify client capability.")
 		, Cap::EventListener(this)
 		, ReloadModule::EventListener(this)
 		, capnotify(this)

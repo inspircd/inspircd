@@ -51,7 +51,7 @@ class ModuleIRCv3AccountTag : public Module
 
  public:
 	ModuleIRCv3AccountTag()
-		: Module(VF_VENDOR, "Provides the account-tag IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 account-tag client capability.")
 		, tag(this)
 	{
 	}

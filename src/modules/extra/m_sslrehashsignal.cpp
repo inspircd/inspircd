@@ -31,7 +31,7 @@ class ModuleSSLRehashSignal : public Module
 
  public:
 	 ModuleSSLRehashSignal()
-		: Module(VF_VENDOR, "Reloads SSL credentials on SIGUSR1")
+		: Module(VF_VENDOR, "Allows the SIGUSR1 signal to be sent to the server to reload TLS (SSL) certificates.")
 	{
 	}
 
@@ -40,12 +40,12 @@ class ModuleSSLRehashSignal : public Module
 		signal(SIGUSR1, SIG_IGN);
 	}
 
-	void init()
+	void init() override
 	{
 		signal(SIGUSR1, SignalHandler);
 	}
 
-	void OnBackgroundTimer(time_t)
+	void OnBackgroundTimer(time_t) override
 	{
 		if (!signaled)
 			return;

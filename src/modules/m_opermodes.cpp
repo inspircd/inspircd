@@ -30,7 +30,7 @@ class ModuleModesOnOper : public Module
 {
  public:
 	ModuleModesOnOper()
-		: Module(VF_VENDOR, "Sets (and unsets) modes on opers when they oper up")
+		: Module(VF_VENDOR, "Allows the server administrator to set user modes on server operators when they log into their server operator account.")
 	{
 	}
 

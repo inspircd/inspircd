@@ -151,7 +151,7 @@ class ModuleNickLock : public Module
  
  public:
 	ModuleNickLock()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")
 		, locked(this, "nick_locked", ExtensionItem::EXT_USER)
 		, cmd1(this, locked)
 		, cmd2(this, locked)

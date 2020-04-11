@@ -154,7 +154,7 @@ class ModuleSSLModes
 
  public:
 	ModuleSSLModes()
-		: Module(VF_VENDOR, "Provides user and channel mode +z to allow for SSL-only channels, queries and notices")
+		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS (SSL) users.")
 		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, api(this)

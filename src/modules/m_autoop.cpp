@@ -87,7 +87,7 @@ class ModuleAutoOp : public Module
 
  public:
 	ModuleAutoOp()
-		: Module(VF_VENDOR, "Provides channel mode +w, basic channel access controls")
+		: Module(VF_VENDOR, "Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.")
 		, mh(this)
 	{
 	}

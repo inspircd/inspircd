@@ -118,7 +118,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 
  public:
 	ModuleCustomTitle()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the TITLE command, custom titles for users")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Allows the server administrator to define accounts which can grant a custom title in /WHOIS and an optional virtual host.")
 		, Whois::LineEventListener(this)
 		, cmd(this)
 	{

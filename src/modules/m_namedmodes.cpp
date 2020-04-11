@@ -132,7 +132,7 @@ class ModuleNamedModes : public Module
 
  public:
 	ModuleNamedModes()
-		: Module(VF_VENDOR, "Provides the ability to manipulate modes via long names")
+		: Module(VF_VENDOR, "Provides support for adding and removing modes via their long names.")
 		, cmd(this)
 		, dummyZ(this)
 	{

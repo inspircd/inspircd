@@ -130,7 +130,7 @@ class ModuleNickFlood : public Module
 
  public:
 	ModuleNickFlood()
-		: Module(VF_VENDOR, "Provides channel mode +F, nick flood protection")
+		: Module(VF_VENDOR, "Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.")
 		, exemptionprov(this)
 		, nf(this)
 	{

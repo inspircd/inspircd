@@ -92,7 +92,7 @@ class ModuleOpermotd : public Module
 
  public:
 	ModuleOpermotd()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Shows a message to opers after oper-up and adds the OPERMOTD command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
 		, cmd(this)
 	{
 	}

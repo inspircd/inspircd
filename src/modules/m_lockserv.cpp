@@ -95,7 +95,7 @@ class ModuleLockserv : public Module
 
  public:
 	ModuleLockserv()
-		: Module(VF_VENDOR, "Provides the LOCKSERV and UNLOCKSERV commands to lock the server and block all incoming connections until unlocked again")
+		: Module(VF_VENDOR, "Adds the /LOCKSERV and /UNLOCKSERV commands which allows server operators to control whether users can connect to the local server.")
 		, lockcommand(this, locked)
 		, unlockcommand(this, locked)
 	{

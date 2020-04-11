@@ -125,7 +125,7 @@ class ModuleUninvite : public Module
 
  public:
 	ModuleUninvite()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the UNINVITE command which lets users un-invite other users from channels")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.")
 		, cmd(this)
 	{
 	}

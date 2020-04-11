@@ -443,7 +443,7 @@ void ModuleSQL::init()
 }
 
 ModuleSQL::ModuleSQL()
-	: Module(VF_VENDOR, "Provides MySQL support")
+	: Module(VF_VENDOR, "Provides the ability for SQL modules to query a MySQL database.")
 {
 }
 

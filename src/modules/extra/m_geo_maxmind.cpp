@@ -142,7 +142,7 @@ class ModuleGeoMaxMind : public Module
 
  public:
 	ModuleGeoMaxMind()
-		: Module(VF_VENDOR, "Provides Geolocation lookups using the libMaxMindDB library")
+		: Module(VF_VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
 		, geoapi(this)
 	{
 		memset(&geoapi.mmdb, 0, sizeof(geoapi.mmdb));

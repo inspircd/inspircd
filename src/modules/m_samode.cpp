@@ -97,7 +97,7 @@ class ModuleSaMode : public Module
 
  public:
 	ModuleSaMode()
-		: Module(VF_VENDOR, "Provides the SAMODE command, allows opers to change modes on channels and users")
+		: Module(VF_VENDOR, "Adds the /SAMODE command which allows server operators to change the modes of a target (channel, user) that they would not otherwise have the privileges to change.")
 		, cmd(this)
 	{
 	}

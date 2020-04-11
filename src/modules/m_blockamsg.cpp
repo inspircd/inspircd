@@ -55,7 +55,7 @@ class ModuleBlockAmsg : public Module
 
  public:
 	ModuleBlockAmsg()
-		: Module(VF_VENDOR, "Attempt to block /amsg or /ame, at least some of the irritating client scripts")
+		: Module(VF_VENDOR, "Blocks mass messages sent using the /AME and /AMSG commands that exist in clients such as mIRC and HexChat.")
 		, blockamsg(this, "blockamsg", ExtensionItem::EXT_USER)
 	{
 	}

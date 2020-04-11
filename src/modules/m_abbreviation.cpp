@@ -33,7 +33,7 @@ class ModuleAbbreviation : public Module
 {
  public:
 	ModuleAbbreviation()
-		: Module(VF_VENDOR, "Provides the ability to abbreviate commands a-la BBC BASIC keywords")
+		: Module(VF_VENDOR, "Allows commands to be abbreviated by appending a full stop.")
 	{
 	}
 

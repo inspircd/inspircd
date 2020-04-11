@@ -85,7 +85,7 @@ class ModuleBCrypt : public Module
 
  public:
 	ModuleBCrypt()
-		: Module(VF_VENDOR, "Implements bcrypt hashing")
+		: Module(VF_VENDOR, "Allows other modules to generate bcrypt hashes.")
 		, bcrypt(this)
 	{
 	}

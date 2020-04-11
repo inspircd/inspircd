@@ -27,7 +27,7 @@ class ModuleModesOnConnect : public Module
 {
  public:
 	ModuleModesOnConnect()
-		: Module(VF_VENDOR, "Sets (and unsets) modes on users when they connect")
+		: Module(VF_VENDOR, "Allows the server administrator to set user modes on connecting users.")
 	{
 	}
 

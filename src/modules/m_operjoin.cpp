@@ -34,7 +34,7 @@ class ModuleOperjoin : public Module
 
 	public:
 		ModuleOperjoin()
-			: Module(VF_VENDOR, "Forces opers to join the specified channel(s) on oper-up")
+			: Module(VF_VENDOR, "Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.")
 		{
 		}
 

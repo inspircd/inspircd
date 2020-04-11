@@ -88,7 +88,7 @@ class ModuleCycle : public Module
 
  public:
 	ModuleCycle()
-		: Module(VF_VENDOR, "Provides the CYCLE command, acts as a server-side HOP command to part and rejoin a channel")
+		: Module(VF_VENDOR, "Allows channel members to part and rejoin a channel without needing to worry about channel modes such as +i (inviteonly) which might prevent rejoining.")
 		, cmd(this)
 	{
 	}

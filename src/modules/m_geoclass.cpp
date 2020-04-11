@@ -36,7 +36,7 @@ class ModuleGeoClass
 
  public:
 	ModuleGeoClass()
-		: Module(VF_VENDOR, "Provides a way to assign users to connect classes by country")
+		: Module(VF_VENDOR, "Allows the server administrator to assign users to connect classes by the country they are connecting from.")
 		, Stats::EventListener(this)
 		, geoapi(this)
 	{

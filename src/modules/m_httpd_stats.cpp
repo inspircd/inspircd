@@ -412,7 +412,7 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
  public:
 	ModuleHttpStats()
-		: Module(VF_VENDOR, "Provides statistics over HTTP via m_httpd")
+		: Module(VF_VENDOR, "Provides XML-serialised statistics about the server, channels, and users over HTTP via the /stats path.")
 		, HTTPRequestEventListener(this)
 		, API(this)
 		, isupportevprov(this)

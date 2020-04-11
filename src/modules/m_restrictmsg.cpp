@@ -55,7 +55,7 @@ class ModuleRestrictMsg
 
  public:
 	ModuleRestrictMsg()
-		: Module(VF_VENDOR, "Forbids users from messaging each other, but users may still message opers and opers may message other opers")
+		: Module(VF_VENDOR, "Prevents users who are not server operators from messaging each other.")
 		, CTCTags::EventListener(this)
 	{
 	}

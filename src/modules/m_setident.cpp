@@ -66,7 +66,7 @@ class ModuleSetIdent : public Module
 
  public:
 	ModuleSetIdent()
-		: Module(VF_VENDOR, "Provides the SETIDENT command")
+		: Module(VF_VENDOR, "Adds the /SETIDENT command which allows server operators to change their username (ident).")
 		, cmd(this)
 	{
 	}

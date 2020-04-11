@@ -152,7 +152,7 @@ class ModuleIRCv3STS : public Module
 
  public:
 	ModuleIRCv3STS()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides IRCv3 Strict Transport Security policy advertisement")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for the IRCv3 Strict Transport Security specification.")
 		, cap(this)
 	{
 	}

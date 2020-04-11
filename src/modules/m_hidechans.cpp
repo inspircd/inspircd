@@ -42,7 +42,7 @@ class ModuleHideChans : public Module, public Whois::LineEventListener
 
  public:
 	ModuleHideChans()
-		: Module(VF_VENDOR, "Provides support for hiding channels with user mode +I")
+		: Module(VF_VENDOR, "Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.")
 		, Whois::LineEventListener(this)
 		, hm(this)
 	{

@@ -63,7 +63,7 @@ class ModuleConnectBan
 
  public:
 	ModuleConnectBan()
-		: Module(VF_VENDOR, "Throttles the connections of IP ranges who try to connect flood")
+		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
 		, WebIRC::EventListener(this)
 	{
 	}

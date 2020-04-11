@@ -40,7 +40,7 @@ class ModuleNamesX
 
  public:
 	ModuleNamesX()
-		: Module(VF_VENDOR, "Provides the NAMESX (CAP multi-prefix) capability")
+		: Module(VF_VENDOR, "Provides the IRCv3 multi-prefix client capability.")
 		, ISupport::EventListener(this)
 		, Names::EventListener(this)
 		, Who::EventListener(this)

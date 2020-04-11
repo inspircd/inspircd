@@ -32,7 +32,7 @@ class ModuleGecosBan
 {
  public:
 	ModuleGecosBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides a way to ban users by their real name with the 'a' and 'r' extbans")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the r extended ban which checks whether users have a real name (gecos) matching the specified glob pattern.")
 		, ISupport::EventListener(this)
 	{
 	}

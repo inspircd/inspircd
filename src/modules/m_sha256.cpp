@@ -61,7 +61,7 @@ class ModuleSHA256 : public Module
 
  public:
 	ModuleSHA256()
-		: Module(VF_VENDOR, "Implements SHA-256 hashing")
+		: Module(VF_VENDOR, "Allows other modules to generate SHA-256 hashes.")
 		, sha(this)
 	{
 	}

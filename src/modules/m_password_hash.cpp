@@ -84,7 +84,7 @@ class ModulePasswordHash : public Module
 
  public:
 	ModulePasswordHash()
-		: Module(VF_VENDOR, "Provides the ability to hash passwords to other modules")
+		: Module(VF_VENDOR, "Adds the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.")
 		, cmd(this)
 	{
 	}

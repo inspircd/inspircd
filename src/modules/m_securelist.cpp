@@ -41,7 +41,7 @@ class ModuleSecureList
 
  public:
 	ModuleSecureList()
-		: Module(VF_VENDOR, "Disallows the LIST command for recently connected clients to hinder spam bots")
+		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
 		, ISupport::EventListener(this)
 	{
 	}

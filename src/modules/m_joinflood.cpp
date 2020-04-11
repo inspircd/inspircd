@@ -138,7 +138,7 @@ class ModuleJoinFlood : public Module
 
  public:
 	ModuleJoinFlood()
-		: Module(VF_VENDOR, "Provides channel mode +j, join flood protection")
+		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
 		, jf(this)
 	{
 	}

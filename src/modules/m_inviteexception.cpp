@@ -54,7 +54,7 @@ class ModuleInviteException
 
  public:
 	ModuleInviteException()
-		: Module(VF_VENDOR, "Provides channel mode +I, invite exceptions")
+		: Module(VF_VENDOR, "Adds channel mode I (invex) which allows channel operators to exempt user masks from the i (inviteonly) channel mode.")
 		, ISupport::EventListener(this)
 		, ie(this)
 	{

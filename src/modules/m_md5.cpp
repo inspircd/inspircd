@@ -255,7 +255,7 @@ class ModuleMD5 : public Module
 
  public:
 	ModuleMD5()
-		: Module(VF_VENDOR, "Implements MD5 hashing")
+		: Module(VF_VENDOR, "Allows other modules to generate MD5 hashes.")
 		, md5(this)
 	{
 	}

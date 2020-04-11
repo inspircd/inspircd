@@ -234,7 +234,7 @@ class ModuleRLine
 
  public:
 	ModuleRLine()
-		: Module(VF_VENDOR | VF_COMMON, "Provides support for banning users through regular expression patterns")
+		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.")
 		, Stats::EventListener(this)
 		, rxfactory(this, "regex")
 		, f(rxfactory)

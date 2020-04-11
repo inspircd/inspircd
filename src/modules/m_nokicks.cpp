@@ -37,7 +37,7 @@ class ModuleNoKicks
 
  public:
 	ModuleNoKicks()
-		: Module(VF_VENDOR, "Provides channel mode +Q to prevent kicks on the channel")
+		: Module(VF_VENDOR, "Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.")
 		, ISupport::EventListener(this)
 		, nk(this, "nokick", 'Q')
 	{

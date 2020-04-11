@@ -97,7 +97,7 @@ class ModuleSapart : public Module
 
  public:
 	ModuleSapart()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAPART command, allows opers to force-part users from channels")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAPART command which allows server operators to force part users from one or more channels without having any privileges in these channels.")
 		, cmd(this)
 	{
 	}

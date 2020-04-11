@@ -393,7 +393,7 @@ class ModuleMonitor
 
  public:
 	ModuleMonitor()
-		: Module(VF_VENDOR, "Provides MONITOR support")
+		: Module(VF_VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
 		, ISupport::EventListener(this)
 		, manager(this, "monitor")
 		, cmd(this, manager)

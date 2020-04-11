@@ -74,7 +74,7 @@ class ModuleAuditorium
 
  public:
 	ModuleAuditorium()
-		: Module(VF_VENDOR, "Provides channel mode +u, auditorium channels where nobody can see others joining and parting or the nick list")
+		: Module(VF_VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
 		, Names::EventListener(this)
 		, Who::EventListener(this)
 		, exemptionprov(this)

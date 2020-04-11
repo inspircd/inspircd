@@ -212,7 +212,7 @@ class ModuleRemove
 
  public:
 	ModuleRemove()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the REMOVE command as an alternative to KICK, it makes users appear to have left the channel")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /FPART and /REMOVE commands which allows channel operators to force part users from a channel.")
 		, ISupport::EventListener(this)
 		, nokicksmode(this, "nokick")
 		, cmd1(this, supportnokicks, nokicksmode)

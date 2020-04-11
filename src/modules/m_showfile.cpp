@@ -142,7 +142,7 @@ class ModuleShowFile : public Module
 
  public:
 	ModuleShowFile()
-		: Module(VF_VENDOR, "Provides support for showing text files to users")
+		: Module(VF_VENDOR, "Adds support for showing the contents of files to users when they execute a command.")
 	{
 	}
 

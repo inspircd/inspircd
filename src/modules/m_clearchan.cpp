@@ -149,7 +149,7 @@ class ModuleClearChan : public Module
 
  public:
 	ModuleClearChan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the CLEARCHAN command that allows opers to masskick, masskill or mass G/Z-line users on a channel")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.")
 		, cmd(this)
 	{
 	}

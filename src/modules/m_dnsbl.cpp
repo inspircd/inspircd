@@ -268,7 +268,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	}
  public:
 	ModuleDNSBL()
-		: Module(VF_VENDOR, "Provides handling of DNS blacklists")
+		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(this)
 		, DNS(this, "DNS")
 		, nameExt(this, "dnsbl_match", ExtensionItem::EXT_USER)

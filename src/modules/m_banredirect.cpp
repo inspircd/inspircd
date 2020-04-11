@@ -255,7 +255,7 @@ class ModuleBanRedirect : public Module
 
  public:
 	ModuleBanRedirect()
-		: Module(VF_VENDOR | VF_COMMON, "Allows an extended ban (+b) syntax redirecting banned users to another channel")
+		: Module(VF_VENDOR | VF_COMMON, "Allows specifying a channel to redirect a banned user to in the ban mask.")
 		, re(this)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")

@@ -82,7 +82,7 @@ class ModuleRegexPOSIX : public Module
 
  public:
 	ModuleRegexPOSIX()
-		: Module(VF_VENDOR, "Regex Provider Module for POSIX Regular Expressions")
+		: Module(VF_VENDOR, "Provides a regular expression engine which uses the POSIX.2 regular expression matching system.")
 		, ref(this)
 	{
 	}

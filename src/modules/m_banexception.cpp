@@ -53,7 +53,7 @@ class ModuleBanException
 
  public:
 	ModuleBanException()
-		: Module(VF_VENDOR, "Provides channel mode +e, ban exceptions")
+		: Module(VF_VENDOR, "Adds channel mode e (banexception) which allows channel operators to exempt user masks from the b (ban) channel mode.")
 		, ISupport::EventListener(this)
 		, be(this)
 	{

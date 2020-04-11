@@ -311,7 +311,7 @@ class ModuleLDAPAuth : public Module
 
 public:
 	ModuleLDAPAuth()
-		: Module(VF_VENDOR, "Allow/deny connections based upon answers from an LDAP server")
+		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
 		, LDAP(this, "LDAP")
 		, ldapAuthed(this, "ldapauth", ExtensionItem::EXT_USER)
 		, ldapVhost(this, "ldapauth_vhost", ExtensionItem::EXT_USER)

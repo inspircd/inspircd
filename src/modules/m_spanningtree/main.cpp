@@ -40,7 +40,7 @@
 #include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: Module(VF_VENDOR, "Allows servers to be linked")
+	: Module(VF_VENDOR, "Allows linking multiple servers together as part of one network.")
 	, Away::EventListener(this)
 	, Stats::EventListener(this)
 	, CTCTags::EventListener(this)

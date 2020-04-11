@@ -346,7 +346,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter()
-	: Module(VF_VENDOR | VF_COMMON, "Provides text (spam) filtering")
+	: Module(VF_VENDOR | VF_COMMON, "Adds the /FILTER command which allows server operators to define regex matches for inappropriate phrases that are not allowed to be used in channel messages, private messages, part messages, or quit messages.")
 	, ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, filtcommand(this)

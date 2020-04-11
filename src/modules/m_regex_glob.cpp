@@ -57,7 +57,7 @@ class ModuleRegexGlob : public Module
 
  public:
 	ModuleRegexGlob()
-		: Module(VF_VENDOR, "Regex provider module using plain wildcard matching")
+		: Module(VF_VENDOR, "Provides a regular expression engine which uses the built-in glob matching system.")
 		, gf(this)
 	{
 	}

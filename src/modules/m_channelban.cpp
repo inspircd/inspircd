@@ -32,7 +32,7 @@ class ModuleBadChannelExtban
 {
  public:
 	ModuleBadChannelExtban()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides extban 'j', ban users that are present in another channel, and optionally on their status there")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the j extended ban which checks whether users are in a channel matching the specified glob pattern.")
 		, ISupport::EventListener(this)
 	{
 	}

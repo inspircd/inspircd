@@ -82,7 +82,7 @@ class ModuleShowwhois : public Module, public Whois::EventListener
  public:
 
 	ModuleShowwhois()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides user mode +W for opers to see when a user uses WHOIS on them")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.")
 		, Whois::EventListener(this)
 		, sw(this)
 		, cmd(this)

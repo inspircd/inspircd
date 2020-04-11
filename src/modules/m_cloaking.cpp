@@ -190,7 +190,7 @@ class ModuleCloaking : public Module
 	dynamic_reference<HashProvider> Hash;
 
 	ModuleCloaking()
-		: Module(VF_VENDOR | VF_COMMON, "Provides masking of user hostnames")
+		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
 		, cu(this)
 		, ck(this)
 		, Hash(this, "hash/md5")

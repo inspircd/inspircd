@@ -39,7 +39,7 @@ class ModuleNoNotice
 
  public:
 	ModuleNoNotice()
-		: Module(VF_VENDOR, "Provides channel mode +T to block notices to the channel")
+		: Module(VF_VENDOR, "Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.")
 		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, nt(this, "nonotice", 'T')

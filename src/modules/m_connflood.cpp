@@ -39,7 +39,7 @@ class ModuleConnFlood : public Module
 
  public:
 	ModuleConnFlood()
-		: Module(VF_VENDOR, "Connection throttle")
+		: Module(VF_VENDOR, "Throttles IP addresses which make excessive connections to the server.")
 	{
 	}
 

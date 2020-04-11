@@ -33,7 +33,7 @@ class ModuleRandQuote : public Module
 
  public:
 	ModuleRandQuote()
-		: Module(VF_VENDOR, "Provides random quotes on connect")
+		: Module(VF_VENDOR, "Allows random quotes to be sent to users when they connect to the server.")
 	{
 	}
 

@@ -41,7 +41,7 @@ class ModuleStripColor
 
  public:
 	ModuleStripColor()
-		: Module(VF_VENDOR, "Provides channel mode +S, strip ansi color")
+		: Module(VF_VENDOR, "Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.")
 		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, csc(this, "stripcolor", 'S')

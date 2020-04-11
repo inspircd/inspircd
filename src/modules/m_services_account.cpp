@@ -161,7 +161,7 @@ class ModuleServicesAccount
 
  public:
 	ModuleServicesAccount()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides support for ircu-style services accounts, including channel mode +R, etc")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to services accounts.")
 		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, Whois::EventListener(this)

@@ -27,7 +27,7 @@ class ModuleIRCv3InviteNotify : public Module
 
  public:
 	ModuleIRCv3InviteNotify()
-		: Module(VF_VENDOR, "Provides the invite-notify IRCv3 extension")
+		: Module(VF_VENDOR, "Provides the IRCv3 invite-notify client capability.")
 		, cap(this, "invite-notify")
 	{
 	}

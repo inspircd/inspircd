@@ -60,7 +60,7 @@ class ModuleDelayMsg
 
  public:
 	ModuleDelayMsg()
-		: Module(VF_VENDOR, "Provides channel mode +d <int>, to deny messages to a channel until <int> seconds have passed")
+		: Module(VF_VENDOR, "Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.")
 		, CTCTags::EventListener(this)
 		, djm(this)
 	{

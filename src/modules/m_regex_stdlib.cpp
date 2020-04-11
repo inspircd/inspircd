@@ -64,7 +64,7 @@ class ModuleRegexStd : public Module
 
  public:
 	ModuleRegexStd()
-		: Module(VF_VENDOR, "Regex Provider Module for std::regex")
+		: Module(VF_VENDOR, "Provides a regular expression engine which uses the C++11 std::regex regular expression matching system.")
 		, ref(this)
 	{
 	}

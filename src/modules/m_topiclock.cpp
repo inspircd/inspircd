@@ -134,7 +134,7 @@ class ModuleTopicLock : public Module
 
  public:
 	ModuleTopicLock()
-		: Module(VF_VENDOR | VF_COMMON, "Implements server-side topic locks and the server-to-server command SVSTOPIC")
+		: Module(VF_VENDOR | VF_COMMON, "Allows services to lock the channel topic so that it can not be changed.")
 		, cmd(this)
 		, topiclock("topiclock", this)
 	{

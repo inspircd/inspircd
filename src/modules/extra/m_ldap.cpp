@@ -622,7 +622,7 @@ class ModuleLDAP : public Module
 	}
 
 	ModuleLDAP()
-		: Module(VF_VENDOR, "Provides LDAP support")
+		: Module(VF_VENDOR, "Provides the ability for LDAP modules to query a LDAP directory.")
 	{
 	}
 

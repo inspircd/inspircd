@@ -32,7 +32,7 @@ class ModulePassForward : public Module
 
  public:
 	ModulePassForward()
-		: Module(VF_VENDOR, "Sends server password to NickServ")
+		: Module(VF_VENDOR, "Allows the /PASS password to be forwarded to a services pseudoclient such as NickServ.")
 	{
 	}
 

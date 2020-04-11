@@ -41,7 +41,7 @@ class ModuleBlockColor
 
  public:
 	ModuleBlockColor()
-		: Module(VF_VENDOR, "Provides channel mode +c to block color")
+		: Module(VF_VENDOR, "Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.")
 		, ISupport::EventListener(this)
 		, exemptionprov(this)
 		, bc(this, "blockcolor", 'c')

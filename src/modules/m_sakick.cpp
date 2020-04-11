@@ -91,7 +91,7 @@ class ModuleSakick : public Module
 
  public:
 	ModuleSakick()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Provides the SAKICK command")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAKICK command which allows server operators to kick users from a channel without having any privileges in the channel.")
 		, cmd(this)
 	{
 	}

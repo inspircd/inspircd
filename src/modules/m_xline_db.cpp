@@ -40,7 +40,7 @@ class ModuleXLineDB
 
  public:
 	ModuleXLineDB()
-		: Module(VF_VENDOR, "Provides the ability to store X-lines in a database file")
+		: Module(VF_VENDOR, "Allows X-lines to be saved and reloaded on restart.")
 		, Timer(0, true)
 	{
 	}

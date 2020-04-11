@@ -219,7 +219,7 @@ class ModuleWatch
 
  public:
 	ModuleWatch()
-		: Module(VF_VENDOR, "Provides WATCH support")
+		: Module(VF_VENDOR, "Adds the /WATCH command which allows users to find out when their friends are connected to the server.")
 		, Away::EventListener(this)
 		, ISupport::EventListener(this)
 		, manager(this, "watch")

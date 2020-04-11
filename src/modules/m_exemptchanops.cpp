@@ -158,7 +158,7 @@ class ModuleExemptChanOps : public Module
 
  public:
 	ModuleExemptChanOps()
-		: Module(VF_VENDOR, "Provides the ability to allow channel operators to be exempt from certain modes")
+		: Module(VF_VENDOR, "Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.")
 		, eh(this)
 	{
 	}

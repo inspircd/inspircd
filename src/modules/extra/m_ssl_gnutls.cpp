@@ -1185,7 +1185,7 @@ class ModuleSSLGnuTLS : public Module
 
  public:
 	ModuleSSLGnuTLS()
-		: Module(VF_VENDOR, "Provides SSL support via GnuTLS")
+		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the GnuTLS library.")
 	{
 		thismod = this;
 	}

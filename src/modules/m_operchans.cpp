@@ -43,7 +43,7 @@ class ModuleOperChans
 
  public:
 	ModuleOperChans()
-		: Module(VF_VENDOR, "Provides support for oper-only channels via channel mode +O and extban 'O'")
+		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
 		, ISupport::EventListener(this)
 		, oc(this, "operonly", 'O', true)
 		, space(" ")

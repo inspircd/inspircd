@@ -255,7 +255,7 @@ class ModuleNationalChars : public Module
 
  public:
 	ModuleNationalChars()
-		: Module(VF_VENDOR | VF_COMMON, "Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING")
+		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and channel names and how those characters should be compared in a case insensitive way.")
 		, rememberer(ServerInstance->IsNick)
 		, lowermap_rememberer(national_case_insensitive_map)
 		, casemapping_rememberer(ServerInstance->Config->CaseMapping)

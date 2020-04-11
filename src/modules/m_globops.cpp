@@ -59,7 +59,7 @@ class ModuleGlobops : public Module
 
  public:
 	ModuleGlobops()
-		: Module(VF_VENDOR, "Provides the GLOBOPS command and snomask 'g'")
+		: Module(VF_VENDOR, "Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.")
 		, cmd(this)
 	{
 	}

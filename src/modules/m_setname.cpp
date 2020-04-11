@@ -76,7 +76,7 @@ class ModuleSetName : public Module
 
  public:
 	ModuleSetName()
-		: Module(VF_VENDOR, "Provides the SETNAME command")
+		: Module(VF_VENDOR, "Adds the /SETNAME command which allows users to change their real name (gecos).")
 		, cmd(this)
 		, setnameevprov(this, "SETNAME")
 	{

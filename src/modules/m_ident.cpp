@@ -299,7 +299,7 @@ class ModuleIdent : public Module
 
  public:
 	ModuleIdent()
-		: Module(VF_VENDOR, "Provides support for RFC1413 ident lookups")
+		: Module(VF_VENDOR, "Allows the usernames (idents) of users to be looked up using the RFC 1413 Identification Protocol.")
 		, socket(this, "ident_socket", ExtensionItem::EXT_USER)
 		, state(this, "ident_state", ExtensionItem::EXT_USER)
 	{

@@ -182,7 +182,7 @@ class ModuleChanHistory
 
  public:
 	ModuleChanHistory()
-		: Module(VF_VENDOR, "Provides channel mode +H, allows for the channel message history to be replayed on join")
+		: Module(VF_VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
 		, ServerProtocol::BroadcastEventListener(this)
 		, m(this)
 		, botmode(this, "bot")

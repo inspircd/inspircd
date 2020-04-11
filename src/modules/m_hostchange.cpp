@@ -125,7 +125,7 @@ private:
 
  public:
 	ModuleHostChange()
-		: Module(VF_VENDOR, "Provides rule-based masking of user hostnames")
+		: Module(VF_VENDOR, "Allows the server administrator to define custom rules for applying hostnames to users.")
 	{
 	}
 

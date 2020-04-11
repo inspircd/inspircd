@@ -135,7 +135,7 @@ class ModuleKickNoRejoin : public Module
 
 public:
 	ModuleKickNoRejoin()
-		: Module(VF_VENDOR | VF_COMMON, "Provides channel mode +J, delays rejoins after kicks")
+		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.")
 		, kr(this)
 		, invapi(this)
 	{

@@ -73,7 +73,7 @@ class ModuleSATopic : public Module
 
  public:
 	ModuleSATopic()
-		: Module(VF_VENDOR, "Provides the SATOPIC command")
+		: Module(VF_VENDOR, "Adds the /SATOPIC command which allows server operators to change the topic of a channel that they would not otherwise have the privileges to change.")
 		, cmd(this)
 	{
 	}

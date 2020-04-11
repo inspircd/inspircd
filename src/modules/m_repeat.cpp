@@ -357,7 +357,7 @@ class RepeatModule : public Module
 
  public:
 	RepeatModule()
-		: Module(VF_VENDOR | VF_COMMON, "Provides channel mode +E, blocking of similar messages")
+		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
 		, exemptionprov(this)
 		, rm(this)
 	{

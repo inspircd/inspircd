@@ -62,7 +62,7 @@ class ModuleDenyChannels : public Module
 
  public:
 	ModuleDenyChannels()
-		: Module(VF_VENDOR, "Implements config tags which allow blocking of joins to channels")
+		: Module(VF_VENDOR, "Allows the server administrator to prevent users from joining channels matching a glob.")
 		, antiredirectmode(this, "antiredirect")
 		, redirectmode(this, "redirect")
 	{

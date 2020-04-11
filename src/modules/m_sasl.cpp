@@ -413,7 +413,7 @@ class ModuleSASL : public Module
 
  public:
 	ModuleSASL()
-		: Module(VF_VENDOR, "Provides support for IRC Authentication Layer (aka: SASL) via AUTHENTICATE")
+		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
 		, authExt(this, "sasl_auth", ExtensionItem::EXT_USER)
 		, servertracker(this)
 		, cap(this, servertracker)

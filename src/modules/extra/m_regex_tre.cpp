@@ -88,7 +88,7 @@ class ModuleRegexTRE : public Module
 
  public:
 	ModuleRegexTRE()
-		: Module(VF_VENDOR, "Regex Provider Module for TRE Regular Expressions")
+		: Module(VF_VENDOR, "Provides a regular expression engine which uses the TRE library.")
 		, trf(this)
 	{
 	}

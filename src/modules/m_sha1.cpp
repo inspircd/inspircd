@@ -187,7 +187,7 @@ class ModuleSHA1 : public Module
 
  public:
 	ModuleSHA1()
-		: Module(VF_VENDOR, "Implements SHA-1 hashing")
+		: Module(VF_VENDOR, "Allows other modules to generate SHA-1 hashes.")
 		, sha1(this)
 	{
 		big_endian = (htonl(1337) == 1337);

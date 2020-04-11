@@ -501,7 +501,7 @@ class ModuleWebSocket : public Module
 
  public:
 	ModuleWebSocket()
-		: Module(VF_VENDOR, "Provides RFC 6455 WebSocket support")
+		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
 		, hash(this, "hash/sha1")
 		, hookprov(new WebSocketHookProvider(this))
 	{
