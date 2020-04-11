@@ -428,30 +428,24 @@ void OperInfo::init()
 		AllowedOperCommands.AddList(tag->getString("commands"));
 		AllowedPrivs.AddList(tag->getString("privs"));
 
-		std::string modes = tag->getString("usermodes");
-		for (std::string::const_iterator c = modes.begin(); c != modes.end(); ++c)
+		const std::string umodes = tag->getString("usermodes");
+		for (std::string::const_iterator c = umodes.begin(); c != umodes.end(); ++c)
 		{
-			if (*c == '*')
-			{
+			const char& chr = *c;
+			if (chr == '*')
 				this->AllowedUserModes.set();
-			}
-			else if (*c >= 'A' && *c <= 'z')
-			{
-				this->AllowedUserModes[*c - 'A'] = true;
-			}
+			else if (ModeParser::IsModeChar(chr))
+				this->AllowedUserModes[chr - 'A'] = true;
 		}
 
-		modes = tag->getString("chanmodes");
-		for (std::string::const_iterator c = modes.begin(); c != modes.end(); ++c)
+		const std::string cmodes = tag->getString("chanmodes");
+		for (std::string::const_iterator c = cmodes.begin(); c != cmodes.end(); ++c)
 		{
-			if (*c == '*')
-			{
+			const char& chr = *c;
+			if (chr == '*')
 				this->AllowedChanModes.set();
-			}
-			else if (*c >= 'A' && *c <= 'z')
-			{
-				this->AllowedChanModes[*c - 'A'] = true;
-			}
+			else if (ModeParser::IsModeChar(chr))
+				this->AllowedChanModes[chr - 'A'] = true;
 		}
 	}
 }
