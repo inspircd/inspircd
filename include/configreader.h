@@ -49,17 +49,17 @@ class CoreExport ConfigTag : public refcountbase
 	const int src_line;
 
 	/** Get the value of an option, using def if it does not exist */
-	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator);
+	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator) const;
 	/** Get the value of an option, using def if it does not exist */
-	std::string getString(const std::string& key, const std::string& def = "", size_t minlen = 0, size_t maxlen = UINT32_MAX);
+	std::string getString(const std::string& key, const std::string& def = "", size_t minlen = 0, size_t maxlen = UINT32_MAX) const;
 	/** Get the value of an option, using def if it does not exist */
-	long getInt(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX);
+	long getInt(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX) const;
 	/** Get the value of an option, using def if it does not exist */
-	unsigned long getUInt(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX);
+	unsigned long getUInt(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX) const;
 	/** Get the value of an option, using def if it does not exist */
-	double getFloat(const std::string& key, double def, double min = DBL_MIN, double max = DBL_MAX);
+	double getFloat(const std::string& key, double def, double min = DBL_MIN, double max = DBL_MAX) const;
 	/** Get the value of an option, using def if it does not exist */
-	bool getBool(const std::string& key, bool def = false);
+	bool getBool(const std::string& key, bool def = false) const;
 
 	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
 	 * using a default value if it does not exist or is out of bounds.
@@ -69,7 +69,7 @@ class CoreExport ConfigTag : public refcountbase
 	 * @param max Maximum acceptable value (optional)
 	 * @return The duration in seconds
 	 */
-	unsigned long getDuration(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX);
+	unsigned long getDuration(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX) const;
 
 	/** Get the value of an option
 	 * @param key The option to get
@@ -77,9 +77,9 @@ class CoreExport ConfigTag : public refcountbase
 	 * @param allow_newline Allow newlines in the option (normally replaced with spaces)
 	 * @return true if the option exists
 	 */
-	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
+	bool readString(const std::string& key, std::string& value, bool allow_newline = false) const;
 
-	std::string getTagLocation();
+	std::string getTagLocation() const;
 
 	inline const ConfigItems& getItems() const { return items; }
 

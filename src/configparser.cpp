@@ -306,14 +306,14 @@ struct Parser
 		}
 		else if (stdalgo::string::equalsci(name, "files"))
 		{
-			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
+			for(ConfigItems::const_iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, false);
 			}
 		}
 		else if (stdalgo::string::equalsci(name, "execfiles"))
 		{
-			for(ConfigItems::iterator i = items->begin(); i != items->end(); i++)
+			for(ConfigItems::const_iterator i = items->begin(); i != items->end(); i++)
 			{
 				stack.DoReadFile(i->first, i->second, flags, true);
 			}
@@ -486,9 +486,9 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 	return ok;
 }
 
-bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)
+bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf) const
 {
-	for(ConfigItems::iterator j = items.begin(); j != items.end(); ++j)
+	for(ConfigItems::const_iterator j = items.begin(); j != items.end(); ++j)
 	{
 		if(j->first != key)
 			continue;
@@ -506,7 +506,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 	return false;
 }
 
-std::string ConfigTag::getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator)
+std::string ConfigTag::getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator) const
 {
 	std::string res;
 	if (!readString(key, res))
@@ -521,7 +521,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 	return res;
 }
 
-std::string ConfigTag::getString(const std::string& key, const std::string& def, size_t minlen, size_t maxlen)
+std::string ConfigTag::getString(const std::string& key, const std::string& def, size_t minlen, size_t maxlen) const
 {
 	std::string res;
 	if (!readString(key, res))
@@ -598,7 +598,7 @@ namespace
 	}
 }
 
-long ConfigTag::getInt(const std::string &key, long def, long min, long max)
+long ConfigTag::getInt(const std::string& key, long def, long min, long max) const
 {
 	std::string result;
 	if(!readString(key, result))
@@ -615,7 +615,7 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 	return res;
 }
 
-unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
+unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsigned long min, unsigned long max) const
 {
 	std::string result;
 	if (!readString(key, result))
@@ -632,7 +632,7 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 	return res;
 }
 
-unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
+unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, unsigned long min, unsigned long max) const
 {
 	std::string duration;
 	if (!readString(key, duration))
@@ -650,7 +650,7 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	return ret;
 }
 
-double ConfigTag::getFloat(const std::string& key, double def, double min, double max)
+double ConfigTag::getFloat(const std::string& key, double def, double min, double max) const
 {
 	std::string result;
 	if (!readString(key, result))
@@ -661,7 +661,7 @@ double ConfigTag::getFloat(const std::string& key, double def, double min, doubl
 	return res;
 }
 
-bool ConfigTag::getBool(const std::string &key, bool def)
+bool ConfigTag::getBool(const std::string& key, bool def) const
 {
 	std::string result;
 	if(!readString(key, result))
@@ -678,7 +678,7 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	return def;
 }
 
-std::string ConfigTag::getTagLocation()
+std::string ConfigTag::getTagLocation() const
 {
 	return src_name + ":" + ConvToStr(src_line);
 }
