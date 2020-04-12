@@ -40,7 +40,7 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac)
+ServernameResolver::ServernameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt, std::shared_ptr<Autoconnect> myac)
 	: DNS::Request(mgr, Utils->Creator, hostname, qt)
 	, query(qt), host(hostname), MyLink(x), myautoconnect(myac)
 {
@@ -107,7 +107,7 @@ void ServernameResolver::OnError(const DNS::Query *r)
 	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 
-SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt)
+SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt)
 	: DNS::Request(mgr, me, hostname, qt)
 	, MyLink(x), mine(me), host(hostname), query(qt)
 {
@@ -115,9 +115,8 @@ SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std:
 
 void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 {
-	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
+	for (std::shared_ptr<Link> L : Utils->LinkBlocks)
 	{
-		Link* L = *i;
 		if (L->IPAddr == host)
 		{
 			for (std::vector<DNS::ResourceRecord>::const_iterator j = r->answers.begin(); j != r->answers.end(); ++j)

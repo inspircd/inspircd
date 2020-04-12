@@ -26,7 +26,7 @@
 
 #pragma once
 
-class Link : public refcountbase
+class Link
 {
  public:
 	reference<ConfigTag> tag;
@@ -45,7 +45,7 @@ class Link : public refcountbase
 	Link(ConfigTag* Tag) : tag(Tag) {}
 };
 
-class Autoconnect : public refcountbase
+class Autoconnect
 {
  public:
 	reference<ConfigTag> tag;

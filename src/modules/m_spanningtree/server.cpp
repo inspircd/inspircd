@@ -65,7 +65,7 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 	}
 
 	TreeServer* route = ParentOfThis->GetRoute();
-	Link* lnk = Utils->FindLink(route->GetName());
+	std::shared_ptr<Link> lnk = Utils->FindLink(route->GetName());
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	HandleExtra(Node, params);
@@ -96,7 +96,7 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 	}
 }
 
-Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
+std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 {
 	if (params.size() < 5)
 	{
@@ -117,9 +117,8 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 		return NULL;
 	}
 
-	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
+	for (std::shared_ptr<Link> x : Utils->LinkBlocks)
 	{
-		Link* x = *i;
 		if (!InspIRCd::Match(sname, x->Name))
 			continue;
 
@@ -156,7 +155,7 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
  */
 bool TreeSocket::Outbound_Reply_Server(CommandBase::Params& params)
 {
-	const Link* x = AuthRemote(params);
+	const std::shared_ptr<Link> x = AuthRemote(params);
 	if (x)
 	{
 		/*
@@ -208,7 +207,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
  */
 bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 {
-	const Link* x = AuthRemote(params);
+	const std::shared_ptr<Link> x = AuthRemote(params);
 	if (x)
 	{
 		// Save these for later, so when they accept our credentials (indicated by BURST) we remember them

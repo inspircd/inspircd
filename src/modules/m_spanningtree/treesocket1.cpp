@@ -39,7 +39,7 @@
  * BufferedSocket, we just call DoConnect() for most of the action,
  * and only do minor initialization tasks ourselves.
  */
-TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& dest)
+TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> myac, const irc::sockets::sockaddrs& dest)
 	: linkID(link->Name)
 	, LinkState(CONNECTING)
 	, age(ServerInstance->Time())

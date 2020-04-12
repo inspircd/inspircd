@@ -206,9 +206,8 @@ void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, Server* server)
 void SpanningTreeUtilities::RefreshIPCache()
 {
 	ValidIPs.clear();
-	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
+	for (std::shared_ptr<Link> L : LinkBlocks)
 	{
-		Link* L = *i;
 		if (!L->Port)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring a link block without a port.");
@@ -259,7 +258,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		reference<Link> L = new Link(tag);
+		auto L = std::make_shared<Link>(tag);
 
 		irc::spacesepstream sep = tag->getString("allowmask");
 		for (std::string s; sep.GetToken(s);)
@@ -315,7 +314,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		reference<Autoconnect> A = new Autoconnect(tag);
+		auto A = std::make_shared<Autoconnect>(tag);
 		A->Period = tag->getDuration("period", 60, 1);
 		A->NextConnectTime = ServerInstance->Time() + A->Period;
 		A->position = -1;
@@ -340,11 +339,10 @@ void SpanningTreeUtilities::ReadConfiguration()
 	RefreshIPCache();
 }
 
-Link* SpanningTreeUtilities::FindLink(const std::string& name)
+std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 {
-	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
+	for (std::shared_ptr<Link> x : LinkBlocks)
 	{
-		Link* x = *i;
 		if (InspIRCd::Match(x->Name, name, ascii_case_insensitive_map))
 		{
 			return x;

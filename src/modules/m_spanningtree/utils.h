@@ -101,10 +101,10 @@ class SpanningTreeUtilities : public classbase
 	TimeoutList timeoutlist;
 	/** Holds the data from the <link> tags in the conf
 	 */
-	std::vector<reference<Link> > LinkBlocks;
+	std::vector<std::shared_ptr<Link>> LinkBlocks;
 	/** Holds the data from the <autoconnect> tags in the conf
 	 */
-	std::vector<reference<Autoconnect> > AutoconnectBlocks;
+	std::vector<std::shared_ptr<Autoconnect>> AutoconnectBlocks;
 
 	/** Ping frequency of server to server links
 	 * XXX: TreeServer constructor reads this and TreeRoot is created before the
@@ -171,7 +171,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Find a link tag from a server name
 	 */
-	Link* FindLink(const std::string& name);
+	std::shared_ptr<Link> FindLink(const std::string& name);
 
 	/** Refresh the IP cache used for allowing inbound connections
 	 */

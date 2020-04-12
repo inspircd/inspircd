@@ -154,11 +154,11 @@ class ModuleSpanningTree
 
 	/** Connect a server locally
 	 */
-	void ConnectServer(Link* x, Autoconnect* y = NULL);
+	void ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y = NULL);
 
 	/** Connect the next autoconnect server
 	 */
-	void ConnectServer(Autoconnect* y, bool on_timer);
+	void ConnectServer(std::shared_ptr<Autoconnect> y, bool on_timer);
 
 	/** Check if any servers are due to be autoconnected
 	 */

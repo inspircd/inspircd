@@ -68,8 +68,8 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData
 {
-	reference<Link> link;			/* Link block used for this connection */
-	reference<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
+	std::shared_ptr<Link> link;			/* Link block used for this connection */
+	std::shared_ptr<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
 	std::string ModuleList;			/* Required module list of other server from CAPAB */
 	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::string ChanModes;
@@ -158,7 +158,7 @@ class TreeSocket : public BufferedSocket
 	 * @param params Parameters they sent in the SERVER command
 	 * @return Link block for the remote server, or NULL if an error occurred
 	 */
-	Link* AuthRemote(const CommandBase::Params& params);
+	std::shared_ptr<Link> AuthRemote(const CommandBase::Params& params);
 
 	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
 	 * @param line Line to write without a new line character at the end
@@ -173,7 +173,7 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& sa);
+	TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> myac, const irc::sockets::sockaddrs& sa);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new

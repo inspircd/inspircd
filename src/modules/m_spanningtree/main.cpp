@@ -152,7 +152,7 @@ void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
-void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
+void ModuleSpanningTree::ConnectServer(std::shared_ptr<Autoconnect> a, bool on_timer)
 {
 	if (!a)
 		return;
@@ -175,7 +175,7 @@ void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 	a->position++;
 	while (a->position < (int)a->servers.size())
 	{
-		Link* x = Utils->FindLink(a->servers[a->position]);
+		std::shared_ptr<Link> x = Utils->FindLink(a->servers[a->position]);
 		if (x)
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
@@ -189,7 +189,7 @@ void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 	a->position = -1;
 }
 
-void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
+void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y)
 {
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 	{
@@ -258,9 +258,8 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 
 void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 {
-	for (std::vector<reference<Autoconnect> >::iterator i = Utils->AutoconnectBlocks.begin(); i < Utils->AutoconnectBlocks.end(); ++i)
+	for (std::shared_ptr<Autoconnect> x : Utils->AutoconnectBlocks)
 	{
-		Autoconnect* x = *i;
 		if (curtime >= x->NextConnectTime)
 		{
 			x->NextConnectTime = curtime + x->Period;
@@ -325,9 +324,8 @@ ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameter
 
 ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameters, User* user)
 {
-	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
+	for (std::shared_ptr<Link> x : Utils->LinkBlocks)
 	{
-		Link* x = *i;
 		if (InspIRCd::Match(x->Name, parameters[0], ascii_case_insensitive_map))
 		{
 			if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))

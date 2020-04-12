@@ -37,12 +37,12 @@
 class SecurityIPResolver : public DNS::Request
 {
  private:
-	reference<Link> MyLink;
+	std::shared_ptr<Link> MyLink;
 	Module* mine;
 	std::string host;
 	DNS::QueryType query;
  public:
-	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
+	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query *r) override;
 	void OnError(const DNS::Query *q) override;
 };
@@ -58,10 +58,10 @@ class ServernameResolver : public DNS::Request
  private:
 	DNS::QueryType query;
 	std::string host;
-	reference<Link> MyLink;
-	reference<Autoconnect> myautoconnect;
+	std::shared_ptr<Link> MyLink;
+	std::shared_ptr<Autoconnect> myautoconnect;
  public:
-	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
+	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt, std::shared_ptr<Autoconnect> myac);
 	void OnLookupComplete(const DNS::Query *r) override;
 	void OnError(const DNS::Query *q) override;
 };
