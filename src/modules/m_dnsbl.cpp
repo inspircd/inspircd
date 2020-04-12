@@ -32,7 +32,7 @@
 #include "modules/stats.h"
 
 /* Class holding data for a single entry */
-class DNSBLConfEntry : public refcountbase
+class DNSBLConfEntry
 {
 	public:
 		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_MARK };
@@ -57,10 +57,10 @@ class DNSBLResolver : public DNS::Request
 	std::string theiruid;
 	StringExtItem& nameExt;
 	IntExtItem& countExt;
-	reference<DNSBLConfEntry> ConfEntry;
+	std::shared_ptr<DNSBLConfEntry> ConfEntry;
 
  public:
-	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, std::shared_ptr<DNSBLConfEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
@@ -239,7 +239,7 @@ class DNSBLResolver : public DNS::Request
 	}
 };
 
-typedef std::vector<reference<DNSBLConfEntry> > DNSBLConfList;
+typedef std::vector<std::shared_ptr<DNSBLConfEntry>> DNSBLConfList;
 
 class ModuleDNSBL : public Module, public Stats::EventListener
 {
@@ -289,7 +289,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		for(ConfigIter i = dnsbls.first; i != dnsbls.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			reference<DNSBLConfEntry> e = new DNSBLConfEntry();
+			auto e = std::make_shared<DNSBLConfEntry>();
 
 			e->name = tag->getString("name");
 			e->ident = tag->getString("ident");
@@ -451,13 +451,13 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 		unsigned long total_hits = 0, total_misses = 0;
 
-		for (std::vector<reference<DNSBLConfEntry> >::const_iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); ++i)
+		for (std::shared_ptr<DNSBLConfEntry> e : DNSBLConfEntries)
 		{
-			total_hits += (*i)->stats_hits;
-			total_misses += (*i)->stats_misses;
+			total_hits += e->stats_hits;
+			total_misses += e->stats_misses;
 
-			stats.AddRow(304, "DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
-					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
+			stats.AddRow(304, "DNSBLSTATS DNSbl \"" + e->name + "\" had " +
+					ConvToStr(e->stats_hits) + " hits and " + ConvToStr(e->stats_misses) + " misses");
 		}
 
 		stats.AddRow(304, "DNSBLSTATS Total hits: " + ConvToStr(total_hits));
