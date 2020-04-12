@@ -151,8 +151,6 @@ class CoreModUser : public Module
 	CommandIson cmdison;
 	CommandUserhost cmduserhost;
 	SimpleUserModeHandler invisiblemode;
-	ModeUserOperator operatormode;
-	ModeUserServerNoticeMask snomaskmode;
 
  public:
 	CoreModUser()
@@ -168,8 +166,6 @@ class CoreModUser : public Module
 		, cmdison(this)
 		, cmduserhost(this)
 		, invisiblemode(this, "invisible", 'i')
-		, operatormode(this)
-		, snomaskmode(this)
 	{
 	}
 

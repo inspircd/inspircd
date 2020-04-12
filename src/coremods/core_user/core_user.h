@@ -201,35 +201,3 @@ class CommandUserhost : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** User mode +s
- */
-class ModeUserServerNoticeMask : public ModeHandler
-{
-	/** Process a snomask modifier string, e.g. +abc-de
-	 * @param user The target user
-	 * @param input A sequence of notice mask characters
-	 * @return The cleaned mode sequence which can be output,
-	 * e.g. in the above example if masks c and e are not
-	 * valid, this function will return +ab-d
-	 */
-	std::string ProcessNoticeMasks(User* user, const std::string& input);
-
- public:
-	ModeUserServerNoticeMask(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
-
-	/** Create a displayable mode string of the snomasks set on a given user
-	 * @param user The user whose notice masks to format
-	 * @return The notice mask character sequence
-	 */
-	std::string GetUserParameter(const User* user) const override;
-};
-
-/** User mode +o
- */
-class ModeUserOperator : public ModeHandler
-{
- public:
-	ModeUserOperator(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) override;
-};

@@ -24,7 +24,7 @@
 
 
 #include "inspircd.h"
-#include "core_user.h"
+#include "core_oper.h"
 
 ModeUserOperator::ModeUserOperator(Module* Creator)
 	: ModeHandler(Creator, "oper", 'o', PARAM_NONE, MODETYPE_USER)

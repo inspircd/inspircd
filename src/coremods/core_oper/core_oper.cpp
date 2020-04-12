@@ -24,11 +24,14 @@
 
 class CoreModOper : public Module
 {
+ private:
 	CommandDie cmddie;
 	CommandKill cmdkill;
 	CommandOper cmdoper;
 	CommandRehash cmdrehash;
 	CommandRestart cmdrestart;
+	ModeUserOperator operatormode;
+	ModeUserServerNoticeMask snomaskmode;
 
  public:
 	CoreModOper()
@@ -38,6 +41,8 @@ class CoreModOper : public Module
 		, cmdoper(this)
 		, cmdrehash(this)
 		, cmdrestart(this)
+		, operatormode(this)
+		, snomaskmode(this)
 	{
 	}
 

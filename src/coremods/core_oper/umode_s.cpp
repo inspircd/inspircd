@@ -24,7 +24,7 @@
 
 
 #include "inspircd.h"
-#include "core_user.h"
+#include "core_oper.h"
 
 ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
