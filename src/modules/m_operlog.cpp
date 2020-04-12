@@ -57,9 +57,10 @@ class ModuleOperLog : public Module
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO->WriteGlobalSno('r', msg);
+				else
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, msg);
 			}
 		}
 
