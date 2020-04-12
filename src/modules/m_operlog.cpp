@@ -66,12 +66,6 @@ class ModuleOperLog : public Module
 
 		return MOD_RES_PASSTHRU;
 	}
-
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["OPERLOG"];
-	}
-
 };
 
 MODULE_INIT(ModuleOperLog)
