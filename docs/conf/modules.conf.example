@@ -1916,6 +1916,13 @@
 #<module name="samode">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAMOVE module: Adds the /SAMOVE command which forcibly parts a user
+# from a channel, and joins the user in another channel.
+# This module is oper-only.
+# To use, SAMOVE must be in one of your oper class blocks.
+#<module name="samove">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SANICK module: Adds the /SANICK command which allows opers to change
 # users' nicks.
 # This module is oper-only.

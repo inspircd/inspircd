@@ -54,7 +54,7 @@
      # snomasks: The snomasks that opers with this class can use.
      snomasks="*">
 
-<class name="SACommands" commands="SAJOIN SAPART SANICK SAQUIT SATOPIC SAKICK SAMODE OJOIN">
+<class name="SACommands" commands="SAJOIN SAPART SANICK SAQUIT SATOPIC SAKICK SAMODE OJOIN SAMOVE">
 <class name="ServerLink" commands="CONNECT SQUIT RCONNECT RSQUIT MKPASSWD ALLTIME SWHOIS LOCKSERV UNLOCKSERV" usermodes="*" chanmodes="*" privs="servers/auspex" snomasks="Cc">
 <class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE TLINE RLINE CHECK NICKLOCK NICKUNLOCK SHUN CLONES CBAN" usermodes="*" chanmodes="*" snomasks="Xx">
 <class name="OperChat" commands="WALLOPS GLOBOPS" usermodes="*" chanmodes="*" privs="users/mass-message" snomasks="Gg">
