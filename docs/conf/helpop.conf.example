@@ -47,7 +47,7 @@ Sends a message to the network service specified in <target>.
 ">
 
 <helpop key="sslinfo" title="/SSLINFO <nick>" value="
-Displays information on the SSL connection and certificate of the
+Displays information on the TLS (SSL) connection and certificate of the
 target user.
 ">
 
@@ -845,8 +845,8 @@ using their cloak when they quit.
               (requires the services account module).
  w            Receives wallops messages.
  x            Gives a cloaked hostname (requires the cloaking module).
- z            Only allow private messages from SSL users (requires the
-              sslmodes module).
+ z            Only allow private messages from TLS (SSL) users (requires
+              the sslmodes module).
  B            Marks as a bot (requires the botmode module).
  D            Privdeaf mode. User will not receive any private messages
               or notices from users (requires the deaf module).
@@ -926,7 +926,7 @@ using their cloak when they quit.
                     For example, +w o:R:Brain will op anyone identified
                     to the account 'Brain' on join.
                     (requires the autoop module)
- z                  Blocks non-SSL clients from joining the channel
+ z                  Blocks non-TLS (SSL) clients from joining the channel
                     (requires the sslmodes module).
 
  A                  Allows anyone to invite users to the channel
@@ -1101,7 +1101,7 @@ Matching extbans:
                gecosban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
- z:<certfp>    Matches users having the given SSL certificate
+ z:<certfp>    Matches users having the given TLS (SSL) certificate
                fingerprint (requires the sslmodes module).
  O:<opertype>  Matches server operators of a matching type, mostly
                useful as an invite exception (requires the

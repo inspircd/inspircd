@@ -200,16 +200,16 @@ class HAProxyHook : public IOHookMiddle
 		if (!sslapi)
 			return true;
 
-		// If the client is not connecting via SSL the rest of this TLV is irrelevant.
+		// If the client is not connecting via TLS (SSL) the rest of this TLV is irrelevant.
 		std::string& recvq = GetRecvQ();
 		if ((recvq[start_index] & PP2_CLIENT_SSL) == 0)
 			return true;
 
 		// Create a fake ssl_cert for the user. Ideally we should use the user's
-		// SSL client certificate here but as of 2018-10-16 this is not forwarded
+		// TLS (SSL) client certificate here but as of 2018-10-16 this is not forwarded
 		// by HAProxy.
 		ssl_cert* cert = new ssl_cert;
-		cert->error = "HAProxy does not forward client SSL certificates";
+		cert->error = "HAProxy does not forward client TLS (SSL) certificates";
 		cert->invalid = true;
 		cert->revoked = true;
 		cert->trusted = false;
