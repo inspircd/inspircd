@@ -30,7 +30,7 @@
 #include <string>
 #include "iohook.h"
 
-/** ssl_cert is a class which abstracts SSL certificate
+/** ssl_cert is a class which abstracts TLS (SSL) certificate
  * and key information.
  *
  * Because gnutls and openssl represent key information in
@@ -153,7 +153,7 @@ class ssl_cert : public refcountbase
 class SSLIOHook : public IOHook
 {
  protected:
-	/** Peer SSL certificate, set by the SSL module
+	/** Peer TLS (SSL) certificate, set by the TLS (SSL) module
 	 */
 	reference<ssl_cert> certificate;
 
@@ -167,7 +167,7 @@ class SSLIOHook : public IOHook
 		if ((sendq.size() <= 1) || (sendq.front().length() >= targetsize))
 			return;
 
-		// Avoid multiple repeated SSL encryption invocations
+		// Avoid multiple repeated TLS (SSL) encryption invocations
 		// This adds a single copy of the queue, but avoids
 		// much more overhead in terms of system calls invoked
 		// by an IOHook.
@@ -198,7 +198,7 @@ class SSLIOHook : public IOHook
 
 	/**
 	 * Get the certificate sent by this peer
-	 * @return The SSL certificate sent by the peer, NULL if no cert was sent
+	 * @return The TLS (SSL) certificate sent by the peer, NULL if no cert was sent
 	 */
 	virtual ssl_cert* GetCertificate() const
 	{
@@ -207,7 +207,7 @@ class SSLIOHook : public IOHook
 
 	/**
 	 * Get the fingerprint of the peer's certificate
-	 * @return The fingerprint of the SSL client certificate sent by the peer,
+	 * @return The fingerprint of the TLS (SSL) client certificate sent by the peer,
 	 * empty if no cert was sent
 	 */
 	virtual std::string GetFingerprint() const
@@ -225,14 +225,14 @@ class SSLIOHook : public IOHook
 	virtual void GetCiphersuite(std::string& out) const = 0;
 
 
-	/** Retrieves the name of the SSL connection which is sent via SNI.
+	/** Retrieves the name of the TLS (SSL) connection which is sent via SNI.
 	 * @param out String that the server name will be appended to.
 	 * returns True if the server name was retrieved; otherwise, false.
 	 */
 	virtual bool GetServerName(std::string& out) const = 0;
 };
 
-/** Helper functions for obtaining SSL client certificates and key fingerprints
+/** Helper functions for obtaining TLS (SSL) client certificates and key fingerprints
  * from StreamSockets
  */
 class SSLClientCert
@@ -240,8 +240,8 @@ class SSLClientCert
  public:
  	/**
 	 * Get the client certificate from a socket
-	 * @param sock The socket to get the certificate from, the socket does not have to use SSL
-	 * @return The SSL client certificate information, NULL if the peer is not using SSL
+	 * @param sock The socket to get the certificate from, the socket does not have to use TLS (SSL)
+	 * @return The TLS (SSL) client certificate information, NULL if the peer is not using TLS (SSL)
 	 */
 	static ssl_cert* GetCertificate(StreamSocket* sock)
 	{
@@ -255,9 +255,9 @@ class SSLClientCert
 	/**
 	 * Get the fingerprint of a client certificate from a socket
 	 * @param sock The socket to get the certificate fingerprint from, the
-	 * socket does not have to use SSL
-	 * @return The key fingerprint from the SSL certificate sent by the peer,
-	 * empty if no cert was sent or the peer is not using SSL
+	 * socket does not have to use TLS (SSL)
+	 * @return The key fingerprint from the TLS (SSL) certificate sent by the peer,
+	 * empty if no cert was sent or the peer is not using TLS (SSL)
 	 */
 	static std::string GetFingerprint(StreamSocket* sock)
 	{
@@ -276,22 +276,22 @@ class UserCertificateAPIBase : public DataProvider
 	{
 	}
 
-	/** Get the SSL certificate of a user
+	/** Get the TLS (SSL) certificate of a user
 	 * @param user The user whose certificate to get, user may be remote
-	 * @return The SSL certificate of the user or NULL if the user is not using SSL
+	 * @return The TLS (SSL) certificate of the user or NULL if the user is not using TLS (SSL)
 	 */
 	virtual ssl_cert* GetCertificate(User* user) = 0;
 
-	/** Set the SSL certificate of a user.
+	/** Set the TLS (SSL) certificate of a user.
 	 * @param user The user whose certificate to set.
-	 * @param cert The SSL certificate to set for the user.
+	 * @param cert The TLS (SSL) certificate to set for the user.
 	 */
 	virtual void SetCertificate(User* user, ssl_cert* cert) = 0;
 
 	/** Get the key fingerprint from a user's certificate
 	 * @param user The user whose key fingerprint to get, user may be remote
-	 * @return The key fingerprint from the user's SSL certificate or an empty string
-	 * if the user is not using SSL or did not provide a client certificate
+	 * @return The key fingerprint from the user's TLS (SSL) certificate or an empty string
+	 * if the user is not using TLS (SSL) or did not provide a client certificate
 	 */
 	std::string GetFingerprint(User* user)
 	{
@@ -302,9 +302,9 @@ class UserCertificateAPIBase : public DataProvider
 	}
 };
 
-/** API implemented by m_sslinfo that allows modules to retrive the SSL certificate
+/** API implemented by m_sslinfo that allows modules to retrive the TLS (SSL) certificate
  * information of local and remote users. It can also be used to find out whether a
- * user is using SSL or not.
+ * user is using TLS (SSL) or not.
  */
 class UserCertificateAPI : public dynamic_reference<UserCertificateAPIBase>
 {

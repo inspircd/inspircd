@@ -60,7 +60,7 @@ class SSLMode : public ModeHandler
 				{
 					if (!API)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via SSL");
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via TLS (SSL)");
 						return MODEACTION_DENY;
 					}
 
@@ -75,7 +75,7 @@ class SSLMode : public ModeHandler
 
 					if (nonssl)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via SSL (%lu/%lu are non-SSL)",
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (SSL) (%lu/%lu are non-TLS (SSL))",
 							nonssl, static_cast<unsigned long>(userlist.size())));
 						return MODEACTION_DENY;
 					}
@@ -167,13 +167,13 @@ class ModuleSSLModes
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are an SSL user (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a TLS (SSL) user (+z is set)");
 				return MOD_RES_DENY;
 			}
 
 			if (!api->GetCertificate(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; SSL users only (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; TLS (SSL) users only (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -243,7 +243,7 @@ class ModuleSSLModes
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-SSL users.", VF_VENDOR);
+		return Version("Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS (SSL) users.", VF_VENDOR);
 	}
 };
 

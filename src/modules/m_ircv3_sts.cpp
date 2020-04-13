@@ -128,7 +128,7 @@ class ModuleIRCv3STS : public Module
  private:
 	STSCap cap;
 
-	// The IRCv3 STS specification requires that the server is listening using SSL using a valid certificate.
+	// The IRCv3 STS specification requires that the server is listening using TLS (SSL) using a valid certificate.
 	bool HasValidSSLPort(unsigned int port)
 	{
 		for (std::vector<ListenSocket*>::const_iterator iter = ServerInstance->ports.begin(); iter != ServerInstance->ports.end(); ++iter)
@@ -140,7 +140,7 @@ class ModuleIRCv3STS : public Module
 			if (saport != port)
 				continue;
 
-			// Is this listener using SSL?
+			// Is this listener using TLS (SSL)?
 			if (ls->bind_tag->getString("ssl").empty())
 				continue;
 

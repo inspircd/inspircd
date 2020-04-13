@@ -138,7 +138,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 
 	void SetCertificate(User* user, ssl_cert* cert) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting SSL certificate for %s: %s",
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting TLS (SSL) client certificate for %s: %s",
 			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
 		sslext.set(user, cert);
 	}
@@ -165,20 +165,22 @@ class CommandSSLInfo : public Command
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
+
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 		if (operonlyfp && !user->IsOper() && target != user)
 		{
-			user->WriteNotice("*** You cannot view SSL certificate information for other users");
+			user->WriteNotice("*** You cannot view TLS (SSL) client certificate information for other users");
 			return CMD_FAILURE;
 		}
+
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			user->WriteNotice("*** No SSL certificate for this user");
+			user->WriteNotice("*** No TLS (SSL) client certificate for this user");
 		}
 		else if (cert->GetError().length())
 		{
-			user->WriteNotice("*** No SSL certificate information for this user (" + cert->GetError() + ").");
+			user->WriteNotice("*** No TLS (SSL) client certificate information for this user (" + cert->GetError() + ").");
 		}
 		else
 		{
@@ -226,7 +228,7 @@ class ModuleSSLInfo
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has client certificate fingerprint %s", cert->fingerprint.c_str()));
+				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has TLS (SSL) client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
 
@@ -320,12 +322,12 @@ class ModuleSSLInfo
 		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{
 			ok = (cert && cert->IsCAVerified());
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted SSL cert. Client %s one.", (ok ? "has" : "does not have"));
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted TLS (SSL) client certificate. Client %s one.", (ok ? "has" : "does not have"));
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
 			ok = (cert != NULL);
-			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires SSL. Client %s using SSL.", (ok ? "is" : "is not"));
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a secure connection. Client %s on a secure connection.", (ok ? "is" : "is not"));
 		}
 
 		if (!ok)

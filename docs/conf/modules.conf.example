@@ -210,7 +210,7 @@
 # For example +w o:*!Attila@127.0.0.1 will op anyone matching that mask
 # on join. This can be combined with extbans, for example +w o:R:Brain
 # will op anyone identified to the account "Brain".
-# Another useful combination is with SSL client certificate
+# Another useful combination is with TLS (SSL) client certificate
 # fingerprints: +w h:z:72db600734bb9546c1bdd02377bc21d2a9690d48 will
 # give halfop to the user(s) having the given certificate.
 #<module name="autoop">
@@ -349,7 +349,7 @@
 # IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
 #
 # When using this method you must specify a wildcard mask or CIDR range
-# to allow gateway connections from and at least one of either a SSL
+# to allow gateway connections from and at least one of either a TLS (SSL)
 # client certificate fingerprint for the gateway or a password to be
 # sent in the WEBIRC command.
 #
@@ -1951,8 +1951,8 @@
 # You must define <sasl:target> to the name of your services server so
 # that InspIRCd knows where to send SASL authentication messages and
 # when it should enable the SASL capability.
-# You can also define <sasl:requiressl> to require users to use SSL in
-# order to be able to use SASL.
+# You can also define <sasl:requiressl> to require users to use TLS (SSL)
+# in order to be able to use SASL.
 #<sasl target="services.mynetwork.com"
 #      requiressl="yes">
 
@@ -2112,11 +2112,11 @@
 #<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL mode module: Adds support for SSL-only channels via the '+z'
-# channel mode, SSL-only private messages via the '+z' user mode and
-# the 'z:' extban which matches SSL client certificate fingerprints.
+# SSL mode module: Adds support for TLS (SSL)-only channels via the '+z'
+# channel mode, TLS (SSL)-only private messages via the '+z' user mode and
+# the 'z:' extban which matches TLS (SSL) client certificate fingerprints.
 #
-# Does not do anything useful without a working SSL module and the
+# Does not do anything useful without a working TLS (SSL) module and the
 # sslinfo module (see below).
 #<module name="sslmodes">
 #
@@ -2125,15 +2125,15 @@
 #<sslmodes enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL rehash signal module: Allows the SSL modules to be rehashed by
+# SSL rehash signal module: Allows the TLS (SSL) modules to be rehashed by
 # sending SIGUSR1 to a running InspIRCd process.
-# This modules is in extras. Re-run configure with:
+# This module is in extras. Re-run configure with:
 # ./configure --enable-extras sslrehashsignal
 # and run make install, then uncomment this module to enable it.
 #<module name="sslrehashsignal">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GnuTLS SSL module: Adds support for SSL/TLS connections using GnuTLS,
+# GnuTLS SSL module: Adds support for TLS (SSL) connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or
 # manually symlink the source for this module from the directory
 # src/modules/extra, if you want to enable this, or it will not load.
@@ -2146,26 +2146,26 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL info module: Allows users to retrieve information about other
-# users' peer SSL certificates and keys via the SSLINFO command.
+# users' peer TLS (SSL) certificates and keys via the SSLINFO command.
 # This can be used by client scripts to validate users. For this to
 # work, one of ssl_gnutls, ssl_mbedtls or ssl_openssl must be loaded.
 # This module also adds the "<user> is using a secure connection"
-# and "<user> has client certificate fingerprint <fingerprint>"
-# WHOIS lines, the ability for opers to use SSL cert fingerprints to
-# verify their identity and the ability to force opers to use SSL
+# and "<user> has TLS (SSL) client certificate fingerprint <fingerprint>"
+# WHOIS lines, the ability for opers to use TLS (SSL) cert fingerprints to
+# verify their identity and the ability to force opers to use TLS (SSL)
 # connections in order to oper up. It is highly recommended to load
-# this module if you use SSL on your network.
+# this module if you use TLS (SSL) on your network.
 # For how to use the oper features, please see the first
 # example <oper> tag in opers.conf.example.
 #
 #<module name="sslinfo">
 #
-# If you want to prevent users from viewing SSL certificate information
+# If you want to prevent users from viewing TLS (SSL) certificate information
 # and fingerprints of other users, set operonly to yes.
 #<sslinfo operonly="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# mbedTLS SSL module: Adds support for SSL/TLS connections using mbedTLS.
+# mbedTLS TLS (SSL) module: Adds support for TLS (SSL) connections using mbedTLS.
 #<module name="ssl_mbedtls">
 #
 #-#-#-#-#-#-#-#-#-#-#- MBEDTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -2174,7 +2174,7 @@
 # https://docs.inspircd.org/3/modules/ssl_mbedtls                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# OpenSSL SSL module: Adds support for SSL/TLS connections using OpenSSL,
+# OpenSSL TLS (SSL) module: Adds support for TLS (SSL) connections using OpenSSL,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
 # you want to enable this, or it will not load.
@@ -2246,8 +2246,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # StartTLS module: Implements STARTTLS, which allows clients          #
-# connected to non SSL enabled ports to enable SSL, if a proper SSL   #
-# module is loaded (either ssl_gnutls, ssl_mbedtls or ssl_openssl).   #
+# connected to non TLS (SSL) enabled ports to enable TLS (SSL), if    #
+# a proper TLS (SSL) module is loaded (either ssl_gnutls,             #
+# ssl_mbedtls or ssl_openssl).                                        #
 #<module name="starttls">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2330,7 +2331,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # WebSocket module: Adds HTML5 WebSocket support.
 # Specify hook="websocket" in a <bind> tag to make that port accept
-# WebSocket connections. Compatible with SSL/TLS.
+# WebSocket connections. Compatible with TLS (SSL).
 # Requires SHA-1 hash support available in the sha1 module.
 #<module name="websocket">
 #

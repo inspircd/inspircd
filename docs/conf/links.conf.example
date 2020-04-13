@@ -36,10 +36,10 @@
       # failover (see above).
       timeout="5m"
 
-      # ssl: If defined, this states the SSL profile that will be used when
+      # ssl: If defined, this states the TLS (SSL) profile that will be used when
       # making an outbound connection to the server. Options are the name of an
       # <sslprofile> tag that you have defined or one of "openssl", "gnutls",
-      # "mbedtls" if you have not defined any. See the docs page for the SSL
+      # "mbedtls" if you have not defined any. See the docs page for the TLS (SSL)
       # module you are using for more details.
       #
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
@@ -48,9 +48,9 @@
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be
-      # authenticated using SSL certificate fingerprints. See
+      # authenticated using TLS (SSL) certificate fingerprints. See
       # https://docs.inspircd.org/3/modules/spanningtree for more information.
-      # This will require an SSL link for both inbound and outbound connections.
+      # This will require a TLS (SSL) link for both inbound and outbound connections.
       #fingerprint=""
 
       # bind: Local IP address to bind to.

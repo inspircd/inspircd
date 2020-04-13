@@ -376,7 +376,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called on rehash.
 	 * This method is called when a user initiates a module-specific rehash. This can be used to do
-	 * expensive operations (such as reloading SSL certificates) that are not executed on a normal
+	 * expensive operations (such as reloading TLS (SSL) certificates) that are not executed on a normal
 	 * rehash for efficiency. A rehash of this type does not reload the core configuration.
 	 *
 	 * @param user The user performing the rehash.

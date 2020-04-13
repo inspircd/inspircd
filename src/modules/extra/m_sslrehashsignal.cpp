@@ -45,7 +45,7 @@ class ModuleSSLRehashSignal : public Module
 		if (!signaled)
 			return;
 
-		const std::string feedbackmsg = "Got SIGUSR1, reloading SSL credentials";
+		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS (SSL) credentials";
 		ServerInstance->SNO->WriteGlobalSno('a', feedbackmsg);
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 
