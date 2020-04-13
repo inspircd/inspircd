@@ -148,7 +148,7 @@ public:
 			const KickRejoinData* data = kr.ext.get(chan);
 			if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user)))
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)", data->delay));
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)", data->delay));
 				return MOD_RES_DENY;
 			}
 		}
