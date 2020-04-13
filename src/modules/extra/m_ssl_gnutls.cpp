@@ -1369,7 +1369,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
 	{
-		if (!irc::equals(param, "ssl"))
+		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
 			return;
 
 		try
