@@ -49,7 +49,7 @@ class ModuleSSLRehashSignal : public Module
 		ServerInstance->SNO->WriteGlobalSno('a', feedbackmsg);
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 
-		const std::string str = "ssl";
+		const std::string str = "tls";
 		FOREACH_MOD(OnModuleRehash, (NULL, str));
 		signaled = 0;
 	}
