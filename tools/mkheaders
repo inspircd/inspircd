@@ -43,6 +43,7 @@ use make::console;
 my @ignored_revisions = (
 	'0b4285abd12323920d92fee51e199edd7527dbec', # adding copyright headers
 	'46a39046196f55b52336e19662bb7bac85b731ac', # adding copyright headers
+	'4a6fedd9324d87349a806c9c1d0ae6e7d3c1fd38', # mass-updating descriptions
 	'56375392ba94f2552bbeeeab4fd39e1e50295525', # sadie's name change
 	'bab14f0dd2345c9d7dcbc47c918563709e1ac094', # peavey breaking line endings
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
