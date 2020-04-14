@@ -45,7 +45,7 @@ class CommandClones : public SplitCommand
 		, batch("inspircd.org/clones")
 	{
 		flags_needed = 'o';
-		syntax = "<limit>";
+		syntax = { "<limit>" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

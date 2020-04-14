@@ -34,7 +34,7 @@ class CommandMkpasswd : public Command
  public:
 	CommandMkpasswd(Module* Creator) : Command(Creator, "MKPASSWD", 2)
 	{
-		syntax = "<hashtype> <plaintext>";
+		syntax = { "<hashtype> <plaintext>" };
 		Penalty = 5;
 	}
 

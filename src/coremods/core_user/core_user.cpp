@@ -33,7 +33,7 @@ class CommandPass : public SplitCommand
 	{
 		works_before_reg = true;
 		Penalty = 0;
-		syntax = "<password>";
+		syntax = { "<password>" };
 	}
 
 	/** Handle command.
@@ -66,7 +66,7 @@ class CommandPing : public SplitCommand
 	CommandPing(Module* parent)
 		: SplitCommand(parent, "PING", 1, 2)
 	{
-		syntax = "<servername> [:<servername>]";
+		syntax = { "<servername> [:<servername>]" };
 	}
 
 	/** Handle command.
@@ -93,7 +93,7 @@ class CommandPong : public Command
 		: Command(parent, "PONG", 0, 1)
 	{
 		Penalty = 0;
-		syntax = "<ping-text>";
+		syntax = { "<ping-text>" };
 	}
 
 	/** Handle command.

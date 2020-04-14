@@ -60,7 +60,7 @@ class CommandVhost : public Command
 	CommandVhost(Module* Creator)
 		: Command(Creator, "VHOST", 2)
 	{
-		syntax = "<username> <password>";
+		syntax = { "<username> <password>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

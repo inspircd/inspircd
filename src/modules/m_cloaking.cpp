@@ -175,7 +175,7 @@ class CommandCloak : public Command
 	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<host>";
+		syntax = { "<host>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override;

@@ -28,7 +28,7 @@
 CommandMotd::CommandMotd(Module* parent)
 	: ServerTargetCommand(parent, "MOTD")
 {
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 /** Handle /MOTD

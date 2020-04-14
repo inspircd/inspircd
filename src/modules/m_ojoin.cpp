@@ -38,7 +38,7 @@ class CommandOjoin : public SplitCommand
 		, npmh(&mode)
 	{
 		flags_needed = 'o';
-		syntax = "<channel>";
+		syntax = { "<channel>" };
 		active = false;
 	}
 

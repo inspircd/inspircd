@@ -136,7 +136,7 @@ class CommandWatch : public SplitCommand
 		, manager(managerref)
 	{
 		allow_empty_last_param = false;
-		syntax = "C|L|l|S|(+|-)<nick> [(+|-)<nick>]+";
+		syntax = { "C", "L", "l", "S", "(+|-)<nick> [(+|-)<nick>]+" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

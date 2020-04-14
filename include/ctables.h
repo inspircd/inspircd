@@ -221,7 +221,7 @@ class CoreExport Command : public CommandBase
 	unsigned long use_count = 0;
 
 	/** If non-empty then the syntax of the parameter for this command. */
-	std::string syntax;
+	std::vector<std::string> syntax;
 
 	/** Whether the command can be issued before registering. */
 	bool works_before_reg = false;

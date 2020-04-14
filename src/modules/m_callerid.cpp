@@ -183,7 +183,7 @@ public:
 		extInfo(Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "*|(+|-)<nick>[,(+|-)<nick>]+";
+		syntax = { "*|(+|-)<nick>[,(+|-)<nick>]+" };
 		translation = { TR_CUSTOM };
 	}
 

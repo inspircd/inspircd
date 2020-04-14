@@ -44,7 +44,7 @@ class CommandNicklock : public Command
 		locked(ext)
 	{
 		flags_needed = 'o';
-		syntax = "<nick> <newnick>";
+		syntax = { "<nick> <newnick>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 
@@ -104,7 +104,7 @@ class CommandNickunlock : public Command
 		locked(ext)
 	{
 		flags_needed = 'o';
-		syntax = "<nick>";
+		syntax = { "<nick>" };
 		translation = { TR_NICK };
 	}
 

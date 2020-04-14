@@ -71,7 +71,7 @@ class CommandHelpop : public Command
 		: Command(Creator, "HELPOP", 0)
 		, startkey("start")
 	{
-		syntax = "<any-text>";
+		syntax = { "<any-text>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

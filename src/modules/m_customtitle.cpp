@@ -80,7 +80,7 @@ class CommandTitle : public Command
 		: Command(Creator,"TITLE", 2)
 		, ctitle(Creator, "ctitle", ExtensionItem::EXT_USER, true)
 	{
-		syntax = "<username> <password>";
+		syntax = { "<username> <password>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

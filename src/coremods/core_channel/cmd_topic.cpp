@@ -34,7 +34,7 @@ CommandTopic::CommandTopic(Module* parent)
 	, secretmode(parent, "secret")
 	, topiclockmode(parent, "topiclock")
 {
-	syntax = "<channel> [:<topic>]";
+	syntax = { "<channel> [:<topic>]" };
 	Penalty = 2;
 }
 

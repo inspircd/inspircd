@@ -34,7 +34,7 @@ CommandRConnect::CommandRConnect (Module* Creator)
 	: Command(Creator, "RCONNECT", 2)
 {
 	flags_needed = 'o';
-	syntax = "<remote-server-mask> <target-server-mask>";
+	syntax = { "<remote-server-mask> <target-server-mask>" };
 }
 
 CmdResult CommandRConnect::Handle(User* user, const Params& parameters)

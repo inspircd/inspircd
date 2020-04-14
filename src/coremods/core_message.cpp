@@ -276,7 +276,7 @@ class CommandMessage : public Command
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
 	{
-		syntax = "<target>[,<target>]+ :<message>";
+		syntax = { "<target>[,<target>]+ :<message>" };
 	}
 
 	/** Handle command.
@@ -330,7 +330,7 @@ class CommandSQuery : public SplitCommand
 	CommandSQuery(Module* Creator)
 		: SplitCommand(Creator, "SQUERY", 2, 2)
 	{
-		syntax = "<service> :<message>";
+		syntax = { "<service> :<message>" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

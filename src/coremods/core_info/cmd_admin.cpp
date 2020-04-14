@@ -30,7 +30,7 @@ CommandAdmin::CommandAdmin(Module* parent)
 	: ServerTargetCommand(parent, "ADMIN")
 {
 	Penalty = 2;
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 /** Handle /ADMIN

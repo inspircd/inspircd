@@ -64,7 +64,7 @@ class CommandReloadmodule : public Command
 		reloadevprov = &evprov;
 		dummyserializer = &dummyser;
 		flags_needed = 'o';
-		syntax = "<modulename>";
+		syntax = { "<modulename>" };
 	}
 
 	/** Handle command.

@@ -39,7 +39,7 @@ CommandAway::CommandAway(Module* parent)
 	, awayevprov(parent)
 {
 	allow_empty_last_param = false;
-	syntax = "[:<message>]";
+	syntax = { "[:<message>]" };
 }
 
 /** Handle /AWAY

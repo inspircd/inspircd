@@ -37,7 +37,7 @@ class CommandLoadmodule : public Command
 		: Command(parent,"LOADMODULE", 1, 1)
 	{
 		flags_needed = 'o';
-		syntax = "<modulename>";
+		syntax = { "<modulename>" };
 	}
 
 	/** Handle command.
@@ -76,7 +76,7 @@ class CommandUnloadmodule : public Command
 		: Command(parent, "UNLOADMODULE", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<modulename>";
+		syntax = { "<modulename>" };
 	}
 
 	/** Handle command.

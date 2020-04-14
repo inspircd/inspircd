@@ -32,7 +32,7 @@
 CommandKick::CommandKick(Module* parent)
 	: Command(parent, "KICK", 2, 3)
 {
-	syntax = "<channel> <nick>[,<nick>]+ [:<reason>]";
+	syntax = { "<channel> <nick>[,<nick>]+ [:<reason>]" };
 }
 
 /** Handle /KICK

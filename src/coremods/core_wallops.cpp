@@ -41,7 +41,7 @@ class CommandWallops : public Command
 		, protoevprov(parent, name)
 	{
 		flags_needed = 'o';
-		syntax = ":<message>";
+		syntax = { ":<message>" };
 	}
 
 	/** Handle command.

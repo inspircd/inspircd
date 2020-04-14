@@ -34,7 +34,7 @@ class CommandSanick : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<nick> <newnick>";
+		syntax = { "<nick> <newnick>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

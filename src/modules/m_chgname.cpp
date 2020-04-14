@@ -35,7 +35,7 @@ class CommandChgname : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<nick> :<realname>";
+		syntax = { "<nick> :<realname>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

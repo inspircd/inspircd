@@ -38,7 +38,7 @@ CommandModules::CommandModules(Module* parent)
 	: ServerTargetCommand(parent, "MODULES")
 {
 	Penalty = 4;
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 /** Handle /MODULES

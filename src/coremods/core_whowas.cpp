@@ -186,7 +186,7 @@ class CommandWhowas : public Command
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
-	syntax = "<nick>";
+	syntax = { "<nick>" };
 	Penalty = 2;
 }
 

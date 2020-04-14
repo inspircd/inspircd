@@ -35,7 +35,7 @@ class CommandSaquit : public Command
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
 		flags_needed = 'o';
-		syntax = "<nick> :<reason>";
+		syntax = { "<nick> :<reason>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

@@ -37,7 +37,7 @@ CommandNames::CommandNames(Module* parent)
 	, invisiblemode(parent, "invisible")
 	, namesevprov(parent, "event/names")
 {
-	syntax = "[<channel>[,<channel>]+]";
+	syntax = { "[<channel>[,<channel>]+]" };
 }
 
 /** Handle /NAMES

@@ -30,7 +30,7 @@
 CommandOper::CommandOper(Module* parent)
 	: SplitCommand(parent, "OPER", 2, 2)
 {
-	syntax = "<username> <password>";
+	syntax = { "<username> <password>" };
 }
 
 CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)

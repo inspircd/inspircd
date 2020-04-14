@@ -101,7 +101,8 @@ class CommandSvshold : public Command
  public:
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
-		flags_needed = 'o'; this->syntax = "<nick> [<duration> :<reason>]";
+		flags_needed = 'o';
+		syntax = { "<nick> [<duration> :<reason>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

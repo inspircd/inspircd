@@ -36,7 +36,7 @@ class CommandGlobops : public Command
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
 		flags_needed = 'o';
-		syntax = ":<message>";
+		syntax = { ":<message>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

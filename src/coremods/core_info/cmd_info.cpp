@@ -30,7 +30,7 @@ CommandInfo::CommandInfo(Module* parent)
 	: ServerTargetCommand(parent, "INFO")
 {
 	Penalty = 4;
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 static const char* const lines[] = {

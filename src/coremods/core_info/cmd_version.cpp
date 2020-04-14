@@ -30,7 +30,7 @@ CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
 	: Command(parent, "VERSION", 0, 0)
 	, isupport(isupportmgr)
 {
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)

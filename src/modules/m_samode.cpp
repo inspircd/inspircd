@@ -38,7 +38,7 @@ class CommandSamode : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<target> (+|-)<modes> [<mode-parameters>]";
+		syntax = { "<target> (+|-)<modes> [<mode-parameters>]" };
 		active = false;
 	}
 

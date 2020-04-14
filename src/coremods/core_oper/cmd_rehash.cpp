@@ -33,7 +33,7 @@ CommandRehash::CommandRehash(Module* parent)
 {
 	flags_needed = 'o';
 	Penalty = 2;
-	syntax = "[<servermask>]";
+	syntax = { "[<servermask>]" };
 }
 
 CmdResult CommandRehash::Handle(User* user, const Params& parameters)

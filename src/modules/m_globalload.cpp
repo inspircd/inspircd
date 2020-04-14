@@ -34,7 +34,7 @@ class CommandGloadmodule : public Command
 	CommandGloadmodule(Module* Creator) : Command(Creator,"GLOADMODULE", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<modulename> [<servermask>]";
+		syntax = { "<modulename> [<servermask>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -73,7 +73,7 @@ class CommandGunloadmodule : public Command
 	CommandGunloadmodule(Module* Creator) : Command(Creator,"GUNLOADMODULE", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<modulename> [<servermask>]";
+		syntax = { "<modulename> [<servermask>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -124,7 +124,7 @@ class CommandGreloadmodule : public Command
 	CommandGreloadmodule(Module* Creator) : Command(Creator, "GRELOADMODULE", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<modulename> [<servermask>]";
+		syntax = { "<modulename> [<servermask>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

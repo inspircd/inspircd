@@ -79,7 +79,7 @@ class CommandIson : public SplitCommand
 		: SplitCommand(parent, "ISON", 1)
 	{
 		allow_empty_last_param = false;
-		syntax = "<nick> [<nick>]+";
+		syntax = { "<nick> [<nick>]+" };
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command
@@ -191,7 +191,7 @@ class CommandUserhost : public Command
 		, hideopermode(parent, "hideoper")
 	{
 		allow_empty_last_param = false;
-		syntax = "<nick> [<nick>]+";
+		syntax = { "<nick> [<nick>]+" };
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command

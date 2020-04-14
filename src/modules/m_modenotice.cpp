@@ -27,7 +27,7 @@ class CommandModeNotice : public Command
  public:
 	CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2)
 	{
-		syntax = "<modeletters> :<message>";
+		syntax = { "<modeletters> :<message>" };
 		flags_needed = 'o';
 	}
 

@@ -31,7 +31,7 @@ CommandQuit::CommandQuit(Module* parent)
 	, operquit(parent, "operquit", ExtensionItem::EXT_USER, true)
 {
 	works_before_reg = true;
-	syntax = "[:<message>]";
+	syntax = { "[:<message>]" };
 }
 
 CmdResult CommandQuit::Handle(User* user, const Params& parameters)

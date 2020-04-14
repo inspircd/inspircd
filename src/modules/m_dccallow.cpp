@@ -188,7 +188,7 @@ class CommandDccallow : public Command
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
 	{
-		syntax = "[(+|-)<nick> [<time>]]|[LIST|HELP]";
+		syntax = { "[(+|-)<nick> [<time>]]", "LIST", "HELP" };
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 

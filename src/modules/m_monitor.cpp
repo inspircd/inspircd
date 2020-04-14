@@ -312,7 +312,7 @@ class CommandMonitor : public SplitCommand
 	{
 		Penalty = 2;
 		allow_empty_last_param = false;
-		syntax = "C|L|S|(+|-) <nick>[,<nick>]+";
+		syntax = { "C", "L", "S", "(+|-) <nick>[,<nick>]+" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

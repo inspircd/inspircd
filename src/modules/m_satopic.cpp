@@ -34,7 +34,7 @@ class CommandSATopic : public Command
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
 		flags_needed = 'o';
-		syntax = "<channel> :<topic>";
+		syntax = { "<channel> :<topic>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

@@ -33,7 +33,7 @@ CommandDie::CommandDie(Module* parent)
 	: Command(parent, "DIE", 1, 1)
 {
 	flags_needed = 'o';
-	syntax = "<servername>";
+	syntax = { "<servername>" };
 }
 
 void DieRestart::SendError(const std::string& message)

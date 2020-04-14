@@ -32,7 +32,7 @@ CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1, 1)
 {
 	works_before_reg = true;
-	syntax = "<newnick>";
+	syntax = { "<newnick>" };
 	Penalty = 0;
 }
 

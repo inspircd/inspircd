@@ -32,7 +32,8 @@ class CommandTline : public Command
  public:
 	CommandTline(Module* Creator) : Command(Creator,"TLINE", 1)
 	{
-		flags_needed = 'o'; this->syntax = "<mask>";
+		flags_needed = 'o';
+		syntax = { "<mask>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

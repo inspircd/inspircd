@@ -63,8 +63,9 @@ void Command::RegisterService()
 void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
 {
 	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
-	if (ServerInstance->Config->SyntaxHints && user->registered == REG_ALL && syntax.length())
-		user->WriteNumeric(RPL_SYNTAX, name, syntax);
+	if (ServerInstance->Config->SyntaxHints && user->registered == REG_ALL)
+		for (const std::string& syntaxline : this->syntax)
+			user->WriteNumeric(RPL_SYNTAX, name, syntaxline);
 }
 
 void Command::TellNotRegistered(LocalUser* user, const Params& parameters)

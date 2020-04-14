@@ -42,7 +42,7 @@ class CommandSetidle : public SplitCommand
 	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
 	{
 		flags_needed = 'o';
-		syntax = "<duration>";
+		syntax = { "<duration>" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

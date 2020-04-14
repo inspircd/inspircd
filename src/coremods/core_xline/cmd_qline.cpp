@@ -35,7 +35,7 @@ CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<nickmask> [<duration> :<reason>]";
+	syntax = { "<nickmask> [<duration> :<reason>]" };
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)

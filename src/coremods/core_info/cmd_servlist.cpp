@@ -32,7 +32,7 @@ CommandServList::CommandServList(Module* parent)
 	, invisiblemode(parent, "invisible")
 {
 	allow_empty_last_param = false;
-	syntax = "[<mask>]";
+	syntax = { "[<mask>]" };
 }
 
 CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters)

@@ -78,7 +78,7 @@ CommandMode::CommandMode(Module* parent)
 	, secretmode(creator, "secret")
 	, privatemode(creator, "private")
 {
-	syntax = "<target> [[(+|-)]<modes> [<mode-parameters>]]";
+	syntax = { "<target> [[(+|-)]<modes> [<mode-parameters>]]" };
 	memset(&sent, 0, sizeof(sent));
 }
 

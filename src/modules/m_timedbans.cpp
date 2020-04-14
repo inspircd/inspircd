@@ -75,7 +75,7 @@ class CommandTban : public Command
 		: Command(Creator,"TBAN", 3)
 		, banmode(Creator, "ban")
 	{
-		syntax = "<channel> <duration> <banmask>";
+		syntax = { "<channel> <duration> <banmask>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

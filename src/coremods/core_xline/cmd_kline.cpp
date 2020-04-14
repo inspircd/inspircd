@@ -34,7 +34,7 @@ CommandKline::CommandKline(Module* parent)
 	: Command(parent, "KLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<user@host> [<duration> :<reason>]";
+	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 
 /** Handle /KLINE

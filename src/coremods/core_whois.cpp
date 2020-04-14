@@ -115,7 +115,7 @@ class CommandWhois : public SplitCommand
 		, lineevprov(parent, "event/whoisline")
 	{
 		Penalty = 2;
-		syntax = "[<servername>] <nick>[,<nick>]+";
+		syntax = { "[<servername>] <nick>[,<nick>]+" };
 	}
 
 	/** Handle command.

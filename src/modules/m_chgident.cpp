@@ -36,7 +36,7 @@ class CommandChgident : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<nick> <ident>";
+		syntax = { "<nick> <ident>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

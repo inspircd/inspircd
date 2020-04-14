@@ -348,7 +348,7 @@ class CommandSilence : public SplitCommand
 		, ext(Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "[(+|-)<mask> [CcdiNnPpTtx]]";
+		syntax = { "[(+|-)<mask> [CcdiNnPpTtx]]" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

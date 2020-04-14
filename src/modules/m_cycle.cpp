@@ -37,7 +37,7 @@ class CommandCycle : public SplitCommand
 		: SplitCommand(Creator, "CYCLE", 1)
 	{
 		Penalty = 3;
-		syntax = "<channel> [:<reason>]";
+		syntax = { "<channel> [:<reason>]" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

@@ -34,7 +34,7 @@ CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<user@host> [<duration> :<reason>]";
+	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 
 /** Handle /GLINE

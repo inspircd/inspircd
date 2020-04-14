@@ -32,7 +32,7 @@ CommandRestart::CommandRestart(Module* parent)
 	: Command(parent, "RESTART", 1, 1)
 {
 	flags_needed = 'o';
-	syntax = "<servername>";
+	syntax = { "<servername>" };
 }
 
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)

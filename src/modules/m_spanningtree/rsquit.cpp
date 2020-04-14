@@ -35,7 +35,7 @@ CommandRSQuit::CommandRSQuit(Module* Creator)
 	: Command(Creator, "RSQUIT", 1)
 {
 	flags_needed = 'o';
-	syntax = "<target-server-mask> [:<reason>]";
+	syntax = { "<target-server-mask> [:<reason>]" };
 }
 
 CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)

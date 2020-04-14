@@ -35,7 +35,7 @@ class CommandSetident : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o';
-		syntax = "<ident>";
+		syntax = { "<ident>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

@@ -45,7 +45,7 @@ class CommandUninvite : public Command
 		: Command(Creator, "UNINVITE", 2)
 		, invapi(Creator)
 	{
-		syntax = "<nick> <channel>";
+		syntax = { "<nick> <channel>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

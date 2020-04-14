@@ -29,7 +29,7 @@
 CommandTime::CommandTime(Module* parent)
 	: ServerTargetCommand(parent, "TIME")
 {
-	syntax = "[<servername>]";
+	syntax = { "[<servername>]" };
 }
 
 CmdResult CommandTime::Handle(User* user, const Params& parameters)

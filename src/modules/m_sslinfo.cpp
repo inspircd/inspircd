@@ -153,7 +153,7 @@ class CommandSSLInfo : public Command
 		: Command(Creator, "SSLINFO", 1)
 		, sslapi(Creator)
 	{
-		this->syntax = "<nick>";
+		this->syntax = { "<nick>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

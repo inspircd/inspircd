@@ -44,7 +44,7 @@ private:
 		, cap(Creator, "setname")
 	{
 		allow_empty_last_param = false;
-		syntax = ":<realname>";
+		syntax = { ":<realname>" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

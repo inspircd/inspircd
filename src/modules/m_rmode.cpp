@@ -31,7 +31,7 @@ class CommandRMode : public Command
 	CommandRMode(Module* Creator) : Command(Creator,"RMODE", 2, 3)
 	{
 		allow_empty_last_param = false;
-		syntax = "<channel> <mode> [<pattern>]";
+		syntax = { "<channel> <mode> [<pattern>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
