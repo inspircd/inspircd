@@ -59,7 +59,7 @@ DLLManager::~DLLManager()
 		return;
 
 #ifdef _WIN32
-	FreeLibrary(lib)
+	FreeLibrary(lib);
 #else
 	dlclose(lib);
 #endif

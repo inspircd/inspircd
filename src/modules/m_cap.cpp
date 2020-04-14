@@ -489,13 +489,15 @@ class ModuleCap : public Module
 {
  private:
 	CommandCap cmd;
-	PoisonCap cap;
+	PoisonCap poisoncap;
+	Cap::Capability stdrplcap;
 
  public:
 	ModuleCap()
 		: Module(VF_VENDOR, "Implements support for the IRCv3 Client Capability Negotiation extension.")
 		, cmd(this)
-		, cap(this)
+		, poisoncap(this)
+		, stdrplcap(this, "inspircd.org/standard-replies")
 	{
 	}
 

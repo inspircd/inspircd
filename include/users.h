@@ -490,6 +490,12 @@ class CoreExport User : public Extensible
 	 */
 	virtual bool HasModePermission(const ModeHandler* mh) const;
 
+	/** Determines whether this user can set the specified snomask.
+	 * @param chr The server notice mask character to look up.
+	 * @return True if the user can set the specified snomask; otherwise, false.
+	 */
+	virtual bool HasSnomaskPermission(char chr) const;
+
 	/** Creates a usermask with real host.
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
 	 * @return the usermask in the format user\@host
@@ -794,6 +800,9 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(const ModeHandler* mh) const override;
+
+	/** @copydoc User::HasSnomaskPermission */
+	bool HasSnomaskPermission(char chr) const override;
 
 	/** Change nick to uuid, unset REG_NICK and send a nickname overruled numeric.
 	 * This is called when another user (either local or remote) needs the nick of this user and this user

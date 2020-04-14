@@ -208,7 +208,7 @@ namespace OpenSSL
 			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
 			if (!store)
 			{
-				throw ModuleException("Unable to get X509_STORE from SSL context; this should never happen");
+				throw ModuleException("Unable to get X509_STORE from TLS (SSL) context; this should never happen");
 			}
 			ERR_clear_error();
 			if (!X509_STORE_load_locations(store,
@@ -919,7 +919,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			catch (OpenSSL::Exception& ex)
 			{
-				throw ModuleException("Error while initializing the default SSL profile - " + ex.GetReason());
+				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
 			}
 		}
 
@@ -943,7 +943,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -987,13 +987,13 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnModuleRehash(User* user, const std::string &param) override
 	{
-		if (!irc::equals(param, "ssl"))
+		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
 			return;
 
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "SSL module %s rehashed.", MODNAME);
+			ServerInstance->SNO.WriteToSnoMask('a', "TLS (SSL) module OpenSSL rehashed.");
 		}
 		catch (ModuleException& ex)
 		{
@@ -1009,9 +1009,9 @@ class ModuleSSLOpenSSL : public Module
 
 			if ((user) && (user->eh.GetModHook(this)))
 			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users.QuitUser(user, "SSL module unloading");
+				// User is using TLS (SSL), they're a local user, and they're using one of *our* TLS (SSL) ports.
+				// Potentially there could be multiple TLS (SSL) modules loaded at once on different ports.
+				ServerInstance->Users.QuitUser(user, "OpenSSL module unloading");
 			}
 		}
 	}

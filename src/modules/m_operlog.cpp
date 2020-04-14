@@ -28,7 +28,6 @@
 
 class ModuleOperLog
 	: public Module
-	, public ISupport::EventListener
 {
  private:
 	bool tosnomask;
@@ -36,7 +35,6 @@ class ModuleOperLog
  public:
 	ModuleOperLog()
 		: Module(VF_VENDOR, "Allows the server administrator to make the server log when a server operator-only command is executed.")
-		, ISupport::EventListener(this)
 	{
 	}
 
@@ -62,20 +60,15 @@ class ModuleOperLog
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO.WriteGlobalSno('r', msg);
+				else
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, msg);
 			}
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["OPERLOG"];
-	}
-
 };
 
 MODULE_INIT(ModuleOperLog)

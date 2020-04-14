@@ -144,10 +144,10 @@
       # to this bind section.
       type="clients"
 
-      # ssl: If you want the port(s) in this bind tag to use SSL, set this to
+      # ssl: If you want the port(s) in this bind tag to use TLS (SSL), set this to
       # the name of a custom <sslprofile> tag that you have defined or one
       # of "openssl", "gnutls", "mbedtls" if you have not defined any. See the
-      # docs page for the SSL module you are using for more details.
+      # docs page for the TLS (SSL) module you are using for more details.
       #
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
       # for GnuTLS and ssl_mbedtls for mbedTLS.
@@ -202,11 +202,11 @@
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
 
-# You can define a custom <sslprofile> tag which defines the SSL configuration
-# for this listener. See the docs page for the SSL module you are using for
+# You can define a custom <sslprofile> tag which defines the TLS (SSL) configuration
+# for this listener. See the docs page for the TLS (SSL) module you are using for
 # more details.
 #
-# Alternatively, you can use one of the default SSL profiles which are created
+# Alternatively, you can use one of the default TLS (SSL) profiles which are created
 # when you have not defined any:
 #   "openssl" (requires the ssl_openssl module)
 #   "gnutls" (requires the ssl_gnutls module)
@@ -235,8 +235,8 @@
 # Connect blocks are searched twice for each user - once when the TCP #
 # connection is accepted, and once when the user completes their      #
 # registration. Most of the information (hostname, ident response,    #
-# password, SSL when using STARTTLS, etc) is only available during    #
-# the second search, so if you are trying to make a closed server,    #
+# password, TLS (SSL) when using STARTTLS, etc) is only available     #
+# during the second search. If you are trying to make a closed server #
 # you will probably need a connect block just for user registration.  #
 # This can be done by using <connect registered="no">                 #
 
@@ -335,10 +335,10 @@
          # Requires the ident module to be loaded.
          #requireident="yes"
 
-         # requiressl: Require that users of this block use an SSL connection.
-         # This can also be set to "trusted", as to only accept certificates
+         # requiressl: Require that users of this block use a TLS (SSL) connection.
+         # This can also be set to "trusted", as to only accept client certificates
          # issued by a certificate authority that you can configure in the
-         # settings of the SSL module that you're using.
+         # settings of the TLS (SSL) module that you're using.
          # Requires the sslinfo module to be loaded.
          #requiressl="yes"
 

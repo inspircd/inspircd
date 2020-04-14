@@ -509,7 +509,7 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max)
 	return rv % max;
 }
 
-// This is overridden by a higher-quality algorithm when SSL support is loaded
+// This is overridden by a higher-quality algorithm when TLS (SSL) support is loaded
 void InspIRCd::DefaultGenRandom(char* output, size_t max)
 {
 #if defined HAS_ARC4RANDOM_BUF

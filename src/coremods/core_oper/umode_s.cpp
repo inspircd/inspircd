@@ -89,7 +89,8 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 			case '*':
 				for (size_t j = 0; j < 64; j++)
 				{
-					if (ServerInstance->SNO.IsSnomaskUsable(j+'A'))
+					const char chr = j + 'A';
+					if (user->HasSnomaskPermission(chr) && ServerInstance->SNO.IsSnomaskUsable(chr))
 						curr[j] = adding;
 				}
 			break;
@@ -101,6 +102,12 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 					if (!ServerInstance->SNO.IsSnomaskUsable(*i))
 					{
 						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
+						continue;
+					}
+					else if (!user->HasSnomaskPermission(*i))
+					{
+						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
+							user->oper->name.c_str(), *i));
 						continue;
 					}
 				}

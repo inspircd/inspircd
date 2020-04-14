@@ -49,12 +49,15 @@
      usermodes="*"
 
      # chanmodes: Oper-only channel modes that opers with this class can use.
-     chanmodes="*">
+     chanmodes="*"
+
+     # snomasks: The snomasks that opers with this class can use.
+     snomasks="*">
 
 <class name="SACommands" commands="SAJOIN SAPART SANICK SAQUIT SATOPIC SAKICK SAMODE OJOIN">
-<class name="ServerLink" commands="CONNECT SQUIT RCONNECT RSQUIT MKPASSWD ALLTIME SWHOIS LOCKSERV UNLOCKSERV" usermodes="*" chanmodes="*" privs="servers/auspex">
-<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE TLINE RLINE CHECK NICKLOCK NICKUNLOCK SHUN CLONES CBAN" usermodes="*" chanmodes="*">
-<class name="OperChat" commands="WALLOPS GLOBOPS" usermodes="*" chanmodes="*" privs="users/mass-message">
+<class name="ServerLink" commands="CONNECT SQUIT RCONNECT RSQUIT MKPASSWD ALLTIME SWHOIS LOCKSERV UNLOCKSERV" usermodes="*" chanmodes="*" privs="servers/auspex" snomasks="Cc">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE TLINE RLINE CHECK NICKLOCK NICKUNLOCK SHUN CLONES CBAN" usermodes="*" chanmodes="*" snomasks="Xx">
+<class name="OperChat" commands="WALLOPS GLOBOPS" usermodes="*" chanmodes="*" privs="users/mass-message" snomasks="Gg">
 <class name="HostCloak" commands="SETHOST SETIDENT SETIDLE CHGNAME CHGHOST CHGIDENT" usermodes="*" chanmodes="*" privs="users/auspex">
 
 
@@ -109,22 +112,22 @@
       host="attila@inspircd.org *@2001:db8::/32"
 
       # ** ADVANCED ** This option is disabled by default.
-      # fingerprint: When using the sslinfo module, you may specify
-      # a key fingerprint here. This can be obtained by using the /SSLINFO
-      # command while the module is loaded, and is also noticed on connect.
+      # fingerprint: When using the sslinfo module, you may specify a space separated
+      # list of TLS (SSL) client certificate fingerprints here. These can be obtained by using
+      # the /SSLINFO command while the module is loaded, and is also noticed on connect.
       # This enhances security by verifying that the person opering up has
-      # a matching SSL client certificate, which is very difficult to
+      # a matching TLS (SSL) client certificate, which is very difficult to
       # forge (impossible unless preimage attacks on the hash exist).
       # If the sslinfo module isn't loaded, this option will be ignored.
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
-      # autologin: If an SSL certificate fingerprint for this oper is specified,
+      # autologin: If a TLS (SSL) client certificate fingerprint for this oper is specified,
       # you can have the oper block automatically log in. This moves all security
-      # of the oper block to the protection of the client certificate, so be sure
+      # of the oper block to the protection of the TLS (SSL) client certificate, so be sure
       # that the private key is well-protected! Requires the sslinfo module.
-      #autologin="on"
+      #autologin="yes"
 
-      # sslonly: If on, this oper can only oper up if they're using an SSL connection.
+      # sslonly: If enabled, this oper can only oper up if they're using a TLS (SSL) connection.
       # Setting this option adds a decent bit of security. Highly recommended
       # if the oper is on wifi, or specifically, unsecured wifi. Note that it
       # is redundant to specify this option if you specify a fingerprint.

@@ -239,7 +239,7 @@ enum ServiceType {
 	SERVICE_METADATA,
 	/** is a data processing provider (MD5, SQL) */
 	SERVICE_DATA,
-	/** is an I/O hook provider (SSL) */
+	/** is an I/O hook provider */
 	SERVICE_IOHOOK,
 	/** Service managed by a module */
 	SERVICE_CUSTOM

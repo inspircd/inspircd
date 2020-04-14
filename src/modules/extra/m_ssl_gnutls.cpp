@@ -791,7 +791,7 @@ info_done_dealloc:
 		}
 
 		CloseSession();
-		sock->SetError("No SSL session");
+		sock->SetError("No TLS (SSL) session");
 		return -1;
 	}
 
@@ -1123,7 +1123,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
-		// avoiding unpleasant situations where no new SSL connections are possible.
+		// avoiding unpleasant situations where no new TLS (SSL) connections are possible.
 		ProfileList newprofiles;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
@@ -1141,7 +1141,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing the default SSL profile - " + ex.GetReason());
+				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
 			}
 		}
 
@@ -1166,7 +1166,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -1199,13 +1199,13 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnModuleRehash(User* user, const std::string &param) override
 	{
-		if (!irc::equals(param, "ssl"))
+		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
 			return;
 
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "SSL module %s rehashed.", MODNAME);
+			ServerInstance->SNO.WriteToSnoMask('a', "TLS (SSL) module GnuTLS rehashed.");
 		}
 		catch (ModuleException& ex)
 		{
@@ -1226,9 +1226,9 @@ class ModuleSSLGnuTLS : public Module
 
 			if ((user) && (user->eh.GetModHook(this)))
 			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users.QuitUser(user, "SSL module unloading");
+				// User is using TLS (SSL), they're a local user, and they're using one of *our* TLS (SSL) ports.
+				// Potentially there could be multiple TLS (SSL) modules loaded at once on different ports.
+				ServerInstance->Users.QuitUser(user, "GnuTLS module unloading");
 			}
 		}
 	}
