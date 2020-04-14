@@ -153,7 +153,7 @@ class CommandSSLInfo : public Command
 		: Command(Creator, "SSLINFO", 1)
 		, sslapi(Creator)
 	{
-		this->syntax = "<nick>";
+		syntax = "<nick>";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
@@ -188,6 +188,7 @@ class CommandSSLInfo : public Command
 			user->WriteNotice("*** Issuer:             " + cert->GetIssuer());
 			user->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
 		}
+
 		return CMD_SUCCESS;
 	}
 };
@@ -257,18 +258,18 @@ class ModuleSSLInfo
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires an SSL connection.");
+					user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
 					user->CommandFloodPenalty += 10000;
-					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': secure connection required.", user->GetFullRealHost().c_str(), parameters[0].c_str());
+					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': a secure connection is required.", user->GetFullRealHost().c_str(), parameters[0].c_str());
 					return MOD_RES_DENY;
 				}
 
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || !MatchFP(cert, fingerprint)))
 				{
-					user->WriteNumeric(ERR_NOOPERHOST, "This oper login requires a matching SSL certificate fingerprint.");
+					user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
 					user->CommandFloodPenalty += 10000;
-					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
+					ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': their TLS (SSL) client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
 					return MOD_RES_DENY;
 				}
 			}
@@ -290,21 +291,20 @@ class ModuleSSLInfo
 
 		ssl_cert* const cert = ssliohook->GetCertificate();
 
-		{
-			std::string text = "*** You are connected to ";
-			if (!ssliohook->GetServerName(text))
-				text.append(ServerInstance->Config->ServerName);
-			text.append(" using SSL cipher '");
-			ssliohook->GetCiphersuite(text);
-			text.push_back('\'');
-			if ((cert) && (!cert->GetFingerprint().empty()))
-				text.append(" and your SSL certificate fingerprint is ").append(cert->GetFingerprint());
-			user->WriteNotice(text);
-		}
+		std::string text = "*** You are connected to ";
+		if (!ssliohook->GetServerName(text))
+			text.append(ServerInstance->Config->ServerName);
+		text.append(" using TLS (SSL) cipher '");
+		ssliohook->GetCiphersuite(text);
+		text.push_back('\'');
+		if (cert && !cert->GetFingerprint().empty())
+			text.append(" and your TLS (SSL) client certificate fingerprint is ").append(cert->GetFingerprint());
+		user->WriteNotice(text);
 
 		if (!cert)
 			return;
-		// find an auto-oper block for this user
+
+		// Find an auto-oper block for this user
 		for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
 		{
 			OperInfo* ifo = i->second;
@@ -332,6 +332,7 @@ class ModuleSSLInfo
 
 		if (!ok)
 			return MOD_RES_DENY;
+
 		return MOD_RES_PASSTHRU;
 	}
 
