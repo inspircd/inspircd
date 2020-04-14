@@ -33,7 +33,7 @@ class CommandGloadmodule : public Command
  public:
 	CommandGloadmodule(Module* Creator) : Command(Creator,"GLOADMODULE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 
@@ -72,7 +72,7 @@ class CommandGunloadmodule : public Command
  public:
 	CommandGunloadmodule(Module* Creator) : Command(Creator,"GUNLOADMODULE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 
@@ -123,7 +123,7 @@ class CommandGreloadmodule : public Command
  public:
 	CommandGreloadmodule(Module* Creator) : Command(Creator, "GRELOADMODULE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 

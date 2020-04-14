@@ -45,7 +45,7 @@ class CommandOpermotd : public Command
 
 	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<servername>]" };
 	}
 

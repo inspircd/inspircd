@@ -32,7 +32,7 @@ class CommandTline : public Command
  public:
 	CommandTline(Module* Creator) : Command(Creator,"TLINE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<mask>" };
 	}
 

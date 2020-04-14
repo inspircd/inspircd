@@ -64,7 +64,7 @@ class CommandShun : public Command
  public:
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick!user@host> [<duration> :<reason>]" };
 	}
 

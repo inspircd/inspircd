@@ -34,7 +34,7 @@
 CommandRSQuit::CommandRSQuit(Module* Creator)
 	: Command(Creator, "RSQUIT", 1)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<target-server-mask> [:<reason>]" };
 }
 

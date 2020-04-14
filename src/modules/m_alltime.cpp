@@ -30,7 +30,7 @@ class CommandAlltime : public Command
  public:
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

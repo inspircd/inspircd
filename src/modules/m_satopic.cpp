@@ -33,7 +33,7 @@ class CommandSATopic : public Command
  public:
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channel> :<topic>" };
 	}
 

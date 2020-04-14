@@ -34,7 +34,7 @@ class CommandSaquit : public Command
  public:
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> :<reason>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

@@ -173,7 +173,7 @@ class CommandFilter : public Command
 	CommandFilter(Module* f)
 		: Command(f, "FILTER", 1, 5)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		this->syntax = { "<pattern> [<action> <flags> [<duration>] :<reason>]" };
 	}
 	CmdResult Handle(User* user, const Params& parameters) override;

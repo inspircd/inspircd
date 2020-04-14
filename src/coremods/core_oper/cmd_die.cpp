@@ -32,7 +32,7 @@
 CommandDie::CommandDie(Module* parent)
 	: Command(parent, "DIE", 1, 1)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<servername>" };
 }
 

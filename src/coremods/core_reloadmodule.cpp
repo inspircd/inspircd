@@ -63,7 +63,7 @@ class CommandReloadmodule : public Command
 	{
 		reloadevprov = &evprov;
 		dummyserializer = &dummyser;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename>" };
 	}
 

@@ -57,7 +57,7 @@ class ModuleOperLog
 		if ((user->IsOper()) && (user->HasCommandPermission(command)))
 		{
 			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
-			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
+			if ((thiscommand) && (thiscommand->access_needed == CmdAccess::OPERATOR))
 			{
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
 				if (tosnomask)

@@ -31,7 +31,7 @@ class CommandClearChan : public Command
 		: Command(Creator, "CLEARCHAN", 1, 3)
 	{
 		syntax = { "<channel> [KILL|KICK|G|Z] [:<reason>]" };
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 
 		// Stop the linking mod from forwarding ENCAP'd CLEARCHAN commands, see below why
 		force_manual_route = true;

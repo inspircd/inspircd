@@ -36,7 +36,7 @@ class CommandSethost : public Command
 		: Command(Creator,"SETHOST", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<host>" };
 	}
 

@@ -41,7 +41,7 @@ class CommandSetidle : public SplitCommand
  public:
 	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<duration>" };
 	}
 

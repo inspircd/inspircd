@@ -36,7 +36,7 @@ class CommandChghost : public Command
 		: Command(Creator,"CHGHOST", 2)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <host>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

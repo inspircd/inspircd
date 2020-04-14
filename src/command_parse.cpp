@@ -133,16 +133,22 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 		{
 			bool bOkay = false;
 
-			if (IS_LOCAL(user) && n->second->flags_needed)
+			if (IS_LOCAL(user))
 			{
-				/* if user is local, and flags are needed .. */
-
-				if (user->IsModeSet(n->second->flags_needed))
+				switch (n->second->access_needed)
 				{
-					/* if user has the flags, and now has the permissions, go ahead */
-					if (user->HasCommandPermission(commandname))
+					case CmdAccess::NORMAL: // Anyone can execute.
 						bOkay = true;
-				}
+						break;
+
+					case CmdAccess::OPERATOR: // Only opers can execute.
+						bOkay = user->HasCommandPermission(commandname);
+						break;
+
+					case CmdAccess::SERVER: // Only servers can execute.
+						bOkay = IS_SERVER(user);
+						break;
+				};
 			}
 			else
 			{
@@ -256,24 +262,41 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 	/* activity resets the ping pending timer */
 	user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
-
-	if (handler->flags_needed)
+	switch (handler->access_needed)
 	{
-		if (!user->IsModeSet(handler->flags_needed))
+		case CmdAccess::NORMAL:
+			break; // Nothing special too do.
+
+		case CmdAccess::OPERATOR:
 		{
-			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
-			return;
+			if (!user->IsOper())
+			{
+				user->CommandFloodPenalty += failpenalty;
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
+				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
+				return;
+			}
+
+			if (!user->HasCommandPermission(command))
+			{
+				user->CommandFloodPenalty += failpenalty;
+				user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
+					user->oper->name.c_str(), command.c_str()));
+				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
+				return;
+			}
+			break;
 		}
 
-		if (!user->HasCommandPermission(command))
+		case CmdAccess::SERVER:
 		{
-			user->CommandFloodPenalty += failpenalty;
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
-				user->oper->name.c_str(), command.c_str()));
+			if (user->registered == REG_ALL)
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
+
+			ServerInstance->stats.Unknown++;
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
-			return;
+
+			break;
 		}
 	}
 

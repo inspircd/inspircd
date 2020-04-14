@@ -94,7 +94,7 @@ class CommandCBan : public Command
  public:
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channel> [<duration> [:<reason>]]" };
 	}
 

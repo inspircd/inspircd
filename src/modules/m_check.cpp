@@ -150,7 +150,7 @@ class CommandCheck : public Command
 		: Command(parent,"CHECK", 1)
 		, snomaskmode(parent, "snomask")
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick>|<ipmask>|<hostmask>|<channel> [<servername>]" };
 	}
 

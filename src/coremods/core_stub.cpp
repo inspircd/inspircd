@@ -39,7 +39,7 @@ class CommandConnect : public Command
 	CommandConnect(Module* parent)
 		: Command(parent, "CONNECT", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<servermask>" };
 	}
 
@@ -125,7 +125,7 @@ class CommandSquit : public Command
 	CommandSquit(Module* parent)
 		: Command(parent, "SQUIT", 1, 2)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<servermask>" };
 	}
 

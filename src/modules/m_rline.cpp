@@ -143,7 +143,7 @@ class CommandRLine : public Command
  public:
 	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<regex> [<duration> :<reason>]" };
 	}
 

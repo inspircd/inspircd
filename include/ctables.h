@@ -26,6 +26,19 @@
 
 #pragma once
 
+/** Used to indicate the type of a command. */
+enum class CmdAccess : uint8_t
+{
+	/* The command has no special attributes. */
+	NORMAL = 0,
+
+	/** Only server operators can use the command. */
+	OPERATOR = 1,
+
+	/** Only servers can use the command. */
+	SERVER = 2,
+};
+
 /** Used to indicate the result of trying to execute a command. */
 enum CmdResult
 {
@@ -38,9 +51,6 @@ enum CmdResult
 	/* The command does not exist. */
 	CMD_INVALID = 2
 };
-
-/** Flag for commands that are only allowed from servers */
-const char FLAG_SERVERONLY = 7; // technically anything nonzero below 'A' works
 
 /** Translation types for translation of parameters to UIDs.
  * This allows the core commands to not have to be aware of how UIDs
@@ -208,8 +218,8 @@ class CoreExport Command : public CommandBase
 	/** Unregisters this command from the command parser. */
 	~Command() override;
 
-	/** The user modes required to be able to execute this command. */
-	unsigned char flags_needed = 0;
+	/** Who can access this command? */
+	CmdAccess access_needed = CmdAccess::NORMAL;
 
 	/** Whether the command will not be forwarded by the linking module even if it comes via ENCAP. */
 	bool force_manual_route = false;

@@ -33,7 +33,7 @@
 CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 3)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 

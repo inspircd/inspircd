@@ -174,7 +174,7 @@ class CommandCloak : public Command
  public:
 	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<host>" };
 	}
 

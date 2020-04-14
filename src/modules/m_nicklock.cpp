@@ -43,7 +43,7 @@ class CommandNicklock : public Command
 	CommandNicklock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKLOCK", 2),
 		locked(ext)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <newnick>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
@@ -103,7 +103,7 @@ class CommandNickunlock : public Command
 	CommandNickunlock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
 		locked(ext)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick>" };
 		translation = { TR_NICK };
 	}

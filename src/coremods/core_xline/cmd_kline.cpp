@@ -33,7 +33,7 @@
 CommandKline::CommandKline(Module* parent)
 	: Command(parent, "KLINE", 1, 3)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 

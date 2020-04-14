@@ -31,7 +31,7 @@ class CommandSakick : public Command
  public:
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channel> <nick> [:<reason>]" };
 		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}

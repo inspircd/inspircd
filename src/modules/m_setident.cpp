@@ -34,7 +34,7 @@ class CommandSetident : public Command
  CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<ident>" };
 	}
 

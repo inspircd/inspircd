@@ -34,7 +34,7 @@
 CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 3)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<ipmask> [<duration> :<reason>]" };
 }
 

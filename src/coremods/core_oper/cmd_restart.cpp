@@ -31,7 +31,7 @@
 CommandRestart::CommandRestart(Module* parent)
 	: Command(parent, "RESTART", 1, 1)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<servername>" };
 }
 

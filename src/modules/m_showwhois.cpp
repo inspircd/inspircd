@@ -47,7 +47,7 @@ class WhoisNoticeCmd : public Command
  public:
 	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2)
 	{
-		flags_needed = FLAG_SERVERONLY;
+		access_needed = CmdAccess::SERVER;
 	}
 
 	void HandleFast(User* dest, User* src)

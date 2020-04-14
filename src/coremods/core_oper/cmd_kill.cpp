@@ -32,7 +32,7 @@ CommandKill::CommandKill(Module* parent)
 	: Command(parent, "KILL", 2, 2)
 	, protoev(parent, name)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<nick>[,<nick>]+ :<reason>" };
 	translation = { TR_CUSTOM, TR_CUSTOM };
 }

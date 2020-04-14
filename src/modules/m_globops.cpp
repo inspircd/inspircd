@@ -35,7 +35,7 @@ class CommandGlobops : public Command
  public:
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { ":<message>" };
 	}
 

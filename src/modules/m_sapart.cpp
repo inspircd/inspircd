@@ -32,7 +32,7 @@ class CommandSapart : public Command
  public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <channel>[,<channel>]+ [:<reason>]" };
 		translation = { TR_NICK, TR_TEXT, TR_TEXT };
 	}

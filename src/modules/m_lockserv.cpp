@@ -44,7 +44,7 @@ class CommandLockserv : public Command
 	CommandLockserv(Module* Creator, std::string& lock) : Command(Creator, "LOCKSERV", 0, 1), locked(lock)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -69,7 +69,7 @@ class CommandUnlockserv : public Command
  public:
 	CommandUnlockserv(Module* Creator, std::string& lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

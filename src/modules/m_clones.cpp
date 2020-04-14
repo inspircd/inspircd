@@ -44,7 +44,7 @@ class CommandClones : public SplitCommand
 		, batchmanager(Creator)
 		, batch("inspircd.org/clones")
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<limit>" };
 	}
 

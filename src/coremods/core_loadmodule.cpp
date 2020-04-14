@@ -36,7 +36,7 @@ class CommandLoadmodule : public Command
 	CommandLoadmodule(Module* parent)
 		: Command(parent,"LOADMODULE", 1, 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename>" };
 	}
 
@@ -75,7 +75,7 @@ class CommandUnloadmodule : public Command
 	CommandUnloadmodule(Module* parent)
 		: Command(parent, "UNLOADMODULE", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename>" };
 	}
 

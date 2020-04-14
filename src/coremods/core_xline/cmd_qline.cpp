@@ -34,7 +34,7 @@
 CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<nickmask> [<duration> :<reason>]" };
 }
 

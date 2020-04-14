@@ -31,7 +31,7 @@
 CommandRehash::CommandRehash(Module* parent)
 	: Command(parent, "REHASH", 0)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	Penalty = 2;
 	syntax = { "[<servermask>]" };
 }

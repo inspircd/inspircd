@@ -33,7 +33,7 @@ class CommandSanick : public Command
 	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <newnick>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

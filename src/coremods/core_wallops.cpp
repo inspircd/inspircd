@@ -40,7 +40,7 @@ class CommandWallops : public Command
 		, wallopsmode(parent, "wallops", 'w')
 		, protoevprov(parent, name)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { ":<message>" };
 	}
 

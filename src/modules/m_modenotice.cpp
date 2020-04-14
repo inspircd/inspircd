@@ -28,7 +28,7 @@ class CommandModeNotice : public Command
 	CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2)
 	{
 		syntax = { "<modeletters> :<message>" };
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 	}
 
 	CmdResult Handle(User* src, const Params& parameters) override

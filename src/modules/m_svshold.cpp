@@ -101,7 +101,7 @@ class CommandSvshold : public Command
  public:
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> [<duration> :<reason>]" };
 	}
 

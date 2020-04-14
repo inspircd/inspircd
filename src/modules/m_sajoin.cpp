@@ -35,7 +35,7 @@ class CommandSajoin : public Command
 	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<nick>] <channel>[,<channel>]+" };
 		translation = { TR_NICK, TR_TEXT };
 	}

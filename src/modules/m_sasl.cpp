@@ -369,7 +369,7 @@ class CommandSASL : public Command
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext) : Command(Creator, "SASL", 2), authExt(ext)
 	{
-		this->flags_needed = FLAG_SERVERONLY; // should not be called by users
+		this->access_needed = CmdAccess::SERVER; // should not be called by users
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

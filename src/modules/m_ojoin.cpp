@@ -37,7 +37,7 @@ class CommandOjoin : public SplitCommand
 		: SplitCommand(parent, "OJOIN", 1)
 		, npmh(&mode)
 	{
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channel>" };
 		active = false;
 	}

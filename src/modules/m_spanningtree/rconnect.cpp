@@ -33,7 +33,7 @@
 CommandRConnect::CommandRConnect (Module* Creator)
 	: Command(Creator, "RCONNECT", 2)
 {
-	flags_needed = 'o';
+	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<remote-server-mask> <target-server-mask>" };
 }
 

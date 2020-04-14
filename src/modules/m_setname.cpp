@@ -88,7 +88,7 @@ class ModuleSetName : public Module
 
 		// Whether the module should only be usable by server operators.
 		bool operonly = tag->getBool("operonly");
-		cmd.flags_needed = operonly ? 'o' : 0;
+		cmd.access_needed = operonly ? CmdAccess::OPERATOR : CmdAccess::NORMAL;
 
 		// Whether a snotice should be sent out when a user changes their real name.
 		cmd.notifyopers = tag->getBool("notifyopers", !operonly);

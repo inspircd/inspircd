@@ -31,7 +31,7 @@ class CommandSVSTOPIC : public Command
 	CommandSVSTOPIC(Module* Creator)
 		: Command(Creator, "SVSTOPIC", 1, 4)
 	{
-		flags_needed = FLAG_SERVERONLY;
+		access_needed = CmdAccess::SERVER;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

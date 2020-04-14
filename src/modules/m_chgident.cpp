@@ -35,7 +35,7 @@ class CommandChgident : public Command
 	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o';
+		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <ident>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

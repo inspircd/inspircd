@@ -49,7 +49,7 @@ CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
 		// Don't show S2S commands to users
-		if (i->second->flags_needed == FLAG_SERVERONLY)
+		if (i->second->access_needed == CmdAccess::SERVER)
 			continue;
 
 		Module* src = i->second->creator;
