@@ -132,6 +132,9 @@ typedef SSIZE_T ssize_t;
 // warning C4706: assignment within conditional expression
 #pragma warning(disable:4706)
 
+// warning C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable:4800)
+
 /* Shared memory allocation functions */
 void * ::operator new(size_t iSize);
 void ::operator delete(void * ptr);
