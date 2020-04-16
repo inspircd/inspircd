@@ -65,7 +65,7 @@ class ModuleServProtectMode
 
  public:
 	ModuleServProtectMode()
-		: Module(VF_VENDOR, "Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their user modes changed.")
+		: Module(VF_VENDOR, "Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their channel prefix modes changed.")
 		, Whois::EventListener(this)
 		, Whois::LineEventListener(this)
 		, bm(this)
