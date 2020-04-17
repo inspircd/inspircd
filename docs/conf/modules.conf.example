@@ -1970,10 +1970,21 @@
 #<securehost exception="*@*.ircdriven.com">
 #<securehost exception="*@*.ircs.me">
 #                                                                     #
-# Define the following variable to change how long a user must wait   #
-# before issuing a LIST. If not defined, defaults to 60 seconds.      #
+# exemptregistered - Whether the waiting period applies to users who  #
+#                    are logged in to a services account.             #
+#                    Defaults to no.                                  #
 #                                                                     #
-#<securelist waittime="1m">                                           #
+# showmsg - Whether to tell users that they need to wait for a while  #
+#           before they can use the /LIST command.                    #
+#           Defaults to no.                                           #
+#                                                                     #
+# waittime - The time period that a user must be connected for before #
+#            they can use the /LIST command.                          #
+#             Defaults to 1 minute.                                   #
+#                                                                     #
+#<securelist exemptregistered="yes"
+#            showmsg="yes"
+#            waittime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Servprotect module: Provides support for Austhex style +k /
