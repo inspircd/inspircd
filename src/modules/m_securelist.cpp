@@ -34,6 +34,7 @@ class ModuleSecureList : public Module
  private:
 	AllowList allowlist;
 	bool exemptregistered;
+	bool showmsg;
 	unsigned int WaitTime;
 
  public:
@@ -57,6 +58,7 @@ class ModuleSecureList : public Module
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
 		exemptregistered = tag->getBool("exemptregistered");
+		showmsg = tag->getBool("showmsg", true);
 		WaitTime = tag->getDuration("waittime", 60, 1);
 		allowlist.swap(newallows);
 	}
@@ -79,9 +81,12 @@ class ModuleSecureList : public Module
 			if (exemptregistered && ext && ext->get(user))
 				return MOD_RES_PASSTHRU;
 
-			user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
-				(exemptregistered ? "login to an account or " : ""),
-				InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
+			if (showmsg)
+			{
+				user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
+					(exemptregistered ? "login to an account or " : ""),
+					InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
+			}
 
 			// The client might be waiting on a response to do something so send them an
 			// empty list response to satisfy that.
@@ -94,7 +99,8 @@ class ModuleSecureList : public Module
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["SECURELIST"];
+		if (showmsg)
+			tokens["SECURELIST"] = ConvToStr(WaitTime);
 	}
 };
 
