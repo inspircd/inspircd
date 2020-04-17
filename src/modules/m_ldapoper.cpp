@@ -150,7 +150,13 @@ class AdminBindInterface : public LDAPInterface
 
  public:
 	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
-		: LDAPInterface(c), provider(p), user(u), opername(p), password(pa), base(b), what(w)
+		: LDAPInterface(c)
+		, provider(p)
+		, user(u)
+		, opername(o)
+		, password(pa)
+		, base(b)
+		, what(w)
 	{
 	}
 
