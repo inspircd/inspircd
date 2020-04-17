@@ -31,6 +31,7 @@ typedef std::vector<std::string> AllowList;
 
 class ModuleSecureList : public Module
 {
+ private:
 	AllowList allowlist;
 	bool exemptregistered;
 	unsigned int WaitTime;
@@ -55,24 +56,19 @@ class ModuleSecureList : public Module
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
-
 		exemptregistered = tag->getBool("exemptregistered");
 		WaitTime = tag->getDuration("waittime", 60, 1);
 		allowlist.swap(newallows);
 	}
 
-
-	/*
-	 * OnPreCommand()
-	 *   Intercept the LIST command.
-	 */
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!user->IsOper()))
+		time_t waitallowed = user->signon + WaitTime;
+		if ((command == "LIST") && (ServerInstance->Time() < waitallowed) && (!user->IsOper()))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
@@ -83,11 +79,12 @@ class ModuleSecureList : public Module
 			if (exemptregistered && ext && ext->get(user))
 				return MOD_RES_PASSTHRU;
 
-			/* Not exempt, BOOK EM DANNO! */
-			user->WriteNotice("*** You cannot list within the first " + ConvToStr(WaitTime) + " seconds of connecting. Please try again later.");
-			/* Some clients (e.g. mIRC, various java chat applets) muck up if they don't
-			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
-			 */
+			user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
+				(exemptregistered ? "login to an account or " : ""),
+				InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
+
+			// The client might be waiting on a response to do something so send them an
+			// empty list response to satisfy that.
 			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 			user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 			return MOD_RES_DENY;
