@@ -367,7 +367,7 @@ class CoreExport User : public Extensible
 	unsigned int quitting:1;
 
 	/** What type of user is this? */
-	const UserType usertype:2;
+	const unsigned int usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
