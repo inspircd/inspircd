@@ -176,11 +176,12 @@ class CommandSSLInfo : public Command
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			user->WriteNotice("*** No TLS (SSL) client certificate for this user");
+			user->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS (SSL).", target->nick.c_str()));
 		}
 		else if (cert->GetError().length())
 		{
-			user->WriteNotice("*** No TLS (SSL) client certificate information for this user (" + cert->GetError() + ").");
+			user->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) but has not specified a valid client certificate (%s).",
+				target->nick.c_str(), cert->GetError().c_str()));
 		}
 		else
 		{
