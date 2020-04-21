@@ -61,7 +61,7 @@ enum
  * our ident lookup class that is outside of this module, or out-
  * side of the control of the class. There are no timers, internal
  * events, or such, which will cause the socket to be deleted,
- * queued for deletion, etc. In fact, theres not even any queueing!
+ * queued for deletion, etc. In fact, there's not even any queueing!
  *
  * Using this framework we have a much more stable module.
  *
@@ -183,7 +183,7 @@ class IdentRequestSocket : public EventHandler
 
 	void Close()
 	{
-		/* Remove ident socket from engine, and close it, but dont detatch it
+		/* Remove ident socket from engine, and close it, but dont detach it
 		 * from its parent user class, or attempt to delete its memory.
 		 */
 		if (HasFd())

@@ -45,7 +45,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 			return MODEACTION_DENY;
 		if (exists && (parameter != *key))
 		{
-			/* Key is currently set and the correct key wasnt given */
+			/* Key is currently set and the correct key wasn't given */
 			return MODEACTION_DENY;
 		}
 	} else {

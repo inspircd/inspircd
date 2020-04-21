@@ -32,7 +32,7 @@
  * whereas on POSIX systems, shared objects loaded into an executable share
  * the executable's heap. This means that if we pass an arbitrary pointer to
  * a windows DLL which is not allocated in that dll, without some form of
- * marshalling, we get a page fault. To fix this, these overrided operators
+ * marshalling, we get a page fault. To fix this, these overridden operators
  * new and delete use the windows HeapAlloc and HeapFree functions to claim
  * memory from the windows global heap. This makes windows 'act like' POSIX
  * when it comes to memory usage between dlls and exes.

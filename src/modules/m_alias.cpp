@@ -166,7 +166,7 @@ class ModuleAlias : public Module
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
-		/* If theyre not registered yet, we dont want
+		/* If they're not registered yet, we dont want
 		 * to know.
 		 */
 		if (user->registered != REG_ALL)

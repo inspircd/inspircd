@@ -416,7 +416,7 @@ void TreeSocket::Close()
 
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
-	// then propogate a netsplit to all peers.
+	// then propagate a netsplit to all peers.
 	if (MyRoot)
 		MyRoot->SQuit(getError(), true);
 

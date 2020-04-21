@@ -53,7 +53,7 @@ class CommandUserip : public Command
 				{
 					if (!checked_privs)
 					{
-						// Do not trigger the insufficient priviliges message more than once
+						// Do not trigger the insufficient privileges message more than once
 						checked_privs = true;
 						has_privs = user->HasPrivPermission("users/auspex");
 						if (!has_privs)

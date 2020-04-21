@@ -312,8 +312,8 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		return CMD_SUCCESS;
 
 	/*
-	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
-	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
+	 * If 2 parameters are specified (/whois nick nick), ignore the first one like spanningtree
+	 * does, and use the second one, otherwise, use the only parameter. -- djGrrr
 	 */
 	if (parameters.size() > 1)
 		userindex = 1;

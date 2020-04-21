@@ -586,7 +586,7 @@ void LocalUser::FullConnect()
 	/*
 	 * You may be thinking "wtf, we checked this in User::AddClient!" - and yes, we did, BUT.
 	 * At the time AddClient is called, we don't have a resolved host, by here we probably do - which
-	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
+	 * may put the user into a totally separate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
 	MyClass = NULL;

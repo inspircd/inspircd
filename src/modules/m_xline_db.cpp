@@ -156,7 +156,7 @@ class ModuleXLineDB
 #ifdef _WIN32
 		remove(xlinedbpath.c_str());
 #endif
-		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
+		// Use rename to move temporary to new db - this is guaranteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);

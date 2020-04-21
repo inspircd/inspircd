@@ -37,7 +37,7 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 
 	/* The caller is trying to match ident@<mask>/bits.
 	 * Chop off the ident@ portion, use match() on it
-	 * seperately.
+	 * separately.
 	 */
 	if (match_with_username)
 	{

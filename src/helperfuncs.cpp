@@ -383,7 +383,7 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 		}
 		else
 		{
-			/* Found something thats not a number, find out how much
+			/* Found something that's not a number, find out how much
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */

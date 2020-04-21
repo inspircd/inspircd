@@ -29,7 +29,7 @@
 /** XLine is the base class for ban lines such as G-lines and K-lines.
  * Modules may derive from this, and their xlines will automatically be
  * handled as expected by any protocol modules (e.g. m_spanningtree will
- * propogate them using AddLine). The process of translating a type+pattern
+ * propagate them using AddLine). The process of translating a type+pattern
  * to a known line type is done by means of an XLineFactory object (see
  * below).
  */
@@ -128,7 +128,7 @@ class CoreExport XLine : public classbase
 	 */
 	time_t set_time;
 
-	/** The duration of the ban, or 0 if permenant
+	/** The duration of the ban, or 0 if permanent
 	 */
 	unsigned long duration;
 
@@ -435,7 +435,7 @@ class CoreExport XLineManager
 	 */
 	~XLineManager();
 
-	/** Split an ident and host into two seperate strings.
+	/** Split an ident and host into two separate strings.
 	 * This allows for faster matching.
 	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);

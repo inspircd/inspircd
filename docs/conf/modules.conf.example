@@ -1326,7 +1326,7 @@
 # repeated to whitelist multiple CIDRs.                               #
 #                                                                     #
 # ldaprequire allows further filtering on the LDAP user, by requiring #
-# certain LDAP attibutes to have a given value. It can be repeated,   #
+# certain LDAP attributes to have a given value. It can be repeated,   #
 # in which case the list will act as an OR list, that is, the         #
 # authentication will succeed if any of the requirements in the list  #
 # is satisfied.                                                       #
@@ -1910,7 +1910,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAMODE module: Adds the /SAMODE command which allows server operators
 # to change modes on a channel without requiring them to have any
-# channel priviliges. Also allows changing user modes for any user.
+# channel privileges. Also allows changing user modes for any user.
 # This module is oper-only.
 # To use, SAMODE must be in one of your oper class blocks.
 #<module name="samode">
@@ -1937,7 +1937,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SATOPIC module: Adds the /SATOPIC command which allows changing the
-# topic on a channel without requiring any channel priviliges.
+# topic on a channel without requiring any channel privileges.
 # This module is oper-only.
 # To use, SATOPIC must be in one of your oper class blocks.
 #<module name="satopic">

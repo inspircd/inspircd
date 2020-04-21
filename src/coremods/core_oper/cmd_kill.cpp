@@ -57,7 +57,7 @@ class KillMessage : public ClientProtocol::Message
  */
 CmdResult CommandKill::Handle(User* user, const Params& parameters)
 {
-	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
+	/* Allow comma separated lists of users for /KILL (thanks w00t) */
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 	{
 		// If we got a colon delimited list of nicks then the handler ran for each nick,

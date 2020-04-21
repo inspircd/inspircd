@@ -73,7 +73,7 @@
  * worker thread wakes up, and checks if there is a request at the head of its queue.
  * If there is, it processes this request, blocking the worker thread but leaving the ircd
  * thread to go about its business as usual. During this period, the ircd thread is able
- * to insert futher pending requests into the queue.
+ * to insert further pending requests into the queue.
  *
  * Once the processing of a request is complete, it is removed from the incoming queue to
  * an outgoing queue, and initialized as a 'response'. The worker thread then signals the
@@ -90,7 +90,7 @@
  * one the module was originally instantiated upon, there is a chance of all hell breaking loose
  * if a module is ever put in a re-enterant state (stack corruption could occur, crashes, data
  * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
- * gauranteed threadsafe!)
+ * guaranteed threadsafe!)
  */
 
 class SQLConnection;
@@ -379,7 +379,7 @@ class SQLConnection : public SQL::Provider
 		/* Parse the command string and dispatch it to mysql */
 		if (CheckConnection() && !mysql_real_query(connection, query.data(), query.length()))
 		{
-			/* Successfull query */
+			/* Successful query */
 			MYSQL_RES* res = mysql_use_result(connection);
 			unsigned long rows = mysql_affected_rows(connection);
 			return new MySQLresult(res, rows);

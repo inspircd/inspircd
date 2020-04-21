@@ -313,12 +313,12 @@ class CoreExport ServerConfig
 	CommandLineConf cmdline;
 
 	/** Clones CIDR range for ipv4 (0-32)
-	 * Defaults to 32 (checks clones on all IPs seperately)
+	 * Defaults to 32 (checks clones on all IPs separately)
 	 */
 	unsigned char c_ipv4_range;
 
 	/** Clones CIDR range for ipv6 (0-128)
-	 * Defaults to 128 (checks on all IPs seperately)
+	 * Defaults to 128 (checks on all IPs separately)
 	 */
 	unsigned char c_ipv6_range;
 
@@ -332,7 +332,7 @@ class CoreExport ServerConfig
 	std::string XLineMessage;
 
 	/* Holds the network name the local server
-	 * belongs to. This is an arbitary field defined
+	 * belongs to. This is an arbitrary field defined
 	 * by the administrator.
 	 */
 	std::string Network;

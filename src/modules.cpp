@@ -234,7 +234,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	}
 
 	/* Eh? this module doesnt exist, probably trying to set priority on an event
-	 * theyre not attached to.
+	 * they're not attached to.
 	 */
 	return false;
 
@@ -315,7 +315,7 @@ swap_now:
 bool ModuleManager::PrioritizeHooks()
 {
 	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
+	 * not just the one that's loading, as the new module could affect the preference
 	 * of others
 	 */
 	for (int tries = 0; tries < 20; tries++)

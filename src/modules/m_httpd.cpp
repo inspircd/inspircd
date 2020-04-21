@@ -289,7 +289,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		else
 			rheaders.RemoveHeader("Content-Type");
 
-		/* Supporting Connection: keep-alive causes a whole world of hurt syncronizing timeouts,
+		/* Supporting Connection: keep-alive causes a whole world of hurt synchronizing timeouts,
 		 * so remove it, its not essential for what we need.
 		 */
 		rheaders.SetHeader("Connection", "Close");

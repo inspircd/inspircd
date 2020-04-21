@@ -127,7 +127,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	 * be referenced by its server name. The AddHashEntry()
 	 * call below automatically inserts each TreeServer class
 	 * into the hash_map as it is created. There is a similar
-	 * maintainance call in the destructor to tidy up deleted
+	 * maintenance call in the destructor to tidy up deleted
 	 * servers.
 	 */
 

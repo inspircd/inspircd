@@ -107,7 +107,7 @@ class SQL::Result : public classbase
 	/**
 	 * Return the number of rows in the result.
 	 *
-	 * Note that if you have perfomed an INSERT or UPDATE query or other
+	 * Note that if you have performed an INSERT or UPDATE query or other
 	 * query which will not return rows, this will return the number of
 	 * affected rows. In this case you SHOULD NEVER access any of the result
 	 * set rows, as there aren't any!

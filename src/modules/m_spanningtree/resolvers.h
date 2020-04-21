@@ -48,7 +48,7 @@ class SecurityIPResolver : public DNS::Request
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
- * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this
+ * As of 1.1, the resolver system is separated out from BufferedSocket, so we must do this
  * resolver step first ourselves if we need it. This is totally nonblocking, and will
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.

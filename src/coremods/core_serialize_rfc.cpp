@@ -89,7 +89,7 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 		while (ss.GetToken(token))
 		{
 			// Two or more tags with the same key must not be sent, but if a client violates that we accept
-			// the first occurence of duplicate tags and ignore all later occurences.
+			// the first occurrence of duplicate tags and ignore all later occurrences.
 			//
 			// Another option is to reject the message entirely but there is no standard way of doing that.
 			const std::string::size_type p = token.find('=');
