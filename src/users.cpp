@@ -93,7 +93,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 		ServerInstance->Users.all_ulines.push_back(this);
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
-	if (type != UserType::SERVER)
+	if (type != USERTYPE_SERVER)
 	{
 		if (!ServerInstance->Users.uuidlist.insert(std::make_pair(uuid, this)).second)
 			throw CoreException("Duplicate UUID in User constructor: " + uuid);
@@ -101,7 +101,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, UserType::LOCAL)
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
 	, quitting_sendq(false)
 	, lastping(true)
@@ -118,7 +118,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 }
 
 LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
-	: User(uid, ServerInstance->FakeClient->server, UserType::LOCAL)
+	: User(uid, ServerInstance->FakeClient->server, USERTYPE_LOCAL)
 	, eh(this)
 {
 	eh.SetFd(myfd);

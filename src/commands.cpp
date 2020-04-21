@@ -82,18 +82,18 @@ CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 {
 	switch (user->usertype)
 	{
-		case UserType::LOCAL:
+		case USERTYPE_LOCAL:
 			return HandleLocal(static_cast<LocalUser*>(user), parameters);
 
-		case UserType::REMOTE:
+		case USERTYPE_REMOTE:
 			return HandleRemote(static_cast<RemoteUser*>(user), parameters);
 
-		case UserType::SERVER:
+		case USERTYPE_SERVER:
 			return HandleServer(static_cast<FakeUser*>(user), parameters);
 	}
 
-	ServerInstance->Logs.Log("COMMAND", LOG_DEFAULT, "Unknown user type %u in command (uuid=%s)!",
-		static_cast<unsigned int>(user->usertype), user->uuid.c_str());
+	ServerInstance->Logs.Log("COMMAND", LOG_DEFAULT, "Unknown user type %d in command (uuid=%s)!",
+		user->usertype, user->uuid.c_str());
 	return CMD_INVALID;
 }
 
