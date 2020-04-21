@@ -64,10 +64,17 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
-enum UserType {
-	USERTYPE_LOCAL = 1,
-	USERTYPE_REMOTE = 2,
-	USERTYPE_SERVER = 3
+/** An enumeration of all possible types of user. */
+enum class UserType : uint8_t
+{
+	/** The user is connected to the local server. */
+	LOCAL,
+
+	/** The user is connected to a remote server. */
+	REMOTE,
+
+	/** The user is a server pseudo-user. */
+	SERVER,
 };
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
@@ -831,7 +838,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 class RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_REMOTE)
+	RemoteUser(const std::string& uid, Server* srv) : User(uid, srv, UserType::REMOTE)
 	{
 	}
 };
@@ -840,13 +847,13 @@ class CoreExport FakeUser : public User
 {
  public:
 	FakeUser(const std::string& uid, Server* srv)
-		: User(uid, srv, USERTYPE_SERVER)
+		: User(uid, srv, UserType::SERVER)
 	{
 		nick = srv->GetName();
 	}
 
 	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
-		: User(uid, new Server(uid, sname, sdesc), USERTYPE_SERVER)
+		: User(uid, new Server(uid, sname, sdesc), UserType::SERVER)
 	{
 		nick = sname;
 	}
@@ -860,17 +867,17 @@ class CoreExport FakeUser : public User
 /** Is a local user */
 inline LocalUser* IS_LOCAL(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_LOCAL) ? static_cast<LocalUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == UserType::LOCAL) ? static_cast<LocalUser*>(u) : NULL;
 }
 /** Is a remote user */
 inline RemoteUser* IS_REMOTE(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_REMOTE) ? static_cast<RemoteUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == UserType::REMOTE) ? static_cast<RemoteUser*>(u) : NULL;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_SERVER) ? static_cast<FakeUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == UserType::SERVER) ? static_cast<FakeUser*>(u) : NULL;
 }
 
 inline bool User::IsModeSet(const ModeHandler* mh) const
