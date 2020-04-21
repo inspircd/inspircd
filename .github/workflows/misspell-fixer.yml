@@ -1,6 +1,7 @@
 name: misspell fixer
 on:
-  - push
+  schedule:
+    - cron: '0 0 15 * *'
 jobs:
   build:
     runs-on: ubuntu-latest
