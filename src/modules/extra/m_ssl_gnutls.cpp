@@ -1313,6 +1313,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "You have defined an <sslprofile> tag; you should use this in place of \"gnutls\" when configuring TLS (SSL) connections in <bind:ssl> or <link:ssl>");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;
