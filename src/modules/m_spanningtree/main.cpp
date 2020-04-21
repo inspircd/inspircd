@@ -135,7 +135,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			ShowLinks(server, user, hops+1);
 		}
 	}
-	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
+	/* Don't display the line if its a uline, hide ulines is on, and the user isn't an oper */
 	if ((Utils->HideULines) && (Current->IsULine()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */

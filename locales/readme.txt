@@ -16,10 +16,10 @@ Each file consists of 5-7 lines:
 3: List of additional characters that should be treated as upper-case
 
 4: 255 characters table - to-lower case conversion table. 
-Can be usefull for example for comparing nicknames that contains similar-looking characters with different codes.
+Can be useful for example for comparing nicknames that contains similar-looking characters with different codes.
 
 5: 255 characters table - to-upper case conversion table. 
-Can be usefull for example for comparing nicknames that contains similar-looking characters with different codes.
+Can be useful for example for comparing nicknames that contains similar-looking characters with different codes.
 
 6: List of additional UTF-8 allowed characters
 

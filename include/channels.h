@@ -33,7 +33,7 @@
  * This class contains a single element in a channel list, such as a banlist.
  */
 
-/** Holds all relevent information for a channel.
+/** Holds all relevant information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
@@ -158,7 +158,7 @@ class CoreExport Channel : public Extensible
 	 * @param user The user to add
 	 *
 	 * The data inserted into the reference list is a table as it is
-	 * an arbitary pointer compared to other users by its memory address,
+	 * an arbitrary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
 	Membership* AddUser(User* user);
@@ -228,7 +228,7 @@ class CoreExport Channel : public Extensible
 
 	/** Join a user to an existing channel, without doing any permission checks
 	 * @param user The user to join to the channel
-	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
+	 * @param privs Privileges (prefix mode letters) to give to this user, may be NULL
 	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
 	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
 	 * @return A newly created Membership object, or NULL if the user was already inside the channel or if the user is a server user

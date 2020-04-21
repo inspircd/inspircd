@@ -273,7 +273,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		if(PQsetnonblocking(sql, 1) == -1)
 			return false;
 
-		/* OK, we've initalised the connection, now to get it hooked into the socket engine
+		/* OK, we've initialised the connection, now to get it hooked into the socket engine
 		* and then start polling it.
 		*/
 		this->fd = PQsocket(sql);

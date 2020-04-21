@@ -70,7 +70,7 @@ class CoreExport ThreadEngine
 /** The Mutex class represents a mutex, which can be used to keep threads
  * properly synchronised. Use mutexes sparingly, as they are a good source
  * of thread deadlocks etc, and should be avoided except where absolutely
- * neccessary. Note that the internal behaviour of the mutex varies from OS
+ * necessary. Note that the internal behaviour of the mutex varies from OS
  * to OS depending on the thread engine, for example in windows a Mutex
  * in InspIRCd uses critical sections, as they are faster and simpler to
  * manage.

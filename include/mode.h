@@ -137,7 +137,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * inside the mode parser as in the 1.0 api,
 	 * so the only use of this value (along with
 	 * IsListMode()) is for the core to determine
-	 * wether your module can produce 'lists' or not
+	 * whether your module can produce 'lists' or not
 	 * (e.g. banlists, etc)
 	 */
 	bool list;
@@ -163,7 +163,7 @@ class CoreExport ModeHandler : public ServiceProvider
 
  public:
 	/**
-	 * The constructor for ModeHandler initalizes the mode handler.
+	 * The constructor for ModeHandler initializes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
 	 * probably call this constructor with the parameters set correctly.
 	 * @param me The module which created this mode
@@ -293,7 +293,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	/**
 	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)
 	 * @param user The user issuing the command
-	 * @param channel The channel tehy're requesting an item list of (e.g. a banlist, or an exception list etc)
+	 * @param channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
 	 */
 	virtual void DisplayEmptyList(User* user, Channel* channel);
 
@@ -311,7 +311,7 @@ class CoreExport ModeHandler : public ServiceProvider
 
 	/**
 	 * When a MODETYPE_USER mode handler is being removed, the core will call this method for every user on the server.
-	 * The usermode will be removed using the appropiate server mode using InspIRCd::SendMode().
+	 * The usermode will be removed using the appropriate server mode using InspIRCd::SendMode().
 	 * @param user The user which the server wants to remove your mode from
 	 */
 	void RemoveMode(User* user);
@@ -765,7 +765,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
 	 * @param mt type of mode to search for, user or channel
-	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
+	 * @returns a pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
@@ -782,7 +782,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
-	/** Generates a list of modes, comma seperated by type:
+	/** Generates a list of modes, comma separated by type:
 	 *  1; Listmodes EXCEPT those with a prefix
 	 *  2; Modes that take a param when adding or removing
 	 *  3; Modes that only take a param when adding

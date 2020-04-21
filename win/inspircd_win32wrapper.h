@@ -50,7 +50,7 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
-/* Macros for exporting symbols - dependant on what is being compiled */
+/* Macros for exporting symbols - dependent on what is being compiled */
 
 #ifdef DLL_BUILD
 #define CoreExport __declspec(dllimport)

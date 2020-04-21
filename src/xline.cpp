@@ -119,7 +119,7 @@ class ZLineFactory : public XLineFactory
  *  was added, it iterated every existing line for every existing user. Ow. Expiry was also
  *  expensive, as the lists were NOT sorted.
  *
- *  Version 2 moved permanent lines into a seperate list from non-permanent to help optimize
+ *  Version 2 moved permanent lines into a separate list from non-permanent to help optimize
  *  matching speed, but matched in the same way.
  *  Expiry was also sped up by sorting the list by expiry (meaning just remove the items at the
  *  head of the list that are outdated.)
@@ -128,7 +128,7 @@ class ZLineFactory : public XLineFactory
  * than it could have been, something which we address here.
  *
  * VERSION 3:
- *  All lines are (as in v1) stored together -- no seperation of perm and non-perm. They are stored in
+ *  All lines are (as in v1) stored together -- no separation of perm and non-perm. They are stored in
  *  a map of maps (first map is line type, second map is for quick lookup on add/delete/etc).
  *
  *  Expiry is *no longer* performed on a timer, and no longer uses a sorted list of any variety. This

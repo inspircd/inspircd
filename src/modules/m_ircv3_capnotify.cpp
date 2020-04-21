@@ -164,7 +164,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 
 	void OnReloadModuleRestore(Module* mod, void* data) CXX11_OVERRIDE
 	{
-		// Reloading can change the set of caps provided by a module so assuming that if the reload succeded all
+		// Reloading can change the set of caps provided by a module so assuming that if the reload succeeded all
 		// caps that the module previously provided are available or all were lost if the reload failed is wrong.
 		// Instead, we verify the availability of each cap individually.
 		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");

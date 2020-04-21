@@ -42,7 +42,7 @@ struct Service_Data {
 static Service_Data g_ServiceData;
 
 /** The main part of inspircd runs within this thread function. This allows the service part to run
- * seperately on its own and to be able to kill the worker thread when its time to quit.
+ * separately on its own and to be able to kill the worker thread when its time to quit.
  */
 DWORD WINAPI WorkerThread(LPVOID param)
 {

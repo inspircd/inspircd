@@ -188,7 +188,7 @@ class ModuleSSLModes
 
 		User* target = msgtarget.Get<User>();
 
-		/* If one or more of the parties involved is a ulined service, we wont stop it. */
+		/* If one or more of the parties involved is a ulined service, we won't stop it. */
 		if (user->server->IsULine() || target->server->IsULine())
 			return MOD_RES_PASSTHRU;
 

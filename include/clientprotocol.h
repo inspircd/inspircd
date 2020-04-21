@@ -700,7 +700,7 @@ class CoreExport ClientProtocol::Serializer : public DataProvider
 	 * @param tagname Name of the tag.
 	 * @param tagvalue Tag value, may be empty.
 	 * @param tags TagMap to place the tag into, if it gets accepted.
-	 * @return True if no error occured, false if the tag name is invalid or if this tag already exists.
+	 * @return True if no error occurred, false if the tag name is invalid or if this tag already exists.
 	 */
 	bool HandleTag(LocalUser* user, const std::string& tagname, std::string& tagvalue, TagMap& tags) const;
 

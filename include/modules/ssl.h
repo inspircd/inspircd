@@ -65,7 +65,7 @@ class ssl_cert : public refcountbase
 		return issuer;
 	}
 
-	/** Get error string if an error has occured
+	/** Get error string if an error has occurred
 	 * @return The error associated with this users certificate,
 	 * or an empty string if there is no error.
 	 */
@@ -302,7 +302,7 @@ class UserCertificateAPIBase : public DataProvider
 	}
 };
 
-/** API implemented by m_sslinfo that allows modules to retrive the TLS (SSL) certificate
+/** API implemented by m_sslinfo that allows modules to retrieve the TLS (SSL) certificate
  * information of local and remote users. It can also be used to find out whether a
  * user is using TLS (SSL) or not.
  */

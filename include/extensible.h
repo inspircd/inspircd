@@ -134,7 +134,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
  * a map associated with the object. In this way modules can store their own custom information within user
  * objects, channel objects and server objects, without breaking other modules (this is more sensible than using
  * a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and
- * supports arbitary data storage).
+ * supports arbitrary data storage).
  */
 class CoreExport Extensible
 	: public classbase

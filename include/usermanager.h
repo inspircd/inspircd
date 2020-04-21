@@ -150,7 +150,7 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	const CloneCounts& GetCloneCounts(User* user) const;
 
-	/** Return a map containg IP addresses and their clone counts
+	/** Return a map containing IP addresses and their clone counts
 	 * @return The clone count map
 	 */
 	const CloneMap& GetCloneMap() const { return clonemap; }

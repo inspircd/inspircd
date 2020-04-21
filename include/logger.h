@@ -50,7 +50,7 @@ class CoreExport FileWriter
 	 */
 	unsigned int flush;
 
-	/** Number of write operations that have occured
+	/** Number of write operations that have occurred
 	 */
 	unsigned int writeops;
 
@@ -126,7 +126,7 @@ typedef std::map<FileWriter*, int> FileLogMap;
 class CoreExport LogManager : public fakederef<LogManager>
 {
  private:
-	/** Lock variable, set to true when a log is in progress, which prevents further loggging from happening and creating a loop.
+	/** Lock variable, set to true when a log is in progress, which prevents further logging from happening and creating a loop.
 	 */
 	bool Logging;
 
