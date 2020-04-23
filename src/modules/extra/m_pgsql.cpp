@@ -198,10 +198,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		, qinprog(NULL, "")
 	{
 		if (!DoConnect())
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
-		}
 	}
 
 	CullResult cull() CXX11_OVERRIDE
@@ -271,34 +268,40 @@ class SQLConn : public SQL::Provider, public EventHandler
 		return conninfo.str();
 	}
 
+	bool HandleConnectError(const char* reason)
+	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Could not connect to the \"%s\" database: %s",
+			GetId().c_str(), reason);
+		return false;
+	}
+
 	bool DoConnect()
 	{
 		sql = PQconnectStart(GetDSN().c_str());
 		if (!sql)
-			return false;
+			return HandleConnectError("PQconnectStart returned NULL");
 
 		if(PQstatus(sql) == CONNECTION_BAD)
-			return false;
+			return HandleConnectError("connection status is bad");
 
 		if(PQsetnonblocking(sql, 1) == -1)
-			return false;
+			return HandleConnectError("unable to mark fd as non-blocking");
 
 		/* OK, we've initialised the connection, now to get it hooked into the socket engine
 		* and then start polling it.
 		*/
-		this->fd = PQsocket(sql);
-
-		if(this->fd <= -1)
-			return false;
+		SetFd(PQsocket(sql));
+		if(!HasFd())
+			return HandleConnectError("PQsocket returned an invalid fd");
 
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
-			return false;
-		}
+			return HandleConnectError("could not add the pgsql socket to the socket engine");
 
 		/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-		return DoPoll();
+		if (!DoPoll())
+			return HandleConnectError("could not poll the connection state");
+
+		return true;
 	}
 
 	bool DoPoll()
