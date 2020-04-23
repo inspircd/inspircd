@@ -55,14 +55,20 @@ class ModulePgSQL;
 
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
-/* CREAD,	Connecting and wants read event
- * CWRITE,	Connecting and wants write event
- * WREAD,	Connected/Working and wants read event
- * WWRITE,	Connected/Working and wants write event
- * RREAD,	Resetting and wants read event
- * RWRITE,	Resetting and wants write event
- */
-enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
+enum SQLstatus
+{
+	// Connecting and wants read event.
+	CREAD,
+
+	// Connecting and wants write event.
+	CWRITE,
+
+	// Connected/working and wants read event.
+	WREAD,
+
+	// Connected/working and wants write event.
+	WWRITE
+};
 
 class ReconnectTimer : public Timer
 {
@@ -385,30 +391,6 @@ restart:
 		}
 	}
 
-	bool DoResetPoll()
-	{
-		switch(PQresetPoll(sql))
-		{
-			case PGRES_POLLING_WRITING:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
-				status = CWRITE;
-				return DoPoll();
-			case PGRES_POLLING_READING:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				status = CREAD;
-				return true;
-			case PGRES_POLLING_FAILED:
-				return false;
-			case PGRES_POLLING_OK:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				status = WWRITE;
-				DoConnectedPoll();
-				return true;
-			default:
-				return true;
-		}
-	}
-
 	void DelayReconnect();
 
 	void DoEvent()
@@ -416,10 +398,6 @@ restart:
 		if((status == CREAD) || (status == CWRITE))
 		{
 			DoPoll();
-		}
-		else if((status == RREAD) || (status == RWRITE))
-		{
-			DoResetPoll();
 		}
 		else
 		{
