@@ -51,8 +51,9 @@ typedef std::map<std::string, SQLConn*> ConnMap;
  * WWRITE,	Connected/Working and wants write event
  * RREAD,	Resetting and wants read event
  * RWRITE,	Resetting and wants write event
+ * DEAD,	The connection has died
  */
-enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
+enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE, DEAD };
 
 class ReconnectTimer : public Timer
 {
@@ -265,6 +266,8 @@ class SQLConn : public SQLProvider, public EventHandler
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+				status = DEAD;
 				return false;
 			case PGRES_POLLING_OK:
 				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -380,7 +383,7 @@ restart:
 		{
 			DoResetPoll();
 		}
-		else
+		else if (status == WREAD || status == WWRITE)
 		{
 			DoConnectedPoll();
 		}
@@ -488,6 +491,7 @@ restart:
 
 	void Close()
 	{
+		status = DEAD;
 		ServerInstance->SE->DelFd(this);
 
 		if(sql)
@@ -606,6 +610,7 @@ void ReconnectTimer::Tick(time_t time)
 
 void SQLConn::DelayReconnect()
 {
+	status = DEAD;
 	ModulePgSQL* mod = (ModulePgSQL*)(Module*)creator;
 	ConnMap::iterator it = mod->connections.find(conf->getString("id"));
 	if (it != mod->connections.end())
