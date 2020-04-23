@@ -57,6 +57,9 @@ typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
 enum SQLstatus
 {
+	// The connection has died.
+	DEAD,
+
 	// Connecting and wants read event.
 	CREAD,
 
@@ -310,6 +313,8 @@ class SQLConn : public SQL::Provider, public EventHandler
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
+				SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+				status = DEAD;
 				return false;
 			case PGRES_POLLING_OK:
 				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -399,7 +404,7 @@ restart:
 		{
 			DoPoll();
 		}
-		else
+		else if (status == WREAD || status == WWRITE)
 		{
 			DoConnectedPoll();
 		}
@@ -500,6 +505,7 @@ restart:
 
 	void Close()
 	{
+		status = DEAD;
 		SocketEngine::DelFd(this);
 
 		if(sql)
@@ -612,6 +618,7 @@ bool ReconnectTimer::Tick(time_t time)
 
 void SQLConn::DelayReconnect()
 {
+	status = DEAD;
 	ModulePgSQL* mod = (ModulePgSQL*)(Module*)creator;
 	ConnMap::iterator it = mod->connections.find(conf->getString("id"));
 	if (it != mod->connections.end())
