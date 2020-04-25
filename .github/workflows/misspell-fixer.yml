@@ -1,12 +1,18 @@
-name: misspell fixer
+name: Misspell fixer
 on:
   schedule:
     - cron: '0 0 15 * *'
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      REF_BRANCH: ${{ github.ref }}
     steps:
     - uses: actions/checkout@v2
+    - name : Set a couple env variables
+      run: |
+        echo "::set-env name=DATE::$(date +'%Y-%m-%d')"
+        echo "::set-env name=REF_BRANCH::${REF_BRANCH//refs\/heads\//}"
     - name: Whitelist some directories and files
       run: |
         echo "\
@@ -32,6 +38,7 @@ jobs:
     - uses: peter-evans/create-pull-request@v2.4.4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ env.REF_BRANCH }}+fix-spellings-${{ env.DATE }}
         author: 'InspIRCd Robot <noreply@inspircd.org>'
         commiter: 'InspIRCd Robot <noreply@inspircd.org>'
         commit-message: 'Fixes by misspell-fixer'
