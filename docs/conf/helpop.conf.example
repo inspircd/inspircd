@@ -36,14 +36,20 @@ FPART       INFO        INVITE      ISON        JOIN        KICK
 KNOCK       LINKS       LIST        LUSERS      MAP         MKPASSWD
 MODE        MODULES     MONITOR     MOTD        NAMES       NICK
 NOTICE      OPER        PART        PASS        PING        PONG
-PRIVMSG     QUIT        REMOVE      SETNAME     SILENCE     SQUERY
-SSLINFO     STATS       TBAN        TIME        TITLE       TOPIC
-UNINVITE    USER        USERHOST    VERSION     VHOST       WATCH
-WHO         WHOIS       WHOWAS
+PRIVMSG     QUIT        REMOVE      SERVLIST    SETNAME     SILENCE
+SQUERY      SSLINFO     STATS       TBAN        TIME        TITLE
+TOPIC       UNINVITE    USER        USERHOST    VERSION     VHOST
+WATCH       WHO         WHOIS       WHOWAS
 ">
 
 <helpop key="squery" title="/SQUERY <target> :<message>" value="
 Sends a message to the network service specified in <target>.
+">
+
+<helpop key="servlist" title="/SERVLIST [<mask>]" value="
+List network services that are currently connected to the network
+and visible to you. The optional glob-based mask parameter matches
+against the network service nickname.
 ">
 
 <helpop key="sslinfo" title="/SSLINFO <nick>" value="
