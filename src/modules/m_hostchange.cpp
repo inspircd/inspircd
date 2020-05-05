@@ -140,7 +140,7 @@ private:
 
 			insp::flat_set<int> ports;
 			const std::string portlist = tag->getString("ports");
-			if (!ports.empty())
+			if (!portlist.empty())
 			{
 				irc::portparser portrange(portlist, false);
 				while (int port = portrange.GetToken())
