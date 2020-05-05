@@ -158,6 +158,20 @@ class ModuleShun : public Module, public Stats::EventListener
 	bool NotifyOfShun;
 	bool affectopers;
 
+	bool IsShunned(LocalUser* user)
+	{
+		// Exempt the user from shuns if they are an oper and affectopers is disabled.
+		if (!affectopers && user->IsOper())
+			return false;
+
+		// Exempt the user from shuns if they are an oper with the servers/ignore-shun privilege.
+		if (user->HasPrivPermission("servers/ignore-shun"))
+			return false;
+
+		// Check whether the user is actually shunned.
+		return ServerInstance->XLines->MatchesLine("SHUN", user);
+	}
+
  public:
 	ModuleShun()
 		: Stats::EventListener(this)
@@ -209,16 +223,10 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
 	{
-		if (validated)
+		if (validated || !IsShunned(user))
 			return MOD_RES_PASSTHRU;
 
-		// Exempt the user from shuns if:
-		//   (1) They are an oper and affectopers is disabled.
-		//   (2) They have the servers/ignore-shun privilege.
-		if ((!affectopers && user->IsOper()) || user->HasPrivPermission("servers/ignore-shun"))
-				return MOD_RES_PASSTHRU;
-
-		if (ServerInstance->XLines->MatchesLine("SHUN", user) && !ShunEnabledCommands.count(command))
+		if (!ShunEnabledCommands.count(command))
 		{
 			if (NotifyOfShun)
 				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
