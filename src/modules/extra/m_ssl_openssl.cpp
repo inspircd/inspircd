@@ -1,14 +1,14 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2017 Wade Cline <wadecline@hotmail.com>
  *   Copyright (C) 2014, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Julien Vehent <julien@linuxwall.info>
- *   Copyright (C) 2013-2014, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
@@ -922,31 +922,34 @@ class ModuleSSLOpenSSL : public Module
 				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
 			}
 		}
-
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		else
 		{
-			ConfigTag* tag = i->second;
-			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
-				continue;
-
-			std::string name = tag->getString("name");
-			if (name.empty())
+			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "You have defined an <sslprofile> tag; you should use this in place of \"openssl\" when configuring TLS (SSL) connections in <bind:ssl> or <link:ssl>");
+			for (ConfigIter i = tags.first; i != tags.second; ++i)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
-				continue;
-			}
+				ConfigTag* tag = i->second;
+				if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
+					continue;
 
-			reference<OpenSSLIOHookProvider> prov;
-			try
-			{
-				prov = new OpenSSLIOHookProvider(this, name, tag);
-			}
-			catch (CoreException& ex)
-			{
-				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
-			}
+				std::string name = tag->getString("name");
+				if (name.empty())
+				{
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+					continue;
+				}
 
-			newprofiles.push_back(prov);
+				reference<OpenSSLIOHookProvider> prov;
+				try
+				{
+					prov = new OpenSSLIOHookProvider(this, name, tag);
+				}
+				catch (CoreException& ex)
+				{
+					throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+				}
+
+				newprofiles.push_back(prov);
+			}
 		}
 
 		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)

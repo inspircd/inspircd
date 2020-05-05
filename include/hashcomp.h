@@ -51,7 +51,7 @@
  * mapping arrays internally.
  *******************************************************/
 
-/** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
+/** Separate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
  * if it must.
  *
  * This is provided as a pointer so that modules can change it to their custom mapping tables,
@@ -109,7 +109,7 @@ namespace irc
 		bool CoreExport operator()(const std::string& a, const std::string& b) const;
 	};
 
-	/** irc::sepstream allows for splitting token seperated lists.
+	/** irc::sepstream allows for splitting token separated lists.
 	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
 	 * false.
@@ -172,7 +172,7 @@ namespace irc
 		bool Contains(const std::string& value);
 	};
 
-	/** A derived form of sepstream, which seperates on commas
+	/** A derived form of sepstream, which separates on commas
 	 */
 	class CoreExport commasepstream : public sepstream
 	{
@@ -184,7 +184,7 @@ namespace irc
 		}
 	};
 
-	/** A derived form of sepstream, which seperates on spaces
+	/** A derived form of sepstream, which separates on spaces
 	 */
 	class CoreExport spacesepstream : public sepstream
 	{
@@ -237,7 +237,7 @@ namespace irc
 		bool GetTrailing(std::string& token);
 	};
 
-	/** The portparser class seperates out a port range into integers.
+	/** The portparser class separates out a port range into integers.
 	 * A port range may be specified in the input string in the form
 	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by
 	 * a return value of 0 from portparser::GetToken(). If you attempt

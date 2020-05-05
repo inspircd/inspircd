@@ -28,7 +28,7 @@
 
 /** This class handles command management and parsing.
  * It allows you to add and remove commands from the map,
- * call command handlers by name, and chop up comma seperated
+ * call command handlers by name, and chop up comma separated
  * parameters into multiple calls.
  */
 class CoreExport CommandParser
@@ -78,7 +78,7 @@ class CoreExport CommandParser
 	 */
 	Command* GetHandler(const std::string &commandname);
 
-	/** LoopCall is used to call a command handler repeatedly based on the contents of a comma seperated list.
+	/** LoopCall is used to call a command handler repeatedly based on the contents of a comma separated list.
 	 * There are two ways to call this method, either with one potential list or with two potential lists.
 	 * We need to handle two potential lists for JOIN, because a JOIN may contain two lists of items at once:
 	 * the channel names and their keys as follows:
@@ -101,15 +101,15 @@ class CoreExport CommandParser
 	 * If there are two lists and the second list runs out of tokens before the first list then parameters[extra]
 	 * will be an EMPTY string when Handle() is called for the remaining tokens in the first list, even if it is
 	 * in the middle of parameters[]! Moreover, empty tokens in the second list are allowed, and those will also
-	 * result in the appropiate entry being empty in parameters[].
+	 * result in the appropriate entry being empty in parameters[].
 	 * This is different than what command handlers usually expect; the command parser only allows an empty param
 	 * as the last item in the vector.
 	 *
 	 * @param user The user who sent the command
 	 * @param handler The command handler to call for each parameter in the list
 	 * @param parameters Parameter list as a vector of strings
-	 * @param splithere The first parameter index to split as a comma seperated list
-	 * @param extra The second parameter index to split as a comma seperated list, or -1 (the default) if there is only one list
+	 * @param splithere The first parameter index to split as a comma separated list
+	 * @param extra The second parameter index to split as a comma separated list, or -1 (the default) if there is only one list
 	 * @param usemax True to limit the command to MaxTargets targets (default), or false to process all tokens
 	 * @return This function returns true when it identified a list in the given parameter and finished calling the
 	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,

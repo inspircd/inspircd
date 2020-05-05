@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2014 Justin Crawford <Justasic@Gmail.com>
- *   Copyright (C) 2013, 2015, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012, 2014 Adam <Adam@anope.org>
@@ -157,7 +157,7 @@ class ModuleXLineDB
 #ifdef _WIN32
 		remove(xlinedbpath.c_str());
 #endif
-		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
+		// Use rename to move temporary to new db - this is guaranteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);

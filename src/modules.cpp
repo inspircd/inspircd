@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 nia <nia@netbsd.org>
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
@@ -224,7 +225,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	}
 
 	/* Eh? this module doesnt exist, probably trying to set priority on an event
-	 * theyre not attached to.
+	 * they're not attached to.
 	 */
 	return false;
 
@@ -305,7 +306,7 @@ swap_now:
 bool ModuleManager::PrioritizeHooks()
 {
 	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
+	 * not just the one that's loading, as the new module could affect the preference
 	 * of others
 	 */
 	for (int tries = 0; tries < 20; tries++)

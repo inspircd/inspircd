@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -312,8 +312,8 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		return CMD_SUCCESS;
 
 	/*
-	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
-	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
+	 * If 2 parameters are specified (/whois nick nick), ignore the first one like spanningtree
+	 * does, and use the second one, otherwise, use the only parameter. -- djGrrr
 	 */
 	if (parameters.size() > 1)
 		userindex = 1;

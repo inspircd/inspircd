@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2019-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -35,7 +35,7 @@
 #include "treesocket.h"
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
- * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this
+ * As of 1.1, the resolver system is separated out from BufferedSocket, so we must do this
  * resolver step first ourselves if we need it. This is totally nonblocking, and will
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.

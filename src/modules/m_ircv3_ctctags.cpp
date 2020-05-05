@@ -261,6 +261,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 	Cap::Capability& cap;
 
  public:
+	bool allowclientonlytags;
 	C2CTags(Module* Creator, Cap::Capability& Cap)
 		: ClientProtocol::MessageTagProvider(Creator)
 		, cap(Cap)
@@ -271,7 +272,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 	{
 		// A client-only tag is prefixed with a plus sign (+) and otherwise conforms
 		// to the format specified in IRCv3.2 tags.
-		if (tagname[0] != '+' || tagname.length() < 2)
+		if (tagname[0] != '+' || tagname.length() < 2 || !allowclientonlytags)
 			return MOD_RES_PASSTHRU;
 
 		// If the user is local then we check whether they have the message-tags cap
@@ -322,6 +323,11 @@ class ModuleIRCv3CTCTags
 		, moderatedmode(this, "moderated")
 		, noextmsgmode(this, "noextmsg")
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		c2ctags.allowclientonlytags = ServerInstance->Config->ConfValue("ctctags")->getBool("allowclientonlytags", true);
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override

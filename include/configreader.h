@@ -5,7 +5,7 @@
  *   Copyright (C) 2018 Chris Novakovic <chrisnovakovic@users.noreply.github.com>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
- *   Copyright (C) 2012-2014, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2014, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -313,12 +313,12 @@ class CoreExport ServerConfig
 	CommandLineConf cmdline;
 
 	/** Clones CIDR range for ipv4 (0-32)
-	 * Defaults to 32 (checks clones on all IPs seperately)
+	 * Defaults to 32 (checks clones on all IPs separately)
 	 */
 	unsigned char c_ipv4_range;
 
 	/** Clones CIDR range for ipv6 (0-128)
-	 * Defaults to 128 (checks on all IPs seperately)
+	 * Defaults to 128 (checks on all IPs separately)
 	 */
 	unsigned char c_ipv6_range;
 
@@ -332,7 +332,7 @@ class CoreExport ServerConfig
 	std::string XLineMessage;
 
 	/* Holds the network name the local server
-	 * belongs to. This is an arbitary field defined
+	 * belongs to. This is an arbitrary field defined
 	 * by the administrator.
 	 */
 	std::string Network;

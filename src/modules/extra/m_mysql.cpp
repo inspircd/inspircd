@@ -5,8 +5,8 @@
  *   Copyright (C) 2015 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2014, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2016-2019 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2013, 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -66,7 +66,7 @@
  * worker thread wakes up, and checks if there is a request at the head of its queue.
  * If there is, it processes this request, blocking the worker thread but leaving the ircd
  * thread to go about its business as usual. During this period, the ircd thread is able
- * to insert futher pending requests into the queue.
+ * to insert further pending requests into the queue.
  *
  * Once the processing of a request is complete, it is removed from the incoming queue to
  * an outgoing queue, and initialized as a 'response'. The worker thread then signals the
@@ -83,7 +83,7 @@
  * one the module was originally instantiated upon, there is a chance of all hell breaking loose
  * if a module is ever put in a re-enterant state (stack corruption could occur, crashes, data
  * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
- * gauranteed threadsafe!)
+ * guaranteed threadsafe!)
  */
 
 class SQLConnection;
@@ -366,7 +366,7 @@ class SQLConnection : public SQL::Provider
 		/* Parse the command string and dispatch it to mysql */
 		if (CheckConnection() && !mysql_real_query(connection, query.data(), query.length()))
 		{
-			/* Successfull query */
+			/* Successful query */
 			MYSQL_RES* res = mysql_use_result(connection);
 			unsigned long rows = mysql_affected_rows(connection);
 			return new MySQLresult(res, rows);

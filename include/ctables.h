@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2012-2015, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -187,7 +187,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param cmd Command name. This must be UPPER CASE.
 	 * @param minpara Minimum parameters required for the command.
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
-	 * will be tossed into one last space-seperated param.
+	 * will be tossed into one last space-separated param.
 	 */
 	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 

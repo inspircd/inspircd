@@ -208,7 +208,7 @@ class CoreExport InspIRCd
 	 * Reason for it:
 	 * kludge alert!
 	 * SendMode expects a User* to send the numeric replies
-	 * back to, so we create it a fake user that isnt in the user
+	 * back to, so we create it a fake user that isn't in the user
 	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
 	 * falls into the abyss :p
 	 */

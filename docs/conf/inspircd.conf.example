@@ -714,7 +714,7 @@
              # This can be useful where your main class is more restrictive
              # than some other class a user can be assigned after DNS lookup is complete.
              # Turning this option off will make the server spend more time on users we may
-             # potentially not want. Normally this should be neglible, though.
+             # potentially not want. Normally this should be negligible, though.
              # Default value is true
              clonesonconnect="yes"
 
@@ -880,7 +880,7 @@
 # There are many different types which may be used, and modules may
 # generate their own. A list of useful types:
 #  - USERS - information relating to user connection and disconnection
-#  - OPER - succesful and failed oper attempts
+#  - OPER - successful and failed oper attempts
 #  - KILL - kill related messages
 #  - FILTER - messages related to filter matches (filter module)
 #  - CONFIG - configuration related messages

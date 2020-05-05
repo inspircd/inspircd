@@ -201,7 +201,7 @@ public:
 		parameter = (action.second ? "" : "-") + action.first->uuid;
 	}
 
-	/** Will take any number of nicks (up to MaxTargets), which can be seperated by commas.
+	/** Will take any number of nicks (up to MaxTargets), which can be separated by commas.
 	 * - in front of any nick removes, and an * lists. This effectively means you can do:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list
@@ -242,12 +242,12 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		// There is a list in parameters[0] in two cases:
-		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,
+		// Either when the source is remote, this happens because 2.0 servers send comma separated uuid lists,
 		// we don't split those but broadcast them, as before.
 		//
 		// Or if the source is local then LoopCall() runs OnPostCommand() after each entry in the list,
 		// meaning the linking module has sent an ACCEPT already for each entry in the list to the
-		// appropiate server and the ACCEPT with the list of nicks (this) doesn't need to be sent anywhere.
+		// appropriate server and the ACCEPT with the list of nicks (this) doesn't need to be sent anywhere.
 		if ((!IS_LOCAL(user)) && (parameters[0].find(',') != std::string::npos))
 			return ROUTE_BROADCAST;
 

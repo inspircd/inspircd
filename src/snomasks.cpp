@@ -133,7 +133,7 @@ void Snomask::Send(char letter, const std::string& desc, const std::string& msg)
 	for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 	{
 		User* user = *i;
-		// IsNoticeMaskSet() returns false for opers who aren't +s, no need to check for it seperately
+		// IsNoticeMaskSet() returns false for opers who aren't +s, no need to check for it separately
 		if (IS_LOCAL(user) && user->IsNoticeMaskSet(letter))
 			user->WriteNotice(finalmsg);
 	}

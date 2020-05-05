@@ -1140,6 +1140,11 @@
 # extension which allows clients to add extra data to their messages.
 # This is used to support new IRCv3 features such as replies and ids.
 #<module name="ircv3_ctctags">
+#
+# If you want to only allow client tags that are intended for processing
+# by the server you can disable the following setting. Doing this is not
+# recommended though as it may break clients.
+#<ctctags allowclientonlytags="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 echo-message module: Provides the echo-message IRCv3
@@ -1286,7 +1291,7 @@
 # repeated to whitelist multiple CIDRs.                               #
 #                                                                     #
 # ldaprequire allows further filtering on the LDAP user, by requiring #
-# certain LDAP attibutes to have a given value. It can be repeated,   #
+# certain LDAP attributes to have a given value. It can be repeated,   #
 # in which case the list will act as an OR list, that is, the         #
 # authentication will succeed if any of the requirements in the list  #
 # is satisfied.                                                       #
@@ -1858,7 +1863,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAMODE module: Adds the /SAMODE command which allows server operators
 # to change modes on a channel without requiring them to have any
-# channel priviliges. Also allows changing user modes for any user.
+# channel privileges. Also allows changing user modes for any user.
 # This module is oper-only.
 # To use, SAMODE must be in one of your oper class blocks.
 #<module name="samode">
@@ -1885,7 +1890,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SATOPIC module: Adds the /SATOPIC command which allows changing the
-# topic on a channel without requiring any channel priviliges.
+# topic on a channel without requiring any channel privileges.
 # This module is oper-only.
 # To use, SATOPIC must be in one of your oper class blocks.
 #<module name="satopic">
@@ -1918,10 +1923,21 @@
 #<securehost exception="*@*.ircdriven.com">
 #<securehost exception="*@*.ircs.me">
 #                                                                     #
-# Define the following variable to change how long a user must wait   #
-# before issuing a LIST. If not defined, defaults to 60 seconds.      #
+# exemptregistered - Whether the waiting period applies to users who  #
+#                    are logged in to a services account.             #
+#                    Defaults to no.                                  #
 #                                                                     #
-#<securelist waittime="1m">                                           #
+# showmsg - Whether to tell users that they need to wait for a while  #
+#           before they can use the /LIST command.                    #
+#           Defaults to no.                                           #
+#                                                                     #
+# waittime - The time period that a user must be connected for before #
+#            they can use the /LIST command.                          #
+#             Defaults to 1 minute.                                   #
+#                                                                     #
+#<securelist exemptregistered="yes"
+#            showmsg="yes"
+#            waittime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Servprotect module: Provides support for Austhex style +k /

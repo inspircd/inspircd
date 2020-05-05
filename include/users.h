@@ -1,11 +1,11 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2019-2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2018-2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 DjSlash <djslash@djslash.org>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
@@ -70,7 +70,7 @@ enum UserType {
 	USERTYPE_SERVER = 3
 };
 
-/** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
+/** Holds information relevant to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass : public refcountbase
 {
@@ -361,13 +361,13 @@ class CoreExport User : public Extensible
 
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
-	 * This value is set by QuitUser, and is not needed seperately from that call.
+	 * This value is set by QuitUser, and is not needed separately from that call.
 	 * Please note that setting this value alone will NOT cause the user to quit.
 	 */
 	unsigned int quitting:1;
 
 	/** What type of user is this? */
-	const UserType usertype:2;
+	const unsigned int usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string

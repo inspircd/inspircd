@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Adam <Adam@anope.org>
@@ -134,7 +135,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			ShowLinks(server, user, hops+1);
 		}
 	}
-	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
+	/* Don't display the line if its a uline, hide ulines is on, and the user isn't an oper */
 	if ((Utils->HideULines) && (Current->IsULine()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */

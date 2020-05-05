@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013-2014 Adam <Adam@anope.org>
- *   Copyright (C) 2012-2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -187,7 +187,7 @@ class CoreExport EventHandler : public classbase
 
 	inline int GetEventMask() const { return event_mask; }
 
-	/** Set a new file desciptor
+	/** Set a new file descriptor
 	 * @param FD The new file descriptor. Do not call this method without
 	 * first deleting the object from the SocketEngine if you have
 	 * added it to a SocketEngine instance.
@@ -388,7 +388,7 @@ public:
 	static bool HasFd(int fd);
 
 	/** Returns the EventHandler attached to a specific fd.
-	 * If the fd isnt in the socketengine, returns NULL.
+	 * If the fd isn't in the socketengine, returns NULL.
 	 * @param fd The event handler to look for
 	 * @return A pointer to the event handler, or NULL
 	 */
@@ -399,7 +399,7 @@ public:
 	 * number of events which occurred during this call.  This method will
 	 * dispatch events to their handlers by calling their
 	 * EventHandler::OnEventHandler*() methods.
-	 * @return The number of events which have occured.
+	 * @return The number of events which have occurred.
 	 */
 	static int DispatchEvents();
 

@@ -1,10 +1,11 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
+ *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Shawn Smith <ShawnSmith0828@gmail.com>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
@@ -190,7 +191,7 @@ class ModuleSSLModes
 
 		User* target = msgtarget.Get<User>();
 
-		/* If one or more of the parties involved is a ulined service, we wont stop it. */
+		/* If one or more of the parties involved is a ulined service, we won't stop it. */
 		if (user->server->IsULine() || target->server->IsULine())
 			return MOD_RES_PASSTHRU;
 

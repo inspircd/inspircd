@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2015 Daniel Vassdal <shutter@canternet.org>
- *   Copyright (C) 2013, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -55,14 +55,23 @@ class ModulePgSQL;
 
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
-/* CREAD,	Connecting and wants read event
- * CWRITE,	Connecting and wants write event
- * WREAD,	Connected/Working and wants read event
- * WWRITE,	Connected/Working and wants write event
- * RREAD,	Resetting and wants read event
- * RWRITE,	Resetting and wants write event
- */
-enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
+enum SQLstatus
+{
+	// The connection has died.
+	DEAD,
+
+	// Connecting and wants read event.
+	CREAD,
+
+	// Connecting and wants write event.
+	CWRITE,
+
+	// Connected/working and wants read event.
+	WREAD,
+
+	// Connected/working and wants write event.
+	WWRITE
+};
 
 class ReconnectTimer : public Timer
 {
@@ -188,10 +197,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		, qinprog(NULL, "")
 	{
 		if (!DoConnect())
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
-		}
 	}
 
 	CullResult cull() override
@@ -215,6 +221,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 			q->OnError(err);
 			delete q;
 		}
+		Close();
 	}
 
 	void OnEventHandlerRead() override
@@ -260,34 +267,40 @@ class SQLConn : public SQL::Provider, public EventHandler
 		return conninfo.str();
 	}
 
+	bool HandleConnectError(const char* reason)
+	{
+		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not connect to the \"%s\" database: %s",
+			GetId().c_str(), reason);
+		return false;
+	}
+
 	bool DoConnect()
 	{
 		sql = PQconnectStart(GetDSN().c_str());
 		if (!sql)
-			return false;
+			return HandleConnectError("PQconnectStart returned NULL");
 
 		if(PQstatus(sql) == CONNECTION_BAD)
-			return false;
+			return HandleConnectError("connection status is bad");
 
 		if(PQsetnonblocking(sql, 1) == -1)
-			return false;
+			return HandleConnectError("unable to mark fd as non-blocking");
 
-		/* OK, we've initalised the connection, now to get it hooked into the socket engine
+		/* OK, we've initialised the connection, now to get it hooked into the socket engine
 		* and then start polling it.
 		*/
-		this->fd = PQsocket(sql);
-
-		if(this->fd <= -1)
-			return false;
+		SetFd(PQsocket(sql));
+		if(!HasFd())
+			return HandleConnectError("PQsocket returned an invalid fd");
 
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
-			return false;
-		}
+			return HandleConnectError("could not add the pgsql socket to the socket engine");
 
 		/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-		return DoPoll();
+		if (!DoPoll())
+			return HandleConnectError("could not poll the connection state");
+
+		return true;
 	}
 
 	bool DoPoll()
@@ -303,6 +316,8 @@ class SQLConn : public SQL::Provider, public EventHandler
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
+				SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+				status = DEAD;
 				return false;
 			case PGRES_POLLING_OK:
 				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -384,30 +399,6 @@ restart:
 		}
 	}
 
-	bool DoResetPoll()
-	{
-		switch(PQresetPoll(sql))
-		{
-			case PGRES_POLLING_WRITING:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
-				status = CWRITE;
-				return DoPoll();
-			case PGRES_POLLING_READING:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				status = CREAD;
-				return true;
-			case PGRES_POLLING_FAILED:
-				return false;
-			case PGRES_POLLING_OK:
-				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				status = WWRITE;
-				DoConnectedPoll();
-				return true;
-			default:
-				return true;
-		}
-	}
-
 	void DelayReconnect();
 
 	void DoEvent()
@@ -416,11 +407,7 @@ restart:
 		{
 			DoPoll();
 		}
-		else if((status == RREAD) || (status == RWRITE))
-		{
-			DoResetPoll();
-		}
-		else
+		else if (status == WREAD || status == WWRITE)
 		{
 			DoConnectedPoll();
 		}
@@ -521,7 +508,10 @@ restart:
 
 	void Close()
 	{
-		SocketEngine::DelFd(this);
+		status = DEAD;
+
+		if (HasFd() && SocketEngine::HasFd(GetFd()))
+			SocketEngine::DelFd(this);
 
 		if(sql)
 		{
@@ -566,8 +556,13 @@ class ModulePgSQL : public Module
 			if (curr == connections.end())
 			{
 				SQLConn* conn = new SQLConn(this, i->second);
-				conns.insert(std::make_pair(id, conn));
-				ServerInstance->Modules.AddService(*conn);
+				if (conn->status != DEAD)
+				{
+					conns.insert(std::make_pair(id, conn));
+					ServerInstance->Modules.AddService(*conn);
+				}
+				// If the connection is dead it has already been queued for culling
+				// at the end of the main loop so we don't need to delete it here.
 			}
 			else
 			{
@@ -628,17 +623,17 @@ bool ReconnectTimer::Tick(time_t time)
 
 void SQLConn::DelayReconnect()
 {
+	status = DEAD;
 	ModulePgSQL* mod = (ModulePgSQL*)(Module*)creator;
+
 	ConnMap::iterator it = mod->connections.find(conf->getString("id"));
 	if (it != mod->connections.end())
-	{
 		mod->connections.erase(it);
-		ServerInstance->GlobalCulls.AddItem((EventHandler*)this);
-		if (!mod->retimer)
-		{
-			mod->retimer = new ReconnectTimer(mod);
-			ServerInstance->Timers.AddTimer(mod->retimer);
-		}
+	ServerInstance->GlobalCulls.AddItem((EventHandler*)this);
+	if (!mod->retimer)
+	{
+		mod->retimer = new ReconnectTimer(mod);
+		ServerInstance->Timers.AddTimer(mod->retimer);
 	}
 }
 

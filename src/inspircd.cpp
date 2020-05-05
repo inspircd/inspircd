@@ -52,7 +52,7 @@
 
 InspIRCd* ServerInstance = NULL;
 
-/** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
+/** Separate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
  * if it must.
  *
  * This is provided as a pointer so that modules can change it to their custom mapping tables,
@@ -540,7 +540,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	/* During startup we read the configuration now, not in
-	 * a seperate thread
+	 * a separate thread
 	 */
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
@@ -664,7 +664,7 @@ void InspIRCd::Run()
 		UpdateTime();
 
 		/* Run background module timers every few seconds
-		 * (the docs say modules shouldnt rely on accurate
+		 * (the docs say modules should not rely on accurate
 		 * timing using this event, so we dont have to
 		 * time this exactly).
 		 */

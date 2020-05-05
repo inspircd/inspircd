@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
  *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
@@ -66,7 +67,7 @@ class ssl_cert : public refcountbase
 		return issuer;
 	}
 
-	/** Get error string if an error has occured
+	/** Get error string if an error has occurred
 	 * @return The error associated with this users certificate,
 	 * or an empty string if there is no error.
 	 */
@@ -303,7 +304,7 @@ class UserCertificateAPIBase : public DataProvider
 	}
 };
 
-/** API implemented by m_sslinfo that allows modules to retrive the TLS (SSL) certificate
+/** API implemented by m_sslinfo that allows modules to retrieve the TLS (SSL) certificate
  * information of local and remote users. It can also be used to find out whether a
  * user is using TLS (SSL) or not.
  */

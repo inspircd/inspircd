@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2014, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2014, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -237,7 +237,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		// Iterator to the first excess parameter
 		const CommandBase::Params::iterator firstexcess = lastkeep + 1;
 
-		// Append all excess parameter(s) to the last parameter, seperated by spaces
+		// Append all excess parameter(s) to the last parameter, separated by spaces
 		for (CommandBase::Params::const_iterator i = firstexcess; i != command_p.end(); ++i)
 		{
 			lastkeep->push_back(' ');
@@ -249,7 +249,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	}
 
 	/*
-	 * We call OnPreCommand here seperately if the command exists, so the magic above can
+	 * We call OnPreCommand here separately if the command exists, so the magic above can
 	 * truncate to max_params if necessary. -- w00t
 	 */
 	ModResult MOD_RESULT;

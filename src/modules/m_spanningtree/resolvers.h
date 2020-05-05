@@ -7,7 +7,6 @@
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007, 2010 Craig Edwards <brain@inspircd.org>
- *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -48,7 +47,7 @@ class SecurityIPResolver : public DNS::Request
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
- * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this
+ * As of 1.1, the resolver system is separated out from BufferedSocket, so we must do this
  * resolver step first ourselves if we need it. This is totally nonblocking, and will
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.

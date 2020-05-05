@@ -168,7 +168,7 @@ class ModuleSpanningTree
 	 */
 	void DoConnectTimeout(time_t curtime);
 
-	/** Handle remote VERSON
+	/** Handle remote VERSION
 	 */
 	ModResult HandleVersion(const CommandBase::Params& parameters, User* user);
 

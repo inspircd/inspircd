@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017-2018 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2018-2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Jens Voss <DukePyrolator@anope.org>
@@ -159,6 +159,16 @@ class ModuleShun : public Module, public Stats::EventListener
 	insp::flat_set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
 
+	bool IsShunned(LocalUser* user)
+	{
+		// Exempt the user from shuns if they are an oper with the servers/ignore-shun privilege.
+		if (user->HasPrivPermission("servers/ignore-shun"))
+			return false;
+
+		// Check whether the user is actually shunned.
+		return ServerInstance->XLines->MatchesLine("SHUN", user);
+	}
+
  public:
 	ModuleShun()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
@@ -210,14 +220,10 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		if (validated)
+		if (validated || !IsShunned(user))
 			return MOD_RES_PASSTHRU;
 
-		// Exempt the user from shuns if they have the servers/ignore-shun privilege.
-		if (user->HasPrivPermission("servers/ignore-shun"))
-			return MOD_RES_PASSTHRU;
-
-		if (ServerInstance->XLines->MatchesLine("SHUN", user) && !ShunEnabledCommands.count(command))
+		if (!ShunEnabledCommands.count(command))
 		{
 			if (NotifyOfShun)
 				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");

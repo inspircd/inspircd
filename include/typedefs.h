@@ -134,7 +134,7 @@ typedef std::map<std::string, XLineLookup > XLineContainer;
  */
 typedef XLineContainer::iterator ContainerIter;
 
-/** An interator in an XLineLookup
+/** An iterator in an XLineLookup
  */
 typedef XLineLookup::iterator LookupIter;
 

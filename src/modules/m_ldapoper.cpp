@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013-2014 Adam <Adam@anope.org>
  *
@@ -150,7 +150,13 @@ class AdminBindInterface : public LDAPInterface
 
  public:
 	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
-		: LDAPInterface(c), provider(p), user(u), opername(p), password(pa), base(b), what(w)
+		: LDAPInterface(c)
+		, provider(p)
+		, user(u)
+		, opername(o)
+		, password(pa)
+		, base(b)
+		, what(w)
 	{
 	}
 

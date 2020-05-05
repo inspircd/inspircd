@@ -139,7 +139,7 @@ class FwdFJoinBuilder;
 class CommandFJoin : public ServerCommand
 {
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
-	 * This does not update the timestamp of the target channel, this must be done seperately.
+	 * This does not update the timestamp of the target channel, this must be done separately.
 	 */
 	static void RemoveStatus(Channel* c);
 

@@ -4,8 +4,7 @@
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 systocrat <systocrat@outlook.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2014 satmd <satmd@lain.at>
- *   Copyright (C) 2013-2014, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
@@ -575,7 +574,7 @@ void LocalUser::FullConnect()
 	/*
 	 * You may be thinking "wtf, we checked this in User::AddClient!" - and yes, we did, BUT.
 	 * At the time AddClient is called, we don't have a resolved host, by here we probably do - which
-	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
+	 * may put the user into a totally separate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
 	MyClass = NULL;

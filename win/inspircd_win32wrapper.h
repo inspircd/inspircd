@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013, 2015, 2018-2019 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 ChrisTX <xpipe@hotmail.de>
@@ -50,7 +51,7 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
-/* Macros for exporting symbols - dependant on what is being compiled */
+/* Macros for exporting symbols - dependent on what is being compiled */
 
 #ifdef DLL_BUILD
 #define CoreExport __declspec(dllimport)
@@ -131,6 +132,9 @@ typedef SSIZE_T ssize_t;
 
 // warning C4706: assignment within conditional expression
 #pragma warning(disable:4706)
+
+// warning C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable:4800)
 
 /* Shared memory allocation functions */
 void * ::operator new(size_t iSize);

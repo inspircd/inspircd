@@ -62,7 +62,7 @@ class CoreExport ProtocolInterface
 	 * See the protocol documentation for the purpose of ENCAP.
 	 * @param targetmask The target server mask (can contain wildcards)
 	 * @param cmd The ENCAP subcommand
-	 * @param params List of string parameters which are dependant on the subcommand
+	 * @param params List of string parameters which are dependent on the subcommand
 	 * @param source The source of the message (prefix), must be a local user or NULL which means use local server
 	 * @return Always true if the target mask contains wildcards; otherwise true if the server name was found,
 	 * and the message was sent, false if it was not found.
@@ -73,7 +73,7 @@ class CoreExport ProtocolInterface
 	/** Send an ENCAP message to all servers.
 	 * See the protocol documentation for the purpose of ENCAP.
 	 * @param cmd The ENCAP subcommand
-	 * @param params List of string parameters which are dependant on the subcommand
+	 * @param params List of string parameters which are dependent on the subcommand
 	 * @param source The source of the message (prefix), must be a local user or a user behind 'omit'
 	 * or NULL which is equivalent to the local server
 	 * @param omit If non-NULL the message won't be sent in the direction of this server, useful for forwarding messages

@@ -31,7 +31,7 @@
 #include "config.h"
 #include <cstring>
 
-/** Sets ret to the formated string. last is the last parameter before ..., and format is the format in printf-style */
+/** Sets ret to the formatted string. last is the last parameter before ..., and format is the format in printf-style */
 #define VAFORMAT(ret, last, format) \
 	do { \
 	va_list _vaList; \

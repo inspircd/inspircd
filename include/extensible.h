@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2014-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -120,7 +120,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
  * a map associated with the object. In this way modules can store their own custom information within user
  * objects, channel objects and server objects, without breaking other modules (this is more sensible than using
  * a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and
- * supports arbitary data storage).
+ * supports arbitrary data storage).
  */
 class CoreExport Extensible
 	: public classbase
