@@ -93,8 +93,8 @@ class ModuleDisable : public Module
 				throw ModuleException(InspIRCd::Format("Nonexistent command '%s' was specified in <disabled:commands> at %s",
 					command.c_str(), tag->getTagLocation().c_str()));
 
-			// Prevent admins from disabling COMMANDS and MODULES for transparency reasons.
-			if (handler->name == "COMMANDS" || handler->name == "MODULES")
+			// Prevent admins from disabling MODULES for transparency reasons.
+			if (handler->name == "MODULES")
 				continue;
 
 			// Disable the command.
