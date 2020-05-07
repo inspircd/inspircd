@@ -46,10 +46,11 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 	if (!list)
 		return MOD_RES_PASSTHRU;
 
-	for (const ListModeBase::ListItem ban : *list)
+	for (const ListModeBase::ListItem& ban : *list)
 	{
+		bool inverted;
 		std::string xbname, xbvalue;
-		if (!ExtBan::Parse(ban.mask, xbname, xbvalue))
+		if (!ExtBan::Parse(ban.mask, xbname, xbvalue, inverted))
 			continue;
 
 		if (xbname.size() == 1)
@@ -65,7 +66,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 				continue;
 		}
 
-		return extban->IsMatch(user, channel, xbvalue) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return extban->IsMatch(user, channel, xbvalue) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 	return MOD_RES_PASSTHRU;
 }

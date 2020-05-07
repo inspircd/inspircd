@@ -43,9 +43,10 @@ namespace ExtBan
 	 * @param banentry The ban entry to parse.
 	 * @param name The parsed name of the extban.
 	 * @param value The parsed value of the extban.
+	 * @param inverted Whether the extban is inverted.
 	 * @return True if an extban was extracted from the ban entry; otherwise, false.
 	 */
-	inline bool Parse(const std::string& banentry, std::string& name, std::string& value);
+	inline bool Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted);
 }
 
 /** Manager for the extban system. */
@@ -261,14 +262,22 @@ class ExtBan::EventListener
 	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) = 0;
 };
 
-inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value)
+inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted)
 {
-	// The mask must be in the format <letter>:<value> or <name>:<value>.
-	size_t endpos = banentry.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+	// The mask must be in the format [!]<letter>:<value> or [!]<name>:<value>.
+	inverted = false;
+	size_t startpos = 0;
+	if (banentry[0] == '!')
+	{
+		inverted = true;
+		startpos++;
+	}
+
+	size_t endpos = banentry.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", startpos);
 	if (endpos == std::string::npos || banentry[endpos] != ':')
 		return false;
 
-	name.assign(banentry, 0, endpos);
+	name.assign(banentry, startpos, endpos - startpos);
 	value.assign(banentry, endpos + 1);
 	return true;
 }

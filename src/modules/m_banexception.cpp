@@ -73,10 +73,11 @@ class ModuleBanException
 		if (!list)
 			return MOD_RES_PASSTHRU;
 
-		for (const ListModeBase::ListItem ban : *list)
+		for (const ListModeBase::ListItem& ban : *list)
 		{
+			bool inverted;
 			std::string name, value;
-			if (!ExtBan::Parse(ban.mask, name, value))
+			if (!ExtBan::Parse(ban.mask, name, value, inverted))
 				continue;
 
 			if (name.size() == 1)
@@ -92,7 +93,7 @@ class ModuleBanException
 					continue;
 			}
 
-			return extban->IsMatch(user, chan, value) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+			return extban->IsMatch(user, chan, value) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 		}
 		return MOD_RES_PASSTHRU;
 	}

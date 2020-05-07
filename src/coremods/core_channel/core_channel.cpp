@@ -357,8 +357,9 @@ class CoreModChannel
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
 	{
+		bool inverted;
 		std::string name, value;
-		if (!ExtBan::Parse(mask, name, value))
+		if (!ExtBan::Parse(mask, name, value, inverted))
 			return MOD_RES_PASSTHRU;
 
 		ExtBan::Base* extban = NULL;
@@ -371,7 +372,7 @@ class CoreModChannel
 		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
 			return MOD_RES_PASSTHRU;
 
-		return extban->IsMatch(user, chan, value) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return extban->IsMatch(user, chan, value) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override
