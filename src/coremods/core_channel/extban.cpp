@@ -51,7 +51,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 		// The mask must be in the format <letter>:<value> or <name>:<value>.
 		size_t endpos = ban.mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
 		if (endpos == std::string::npos || ban.mask[endpos] != ':')
-			return MOD_RES_PASSTHRU;
+			continue;
 
 		const std::string xbname(ban.mask, 0, endpos);
 		if (xbname.size() == 1)
