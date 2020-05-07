@@ -4,7 +4,7 @@ on:
   - push
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       TEST_BUILD_MODULES: geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
@@ -12,12 +12,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update --assume-yes
-          sudo apt-get install --assume-yes --no-install-recommends clang-3.9 g++-5 git make libc++-dev libc++abi-dev pkg-config
+          sudo apt-get install --assume-yes --no-install-recommends clang g++ git make libc++-dev libc++abi-dev pkg-config
           sudo apt-get install --assume-yes --no-install-recommends libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libsqlite3-dev libssl-dev libtre-dev
       - name: Run test-build
         run: ./tools/test-build ${{ matrix.compiler }}
     strategy:
       matrix:
         compiler:
-          - clang++-3.9
-          - g++-5
+          - clang++
+          - g++
