@@ -357,13 +357,11 @@ class CoreModChannel
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
 	{
-		// The mask must be in the format <letter>:<value> or <name>:<value>.
-		size_t endpos = mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-		if (endpos == std::string::npos || mask[endpos] != ':')
+		std::string name, value;
+		if (!ExtBan::Parse(mask, name, value))
 			return MOD_RES_PASSTHRU;
 
 		ExtBan::Base* extban = NULL;
-		const std::string name(mask, 0, endpos);
 		if (name.size() == 1)
 			extban = extbanmgr.FindLetter(name[0]);
 		else
@@ -373,7 +371,6 @@ class CoreModChannel
 		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
 			return MOD_RES_PASSTHRU;
 
-		const std::string value(mask, endpos + 1);
 		return extban->IsMatch(user, chan, value) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 

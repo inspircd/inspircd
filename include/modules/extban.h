@@ -38,6 +38,14 @@ namespace ExtBan
 		/** The extban matches against a specific pattern (e.g. sslfp). */
 		MATCHING
 	};
+
+	/** Parses a ban entry and extracts an extban from it.
+	 * @param banentry The ban entry to parse.
+	 * @param name The parsed name of the extban.
+	 * @param value The parsed value of the extban.
+	 * @return True if an extban was extracted from the ban entry; otherwise, false.
+	 */
+	inline bool Parse(const std::string& banentry, std::string& name, std::string& value);
 }
 
 /** Manager for the extban system. */
@@ -252,3 +260,15 @@ class ExtBan::EventListener
 	 */
 	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) = 0;
 };
+
+inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value)
+{
+	// The mask must be in the format <letter>:<value> or <name>:<value>.
+	size_t endpos = banentry.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+	if (endpos == std::string::npos || banentry[endpos] != ':')
+		return false;
+
+	name.assign(banentry, 0, endpos);
+	value.assign(banentry, endpos + 1);
+	return true;
+}

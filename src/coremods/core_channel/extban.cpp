@@ -48,12 +48,10 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 
 	for (const ListModeBase::ListItem ban : *list)
 	{
-		// The mask must be in the format <letter>:<value> or <name>:<value>.
-		size_t endpos = ban.mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-		if (endpos == std::string::npos || ban.mask[endpos] != ':')
+		std::string xbname, xbvalue;
+		if (!ExtBan::Parse(ban.mask, xbname, xbvalue))
 			continue;
 
-		const std::string xbname(ban.mask, 0, endpos);
 		if (xbname.size() == 1)
 		{
 			// It is an extban but not this extban.
@@ -67,8 +65,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 				continue;
 		}
 
-		const std::string value(ban.mask, endpos + 1);
-		return extban->IsMatch(user, channel, value) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return extban->IsMatch(user, channel, xbvalue) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 	return MOD_RES_PASSTHRU;
 }

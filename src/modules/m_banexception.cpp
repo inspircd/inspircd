@@ -75,12 +75,10 @@ class ModuleBanException
 
 		for (const ListModeBase::ListItem ban : *list)
 		{
-			// The mask must be in the format <letter>:<value> or <name>:<value>.
-			size_t endpos = ban.mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-			if (endpos == std::string::npos || ban.mask[endpos] != ':')
+			std::string name, value;
+			if (!ExtBan::Parse(ban.mask, name, value))
 				continue;
 
-			const std::string name(ban.mask, 0, endpos);
 			if (name.size() == 1)
 			{
 				// It is an extban but not this extban.
@@ -94,7 +92,6 @@ class ModuleBanException
 					continue;
 			}
 
-			const std::string value(ban.mask, endpos + 1);
 			return extban->IsMatch(user, chan, value) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 		}
 		return MOD_RES_PASSTHRU;
