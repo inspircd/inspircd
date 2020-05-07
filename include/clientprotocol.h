@@ -477,6 +477,7 @@ class ClientProtocol::Event
 	 */
 	Event(EventProvider& protoeventprov, ClientProtocol::Message& msg)
 		: event(&protoeventprov)
+		, initialmsg(&msg)
 	{
 	}
 
