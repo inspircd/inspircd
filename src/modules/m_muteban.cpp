@@ -24,21 +24,21 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
 class ModuleQuietBan
 	: public Module
 	, public CTCTags::EventListener
-	, public ISupport::EventListener
 {
  private:
+	ExtBan::Acting extban;
 	bool notifyuser;
 
  public:
 	ModuleQuietBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban m which bans specific masks from speaking in a channel.")
 		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
+		, extban(this, "mute", 'm')
 	{
 	}
 
@@ -54,7 +54,7 @@ class ModuleQuietBan
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = target.Get<Channel>();
-		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
+		if (extban.GetStatus(user, chan) == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
 			if (!notifyuser)
 			{
@@ -77,11 +77,6 @@ class ModuleQuietBan
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		return HandleMessage(user, target, details.echo_original);
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('m');
 	}
 };
 

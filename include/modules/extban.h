@@ -1,0 +1,254 @@
+/*
+ * InspIRCd -- Internet Relay Chat Daemon
+ *
+ *   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
+ *
+ * This file is part of InspIRCd.  InspIRCd is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, version 2.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#pragma once
+
+#include "event.h"
+
+namespace ExtBan
+{
+	class Acting;
+	class Base;
+	class EventListener;
+	class MatchingBase;
+	class Manager;
+
+	/** All possible types of extban. */
+	enum class Type
+	{
+		/** The extban takes action against specific behaviour (e.g. nokicks). */
+		ACTING,
+
+		/** The extban matches against a specific pattern (e.g. sslfp). */
+		MATCHING
+	};
+}
+
+/** Manager for the extban system. */
+class ExtBan::Manager
+	: public DataProvider
+{
+ protected:
+	/** Initializes an instance of the ExtBan::Base class.
+	 * @param Creator The module which created this instance.
+	 */
+	Manager(Module* Creator)
+		: DataProvider(Creator, "extbanmanager")
+	{
+	}
+
+ public:
+	/** A mapping of extban letters to their associated object. */
+	typedef std::unordered_map<unsigned char, ExtBan::Base*> LetterMap;
+
+	/** A mapping of extban names to their associated objects. */
+	typedef std::unordered_map<std::string, ExtBan::Base*, irc::insensitive, irc::StrHashComp> NameMap;
+
+	/** Registers an extban with the manager.
+	 * @param extban The extban instance to register.
+	 */
+	virtual void AddExtBan(Base* extban) = 0;
+
+	/** Unregisters an extban from the manager.
+	 * @param extban The extban instance to unregister.
+	 */
+	virtual void DelExtBan(Base* extban) = 0;
+
+	/** Retrieves a mapping of extban letters to their associated object. */
+	virtual const LetterMap& GetLetterMap() const = 0;
+
+	/** Retrieves a mapping of extban names to their associated object. */
+	virtual const NameMap& GetNameMap() const = 0;
+
+	/** Retrieves the status of an acting extban.
+	 * @param extban The extban to get the status of.
+	 * @param user The user to match the extban against.
+	 * @param channel The channel which the extban is set on.
+	 * @return MOD_RES_ALLOW if the user is exempted, MOD_RES_DENY if the user is banned, or
+	 *         MOD_RES_PASSTHRU if the extban is not set.
+	 */
+	virtual ModResult GetStatus(Acting* extban, User* user, Channel* channel) const = 0;
+
+	/** Finds an extban by letter.
+	 * @param letter The letter of the extban to find.
+	 */
+	virtual Base* FindLetter(unsigned char letter) const = 0;
+
+	/** Finds an extban by name.
+	 * @param name The name of the extban to find.
+	 */
+	virtual Base* FindName(const std::string& name) const = 0;
+};
+
+/** Base class for types of extban. */
+class ExtBan::Base
+	: public ServiceProvider
+	, private dynamic_reference_base::CaptureHook
+{
+ private:
+	/** Whether this ExtBan is currently enabled. */
+	bool active = false;
+
+	/** The character used in bans to signify this extban (e.g. z). */
+	unsigned char letter;
+
+	/** A reference to the extban manager. */
+	dynamic_reference<Manager> manager;
+
+	/** @copydoc dynamic_reference_base::CaptureHook::OnCapture */
+	void OnCapture() override
+	{
+		if (active)
+			SetActive(true);
+	}
+
+ protected:
+	/** Initializes an instance of the ExtBan::Base class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name used in bans to signify this extban.
+	 * @param Letter The character used in bans to signify this extban.
+	 */
+	Base(Module* Creator, const std::string& Name, unsigned char Letter)
+		: ServiceProvider(Creator, Name, SERVICE_CUSTOM)
+		, letter(Letter)
+		, manager(Creator, "extbanmanager")
+	{
+	}
+
+ public:
+	/** Retrieves the character used in bans to signify this extban. */
+	unsigned char GetLetter() const { return letter; }
+
+	/** Retrieves a pointer to the extban manager. */
+	Manager* GetManager() { return manager ? *manager : nullptr; }
+
+	/** Retrieves the name used in bans to signify this extban. */
+	const std::string& GetName() const { return name; }
+
+	/** Retrieves the type of this extban. */
+	virtual Type GetType() const = 0;
+
+	/** Retrieves whether this extban is enabled. */
+	bool IsActive() const { return active; }
+
+	/** Determines whether the specified user matches this extban.
+	 * @param user The user to match the text against.
+	 * @param channel The channel which the extban is set on.
+	 * @param text The string to match the user against.
+	 * @return True if the user matches the extban; otherwise, false.
+	 */
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text) = 0;
+
+	/** @copydoc ServiceProvider::RegisterService */
+	void RegisterService() override
+	{
+		manager.SetCaptureHook(this);
+		SetActive(true);
+	}
+
+	/** Toggles the active status of this extban.
+	 * @param Active Whether this extban is active or not.
+	 */
+	void SetActive(bool Active)
+	{
+		active = Active;
+		if (manager)
+		{
+			if (active)
+				manager->AddExtBan(this);
+			else
+				manager->DelExtBan(this);
+		}
+	}
+};
+
+/** Base class for acting extbans. */
+class ExtBan::Acting
+	: public Base
+{
+ public:
+	/** Initializes an instance of the ExtBan::Acting class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name used in bans to signify this extban.
+	 * @param Letter The character used in bans to signify this extban.
+	 */
+	Acting(Module* Creator, const std::string& Name, unsigned char Letter)
+		: Base(Creator, Name, Letter)
+	{
+	}
+
+	/** @copydoc ExtBan::Base::GetType */
+	Type GetType() const override { return ExtBan::Type::ACTING; }
+
+	/** @copydoc ExtBan::Base::IsMatch */
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		return channel->CheckBan(user, text);
+	}
+
+	ModResult GetStatus(User* user, Channel* channel)
+	{
+		if (!GetManager())
+			return MOD_RES_PASSTHRU;
+
+		return GetManager()->GetStatus(this, user, channel);
+	}
+};
+
+/** Base class for matching extbans. */
+class ExtBan::MatchingBase
+	: public Base
+{
+ protected:
+	/** Initializes an instance of the ExtBan::MatchingBase class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name used in bans to signify this extban.
+	 * @param Letter The character used in bans to signify this extban.
+	 */
+	MatchingBase(Module* Creator, const std::string& Name, unsigned char Letter)
+		: Base(Creator, Name, Letter)
+	{
+	}
+
+ public:
+	/** @copydoc ExtBan::Base::GetType */
+	Type GetType() const override { return ExtBan::Type::MATCHING; }
+
+	/** @copydoc ExtBan::Base::IsMatch */
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text) override = 0;
+};
+
+/** Provides events relating to extbans. */
+class ExtBan::EventListener
+	: public Events::ModuleEventListener
+{
+ protected:
+	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/extban", eventprio)
+	{
+	}
+
+ public:
+	/** Called when an extban is being checked.
+	 * @param user The user which the extban is being checked against.
+	 * @param channel The channel which the extban is set on.
+	 * @param extban The extban which is being checked against.
+	 */
+	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) = 0;
+};

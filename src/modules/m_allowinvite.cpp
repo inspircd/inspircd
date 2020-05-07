@@ -24,33 +24,27 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleAllowInvite
-	: public Module
-	, public ISupport::EventListener
+class ModuleAllowInvite : public Module
 {
  private:
+	ExtBan::Acting extban;
 	SimpleChannelModeHandler ni;
 
  public:
 	ModuleAllowInvite()
 		: Module(VF_VENDOR, "Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A which bans specific masks from using the /INVITE command.")
-		, ISupport::EventListener(this)
+		, extban(this, "blockinvite", 'A')
 		, ni(this, "allowinvite", 'A')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('A');
 	}
 
 	ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout) override
 	{
 		if (IS_LOCAL(user))
 		{
-			ModResult res = channel->GetExtBanStatus(user, 'A');
+			ModResult res = extban.GetStatus(user, channel);
 			if (res == MOD_RES_DENY)
 			{
 				// Matching extban, explicitly deny /invite

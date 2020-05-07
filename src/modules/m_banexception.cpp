@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/extban.h"
 #include "modules/isupport.h"
 
 enum
@@ -46,6 +47,7 @@ class BanException : public ListModeBase
 
 class ModuleBanException
 	: public Module
+	, public ExtBan::EventListener
 	, public ISupport::EventListener
 {
  private:
@@ -54,6 +56,7 @@ class ModuleBanException
  public:
 	ModuleBanException()
 		: Module(VF_VENDOR, "Adds channel mode e (banexception) which allows channel operators to exempt user masks from the b (ban) channel mode.")
+		, ExtBan::EventListener(this)
 		, ISupport::EventListener(this)
 		, be(this)
 	{
@@ -64,24 +67,36 @@ class ModuleBanException
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
-	ModResult OnExtBanCheck(User *user, Channel *chan, char type) override
+	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) override
 	{
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
 			return MOD_RES_PASSTHRU;
 
-		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+		for (const ListModeBase::ListItem ban : *list)
 		{
-			if (it->mask.length() <= 2 || it->mask[0] != type || it->mask[1] != ':')
-				continue;
+			// The mask must be in the format <letter>:<value> or <name>:<value>.
+			size_t endpos = ban.mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+			if (endpos == std::string::npos || ban.mask[endpos] != ':')
+				return MOD_RES_PASSTHRU;
 
-			if (chan->CheckBan(user, it->mask.substr(2)))
+			const std::string name(ban.mask, 0, endpos);
+			if (name.size() == 1)
 			{
-				// They match an entry on the list, so let them pass this.
-				return MOD_RES_ALLOW;
+				// It is an extban but not this extban.
+				if (name[0] != extban->GetLetter())
+					continue;
 			}
-		}
+			else
+			{
+				// It is an extban but not this extban.
+				if (!irc::equals(name, extban->GetName()))
+					continue;
+			}
 
+			const std::string value(ban.mask, endpos + 1);
+			return extban->IsMatch(user, chan, value) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

@@ -73,14 +73,6 @@ void ISupportManager::Build()
 	// Modules can add new tokens and also edit or remove existing tokens
 	FOREACH_MOD_CUSTOM(isupportevprov, ISupport::EventListener, OnBuildISupport, (tokens));
 
-	// EXTBAN is a special case as we need to sort it and prepend a comma.
-	ISupport::TokenMap::iterator extban = tokens.find("EXTBAN");
-	if (extban != tokens.end())
-	{
-		std::sort(extban->second.begin(), extban->second.end());
-		extban->second.insert(0, ",");
-	}
-
 	// Transform the map into a list of lines, ready to be sent to clients
 	Numeric::Numeric numeric(RPL_ISUPPORT);
 	unsigned int token_count = 0;

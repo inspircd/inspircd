@@ -74,6 +74,7 @@ struct CapabData
 	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::string ChanModes;
 	std::string UserModes;
+	std::string ExtBans;
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
@@ -251,6 +252,12 @@ class TreeSocket : public BufferedSocket
 	 * @param type The type of modes to return.
 	 */
 	std::string BuildModeList(ModeType type);
+
+	/** If the extban manager exists then build an extban list.
+	 * @param out The buffer to put the extban list in.
+	 * @return True if the extban manager exists; otherwise, false.
+	 */
+	bool BuildExtBanList(std::string& out);
 
 	/** Send my capabilities to the remote side
 	 */

@@ -28,30 +28,24 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleStripColor
-	: public Module
-	, public ISupport::EventListener
+class ModuleStripColor : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
+	ExtBan::Acting extban;
 	SimpleChannelModeHandler csc;
 	SimpleUserModeHandler usc;
 
  public:
 	ModuleStripColor()
 		: Module(VF_VENDOR, "Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.")
-		, ISupport::EventListener(this)
 		, exemptionprov(this)
+		, extban(this, "stripcolor", 'S')
 		, csc(this, "stripcolor", 'S')
 		, usc(this, "u_stripcolor", 'S')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('S');
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -76,7 +70,7 @@ class ModuleStripColor
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
-				active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
+				active = !extban.GetStatus(user, t).check(!t->IsModeSet(csc));
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:
@@ -99,7 +93,7 @@ class ModuleStripColor
 		if (!IS_LOCAL(user))
 			return;
 
-		if (channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc)))
+		if (extban.GetStatus(user, channel).check(!user->IsModeSet(csc)))
 		{
 			ModResult res = CheckExemption::Call(exemptionprov, user, channel, "stripcolor");
 

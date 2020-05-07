@@ -27,28 +27,22 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleNoNickChange
-	: public Module
-	, public ISupport::EventListener
+class ModuleNoNickChange : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
+	ExtBan::Acting extban;
 	SimpleChannelModeHandler nn;
 
  public:
 	ModuleNoNickChange()
 		: Module(VF_VENDOR, "Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.")
-		, ISupport::EventListener(this)
 		, exemptionprov(this)
+		, extban(this, "nonick", 'N')
 		, nn(this, "nonick", 'N')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('N');
 	}
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
@@ -65,7 +59,7 @@ class ModuleNoNickChange
 				continue;
 
 			bool modeset = curr->IsModeSet(nn);
-			if (!curr->GetExtBanStatus(user, 'N').check(!modeset))
+			if (!extban.GetStatus(user, curr).check(!modeset))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (%s)",
 					curr->name.c_str(), modeset ? "+N is set" : "you're extbanned"));

@@ -24,32 +24,34 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
+
+class ServerExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	ServerExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "server", 's')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		return InspIRCd::Match(user->server->GetName(), text);
+	}
+};
 
 class ModuleServerBan
 	: public Module
-	, public ISupport::EventListener
 {
+ private:
+	ServerExtBan extban;
+
  public:
 	ModuleServerBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the s extended ban which check whether users are on a server matching the specified glob pattern.")
-		, ISupport::EventListener(this)
+		, extban(this)
 	{
-	}
-
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
-	{
-		if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':'))
-		{
-			if (InspIRCd::Match(user->server->GetName(), mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('s');
 	}
 };
 

@@ -280,10 +280,6 @@ class CoreExport Channel : public Extensible
 	 */
 	bool CheckBan(User* user, const std::string& banmask);
 
-	/** Get the status of an "action" type extban
-	 */
-	ModResult GetExtBanStatus(User *u, char type);
-
 	/** Write a NOTICE to all local users on the channel
 	 * @param text Text to send
 	 * @param status The minimum status rank to send this message to.

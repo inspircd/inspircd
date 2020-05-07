@@ -24,7 +24,7 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
 enum
 {
@@ -32,22 +32,50 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
+class OperExtBan
+	: public ExtBan::MatchingBase
+{
+ private:
+	std::string space;
+	std::string underscore;
+
+ public:
+	OperExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "oper", 'O')
+		, space(" ")
+		, underscore("_")
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		// If the user is not an oper they can't match this.
+		if (!user->IsOper())
+			return false;
+
+		// Check whether the oper's type matches the ban.
+		if (InspIRCd::Match(user->oper->name, text))
+			return true;
+
+		// If the oper's type contains spaces recheck with underscores.
+		std::string opername(user->oper->name);
+		stdalgo::string::replace_all(opername, space, underscore);
+		return InspIRCd::Match(opername, text);
+	}
+};
+
 class ModuleOperChans
 	: public Module
-	, public ISupport::EventListener
 {
  private:
 	SimpleChannelModeHandler oc;
-	const std::string space;
-	const std::string underscore;
+	OperExtBan extban;
 
  public:
 	ModuleOperChans()
 		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
-		, ISupport::EventListener(this)
 		, oc(this, "operonly", 'O', true)
-		, space(" ")
-		, underscore("_")
+		, extban(this)
 	{
 	}
 
@@ -59,35 +87,6 @@ class ModuleOperChans
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
-	{
-		// Check whether the entry is an extban.
-		if (mask.length() <= 2 || mask[0] != 'O' || mask[1] != ':')
-			return MOD_RES_PASSTHRU;
-
-		// If the user is not an oper they can't match this.
-		if (!user->IsOper())
-			return MOD_RES_PASSTHRU;
-
-		// Check whether the oper's type matches the ban.
-		const std::string submask = mask.substr(2);
-		if (InspIRCd::Match(user->oper->name, submask))
-			return MOD_RES_DENY;
-
-		// If the oper's type contains spaces recheck with underscores.
-		std::string opername(user->oper->name);
-		stdalgo::string::replace_all(opername, space, underscore);
-		if (InspIRCd::Match(opername, submask))
-			return MOD_RES_DENY;
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('O');
 	}
 };
 

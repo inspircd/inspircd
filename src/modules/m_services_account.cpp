@@ -30,8 +30,8 @@
 #include "modules/account.h"
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
+#include "modules/extban.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
 #include "modules/whois.h"
 
 enum
@@ -142,10 +142,49 @@ class AccountExtItemImpl : public AccountExtItem
 	}
 };
 
+class AccountExtBan
+	: public ExtBan::MatchingBase
+{
+private:
+	AccountExtItemImpl& accountext;
+
+ public:
+	AccountExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
+		: ExtBan::MatchingBase(Creator, "account", 'R')
+		, accountext(AccountExt)
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		const std::string* account = accountext.get(user);
+		return account && InspIRCd::Match(*account, text);
+	}
+};
+
+class UnauthedExtBan
+	: public ExtBan::MatchingBase
+{
+private:
+	AccountExtItemImpl& accountext;
+
+ public:
+	UnauthedExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
+		: ExtBan::MatchingBase(Creator, "unauthed", 'U')
+		, accountext(AccountExt)
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		const std::string* account = accountext.get(user);
+		return !account && channel->CheckBan(user, text);
+	}
+};
+
 class ModuleServicesAccount
 	: public Module
 	, public CTCTags::EventListener
-	, public ISupport::EventListener
 	, public Whois::EventListener
 {
  private:
@@ -157,13 +196,13 @@ class ModuleServicesAccount
 	Channel_r chanregmode;
 	User_r userregmode;
 	AccountExtItemImpl accountname;
-	bool checking_ban = false;
+	AccountExtBan accountextban;
+	UnauthedExtBan unauthedextban;
 
  public:
 	ModuleServicesAccount()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to services accounts.")
 		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
 		, Whois::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
@@ -173,13 +212,9 @@ class ModuleServicesAccount
 		, chanregmode(this)
 		, userregmode(this)
 		, accountname(this)
+		, accountextban(this, accountname)
+		, unauthedextban(this, accountname)
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('R');
-		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
@@ -259,42 +294,6 @@ class ModuleServicesAccount
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		return HandleMessage(user, target);
-	}
-
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
-	{
-		if (checking_ban)
-			return MOD_RES_PASSTHRU;
-
-		if ((mask.length() > 2) && (mask[1] == ':'))
-		{
-			if (mask[0] == 'R')
-			{
-				std::string *account = accountname.get(user);
-				if (account && InspIRCd::Match(*account, mask.substr(2)))
-					return MOD_RES_DENY;
-			}
-			else if (mask[0] == 'U')
-			{
-				std::string *account = accountname.get(user);
-				/* If the user is registered we don't care. */
-				if (account)
-					return MOD_RES_PASSTHRU;
-
-				/* If we made it this far we know the user isn't registered
-					so just deny if it matches */
-				checking_ban = true;
-				bool result = chan->CheckBan(user, mask.substr(2));
-				checking_ban = false;
-
-				if (result)
-					return MOD_RES_DENY;
-			}
-		}
-
-		/* If we made it this far then the ban wasn't an ExtBan
-			or the user we were checking for didn't match either ExtBan */
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override

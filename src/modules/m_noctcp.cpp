@@ -28,22 +28,21 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleNoCTCP
-	: public Module
-	, public ISupport::EventListener
+class ModuleNoCTCP : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
+	ExtBan::Acting extban;
 	SimpleChannelModeHandler nc;
 	SimpleUserModeHandler ncu;
 
  public:
 	ModuleNoCTCP()
 		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs.")
-		, ISupport::EventListener(this)
 		, exemptionprov(this)
+		, extban(this, "noctcp", 'C')
 		, nc(this, "noctcp", 'C')
 		, ncu(this, "u_noctcp", 'T')
 	{
@@ -84,7 +83,7 @@ class ModuleNoCTCP
 					return MOD_RES_DENY;
 				}
 
-				if (c->GetExtBanStatus(user, 'C') == MOD_RES_DENY)
+				if (extban.GetStatus(user, c) == MOD_RES_DENY)
 				{
 					user->WriteNumeric(Numerics::CannotSendTo(c, "CTCPs", 'C', "noctcp"));
 					return MOD_RES_DENY;
@@ -108,11 +107,6 @@ class ModuleNoCTCP
 				break;
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('C');
 	}
 };
 

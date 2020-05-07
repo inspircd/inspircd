@@ -119,6 +119,7 @@ class CoreModChannel
 	ModeChannelVoice voicemode;
 
 	insp::flat_map<std::string, char> exemptions;
+	ExtBanManager extbanmgr;
 
 	ModResult IsInvited(User* user, Channel* chan)
 	{
@@ -152,6 +153,7 @@ class CoreModChannel
 		, secretmode(this, "secret", 's')
 		, topiclockmode(this, "topiclock", 't')
 		, voicemode(this)
+		, extbanmgr(this, banmode)
 	{
 	}
 
@@ -211,6 +213,7 @@ class CoreModChannel
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
+		extbanmgr.BuildISupport(tokens["EXTBAN"]);
 
 		insp::flat_map<int, std::string> limits;
 		std::string vlist;
@@ -350,6 +353,28 @@ class CoreModChannel
 	{
 		// Make sure the channel won't appear in invite lists from now on, don't wait for cull to unset the ext
 		invapi.RemoveAll(chan);
+	}
+
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
+	{
+		// The mask must be in the format <letter>:<value> or <name>:<value>.
+		size_t endpos = mask.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+		if (endpos == std::string::npos || mask[endpos] != ':')
+			return MOD_RES_PASSTHRU;
+
+		ExtBan::Base* extban = NULL;
+		const std::string name(mask, 0, endpos);
+		if (name.size() == 1)
+			extban = extbanmgr.FindLetter(name[0]);
+		else
+			extban = extbanmgr.FindName(name);
+
+		// It is formatted like an extban but isn't a matching extban.
+		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
+			return MOD_RES_PASSTHRU;
+
+		const std::string value(mask, endpos + 1);
+		return extban->IsMatch(user, chan, value) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override

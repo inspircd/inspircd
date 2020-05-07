@@ -24,46 +24,50 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
+
+class ChannelExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	ChannelExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "channel", 'j')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		unsigned char status = 0;
+		const char* target = text.c_str();
+		const PrefixMode* const mh = ServerInstance->Modes.FindPrefix(text[0]);
+		if (mh)
+		{
+			status = mh->GetModeChar();
+			target++;
+		}
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+		{
+			Membership* memb = *i;
+			if (!InspIRCd::Match(memb->chan->name, target))
+				continue;
+			if (!status || memb->getRank() >= mh->GetPrefixRank())
+				return true;
+		}
+		return false;
+	}
+};
 
 class ModuleBadChannelExtban
 	: public Module
-	, public ISupport::EventListener
 {
+ private:
+	ChannelExtBan extban;
+
  public:
 	ModuleBadChannelExtban()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the j extended ban which checks whether users are in a channel matching the specified glob pattern.")
-		, ISupport::EventListener(this)
+		, extban(this)
 	{
-	}
-
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
-	{
-		if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':'))
-		{
-			std::string rm(mask, 2);
-			char status = 0;
-			const PrefixMode* const mh = ServerInstance->Modes.FindPrefix(rm[0]);
-			if (mh)
-			{
-				rm.assign(mask, 3, std::string::npos);
-				status = mh->GetModeChar();
-			}
-			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
-			{
-				if (InspIRCd::Match((*i)->chan->name, rm))
-				{
-					if ((!status) || ((*i)->HasMode(mh)))
-						return MOD_RES_DENY;
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('j');
 	}
 };
 

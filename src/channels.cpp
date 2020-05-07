@@ -327,10 +327,6 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
-	// extbans were handled above, if this is one it obviously didn't match
-	if ((mask.length() <= 2) || (mask[1] == ':'))
-		return false;
-
 	std::string::size_type at = mask.find('@');
 	if (at == std::string::npos)
 		return false;
@@ -346,32 +342,6 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 			return true;
 	}
 	return false;
-}
-
-ModResult Channel::GetExtBanStatus(User *user, char type)
-{
-	ModResult rv;
-	FIRST_MOD_RESULT(OnExtBanCheck, rv, (user, this, type));
-	if (rv != MOD_RES_PASSTHRU)
-		return rv;
-
-	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
-	if (!banlm)
-		return MOD_RES_PASSTHRU;
-
-	const ListModeBase::ModeList* bans = banlm->GetList(this);
-	if (bans)
-	{
-		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); ++it)
-		{
-			if (it->mask.length() <= 2 || it->mask[0] != type || it->mask[1] != ':')
-				continue;
-
-			if (CheckBan(user, it->mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-	}
-	return MOD_RES_PASSTHRU;
 }
 
 /* Channel::PartUser

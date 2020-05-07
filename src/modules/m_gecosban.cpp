@@ -24,51 +24,61 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
+
+class RealMaskExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	RealMaskExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "realmask", 'a')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		// Check that the user actually specified a real name.
+		const size_t divider = text.find('+', 1);
+		if (divider == std::string::npos)
+			return false;
+
+		// Check whether the user's mask matches.
+		if (!channel->CheckBan(user, text.substr(0, divider)))
+			return false;
+
+		// Check whether the user's real name matches.
+		return InspIRCd::Match(user->GetRealName(), text.substr(divider + 1));
+	}
+};
+
+class RealNameExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	RealNameExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "realname", 'r')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		return InspIRCd::Match(user->GetRealName(), text);
+	}
+};
 
 class ModuleGecosBan
 	: public Module
-	, public ISupport::EventListener
 {
+ private:
+	RealMaskExtBan maskextban;
+	RealNameExtBan realextban;
+ 
  public:
 	ModuleGecosBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the r extended ban which checks whether users have a real name (gecos) matching the specified glob pattern.")
-		, ISupport::EventListener(this)
+		, maskextban(this)
+		, realextban(this)
 	{
-	}
-
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
-	{
-		if ((mask.length() > 2) && (mask[1] == ':'))
-		{
-			if (mask[0] == 'r')
-			{
-				if (InspIRCd::Match(user->GetRealName(), mask.substr(2)))
-					return MOD_RES_DENY;
-			}
-			else if (mask[0] == 'a')
-			{
-				// Check that the user actually specified a real name.
-				const size_t divider = mask.find('+', 1);
-				if (divider == std::string::npos)
-					return MOD_RES_PASSTHRU;
-
-				// Check whether the user's mask matches.
-				if (!c->CheckBan(user, mask.substr(2, divider - 2)))
-					return MOD_RES_PASSTHRU;
-
-				// Check whether the user's real name matches.
-				if (InspIRCd::Match(user->GetRealName(), mask.substr(divider + 1)))
-					return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('a');
-		tokens["EXTBAN"].push_back('r');
 	}
 };
 

@@ -19,8 +19,8 @@
 
 
 #include "inspircd.h"
+#include "modules/extban.h"
 #include "modules/geolocation.h"
-#include "modules/isupport.h"
 #include "modules/whois.h"
 
 enum
@@ -29,40 +29,44 @@ enum
 	RPL_WHOISCOUNTRY = 344
 };
 
+class CountryExtBan
+	: public ExtBan::MatchingBase
+{
+ private:
+	Geolocation::API& geoapi;
+
+ public:
+	CountryExtBan(Module* Creator, Geolocation::API& api)
+		: ExtBan::MatchingBase(Creator, "country", 'G')
+		, geoapi(api)
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		const std::string code = location ? location->GetCode() : "XX";
+
+		// Does this user match against the ban?
+		return InspIRCd::Match(code, text);
+	}
+};
+
 class ModuleGeoBan
 	: public Module
-	, public ISupport::EventListener
 	, public Whois::EventListener
 {
  private:
 	Geolocation::API geoapi;
+	CountryExtBan extban;
 
  public:
 	ModuleGeoBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G which matches against two letter country codes.")
-		, ISupport::EventListener(this)
 		, Whois::EventListener(this)
 		, geoapi(this)
+		, extban(this, geoapi)
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('G');
-	}
-
-	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) override
-	{
-		if ((mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
-		{
-			Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
-			const std::string code = location ? location->GetCode() : "XX";
-
-			// Does this user match against the ban?
-			if (InspIRCd::Match(code, mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnWhois(Whois::Context& whois) override

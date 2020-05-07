@@ -26,32 +26,26 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleNoKicks
-	: public Module
-	, public ISupport::EventListener
+class ModuleNoKicks : public Module
 {
  private:
+	ExtBan::Acting extban;
 	SimpleChannelModeHandler nk;
 
  public:
 	ModuleNoKicks()
 		: Module(VF_VENDOR, "Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.")
-		, ISupport::EventListener(this)
+		, extban(this, "nokick", 'Q')
 		, nk(this, "nokick", 'Q')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('Q');
 	}
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
 	{
 		bool modeset = memb->chan->IsModeSet(nk);
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!modeset))
+		if (!extban.GetStatus(source, memb->chan).check(!modeset))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
 			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",

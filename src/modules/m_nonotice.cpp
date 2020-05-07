@@ -27,28 +27,22 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleNoNotice
-	: public Module
-	, public ISupport::EventListener
+class ModuleNoNotice : public Module
 {
  private:
+	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler nt;
 
  public:
 	ModuleNoNotice()
 		: Module(VF_VENDOR, "Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.")
-		, ISupport::EventListener(this)
+		, extban(this, "nonotice", 'T')
 		, exemptionprov(this)
 		, nt(this, "nonotice", 'T')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('T');
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -67,7 +61,7 @@ class ModuleNoNotice
 				return MOD_RES_DENY;
 			}
 
-			if (c->GetExtBanStatus(user, 'T') == MOD_RES_DENY)
+			if (extban.GetStatus(user, c) == MOD_RES_DENY)
 			{
 				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", 'T', "nonotice"));
 				return MOD_RES_DENY;

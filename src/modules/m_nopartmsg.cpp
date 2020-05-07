@@ -24,16 +24,17 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModulePartMsgBan
-	: public Module
-	, public ISupport::EventListener
+class ModulePartMsgBan : public Module
 {
+ private:
+	ExtBan::Acting extban;
+
  public:
 	ModulePartMsgBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the p extended ban which blocks the part message of matching users.")
-		, ISupport::EventListener(this)
+		, extban(this, "partmsg", 'p')
 	{
 	}
 
@@ -42,13 +43,8 @@ class ModulePartMsgBan
 		if (!IS_LOCAL(memb->user))
 			return;
 
-		if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY)
+		if (extban.GetStatus(memb->user, memb->chan) == MOD_RES_DENY)
 			partmessage.clear();
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('p');
 	}
 };
 

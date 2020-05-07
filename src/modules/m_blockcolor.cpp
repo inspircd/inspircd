@@ -29,28 +29,22 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
 
-class ModuleBlockColor
-	: public Module
-	, public ISupport::EventListener
+class ModuleBlockColor : public Module
 {
  private:
+	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler bc;
 
  public:
 	ModuleBlockColor()
 		: Module(VF_VENDOR, "Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.")
-		, ISupport::EventListener(this)
+		, extban(this, "blockcolor", 'c')
 		, exemptionprov(this)
 		, bc(this, "blockcolor", 'c')
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('c');
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -64,7 +58,7 @@ class ModuleBlockColor
 				return MOD_RES_PASSTHRU;
 
 			bool modeset = c->IsModeSet(bc);
-			if (!c->GetExtBanStatus(user, 'c').check(!modeset))
+			if (!extban.GetStatus(user, c).check(!modeset))
 			{
 				for (std::string::iterator i = details.text.begin(); i != details.text.end(); i++)
 				{

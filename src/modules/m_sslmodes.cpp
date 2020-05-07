@@ -27,8 +27,8 @@
 
 
 #include "inspircd.h"
+#include "modules/extban.h"
 #include "modules/ctctags.h"
-#include "modules/isupport.h"
 #include "modules/ssl.h"
 
 enum
@@ -36,6 +36,26 @@ enum
 	// From UnrealIRCd.
 	ERR_SECUREONLYCHAN = 489,
 	ERR_ALLMUSTSSL = 490
+};
+
+class SSLFPExtBan
+	: public ExtBan::MatchingBase
+{
+ private:
+	UserCertificateAPI& sslapi;
+
+ public:
+	SSLFPExtBan(Module* Creator, UserCertificateAPI& api)
+		: ExtBan::MatchingBase(Creator, "sslfp", 'z')
+		, sslapi(api)
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
+		return !fp.empty() && InspIRCd::Match(fp, text);
+	}
 };
 
 /** Handle channel mode +z
@@ -146,21 +166,21 @@ class SSLModeUser : public ModeHandler
 class ModuleSSLModes
 	: public Module
 	, public CTCTags::EventListener
-	, public ISupport::EventListener
 {
  private:
 	UserCertificateAPI api;
 	SSLMode sslm;
 	SSLModeUser sslquery;
+	SSLFPExtBan sslfp;
 
  public:
 	ModuleSSLModes()
 		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS (SSL) users.")
 		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
 		, api(this)
 		, sslm(this, api)
 		, sslquery(this, api)
+		, sslfp(this, api)
 	{
 	}
 
@@ -226,22 +246,6 @@ class ModuleSSLModes
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		return HandleMessage(user, target);
-	}
-
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) override
-	{
-		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
-		{
-			const std::string fp = api ? api->GetFingerprint(user) : "";
-			if (!fp.empty() && InspIRCd::Match(fp, mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('z');
 	}
 };
 

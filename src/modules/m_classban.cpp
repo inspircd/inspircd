@@ -19,33 +19,35 @@
 
 
 #include "inspircd.h"
-#include "modules/isupport.h"
+#include "modules/extban.h"
+
+class ClassExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	ClassExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "class", 'n')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		return luser && InspIRCd::Match(luser->GetClass()->name, text);
+	}
+};
 
 class ModuleClassBan
 	: public Module
-	, public ISupport::EventListener
 {
+ private:
+	ClassExtBan extban;
+
  public:
-	ModuleClassBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the n extended ban which check whether users are in a connect class matching the specified glob pattern.")
-		, ISupport::EventListener(this)
+ 	ModuleClassBan()
+ 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the n extended ban which check whether users are in a connect class matching the specified glob pattern.")
+		, extban(this)
 	{
-	}
-
-	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) override
-	{
-		LocalUser* localUser = IS_LOCAL(user);
-		if ((localUser) && (mask.length() > 2) && (mask[0] == 'n') && (mask[1] == ':'))
-		{
-			if (InspIRCd::Match(localUser->GetClass()->name, mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		tokens["EXTBAN"].push_back('n');
 	}
 };
 

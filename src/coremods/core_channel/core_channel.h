@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "listmode.h"
 #include "modules/exemption.h"
+#include "modules/extban.h"
 
 namespace Topic
 {
@@ -224,4 +225,30 @@ class ModeChannelVoice : public PrefixMode
 		selfremove = false;
 		ranktoset = ranktounset = HALFOP_VALUE;
 	}
+};
+
+class ExtBanManager : public ExtBan::Manager
+{
+ private:
+	ModeChannelBan& banmode;
+	Events::ModuleEventProvider evprov;
+	LetterMap byletter;
+	NameMap byname;
+
+ public:
+	ExtBanManager(Module* Creator, ModeChannelBan& bm)
+		: ExtBan::Manager(Creator)
+		, banmode(bm)
+		, evprov(Creator, "event/extban")
+	{
+	}
+
+	void AddExtBan(ExtBan::Base* extban) override;
+	void DelExtBan(ExtBan::Base* extban) override;
+	const LetterMap& GetLetterMap() const override { return byletter; }
+	const NameMap& GetNameMap() const override { return byname; }
+	ModResult GetStatus(ExtBan::Acting* extban, User* user, Channel* channel) const override;
+	ExtBan::Base* FindName(const std::string& name) const override;
+	ExtBan::Base* FindLetter(unsigned char letter) const override;
+	void BuildISupport(std::string& out);
 };

@@ -31,6 +31,7 @@
 #include "utils.h"
 #include "link.h"
 #include "main.h"
+#include "modules/extban.h"
 
 std::string TreeSocket::MyModules(int filter)
 {
@@ -92,6 +93,36 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 	return stdalgo::string::join(modes);
 }
 
+bool TreeSocket::BuildExtBanList(std::string& out)
+{
+	dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
+	if (!extbanmgr)
+		return false;
+
+	const ExtBan::Manager::LetterMap& extbans = extbanmgr->GetLetterMap();
+	for (ExtBan::Manager::LetterMap::const_iterator iter = extbans.begin(); iter != extbans.end(); ++iter)
+	{
+		if (iter != extbans.begin())
+			out.push_back(' ');
+
+		const ExtBan::Base* extban = iter->second;
+		switch (extban->GetType())
+		{
+			case ExtBan::Type::ACTING:
+				out.append("acting:");
+				break;
+			case ExtBan::Type::MATCHING:
+				out.append("matching:");
+				break;
+		}
+
+		out.append(extban->GetName())
+			.append("=")
+			.push_back(extban->GetLetter());
+	}
+	return true;
+}
+
 void TreeSocket::SendCapabilities(int phase)
 {
 	if (capab->capab_phase >= phase)
@@ -145,6 +176,10 @@ void TreeSocket::SendCapabilities(int phase)
 
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
+
+	std::string extbans;
+	if (BuildExtBanList(extbans))
+		WriteLine("CAPAB EXTBANS :" + extbans);
 
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
@@ -359,6 +394,37 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			return false;
 		}
 
+		if (!capab->ExtBans.empty())
+		{
+			std::string myextbans;
+			if (BuildExtBanList(myextbans))
+			{
+				std::string missing_here;
+				std::string missing_there;
+				ListDifference(capab->ExtBans, myextbans, ' ', missing_here, missing_there);
+				if (!missing_here.empty() || !missing_there.empty())
+				{
+					if (Utils->AllowOptCommon)
+					{
+						ServerInstance->SNO.WriteToSnoMask('l',
+							"ExtBan lists do not match, some bans/exemptions may not work globally.%s%s%s%s",
+							missing_here.length() ? " Not loaded here:" : "", missing_here.c_str(),
+							missing_there.length() ? " Not loaded there:" : "", missing_there.c_str());
+					}
+					else
+					{
+						reason = "ExtBans not matched on these servers.";
+						if (missing_here.length())
+							reason += " Not loaded here:" + missing_here;
+						if (missing_there.length())
+							reason += " Not loaded there:" + missing_there;
+						this->SendError("CAPAB negotiation failed: " + reason);
+						return false;
+					}
+				}
+			}
+		}
+
 		if (this->capab->CapKeys.find("CASEMAPPING") != this->capab->CapKeys.end())
 		{
 			const std::string casemapping = this->capab->CapKeys.find("CASEMAPPING")->second;
@@ -425,6 +491,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	else if ((params[0] == "USERMODES") && (params.size() == 2))
 	{
 		capab->UserModes = params[1];
+	}
+	else if ((params[0] == "EXTBANS") && (params.size() == 2))
+	{
+		capab->ExtBans = params[1];
 	}
 	else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
 	{
