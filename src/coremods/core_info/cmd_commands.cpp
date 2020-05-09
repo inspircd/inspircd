@@ -49,7 +49,7 @@ CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
 		// Don't show privileged commands to users without the privilege.
-		if (i->second->flags_needed && user->IsModeSet(i->second->flags_needed))
+		if (i->second->flags_needed && !user->IsModeSet(i->second->flags_needed))
 			continue;
 
 		Module* src = i->second->creator;
