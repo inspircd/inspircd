@@ -85,12 +85,14 @@ class flat_map_base
 	typedef Comp key_compare;
 	typedef ElementComp value_compare;
 
-	flat_map_base() { }
+	flat_map_base() = default;
 
 	flat_map_base(const flat_map_base& other)
 		: vect(other.vect)
 	{
 	}
+
+	flat_map_base& operator=(const flat_map_base& other) = default;
 
 	size_type size() const { return vect.size(); }
 	bool empty() const { return vect.empty(); }
@@ -210,7 +212,7 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 	typedef typename base_t::iterator iterator;
 	typedef typename base_t::value_type value_type;
 
-	flat_set() { }
+	flat_set() = default;
 
 	template <typename InputIterator>
 	flat_set(InputIterator first, InputIterator last)
@@ -222,6 +224,8 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 		: base_t(other)
 	{
 	}
+
+	flat_set& operator=(const flat_set& other) = default;
 
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
@@ -250,7 +254,7 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 	typedef typename base_t::iterator iterator;
 	typedef typename base_t::value_type value_type;
 
-	flat_multiset() { }
+	flat_multiset() = default;
 
 	template <typename InputIterator>
 	flat_multiset(InputIterator first, InputIterator last)
@@ -262,6 +266,8 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 		: base_t(other)
 	{
 	}
+
+	flat_multiset& operator=(const flat_multiset& other) = default;
 
 	iterator insert(const value_type& x)
 	{
@@ -293,7 +299,7 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 	typedef U mapped_type;
 	typedef typename base_t::value_compare value_compare;
 
-	flat_map() { }
+	flat_map() = default;
 
 	template <typename InputIterator>
 	flat_map(InputIterator first, InputIterator last)
@@ -305,6 +311,8 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 		: base_t(other)
 	{
 	}
+
+	flat_map& operator=(const flat_map& other) = default;
 
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
@@ -345,7 +353,7 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 	typedef U mapped_type;
 	typedef typename base_t::value_compare value_compare;
 
-	flat_multimap() { }
+	flat_multimap() = default;
 
 	template <typename InputIterator>
 	flat_multimap(InputIterator first, InputIterator last)
@@ -357,6 +365,8 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 		: base_t(other)
 	{
 	}
+
+	flat_multimap& operator=(const flat_multimap& other) = default;
 
 	iterator insert(const value_type& x)
 	{
