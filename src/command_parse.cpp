@@ -428,7 +428,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 			}
 			// If no custom translator was given, fall through
 		}
-		/*@fallthrough@*/
+		[[fallthrough]];
 		default:
 			/* Do nothing */
 			dest.append(item);
