@@ -39,7 +39,7 @@
 #
 
 
-CXX = @CXX@ -std=c++14
+CXX = @CXX@ -std=c++17
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
 BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@

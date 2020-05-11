@@ -13,14 +13,6 @@ files   = "http_parser.[ch]"
 git     = "https://github.com/nodejs/http-parser"
 license = "MIT License"
 
-[optional-lite]
-author  = "Martin Moene"
-depth   = 2
-email   = "martin.moene@gmail.com"
-files   = "include/nonstd/optional.hpp"
-git     = "https://github.com/martinmoene/optional-lite"
-license = "Boost Software License"
-
 [sha2]
 author  = "Olivier Gay"
 email   = "olivier.gay@a3.epfl.ch"
