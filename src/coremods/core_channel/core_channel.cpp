@@ -179,8 +179,8 @@ class CoreModChannel
 
 		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
 		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
-			{ "all",     Invite::ANNOUNCE_NONE },
-			{ "dynamic", Invite::ANNOUNCE_ALL },
+			{ "all",     Invite::ANNOUNCE_ALL },
+			{ "dynamic", Invite::ANNOUNCE_DYNAMIC },
 			{ "none",    Invite::ANNOUNCE_NONE },
 			{ "ops",     Invite::ANNOUNCE_OPS },
 		});
