@@ -71,25 +71,16 @@ class ModuleRegexStd : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
-
-		const std::string regextype = Conf->getString("type", "ecmascript", 1);
-		if (stdalgo::string::equalsci(regextype, "bre"))
-			ref.regextype = std::regex::basic;
-		else if (stdalgo::string::equalsci(regextype, "ere"))
-			ref.regextype = std::regex::extended;
-		else if (stdalgo::string::equalsci(regextype, "awk"))
-			ref.regextype = std::regex::awk;
-		else if (stdalgo::string::equalsci(regextype, "grep"))
-			ref.regextype = std::regex::grep;
-		else if (stdalgo::string::equalsci(regextype, "egrep"))
-			ref.regextype = std::regex::egrep;
-		else
+		ConfigTag* tag = ServerInstance->Config->ConfValue("stdregex");
+		ref.regextype = tag->getEnum("type", std::regex::ECMAScript,
 		{
-			if (!stdalgo::string::equalsci(regextype, "ecmascript"))
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: Nonexistent regex engine '%s' specified. Falling back to ECMAScript.", regextype.c_str());
-			ref.regextype = std::regex::ECMAScript;
-		}
+			{ "awk",        std::regex::awk },
+			{ "bre",        std::regex::basic },
+			{ "ecmascript", std::regex::ECMAScript },
+			{ "egrep",      std::regex::egrep },
+			{ "ere",        std::regex::extended },
+			{ "grep",       std::regex::grep },
+		});
 	}
 };
 

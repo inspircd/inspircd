@@ -62,19 +62,15 @@ class ModuleBlockAmsg : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
-		ForgetDelay = tag->getDuration("delay", 3);
-		std::string act = tag->getString("action");
+		action = tag->getEnum("action", IBLOCK_KILLOPERS, {
+			{ "kill",        IBLOCK_KILL },
+			{ "killopers",   IBLOCK_KILLOPERS },
+			{ "notice",      IBLOCK_NOTICE },
+			{ "noticeopers", IBLOCK_NOTICEOPERS },
+			{ "silent",      IBLOCK_SILENT }
+		});
 
-		if (stdalgo::string::equalsci(act, "notice"))
-			action = IBLOCK_NOTICE;
-		else if (stdalgo::string::equalsci(act, "noticeopers"))
-			action = IBLOCK_NOTICEOPERS;
-		else if (stdalgo::string::equalsci(act, "silent"))
-			action = IBLOCK_SILENT;
-		else if (stdalgo::string::equalsci(act, "kill"))
-			action = IBLOCK_KILL;
-		else
-			action = IBLOCK_KILLOPERS;
+		ForgetDelay = tag->getDuration("delay", 3);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

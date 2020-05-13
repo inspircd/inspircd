@@ -364,21 +364,15 @@ class CoreModWhois : public Module
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
-		const std::string splitwhois = tag->getString("splitwhois", "no", 1);
-		SplitWhoisState newsplitstate;
-		if (stdalgo::string::equalsci(splitwhois, "no"))
-			newsplitstate = SPLITWHOIS_NONE;
-		else if (stdalgo::string::equalsci(splitwhois, "split"))
-			newsplitstate = SPLITWHOIS_SPLIT;
-		else if (stdalgo::string::equalsci(splitwhois, "splitmsg"))
-			newsplitstate = SPLITWHOIS_SPLITMSG;
-		else
-			throw ModuleException(splitwhois + " is an invalid <options:splitwhois> value, at " + tag->getTagLocation());
+		ConfigTag* options = ServerInstance->Config->ConfValue("options");
+		cmd.splitwhois = options->getEnum("splitwhois", SPLITWHOIS_NONE, {
+			{ "no",       SPLITWHOIS_NONE },
+			{ "split",    SPLITWHOIS_SPLIT },
+			{ "splitmsg", SPLITWHOIS_SPLITMSG },
+		});
 
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
-		cmd.splitwhois = newsplitstate;
 	}
 };
 

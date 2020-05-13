@@ -178,18 +178,12 @@ class CoreModChannel
 		}
 
 		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
-		const std::string announceinvites = securitytag->getString("announceinvites", "dynamic", 1);
-		Invite::AnnounceState newannouncestate;
-		if (stdalgo::string::equalsci(announceinvites, "none"))
-			newannouncestate = Invite::ANNOUNCE_NONE;
-		else if (stdalgo::string::equalsci(announceinvites, "all"))
-			newannouncestate = Invite::ANNOUNCE_ALL;
-		else if (stdalgo::string::equalsci(announceinvites, "ops"))
-			newannouncestate = Invite::ANNOUNCE_OPS;
-		else if (stdalgo::string::equalsci(announceinvites, "dynamic"))
-			newannouncestate = Invite::ANNOUNCE_DYNAMIC;
-		else
-			throw ModuleException(announceinvites + " is an invalid <security:announceinvites> value, at " + securitytag->getTagLocation());
+		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
+			{ "all",     Invite::ANNOUNCE_NONE },
+			{ "dynamic", Invite::ANNOUNCE_ALL },
+			{ "none",    Invite::ANNOUNCE_NONE },
+			{ "ops",     Invite::ANNOUNCE_OPS },
+		});
 
 		// Config is valid, apply it
 

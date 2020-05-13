@@ -71,6 +71,23 @@ class CoreExport ConfigTag : public refcountbase
 	 */
 	unsigned long getDuration(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX) const;
 
+	template<typename TReturn>
+	TReturn getEnum(const std::string& key, TReturn def, std::initializer_list<std::pair<const char*, TReturn>> enumvals)
+	{
+		const std::string val = getString(key);
+		if (val.empty())
+			return def;
+
+		for (const std::pair<const char*, TReturn>& enumval : enumvals)
+			if (stdalgo::string::equalsci(val, enumval.first))
+				return enumval.second;
+
+		std::vector<const char*> enumkeys;
+		std::transform(enumvals.begin(), enumvals.end(), std::back_inserter(enumkeys), [](const std::pair<const char*, TReturn>& ev) { return ev.first; });
+		throw ModuleException(val + " is an invalid value for <" + tag + ":" + key + ">; acceptable values are " +
+			stdalgo::string::join(enumkeys, ' ') + ", at " + getTagLocation());
+	}
+
 	/** Get the value of an option
 	 * @param key The option to get
 	 * @param value The location to store the value (unmodified if does not exist)

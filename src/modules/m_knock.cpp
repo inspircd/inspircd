@@ -39,6 +39,19 @@ enum
 	ERR_KNOCKONCHAN = 714
 };
 
+// Actions which can be taken when a user knocks on a channel.
+enum KnockNotify : uint8_t
+{
+	// Send a notice when a user knocks on a channel.
+	KN_SEND_NOTICE = 1,
+
+	// Send a numeric when a user knocks on a channel.
+	KN_SEND_NUMERIC = 2,
+
+	// Send a notice and a numeric when a user knocks on a channel.
+	KN_SEND_BOTH = KN_SEND_NOTICE | KN_SEND_NUMERIC,
+};
+
 /** Handles the /KNOCK command
  */
 class CommandKnock : public Command
@@ -47,8 +60,8 @@ class CommandKnock : public Command
 	ChanModeReference inviteonlymode;
 
  public:
-	bool sendnotice;
-	bool sendnumeric;
+	int notify;
+
 	CommandKnock(Module* Creator, SimpleChannelModeHandler& Noknockmode)
 		: Command(Creator,"KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
@@ -85,13 +98,13 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		if (sendnotice)
+		if (notify & KN_SEND_NOTICE)
 		{
 			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
 			user->WriteNotice("KNOCKing on " + c->name);
 		}
 
-		if (sendnumeric)
+		if (notify & KN_SEND_NUMERIC)
 		{
 			Numeric::Numeric numeric(RPL_KNOCK);
 			numeric.push(c->name).push(user->GetFullHost()).push("is KNOCKing: " + parameters[1]);
@@ -126,22 +139,12 @@ class ModuleKnock : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
-		if (stdalgo::string::equalsci(knocknotify, "numeric"))
-		{
-			cmd.sendnotice = false;
-			cmd.sendnumeric = true;
-		}
-		else if (stdalgo::string::equalsci(knocknotify, "both"))
-		{
-			cmd.sendnotice = true;
-			cmd.sendnumeric = true;
-		}
-		else
-		{
-			cmd.sendnotice = true;
-			cmd.sendnumeric = false;
-		}
+		ConfigTag* tag = ServerInstance->Config->ConfValue("knock");
+		cmd.notify = tag->getEnum("notify", KN_SEND_NOTICE, {
+			{ "both",    KN_SEND_BOTH },
+			{ "notice",  KN_SEND_NOTICE },
+			{ "numeric", KN_SEND_NUMERIC },
+		});
 	}
 };
 
