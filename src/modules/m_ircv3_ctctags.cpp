@@ -329,6 +329,12 @@ class ModuleIRCv3CTCTags
 		c2ctags.allowclientonlytags = ServerInstance->Config->ConfValue("ctctags")->getBool("allowclientonlytags", true);
 	}
 
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		if (!c2ctags.allowclientonlytags)
+			tokens["CLIENTTAGDENY"] = "*";
+	}
+
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		return CopyClientTags(details.tags_in, details.tags_out);
