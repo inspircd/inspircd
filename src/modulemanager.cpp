@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
+#include <filesystem>
 #include <iostream>
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
@@ -128,26 +129,29 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 {
 	std::cout << "Loading core modules " << std::flush;
 
-	std::vector<std::string> files;
-	if (!FileSystem::GetFileList(ServerInstance->Config->Paths.Module, files, "core_*.so"))
+	try
 	{
-		std::cout << "failed!" << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_MODULE);
-	}
-
-	for (std::vector<std::string>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
-	{
-		std::cout << "." << std::flush;
-
-		const std::string& name = *iter;
-		this->NewServices = &servicemap[name];
-
-		if (!Load(name, true))
+		for (auto& entry : std::filesystem::directory_iterator(ServerInstance->Config->Paths.Module))
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
+			const std::string name = entry.path().filename();
+			if (!entry.is_regular_file() || !InspIRCd::Match(name, "core_*.so"))
+				continue;
+
+			std::cout << "." << std::flush;
+			this->NewServices = &servicemap[name];
+
+			if (!Load(name, true))
+			{
+				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
+				std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
+				ServerInstance->Exit(EXIT_STATUS_MODULE);
+			}
 		}
+	}
+	catch (const std::filesystem::filesystem_error& err)
+	{
+		std::cout << "failed: " << err.what() << std::endl;
+		ServerInstance->Exit(EXIT_STATUS_MODULE);
 	}
 
 	std::cout << std::endl;

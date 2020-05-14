@@ -23,8 +23,10 @@
  */
 
 
-#include "inspircd.h"
+#include <filesystem>
 #include <fstream>
+
+#include "inspircd.h"
 #include "configparser.h"
 
 enum ParseFlags
@@ -411,18 +413,23 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_ENV;
 
 		const std::string includedir = ServerInstance->Config->Paths.PrependConfig(name);
-		std::vector<std::string> files;
-		if (!FileSystem::GetFileList(includedir, files, "*.conf"))
-			throw CoreException("Unable to read directory for include: " + includedir);
-
-		std::sort(files.begin(), files.end());
-		for (std::vector<std::string>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+		try
 		{
-			const std::string path = includedir + '/' + *iter;
-			if (!ParseFile(path, flags, mandatorytag))
-				throw CoreException("Included");
+			for (auto& entry : std::filesystem::directory_iterator(includedir))
+			{
+				if (!entry.is_regular_file() || !InspIRCd::Match(entry.path().filename(), "*.conf"))
+					continue;
+
+				if (!ParseFile(entry.path().string(), flags, mandatorytag))
+					throw CoreException("Included");
+			}
+		}
+		catch (const std::filesystem::filesystem_error& err)
+		{
+			throw CoreException("Unable to read directory for include " + includedir + ": " + err.what());
 		}
 	}
+
 	else if (tag->readString("executable", name))
 	{
 		if (flags & FLAG_NO_EXEC)
