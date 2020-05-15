@@ -51,6 +51,13 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+// LibreSSL lies about the version of OpenSSL it is compatible with and is a general pain
+// to support. Support for it was removed in the master branch at the same time that
+// support for OpenSSL pre-1.1 was.
+#if defined __GNUC__ && defined LIBRESSL_VERSION_NUMBER
+# warning LibreSSL support will be discontinued in the future. Consider using the ssl_gnutls or ssl_mbedtls modules instead.
+#endif
+
 // Fix warnings about the use of `long long` on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-long-long"
