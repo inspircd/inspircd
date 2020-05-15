@@ -446,7 +446,7 @@ Sets your real name to the specified real name.
 
 
 <helpop key="coper" title="Oper Commands" value="
-ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
+ALL-TIME        CBAN           CHECK          CHGHOST        CHGIDENT
 CHGNAME        CLEARCHAN      CLOAK          CLONES         CONNECT
 DIE            ELINE          FILTER         GLINE          GLOADMODULE
 GLOBOPS        GRELOADMODULE  GUNLOADMODULE  KILL           KLINE
@@ -554,7 +554,7 @@ specified server, useful especially if used on a nickname that is
 online on a remote server.
 ">
 
-<helpop key="alltime" title="/ALLTIME" value="
+<helpop key="all-time" title="/ALL-TIME" value="
 Shows the date and time of all servers on the network.
 ">
 
