@@ -38,7 +38,7 @@ use warnings FATAL => qw(all);
 
 use File::Basename        qw(basename);
 use File::Copy            ();
-use File::Spec::Functions qw(rel2abs);
+use File::Spec::Functions qw(catdir rel2abs);
 use FindBin               qw($RealDir);
 use Getopt::Long          qw(GetOptions);
 use POSIX                 qw(getgid getuid);
@@ -197,15 +197,15 @@ if (defined $opt_system) {
 	$config{MODULE_DIR}  = $opt_module_dir  // '/usr/lib/inspircd';
 	$config{SCRIPT_DIR}  = $opt_script_dir  // '/usr/share/inspircd'
 } else {
-	$config{BASE_DIR}    = $opt_prefix      // $config{BASE_DIR}    // rel2abs 'run';
-	$config{BINARY_DIR}  = $opt_binary_dir  // $config{BINARY_DIR}  // rel2abs $config{BASE_DIR} . '/bin';
-	$config{CONFIG_DIR}  = $opt_config_dir  // $config{CONFIG_DIR}  // rel2abs $config{BASE_DIR} . '/conf';
-	$config{DATA_DIR}    = $opt_data_dir    // $config{DATA_DIR}    // rel2abs $config{BASE_DIR} . '/data';
-	$config{EXAMPLE_DIR} = $opt_example_dir // $config{EXAMPLE_DIR} // $config{CONFIG_DIR} . '/examples';
-	$config{LOG_DIR}     = $opt_log_dir     // $config{LOG_DIR}     // rel2abs $config{BASE_DIR} . '/logs';
-	$config{MANUAL_DIR}  = $opt_manual_dir  // $config{MANUAL_DIR}  // rel2abs $config{BASE_DIR} . '/manuals';
-	$config{MODULE_DIR}  = $opt_module_dir  // $config{MODULE_DIR}  // rel2abs $config{BASE_DIR} . '/modules';
-	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{SCRIPT_DIR}  // $config{BASE_DIR};
+	$config{BASE_DIR}    = rel2abs $opt_prefix // $config{BASE_DIR}    // catdir $RealDir,            'run';
+	$config{BINARY_DIR}  = $opt_binary_dir     // $config{BINARY_DIR}  // catdir $config{BASE_DIR},   'bin';
+	$config{CONFIG_DIR}  = $opt_config_dir     // $config{CONFIG_DIR}  // catdir $config{BASE_DIR},   'conf';
+	$config{DATA_DIR}    = $opt_data_dir       // $config{DATA_DIR}    // catdir $config{BASE_DIR},   'data';
+	$config{EXAMPLE_DIR} = $opt_example_dir    // $config{EXAMPLE_DIR} // catdir $config{CONFIG_DIR}, 'examples';
+	$config{LOG_DIR}     = $opt_log_dir        // $config{LOG_DIR}     // catdir $config{BASE_DIR},   'logs';
+	$config{MANUAL_DIR}  = $opt_manual_dir     // $config{MANUAL_DIR}  // catdir $config{BASE_DIR},   'manuals';
+	$config{MODULE_DIR}  = $opt_module_dir     // $config{MODULE_DIR}  // catdir $config{BASE_DIR},   'modules';
+	$config{SCRIPT_DIR}  = $opt_script_dir     // $config{SCRIPT_DIR}  // $config{BASE_DIR};
 }
 
 # Parse --gid=123 or --gid=foo and extract the group id.
