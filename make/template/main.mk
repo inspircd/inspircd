@@ -49,6 +49,7 @@ LDLIBS = -lstdc++
 CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
 
+DESTDIR := $(if $(DESTDIR),$(DESTDIR),"@DESTDIR|@")
 BASE    = "$(DESTDIR)@BASE_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"

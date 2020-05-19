@@ -21,16 +21,9 @@ jobs:
         ^./vendor
         ^./make/directive.pm:287:atleast
         ^./src/modules/m_disable.cpp:119:existant
-        ^./docs/conf/helpop.conf.example:443:ALLTIME
-        ^./docs/conf/helpop.conf.example:551:ALLTIME
-        ^./docs/conf/helpop.conf.example:551:alltime
-        ^./docs/conf/modules.conf.example:170:Alltime
-        ^./docs/conf/modules.conf.example:171:ALLTIME
-        ^./docs/conf/modules.conf.example:172:ALLTIME
-        ^./docs/conf/modules.conf.example:173:alltime
-        ^./docs/conf/opers.conf.example:58:ALLTIME
-        ^./src/modules/m_alltime.cpp:31:ALLTIME
-        ^./src/modules/m_alltime.cpp:65:ALLTIME\
+        ALLTIME$
+        alltime$
+        Alltime$\
         " > ${{ runner.workspace }}/inspircd/.misspell-fixer.ignore
     - uses: sobolevn/misspell-fixer-action@master
       with:

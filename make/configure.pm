@@ -272,10 +272,12 @@ sub parse_templates($$$) {
 			chomp $line;
 
 			# Does this line match a variable?
-			while ($line =~ /(@(\w+?)@)/) {
-				my ($variable, $name) = ($1, $2);
+			while ($line =~ /(@(\w+?)(?:\|(\w*))?@)/) {
+				my ($variable, $name, $default) = ($1, $2, $3);
 				if (defined $settings{$name}) {
 					$line =~ s/\Q$variable\E/$settings{$name}/;
+				} elsif (defined $default) {
+					$line =~ s/\Q$variable\E/$default/;
 				} else {
 					print_warning "unknown template variable '$name' in $_!";
 					last;

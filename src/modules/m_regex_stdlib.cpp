@@ -31,7 +31,8 @@ class StdRegex : public Regex
  public:
 	StdRegex(const std::string& rx, std::regex::flag_type fltype) : Regex(rx)
 	{
-		try{
+		try
+		{
 			regexcl.assign(rx, fltype | std::regex::optimize);
 		}
 		catch(const std::regex_error& rxerr)

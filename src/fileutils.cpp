@@ -74,6 +74,14 @@ std::string FileSystem::ExpandPath(const std::string& base, const std::string& f
 	if (fragment[0] == '/' || FileSystem::StartsWithWindowsDriveLetter(fragment))
 		return fragment;
 
+	// The fragment is relative to a home directory, expand that.
+	if (!fragment.compare(0, 2, "~/", 2))
+	{
+		const char* homedir = getenv("HOME");
+		if (homedir && *homedir)
+			return std::string(homedir) + '/' + fragment.substr(2);
+	}
+
 	return base + '/' + fragment;
 }
 

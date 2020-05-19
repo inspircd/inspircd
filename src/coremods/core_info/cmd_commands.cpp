@@ -48,9 +48,21 @@ CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 	list.reserve(commands.size());
 	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
-		// Don't show S2S commands to users
-		if (i->second->access_needed == CmdAccess::SERVER)
-			continue;
+		// Don't show privileged commands to users without the privilege.
+		switch (i->second->access_needed)
+		{
+			case CmdAccess::NORMAL:  // Everyone can see user commands.
+				break;
+
+			case CmdAccess::OPERATOR: // Only opers can see oper commands.
+				if (user->IsOper())
+					break;
+
+				continue;
+			case CmdAccess::SERVER: // Nobody can see server commands.
+				continue;
+
+		}
 
 		Module* src = i->second->creator;
 		list.push_back(InspIRCd::Format("%s %s %d %d", i->second->name.c_str(), src->ModuleSourceFile.c_str(),

@@ -128,9 +128,6 @@ namespace WhoWas
 		 */
 		bool IsEnabled() const;
 
-		/** Constructor */
-		Manager();
-
 		/** Destructor */
 		~Manager();
 
