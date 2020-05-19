@@ -77,7 +77,7 @@ std::string FileSystem::ExpandPath(const std::string& base, const std::string& f
 		return fragment;
 
 	// The fragment is relative to a home directory, expand that.
-	if (fragment.compare(0, 2, "~/", 2))
+	if (!fragment.compare(0, 2, "~/", 2))
 	{
 		const char* homedir = getenv("HOME");
 		if (homedir && *homedir)
