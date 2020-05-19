@@ -69,6 +69,9 @@ DLLManager::~DLLManager()
 
 Module* DLLManager::CallInit()
 {
+	if (!lib)
+		return NULL;
+
 	const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
 	if (!abi)
 	{
