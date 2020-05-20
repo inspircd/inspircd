@@ -107,12 +107,6 @@ class TreeSocket : public BufferedSocket
 	/* Remote protocol version */
 	unsigned int proto_version = 0;
 
-	/** True if we've sent our burst.
-	 * This only changes the behavior of message translation for 1202 protocol servers and it can be
-	 * removed once 1202 support is dropped.
-	 */
-	bool burstsent = false;
-
 	/** Checks if the given servername and sid are both free
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
@@ -160,11 +154,6 @@ class TreeSocket : public BufferedSocket
 	 * @return Link block for the remote server, or NULL if an error occurred
 	 */
 	std::shared_ptr<Link> AuthRemote(const CommandBase::Params& params);
-
-	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
-	 * @param line Line to write without a new line character at the end
-	 */
-	void WriteLineNoCompat(const std::string& line);
 
  public:
 	const time_t age;
@@ -328,8 +317,4 @@ class TreeSocket : public BufferedSocket
 	/** Handle server quit on close
 	 */
 	void Close() override;
-
-	/** Fixes messages coming from old servers so the new command handlers understand them
-	 */
-	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params);
 };

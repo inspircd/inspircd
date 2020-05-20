@@ -68,17 +68,14 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		const ModeHandler* const mh = i->second;
 		const PrefixMode* const pm = mh->IsPrefixMode();
 		std::string mdesc;
-		if (proto_version >= PROTO_INSPIRCD_30)
-		{
-			if (pm)
-				mdesc.append("prefix:").append(ConvToStr(pm->GetPrefixRank())).push_back(':');
-			else if (mh->IsListMode())
-				mdesc.append("list:");
-			else if (mh->NeedsParam(true))
-				mdesc.append(mh->NeedsParam(false) ? "param:" : "param-set:");
-			else
-				mdesc.append("simple:");
-		}
+		if (pm)
+			mdesc.append("prefix:").append(ConvToStr(pm->GetPrefixRank())).push_back(':');
+		else if (mh->IsListMode())
+			mdesc.append("list:");
+		else if (mh->NeedsParam(true))
+			mdesc.append(mh->NeedsParam(false) ? "param:" : "param-set:");
+		else
+			mdesc.append("simple:");
 		mdesc.append(mh->name);
 		mdesc.push_back('=');
 		if (pm)
@@ -189,16 +186,6 @@ void TreeSocket::SendCapabilities(int phase)
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
-	// 2.0 needs these keys.
-	if (proto_version == PROTO_INSPIRCD_20)
-	{
-		extra.append(" PROTOCOL="+ConvToStr(proto_version))
-			.append(" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxReal))
-			.append(" CHANMODES="+ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL))
-			.append(" USERMODES="+ServerInstance->Modes.GiveModeList(MODETYPE_USER))
-			.append(" PREFIX="+ ServerInstance->Modes.BuildPrefixes());
-	}
-
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
 			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
@@ -274,18 +261,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			return false;
 		}
 
-		// We don't support the 2.1 protocol.
-		if (proto_version == PROTO_INSPIRCD_21_A0 || proto_version == PROTO_INSPIRCD_21_B2)
-		{
-			SendError("CAPAB negotiation failed: InspIRCd 2.1 beta is not supported");
-			return false;
-		}
-
 		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
 	{
-		std::string reason;
 		/* Compare ModuleList and check CapKeys */
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
 		{
@@ -293,7 +272,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), ' ', diffIneed, diffUneed);
 			if (diffIneed.length() || diffUneed.length())
 			{
-				reason = "Modules incorrectly matched on these servers.";
+				std::string reason = "Modules incorrectly matched on these servers.";
 				if (diffIneed.length())
 					reason += " Not loaded here:" + diffIneed;
 				if (diffUneed.length())
@@ -318,7 +297,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				}
 				else
 				{
-					reason = "Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled.";
+					std::string reason = "Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled.";
 					if (diffIneed.length())
 						reason += " Not loaded here:" + diffIneed;
 					if (diffUneed.length())
@@ -337,33 +316,14 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{
-					reason = "Channel modes not matched on these servers.";
+					std::string reason = "Channel modes not matched on these servers.";
 					if (diffIneed.length())
 						reason += " Not loaded here:" + diffIneed;
 					if (diffUneed.length())
 						reason += " Not loaded there:" + diffUneed;
+					this->SendError("CAPAB negotiation failed: " + reason);
 				}
 			}
-		}
-		else if (proto_version == PROTO_INSPIRCD_20)
-		{
-			if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
-			{
-				if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL))
-					reason = "One or more of the channel modes on the remote server are invalid on this server.";
-			}
-
-			else if (this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end())
-			{
-				if (this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes.BuildPrefixes())
-					reason = "One or more of the prefixes on the remote server are invalid on this server.";
-			}
-		}
-
-		if (!reason.empty())
-		{
-			this->SendError("CAPAB negotiation failed: " + reason);
-			return false;
 		}
 
 		if (!capab->UserModes.empty())
@@ -374,24 +334,14 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{
-					reason = "User modes not matched on these servers.";
+					std::string reason = "User modes not matched on these servers.";
 					if (diffIneed.length())
 						reason += " Not loaded here:" + diffIneed;
 					if (diffUneed.length())
 						reason += " Not loaded there:" + diffUneed;
+					this->SendError("CAPAB negotiation failed: " + reason);
 				}
 			}
-		}
-		else if (proto_version == PROTO_INSPIRCD_20 && this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
-		{
-			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes.GiveModeList(MODETYPE_USER))
-				reason = "One or more of the user modes on the remote server are invalid on this server.";
-		}
-
-		if (!reason.empty())
-		{
-			this->SendError("CAPAB negotiation failed: " + reason);
-			return false;
 		}
 
 		if (!capab->ExtBans.empty())
@@ -413,7 +363,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 					}
 					else
 					{
-						reason = "ExtBans not matched on these servers.";
+						std::string reason = "ExtBans not matched on these servers.";
 						if (missing_here.length())
 							reason += " Not loaded here:" + missing_here;
 						if (missing_there.length())
@@ -430,7 +380,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			const std::string casemapping = this->capab->CapKeys.find("CASEMAPPING")->second;
 			if (casemapping != ServerInstance->Config->CaseMapping)
 			{
-				reason = "The casemapping of the remote server differs to that of the local server."
+				std::string reason = "The casemapping of the remote server differs to that of the local server."
 					" Local casemapping: " + ServerInstance->Config->CaseMapping +
 					" Remote casemapping: " + casemapping;
 				this->SendError("CAPAB negotiation failed: " + reason);

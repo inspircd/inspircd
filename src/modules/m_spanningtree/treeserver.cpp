@@ -143,7 +143,7 @@ void TreeServer::BeginBurst(uint64_t startms)
 
 void TreeServer::FinishBurstInternal()
 {
-	// Check is needed because 1202 protocol servers don't send the bursting state of a server, so servers
+	// Check is needed because some older servers don't send the bursting state of a server, so servers
 	// introduced during a netburst may later send ENDBURST which would normally decrease this counter
 	if (behind_bursting > 0)
 		behind_bursting--;

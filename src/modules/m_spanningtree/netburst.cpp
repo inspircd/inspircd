@@ -129,8 +129,6 @@ void TreeSocket::DoBurst(TreeServer* s)
 	FOREACH_MOD_CUSTOM(Utils->Creator->GetSyncEventProvider(), ServerProtocol::SyncEventListener, OnSyncNetwork, (bs.server));
 	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO.WriteToSnoMask('l',"Finished bursting to \002"+ s->GetName()+"\002.");
-
-	this->burstsent = true;
 }
 
 void TreeSocket::SendServerInfo(TreeServer* from)
