@@ -58,43 +58,73 @@ enum ModuleFlags
 	VF_OPTCOMMON = 8
 };
 
+/** The event was explicitly allowed. */
 #define MOD_RES_ALLOW (ModResult(1))
+
+/** The event was not explicitly allowed or denied. */
 #define MOD_RES_PASSTHRU (ModResult(0))
+
+/** The event was explicitly denied. */
 #define MOD_RES_DENY (ModResult(-1))
 
-/** Used to represent an allow/deny module result.
- * Not constructed as an enum because it reverses the value logic of some functions;
- * the compiler will inline accesses to have the same efficiency as integer operations.
- */
-struct ModResult {
-	int res;
-	ModResult() : res(0) {}
-	explicit ModResult(int r) : res(r) {}
-	inline bool operator==(const ModResult& r) const
+/** Represents the result of a module event. */
+class ModResult
+{
+ private:
+	/** The underlying result value. */
+	char result;
+
+ public:
+	/** Creates a new instance of the ModResult class which defaults to MOD_RES_PASSTHRU. */
+	ModResult()
+		: result(0)
 	{
-		return res == r.res;
 	}
-	inline bool operator!=(const ModResult& r) const
+
+	/** Creates a new instance of the ModResult class with the specified value. */
+	explicit ModResult(char res)
+		: result(res)
 	{
-		return res != r.res;
 	}
+
+	/** Determines whether this ModResult has.the same value as \p res */
+	inline bool operator==(const ModResult& res) const
+	{
+		return result == res.result;
+	}
+
+	/** Determines whether this ModResult has.a different value to \p res */
+	inline bool operator!=(const ModResult& res) const
+	{
+		return result != res.result;
+	}
+
+	/** Determines whether a non-MOD_RES_PASSTHRU result has been set. */
 	inline bool operator!() const
 	{
-		return !res;
+		return !result;
 	}
+
+	/** Checks whether the result is an MOD_RES_ALLOW or MOD_RES_PASSTHRU when the default is to allow. */
 	inline bool check(bool def) const
 	{
-		return (res == 1 || (res == 0 && def));
+		return (result == 1 || (result == 0 && def));
 	}
-	/**
-	 * Merges two results, preferring ALLOW to DENY
-	 */
-	inline ModResult operator+(const ModResult& r) const
+
+	/* Merges two results preferring MOD_RES_ALLOW to MOD_RES_DENY. */
+	inline ModResult operator+(const ModResult& res) const
 	{
-		if (res == r.res || r.res == 0)
+		// If the results are identical or the other result is MOD_RES_PASSTHRU
+		// then return this result.
+		if (result == res.result || res.result == 0)
 			return *this;
-		if (res == 0)
-			return r;
+
+		// If this result is MOD_RES_PASSTHRU then return the other result.
+		if (result == 0)
+			return res;
+
+		// Otherwise,
+
 		// they are different, and neither is passthru
 		return MOD_RES_ALLOW;
 	}
