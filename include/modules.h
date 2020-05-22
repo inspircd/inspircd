@@ -123,9 +123,7 @@ class ModResult
 		if (result == 0)
 			return res;
 
-		// Otherwise,
-
-		// they are different, and neither is passthru
+		// Otherwise, they are different, and neither is MOD_RES_PASSTHRU.
 		return MOD_RES_ALLOW;
 	}
 };
