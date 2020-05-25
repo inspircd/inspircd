@@ -2342,7 +2342,7 @@
 #<module name="watch">
 #
 # Set the maximum number of entries on a user's watch list below.
-#<watch maxentries="32">
+#<watch maxwatch="32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # WebSocket module: Adds HTML5 WebSocket support.
