@@ -33,9 +33,11 @@ class CommandOjoin : public SplitCommand
 	bool notice;
 	bool op;
 	ModeHandler* npmh;
+	ChanModeReference opmode;
 	CommandOjoin(Module* parent, ModeHandler& mode)
 		: SplitCommand(parent, "OJOIN", 1)
 		, npmh(&mode)
+		, opmode(parent, "op")
 	{
 		flags_needed = 'o';
 		syntax = "<channel>";
@@ -73,8 +75,8 @@ class CommandOjoin : public SplitCommand
 			// they're already in the channel
 			Modes::ChangeList changelist;
 			changelist.push_add(npmh, user->nick);
-			if (op)
-				changelist.push_add(ServerInstance->Modes->FindMode('o', MODETYPE_CHANNEL), user->nick);
+			if (op && opmode)
+				changelist.push_add(*opmode, user->nick);
 			ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL, changelist);
 		}
 		return CMD_SUCCESS;
@@ -121,8 +123,8 @@ class ModuleOjoin : public Module
 		if (mycommand.active)
 		{
 			privs += np.GetModeChar();
-			if (mycommand.op)
-				privs += 'o';
+			if (mycommand.op && mycommand.opmode)
+				privs += mycommand.opmode->IsPrefixMode()->GetPrefix();
 			return MOD_RES_ALLOW;
 		}
 
