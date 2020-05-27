@@ -92,9 +92,9 @@ class CBanFactory : public XLineFactory
 class CommandCBan : public Command
 {
  public:
-	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
+	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 0, 3)
 	{
-		flags_needed = 'o'; this->syntax = "<channel> [<duration> [:<reason>]]";
+		flags_needed = 'o'; this->syntax = "[<channel> [<duration> [:<reason>]]]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
@@ -102,7 +102,31 @@ class CommandCBan : public Command
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if (parameters.size() == 1)
+		if (parameters.size() == 0)
+		{
+			XLineLookup* lookup = ServerInstance->XLines->GetAll("CBAN");
+			if (!lookup)
+			{
+				user->WriteNotice("*** There are not CBan in the list.");
+			}
+			else
+			{
+				user->WriteNotice("List of CBan:");
+				for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+				{
+					XLine* line = i->second;
+					std::string msg;
+					if (line->duration == 0) {
+						msg = "    "+line->Displayable()+" by "+line->source+". Reason: "+line->reason;
+					} else {
+						msg = "    "+line->Displayable()+" by "+line->source+" until "+InspIRCd::TimeString(line->expiry)+". Reason: "+line->reason;
+					}
+					user->WriteNotice(msg);
+				}
+				user->WriteNotice("End of list.");
+			}
+		}
+		else if (parameters.size() == 1)
 		{
 			std::string reason;
 
