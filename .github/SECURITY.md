@@ -2,14 +2,14 @@
 
 ## Supported Versions
 
-Currently the v2 (old stable) and v3 (stable) branches are actively receiving security fixes. Support for v2 will end on 2020-06-01.
+Currently the v2 (old stable) and v3 (stable) branches are actively receiving security fixes. Support for v2 will end on 2021-01-01.
 
 The v4 branch is still early in development and only receives security fixes when they are synced from the v3 branch.
 
 Version | Supported
 ------- | ---------
 4.x.y   | :warning:
-3.x.y   | :white_check_mark: 
+3.x.y   | :white_check_mark:
 2.0.x   | :white_check_mark:
 1.2.y   | :x:
 1.1.y   | :x:
