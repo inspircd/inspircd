@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 enum
@@ -60,7 +61,10 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	}
 };
 
-class ModuleBotMode : public Module, public Whois::EventListener
+class ModuleBotMode
+	: public Module
+	, public Who::EventListener
+	, public Whois::EventListener
 {
  private:
 	SimpleUserModeHandler bm;
@@ -68,10 +72,28 @@ class ModuleBotMode : public Module, public Whois::EventListener
 
  public:
 	ModuleBotMode()
-		: Whois::EventListener(this)
+		: Who::EventListener(this)
+		, Whois::EventListener(this)
 		, bm(this, "bot", 'B')
 		, tag(this, bm)
 	{
+	}
+
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		tokens["BOT"] = ConvToStr(bm.GetModeChar());
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		if (user->IsModeSet(bm))
+			numeric.GetParams()[flag_index].push_back('B');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
