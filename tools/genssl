@@ -85,9 +85,6 @@ my $state = prompt('What state are you located in?', 'Example State');
 my $country = prompt('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
 my $days = prompt('How many days do you want your certificate to be valid for?', '365');
 
-# Contains the SSL certificate in DER form.
-my $dercert;
-
 # Contains the exit code of openssl/gnutls-certtool.
 my $status = 0;
 
@@ -119,7 +116,6 @@ __GNUTLS_END__
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
 	$status ||= system "$certtool --generate-request --load-privkey key.pem --outfile csr.pem --template $tmp";
 	$status ||= system "$certtool --generate-dh-params $sec_param --outfile dhparams.pem";
-	$dercert = `$certtool --certificate-info --infile cert.pem --outder` unless $status;
 } elsif ($tool eq 'openssl') {
 	my $tmp = new File::Temp();
 	print $tmp <<__OPENSSL_END__;
@@ -137,18 +133,9 @@ __OPENSSL_END__
 	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
 	$status ||= system "cat $tmp | openssl req -new -nodes -key key.pem -out csr.pem 2>/dev/null";
 	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
-	$dercert = `openssl x509 -in cert.pem -outform DER` unless $status;
 }
 
 if ($status) {
 	say STDERR "SSL generation failed: $tool exited with a non-zero status!";
 	exit 1;
-}
-
-if (defined $dercert && eval 'use Digest::SHA; 1') {
-	my $hash = Digest::SHA->new(256);
-	$hash->add($dercert);
-	say '';
-	say 'If you are using the self-signed certificate then add this TLSA record to your domain for DANE support:';
-	say "_6697._tcp." . $common_name . " TLSA 3 0 1 " . $hash->hexdigest;
 }

@@ -25,6 +25,8 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 enum
@@ -60,7 +62,11 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	}
 };
 
-class ModuleBotMode : public Module, public Whois::EventListener
+class ModuleBotMode
+	: public Module
+	, public ISupport::EventListener
+	, public Who::EventListener
+	, public Whois::EventListener
 {
  private:
 	SimpleUserModeHandler bm;
@@ -69,10 +75,29 @@ class ModuleBotMode : public Module, public Whois::EventListener
  public:
 	ModuleBotMode()
 		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots in their /WHOIS response.")
+		, ISupport::EventListener(this)
+		, Who::EventListener(this)
 		, Whois::EventListener(this)
 		, bm(this, "bot", 'B')
 		, tag(this, bm)
 	{
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		tokens["BOT"] = ConvToStr(bm.GetModeChar());
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		if (user->IsModeSet(bm))
+			numeric.GetParams()[flag_index].push_back('B');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnWhois(Whois::Context& whois) override

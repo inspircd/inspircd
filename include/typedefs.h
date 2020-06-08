@@ -50,7 +50,7 @@ class XLine;
 class XLineManager;
 class XLineFactory;
 struct ConnectClass;
-struct ModResult;
+class ModResult;
 
 namespace ClientProtocol
 {

@@ -21,6 +21,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/ctctags.h"
+#include "modules/isupport.h"
 
 class CommandTagMsg : public Command
 {
@@ -294,6 +295,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 class ModuleIRCv3CTCTags
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 {
  private:
 	Cap::Capability cap;
@@ -317,6 +319,7 @@ class ModuleIRCv3CTCTags
 	ModuleIRCv3CTCTags()
 		: Module(VF_VENDOR | VF_COMMON, "Provides the IRCv3 message-tags client capability.")
 		, CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 		, cap(this, "message-tags")
 		, cmd(this, cap)
 		, c2ctags(this, cap)
@@ -328,6 +331,12 @@ class ModuleIRCv3CTCTags
 	void ReadConfig(ConfigStatus& status) override
 	{
 		c2ctags.allowclientonlytags = ServerInstance->Config->ConfValue("ctctags")->getBool("allowclientonlytags", true);
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		if (!c2ctags.allowclientonlytags)
+			tokens["CLIENTTAGDENY"] = "*";
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
