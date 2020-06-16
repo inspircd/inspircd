@@ -4,7 +4,7 @@ on:
   - push
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       TEST_BUILD_MODULES: geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
