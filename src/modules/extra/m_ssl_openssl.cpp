@@ -1004,7 +1004,10 @@ class ModuleSSLOpenSSL : public Module
 			{
 				ConfigTag* tag = i->second;
 				if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
+				{
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->getTagLocation());
 					continue;
+				}
 
 				std::string name = tag->getString("name");
 				if (name.empty())

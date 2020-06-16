@@ -1319,7 +1319,10 @@ class ModuleSSLGnuTLS : public Module
 			{
 				ConfigTag* tag = i->second;
 				if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
+				{
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring non-GnuTLS <sslprofile> tag at " + tag->getTagLocation());
 					continue;
+				}
 
 				std::string name = tag->getString("name");
 				if (name.empty())
