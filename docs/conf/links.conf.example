@@ -36,11 +36,9 @@
       # failover (see above).
       timeout="5m"
 
-      # ssl: If defined, this states the TLS (SSL) profile that will be used when
-      # making an outbound connection to the server. Options are the name of an
-      # <sslprofile> tag that you have defined or one of "openssl", "gnutls",
-      # "mbedtls" if you have not defined any. See the docs page for the TLS (SSL)
-      # module you are using for more details.
+      # ssl: If defined, this states the name of the TLS (SSL) profile that will
+      # be used when making an outbound connection to the server. See the docs
+      # page for the TLS (SSL) module you are using for more details.
       #
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
       # for GnuTLS and ssl_mbedtls for mbedTLS. The server port that you

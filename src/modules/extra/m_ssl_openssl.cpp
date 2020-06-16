@@ -906,50 +906,33 @@ class ModuleSSLOpenSSL : public Module
 	{
 		ProfileList newprofiles;
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
-		if (tags.first == tags.second)
-		{
-			// Create a default profile named "openssl"
-			const std::string defname = "openssl";
-			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the <openssl> tag");
+		if (tags.first != tags.second)
+			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
+				continue;
+
+			std::string name = tag->getString("name");
+			if (name.empty())
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				continue;
+			}
+
+			reference<OpenSSLIOHookProvider> prov;
 			try
 			{
-				newprofiles.push_back(new OpenSSLIOHookProvider(this, defname, tag));
+				prov = new OpenSSLIOHookProvider(this, name, tag);
 			}
-			catch (OpenSSL::Exception& ex)
+			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
-		}
-		else
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "You have defined an <sslprofile> tag; you should use this in place of \"openssl\" when configuring TLS (SSL) connections in <bind:ssl> or <link:ssl>");
-			for (ConfigIter i = tags.first; i != tags.second; ++i)
-			{
-				ConfigTag* tag = i->second;
-				if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
-					continue;
 
-				std::string name = tag->getString("name");
-				if (name.empty())
-				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
-					continue;
-				}
-
-				reference<OpenSSLIOHookProvider> prov;
-				try
-				{
-					prov = new OpenSSLIOHookProvider(this, name, tag);
-				}
-				catch (CoreException& ex)
-				{
-					throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
-				}
-
-				newprofiles.push_back(prov);
-			}
+			newprofiles.push_back(prov);
 		}
 
 		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)

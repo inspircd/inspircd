@@ -1127,52 +1127,34 @@ class ModuleSSLGnuTLS : public Module
 		ProfileList newprofiles;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
-		if (tags.first == tags.second)
-		{
-			// No <sslprofile> tags found, create a profile named "gnutls" from settings in the <gnutls> block
-			const std::string defname = "gnutls";
-			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <gnutls> tag");
+		if (tags.first != tags.second)
+			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
+				continue;
+
+			std::string name = tag->getString("name");
+			if (name.empty())
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				continue;
+			}
+
+			reference<GnuTLSIOHookProvider> prov;
 			try
 			{
-				GnuTLS::Profile::Config profileconfig(defname, tag);
-				newprofiles.push_back(new GnuTLSIOHookProvider(this, profileconfig));
+				GnuTLS::Profile::Config profileconfig(name, tag);
+				prov = new GnuTLSIOHookProvider(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
-		}
-		else
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "You have defined an <sslprofile> tag; you should use this in place of \"gnutls\" when configuring TLS (SSL) connections in <bind:ssl> or <link:ssl>");
-			for (ConfigIter i = tags.first; i != tags.second; ++i)
-			{
-				ConfigTag* tag = i->second;
-				if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
-					continue;
 
-				std::string name = tag->getString("name");
-				if (name.empty())
-				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
-					continue;
-				}
-
-				reference<GnuTLSIOHookProvider> prov;
-				try
-				{
-					GnuTLS::Profile::Config profileconfig(name, tag);
-					prov = new GnuTLSIOHookProvider(this, profileconfig);
-				}
-				catch (CoreException& ex)
-				{
-					throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
-				}
-
-				newprofiles.push_back(prov);
-			}
+			newprofiles.push_back(prov);
 		}
 
 		// New profiles are ok, begin using them

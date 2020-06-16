@@ -870,52 +870,34 @@ class ModuleSSLmbedTLS : public Module
 		ProfileList newprofiles;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
-		if (tags.first == tags.second)
-		{
-			// No <sslprofile> tags found, create a profile named "mbedtls" from settings in the <mbedtls> block
-			const std::string defname = "mbedtls";
-			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <mbedtls> tag");
+		if (tags.first != tags.second)
+			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
+				continue;
+
+			std::string name = tag->getString("name");
+			if (name.empty())
+			{
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				continue;
+			}
+
+			reference<mbedTLSIOHookProvider> prov;
 			try
 			{
-				mbedTLS::Profile::Config profileconfig(defname, tag, ctr_drbg);
-				newprofiles.push_back(new mbedTLSIOHookProvider(this, profileconfig));
+				mbedTLS::Profile::Config profileconfig(name, tag, ctr_drbg);
+				prov = new mbedTLSIOHookProvider(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing the default TLS (SSL) profile - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
-		}
-		else
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "You have defined an <sslprofile> tag; you should use this in place of \"mbedtls\" when configuring TLS (SSL) connections in <bind:ssl> or <link:ssl>");
-			for (ConfigIter i = tags.first; i != tags.second; ++i)
-			{
-				ConfigTag* tag = i->second;
-				if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
-					continue;
 
-				std::string name = tag->getString("name");
-				if (name.empty())
-				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
-					continue;
-				}
-
-				reference<mbedTLSIOHookProvider> prov;
-				try
-				{
-					mbedTLS::Profile::Config profileconfig(name, tag, ctr_drbg);
-					prov = new mbedTLSIOHookProvider(this, profileconfig);
-				}
-				catch (CoreException& ex)
-				{
-					throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
-				}
-
-				newprofiles.push_back(prov);
-			}
+			newprofiles.push_back(prov);
 		}
 
 		// New profiles are ok, begin using them
