@@ -36,19 +36,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* find a channel record by channel name and return a pointer to it */
-
-Channel* InspIRCd::FindChan(const std::string &chan)
-{
-	chan_hash::iterator iter = chanlist.find(chan);
-
-	if (iter == chanlist.end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
-}
-
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	const char* dest = mask.c_str();
@@ -169,29 +156,6 @@ void InspIRCd::ProcessColors(file_cache& input)
 		}
 		*it = ret;
 	}
-}
-
-/* true for valid channel name, false else */
-bool InspIRCd::DefaultIsChannel(const std::string& chname)
-{
-	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.MaxChannel)
-		return false;
-
-	if (chname[0] != '#')
-		return false;
-
-	for (const auto& chr : insp::iterator_range(chname.begin() + 1, chname.end()))
-	{
-		switch (chr)
-		{
-			case ' ':
-			case ',':
-			case 7:
-				return false;
-		}
-	}
-
-	return true;
 }
 
 /* true for valid nickname, false else */

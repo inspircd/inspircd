@@ -73,7 +73,7 @@ class CommandKnock : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		Channel* c = ServerInstance->FindChan(parameters[0]);
+		Channel* c = ServerInstance->Channels.Find(parameters[0]);
 		if (!c)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));

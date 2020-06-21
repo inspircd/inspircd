@@ -37,7 +37,7 @@ class CommandRMode : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		ModeHandler* mh;
-		Channel* chan = ServerInstance->FindChan(parameters[0]);
+		Channel* chan = ServerInstance->Channels.Find(parameters[0]);
 		char modeletter = parameters[1][0];
 
 		if (chan == NULL)

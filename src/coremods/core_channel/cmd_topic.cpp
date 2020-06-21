@@ -40,7 +40,7 @@ CommandTopic::CommandTopic(Module* parent)
 
 CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	Channel* c = ServerInstance->FindChan(parameters[0]);
+	Channel* c = ServerInstance->Channels.Find(parameters[0]);
 	if (!c)
 	{
 		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));

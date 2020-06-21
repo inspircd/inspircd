@@ -128,7 +128,7 @@ class ModuleNamesX
 				continue;
 			}
 
-			Channel* chan = ServerInstance->FindChan(channel.substr(hashpos));
+			Channel* chan = ServerInstance->Channels.Find(channel.substr(hashpos));
 			if (!chan)
 			{
 				// Should never happen.

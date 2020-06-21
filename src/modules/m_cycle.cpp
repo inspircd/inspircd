@@ -42,7 +42,7 @@ class CommandCycle : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		Channel* channel = ServerInstance->FindChan(parameters[0]);
+		Channel* channel = ServerInstance->Channels.Find(parameters[0]);
 		std::string reason = "Cycling";
 
 		if (parameters.size() > 1)

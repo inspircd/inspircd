@@ -34,7 +34,7 @@ static void JoinChannels(LocalUser* u, const std::string& chanlist)
 
 	while (chans.GetToken(chan))
 	{
-		if (ServerInstance->IsChannel(chan))
+		if (ServerInstance->Channels.IsChannel(chan))
 			Channel::JoinUser(u, chan);
 	}
 }

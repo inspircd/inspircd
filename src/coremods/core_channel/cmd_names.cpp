@@ -55,7 +55,7 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CmdResult::SUCCESS;
 
-	c = ServerInstance->FindChan(parameters[0]);
+	c = ServerInstance->Channels.Find(parameters[0]);
 	if (c)
 	{
 		// Show the NAMES list if one of the following is true:

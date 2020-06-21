@@ -99,7 +99,7 @@ class ModuleDenyChannels : public Module
 			if (!redirect.empty())
 			{
 				// Ensure that <badchan:redirect> contains a channel name.
-				if (!ServerInstance->IsChannel(redirect))
+				if (!ServerInstance->Channels.IsChannel(redirect))
 					throw ModuleException("<badchan:redirect> is not a valid channel name, at " + tag->source.str());
 
 				// We defer the rest of the validation of the redirect channel until we have
@@ -166,7 +166,7 @@ class ModuleDenyChannels : public Module
 			// the target channel redirects elsewhere we just tell the user and deny the join.
 			Channel* target = NULL;
 			if (badchan.redirect.empty() || user->IsModeSet(antiredirectmode)
-				|| ((target = ServerInstance->FindChan(badchan.redirect)) && target->IsModeSet(redirectmode)))
+				|| ((target = ServerInstance->Channels.Find(badchan.redirect)) && target->IsModeSet(redirectmode)))
 			{
 				user->WriteNumeric(ERR_BADCHANNEL, cname, InspIRCd::Format("Channel %s is forbidden: %s",
 					cname.c_str(), badchan.reason.c_str()));

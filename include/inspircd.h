@@ -88,6 +88,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "timer.h"
 #include "hashcomp.h"
 #include "logger.h"
+#include "channelmanager.h"
 #include "usermanager.h"
 #include "socket.h"
 #include "command_parse.h"
@@ -280,9 +281,8 @@ class CoreExport InspIRCd
 	 */
 	UserManager Users;
 
-	/** Channel list, a hash_map containing all channels XXX move to channel manager class
-	 */
-	chan_hash chanlist;
+	/** Manager for state relating to channels. */
+	ChannelManager Channels;
 
 	/** List of the open ports
 	 */
@@ -343,27 +343,6 @@ class CoreExport InspIRCd
 	 * @return The number of ports bound without error
 	 */
 	size_t BindPorts(FailedPortList &failed_ports);
-
-	/** Find a channel in the channels hash
-	 * @param chan The channel to find
-	 * @return A pointer to the channel, or NULL if the channel does not exist
-	 */
-	Channel* FindChan(const std::string &chan);
-
-	/** Get a hash map containing all channels, keyed by their name
-	 * @return A hash map mapping channel names to Channel pointers
-	 */
-	chan_hash& GetChans() { return chanlist; }
-
-	/** Determines whether an channel name is valid. */
-	std::function<bool(const std::string&)> IsChannel;
-
-	/** Determines whether a channel name is valid according to the RFC 1459 rules.
-	 * This is the default function for InspIRCd::IsChannel.
-	 * @param channel The channel name to validate.
-	 * @return True if the channel name is valid according to RFC 1459 rules; otherwise, false.
-	*/
-	static bool DefaultIsChannel(const std::string& channel);
 
 	/** Determines whether a hostname is valid according to RFC 5891 rules.
 	 * @param host The hostname to validate.

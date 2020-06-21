@@ -42,7 +42,7 @@ class CommandSVSTOPIC : public Command
 			return CmdResult::FAILURE;
 		}
 
-		Channel* chan = ServerInstance->FindChan(parameters[0]);
+		Channel* chan = ServerInstance->Channels.Find(parameters[0]);
 		if (!chan)
 			return CmdResult::FAILURE;
 

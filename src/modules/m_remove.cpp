@@ -78,7 +78,7 @@ class RemoveBase : public Command
 			target = ServerInstance->Users.Find(username);
 
 		/* And the channel we're meant to be removing them from */
-		channel = ServerInstance->FindChan(channame);
+		channel = ServerInstance->Channels.Find(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!channel)

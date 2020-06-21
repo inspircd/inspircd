@@ -401,7 +401,7 @@ void DataKeeper::DoSaveChans()
 	ModesExts currdata;
 	std::vector<OwnedModesExts> currmemberdata;
 
-	for (const auto& [_, chan] : ServerInstance->GetChans())
+	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		// Serialize channel modes
 		for (size_t j = 0; j < handledmodes[MODETYPE_CHANNEL].size(); j++)
@@ -641,7 +641,7 @@ void DataKeeper::DoRestoreChans()
 
 	for (const auto& chandata : chandatalist)
 	{
-		Channel* const chan = ServerInstance->FindChan(chandata.owner);
+		Channel* const chan = ServerInstance->Channels.Find(chandata.owner);
 		if (!chan)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Channel %s not found", chandata.owner.c_str());

@@ -58,13 +58,15 @@ class ModuleOperjoin : public Module
 				return;
 
 			for (const auto& operchan : operChans)
-				if (ServerInstance->IsChannel(operchan))
+			{
+				if (ServerInstance->Channels.IsChannel(operchan))
 					Channel::JoinUser(localuser, operchan, override);
+			}
 
 			irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
 			for (std::string channame; ss.GetToken(channame); )
 			{
-				if (ServerInstance->IsChannel(channame))
+				if (ServerInstance->Channels.IsChannel(channame))
 					Channel::JoinUser(localuser, channame, override);
 			}
 		}

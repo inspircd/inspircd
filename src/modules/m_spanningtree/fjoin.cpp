@@ -116,7 +116,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	time_t TS = ServerCommand::ExtractTS(params[1]);
 
 	const std::string& channel = params[0];
-	Channel* chan = ServerInstance->FindChan(channel);
+	Channel* chan = ServerInstance->Channels.Find(channel);
 	bool apply_other_sides_modes = true;
 	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
@@ -152,7 +152,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 				// XXX: If the channel does not exist in the chan hash at this point, create it so the remote modes can be applied on it.
 				// This happens to 0-user permanent channels on the losing side, because those are removed (from the chan hash, then
 				// deleted later) as soon as the permchan mode is removed from them.
-				if (ServerInstance->FindChan(channel) == NULL)
+				if (ServerInstance->Channels.Find(channel) == NULL)
 				{
 					chan = new Channel(channel, TS);
 				}

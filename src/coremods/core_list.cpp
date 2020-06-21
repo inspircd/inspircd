@@ -142,7 +142,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 
 	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 
-	for (const auto& [_, chan] : ServerInstance->GetChans())
+	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		// Check the user count if a search has been specified.
 		const size_t users = chan->GetUserCounter();

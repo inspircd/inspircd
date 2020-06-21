@@ -240,7 +240,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		case 'z':
 		{
 			stats.AddRow(249, "Users: "+ConvToStr(ServerInstance->Users.GetUsers().size()));
-			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->GetChans().size()));
+			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->Channels.GetChans().size()));
 			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;

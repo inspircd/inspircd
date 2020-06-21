@@ -29,7 +29,7 @@
 CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
 {
 	// Check for valid channel name
-	if (!ServerInstance->IsChannel(parameters[1]))
+	if (!ServerInstance->Channels.IsChannel(parameters[1]))
 		return CmdResult::FAILURE;
 
 	// Check target exists

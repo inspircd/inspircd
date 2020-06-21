@@ -37,7 +37,7 @@ Channel::Channel(const std::string &cname, time_t ts)
 	: name(cname)
 	, age(ts)
 {
-	if (!ServerInstance->chanlist.emplace(cname, this).second)
+	if (!ServerInstance->Channels.GetChans().emplace(cname, this).second)
 		throw CoreException("Cannot create duplicate channel " + cname);
 }
 
@@ -94,12 +94,12 @@ void Channel::CheckDestroy()
 		return;
 
 	// If the channel isn't in chanlist then it is already in the cull list, don't add it again
-	chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
-	if ((iter == ServerInstance->chanlist.end()) || (iter->second != this))
+	ChannelMap::iterator iter = ServerInstance->Channels.GetChans().find(this->name);
+	if ((iter == ServerInstance->Channels.GetChans().end()) || (iter->second != this))
 		return;
 
 	FOREACH_MOD(OnChannelDelete, (this));
-	ServerInstance->chanlist.erase(iter);
+	ServerInstance->Channels.GetChans().erase(iter);
 	ServerInstance->GlobalCulls.AddItem(this);
 }
 
@@ -197,7 +197,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	if (cname.length() > ServerInstance->Config->Limits.MaxChannel)
 		cname.resize(ServerInstance->Config->Limits.MaxChannel);
 
-	Channel* chan = ServerInstance->FindChan(cname);
+	Channel* chan = ServerInstance->Channels.Find(cname);
 	bool created_by_local = (chan == NULL); // Flag that will be passed to modules in the OnUserJoin() hook later
 	std::string privs; // Prefix mode(letter)s to give to the joining user
 

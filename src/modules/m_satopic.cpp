@@ -42,7 +42,7 @@ class CommandSATopic : public Command
 		/*
 		 * Handles a SATOPIC request. Notifies all +s users.
 		 */
-		Channel* target = ServerInstance->FindChan(parameters[0]);
+		Channel* target = ServerInstance->Channels.Find(parameters[0]);
 
 		if(target)
 		{

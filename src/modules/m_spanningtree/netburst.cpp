@@ -112,7 +112,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendUsers(bs);
 
 	// Sync all channels
-	for (const auto& [_, chan] : ServerInstance->GetChans())
+	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 		SyncChannel(chan, bs);
 
 	// Send all xlines

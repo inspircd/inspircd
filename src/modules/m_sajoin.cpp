@@ -63,14 +63,14 @@ class CommandSajoin : public Command
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CmdResult::FAILURE;
 			}
-			if (IS_LOCAL(user) && !ServerInstance->IsChannel(channel))
+			if (IS_LOCAL(user) && !ServerInstance->Channels.IsChannel(channel))
 			{
 				/* we didn't need to check this for each character ;) */
 				user->WriteNotice("*** Invalid characters in channel name or name too long");
 				return CmdResult::FAILURE;
 			}
 
-			Channel* chan = ServerInstance->FindChan(channel);
+			Channel* chan = ServerInstance->Channels.Find(channel);
 			if ((chan) && (chan->HasUser(dest)))
 			{
 				user->WriteRemoteNotice("*** " + dest->nick + " is already on " + channel);

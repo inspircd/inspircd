@@ -82,7 +82,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 		<< "# Any changes to this file will be automatically overwritten." << std::endl
 		<< std::endl;
 
-	for (const auto& [_, chan] : ServerInstance->GetChans())
+	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		if (!chan->IsModeSet(permchanmode))
 			continue;
@@ -200,14 +200,13 @@ public:
 			std::string channel = tag->getString("channel");
 			std::string modes = tag->getString("modes");
 
-			if (!ServerInstance->IsChannel(channel))
+			if (!ServerInstance->Channels.IsChannel(channel))
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with invalid channel name (\"" + channel + "\")");
 				continue;
 			}
 
-			Channel *c = ServerInstance->FindChan(channel);
-
+			Channel* c = ServerInstance->Channels.Find(channel);
 			if (!c)
 			{
 				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);

@@ -66,7 +66,7 @@ class CommandProp : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* src, const Params& parameters) override
 	{
-		Channel* const chan = ServerInstance->FindChan(parameters[0]);
+		Channel* const chan = ServerInstance->Channels.Find(parameters[0]);
 		if (!chan)
 		{
 			src->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));

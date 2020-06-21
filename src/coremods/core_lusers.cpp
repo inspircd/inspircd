@@ -105,11 +105,10 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	if (ServerInstance->Users.UnregisteredUserCount())
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
 
-	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(), "channels formed");
+	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->Channels.GetChans().size(), "channels formed");
 	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %zu clients and %zu servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
 	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %zu  Max: %zu", ServerInstance->Users.LocalUserCount(), counters.max_local));
 	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %zu  Max: %zu", n_users, counters.max_global));
-
 	return CmdResult::SUCCESS;
 }
 

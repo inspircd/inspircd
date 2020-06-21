@@ -57,7 +57,7 @@ class CommandUninvite : public Command
 		else
 			u = ServerInstance->Users.Find(parameters[0]);
 
-		Channel* c = ServerInstance->FindChan(parameters[1]);
+		Channel* c = ServerInstance->Channels.Find(parameters[1]);
 
 		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{

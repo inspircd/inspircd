@@ -662,8 +662,8 @@ bool ModeParser::DelMode(ModeHandler* mh)
 		break;
 		case MODETYPE_CHANNEL:
 		{
-			const chan_hash& chans = ServerInstance->GetChans();
-			for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
+			const ChannelMap& chans = ServerInstance->Channels.GetChans();
+			for (ChannelMap::const_iterator i = chans.begin(); i != chans.end(); )
 			{
 				// The channel may not be in the hash after RemoveMode(), see m_permchannels
 				Channel* chan = i->second;

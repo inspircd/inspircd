@@ -67,7 +67,7 @@ class CommandTagMsg : public Command
 
 	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
 	{
-		Channel* chan = ServerInstance->FindChan(target);
+		Channel* chan = ServerInstance->Channels.Find(target);
 		if (!chan)
 		{
 			// The target channel does not exist.

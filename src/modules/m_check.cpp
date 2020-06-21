@@ -170,7 +170,7 @@ class CommandCheck : public Command
 		Channel *targchan;
 
 		targuser = ServerInstance->Users.Find(parameters[0]);
-		targchan = ServerInstance->FindChan(parameters[0]);
+		targchan = ServerInstance->Channels.Find(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:

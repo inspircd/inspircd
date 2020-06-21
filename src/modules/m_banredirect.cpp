@@ -155,13 +155,13 @@ class BanRedirect : public ModeWatcher
 			{
 				if (change.adding && IS_LOCAL(source))
 				{
-					if (!ServerInstance->IsChannel(mask[CHAN]))
+					if (!ServerInstance->Channels.IsChannel(mask[CHAN]))
 					{
 						source->WriteNumeric(ERR_NOSUCHCHANNEL, channel->name, InspIRCd::Format("Invalid channel name in redirection (%s)", mask[CHAN].c_str()));
 						return false;
 					}
 
-					Channel *c = ServerInstance->FindChan(mask[CHAN]);
+					Channel* c = ServerInstance->Channels.Find(mask[CHAN]);
 					if (!c)
 					{
 						source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", mask[CHAN].c_str()));
@@ -325,7 +325,7 @@ class ModuleBanRedirect : public Module
 							return MOD_RES_DENY;
 
 						/* tell them they're banned and are being transferred */
-						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
+						Channel* destchan = ServerInstance->Channels.Find(redir->targetchan);
 						std::string destlimit;
 
 						if (destchan)

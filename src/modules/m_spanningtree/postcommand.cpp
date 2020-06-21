@@ -97,7 +97,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 		if (dest[0] == '#')
 		{
-			Channel* c = ServerInstance->FindChan(dest);
+			Channel* c = ServerInstance->Channels.Find(dest);
 			if (!c)
 				return;
 			// TODO OnBuildExemptList hook was here

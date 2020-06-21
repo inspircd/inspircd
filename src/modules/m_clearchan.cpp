@@ -39,7 +39,7 @@ class CommandClearChan : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		Channel* chan = activechan = ServerInstance->FindChan(parameters[0]);
+		Channel* chan = activechan = ServerInstance->Channels.Find(parameters[0]);
 		if (!chan)
 		{
 			user->WriteNotice("The channel " + parameters[0] + " does not exist.");

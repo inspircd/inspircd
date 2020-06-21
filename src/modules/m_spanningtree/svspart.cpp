@@ -32,7 +32,7 @@ CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
 	if (!u)
 		return CmdResult::FAILURE;
 
-	Channel* c = ServerInstance->FindChan(parameters[1]);
+	Channel* c = ServerInstance->Channels.Find(parameters[1]);
 	if (!c)
 		return CmdResult::FAILURE;
 

@@ -250,7 +250,7 @@ class ModuleNationalChars : public Module
 
 		RehashHashmap(ServerInstance->Users.clientlist);
 		RehashHashmap(ServerInstance->Users.uuidlist);
-		RehashHashmap(ServerInstance->chanlist);
+		RehashHashmap(ServerInstance->Channels.GetChans());
 	}
 
  public:

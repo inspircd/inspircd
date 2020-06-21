@@ -49,7 +49,7 @@ CmdResult CommandPart::Handle(User* user, const Params& parameters)
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CmdResult::SUCCESS;
 
-	Channel* c = ServerInstance->FindChan(parameters[0]);
+	Channel* c = ServerInstance->Channels.Find(parameters[0]);
 
 	if (!c)
 	{

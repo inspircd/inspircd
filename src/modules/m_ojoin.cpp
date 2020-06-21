@@ -47,7 +47,7 @@ class CommandOjoin : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		// Make sure the channel name is allowable.
-		if (!ServerInstance->IsChannel(parameters[0]))
+		if (!ServerInstance->Channels.IsChannel(parameters[0]))
 		{
 			user->WriteNotice("*** Invalid characters in channel name or name too long");
 			return CmdResult::FAILURE;
@@ -67,7 +67,7 @@ class CommandOjoin : public SplitCommand
 		}
 		else
 		{
-			channel = ServerInstance->FindChan(parameters[0]);
+			channel = ServerInstance->Channels.Find(parameters[0]);
 			if (!channel)
 				return CmdResult::FAILURE;
 

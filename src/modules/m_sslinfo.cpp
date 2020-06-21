@@ -212,7 +212,7 @@ class CommandSSLInfo : public SplitCommand
 
 	CmdResult HandleChannel(LocalUser* source, const std::string& channel)
 	{
-		Channel* chan = ServerInstance->FindChan(channel);
+		Channel* chan = ServerInstance->Channels.Find(channel);
 		if (!chan)
 		{
 			source->WriteNumeric(Numerics::NoSuchChannel(channel));
@@ -259,7 +259,7 @@ class CommandSSLInfo : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		if (ServerInstance->IsChannel(parameters[0]))
+		if (ServerInstance->Channels.IsChannel(parameters[0]))
 			return HandleChannel(user, parameters[0]);
 		else
 			return HandleUser(user, parameters[0]);

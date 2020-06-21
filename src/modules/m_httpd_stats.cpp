@@ -131,7 +131,7 @@ namespace Stats
 		data << "<general>";
 		data << "<usercount>" << ServerInstance->Users.GetUsers().size() << "</usercount>";
 		data << "<localusercount>" << ServerInstance->Users.GetLocalUsers().size() << "</localusercount>";
-		data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
+		data << "<channelcount>" << ServerInstance->Channels.GetChans().size() << "</channelcount>";
 		data << "<opercount>" << ServerInstance->Users.all_opers.size() << "</opercount>";
 		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
 		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
@@ -177,7 +177,7 @@ namespace Stats
 	{
 		data << "<channellist>";
 
-		for (const auto& [_, c] : ServerInstance->GetChans())
+		for (const auto& [_, c] : ServerInstance->Channels.GetChans())
 		{
 			data << "<channel>";
 			data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";

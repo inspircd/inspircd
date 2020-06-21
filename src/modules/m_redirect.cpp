@@ -43,7 +43,7 @@ class Redirect : public ParamMode<Redirect, StringExtItem>
 	{
 		if (IS_LOCAL(source))
 		{
-			if (!ServerInstance->IsChannel(parameter))
+			if (!ServerInstance->Channels.IsChannel(parameter))
 			{
 				source->WriteNumeric(Numerics::NoSuchChannel(parameter));
 				return MODEACTION_DENY;
@@ -52,7 +52,7 @@ class Redirect : public ParamMode<Redirect, StringExtItem>
 
 		if (IS_LOCAL(source) && !source->IsOper())
 		{
-			Channel* c = ServerInstance->FindChan(parameter);
+			Channel* c = ServerInstance->Channels.Find(parameter);
 			if (!c)
 			{
 				source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", parameter.c_str()));
@@ -106,7 +106,7 @@ class ModuleRedirect : public Module
 					const std::string& channel = *re.ext.Get(chan);
 
 					/* sometimes broken services can make circular or chained +L, avoid this */
-					Channel* destchan = ServerInstance->FindChan(channel);
+					Channel* destchan = ServerInstance->Channels.Find(channel);
 					if (destchan && destchan->IsModeSet(re))
 					{
 						user->WriteNumeric(470, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");

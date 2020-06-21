@@ -55,14 +55,14 @@ class ModuleChannelNames : public Module
  public:
 	ModuleChannelNames()
 		: Module(VF_VENDOR, "Allows the server administrator to define what characters are allowed in channel names.")
-		, rememberer(ServerInstance->IsChannel)
+		, rememberer(ServerInstance->Channels.IsChannel)
 		, permchannelmode(this, "permanent")
 	{
 	}
 
 	void init() override
 	{
-		ServerInstance->IsChannel = NewIsChannelHandler::Call;
+		ServerInstance->Channels.IsChannel = NewIsChannelHandler::Call;
 	}
 
 	void ValidateChans()
@@ -70,13 +70,13 @@ class ModuleChannelNames : public Module
 		Modes::ChangeList removepermchan;
 
 		badchan = true;
-		const chan_hash& chans = ServerInstance->GetChans();
-		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
+		const ChannelMap& chans = ServerInstance->Channels.GetChans();
+		for (ChannelMap::const_iterator i = chans.begin(); i != chans.end(); )
 		{
 			Channel* c = i->second;
 			// Move iterator before we begin kicking
 			++i;
-			if (ServerInstance->IsChannel(c->name))
+			if (ServerInstance->Channels.IsChannel(c->name))
 				continue; // The name of this channel is still valid
 
 			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
@@ -146,7 +146,7 @@ class ModuleChannelNames : public Module
 
 	Cullable::Result Cull() override
 	{
-		ServerInstance->IsChannel = rememberer;
+		ServerInstance->Channels.IsChannel = rememberer;
 		ValidateChans();
 		return Module::Cull();
 	}

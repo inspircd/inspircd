@@ -95,7 +95,7 @@ void ListModeBase::DoRehash()
 
 	chanlimits.swap(newlimits);
 
-	for (const auto& [_, chan] : ServerInstance->GetChans())
+	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		ChanData* cd = extItem.Get(chan);
 		if (cd)

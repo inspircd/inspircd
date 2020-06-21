@@ -448,7 +448,6 @@ void InspIRCd::WritePID(bool exitonfail)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: PI(&DefaultProtocolInterface)
 	, GenRandom(&DefaultGenRandom)
-	, IsChannel(&DefaultIsChannel)
 	, IsNick(&DefaultIsNick)
 	, IsIdent(&DefaultIsIdent)
 {

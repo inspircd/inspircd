@@ -223,7 +223,7 @@ class ModuleCodepage final
 
 		RehashHashmap(ServerInstance->Users.clientlist);
 		RehashHashmap(ServerInstance->Users.uuidlist);
-		RehashHashmap(ServerInstance->chanlist);
+		RehashHashmap(ServerInstance->Channels.GetChans());
 	}
 
  public:

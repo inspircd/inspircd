@@ -39,7 +39,7 @@ class CommandSakick : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* dest = ServerInstance->Users.Find(parameters[1]);
-		Channel* channel = ServerInstance->FindChan(parameters[0]);
+		Channel* channel = ServerInstance->Channels.Find(parameters[0]);
 
 		if ((dest) && (dest->registered == REG_ALL) && (channel))
 		{

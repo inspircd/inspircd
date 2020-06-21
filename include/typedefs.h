@@ -85,7 +85,6 @@ namespace ClientProtocol
 #include "base.h"
 
 typedef std::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
-typedef std::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
 /** List of channels to consider when building the neighbor list of a user
  */

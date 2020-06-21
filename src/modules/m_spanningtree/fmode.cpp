@@ -30,7 +30,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 {
 	time_t TS = ServerCommand::ExtractTS(params[1]);
 
-	Channel* const chan = ServerInstance->FindChan(params[0]);
+	Channel* const chan = ServerInstance->Channels.Find(params[0]);
 	if (!chan)
 		// Channel doesn't exist
 		return CmdResult::FAILURE;
@@ -63,7 +63,7 @@ CmdResult CommandLMode::Handle(User* who, Params& params)
 	// :<sid> LMODE <chan> <chants> <modechr> [<mask> <setts> <setter>]+
 	time_t chants = ServerCommand::ExtractTS(params[1]);
 
-	Channel* const chan = ServerInstance->FindChan(params[0]);
+	Channel* const chan = ServerInstance->Channels.Find(params[0]);
 	if (!chan)
 		return CmdResult::FAILURE; // Channel doesn't exist.
 

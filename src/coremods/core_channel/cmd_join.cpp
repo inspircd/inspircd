@@ -42,7 +42,7 @@ CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
 		if (CommandParser::LoopCall(user, this, parameters, 0, 1, false))
 			return CmdResult::SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0]))
+		if (ServerInstance->Channels.IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0], false, parameters[1]);
 			return CmdResult::SUCCESS;
@@ -53,7 +53,7 @@ CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
 		if (CommandParser::LoopCall(user, this, parameters, 0, -1, false))
 			return CmdResult::SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0]))
+		if (ServerInstance->Channels.IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0]);
 			return CmdResult::SUCCESS;
