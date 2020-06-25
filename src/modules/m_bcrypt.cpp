@@ -56,6 +56,11 @@ class BCryptProvider : public HashProvider
 		return Generate(data, Salt());
 	}
 
+	bool Compare(const std::string& input, const std::string& hash)  CXX11_OVERRIDE
+	{
+		return InspIRCd::TimingSafeCompare(Generate(input, hash), hash);
+	}
+
 	std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE
 	{
 		return raw;
