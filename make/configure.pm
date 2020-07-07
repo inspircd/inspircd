@@ -30,10 +30,9 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd                   qw(getcwd);
 use Exporter              qw(import);
 use File::Basename        qw(basename dirname);
-use File::Spec::Functions qw(catdir catfile);
+use File::Spec::Functions qw(abs2rel catdir catfile);
 
 use make::common;
 use make::console;
@@ -59,7 +58,7 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
 
 sub __get_socketengines {
 	my @socketengines;
-	foreach (<src/socketengines/socketengine_*.cpp>) {
+	foreach (<${\CONFIGURE_ROOT}/src/socketengines/socketengine_*.cpp>) {
 		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
 		push @socketengines, $1;
 	}
@@ -106,7 +105,6 @@ sub cmd_clean {
 }
 
 sub cmd_help {
-	my $PWD = getcwd();
 	my $SELIST = join ', ', __get_socketengines();
 	print <<EOH;
 Usage: $0 [options]
@@ -121,29 +119,29 @@ PATH OPTIONS
                                 for system-wide installation.
   --prefix=[dir]                The root install directory. If this is set then
                                 all subdirectories will be adjusted accordingly.
-                                [$PWD/run]
+                                [${\CONFIGURE_ROOT}/run]
   --binary-dir=[dir]            The location where the main server binary is
                                 stored.
-                                [$PWD/run/bin]
+                                [${\CONFIGURE_ROOT}/run/bin]
   --config-dir=[dir]            The location where the configuration files and
                                 SSL certificates are stored.
-                                [$PWD/run/conf]
+                                [${\CONFIGURE_ROOT}/run/conf]
   --data-dir=[dir]              The location where the data files, such as the
                                 pid file, are stored.
-                                [$PWD/run/data]
+                                [${\CONFIGURE_ROOT}/run/data]
   --example-dir=[dir]           The location where the example configuration files
                                 and SQL schemas are stored.
-                                [$PWD/run/conf/examples]
+                                [${\CONFIGURE_ROOT}/run/conf/examples]
   --log-dir=[dir]               The location where the log files are stored.
-                                [$PWD/run/logs]
+                                [${\CONFIGURE_ROOT}/run/logs]
   --manual-dir=[dir]            The location where the manual files are stored.
-                                [$PWD/run/manuals]
+                                [${\CONFIGURE_ROOT}/run/manuals]
   --module-dir=[dir]            The location where the loadable modules are
                                 stored.
-                                [$PWD/run/modules]
+                                [${\CONFIGURE_ROOT}/run/modules]
   --script-dir=[dir]            The location where the scripts, such as the
                                 init scripts, are stored.
-                                [$PWD/run]
+                                [${\CONFIGURE_ROOT}/run]
 
 EXTRA MODULE OPTIONS
 
@@ -206,9 +204,9 @@ sub test_file($$;$) {
 	my ($compiler, $file, $args) = @_;
 	my $status = 0;
 	$args //= '';
-	$status ||= system "$compiler -o __test_$file ${\CONFIGURE_ROOT}/make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
-	$status ||= system "./__test_$file ${\CONFIGURE_ERROR_PIPE}";
-	unlink "./__test_$file";
+	$status ||= system "$compiler -o ${\CONFIGURE_ROOT}/__test_$file ${\CONFIGURE_ROOT}/make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
+	$status ||= system "${\CONFIGURE_ROOT}/__test_$file ${\CONFIGURE_ERROR_PIPE}";
+	unlink "${\CONFIGURE_ROOT}/__test_$file";
 	return !$status;
 }
 
@@ -223,11 +221,11 @@ sub test_header($$;$) {
 
 sub write_configure_cache(%) {
 	unless (-e CONFIGURE_DIRECTORY) {
-		print_format "Creating <|GREEN ${\CONFIGURE_DIRECTORY}|> ...\n";
+		print_format "Creating <|GREEN ${\abs2rel CONFIGURE_DIRECTORY, CONFIGURE_ROOT}|> ...\n";
 		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
 	}
 
-	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
+	print_format "Writing <|GREEN ${\abs2rel CONFIGURE_CACHE_FILE, CONFIGURE_ROOT}|> ...\n";
 	my %config = @_;
 	write_config_file CONFIGURE_CACHE_FILE, %config;
 }
@@ -262,9 +260,9 @@ sub parse_templates($$$) {
 	my %settings = __get_template_settings($config, $compiler, $version);
 
 	# Iterate through files in make/template.
-	foreach (<make/template/*>) {
-		print_format "Parsing <|GREEN $_|> ...\n";
-		open(my $fh, $_) or print_error "unable to read $_: $!";
+	foreach my $template (<${\CONFIGURE_ROOT}/make/template/*>) {
+		print_format "Parsing <|GREEN ${\abs2rel $template, CONFIGURE_ROOT}|> ...\n";
+		open(my $fh, $template) or print_error "unable to read $template: $!";
 		my (@lines, $mode, @platforms, @targets);
 
 		# First pass: parse template variables and directives.
@@ -279,7 +277,7 @@ sub parse_templates($$$) {
 				} elsif (defined $default) {
 					$line =~ s/\Q$variable\E/$default/;
 				} else {
-					print_warning "unknown template variable '$name' in $_!";
+					print_warning "unknown template variable '$name' in $template!";
 					last;
 				}
 			}
@@ -297,9 +295,9 @@ sub parse_templates($$$) {
 				} elsif ($2 eq 'platform') {
 					push @platforms, $3;
 				} elsif ($2 eq 'target') {
-					push @targets, $3
+					push @targets, catfile CONFIGURE_ROOT, $3;
 				} else {
-					print_warning "unknown template command '$2' in $_!";
+					print_warning "unknown template command '$2' in $template!";
 					push @lines, $line;
 				}
 				next;
@@ -313,7 +311,7 @@ sub parse_templates($$$) {
 
 			# Add a default target if the template has not defined one.
 			unless (@targets) {
-				push @targets, catfile(CONFIGURE_DIRECTORY, basename $_);
+				push @targets, catfile(CONFIGURE_DIRECTORY, basename $template);
 			}
 
 			# Write the templated files to disk.
@@ -322,12 +320,12 @@ sub parse_templates($$$) {
 				# Create the directory if it doesn't already exist.
 				my $directory = dirname $target;
 				unless (-e $directory) {
-					print_format "Creating <|GREEN $directory|> ...\n";
+					print_format "Creating <|GREEN ${\abs2rel $directory, CONFIGURE_ROOT}|> ...\n";
 					create_directory $directory, 0750 or print_error "unable to create $directory: $!";
 				};
 
 				# Write the template file.
-				print_format "Writing <|GREEN $target|> ...\n";
+				print_format "Writing <|GREEN ${\abs2rel $target, CONFIGURE_ROOT}|> ...\n";
 				open(my $fh, '>', $target) or print_error "unable to write $target: $!";
 				foreach (@lines) {
 					say $fh $_;

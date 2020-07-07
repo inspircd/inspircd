@@ -146,7 +146,7 @@ $modules{core}{$installed{core}} = {
 };
 
 # set up core module list
-for my $modname (<src/modules/m_*.cpp>) {
+for my $modname (<$RealDir/src/modules/m_*.cpp>) {
 	my $mod = basename($modname, '.cpp');
 	my $ver = getmodversion($mod) || '0.0';
 	$ver =~ s/\$Rev: (.*) \$/$1/; # for storing revision in SVN
