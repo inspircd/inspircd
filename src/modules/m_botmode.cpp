@@ -69,6 +69,7 @@ class ModuleBotMode
  private:
 	SimpleUserModeHandler bm;
 	BotTag tag;
+	bool forcenotice;
 
  public:
 	ModuleBotMode()
@@ -79,9 +80,29 @@ class ModuleBotMode
 	{
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		forcenotice = ServerInstance->Config->ConfValue("botmode")->getBool("forcenotice");
+	}
+
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["BOT"] = ConvToStr(bm.GetModeChar());
+	}
+
+	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
+	{
+		// Allow sending if forcenotice is off, the user is not a bot, or if the message is a notice.
+		if (!forcenotice || !user->IsModeSet(bm) || details.type == MSG_NOTICE)
+			return MOD_RES_PASSTHRU;
+
+		// Allow sending PRIVMSGs to services pseudoclients.
+		if (target.type == MessageTarget::TYPE_USER && target.Get<User>()->server->IsULine())
+			return MOD_RES_PASSTHRU;
+
+		// Force the message to be broadcast as a NOTICE.
+		details.type = MSG_NOTICE;
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
