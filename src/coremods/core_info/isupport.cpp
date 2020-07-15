@@ -20,6 +20,29 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+namespace
+{
+	void TokenDifference(ISupport::TokenMap& tokendiff, const ISupport::TokenMap& oldtokens, const ISupport::TokenMap& newtokens)
+	{
+		std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> changedtokens;
+		stdalgo::map::difference(oldtokens, newtokens, changedtokens);
+		for (auto& [name, values] : changedtokens)
+		{
+			if (values.first && !values.second)
+			{
+				// The token was removed.
+				tokendiff["-" + name];
+			}
+			else if (values.second)
+			{
+				// The token was added or its value changed.
+				tokendiff[name] = *values.second;
+			}
+		}
+
+	}
+}
+
 ISupportManager::ISupportManager(Module* mod)
 	: isupportevprov(mod)
 {
@@ -48,50 +71,66 @@ void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 
 void ISupportManager::Build()
 {
-	/**
-	 * This is currently the neatest way we can build the initial ISUPPORT map. In
-	 * the future we can use an initializer list here.
-	 */
-	ISupport::TokenMap tokens;
-
-	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
-	tokens["CASEMAPPING"] = ServerInstance->Config->CaseMapping;
-	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
-	tokens["CHANTYPES"] = "#";
-	tokens["HOSTLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxHost);
-	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
-	tokens["LINELEN"] = ConvToStr(ServerInstance->Config->Limits.MaxLine);
-	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
-	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
-	tokens["NETWORK"] = ServerInstance->Config->Network;
-	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
-	tokens["PREFIX"] = ServerInstance->Modes.BuildPrefixes();
-	tokens["STATUSMSG"] = ServerInstance->Modes.BuildPrefixes(false);
-	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
-	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
-
-	// Modules can add new tokens and also edit or remove existing tokens
+	// Modules can add new tokens and also edit or remove existing tokens.
+	ISupport::TokenMap tokens = {
+		{ "AWAYLEN",     ConvToStr(ServerInstance->Config->Limits.MaxAway)  },
+		{ "CASEMAPPING", ServerInstance->Config->CaseMapping                },
+		{ "CHANNELLEN",  ConvToStr(ServerInstance->Config->Limits.ChanMax)  },
+		{ "CHANTYPES",   "#"                                                },
+		{ "HOSTLEN",     ConvToStr(ServerInstance->Config->Limits.MaxHost)  },
+		{ "KICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxKick)  },
+		{ "LINELEN",     ConvToStr(ServerInstance->Config->Limits.MaxLine)  },
+		{ "MAXTARGETS",  ConvToStr(ServerInstance->Config->MaxTargets)      },
+		{ "MODES",       ConvToStr(ServerInstance->Config->Limits.MaxModes) },
+		{ "NETWORK",     ServerInstance->Config->Network                    },
+		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.NickMax)  },
+		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()              },
+		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)         },
+		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic) },
+		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.IdentMax) },
+	};
 	FOREACH_MOD_CUSTOM(isupportevprov, ISupport::EventListener, OnBuildISupport, (tokens));
 
-	// Transform the map into a list of lines, ready to be sent to clients
-	Numeric::Numeric numeric(RPL_ISUPPORT);
-	unsigned int token_count = 0;
-	cachedlines.clear();
+	// Transform the map into a list of numerics ready to be sent to clients.
+	std::vector<Numeric::Numeric> numerics;
+	BuildNumerics(tokens, numerics);
 
+	// Extract the tokens which have been updated
+	ISupport::TokenMap difftokens;
+	TokenDifference(difftokens, cachedtokens, tokens);
+
+	// Send the updated numerics to users.
+	std::vector<Numeric::Numeric> diffnumerics;
+	BuildNumerics(difftokens, diffnumerics);
+	for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
+	{
+		if (user->registered & REG_ALL)
+		{
+			for (auto&& diffnumeric : diffnumerics)
+				user->WriteNumeric(diffnumeric);
+		}
+	}
+
+	// Apply the new ISUPPORT values.
+	std::swap(numerics, cachednumerics);
+	std::swap(tokens, cachedtokens);
+}
+
+void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics)
+{
+	Numeric::Numeric numeric(RPL_ISUPPORT);
 	for (ISupport::TokenMap::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 	{
 		numeric.push(it->first);
 		std::string& token = numeric.GetParams().back();
 		AppendValue(token, it->second);
 
-		token_count++;
-
-		if (token_count % 13 == 12 || it == --tokens.end())
+		if (numeric.GetParams().size() == 12 || std::distance(it, tokens.cend()) == 1)
 		{
 			// Reached maximum number of tokens for this line or the current token
-			// is the last one; finalize the line and store it for later use
+			// is the last one; finalize the line and store it for later use.
 			numeric.push("are supported by this server");
-			cachedlines.push_back(numeric);
+			numerics.push_back(numeric);
 			numeric.GetParams().clear();
 		}
 	}
@@ -99,6 +138,6 @@ void ISupportManager::Build()
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (std::vector<Numeric::Numeric>::const_iterator i = cachedlines.begin(); i != cachedlines.end(); ++i)
-		user->WriteNumeric(*i);
+	for (auto&& cachednumeric : cachednumerics)
+		user->WriteNumeric(cachednumeric);
 }

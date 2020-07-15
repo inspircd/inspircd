@@ -25,7 +25,9 @@ namespace ISupport
 {
 	class EventListener;
 	class EventProvider;
-	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> TokenMap;
+
+	/* A mapping of ISUPPORT tokens to their values. */
+	typedef std::map<std::string, std::string, irc::insensitive_swo> TokenMap;
 }
 
 class ISupport::EventListener
