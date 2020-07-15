@@ -58,13 +58,7 @@ class BCryptProvider : public HashProvider
 
 	bool Compare(const std::string& input, const std::string& hash) override
 	{
-		std::string ret = Generate(input, hash);
-		if (ret.empty())
-			return false;
-
-		if (ret == hash)
-			return true;
-		return false;
+		return InspIRCd::TimingSafeCompare(Generate(input, hash), hash);
 	}
 
 	std::string ToPrintable(const std::string& raw) override

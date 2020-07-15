@@ -429,7 +429,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 		std::string* match = nameExt.get(user);
 		if (!match)
-			return MOD_RES_PASSTHRU;
+			return MOD_RES_DENY;
 
 		if (InspIRCd::Match(*match, dnsbl))
 			return MOD_RES_PASSTHRU;

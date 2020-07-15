@@ -126,7 +126,7 @@ class PBKDF2Provider : public HashProvider
 			return false;
 
 		std::string cmp = PBKDF2(input, hs.salt, hs.iterations, hs.length);
-		return (cmp == hs.hash);
+		return InspIRCd::TimingSafeCompare(cmp, hs.hash);
 	}
 
 	std::string ToPrintable(const std::string& raw) override

@@ -247,21 +247,21 @@ class CommandMessage : public Command
 			return CMD_FAILURE;
 		}
 
-		// If the target is away then inform the user.
-		if (target->IsAway() && msgtype == MSG_PRIVMSG)
-			source->WriteNumeric(RPL_AWAY, target->nick, target->awaymsg);
-
 		// Fire the pre-message events.
 		MessageTarget msgtarget(target);
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
 			return CMD_FAILURE;
 
+		// If the target is away then inform the user.
+		if (target->IsAway() && msgdetails.type == MSG_PRIVMSG)
+			source->WriteNumeric(RPL_AWAY, target->nick, target->awaymsg);
+
 		LocalUser* const localtarget = IS_LOCAL(target);
 		if (localtarget)
 		{
 			// Send to the target if they are a local user.
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, localtarget->nick, msgdetails.text, msgtype);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, localtarget->nick, msgdetails.text, msgdetails.type);
 			privmsg.AddTags(msgdetails.tags_out);
 			privmsg.SetSideEffect(true);
 			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);

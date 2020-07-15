@@ -36,9 +36,10 @@ use feature ':5.10';
 use strict;
 use warnings FATAL => qw(all);
 
+use Cwd                   qw(getcwd);
 use File::Basename        qw(basename);
 use File::Copy            ();
-use File::Spec::Functions qw(catfile catdir rel2abs);
+use File::Spec::Functions qw(abs2rel catfile catdir rel2abs);
 use FindBin               qw($RealDir);
 use Getopt::Long          qw(GetOptions);
 use POSIX                 qw(getgid getuid);
@@ -351,7 +352,7 @@ Currently, InspIRCd is configured to automatically enable all available extra mo
 Would you like to enable extra modules manually?
 EOQ
 if (prompt_bool $interactive, $question, 0) {
-	foreach my $extra (<src/modules/extra/m_*.cpp>) {
+	foreach my $extra (<$RealDir/src/modules/extra/m_*.cpp>) {
 		my $module_name = basename $extra, '.cpp';
 		if (prompt_bool $interactive, "Would you like to enable $module_name?", 0) {
 			enable_extras "$module_name.cpp";
@@ -390,7 +391,7 @@ Note: you can get a <|BOLD free|> CA-signed certificate from Let's Encrypt. See
 https://letsencrypt.org/getting-started/ for more details.
 EOQ
 
-if (<src/modules/m_ssl_*.cpp>) {
+if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
 		system './tools/genssl', 'auto';
 	}
@@ -426,10 +427,14 @@ Configuration is complete! You have chosen to build with the following settings:
 <|GREEN Extra Modules:|>
 EOM
 
-for my $file (<src/modules/m_*>) {
+for my $file (<$RealDir/src/modules/m_*>) {
 	my $module = basename $file, '.cpp';
 	say "  * $module" if -l $file;
 }
+
+my @makeargs;
+push @makeargs, "-C${\abs2rel $RealDir}" unless getcwd eq $RealDir;
+push @makeargs, "-j${\(get_cpu_count() + 1)}";
 
 print_format <<"EOM";
 
@@ -448,7 +453,7 @@ print_format <<"EOM";
 <|GREEN Execution User:|>  $config{USER} ($config{UID})
 <|GREEN Socket Engine:|>   $config{SOCKETENGINE}
 
-To build with these settings run '<|GREEN make -j${\(get_cpu_count() + 1)} install|>' now.
+To build with these settings run '<|GREEN make ${\join ' ', @makeargs} install|>' now.
 
 EOM
 

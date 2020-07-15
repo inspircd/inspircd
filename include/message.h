@@ -58,7 +58,7 @@ class CoreExport MessageDetails
 	std::string text;
 
 	/** The type of message. */
-	const MessageType type;
+	MessageType type;
 
 	/** Determines whether the specified message is a CTCP. If the specified message
 	 * is a CTCP then the CTCP name and CTCP body are extracted and stored in the
