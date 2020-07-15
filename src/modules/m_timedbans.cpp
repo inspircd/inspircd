@@ -49,6 +49,7 @@ timedbans TimedBanList;
 class CommandTban : public Command
 {
 	ChanModeReference banmode;
+	bool send_notice;
 
 	bool IsBanSet(Channel* chan, const std::string& mask)
 	{
@@ -76,6 +77,11 @@ class CommandTban : public Command
 		, banmode(Creator, "ban")
 	{
 		syntax = "<channel> <duration> <banmask>";
+	}
+
+	void SetSendNotice(bool send)
+	{
+		send_notice = send;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
@@ -131,13 +137,16 @@ class CommandTban : public Command
 		T.chan = channel;
 		TimedBanList.push_back(T);
 
-		const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
+		if (send_notice) {
+		    const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
-		// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-		char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+		    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+		    PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+		    char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		channel->WriteRemoteNotice(message, pfxchar);
+		    channel->WriteRemoteNotice(message, pfxchar);
+		}
+
 		return CMD_SUCCESS;
 	}
 
@@ -195,12 +204,20 @@ class ModuleTimedBans : public Module
 {
 	CommandTban cmd;
 	BanWatcher banwatcher;
+	bool send_notice;
 
  public:
 	ModuleTimedBans()
 		: cmd(this)
 		, banwatcher(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("timedbans");
+		send_notice = tag->getBool("send_notice", true);
+        cmd.SetSendNotice(send_notice);
 	}
 
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
@@ -222,13 +239,15 @@ class ModuleTimedBans : public Module
 			const std::string mask = i->mask;
 			Channel* cr = i->chan;
 
-			const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
+			if (send_notice) {
+			    const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
 				mask.c_str(), i->setter.c_str(), cr->name.c_str());
-			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+			    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+			    PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+			    char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-			cr->WriteRemoteNotice(message, pfxchar);
+			    cr->WriteRemoteNotice(message, pfxchar);
+			}
 
 			Modes::ChangeList setban;
 			setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
