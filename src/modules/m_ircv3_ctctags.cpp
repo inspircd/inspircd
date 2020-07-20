@@ -99,7 +99,7 @@ class CommandTagMsg : public Command
 				continue;
 
 			// Send to users if they have the capability.
-			if (cap.get(luser))
+			if (cap.IsEnabled(luser))
 				luser->Send(msgevprov, message);
 		}
 		return FirePostEvent(source, msgtarget, msgdetails);
@@ -141,7 +141,7 @@ class CommandTagMsg : public Command
 					continue;
 
 				// Send to users if they have the capability.
-				if (cap.get(luser))
+				if (cap.IsEnabled(luser))
 					luser->Send(msgevprov, message);
 			}
 		}
@@ -190,7 +190,7 @@ class CommandTagMsg : public Command
 			return CMD_FAILURE;
 
 		LocalUser* const localtarget = IS_LOCAL(target);
-		if (localtarget && cap.get(localtarget))
+		if (localtarget && cap.IsEnabled(localtarget))
 		{
 			// Send to the target if they have the capability and are a local user.
 			CTCTags::TagMessage message(source, localtarget, msgdetails.tags_out);
@@ -218,7 +218,7 @@ class CommandTagMsg : public Command
 			return CMD_SUCCESS;
 
 		// Check that the source has the message tags capability.
-		if (IS_LOCAL(user) && !cap.get(user))
+		if (IS_LOCAL(user) && !cap.IsEnabled(user))
 			return CMD_FAILURE;
 
 		// The specified message tags were empty.
@@ -279,7 +279,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 		// If the user is local then we check whether they have the message-tags cap
 		// enabled. If not then we reject all client-only tags originating from them.
 		LocalUser* lu = IS_LOCAL(user);
-		if (lu && !cap.get(lu))
+		if (lu && !cap.IsEnabled(lu))
 			return MOD_RES_DENY;
 
 		// Remote users have their client-only tags checked by their local server.
@@ -288,7 +288,7 @@ class C2CTags : public ClientProtocol::MessageTagProvider
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
-		return cap.get(user);
+		return cap.IsEnabled(user);
 	}
 };
 

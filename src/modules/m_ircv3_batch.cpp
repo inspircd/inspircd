@@ -69,7 +69,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
-		if (!cap.get(user))
+		if (!cap.IsEnabled(user))
 			return false;
 
 		Batch& batch = *static_cast<Batch*>(tagdata.provdata);

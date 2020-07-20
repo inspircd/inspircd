@@ -34,5 +34,5 @@ void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
 
 bool ServiceTag::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)
 {
-	return ctctagcap.get(user);
+	return ctctagcap.IsEnabled(user);
 }

@@ -236,7 +236,7 @@ class ModuleChanHistory
 		if (!list)
 			return;
 
-		if ((prefixmsg) && (!batchcap.get(localuser)))
+		if ((prefixmsg) && (!batchcap.IsEnabled(localuser)))
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)

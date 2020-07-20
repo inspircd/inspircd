@@ -180,7 +180,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, description);
 		else
 			SendNoticeInternal(user, command, description);
@@ -190,7 +190,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const T1& p1, const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, p1, description);
 		else
 			SendNoticeInternal(user, command, description);
@@ -200,7 +200,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const T1& p1, const T2& p2, const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, p1, p2, description);
 		else
 			SendNoticeInternal(user, command, description);
@@ -210,7 +210,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const T1& p1, const T2& p2, const T3& p3, const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, p1, p2, p3, description);
 		else
 			SendNoticeInternal(user, command, description);
@@ -220,7 +220,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, p1, p2, p3, p4, description);
 		else
 			SendNoticeInternal(user, command, description);
@@ -230,7 +230,7 @@ class IRCv3::Replies::Reply
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
 		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const T5& p5, const std::string& description)
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			Send(user, command, code, p1, p2, p3, p4, p5, description);
 		else
 			SendNoticeInternal(user, command, description);

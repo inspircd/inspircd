@@ -36,7 +36,7 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 
 	void Execute(LocalUser* user) override
 	{
-		if (cap.get(user))
+		if (cap.IsEnabled(user))
 			user->Send(protoev);
 	}
 
@@ -74,7 +74,7 @@ class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
-		return cap.get(user);
+		return cap.IsEnabled(user);
 	}
 
 	void OnPopulateTags(ClientProtocol::Message& msg) override

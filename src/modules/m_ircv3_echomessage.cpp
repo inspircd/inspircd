@@ -42,7 +42,7 @@ class ModuleIRCv3EchoMessage
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
-		if (!cap.get(user) || !details.echo)
+		if (!cap.IsEnabled(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
@@ -81,7 +81,7 @@ class ModuleIRCv3EchoMessage
 
 	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override
 	{
-		if (!cap.get(user) || !details.echo)
+		if (!cap.IsEnabled(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users

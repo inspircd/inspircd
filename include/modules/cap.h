@@ -193,7 +193,7 @@ namespace Cap
 		 * @param user User to check
 		 * @return True if the user is using this capability, false otherwise
 		 */
-		bool get(User* user) const
+		bool IsEnabled(User* user) const
 		{
 			if (!IsRegistered())
 				return false;
@@ -205,7 +205,7 @@ namespace Cap
 		 * @param user User to turn the cap on/off for
 		 * @param val True to turn the cap on, false to turn it off
 		 */
-		void set(User* user, bool val)
+		void Set(User* user, bool val)
 		{
 			if (!IsRegistered())
 				return;
@@ -307,10 +307,10 @@ namespace Cap
 		 * @param user User to check
 		 * @return True if the user is using the referenced capability, false otherwise
 		 */
-		bool get(LocalUser* user)
+		bool IsEnabled(LocalUser* user)
 		{
 			if (ref)
-				return ref->get(user);
+				return ref->IsEnabled(user);
 			return false;
 		}
 	};

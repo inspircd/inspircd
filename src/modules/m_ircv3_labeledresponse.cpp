@@ -50,7 +50,7 @@ class LabeledResponseTag : public ClientProtocol::MessageTagProvider
 		// If the user is local then we check whether they have the labeled-response
 		// cap enabled. If not then we reject the label tag originating from them.
 		LocalUser* lu = IS_LOCAL(user);
-		if (lu && !cap.get(lu))
+		if (lu && !cap.IsEnabled(lu))
 			return MOD_RES_DENY;
 
 		// Remote users have their label tag checked by their local server.
@@ -105,7 +105,7 @@ class ModuleIRCv3LabeledResponse : public Module
 			return MOD_RES_PASSTHRU;
 
 		// We only care about registered users with the labeled-response and batch caps.
-		if (user->registered != REG_ALL || !cap.get(user) || !batchcap.get(user))
+		if (user->registered != REG_ALL || !cap.IsEnabled(user) || !batchcap.IsEnabled(user))
 			return MOD_RES_PASSTHRU;
 
 		const ClientProtocol::TagMap& tagmap = parameters.GetTags();

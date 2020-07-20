@@ -64,7 +64,7 @@ class ModuleUHNames
 		{
 			if (!parameters.empty() && irc::equals(parameters[0], "UHNAMES"))
 			{
-				cap.set(user, true);
+				cap.Set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
@@ -73,7 +73,7 @@ class ModuleUHNames
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
-		if (cap.get(issuer))
+		if (cap.IsEnabled(issuer))
 			nick = memb->user->GetFullHost();
 
 		return MOD_RES_PASSTHRU;

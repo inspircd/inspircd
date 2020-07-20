@@ -112,7 +112,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
 			{
 				LocalUser* user = *j;
-				if (cap->get(user))
+				if (cap->IsEnabled(user))
 					capdata.users.push_back(user->uuid);
 			}
 		}
@@ -142,7 +142,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 					continue;
 				}
 
-				cap->set(user, true);
+				cap->Set(user, true);
 			}
 		}
 		delete capmoddata;
@@ -199,7 +199,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
-			cap->set(user, false);
+			cap->Set(user, false);
 		}
 
 		ServerInstance->Modules.DelReferent(cap);

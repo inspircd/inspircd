@@ -100,10 +100,10 @@ class JoinHook : public ClientProtocol::EventHook
 
 	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override
 	{
-		if (extendedjoincap.get(user))
+		if (extendedjoincap.IsEnabled(user))
 			messagelist.front() = &extendedjoinmsg;
 
-		if ((!awaymsg.GetParams().empty()) && (awaycap.get(user)))
+		if ((!awaymsg.GetParams().empty()) && (awaycap.IsEnabled(user)))
 			messagelist.push_back(&awaymsg);
 
 		return MOD_RES_PASSTHRU;

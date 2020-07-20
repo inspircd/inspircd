@@ -48,7 +48,7 @@ class ModuleHostCycle : public Module
 		for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if ((u) && (!u->quitting) && (!chghostcap.get(u)))
+			if ((u) && (!u->quitting) && (!chghostcap.IsEnabled(u)))
 			{
 				if (i->second)
 				{
@@ -79,7 +79,7 @@ class ModuleHostCycle : public Module
 					continue;
 				if (u->already_sent == silent_id)
 					continue;
-				if (chghostcap.get(u))
+				if (chghostcap.IsEnabled(u))
 					continue;
 
 				if (u->already_sent != seen_id)

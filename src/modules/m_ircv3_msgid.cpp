@@ -43,7 +43,7 @@ class MsgIdTag : public ClientProtocol::MessageTagProvider
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
 	{
-		return ctctagcap.get(user);
+		return ctctagcap.IsEnabled(user);
 	}
 };
 

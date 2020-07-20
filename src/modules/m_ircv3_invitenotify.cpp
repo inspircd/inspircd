@@ -41,7 +41,7 @@ class ModuleIRCv3InviteNotify : public Module
 		{
 			User* user = i->first;
 			// Skip members who don't use this extension or were excluded by other modules
-			if ((!cap.get(user)) || (notifyexcepts.count(user)))
+			if ((!cap.IsEnabled(user)) || (notifyexcepts.count(user)))
 				continue;
 
 			Membership* memb = i->second;

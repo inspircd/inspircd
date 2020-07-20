@@ -67,7 +67,7 @@ class ModuleNamesX
 		{
 			if (!parameters.empty() && irc::equals(parameters[0], "NAMESX"))
 			{
-				cap.set(user, true);
+				cap.Set(user, true);
 				return MOD_RES_DENY;
 			}
 		}
@@ -76,7 +76,7 @@ class ModuleNamesX
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
-		if (cap.get(issuer))
+		if (cap.IsEnabled(issuer))
 			prefixes = memb->GetAllPrefixChars();
 
 		return MOD_RES_PASSTHRU;
@@ -84,7 +84,7 @@ class ModuleNamesX
 
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
 	{
-		if ((!memb) || (!cap.get(source)))
+		if ((!memb) || (!cap.IsEnabled(source)))
 			return MOD_RES_PASSTHRU;
 
 		// Don't do anything if the user has only one prefix

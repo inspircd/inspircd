@@ -36,7 +36,7 @@ class CapNotify : public Cap::Capability
 	{
 		// If the client supports 3.2 enable cap-notify for them
 		if (GetProtocol(user) != Cap::CAP_LEGACY)
-			set(user, true);
+			Set(user, true);
 		return true;
 	}
 
@@ -99,7 +99,7 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
-			if (!capnotify.get(user))
+			if (!capnotify.IsEnabled(user))
 				continue;
 
 			// Check that this user can actually see the cap.

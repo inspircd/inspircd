@@ -338,7 +338,7 @@ class CommandAuthenticate : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		{
-			if (!cap.get(user))
+			if (!cap.IsEnabled(user))
 				return CMD_FAILURE;
 
 			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
