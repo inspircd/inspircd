@@ -6,7 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     env:
-      TEST_BUILD_MODULES: geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
+      CXX: ${{ matrix.compiler }}
+      INSPIRCD_DEBUG: 1
+      INSPIRCD_VERBOSE: 1
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
@@ -14,10 +16,26 @@ jobs:
           sudo apt-get update --assume-yes
           sudo apt-get install --assume-yes --no-install-recommends clang g++ git make libc++-dev libc++abi-dev pkg-config
           sudo apt-get install --assume-yes --no-install-recommends libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libsqlite3-dev libssl-dev libtre-dev
-      - name: Run test-build
-        run: ./tools/test-build ${{ matrix.compiler }}
+      - name: Run configure
+        run: |
+          ./configure --enable-extras "geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
+          ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
+      - name: Build core
+        run: |
+          INSPIRCD_TARGET=inspircd make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+      - name: Build modules
+        run: |
+          INSPIRCD_TARGET=modules make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+      - name: Install
+        run: |
+          make install
     strategy:
+      fail-fast: false
       matrix:
         compiler:
           - clang++
           - g++
+        socketengine:
+          - epoll
+          - poll
+          - select
