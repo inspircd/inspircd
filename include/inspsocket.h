@@ -295,20 +295,17 @@ class CoreExport StreamSocket : public EventHandler
 	void AddIOHook(IOHook* hook);
 	void DelIOHook();
 
-	/** Flush the send queue
-	 */
+	/** Writes the contents of the send queue to the socket. */
 	void DoWrite();
 
-	/** Called by the socket engine on a read event
-	 */
+	/** Called by the socket engine when a read event happens. */
 	void OnEventHandlerRead() override;
 
-	/** Called by the socket engine on a write event
-	 */
+	/** Called by the socket engine when a write event happens. */
 	void OnEventHandlerWrite() override;
 
-	/** Called by the socket engine on error
-	 * @param errcode Error
+	/** Called by the socket engine when an error happens.
+	 * @param errcode The error code provided by the operating system.
 	 */
 	void OnEventHandlerError(int errcode) override;
 
@@ -318,9 +315,10 @@ class CoreExport StreamSocket : public EventHandler
 	/** Retrieves the error message for this socket. */
 	const std::string& GetError() const { return error; }
 
-	/** Called when new data is present in recvq */
+	/** Called when new data is present in the receive queue. */
 	virtual void OnDataReady() = 0;
-	/** Called when the socket gets an error from socket engine or IO hook */
+
+	/** Called when the socket gets an error from socket engine or I/O hook. */
 	virtual void OnError(BufferedSocketError e) = 0;
 
 	/** Called when the local endpoint address is changed.
