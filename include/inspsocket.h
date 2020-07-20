@@ -338,12 +338,6 @@ class CoreExport StreamSocket : public EventHandler
 	/** Send the given data out the socket, either now or when writes unblock
 	 */
 	void WriteData(const std::string& data);
-	/** Convenience function: read a line from the socket
-	 * @param line The line read
-	 * @param delim The line delimiter
-	 * @return true if a line was read
-	 */
-	bool GetNextLine(std::string& line, char delim = '\n');
 
 	/** Retrieves the current size of the send queue. */
 	size_t GetSendQSize() const;

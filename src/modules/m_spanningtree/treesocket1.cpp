@@ -197,6 +197,16 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& pa
 	return ret;
 }
 
+bool TreeSocket::GetNextLine(std::string& line, char delim)
+{
+	std::string::size_type i = recvq.find(delim);
+	if (i == std::string::npos)
+		return false;
+	line.assign(recvq, 0, i);
+	recvq.erase(0, i + 1);
+	return true;
+}
+
 /** This function is called when we receive data from a remote
  * server.
  */

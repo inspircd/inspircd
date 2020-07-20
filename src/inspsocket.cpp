@@ -137,16 +137,6 @@ CullResult StreamSocket::cull()
 	return EventHandler::cull();
 }
 
-bool StreamSocket::GetNextLine(std::string& line, char delim)
-{
-	std::string::size_type i = recvq.find(delim);
-	if (i == std::string::npos)
-		return false;
-	line.assign(recvq, 0, i);
-	recvq.erase(0, i + 1);
-	return true;
-}
-
 int StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
 {
 	if (!hook)

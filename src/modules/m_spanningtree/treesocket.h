@@ -155,6 +155,13 @@ class TreeSocket : public BufferedSocket
 	 */
 	std::shared_ptr<Link> AuthRemote(const CommandBase::Params& params);
 
+	/** Convenience function: read a line from the socket
+	 * @param line The line read
+	 * @param delim The line delimiter
+	 * @return true if a line was read
+	 */
+	bool GetNextLine(std::string& line, char delim = '\n');
+
  public:
 	const time_t age;
 
