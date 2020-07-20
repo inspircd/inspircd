@@ -125,7 +125,7 @@ void StreamSocket::Close()
 
 void StreamSocket::Close(bool writeblock)
 {
-	if (getSendQSize() != 0 && writeblock)
+	if (GetSendQSize() != 0 && writeblock)
 		closeonempty = true;
 	else
 		Close();
@@ -222,7 +222,7 @@ static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
 
 void StreamSocket::DoWrite()
 {
-	if (getSendQSize() == 0)
+	if (GetSendQSize() == 0)
 	{
 		if (closeonempty)
 			Close();
@@ -265,7 +265,7 @@ void StreamSocket::DoWrite()
 	if (psendq)
 		FlushSendQ(*psendq);
 
-	if (getSendQSize() == 0 && closeonempty)
+	if (GetSendQSize() == 0 && closeonempty)
 		Close();
 }
 
@@ -526,7 +526,7 @@ void StreamSocket::AddIOHook(IOHook* newhook)
 	lasthook->SetNextHook(newhook);
 }
 
-size_t StreamSocket::getSendQSize() const
+size_t StreamSocket::GetSendQSize() const
 {
 	size_t ret = sendq.bytes();
 	IOHook* curr = GetIOHook();

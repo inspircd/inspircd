@@ -315,8 +315,8 @@ class CoreExport StreamSocket : public EventHandler
 	/** Sets the error message for this socket. Once set, the socket is dead. */
 	void SetError(const std::string& err) { if (error.empty()) error = err; }
 
-	/** Gets the error message for this socket. */
-	const std::string& getError() const { return error; }
+	/** Retrieves the error message for this socket. */
+	const std::string& GetError() const { return error; }
 
 	/** Called when new data is present in recvq */
 	virtual void OnDataReady() = 0;
@@ -344,9 +344,11 @@ class CoreExport StreamSocket : public EventHandler
 	 * @return true if a line was read
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
-	/** Useful for implementing sendq exceeded */
-	size_t getSendQSize() const;
 
+	/** Retrieves the current size of the send queue. */
+	size_t GetSendQSize() const;
+
+	/** Retrieves the send queue. */
 	SendQueue& GetSendQ() { return sendq; }
 
 	/**

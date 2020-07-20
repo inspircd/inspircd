@@ -75,7 +75,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 		{
 			/* Something barfed, show the opers */
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
-				MyLink->Name.c_str(), newsocket->getError().c_str());
+				MyLink->Name.c_str(), newsocket->GetError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}

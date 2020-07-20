@@ -211,10 +211,10 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		{
 			via->iohookprovs.back()->OnAccept(this, client, server);
 			// IOHook may have errored
-			if (!getError().empty())
+			if (!GetError().empty())
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered a hook error: %s",
-					GetFd(), getError().c_str());
+					GetFd(), GetError().c_str());
 				Close();
 				return;
 			}
@@ -243,7 +243,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	void OnError(BufferedSocketError err) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered an error: %d - %s",
-			GetFd(), err, getError().c_str());
+			GetFd(), err, GetError().c_str());
 		Close();
 	}
 

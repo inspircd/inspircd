@@ -173,9 +173,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello
 		// was already in the queue and there was no common TLS version.
-		if (!eh->getError().empty())
+		if (!eh->GetError().empty())
 		{
-			QuitUser(New, eh->getError());
+			QuitUser(New, eh->GetError());
 			return;
 		}
 	}
@@ -392,7 +392,7 @@ void UserManager::DoBackgroundUserStuff()
 		LocalUser* curr = *i;
 		++i;
 
-		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
+		if (curr->CommandFloodPenalty || curr->eh.GetSendQSize())
 		{
 			unsigned int rate = curr->MyClass->GetCommandRate();
 			if (curr->CommandFloodPenalty > rate)

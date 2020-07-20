@@ -93,7 +93,7 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 
 		iohookprovref->OnAccept(this, client, server);
 		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello was already in the queue and there was no common TLS version
-		if (!getError().empty())
+		if (!GetError().empty())
 		{
 			TreeSocket::OnError(I_ERR_OTHER);
 			return;
@@ -157,7 +157,7 @@ void TreeSocket::OnConnected()
 void TreeSocket::OnError(BufferedSocketError e)
 {
 	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
-		linkID.c_str(), getError().c_str());
+		linkID.c_str(), GetError().c_str());
 	LinkState = DYING;
 	Close();
 }
@@ -226,7 +226,7 @@ void TreeSocket::OnDataReady()
 			SendError(ex.GetReason() + " - check the log file for details");
 		}
 
-		if (!getError().empty())
+		if (!GetError().empty())
 			break;
 	}
 	if (LinkState != CONNECTED && recvq.length() > 4096)

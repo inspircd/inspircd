@@ -260,7 +260,7 @@ void UserIOHandler::OnDataReady()
 	// The position within the recvq of the current character.
 	std::string::size_type qpos;
 
-	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
+	while (user->CommandFloodPenalty < penaltymax && GetSendQSize() < sendqmax)
 	{
 		// Check the newly received data for an EOL.
 		eolpos = recvq.find('\n', checked_until);
@@ -312,7 +312,7 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 {
 	if (user->quitting_sendq)
 		return;
-	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
+	if (!user->quitting && GetSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
 		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		user->quitting_sendq = true;
@@ -349,7 +349,7 @@ void UserIOHandler::OnError(BufferedSocketError sockerr)
 	ModResult res;
 	FIRST_MOD_RESULT(OnConnectionFail, res, (user, sockerr));
 	if (res != MOD_RES_ALLOW)
-		ServerInstance->Users.QuitUser(user, getError());
+		ServerInstance->Users.QuitUser(user, GetError());
 }
 
 CullResult User::cull()

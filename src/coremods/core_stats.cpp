@@ -76,7 +76,7 @@ static void GenerateStatsLl(Stats::Context& stats)
 	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		LocalUser* u = *i;
-		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 	}
 }
 

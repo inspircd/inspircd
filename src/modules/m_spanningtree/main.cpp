@@ -224,7 +224,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 		if (!newsocket->HasFd())
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
-				x->Name.c_str(), newsocket->getError().c_str());
+				x->Name.c_str(), newsocket->GetError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
