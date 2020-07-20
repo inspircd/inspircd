@@ -15,8 +15,10 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew upgrade
-          brew install pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite tre
+          for PACKAGE in pkg-config gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre re2 sqlite tre;
+          do
+            brew install $PACKAGE || brew upgrade $PACKAGE
+          done
           brew link --force --overwrite libpq
           brew link --force --overwrite mysql-client
       - name: Run test-build
