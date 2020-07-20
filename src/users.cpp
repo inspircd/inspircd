@@ -332,10 +332,15 @@ void UserIOHandler::SwapInternals(UserIOHandler& other)
 	std::swap(checked_until, other.checked_until);
 }
 
-bool UserIOHandler::OnSetEndPoint(const irc::sockets::sockaddrs& server, const irc::sockets::sockaddrs& client)
+bool UserIOHandler::OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep)
 {
-	memcpy(&user->server_sa, &server, sizeof(irc::sockets::sockaddrs));
-	user->SetClientIP(client);
+	memcpy(&user->server_sa, &ep, sizeof(irc::sockets::sockaddrs));
+	return true;
+}
+
+bool UserIOHandler::OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep)
+{
+	user->SetClientIP(ep);
 	return !user->quitting;
 }
 

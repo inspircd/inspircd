@@ -272,7 +272,7 @@ class HAProxyHook : public IOHookMiddle
 						break;
 				}
 
-				if (!sock->OnSetEndPoint(server, client))
+				if (!sock->OnSetLocalEndPoint(server) || !sock->OnSetRemoteEndPoint(client))
 					return -1;
 
 				// Parse any available TLVs.

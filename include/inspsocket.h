@@ -323,12 +323,17 @@ class CoreExport StreamSocket : public EventHandler
 	/** Called when the socket gets an error from socket engine or IO hook */
 	virtual void OnError(BufferedSocketError e) = 0;
 
-	/** Called when the endpoint addresses are changed.
-	 * @param local The new local endpoint.
-	 * @param remote The new remote endpoint.
+	/** Called when the local endpoint address is changed.
+	 * @param ep The new local endpoint.
 	 * @return true if the connection is still open, false if it has been closed
 	 */
-	virtual bool OnSetEndPoint(const irc::sockets::sockaddrs& local, const irc::sockets::sockaddrs& remote);
+	virtual bool OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep) { return true; }
+
+	/** Called when the remote endpoint address is changed.
+	 * @param ep The new remote endpoint.
+	 * @return true if the connection is still open, false if it has been closed
+	 */
+	virtual bool OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep) { return true; }
 
 	/** Send the given data out the socket, either now or when writes unblock
 	 */
