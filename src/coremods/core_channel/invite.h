@@ -69,18 +69,18 @@ class Invite::ExtItem : public ExtensionItem
 
 	Store<T>* get(Extensible* ext, bool create = false)
 	{
-		Store<T>* store = static_cast<Store<T>*>(get_raw(ext));
+		Store<T>* store = static_cast<Store<T>*>(GetRaw(ext));
 		if ((create) && (!store))
 		{
 			store = new Store<T>;
-			set_raw(ext, store);
+			SetRaw(ext, store);
 		}
 		return store;
 	}
 
 	void unset(Extensible* ext)
 	{
-		void* store = unset_raw(ext);
+		void* store = UnsetRaw(ext);
 		if (store)
 			Delete(ext, store);
 	}

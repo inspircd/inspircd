@@ -94,11 +94,11 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	void FromInternal(Extensible* container, const std::string& value) override
 	{
-		void* old = get_raw(container);
+		void* old = GetRaw(container);
 		if (old)
 			this->Delete(NULL, old);
 		callerid_data* dat = new callerid_data;
-		set_raw(container, dat);
+		SetRaw(container, dat);
 
 		irc::commasepstream s(value);
 		std::string tok;
@@ -121,11 +121,11 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	callerid_data* get(User* user, bool create)
 	{
-		callerid_data* dat = static_cast<callerid_data*>(get_raw(user));
+		callerid_data* dat = static_cast<callerid_data*>(GetRaw(user));
 		if (create && !dat)
 		{
 			dat = new callerid_data;
-			set_raw(user, dat);
+			SetRaw(user, dat);
 		}
 		return dat;
 	}

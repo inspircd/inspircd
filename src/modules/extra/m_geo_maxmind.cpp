@@ -52,18 +52,18 @@ class GeolocationExtItem : public ExtensionItem
 
 	Geolocation::Location* get(const Extensible* item) const
 	{
-		return static_cast<Geolocation::Location*>(get_raw(item));
+		return static_cast<Geolocation::Location*>(GetRaw(item));
 	}
 
 	void set(Extensible* item, Geolocation::Location* value)
 	{
 		value->refcount_inc();
-		Delete(item, set_raw(item, value));
+		Delete(item, SetRaw(item, value));
 	}
 
 	void unset(Extensible* container)
 	{
-		Delete(container, unset_raw(container));
+		Delete(container, UnsetRaw(container));
 	}
 };
 

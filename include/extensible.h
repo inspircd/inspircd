@@ -23,7 +23,9 @@
 #pragma once
 
 /** Base class for logic that extends an Extensible object. */
-class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
+class CoreExport ExtensionItem
+	: public ServiceProvider
+	, public usecountbase
 {
  public:
 	/** Types of Extensible that an ExtensionItem can apply to. */
@@ -99,20 +101,20 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	 * @param container The container that the ExtensionItem is set on.
 	 * @return Either the value of this ExtensionItem or NULL if it is not set.
 	 */
-	void* get_raw(const Extensible* container) const;
+	void* GetRaw(const Extensible* container) const;
 
 	/** Stores a value for this ExtensionItem in the internal map and returns the old value if one was set.
 	 * @param container A container the ExtensionItem should be set on.
 	 * @param value The value to set on the specified container.
 	 * @return Either the old value or NULL if one is not set.
 	 */
-	void* set_raw(Extensible* container, void* value);
+	void* SetRaw(Extensible* container, void* value);
 
 	/** Removes the value for this ExtensionItem from the internal map and returns it.
 	 * @param container A container the ExtensionItem should be removed from.
 	 * @return Either the old value or NULL if one is not set.
 	*/
-	void* unset_raw(Extensible* container);
+	void* UnsetRaw(Extensible* container);
 };
 
 /** class Extensible is the parent class of many classes such as User and Channel.
@@ -202,25 +204,25 @@ class SimpleExtItem : public ExtensionItem
 
 	inline T* get(const Extensible* container) const
 	{
-		return static_cast<T*>(get_raw(container));
+		return static_cast<T*>(GetRaw(container));
 	}
 
 	inline void set(Extensible* container, const T& value)
 	{
 		T* ptr = new T(value);
-		T* old = static_cast<T*>(set_raw(container, ptr));
+		T* old = static_cast<T*>(SetRaw(container, ptr));
 		Delete(container, old);
 	}
 
 	inline void set(Extensible* container, T* value)
 	{
-		T* old = static_cast<T*>(set_raw(container, value));
+		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
 	}
 
 	inline void unset(Extensible* container)
 	{
-		T* old = static_cast<T*>(unset_raw(container));
+		T* old = static_cast<T*>(UnsetRaw(container));
 		Delete(container, old);
 	}
 
@@ -297,7 +299,7 @@ class CoreExport IntExtItem : public ExtensionItem
 	/** @copydoc ExtensionItem::FromNetwork */
 	void FromNetwork(Extensible* container, const std::string& value) override;
 
-	/** Sets a value for this IntExtItem. 
+	/** Sets a value for this IntExtItem.
 	 * @param container A container that the IntExtItem should be set on.
 	 */
 	void set(Extensible* container, intptr_t value);

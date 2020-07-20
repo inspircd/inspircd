@@ -85,7 +85,7 @@ class FlagExtItem : public ExtensionItem
 
 	bool get(const Extensible* container) const
 	{
-		return (get_raw(container) != NULL);
+		return (GetRaw(container) != NULL);
 	}
 
 	std::string ToHuman(const Extensible* container, void* item) const override
@@ -102,22 +102,22 @@ class FlagExtItem : public ExtensionItem
 	void FromNetwork(Extensible* container, const std::string& value) override
 	{
 		if (value == "1")
-			set_raw(container, this);
+			SetRaw(container, this);
 		else
-			unset_raw(container);
+			UnsetRaw(container);
 	}
 
 	void set(Extensible* container, bool value)
 	{
 		if (value)
-			set_raw(container, this);
+			SetRaw(container, this);
 		else
-			unset_raw(container);
+			UnsetRaw(container);
 	}
 
 	void unset(Extensible* container)
 	{
-		unset_raw(container);
+		UnsetRaw(container);
 	}
 
 	void Delete(Extensible* container, void* item) override

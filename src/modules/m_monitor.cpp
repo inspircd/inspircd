@@ -71,18 +71,18 @@ class IRCv3::Monitor::Manager
 
 		ExtData* get(Extensible* container, bool create = false)
 		{
-			ExtData* extdata = static_cast<ExtData*>(get_raw(container));
+			ExtData* extdata = static_cast<ExtData*>(GetRaw(container));
 			if ((!extdata) && (create))
 			{
 				extdata = new ExtData;
-				set_raw(container, extdata);
+				SetRaw(container, extdata);
 			}
 			return extdata;
 		}
 
 		void unset(Extensible* container)
 		{
-			Delete(container, unset_raw(container));
+			Delete(container, UnsetRaw(container));
 		}
 
 		std::string ToInternal(const Extensible* container, void* item) const override

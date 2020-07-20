@@ -109,7 +109,7 @@ ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensibleType
 {
 }
 
-void* ExtensionItem::get_raw(const Extensible* container) const
+void* ExtensionItem::GetRaw(const Extensible* container) const
 {
 	Extensible::ExtensibleStore::const_iterator i =
 		container->extensions.find(const_cast<ExtensionItem*>(this));
@@ -118,7 +118,7 @@ void* ExtensionItem::get_raw(const Extensible* container) const
 	return i->second;
 }
 
-void* ExtensionItem::set_raw(Extensible* container, void* value)
+void* ExtensionItem::SetRaw(Extensible* container, void* value)
 {
 	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
 		container->extensions.insert(std::make_pair(this, value));
@@ -134,7 +134,7 @@ void* ExtensionItem::set_raw(Extensible* container, void* value)
 	}
 }
 
-void* ExtensionItem::unset_raw(Extensible* container)
+void* ExtensionItem::UnsetRaw(Extensible* container)
 {
 	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
 	if (i == container->extensions.end())

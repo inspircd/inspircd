@@ -43,15 +43,15 @@ void IntExtItem::FromNetwork(Extensible* container, const std::string& value)
 
 intptr_t IntExtItem::get(const Extensible* container) const
 {
-	return reinterpret_cast<intptr_t>(get_raw(container));
+	return reinterpret_cast<intptr_t>(GetRaw(container));
 }
 
 void IntExtItem::set(Extensible* container, intptr_t value)
 {
 	if (value)
-		set_raw(container, reinterpret_cast<void*>(value));
+		SetRaw(container, reinterpret_cast<void*>(value));
 	else
-		unset_raw(container);
+		UnsetRaw(container);
 }
 
 std::string IntExtItem::ToInternal(const Extensible* container, void* item) const
@@ -66,7 +66,7 @@ std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
 
 void IntExtItem::unset(Extensible* container)
 {
-	unset_raw(container);
+	UnsetRaw(container);
 }
 
 StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)

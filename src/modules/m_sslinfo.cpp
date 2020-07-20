@@ -51,20 +51,20 @@ class SSLCertExt : public ExtensionItem
 
 	ssl_cert* get(const Extensible* item) const
 	{
-		return static_cast<ssl_cert*>(get_raw(item));
+		return static_cast<ssl_cert*>(GetRaw(item));
 	}
 
 	void set(Extensible* item, ssl_cert* value)
 	{
 		value->refcount_inc();
-		ssl_cert* old = static_cast<ssl_cert*>(set_raw(item, value));
+		ssl_cert* old = static_cast<ssl_cert*>(SetRaw(item, value));
 		if (old && old->refcount_dec())
 			delete old;
 	}
 
 	void unset(Extensible* container)
 	{
-		Delete(container, unset_raw(container));
+		Delete(container, UnsetRaw(container));
 	}
 
 	std::string ToNetwork(const Extensible* container, void* item) const override
