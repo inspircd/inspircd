@@ -186,9 +186,10 @@ class SSLIOHook : public IOHook
  public:
 	static SSLIOHook* IsSSL(StreamSocket* sock)
 	{
-		IOHook* const iohook = sock->GetIOHook();
-		if ((iohook) && ((iohook->prov->type == IOHookProvider::IOH_SSL)))
-			return static_cast<SSLIOHook*>(iohook);
+		IOHook* const lasthook = sock->GetLastHook();
+		if (lasthook && (lasthook->prov->type == IOHookProvider::IOH_SSL))
+			return static_cast<SSLIOHook*>(lasthook);
+
 		return NULL;
 	}
 
