@@ -2284,6 +2284,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Timed bans module: Adds timed channel bans with the /TBAN command.
 #<module name="timedbans">
+# By default, it sends a notice to channel operators when timed ban is
+# set and when it is removed by server.
+#<timedbans sendnotice="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Test line module: Adds the /TLINE command, used to test how many
