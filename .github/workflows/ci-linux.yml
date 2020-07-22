@@ -14,8 +14,24 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update --assume-yes
-          sudo apt-get install --assume-yes --no-install-recommends clang g++ git make libc++-dev libc++abi-dev pkg-config
-          sudo apt-get install --assume-yes --no-install-recommends libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libsqlite3-dev libssl-dev libtre-dev
+          sudo apt-get install --assume-yes --no-install-recommends \
+            clang \
+            g++ \
+            git \
+            libc++-dev \
+            libc++abi-dev \
+            libgnutls28-dev \
+            libldap2-dev \
+            libmaxminddb-dev \
+            libmbedtls-dev \
+            libmysqlclient-dev \
+            libpcre3-dev \
+            libpq-dev \
+            libsqlite3-dev \
+            libssl-dev \
+            libtre-dev \
+            make \
+            pkg-config \
       - name: Run configure
         run: |
           ./configure --enable-extras "geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
