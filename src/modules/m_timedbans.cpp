@@ -133,7 +133,8 @@ class CommandTban : public Command
 		T.chan = channel;
 		TimedBanList.push_back(T);
 
-		if (sendnotice) {
+		if (sendnotice)
+		{
 		    const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
 		    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
@@ -233,7 +234,8 @@ class ModuleTimedBans : public Module
 			const std::string mask = i->mask;
 			Channel* cr = i->chan;
 
-			if (cmd.sendnotice) {
+			if (cmd.sendnotice)
+			{
 			    const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
 				mask.c_str(), i->setter.c_str(), cr->name.c_str());
 			    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
