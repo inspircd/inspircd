@@ -27,14 +27,15 @@ jobs:
             libmysqlclient-dev \
             libpcre3-dev \
             libpq-dev \
+            libre2-dev \
             libsqlite3-dev \
             libssl-dev \
             libtre-dev \
             make \
-            pkg-config \
+            pkg-config
       - name: Run configure
         run: |
-          ./configure --enable-extras "geo_maxmind ldap mysql pgsql regex_pcre regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
       - name: Build core
         run: |
