@@ -4,15 +4,11 @@ about: Report a non-security issue with InspIRCd.
 ---
 
 <!--
-*PLEASE* fill in the issue template below rather than just deleting
-it. Failure to do so may result in your issue being ignored and/or
-closed.
+*PLEASE* fill in the issue template below rather than just deleting it. Failure to do so may result in your issue being ignored and/or closed.
 
-PLEASE DO NOT FILE CRASH/SECURITY REPORTS ON GITHUB. You can read our
-security policy at https://github.com/inspircd/inspircd/security/policy
+PLEASE DO NOT FILE CRASH/SECURITY REPORTS ON GITHUB. You can read our security policy at https://github.com/inspircd/inspircd/security/policy
 
-The GitHub issue tracker is for bug reports ONLY. General support can
-be found at the following locations:
+The GitHub issue tracker is for bug reports ONLY. General support can be found at the following locations:
 
 Docs: https://docs.inspircd.org
 IRC: irc.inspircd.org #inspircd
