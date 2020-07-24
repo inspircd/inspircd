@@ -287,6 +287,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void GetLinkData(std::string& data);
 
+	/** Retrieves a string that represents the properties of this module. */
+	std::string GetPropertyString() const;
+
 	/** This method is called when you should reload module specific configuration:
 	 * on boot, on a /REHASH and on module load.
 	 * @param status The current status, can be inspected for more information.

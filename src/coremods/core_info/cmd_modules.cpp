@@ -61,26 +61,14 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 			return CMD_SUCCESS;
 	}
 
+	bool has_priv = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 	const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
-
-  	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+	for (auto& [modname, mod] : mods)
 	{
-		Module* m = i->second;
-		if (IS_LOCAL(user) && user->HasPrivPermission("servers/auspex"))
-		{
-			std::string flags("VCO");
-			size_t pos = 0;
-			for (int mult = 2; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
-				if (!(m->properties & mult))
-					flags[pos] = '-';
+		const char* version = has_priv ? mod->ModuleDLLManager->GetVersion() : "*";
+		const std::string props = has_priv ? mod->GetPropertyString() : "*";
+		user->WriteRemoteNumeric(RPL_MODLIST, modname, version, props, mod->description);
 
-			const char* srcrev = m->ModuleDLLManager->GetVersion();
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev ? "*" : srcrev, flags, m->description);
-		}
-		else
-		{
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, '*', '*', m->description);
-		}
 	}
 	user->WriteRemoteNumeric(RPL_ENDOFMODLIST, "End of MODULES list");
 
