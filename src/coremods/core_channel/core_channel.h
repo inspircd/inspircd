@@ -54,7 +54,8 @@ enum
 {
 	// From RFC 1459.
 	RPL_BANLIST = 367,
-	RPL_ENDOFBANLIST = 368
+	RPL_ENDOFBANLIST = 368,
+	ERR_KEYSET = 467
 };
 
 /** Handle /INVITE.
