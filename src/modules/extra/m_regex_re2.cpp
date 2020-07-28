@@ -29,55 +29,46 @@
 #include "inspircd.h"
 #include "modules/regex.h"
 
-// Fix warnings about shadowing on GCC.
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-#endif
-
 #include <re2/re2.h>
 
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
-
-class RE2Regex : public Regex
+class RE2Pattern final
+	: public Regex::Pattern
 {
-	RE2 regexcl;
+ private:
+	RE2 regex;
 
- public:
-	RE2Regex(const std::string& rx) : Regex(rx), regexcl(rx, RE2::Quiet)
+	RE2::Options BuildOptions(uint8_t options)
 	{
-		if (!regexcl.ok())
-		{
-			throw RegexException(rx, regexcl.error());
-		}
+		RE2::Options re2options;
+		re2options.set_case_sensitive(!(options & Regex::OPT_CASE_INSENSITIVE));
+		re2options.set_log_errors(false);
+		return re2options;
 	}
 
-	bool Matches(const std::string& text) override
-	{
-		return RE2::FullMatch(text, regexcl);
-	}
-};
-
-class RE2Factory : public RegexFactory
-{
  public:
-	RE2Factory(Module* m) : RegexFactory(m, "regex/re2") { }
-	Regex* Create(const std::string& expr) override
+	RE2Pattern(const std::string& pattern, uint8_t options)
+		: Regex::Pattern(pattern, options)
+		, regex(pattern, BuildOptions(options))
 	{
-		return new RE2Regex(expr);
+		if (!regex.ok())
+			throw Regex::Exception(pattern, regex.error());
+	}
+
+	bool IsMatch(const std::string& text) override
+	{
+		return RE2::FullMatch(text, regex);
 	}
 };
 
 class ModuleRegexRE2 : public Module
 {
  private:
-	RE2Factory ref;
+	Regex::SimpleEngine<RE2Pattern> regex;
 
  public:
 	ModuleRegexRE2()
 		: Module(VF_VENDOR, "Provides a regular expression engine which uses the RE2 library.")
-		, ref(this)
+		, regex(this, "re2")
 	{
 	}
 };

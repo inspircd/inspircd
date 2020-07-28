@@ -22,58 +22,73 @@
 
 #include "inspircd.h"
 #include "modules/regex.h"
+
 #include <regex>
 
-class StdRegex : public Regex
+class StdLibPattern final
+	: public Regex::Pattern
 {
-	std::regex regexcl;
+ private:
+	std::regex regex;
 
  public:
-	StdRegex(const std::string& rx, std::regex::flag_type fltype) : Regex(rx)
+	StdLibPattern(const std::string& pattern, uint8_t options, std::regex::flag_type type)
+		: Regex::Pattern(pattern, options)
 	{
+		// Convert the generic pattern options to stdlib pattern flags.
+		std::regex_constants::syntax_option_type flags = type | std::regex::optimize;
+		if (options & Regex::OPT_CASE_INSENSITIVE)
+			flags |= std::regex::icase;
+
 		try
 		{
-			regexcl.assign(rx, fltype | std::regex::optimize);
+			regex.assign(pattern, flags);
 		}
-		catch(const std::regex_error& rxerr)
+		catch(const std::regex_error& error)
 		{
-			throw RegexException(rx, rxerr.what());
+			throw Regex::Exception(pattern, error.what());
 		}
 	}
 
-	bool Matches(const std::string& text) override
+	bool IsMatch(const std::string& text) override
 	{
-		return std::regex_search(text, regexcl);
+		return std::regex_search(text, regex);
 	}
 };
 
-class StdRegexFactory : public RegexFactory
+class StdLibEngine final
+	: public Regex::Engine
 {
  public:
 	std::regex::flag_type regextype;
-	StdRegexFactory(Module* m) : RegexFactory(m, "regex/stdregex") {}
-	Regex* Create(const std::string& expr) override
+
+	StdLibEngine(Module* Creator)
+		: Regex::Engine(Creator, "stdregex")
 	{
-		return new StdRegex(expr, regextype);
+	}
+
+	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) override
+	{
+		return std::make_shared<StdLibPattern>(pattern, options, regextype);
 	}
 };
 
-class ModuleRegexStd : public Module
+class ModuleRegexStdLib : public Module
 {
  private:
-	StdRegexFactory ref;
+	StdLibEngine regex;
 
  public:
-	ModuleRegexStd()
+	ModuleRegexStdLib()
 		: Module(VF_VENDOR, "Provides a regular expression engine which uses the C++11 std::regex regular expression matching system.")
-		, ref(this)
+		, regex(this)
 	{
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("stdregex");
-		ref.regextype = tag->getEnum("type", std::regex::ECMAScript,
+		regex.regextype = tag->getEnum("type", std::regex::ECMAScript,
 		{
 			{ "awk",        std::regex::awk },
 			{ "bre",        std::regex::basic },
@@ -85,4 +100,4 @@ class ModuleRegexStd : public Module
 	}
 };
 
-MODULE_INIT(ModuleRegexStd)
+MODULE_INIT(ModuleRegexStdLib)

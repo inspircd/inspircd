@@ -31,65 +31,59 @@
 
 #include "inspircd.h"
 #include "modules/regex.h"
+
 #include <sys/types.h>
 #include <tre/regex.h>
 
-class TRERegex : public Regex
+class TREPattern final
+	: public Regex::Pattern
 {
-	regex_t regbuf;
+ private:
+	regex_t regex;
 
-public:
-	TRERegex(const std::string& rx) : Regex(rx)
+ public:
+	TREPattern(const std::string& pattern, uint8_t options)
+		: Regex::Pattern(pattern, options)
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
-		int errcode;
-		errcode = regcomp(&regbuf, rx.c_str(), flags);
-		if (errcode)
-		{
-			// Get the error string into a std::string. YUCK this involves at least 2 string copies.
-			std::string error;
-			char* errbuf;
-			size_t sz = regerror(errcode, &regbuf, NULL, 0);
-			errbuf = new char[sz + 1];
-			memset(errbuf, 0, sz + 1);
-			regerror(errcode, &regbuf, errbuf, sz + 1);
-			error = errbuf;
-			delete[] errbuf;
-			regfree(&regbuf);
-			throw RegexException(rx, error);
-		}
+		if (options & Regex::OPT_CASE_INSENSITIVE)
+			flags &= REG_ICASE;
+
+		int error = regcomp(&regex, pattern.c_str(), flags);
+		if (!error)
+			return;
+
+		// Retrieve the size of the error message and allocate a buffer.
+		size_t errorsize = regerror(error, &regex, NULL, 0);
+		std::vector<char> errormsg(errorsize);
+
+		// Retrieve the error message and free the buffer.
+		regerror(error, &regex, &errormsg[0], errormsg.size());
+		regfree(&regex);
+
+		throw Regex::Exception(pattern, std::string(&errormsg[0], errormsg.size()));
 	}
 
-	~TRERegex()
+	~TREPattern()
 	{
-		regfree(&regbuf);
+		regfree(&regex);
 	}
 
-	bool Matches(const std::string& text)  override
+	bool IsMatch(const std::string& text) override
 	{
-		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
-	}
-};
-
-class TREFactory : public RegexFactory
-{
- public:
-	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
-	Regex* Create(const std::string& expr) override
-	{
-		return new TRERegex(expr);
+		return !regexec(&regex, text.c_str(), 0, NULL, 0);
 	}
 };
 
 class ModuleRegexTRE : public Module
 {
  private:
-	TREFactory trf;
+	Regex::SimpleEngine<TREPattern> regex;
 
  public:
 	ModuleRegexTRE()
 		: Module(VF_VENDOR, "Provides a regular expression engine which uses the TRE library.")
-		, trf(this)
+		, regex(this, "tre")
 	{
 	}
 };

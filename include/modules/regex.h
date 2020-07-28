@@ -27,41 +27,152 @@
 
 #include "inspircd.h"
 
-class Regex : public classbase
+namespace Regex
 {
-protected:
-	/** The uncompiled regex string. */
-	std::string regex_string;
+	class Engine;
+	class EngineReference;
+	class Exception;
+	class Pattern;
+	template<typename> class SimpleEngine;
 
-	// Constructor may as well be protected, as this class is abstract.
-	Regex(const std::string& rx) : regex_string(rx) { }
+	/** A shared pointer to a regex pattern. */
+	typedef std::shared_ptr<Pattern> PatternPtr;
 
-public:
-
-	virtual ~Regex() { }
-
-	virtual bool Matches(const std::string& text) = 0;
-
-	const std::string& GetRegexString() const
+	/** The options to use when matching a pattern. */
+	enum PatternOptions : uint8_t
 	{
-		return regex_string;
+		/** No special matching options apply. */
+		OPT_NONE = 0,
+
+		/** The pattern is case insensitive. */
+		OPT_CASE_INSENSITIVE = 1,
+	};
+}
+
+/** The base class for regular expression engines. */
+class Regex::Engine
+	: public DataProvider
+{
+ protected:
+	/** Initializes a new instance of the Regex::Engine class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name of this regular expression engine.
+	 */
+	Engine(Module* Creator, const std::string& Name)
+		: DataProvider(Creator, "regex/" + Name)
+	{
+	}
+
+ public:
+	/** Compiles a regular expression pattern.
+	 * @param pattern The pattern to compile.
+	 * @param options One or more options to use when matching the pattern.
+	 * @return A shared pointer to an instance of the Regex::Pattern class.
+	 */
+	virtual PatternPtr Create(const std::string& pattern, uint8_t options = Regex::OPT_NONE) = 0;
+};
+
+/**The base class for simple regular expression engines. */
+template<typename PatternClass>
+class Regex::SimpleEngine final
+	: public Regex::Engine
+{
+ public:
+ 	/** @copydoc Regex::Engine::Engine */
+	SimpleEngine(Module* Creator, const std::string& Name)
+		: Regex::Engine(Creator, Name)
+	{
+	}
+
+	/** @copydoc Regex::Engine::Create */
+	PatternPtr Create(const std::string& pattern, uint8_t options) override
+	{
+		return std::make_shared<PatternClass>(pattern, options);
 	}
 };
 
-class RegexFactory : public DataProvider
+/** A dynamic reference to an instance of the Regex::Engine class. */
+class Regex::EngineReference final
+	: public dynamic_reference_nocheck<Engine>
 {
  public:
-	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) { }
+	/** Initializes a new instance of the Regex::EngineReference class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name of the regular expression engine to reference.
+	 */
+	EngineReference(Module* Creator, const std::string& Name = "")
+		: dynamic_reference_nocheck<Engine>(Creator, Name.empty() ? "regex" : "regex/" + Name)
+	{
+	}
 
-	virtual Regex* Create(const std::string& expr) = 0;
+	/** Sets the name of the engine this reference is configured with.
+	 * @param engine The name of the engine to refer to.
+	 */
+	void SetEngine(const std::string& engine)
+	{
+		SetProvider(engine.empty() ? "regex" : "regex/" + engine);
+	}
 };
 
-class RegexException : public ModuleException
+/** The exception which is thrown when a regular expression fails to compile. */
+class Regex::Exception final
+	: public ModuleException
 {
  public:
-	 RegexException(const std::string& regex, const std::string& error)
-		 : ModuleException("Error in regex '" + regex + "': " + error) { }
+	/** Initializes a new instance of the Regex::Exception class.
+	 * @param regex A regular expression which failed to compile.
+	 * @param error The error which occurred whilst compiling the regular expression.
+	*/
+	Exception(const std::string& regex, const std::string& error)
+		: ModuleException("Error in regex '" + regex + "': " + error)
+	{
+	}
 
-	 RegexException(const std::string& regex, const std::string& error, int offset)
-		 : ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error) { }
+	/** Initializes a new instance of the Regex::Exception class.
+	 * @param regex A regular expression which failed to compile.
+	 * @param error The error which occurred whilst compiling the regular expression.
+	 * @param offset The offset at which the errror occurred.
+	*/
+	Exception(const std::string& regex, const std::string& error, int offset)
+		: ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error)
+	{
+	}
+};
+
+/** Represents a compiled regular expression pattern. */
+class Regex::Pattern
+{
+ private:
+	/** The options used when matching this pattern. */
+	const uint8_t optionflags;
+
+	/** The pattern as a string. */
+	const std::string patternstr;
+
+ protected:
+	/** Initializes a new instance of the Pattern class.
+	 * @param Pattern The pattern as a string.
+	 * @param Options The options used when matching this pattern.
+	 */
+	Pattern(const std::string& pattern, uint8_t options)
+		: optionflags(options)
+		, patternstr(pattern)
+	{
+	}
+
+ public:
+	/** Destroys an instance of the Pattern class. */
+	virtual ~Pattern() = default;
+
+	/** Retrieves the options used when matching this pattern. */
+	uint8_t GetOptions() const { return optionflags; }
+
+	/** Retrieves the pattern as a string. */
+	const std::string& GetPattern() const { return patternstr; }
+
+	/** Attempts to match this pattern against the specified text.
+	 * @param text The text to match against.
+	 * @return If the text matched the pattern then true; otherwise, false.
+	 */
+	virtual bool IsMatch(const std::string& text) = 0;
 };

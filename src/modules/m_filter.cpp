@@ -62,7 +62,7 @@ enum FilterAction
 class FilterResult
 {
  public:
-	Regex* regex;
+	Regex::PatternPtr regex;
 	std::string freeform;
 	std::string reason;
 	FilterAction action;
@@ -77,7 +77,7 @@ class FilterResult
 	bool flag_strip_color;
 	bool flag_no_registered;
 
-	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
+	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
@@ -194,12 +194,12 @@ class ModuleFilter
 	bool initing = true;
 	bool notifyuser;
 	bool warnonselfmsg;
-	RegexFactory* factory;
+	Regex::Engine* factory;
 	void FreeFilters();
 
  public:
 	CommandFilter filtcommand;
-	dynamic_reference<RegexFactory> RegexEngine;
+	Regex::EngineReference RegexEngine;
 
 	std::vector<FilterResult> filters;
 	int flags;
@@ -350,7 +350,7 @@ ModuleFilter::ModuleFilter()
 	, ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, filtcommand(this)
-	, RegexEngine(this, "regex")
+	, RegexEngine(this)
 {
 }
 
@@ -367,9 +367,6 @@ CullResult ModuleFilter::cull()
 
 void ModuleFilter::FreeFilters()
 {
-	for (std::vector<FilterResult>::const_iterator i = filters.begin(); i != filters.end(); ++i)
-		delete i->regex;
-
 	filters.clear();
 }
 
@@ -640,11 +637,8 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 
-	if (newrxengine.empty())
-		RegexEngine.SetProvider("regex");
-	else
-		RegexEngine.SetProvider("regex/" + newrxengine);
 
+	RegexEngine.SetEngine(newrxengine);
 	if (!RegexEngine)
 	{
 		if (newrxengine.empty())
@@ -764,7 +758,7 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		if (filter->regex->Matches(filter->flag_strip_color ? stripped_text : text))
+		if (filter->regex->IsMatch(filter->flag_strip_color ? stripped_text : text))
 			return filter;
 	}
 	return NULL;
@@ -777,7 +771,6 @@ bool ModuleFilter::DeleteFilter(const std::string& freeform, std::string& reason
 		if (i->freeform == freeform)
 		{
 			reason.assign(i->reason);
-			delete i->regex;
 			filters.erase(i);
 			return true;
 		}
@@ -855,7 +848,6 @@ void ModuleFilter::ReadFilters()
 		if (filter->from_config)
 		{
 			removedfilters.insert(filter->freeform);
-			delete filter->regex;
 			filter = filters.erase(filter);
 			continue;
 		}

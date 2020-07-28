@@ -23,42 +23,33 @@
  */
 
 
-#include "modules/regex.h"
 #include "inspircd.h"
+#include "modules/regex.h"
 
-class GlobRegex : public Regex
-{
-public:
-	GlobRegex(const std::string& rx) : Regex(rx)
-	{
-	}
-
-	bool Matches(const std::string& text) override
-	{
-		return InspIRCd::Match(text, this->regex_string);
-	}
-};
-
-class GlobFactory : public RegexFactory
+class GlobPattern final
+	: public Regex::Pattern
 {
  public:
-	Regex* Create(const std::string& expr) override
+	GlobPattern(const std::string& pattern, uint8_t options)
+		: Regex::Pattern(pattern, options)
 	{
-		return new GlobRegex(expr);
 	}
 
-	GlobFactory(Module* m) : RegexFactory(m, "regex/glob") {}
+	bool IsMatch(const std::string& text) override
+	{
+		return InspIRCd::Match(text, GetPattern());
+	}
 };
 
 class ModuleRegexGlob : public Module
 {
  private:
-	GlobFactory gf;
+	Regex::SimpleEngine<GlobPattern> regex;
 
  public:
 	ModuleRegexGlob()
 		: Module(VF_VENDOR, "Provides a regular expression engine which uses the built-in glob matching system.")
-		, gf(this)
+		, regex(this, "glob")
 	{
 	}
 };

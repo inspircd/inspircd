@@ -34,60 +34,55 @@
 
 
 #include "inspircd.h"
-#include <pcre.h>
 #include "modules/regex.h"
+
+#include <pcre.h>
 
 #ifdef _WIN32
 # pragma comment(lib, "libpcre.lib")
 #endif
 
-class PCRERegex : public Regex
+class PCREPattern final
+	: public Regex::Pattern
 {
+ private:
 	pcre* regex;
 
  public:
-	PCRERegex(const std::string& rx) : Regex(rx)
+	PCREPattern(const std::string& pattern, uint8_t options)
+		: Regex::Pattern(pattern, options)
 	{
+		int flags = 0;
+		if (options & Regex::OPT_CASE_INSENSITIVE)
+			flags &= PCRE_CASELESS;
+
 		const char* error;
-		int erroffset;
-		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
+		int erroroffset;
+		regex = pcre_compile(pattern.c_str(), flags, &error, &erroroffset, NULL);
 		if (!regex)
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
-			throw RegexException(rx, error, erroffset);
-		}
+			throw Regex::Exception(pattern, error, erroroffset);
 	}
 
-	~PCRERegex()
+	~PCREPattern()
 	{
 		pcre_free(regex);
 	}
 
-	bool Matches(const std::string& text) override
+	bool IsMatch(const std::string& text) override
 	{
-		return (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0);
-	}
-};
-
-class PCREFactory : public RegexFactory
-{
- public:
-	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
-	Regex* Create(const std::string& expr) override
-	{
-		return new PCRERegex(expr);
+		return pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0;
 	}
 };
 
 class ModuleRegexPCRE : public Module
 {
  private:
-	PCREFactory ref;
+	Regex::SimpleEngine<PCREPattern> regex;
 
  public:
 	ModuleRegexPCRE()
 		: Module(VF_VENDOR, "Provides a regular expression engine which uses the PCRE library.")
-		, ref(this)
+		, regex(this, "pcre")
 	{
 	}
 };

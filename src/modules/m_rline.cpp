@@ -46,7 +46,7 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, dynamic_reference<RegexFactory>& rxfactory)
+	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, Regex::EngineReference& rxfactory)
 		: XLine(s_time, d, src, re, "R")
 		, matchtext(regexs)
 	{
@@ -54,13 +54,6 @@ class RLine : public XLine
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */
 		regex = rxfactory->Create(regexs);
-	}
-
-	/** Destructor
-	 */
-	~RLine()
-	{
-		delete regex;
 	}
 
 	bool Matches(User* u) override
@@ -71,12 +64,12 @@ class RLine : public XLine
 
 		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
 		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->GetRealName();
-		return (regex->Matches(host) || regex->Matches(ip));
+		return (regex->IsMatch(host) || regex->IsMatch(ip));
 	}
 
 	bool Matches(const std::string& compare) override
 	{
-		return regex->Matches(compare);
+		return regex->IsMatch(compare);
 	}
 
 	void Apply(User* u) override
@@ -104,7 +97,7 @@ class RLine : public XLine
 
 	std::string matchtext;
 
-	Regex *regex;
+	Regex::PatternPtr regex;
 };
 
 
@@ -113,8 +106,8 @@ class RLine : public XLine
 class RLineFactory : public XLineFactory
 {
  public:
-	dynamic_reference<RegexFactory>& rxfactory;
-	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
+	Regex::EngineReference& rxfactory;
+	RLineFactory(Regex::EngineReference& rx) : XLineFactory("R"), rxfactory(rx)
 	{
 	}
 
@@ -226,18 +219,18 @@ class ModuleRLine
 	, public Stats::EventListener
 {
  private:
-	dynamic_reference<RegexFactory> rxfactory;
+ 	Regex::EngineReference rxfactory;
 	RLineFactory f;
 	CommandRLine r;
 	bool MatchOnNickChange;
 	bool initing = true;
-	RegexFactory* factory;
+	Regex::Engine* factory;
 
  public:
 	ModuleRLine()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.")
 		, Stats::EventListener(this)
-		, rxfactory(this, "regex")
+		, rxfactory(this)
 		, f(rxfactory)
 		, r(this, f)
 	{
@@ -284,11 +277,7 @@ class ModuleRLine
 
 		factory = rxfactory ? (rxfactory.operator->()) : NULL;
 
-		if (newrxengine.empty())
-			rxfactory.SetProvider("regex");
-		else
-			rxfactory.SetProvider("regex/" + newrxengine);
-
+		rxfactory.SetEngine(newrxengine);
 		if (!rxfactory)
 		{
 			if (newrxengine.empty())
