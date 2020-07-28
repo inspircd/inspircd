@@ -27,12 +27,10 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecReload=@SCRIPT_DIR@/inspircd rehash
-ExecStart=@SCRIPT_DIR@/inspircd start
-ExecStop=@SCRIPT_DIR@/inspircd stop
-PIDFile=@DATA_DIR@/inspircd.pid
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=@BINARY_DIR@/inspircd --nofork --nopid
 Restart=on-failure
-Type=forking
+Type=simple
 User=@USER@
 Group=@GROUP@
 
