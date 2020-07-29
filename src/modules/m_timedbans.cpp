@@ -135,13 +135,13 @@ class CommandTban : public Command
 
 		if (sendnotice)
 		{
-		    const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
+			const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
-		    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-		    PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-		    char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-		    channel->WriteRemoteNotice(message, pfxchar);
+			channel->WriteRemoteNotice(message, pfxchar);
 		}
 
 		return CMD_SUCCESS;
@@ -236,13 +236,13 @@ class ModuleTimedBans : public Module
 
 			if (cmd.sendnotice)
 			{
-			    const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
+				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
 				mask.c_str(), i->setter.c_str(), cr->name.c_str());
-			    // If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-			    PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-			    char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
+				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
+				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-			    cr->WriteRemoteNotice(message, pfxchar);
+				cr->WriteRemoteNotice(message, pfxchar);
 			}
 
 			Modes::ChangeList setban;
