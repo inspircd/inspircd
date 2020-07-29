@@ -110,7 +110,10 @@ class CommandTagMsg : public Command
 		// If the source isn't allowed to mass message users then reject
 		// the attempt to mass-message users.
 		if (!source->HasPrivPermission("users/mass-message"))
+		{
+			source->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
 			return CMD_FAILURE;
+		}
 
 		// Extract the server glob match from the target parameter.
 		std::string servername(parameters[0], 1);

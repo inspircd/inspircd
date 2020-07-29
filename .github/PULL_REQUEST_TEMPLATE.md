@@ -1,6 +1,5 @@
 <!--
-Please fill in the template below. Pull requests that do not use this
-template will be closed without warning.
+Please fill in the template below. Pull requests that do not use this template will be closed without warning.
 -->
 
 ## Summary

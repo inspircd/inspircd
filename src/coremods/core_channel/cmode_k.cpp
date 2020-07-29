@@ -46,6 +46,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		if (exists && (parameter != *key))
 		{
 			/* Key is currently set and the correct key wasn't given */
+			source->WriteNumeric(ERR_KEYSET, channel->name, "Channel key already set");
 			return MODEACTION_DENY;
 		}
 	} else {

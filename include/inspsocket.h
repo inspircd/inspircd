@@ -359,6 +359,11 @@ class CoreExport StreamSocket : public EventHandler
 	 * @return IOHook belonging to the module or NULL if the module haven't attached an IOHook to this socket
 	 */
 	IOHook* GetModHook(Module* mod) const;
+
+	/** Get the last IOHook attached to this socket
+	 * @return The last IOHook attached to this socket or NULL if no IOHooks are attached
+	 */
+	IOHook* GetLastHook() const;
 };
 /**
  * BufferedSocket is an extendable socket class which modules

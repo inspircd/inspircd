@@ -495,6 +495,18 @@ IOHook* StreamSocket::GetModHook(Module* mod) const
 	return NULL;
 }
 
+IOHook* StreamSocket::GetLastHook() const
+{
+	IOHook* curr = GetIOHook();
+	IOHook* last = curr;
+
+	for (; curr; curr = GetNextHook(curr))
+		last = curr;
+
+	return last;
+}
+
+
 void StreamSocket::AddIOHook(IOHook* newhook)
 {
 	IOHook* curr = GetIOHook();

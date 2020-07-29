@@ -67,15 +67,15 @@ class ELineFactory : public XLineFactory
 class KLineFactory : public XLineFactory
 {
  public:
-        KLineFactory() : XLineFactory("K") { }
+	KLineFactory() : XLineFactory("K") { }
 
 	/** Generate a KLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
-        {
-                IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-                return new KLine(set_time, duration, source, reason, ih.first, ih.second);
-        }
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
+	{
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		return new KLine(set_time, duration, source, reason, ih.first, ih.second);
+	}
 };
 
 /** An XLineFactory specialized to generate QLine* pointers
@@ -83,14 +83,14 @@ class KLineFactory : public XLineFactory
 class QLineFactory : public XLineFactory
 {
  public:
-        QLineFactory() : XLineFactory("Q") { }
+	QLineFactory() : XLineFactory("Q") { }
 
 	/** Generate a QLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
-        {
-                return new QLine(set_time, duration, source, reason, xline_specific_mask);
-        }
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
+	{
+		return new QLine(set_time, duration, source, reason, xline_specific_mask);
+	}
 };
 
 /** An XLineFactory specialized to generate ZLine* pointers
@@ -98,14 +98,14 @@ class QLineFactory : public XLineFactory
 class ZLineFactory : public XLineFactory
 {
  public:
-        ZLineFactory() : XLineFactory("Z") { }
+	ZLineFactory() : XLineFactory("Z") { }
 
 	/** Generate a ZLine
 	 */
-        XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
-        {
-                return new ZLine(set_time, duration, source, reason, xline_specific_mask);
-        }
+	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
+	{
+		return new ZLine(set_time, duration, source, reason, xline_specific_mask);
+	}
 };
 
 
@@ -581,7 +581,7 @@ bool KLine::Matches(User *u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -604,7 +604,7 @@ bool GLine::Matches(User *u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -623,7 +623,7 @@ bool ELine::Matches(User *u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}

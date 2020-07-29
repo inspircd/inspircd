@@ -92,12 +92,12 @@ for my $path (@paths) {
 				next unless scalar keys %author > 1;
 				my $display = sprintf "%s <%s>", $author{NAME}, $author{EMAIL};
 				$authors{$display} //= [];
-				push $authors{$display}, $author{YEAR};
+				push @{$authors{$display}}, $author{YEAR};
 				for my $commit (uniq @{$author{COMMITS}}) {
 					my $details = `git rev-list --format=%B --max-count=1 $commit`;
 					while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
 						$authors{$1} //= [];
-						push $authors{$1}, $author{YEAR};
+						push @{$authors{$1}}, $author{YEAR};
 					}
 				}
 				undef %author;
@@ -115,7 +115,7 @@ for my $path (@paths) {
 					$last_year = $year;
 				} else {
 					if ($last_year == $start_year) {
-						push @year_ranges, $last_year; 
+						push @year_ranges, $last_year;
 					} else {
 						push @year_ranges, "$start_year-$last_year";
 					}
@@ -124,7 +124,7 @@ for my $path (@paths) {
 			}
 			if (defined $last_year) {
 				if ($last_year == $start_year) {
-					push @year_ranges, $last_year; 
+					push @year_ranges, $last_year;
 				} else {
 					push @year_ranges, "$start_year-$last_year";
 				}

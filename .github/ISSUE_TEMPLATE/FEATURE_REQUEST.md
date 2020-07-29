@@ -4,12 +4,9 @@ about: Request that a new feature is added to InspIRCd.
 ---
 
 <!--
-*PLEASE* fill in the issue template below rather than just deleting
-it. Failure to do so may result in your issue being ignored and/or
-closed.
+*PLEASE* fill in the issue template below rather than just deleting it. Failure to do so may result in your issue being ignored and/or closed.
 
-The GitHub issue tracker is for feature requests ONLY. General support
-can be found at the following locations:
+The GitHub issue tracker is for feature requests ONLY. General support can be found at the following locations:
 
 Docs: https://docs.inspircd.org
 IRC: irc.inspircd.org #inspircd
