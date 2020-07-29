@@ -70,6 +70,12 @@ class Regex::Engine
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
 	virtual PatternPtr Create(const std::string& pattern, uint8_t options = Regex::OPT_NONE) = 0;
+
+	/** Compiles a regular expression from the human-writable form.
+	 * @param The pattern to compile in the format /pattern/flags.
+	 * @return A shared pointer to an instance of the Regex::Pattern class.
+	 */
+	PatternPtr CreateHuman(const std::string& pattern);
 };
 
 /**The base class for simple regular expression engines. */
@@ -176,3 +182,26 @@ class Regex::Pattern
 	 */
 	virtual bool IsMatch(const std::string& text) = 0;
 };
+
+inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern)
+{
+	if (pattern.empty() || pattern[0] != '/')
+		return Create(pattern, OPT_NONE);
+
+	size_t end = pattern.find_last_not_of("Ii");
+	if (!end || end == std::string::npos || pattern[end] != '/')
+		throw Exception(pattern, "Regex patterns must be terminated with a '/'!");
+
+	uint8_t options = Regex::OPT_NONE;
+	for (std::string::const_iterator iter = pattern.begin() + end + 1; iter != pattern.end(); ++iter)
+	{
+		switch (*iter)
+		{
+			case 'I':
+			case 'i':
+				options |= OPT_CASE_INSENSITIVE;
+				break;
+		}
+	}
+	return Create(pattern.substr(1, end - 1), options);
+}
