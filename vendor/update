@@ -50,7 +50,7 @@ close $fh;
 my ($data, $error) = from_toml $contents;
 print_error "unable to parse $config: $!" if $error;
 
-while (my ($name, $info) = each $data) {
+while (my ($name, $info) = each %{$data}) {
 	print_format "Updating <|GREEN $name|> ...\n";
 
 	my $unpackdir = File::Temp->newdir;
@@ -91,7 +91,7 @@ close $fh;
 
 open($fh, '>', $readme) or print_error "unable to write $readme: $!";
 print $fh $contents =~ s/\n\#\#.*//rs;
-for my $name (sort keys $data) {
+for my $name (sort keys %{$data}) {
 	my $info = $data->{$name};
 	printf $fh "\n## %s\n\n", $name;
 	printf $fh "**Author** &mdash; [%s](mailto:%s)\n\n", $info->{author}, $info->{email} if $info->{email};

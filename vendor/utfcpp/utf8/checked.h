@@ -42,7 +42,7 @@ namespace utf8
         uint32_t cp;
     public:
         invalid_code_point(uint32_t codepoint) : cp(codepoint) {}
-        virtual const char* what() const throw() { return "Invalid code point"; }
+        virtual const char* what() const NOEXCEPT OVERRIDE { return "Invalid code point"; }
         uint32_t code_point() const {return cp;}
     };
 
@@ -50,7 +50,7 @@ namespace utf8
         uint8_t u8;
     public:
         invalid_utf8 (uint8_t u) : u8(u) {}
-        virtual const char* what() const throw() { return "Invalid UTF-8"; }
+        virtual const char* what() const NOEXCEPT OVERRIDE { return "Invalid UTF-8"; }
         uint8_t utf8_octet() const {return u8;}
     };
 
@@ -58,13 +58,13 @@ namespace utf8
         uint16_t u16;
     public:
         invalid_utf16 (uint16_t u) : u16(u) {}
-        virtual const char* what() const throw() { return "Invalid UTF-16"; }
+        virtual const char* what() const NOEXCEPT OVERRIDE { return "Invalid UTF-16"; }
         uint16_t utf16_word() const {return u16;}
     };
 
     class not_enough_room : public exception {
     public:
-        virtual const char* what() const throw() { return "Not enough space"; }
+        virtual const char* what() const NOEXCEPT OVERRIDE { return "Not enough space"; }
     };
 
     /// The library API - functions intended to be called by the users
@@ -263,11 +263,16 @@ namespace utf8
 
     // The iterator class
     template <typename octet_iterator>
-    class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> {
+    class iterator {
       octet_iterator it;
       octet_iterator range_start;
       octet_iterator range_end;
       public:
+      typedef uint32_t value_type;
+      typedef uint32_t* pointer;
+      typedef uint32_t& reference;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::bidirectional_iterator_tag iterator_category;
       iterator () {}
       explicit iterator (const octet_iterator& octet_it,
                          const octet_iterator& rangestart,
@@ -319,6 +324,10 @@ namespace utf8
     }; // class iterator
 
 } // namespace utf8
+
+#if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
+#include "cpp11.h"
+#endif // C++ 11 or later
 
 #endif //header guard
 

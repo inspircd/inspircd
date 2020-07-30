@@ -30,6 +30,23 @@ DEALINGS IN THE SOFTWARE.
 
 #include <iterator>
 
+// Determine the C++ standard version.
+// If the user defines UTF_CPP_CPLUSPLUS, use that.
+// Otherwise, trust the unreliable predefined macro __cplusplus
+
+#if !defined UTF_CPP_CPLUSPLUS
+    #define UTF_CPP_CPLUSPLUS __cplusplus
+#endif
+
+#if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
+    #define OVERRIDE override
+    #define NOEXCEPT noexcept
+#else // C++ 98/03
+    #define OVERRIDE
+    #define NOEXCEPT throw()
+#endif // C++ 11 or later
+
+
 namespace utf8
 {
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
