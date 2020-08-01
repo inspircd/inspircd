@@ -394,6 +394,13 @@ EOQ
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
 		system './tools/genssl', 'auto';
+	} elsif (<$RealDir/*.pem>) {
+		# Answered "no", and (likely self-signed) certs already exist
+		print_warning <<"EOW";
+InspIRCd will use the existing generated certificates in the root of
+the source directory.  If this is not intended, remove the .pem files before
+running make.
+EOW
 	}
 } else {
 	print_warning <<"EOM";
