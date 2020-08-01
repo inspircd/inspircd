@@ -92,6 +92,10 @@ class flat_map_base
 	{
 	}
 
+#if __cplusplus >= 201103L
+	flat_map_base& operator=(const flat_map_base& other) = default;
+#endif
+
 	size_type size() const { return vect.size(); }
 	bool empty() const { return vect.empty(); }
 	size_type capacity() const { return vect.capacity(); }
@@ -223,6 +227,10 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 	{
 	}
 
+#if __cplusplus >= 201103L
+	flat_set& operator=(const flat_set& other) = default;
+#endif
+
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
 		return this->insert_single(x);
@@ -262,6 +270,10 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 		: base_t(other)
 	{
 	}
+
+#if __cplusplus >= 201103L
+	flat_multiset& operator=(const flat_multiset& other) = default;
+#endif
 
 	iterator insert(const value_type& x)
 	{
@@ -305,6 +317,10 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 		: base_t(other)
 	{
 	}
+
+#if __cplusplus >= 201103L
+	flat_map& operator=(const flat_map& other) = default;
+#endif
 
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
@@ -357,6 +373,10 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 		: base_t(other)
 	{
 	}
+
+#if __cplusplus >= 201103L
+	flat_multimap& operator=(const flat_multimap& other) = default;
+#endif
 
 	iterator insert(const value_type& x)
 	{
