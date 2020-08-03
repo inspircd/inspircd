@@ -394,6 +394,17 @@ EOQ
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
 		system './tools/genssl', 'auto';
+	} else {
+		my @pems = <$RealDir/{cert,csr,dhparams,key}.pem>;
+		$question = <<EOQ;
+The following self-signed files were previously generated and will be installed
+when you run Make. Do you want to delete them?
+
+  * ${\join "\n  * ", @pems}
+EOQ
+		if (@pems && prompt_bool $interactive, $question, 0) {
+			unlink @pems;
+		}
 	}
 } else {
 	print_warning <<"EOM";
