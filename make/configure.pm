@@ -177,6 +177,7 @@ FLAGS
 If you have any problems with configuring InspIRCd then visit our IRC channel
 at irc.inspircd.org #InspIRCd for support.
 
+Packagers: see https://docs.inspircd.org/packaging/ for packaging advice.
 EOH
 	exit 0;
 }
