@@ -228,7 +228,7 @@ class Numerics::CannotSendTo : public Numeric::Numeric
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(InspIRCd::Format("You cannot send %s to this channel whilst %s %c: (%s) extban is set on you.",
+		push(InspIRCd::Format("You cannot send %s to this channel whilst %s %c: (%s) extban is set matching you.",
 			what.c_str(), strchr("AEIOUaeiou", extban) ? "an" : "a", extban, extbandesc.c_str()));
 	}
 

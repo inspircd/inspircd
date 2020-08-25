@@ -236,9 +236,6 @@
 # To enable IRCCloud on your network uncomment this:
 #<include file="examples/providers/irccloud.conf.example">
 
-# To enable KiwiIRC.com on your network uncomment this:
-#<include file="examples/providers/kiwiirc-com.conf.example">
-
 # A connect class with <connect:deny> set denies connections from the specified host/IP range.
 <connect
          # deny: Will not let people connect if they have specified host/IP.

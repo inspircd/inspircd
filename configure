@@ -394,6 +394,17 @@ EOQ
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
 		system './tools/genssl', 'auto';
+	} else {
+		my @pems = <$RealDir/{cert,csr,dhparams,key}.pem>;
+		$question = <<EOQ;
+The following self-signed files were previously generated and will be installed
+when you run Make. Do you want to delete them?
+
+  * ${\join "\n  * ", @pems}
+EOQ
+		if (@pems && prompt_bool $interactive, $question, 0) {
+			unlink @pems;
+		}
 	}
 } else {
 	print_warning <<"EOM";
@@ -553,72 +564,56 @@ EXTRA:	for my $extra (@extras) {
 	return keys(%extras) if wantarray; # Can be used by manage_extras.
 }
 
-sub enable_extras (@) {
-	my (@extras) = @_;
-	for my $extra (@extras) {
-		$extra = "m_$extra" unless $extra =~ /^m_/;
-		$extra = "$extra.cpp" unless $extra =~ /\.cpp$/;
-		my $extrapath = "src/modules/extra/$extra";
-		if (!-e $extrapath) {
-			print STDERR "Cannot enable \e[32;1m$extra\e[0m : No such file or directory in src/modules/extra\n";
-			next;
+sub enable_extras(@) {
+	my $moduledir = catdir $RealDir, 'src', 'modules';
+	my $extradir = catdir $moduledir, 'extra';
+
+	for my $extra (@_) {
+		my $shortname = $extra =~ s/(?:^m_|\.cpp$)//gr;
+		my $extrafile = "m_$shortname.cpp";
+
+		my $extrapath = catfile $extradir, $extrafile;
+		if (!-f $extrapath) {
+			print_error "<|GREEN $extra|> is not an extra module!";
 		}
-		my $source = "src/modules/$extra";
-		if (-e $source) {
-			print STDERR "Cannot enable \e[32;1m$extra\e[0m : destination in src/modules exists (might already be enabled?)\n";
-			next;
-		}
-		# Get dependencies, and add them to be processed.
-		my @deps = split /\s+/, get_directive($extrapath, 'ModDep', '');
-		for my $dep (@deps) {
-			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
-			if (!-e "src/modules/$dep" && !-e "include/$dep") {
-				if (-e "src/modules/extra/$dep") {
-					print STDERR "Will also enable extra \e[32;1m$dep\e[0m (needed by \e[32;1m$extra\e[0m)\n";
-					push @extras, $dep;
-				} else {
-					print STDERR "\e[33;1mWARNING:\e[0m module \e[32;1m$extra\e[0m might be missing dependency \e[32;1m$dep\e[0m - YOU are responsible for satisfying it!\n";
-				}
+
+		my $modulepath = catfile $moduledir, $extrafile;
+		if (-l $modulepath) {
+			if (readlink($modulepath) ne $extrapath) {
+				unlink $modulepath; # Remove the dead symlink.
+			} else {
+				next; # Module is already enabled.
 			}
 		}
-		print "Enabling $extra ... \n";
-		symlink "extra/$extra", $source or print STDERR "$source: Cannot link to 'extra/$extra': $!\n";
+
+		if (-e $modulepath) {
+			print_error "unable to symlink <|GREEN ${\abs2rel $modulepath}|> to <|GREEN ${\abs2rel $extrapath}|>: the target exists and is not a symlink.";
+		} else {
+			print_format "Enabling the <|GREEN $shortname|> module ...\n";
+			symlink $extrapath, $modulepath or print_error "unable to symlink <|GREEN ${\abs2rel $modulepath}|> to <|GREEN ${\abs2rel $extrapath}|>: $!";
+		}
 	}
 }
 
-sub disable_extras (@)
-{
-	opendir my $dd, "src/modules/extra/";
-	my @files = readdir($dd);
-	closedir $dd;
-	my (@extras) = @_;
-EXTRA:	for my $extra (@extras) {
-		$extra = "m_$extra" unless $extra =~ /^m_/;
-		$extra = "$extra.cpp" unless $extra =~ /\.cpp$/;
-		my $extrapath = "src/modules/extra/$extra";
-		my $source = "src/modules/$extra";
-		if (!-e $extrapath) {
-			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Is not an extra\n";
-			next;
+sub disable_extras(@) {
+	my $moduledir = catdir $RealDir, 'src', 'modules';
+	my $extradir = catdir $moduledir, 'extra';
+
+	for my $extra (@_) {
+		my $shortname = $extra =~ s/(?:^m_|\.cpp$)//gr;
+		my $extrafile = "m_$shortname.cpp";
+
+		my $modulepath = catfile $moduledir, $extrafile;
+		my $extrapath = catfile $extradir, $extrafile;
+		if (!-e $modulepath && !-e $extrapath) {
+			print_error "the <|GREEN $shortname|> module does not exist!";
+		} elsif (!-e $modulepath && -e $extrapath) {
+			print_error "the <|GREEN $shortname|> module is not currently enabled!";
+		} elsif ((-e $modulepath && !-e $extrapath) || !-l $modulepath) {
+			print_error "the <|GREEN $shortname|> module is not an extra module!";
+		} else {
+			print_format "Disabling the <|GREEN $shortname|> module ...\n";
+			unlink $modulepath or print_error "unable to unlink <|GREEN $extrapath|>: $!";
 		}
-		if ((! -l $source) || readlink($source) ne "extra/$extra") {
-			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Source is not a link or doesn't refer to the right file. Remove manually if this is in error.\n";
-			next;
-		}
-		# Check if anything needs this.
-		for my $file (@files) {
-			my @deps = split /\s+/, get_directive("src/modules/extra/$file", 'ModDep', '');
-			# File depends on this extra...
-			if (scalar(grep { $_ eq $extra } @deps) > 0) {
-				# And is both enabled and not about to be disabled.
-				if (-e "src/modules/$file" && scalar(grep { $_ eq $file } @extras) < 1) {
-					print STDERR "Cannot disable \e[32;1m$extra\e[0m : is needed by \e[32;1m$file\e[0m\n";
-					next EXTRA;
-				}
-			}
-		}
-		# Now remove.
-		print "Disabling $extra ... \n";
-		unlink "src/modules/$extra" or print STDERR "Cannot disable \e[32;1m$extra\e[0m : $!\n";
 	}
 }
