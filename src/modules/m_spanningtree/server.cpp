@@ -143,7 +143,7 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 		}
 		else if (!irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa) && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa))
 		{
-			ServerInstance->SNO->WriteGlobalSno('l', "Server connection to %s is not using SSL (TLS). This is VERY INSECURE and will not be allowed the next major version of InspIRCd.", x->Name.c_str());
+			ServerInstance->SNO->WriteGlobalSno('l', "Server connection to %s is not using SSL (TLS). This is VERY INSECURE and will not be allowed in the next major version of InspIRCd.", x->Name.c_str());
 		}
 
 		return x;
