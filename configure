@@ -406,7 +406,7 @@ EOQ
 			unlink @pems;
 		}
 	}
-} else {
+} elsif (!defined $opt_disable_auto_extras) {
 	print_warning <<"EOM";
 You are building without enabling any SSL modules. This is not
 recommended as SSL greatly enhances the security and privacy of your IRC server
