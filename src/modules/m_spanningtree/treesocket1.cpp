@@ -40,13 +40,18 @@
  * and only do minor initialization tasks ourselves.
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockaddrs& dest)
-	: linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
-	, burstsent(false), age(ServerInstance->Time())
+	: linkID(link->Name)
+	, LinkState(CONNECTING)
+	, MyRoot(NULL)
+	, proto_version(0)
+	, burstsent(false)
+	, age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
+	capab->remotesa = dest;
 
 	irc::sockets::sockaddrs bind;
 	memset(&bind, 0, sizeof(bind));
@@ -77,11 +82,16 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const irc::sockets::sockad
  */
 TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd)
-	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
-	, burstsent(false), age(ServerInstance->Time())
+	, linkID("inbound from " + client->addr())
+	, LinkState(WAIT_AUTH_1)
+	, MyRoot(NULL)
+	, proto_version(0)
+	, burstsent(false)
+	, age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
+	capab->remotesa = *client;
 
 	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
 	{
