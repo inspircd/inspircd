@@ -1016,8 +1016,8 @@ bool User::ChangeRealName(const std::string& real)
 		FIRST_MOD_RESULT(OnPreChangeRealName, MOD_RESULT, (IS_LOCAL(this), real));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
-		FOREACH_MOD(OnChangeRealName, (this, real));
 	}
+	FOREACH_MOD(OnChangeRealName, (this, real));
 	this->realname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
 
 	return true;
