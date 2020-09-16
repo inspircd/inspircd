@@ -986,7 +986,7 @@ class ModuleSSLOpenSSL : public Module
 			// Create a default profile named "openssl"
 			const std::string defname = "openssl";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the <openssl> tag");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the deprecated <openssl> tag");
 
 			try
 			{

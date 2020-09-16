@@ -1300,7 +1300,7 @@ class ModuleSSLGnuTLS : public Module
 			// No <sslprofile> tags found, create a profile named "gnutls" from settings in the <gnutls> block
 			const std::string defname = "gnutls";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <gnutls> tag");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the deprecated <gnutls> tag");
 
 			try
 			{

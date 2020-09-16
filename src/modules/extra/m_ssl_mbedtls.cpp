@@ -874,7 +874,7 @@ class ModuleSSLmbedTLS : public Module
 			// No <sslprofile> tags found, create a profile named "mbedtls" from settings in the <mbedtls> block
 			const std::string defname = "mbedtls";
 			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <mbedtls> tag");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the deprecated <mbedtls> tag");
 
 			try
 			{
