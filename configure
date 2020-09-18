@@ -147,7 +147,7 @@ print_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>\n";
 my %config;
 if ($interactive) {
 	%config = read_config_file(CONFIGURE_CACHE_FILE);
-	run_test CONFIGURE_CACHE_FILE, %config;
+	run_test abs2rel(CONFIGURE_CACHE_FILE, $RealDir), %config;
 	if (!defined $config{VERSION}) {
 		$config{VERSION} = CONFIGURE_CACHE_VERSION;
 	} elsif ($config{VERSION} != CONFIGURE_CACHE_VERSION) {
@@ -406,7 +406,7 @@ EOQ
 			unlink @pems;
 		}
 	}
-} else {
+} elsif (!defined $opt_disable_auto_extras) {
 	print_warning <<"EOM";
 You are building without enabling any SSL modules. This is not
 recommended as SSL greatly enhances the security and privacy of your IRC server

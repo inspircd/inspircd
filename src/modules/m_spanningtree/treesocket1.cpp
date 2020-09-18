@@ -48,6 +48,7 @@ TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> 
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
+	capab->remotesa = dest;
 
 	irc::sockets::sockaddrs bind;
 	memset(&bind, 0, sizeof(bind));
@@ -84,6 +85,7 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
+	capab->remotesa = *client;
 
 	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
 	{

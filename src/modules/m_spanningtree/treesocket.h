@@ -81,6 +81,7 @@ struct CapabData
 	int capab_phase;			/* Have sent CAPAB already */
 	bool auth_fingerprint;			/* Did we auth using SSL certificate fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
+	irc::sockets::sockaddrs remotesa; /* The remote socket address. */
 
 	// Data saved from incoming SERVER command, for later use when our credentials have been accepted by the other party
 	std::string description;

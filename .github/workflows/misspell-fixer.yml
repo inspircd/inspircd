@@ -33,7 +33,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ env.REF_BRANCH }}+fix-spellings-${{ env.DATE }}
         author: 'InspIRCd Robot <noreply@inspircd.org>'
-        commiter: 'InspIRCd Robot <noreply@inspircd.org>'
+        committer: 'InspIRCd Robot <noreply@inspircd.org>'
         commit-message: 'Fixes by misspell-fixer'
         title: 'Typos fix by misspell-fixer'
         reviewers: 'genius3000'
