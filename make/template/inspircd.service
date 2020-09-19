@@ -23,6 +23,7 @@
 [Unit]
 After=network.target
 Description=InspIRCd - Internet Relay Chat Daemon
+Documentation=https://docs.inspircd.org
 After=network-online.target
 Wants=network-online.target
 
