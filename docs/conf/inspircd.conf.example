@@ -50,8 +50,7 @@
 # file you include will be treated as part of the configuration file  #
 # which includes it, in simple terms the inclusion is transparent.    #
 #                                                                     #
-# All paths to config files are relative to the directory that the    #
-# process runs in.                                                    #
+# All paths to config files are relative to the config directory.     #
 #                                                                     #
 # You may also include an executable file, in which case if you do so #
 # the output of the executable on the standard output will be added   #
