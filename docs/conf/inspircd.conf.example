@@ -204,7 +204,7 @@
     # shut down cleanly and left a zombie socket behind.
     #replace="yes">
 
-<bind address="" port="6660-6669" type="clients">
+<bind address="" port="6667" type="clients">
 
 # Listener accepting HTML5 WebSocket connections.
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
