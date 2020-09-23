@@ -355,7 +355,7 @@ if (prompt_bool $interactive, $question, 0) {
 	foreach my $extra (<$RealDir/src/modules/extra/m_*.cpp>) {
 		my $module_name = basename $extra, '.cpp';
 		if (prompt_bool $interactive, "Would you like to enable $module_name?", 0) {
-			enable_extras "$module_name.cpp";
+			enable_extras $module_name;
 		}
 	}
 } elsif (!defined $opt_disable_auto_extras) {
