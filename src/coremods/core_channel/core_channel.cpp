@@ -209,33 +209,19 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 	{
 		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
 
-		insp::flat_map<int, std::string> limits;
+		std::vector<std::string> limits;
 		std::string vlist;
 		const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
 		{
 			ListModeBase* lm = *iter;
-
-			const unsigned int limit = lm->GetLowerLimit();
-			limits[limit].push_back(lm->GetModeChar());
-
+			limits.push_back(InspIRCd::Format("%c:%u", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())
 				vlist.push_back(lm->GetModeChar());
 		}
 
-		std::string& buffer = tokens["MAXLIST"];
-		for (insp::flat_map<int, std::string>::const_iterator iter = limits.begin(); iter != limits.end(); ++iter)
-		{
-			if (!buffer.empty())
-				buffer.push_back(',');
-
-			std::string modes(iter->second);
-			std::sort(modes.begin(), modes.end());
-
-			buffer.append(modes);
-			buffer.push_back(':');
-			buffer.append(ConvToStr(iter->first));
-		}
+		std::sort(limits.begin(), limits.end());
+		tokens["MAXLIST"] = stdalgo::string::join(limits, ',');
 
 		if (!vlist.empty())
 		{
