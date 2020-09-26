@@ -393,9 +393,10 @@ EOQ
 
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
-		system './tools/genssl', 'auto';
+		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
+		system './tools/genssl', 'auto', CONFIGURE_DIRECTORY;
 	} else {
-		my @pems = <$RealDir/{cert,csr,dhparams,key}.pem>;
+		my @pems = <${\CONFIGURE_DIRECTORY}/{cert,csr,dhparams,key}.pem>;
 		$question = <<EOQ;
 The following self-signed files were previously generated and will be installed
 when you run Make. Do you want to delete them?

@@ -31,10 +31,18 @@ use File::Temp();
 # IMPORTANT: This script has to be able to run by itself so that it can be used
 #            by binary distributions where the make/console.pm module will not
 #            be available!
+eval {
+	use File::Basename qw(dirname);
+	use FindBin        qw($RealDir);
+
+	use lib dirname $RealDir;
+	require make::console;
+	make::console->import();
+};
 
 sub prompt($$) {
 	my ($question, $default) = @_;
-	return prompt_string(1, $question, $default) if eval 'use File::Basename; use FindBin; use lib dirname($FindBin::RealDir); use make::console; 1';
+	return prompt_string(1, $question, $default) if defined main->can('prompt_string');
 	say $question;
 	print "[$default] => ";
 	chomp(my $answer = <STDIN>);
@@ -42,8 +50,8 @@ sub prompt($$) {
 	return $answer ? $answer : $default;
 }
 
-if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
-	say STDERR "Usage: $0 <auto|gnutls|openssl>";
+if (scalar @ARGV < 1 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
+	say STDERR "Usage: $0 <auto|gnutls|openssl> [SSL-DIR]";
 	exit 1;
 }
 
@@ -72,6 +80,12 @@ if ($tool eq 'auto') {
 	exit 1;
 } elsif ($tool eq 'openssl' && !$has_openssl) {
 	say STDERR 'SSL generation failed: could not find \'openssl\' in the PATH!';
+	exit 1;
+}
+
+# Output to the cwd unless an SSL directory is specified.
+if (scalar @ARGV > 1 && !chdir $ARGV[1]) {
+	say STDERR "Unable to change the working directory to $ARGV[1]: $!.";
 	exit 1;
 }
 
