@@ -817,12 +817,6 @@ while methods G and Z also add G/Z-lines for all the targets.
 When used, the victims won't see each other getting kicked or quitting.
 ">
 
-<helpop key="modenotice" title="/MODENOTICE <modeletters> :<message>" value="
-Sends a notice to all users who have the given mode(s) set.
-If multiple mode letters are given, the notice is only sent to users
-who have all of them set.
-">
-
 <helpop key="cloak" title="/CLOAK <host>" value="
 Generate the cloak of a host or IP. This is useful for example when
 trying to get the cloak of a user from /WHOWAS and they were not

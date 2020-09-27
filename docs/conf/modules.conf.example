@@ -1356,11 +1356,6 @@
 #<module name="mlock">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Modenotice module: Adds the /MODENOTICE command that allows opers to
-# send notices to all users having the given user mode(s) set.
-#<module name="modenotice">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Monitor module: Adds support for MONITOR which is used by clients to
 # maintain notify lists.
 #<module name="monitor">
