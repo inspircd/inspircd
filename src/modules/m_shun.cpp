@@ -156,6 +156,7 @@ class ModuleShun : public Module, public Stats::EventListener
 	ShunFactory shun;
 	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
 	bool affectopers;
+	bool allowtags;
 	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
@@ -215,6 +216,7 @@ class ModuleShun : public Module, public Stats::EventListener
 			enabledcommands.insert(enabledcmd);
 
 		affectopers = tag->getBool("affectopers", false);
+		allowtags = tag->getBool("allowtags");
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 
@@ -230,6 +232,18 @@ class ModuleShun : public Module, public Stats::EventListener
 			return MOD_RES_DENY;
 		}
 
+		if (!allowtags)
+		{
+			// Remove all client tags.
+			ClientProtocol::TagMap& tags = parameters.GetTags();
+			for (ClientProtocol::TagMap::iterator tag = tags.begin(); tag != tags.end(); )
+			{
+				if (tag->first[0] == '+')
+					tag = tags.erase(tag);
+				else
+					tag++;
+			}
+		}
 		if (command == "QUIT")
 		{
 			/* Allow QUIT but dont show any quit message */
