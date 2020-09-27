@@ -57,14 +57,13 @@ class ShunFactory : public XLineFactory
 	}
 };
 
-//typedef std::vector<Shun> shunlist;
-
 class CommandShun : public Command
 {
  public:
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
-		flags_needed = 'o'; this->syntax = "<nick!user@host> [<duration> :<reason>]";
+		flags_needed = 'o';
+		syntax = "<nick!user@host> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
@@ -152,11 +151,12 @@ class CommandShun : public Command
 
 class ModuleShun : public Module, public Stats::EventListener
 {
+ private:
 	CommandShun cmd;
-	ShunFactory f;
-	insp::flat_set<std::string> ShunEnabledCommands;
-	bool NotifyOfShun;
+	ShunFactory shun;
+	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
 	bool affectopers;
+	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
 	{
@@ -181,13 +181,13 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->XLines->RegisterFactory(&f);
+		ServerInstance->XLines->RegisterFactory(&shun);
 	}
 
 	~ModuleShun()
 	{
 		ServerInstance->XLines->DelAll("SHUN");
-		ServerInstance->XLines->UnregisterFactory(&f);
+		ServerInstance->XLines->UnregisterFactory(&shun);
 	}
 
 	void Prioritize() CXX11_OVERRIDE
@@ -209,16 +209,13 @@ class ModuleShun : public Module, public Stats::EventListener
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 
-		ShunEnabledCommands.clear();
+		enabledcommands.clear();
 		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
 		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
-		{
-			std::transform(enabledcmd.begin(), enabledcmd.end(), enabledcmd.begin(), ::toupper);
-			ShunEnabledCommands.insert(enabledcmd);
-		}
+			enabledcommands.insert(enabledcmd);
 
-		NotifyOfShun = tag->getBool("notifyuser", true);
 		affectopers = tag->getBool("affectopers", false);
+		notifyuser = tag->getBool("notifyuser", true);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
@@ -226,10 +223,10 @@ class ModuleShun : public Module, public Stats::EventListener
 		if (validated || !IsShunned(user))
 			return MOD_RES_PASSTHRU;
 
-		if (!ShunEnabledCommands.count(command))
+		if (!enabledcommands.count(command))
 		{
-			if (NotifyOfShun)
-				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
+			if (notifyuser)
+				user->WriteNotice("*** " + command + " command not processed as you have been blocked from issuing commands.");
 			return MOD_RES_DENY;
 		}
 
