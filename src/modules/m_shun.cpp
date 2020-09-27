@@ -154,6 +154,7 @@ class ModuleShun : public Module, public Stats::EventListener
  private:
 	CommandShun cmd;
 	ShunFactory shun;
+	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
 	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
 	bool affectopers;
 	bool allowtags;
@@ -210,6 +211,11 @@ class ModuleShun : public Module, public Stats::EventListener
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 
+		cleanedcommands.clear();
+		irc::spacesepstream cleanedcmds(tag->getString("cleanedcommands", "AWAY PART QUIT"));
+		for (std::string cleanedcmd; cleanedcmds.GetToken(cleanedcmd); )
+			cleanedcommands.insert(cleanedcmd);
+
 		enabledcommands.clear();
 		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
 		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
@@ -244,18 +250,26 @@ class ModuleShun : public Module, public Stats::EventListener
 					tag++;
 			}
 		}
-		if (command == "QUIT")
+
+		if (cleanedcommands.count(command))
 		{
-			/* Allow QUIT but dont show any quit message */
-			parameters.clear();
-		}
-		else if ((command == "PART") && (parameters.size() > 1))
-		{
-			/* same for PART */
-			parameters.pop_back();
+			if (command == "AWAY" && !parameters.empty())
+			{
+				// Allow away but only for unsetting.
+				parameters.clear();
+			}
+			else if (command == "PART" && parameters.size() > 1)
+			{
+				// Allow part but strip the message.
+				parameters.pop_back();
+			}
+			else if (command == "QUIT" && !parameters.empty())
+			{
+				// Allow quit but strip the message.
+				parameters.clear();
+			}
 		}
 
-		/* if we're here, allow the command. */
 		return MOD_RES_PASSTHRU;
 	}
 
