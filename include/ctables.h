@@ -156,6 +156,7 @@ class CoreExport CommandBase : public ServiceProvider
 
 		/** Retrieves the IRCv3 message tags. */
 		const ClientProtocol::TagMap& GetTags() const { return tags; }
+		ClientProtocol::TagMap& GetTags() { return tags; }
 	};
 
 	/** Minimum number of parameters command takes

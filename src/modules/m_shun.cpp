@@ -57,8 +57,6 @@ class ShunFactory : public XLineFactory
 	}
 };
 
-//typedef std::vector<Shun> shunlist;
-
 class CommandShun : public Command
 {
  public:
@@ -155,9 +153,11 @@ class ModuleShun : public Module, public Stats::EventListener
 {
  private:
 	CommandShun cmd;
-	ShunFactory f;
-	insp::flat_set<std::string> ShunEnabledCommands;
-	bool NotifyOfShun;
+	ShunFactory shun;
+	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
+	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
+	bool allowtags;
+	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
 	{
@@ -179,13 +179,13 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	void init() override
 	{
-		ServerInstance->XLines->RegisterFactory(&f);
+		ServerInstance->XLines->RegisterFactory(&shun);
 	}
 
 	~ModuleShun()
 	{
 		ServerInstance->XLines->DelAll("SHUN");
-		ServerInstance->XLines->UnregisterFactory(&f);
+		ServerInstance->XLines->UnregisterFactory(&shun);
 	}
 
 	void Prioritize() override
@@ -207,15 +207,18 @@ class ModuleShun : public Module, public Stats::EventListener
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 
-		ShunEnabledCommands.clear();
+		cleanedcommands.clear();
+		irc::spacesepstream cleanedcmds(tag->getString("cleanedcommands", "AWAY PART QUIT"));
+		for (std::string cleanedcmd; cleanedcmds.GetToken(cleanedcmd); )
+			cleanedcommands.insert(cleanedcmd);
+
+		enabledcommands.clear();
 		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
 		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
-		{
-			std::transform(enabledcmd.begin(), enabledcmd.end(), enabledcmd.begin(), ::toupper);
-			ShunEnabledCommands.insert(enabledcmd);
-		}
+			enabledcommands.insert(enabledcmd);
 
-		NotifyOfShun = tag->getBool("notifyuser", true);
+		allowtags = tag->getBool("allowtags");
+		notifyuser = tag->getBool("notifyuser", true);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
@@ -223,25 +226,45 @@ class ModuleShun : public Module, public Stats::EventListener
 		if (validated || !IsShunned(user))
 			return MOD_RES_PASSTHRU;
 
-		if (!ShunEnabledCommands.count(command))
+		if (!enabledcommands.count(command))
 		{
-			if (NotifyOfShun)
-				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
+			if (notifyuser)
+				user->WriteNotice("*** " + command + " command not processed as you have been blocked from issuing commands.");
 			return MOD_RES_DENY;
 		}
 
-		if (command == "QUIT")
+		if (!allowtags)
 		{
-			/* Allow QUIT but dont show any quit message */
-			parameters.clear();
-		}
-		else if ((command == "PART") && (parameters.size() > 1))
-		{
-			/* same for PART */
-			parameters.pop_back();
+			// Remove all client tags.
+			ClientProtocol::TagMap& tags = parameters.GetTags();
+			for (ClientProtocol::TagMap::iterator tag = tags.begin(); tag != tags.end(); )
+			{
+				if (tag->first[0] == '+')
+					tag = tags.erase(tag);
+				else
+					tag++;
+			}
 		}
 
-		/* if we're here, allow the command. */
+		if (cleanedcommands.count(command))
+		{
+			if (command == "AWAY" && !parameters.empty())
+			{
+				// Allow away but only for unsetting.
+				parameters.clear();
+			}
+			else if (command == "PART" && parameters.size() > 1)
+			{
+				// Allow part but strip the message.
+				parameters.pop_back();
+			}
+			else if (command == "QUIT" && !parameters.empty())
+			{
+				// Allow quit but strip the message.
+				parameters.clear();
+			}
+		}
+
 		return MOD_RES_PASSTHRU;
 	}
 };

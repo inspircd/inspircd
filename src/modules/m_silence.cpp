@@ -480,7 +480,6 @@ class ModuleSilence
 					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
 
 				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
-				break;
 			}
 			case MessageTarget::TYPE_USER:
 			{

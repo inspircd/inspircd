@@ -490,14 +490,12 @@ std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 
 std::string InspIRCd::GenRandomStr(unsigned int length, bool printable)
 {
-	char* buf = new char[length];
-	GenRandom(buf, length);
-	std::string rv;
-	rv.resize(length);
-	for(size_t i = 0; i < length; i++)
-		rv[i] = printable ? 0x3F + (buf[i] & 0x3F) : buf[i];
-	delete[] buf;
-	return rv;
+	std::vector<char> str(length);
+	GenRandom(&str[0], length);
+	if (printable)
+		for (size_t i = 0; i < length; i++)
+			str[i] = 0x3F + (str[i] & 0x3F);
+	return std::string(&str[0], str.size());
 }
 
 // NOTE: this has a slight bias for lower values if max is not a power of 2.

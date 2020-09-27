@@ -2060,15 +2060,25 @@
 # To use, SHUN must be in one of your oper class blocks.
 #<module name="shun">
 #
-# You may also configure which commands you wish a user to be able to
-# perform when shunned. It should be noted that if a shunned user
-# issues QUIT or PART then their message will be removed, as if they
-# did not issue one.
+# Configuration:
 #
-# You can optionally let the user know that their command was blocked.
+#  allowtags: Whether to allow client tags to be attached to enabled
+#             commands.
 #
-# You may also let SHUN affect opers (defaults to no).
-#<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
+#  cleanedcommands: The commands that, if enabled, should be cleaned
+#                    of any message content if a shunned user tries to
+#                    execute them.
+#
+#  enabledcommands: The commands that a shunned user is allowed to
+#                   execute.
+#
+#  notifyuser: Whether to notify shunned users that a command they tried
+#              to execute has been blocked.
+#
+#<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN"
+#      cleanedcommands="AWAY PART QUIT"
+#      allowtags="no"
+#      notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL mode module: Adds support for TLS (SSL)-only channels via the '+z'

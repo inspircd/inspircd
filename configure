@@ -355,7 +355,7 @@ if (prompt_bool $interactive, $question, 0) {
 	foreach my $extra (<$RealDir/src/modules/extra/m_*.cpp>) {
 		my $module_name = basename $extra, '.cpp';
 		if (prompt_bool $interactive, "Would you like to enable $module_name?", 0) {
-			enable_extras "$module_name.cpp";
+			enable_extras $module_name;
 		}
 	}
 } elsif (!defined $opt_disable_auto_extras) {
@@ -393,9 +393,10 @@ EOQ
 
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
 	if (prompt_bool $interactive, $question, $interactive) {
-		system './tools/genssl', 'auto';
+		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
+		system './tools/genssl', 'auto', CONFIGURE_DIRECTORY;
 	} else {
-		my @pems = <$RealDir/{cert,csr,dhparams,key}.pem>;
+		my @pems = <${\CONFIGURE_DIRECTORY}/{cert,csr,dhparams,key}.pem>;
 		$question = <<EOQ;
 The following self-signed files were previously generated and will be installed
 when you run Make. Do you want to delete them?

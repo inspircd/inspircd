@@ -41,8 +41,7 @@
 # file you include will be treated as part of the configuration file  #
 # which includes it, in simple terms the inclusion is transparent.    #
 #                                                                     #
-# All paths to config files are relative to the directory that the    #
-# process runs in.                                                    #
+# All paths to config files are relative to the config directory.     #
 #                                                                     #
 # You may also include an executable file, in which case if you do so #
 # the output of the executable on the standard output will be added   #
@@ -194,7 +193,7 @@
     # shut down cleanly and left a zombie socket behind.
     #replace="yes">
 
-<bind address="" port="6660-6669" type="clients">
+<bind address="" port="6667" type="clients">
 
 # Listener accepting HTML5 WebSocket connections.
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
