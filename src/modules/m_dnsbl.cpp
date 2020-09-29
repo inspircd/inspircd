@@ -299,7 +299,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			e->name = tag->getString("name");
 			e->ident = tag->getString("ident");
 			e->host = tag->getString("host");
-			e->reason = tag->getString("reason");
+			e->reason = tag->getString("reason", "Your IP has been blacklisted.", 1);
 			e->domain = tag->getString("domain");
 
 			if (stdalgo::string::equalsci(tag->getString("type"), "bitmask"))
@@ -341,13 +341,6 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			}
 			else
 			{
-				if (e->reason.empty())
-				{
-					std::string location = tag->getTagLocation();
-					ServerInstance->SNO->WriteGlobalSno('d', "DNSBL(%s): empty reason, using defaults", location.c_str());
-					e->reason = "Your IP has been blacklisted.";
-				}
-
 				/* add it, all is ok */
 				newentries.push_back(e);
 			}
