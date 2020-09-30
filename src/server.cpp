@@ -204,6 +204,7 @@ void ISupportManager::Build()
 	tokens["NETWORK"] = ServerInstance->Config->Network;
 	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
 	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
+	tokens["REALLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxReal);
 	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
 	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
