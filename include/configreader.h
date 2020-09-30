@@ -95,6 +95,8 @@ class CoreExport ConfigTag : public refcountbase
 class ServerLimits
 {
  public:
+	/** Maximum line length */
+	size_t MaxLine;
 	/** Maximum nickname length */
 	size_t NickMax;
 	/** Maximum channel length */
@@ -113,8 +115,6 @@ class ServerLimits
 	size_t MaxReal;
 	/** Maximum away message length */
 	size_t MaxAway;
-	/** Maximum line length */
-	size_t MaxLine;
 	/** Maximum hostname length */
 	size_t MaxHost;
 
