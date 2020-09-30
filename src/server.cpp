@@ -201,10 +201,10 @@ void ISupportManager::Build()
 	tokens["LINELEN"] = ConvToStr(ServerInstance->Config->Limits.MaxLine);
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
+	tokens["NAMELEN"] = ConvToStr(ServerInstance->Config->Limits.MaxReal);
 	tokens["NETWORK"] = ServerInstance->Config->Network;
 	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
 	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
-	tokens["REALLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxReal);
 	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
 	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 	tokens["USERLEN"] = ConvToStr(ServerInstance->Config->Limits.IdentMax);
