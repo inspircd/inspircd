@@ -2119,9 +2119,9 @@
 #
 # Configuration:
 #
-#  affectsopers: Whether server operators are exempt from shuns. This
-#                option is deprecated; you should instead give exempt
-#                server operators the servers/ignore-shun privilege.
+#  affectopers: Whether server operators are exempt from shuns. This
+#               option is deprecated; you should instead give exempt
+#               server operators the servers/ignore-shun privilege.
 #
 #  allowtags: Whether to allow client tags to be attached to enabled
 #             commands.
