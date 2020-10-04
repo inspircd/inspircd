@@ -59,6 +59,7 @@ struct ProviderConfig
 
 class HashArgon2 : public HashProvider
 {
+ private:
 	const Argon2_type argon2Type;
 	ProviderConfig config;
 
@@ -119,7 +120,7 @@ class HashArgon2 : public HashProvider
 
 	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
-		std::string salt = ServerInstance->GenRandomStr(config.salt_length, false);
+		const std::string salt = ServerInstance->GenRandomStr(config.salt_length, false);
 
 		size_t encodedLen = argon2_encodedlen(
 			config.t_cost,
@@ -148,18 +149,14 @@ class HashArgon2 : public HashProvider
 			config.version);
 
 		if (argonResult != ARGON2_OK)
-		{
-			std::string errorMessage = std::string(argon2_error_message(argonResult));
-			throw ModuleException("Argon2 hashing failed!: " + errorMessage);
-		}
+			throw ModuleException("Argon2 hashing failed!: " + std::string(argon2_error_message(argonResult)));
 
 		// This isn't the raw version, but we don't have
 		// the facilities to juggle around the extra state required
 		// to do anything useful with them if we don't encode them.
 		// So we pretend this is the raw version, and instead make
 		// ToPrintable return its input.
-		std::string result = std::string(&encoded_data[0]);
-		return result;
+		return std::string(&encoded_data[0], encoded_data.size());
 	}
 
 	std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE
@@ -168,22 +165,25 @@ class HashArgon2 : public HashProvider
 	}
 
 	HashArgon2(Module* parent, const std::string& hashName, Argon2_type type)
-		: HashProvider(parent, hashName), argon2Type(type), config(ProviderConfig())
+		: HashProvider(parent, hashName)
+		, argon2Type(type)
+		, config(ProviderConfig())
 	{
 	}
 };
 
 class ModuleArgon2 : public Module
 {
+ private:
 	HashArgon2 argon2i;
 	HashArgon2 argon2d;
 	HashArgon2 argon2id;
 
  public:
-	ModuleArgon2() :
-		argon2i(this, "argon2i", Argon2_i),
-		argon2d(this, "argon2d", Argon2_d),
-		argon2id(this, "argon2id", Argon2_id)
+	ModuleArgon2()
+		: argon2i(this, "argon2i", Argon2_i)
+		, argon2d(this, "argon2d", Argon2_d)
+		, argon2id(this, "argon2id", Argon2_id)
 	{
 	}
 
