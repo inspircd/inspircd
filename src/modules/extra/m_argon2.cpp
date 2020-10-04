@@ -42,6 +42,10 @@
 
 #include <argon2.h>
 
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+
 struct ProviderConfig
 {
 	uint32_t outlen;
@@ -197,7 +201,3 @@ class ModuleArgon2 : public Module
 };
 
 MODULE_INIT(ModuleArgon2)
-
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
