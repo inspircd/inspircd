@@ -221,6 +221,8 @@ class CommandCheck : public Command
 				std::string classname = loctarg->GetClass()->name;
 				if (!classname.empty())
 					context.Write("connectclass", classname);
+
+				context.Write("exempt", loctarg->exempt ? "yes" : "no");
 			}
 			else
 				context.Write("onip", targuser->GetIPString());
