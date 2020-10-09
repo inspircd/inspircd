@@ -45,16 +45,19 @@
  * If you introduce new protocol versions please document them here:
  * https://docs.inspircd.org/spanningtree/changes
  */
-enum ProtocolVersion
+enum ProtocolVersion : uint16_t
 {
 	/** The linking protocol version introduced in InspIRCd v3.0. */
 	PROTO_INSPIRCD_30 = 1205,
+
+	/** The linking protocol version introduced in InspIRCd v4.0a1. */
+	PROTO_INSPIRCD_40_A1 = 1206,
 
 	/** The oldest version of the protocol that we support. */
 	PROTO_OLDEST = PROTO_INSPIRCD_30,
 
 	/** The newest version of the protocol that we support. */
-	PROTO_NEWEST = PROTO_INSPIRCD_30
+	PROTO_NEWEST = PROTO_INSPIRCD_40_A1
 };
 
 /** Forward declarations

@@ -112,7 +112,7 @@ class TreeSocket : public BufferedSocket
 	TreeServer* MyRoot = NULL;
 
 	/* Remote protocol version */
-	unsigned int proto_version = 0;
+	uint16_t proto_version = 0;
 
 	/** Checks if the given servername and sid are both free
 	 */
