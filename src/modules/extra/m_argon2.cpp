@@ -44,13 +44,13 @@
 
 struct ProviderConfig
 {
-	uint32_t outlen;
-	uint32_t version;
-	uint32_t t_cost;
-	uint32_t m_cost;
+	uint32_t iterations;
 	uint32_t lanes;
+	uint32_t memory;
+	uint32_t outlen;
+	uint32_t saltlen;
 	uint32_t threads;
-	uint32_t salt_length;
+	uint32_t version;
 };
 
 class HashArgon2 : public HashProvider
@@ -61,21 +61,20 @@ class HashArgon2 : public HashProvider
 
 	static void ReadConfig(ConfigTag* tag, ProviderConfig* config, ProviderConfig* def)
 	{
-		// 2^17 = 131072 = 128 MiB
-		uint32_t def_m_cost = def != NULL ? def->m_cost : (1 << 17);
-		uint32_t def_t_cost = def != NULL ? def->t_cost : 3;
-		uint32_t def_lanes = def != NULL ? def->lanes : 1;
-		uint32_t def_threads = def != NULL ? def->threads : 1;
-		uint32_t def_outlen = def != NULL ? def->outlen : 32;
-		uint32_t def_salt_length = def != NULL ? def->salt_length : 16;
-		uint32_t def_version = def != NULL ? def->version : 13;
+		uint32_t def_iterations = def ? def->iterations : 3;
+		uint32_t def_lanes = def ? def->lanes : 1;
+		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
+		uint32_t def_outlen = def ? def->outlen : 32;
+		uint32_t def_saltlen = def ? def->saltlen : 16;
+		uint32_t def_threads = def ? def->threads : 1;
+		uint32_t def_version = def ? def->version : 13;
 
-		config->m_cost = tag->getUInt("memory", def_m_cost, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
-		config->t_cost = tag->getUInt("iterations", def_t_cost, 1);
+		config->iterations = tag->getUInt("iterations", def_iterations, 1);
 		config->lanes = tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
-		config->threads = tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
+		config->memory = tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
 		config->outlen = tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN);
-		config->salt_length = tag->getUInt("saltlength", def_salt_length, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
+		config->saltlen = tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
+		config->threads = tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
 		config->version = SanitizeArgon2Version(tag->getUInt("version", def_version));
 	}
 
@@ -116,13 +115,13 @@ class HashArgon2 : public HashProvider
 
 	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
-		const std::string salt = ServerInstance->GenRandomStr(config.salt_length, false);
+		const std::string salt = ServerInstance->GenRandomStr(config.saltlen, false);
 
 		size_t encodedLen = argon2_encodedlen(
-			config.t_cost,
-			config.m_cost,
+			config.iterations,
+			config.memory,
 			config.lanes,
-			config.salt_length,
+			config.saltlen,
 			config.outlen,
 			argon2Type);
 
@@ -130,8 +129,8 @@ class HashArgon2 : public HashProvider
 		std::vector<char> encoded_data(encodedLen + 1);
 
 		int argonResult = argon2_hash(
-			config.t_cost,
-			config.m_cost,
+			config.iterations,
+			config.memory,
 			config.threads,
 			data.c_str(),
 			data.length(),
