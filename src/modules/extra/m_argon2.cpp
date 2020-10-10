@@ -42,65 +42,75 @@
 
 #include <argon2.h>
 
-struct ProviderConfig
+class ProviderConfig
 {
+ private:
+	static Argon2_version SanitizeArgon2Version(unsigned long version)
+	{
+		// Note, 10 is 0x10, and 13 is 0x13. Refering to it as
+		// dec 10 or 13 in the config file, for the name to
+		// match better.
+		switch (version)
+		{
+			case 10:
+				return ARGON2_VERSION_10;
+			case 13:
+				return ARGON2_VERSION_13;
+		}
+
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Unknown Argon2 version (%lu) specified; assuming 13",
+			version);
+		return ARGON2_VERSION_13;
+	}
+
+ public:
 	uint32_t iterations;
 	uint32_t lanes;
 	uint32_t memory;
 	uint32_t outlen;
 	uint32_t saltlen;
 	uint32_t threads;
-	uint32_t version;
+	Argon2_version version;
+
+	ProviderConfig()
+	{
+		// Nothing interesting happens here.
+	}
+
+	ProviderConfig(const std::string& tagname, ProviderConfig* def)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue(tagname);
+
+		uint32_t def_iterations = def ? def->iterations : 3;
+		this->iterations = tag->getUInt("iterations", def_iterations, 1);
+
+		uint32_t def_lanes = def ? def->lanes : 1;
+		this->lanes = tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
+
+		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
+		this->memory = tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
+
+		uint32_t def_outlen = def ? def->outlen : 32;
+		this->outlen = tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN);
+
+		uint32_t def_saltlen = def ? def->saltlen : 16;
+		this->saltlen = tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
+
+		uint32_t def_threads = def ? def->threads : 1;
+		this->threads = tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
+
+		uint32_t def_version = def ? def->version : 13;
+		this->version = SanitizeArgon2Version(tag->getUInt("version", def_version));
+	}
 };
 
 class HashArgon2 : public HashProvider
 {
  private:
 	const Argon2_type argon2Type;
-	ProviderConfig config;
-
-	static void ReadConfig(ConfigTag* tag, ProviderConfig* config, ProviderConfig* def)
-	{
-		uint32_t def_iterations = def ? def->iterations : 3;
-		uint32_t def_lanes = def ? def->lanes : 1;
-		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
-		uint32_t def_outlen = def ? def->outlen : 32;
-		uint32_t def_saltlen = def ? def->saltlen : 16;
-		uint32_t def_threads = def ? def->threads : 1;
-		uint32_t def_version = def ? def->version : 13;
-
-		config->iterations = tag->getUInt("iterations", def_iterations, 1);
-		config->lanes = tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
-		config->memory = tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
-		config->outlen = tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN);
-		config->saltlen = tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
-		config->threads = tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
-		config->version = SanitizeArgon2Version(tag->getUInt("version", def_version));
-	}
-
-	static uint32_t SanitizeArgon2Version(const int version)
-	{
-		// Note, 10 is 0x10, and 13 is 0x13. Refering to it as
-		// dec 10 or 13 in the config file, for the name to
-		// match better.
-		if (version == 10) return ARGON2_VERSION_10;
-		if (version == 13) return ARGON2_VERSION_13;
-
-		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Unknown Argon2 version specified, assuming 13");
-		return ARGON2_VERSION_13;
-	}
 
  public:
-	void ReadConfig()
-	{
-		ProviderConfig defaultConfig;
-		ConfigTag* tag = ServerInstance->Config->ConfValue("argon2");
-		ReadConfig(tag, &defaultConfig, NULL);
-
-		std::string argonType = name.substr(name.find('/') + 1);;
-		tag = ServerInstance->Config->ConfValue(argonType);
-		ReadConfig(tag, &config, &defaultConfig);
-	}
+	ProviderConfig config;
 
 	bool Compare(const std::string& input, const std::string& hash) CXX11_OVERRIDE
 	{
@@ -162,7 +172,7 @@ class HashArgon2 : public HashProvider
 	HashArgon2(Module* parent, const std::string& hashName, Argon2_type type)
 		: HashProvider(parent, hashName)
 		, argon2Type(type)
-		, config(ProviderConfig())
+
 	{
 	}
 };
@@ -189,9 +199,10 @@ class ModuleArgon2 : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		argon2i.ReadConfig();
-		argon2d.ReadConfig();
-		argon2id.ReadConfig();
+		ProviderConfig defaultConfig("argon2", NULL);
+		argon2i.config = ProviderConfig("argon2i", &defaultConfig);
+		argon2d.config = ProviderConfig("argon2d", &defaultConfig);
+		argon2id.config = ProviderConfig("argon2id", &defaultConfig);
 	}
 };
 
