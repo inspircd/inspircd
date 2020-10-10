@@ -363,6 +363,7 @@ if (prompt_bool $interactive, $question, 0) {
 	# system './modulemanager', 'enable', '--auto';
 	my %modules = (
 		# Missing: m_ldap, m_regex_stdlib, m_ssl_mbedtls
+		'm_argon2.cpp'          => 'pkg-config --exists libargon2',
 		'm_geo_maxmind.cpp'     => 'pkg-config --exists libmaxminddb',
 		'm_mysql.cpp'           => 'mysql_config --version',
 		'm_pgsql.cpp'           => 'pg_config --version',
