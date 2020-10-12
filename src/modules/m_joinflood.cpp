@@ -139,6 +139,7 @@ class ModuleJoinFlood
  private:
 	JoinFlood jf;
 	time_t ignoreuntil;
+	unsigned long bootwait;
 	unsigned long splitwait;
 
  public:
@@ -156,7 +157,10 @@ class ModuleJoinFlood
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
+		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
+
+		ignoreuntil = ServerInstance->startup_time + bootwait;
 	}
 
 	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE

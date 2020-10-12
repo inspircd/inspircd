@@ -1271,11 +1271,16 @@
 # duration:  The number of seconds to close a channel for when it is
 #            being flooded with joins.
 #
+# bootwait:  The number of seconds to disengage joinflood for after
+#            a server boots. This allows users to reconnect without
+#            being throttled by joinflood.
+#
 # splitwait: The number of seconds to disengage joinflood for after
 #            a server splits. This allows users to reconnect without
 #            being throttled by joinflood.
 #
 #<joinflood duration="1m"
+#           bootwait="30s"
 #           splitwait="30s">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
