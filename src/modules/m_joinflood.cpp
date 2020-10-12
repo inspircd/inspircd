@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/server.h"
 
 enum
 {
@@ -131,13 +132,23 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 	}
 };
 
-class ModuleJoinFlood : public Module
+class ModuleJoinFlood
+	: public Module
+	, public ServerProtocol::LinkEventListener
 {
+ private:
 	JoinFlood jf;
+	time_t ignoreuntil;
+	unsigned long splitwait;
 
  public:
+	// Stop GCC warnings about the deprecated OnServerSplit event.
+	using ServerProtocol::LinkEventListener::OnServerSplit;
+
 	ModuleJoinFlood()
-		: jf(this)
+		: ServerProtocol::LinkEventListener(this)
+		, jf(this)
+		, ignoreuntil(0)
 	{
 	}
 
@@ -145,6 +156,13 @@ class ModuleJoinFlood : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
+		splitwait = tag->getDuration("splitwait", 30);
+	}
+
+	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE
+	{
+		if (splitwait)
+			ignoreuntil = ServerInstance->Time() + splitwait;
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
@@ -164,7 +182,7 @@ class ModuleJoinFlood : public Module
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		/* We arent interested in JOIN events caused by a network burst */
-		if (sync)
+		if (sync || ignoreuntil > ServerInstance->Time())
 			return;
 
 		joinfloodsettings *f = jf.ext.get(memb->chan);

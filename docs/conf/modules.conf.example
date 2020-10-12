@@ -1268,8 +1268,15 @@
 # Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
 #
-# The number of seconds to close the channel for:
-#<joinflood duration="1m">
+# duration:  The number of seconds to close a channel for when it is
+#            being flooded with joins.
+#
+# splitwait: The number of seconds to disengage joinflood for after
+#            a server splits. This allows users to reconnect without
+#            being throttled by joinflood.
+#
+#<joinflood duration="1m"
+#           splitwait="30s">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).
