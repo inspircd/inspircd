@@ -12,8 +12,8 @@ jobs:
     - uses: actions/checkout@v2
     - name : Set a couple env variables
       run: |
-        echo "::set-env name=DATE::$(date +'%Y-%m-%d')"
-        echo "::set-env name=REF_BRANCH::${REF_BRANCH//refs\/heads\//}"
+        echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        echo "REF_BRANCH=${REF_BRANCH//refs\/heads\//}" >> $GITHUB_ENV
     - name: Whitelist some directories and files
       run: |
         echo "\
