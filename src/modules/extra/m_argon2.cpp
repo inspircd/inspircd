@@ -47,7 +47,7 @@ class ProviderConfig
  private:
 	static Argon2_version SanitizeArgon2Version(unsigned long version)
 	{
-		// Note, 10 is 0x10, and 13 is 0x13. Refering to it as
+		// Note, 10 is 0x10, and 13 is 0x13. Referring to it as
 		// dec 10 or 13 in the config file, for the name to
 		// match better.
 		switch (version)
