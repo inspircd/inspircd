@@ -14,7 +14,7 @@ jobs:
         run: |
           sudo apt-get update --assume-yes
           sudo apt-get install --assume-yes --no-install-recommends clang g++ git make libc++-dev libc++abi-dev pkg-config
-          sudo apt-get install --assume-yes --no-install-recommends libargon2-0-dev libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libre2-dev libsqlite3-dev libssl-dev libtre-dev
+          sudo apt-get install --assume-yes --no-install-recommends libargon2-dev libgnutls28-dev libldap2-dev libmaxminddb-dev libmbedtls-dev libmysqlclient-dev libpcre3-dev libpq-dev libre2-dev libsqlite3-dev libssl-dev libtre-dev
       - name: Run test-build
         run: ./tools/test-build ${{ matrix.compiler }}
     strategy:
