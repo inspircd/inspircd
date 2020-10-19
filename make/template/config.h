@@ -52,7 +52,4 @@
  /** Whether the clock_gettime() function was available at compile time. */
  %define HAS_CLOCK_GETTIME
 
- /** Whether the eventfd() function was available at compile time. */
- %define HAS_EVENTFD
-
 #endif

@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-#ifdef HAS_EVENTFD
+#if __has_include(<sys/eventfd.h>)
 #include <sys/eventfd.h>
 
 class ThreadSignalSocket : public EventHandler
