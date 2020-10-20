@@ -316,8 +316,27 @@ class ModuleServicesAccount
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+		bool hasacct = accountname.get(user);
+		if (myclass->config->getBool("requireaccount") && !hasacct)
 			return MOD_RES_DENY;
+
+		std::string acct = myclass->config->getString("account", "allow", 1);
+		if (stdalgo::string::equalsci(acct, "allow"))
+		{
+			// Allow anyone
+			return MOD_RES_PASSTHRU;
+		}
+		else if (stdalgo::string::equalsci(acct, "deny"))
+		{
+			if (hasacct)
+				return MOD_RES_DENY;
+		}
+		else if (stdalgo::string::equalsci(acct, "require"))
+		{
+			if (!hasacct)
+				return MOD_RES_DENY;
+		}
+
 		return MOD_RES_PASSTHRU;
 	}
 
