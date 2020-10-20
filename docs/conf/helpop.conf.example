@@ -572,9 +572,9 @@ the network.
 Sends a message to all users with the +g snomask.
 ">
 
-<helpop key="cban" title="/CBAN <channel> [<duration> [:<reason>]]" value="
-Sets or removes a global channel ban. You must specify all three parameters
-to add a ban, and one parameter to remove a ban (just the channel).
+<helpop key="cban" title="/CBAN <channelmask> [<duration> [:<reason>]]" value="
+Sets or removes a global channel based ban. You must specify all three parameters
+to add a ban, and one parameter to remove a ban (just the channelmask).
 
 The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, four hours,
