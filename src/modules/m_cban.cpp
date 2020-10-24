@@ -36,6 +36,10 @@ enum
 	ERR_BADCHANNEL = 926
 };
 
+// Compatibility: Use glob matching?
+// InspIRCd versions 3.7.0 and below use only exact matching
+static bool glob = false;
+
 /** Holds a CBAN item
  */
 class CBan : public XLine
@@ -58,7 +62,10 @@ public:
 
 	bool Matches(const std::string& s) CXX11_OVERRIDE
 	{
-		return InspIRCd::Match(s, matchtext);
+		if (glob)
+			return InspIRCd::Match(s, matchtext);
+		else
+			return irc::equals(matchtext, s);
 	}
 
 	const std::string& Displayable() CXX11_OVERRIDE
@@ -184,6 +191,14 @@ class ModuleCBan : public Module, public Stats::EventListener
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("cban");
+
+		// XXX: Consider changing default behavior on the next major version
+		glob = tag->getBool("glob", false);
+	}
+
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
 	{
 		if (stats.GetSymbol() != 'C')
@@ -211,7 +226,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.", VF_COMMON | VF_VENDOR);
+		return Version("Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.", VF_COMMON | VF_VENDOR, glob ? "glob" : "");
 	}
 };
 

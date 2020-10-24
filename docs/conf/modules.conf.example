@@ -338,6 +338,9 @@
 # This module is oper-only and provides /CBAN.
 # To use, CBAN must be in one of your oper class blocks.
 #<module name="cban">
+# CBAN does not allow glob channelmasks by default for compatibility
+# reasons. You can enable glob support by uncommenting the next line.
+#<cban glob="true">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Censor module: Adds channel and user mode +G which block phrases that
