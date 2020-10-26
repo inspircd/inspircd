@@ -663,11 +663,14 @@ struct ClientProtocol::Messages::Pong : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param cookie Ping cookie. Must remain valid as long as this object is alive.
+	 * @param server Pinged server. Must remain valid as long as this object is alive if non-empty.
 	 */
-	Pong(const std::string& cookie)
+	Pong(const std::string& cookie, const std::string& server = "")
 		: ClientProtocol::Message("PONG", ServerInstance->Config->ServerName)
 	{
 		PushParamRef(ServerInstance->Config->ServerName);
+		if (!server.empty())
+			PushParamRef(server);
 		PushParamRef(cookie);
 	}
 };
