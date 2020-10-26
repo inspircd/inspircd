@@ -202,11 +202,11 @@ Quit from IRC and end your current session.
 Returns the server's version information.
 ">
 
-<helpop key="ping" title="/PING <servername> [:<servername>]" value="
+<helpop key="ping" title="/PING <cookie> [<servername>]" value="
 Ping a server. The server will answer with a PONG.
 ">
 
-<helpop key="pong" title="/PONG <servername>" value="
+<helpop key="pong" title="/PONG <cookie> [<servername>]" value="
 Your client should send this to answer server PINGs. You
 should not issue this command manually.
 ">
