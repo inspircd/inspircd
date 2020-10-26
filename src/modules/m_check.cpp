@@ -157,7 +157,7 @@ class CommandCheck : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		User *targuser;
 		Channel *targchan;
@@ -306,7 +306,7 @@ class CommandCheck : public Command
 		}
 
 		// END is sent by the CheckContext destructor
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

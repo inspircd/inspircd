@@ -44,5 +44,5 @@ CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 	LocalUser* luser = IS_LOCAL(user);
 	if (luser)
 		isupport.SendTo(luser);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

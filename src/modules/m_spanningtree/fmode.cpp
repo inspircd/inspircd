@@ -33,7 +33,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	Channel* const chan = ServerInstance->FindChan(params[0]);
 	if (!chan)
 		// Channel doesn't exist
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// Extract the TS of the channel in question
 	time_t ourTS = chan->age;
@@ -41,7 +41,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	/* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
 	 */
 	if (TS > ourTS)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	/* TS is equal or less: apply the mode change locally and forward the message
 	 */
@@ -55,5 +55,5 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 		flags |= ModeParser::MODE_MERGE;
 
 	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

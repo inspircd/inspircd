@@ -43,19 +43,19 @@ class CommandSetident : public Command
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteNotice("*** SETIDENT: Ident is too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		user->ChangeIdent(parameters[0]);
 		ServerInstance->SNO.WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

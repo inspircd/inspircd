@@ -143,7 +143,7 @@ class CommandWebIRC : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		if (user->registered == REG_ALL || realhost.get(user))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
 		{
@@ -157,7 +157,7 @@ class CommandWebIRC : public SplitCommand
 				WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
 					user->uuid.c_str(), user->GetIPString().c_str());
 				ServerInstance->Users.QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			// The user matched a WebIRC block!
@@ -198,13 +198,13 @@ class CommandWebIRC : public SplitCommand
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
 			user->SetClientIP(ipaddr);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
 		WriteLog("Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
 			user->uuid.c_str(), user->GetIPString().c_str());
 		ServerInstance->Users.QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	void WriteLog(const char* message, ...) CUSTOM_PRINTF(2, 3)

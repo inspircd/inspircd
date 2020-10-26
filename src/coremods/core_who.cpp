@@ -582,7 +582,7 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 
 	// Penalize the source a bit for large queries with one unit of penalty per 200 results.
 	user->CommandFloodPenalty += data.results.size() * 5;
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModWho

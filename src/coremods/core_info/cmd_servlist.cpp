@@ -55,5 +55,5 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 		user->WriteNumeric(numeric);
 	}
 	user->WriteNumeric(RPL_SERVLISTEND, mask, 0, "End of service listing");
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -54,7 +54,7 @@ class CommandConnect : public Command
 		 * This is handled by the server linking module, if necessary. Do not remove this stub.
 		 */
 		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -79,7 +79,7 @@ class CommandLinks : public Command
 	{
 		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->ServerName, ServerInstance->Config->ServerName, InspIRCd::Format("0 %s", ServerInstance->Config->ServerDesc.c_str()));
 		user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -111,7 +111,7 @@ class CommandServer : public Command
 		{
 			user->WriteNumeric(ERR_NOTREGISTERED, "SERVER", "You may not register as a server (servers have separate ports from clients, change your config)");
 		}
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 
@@ -137,7 +137,7 @@ class CommandSquit : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 
@@ -153,7 +153,7 @@ class CommandSummon
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		user->WriteNumeric(ERR_SUMMONDISABLED, "SUMMON has been disabled");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -169,7 +169,7 @@ class CommandUsers
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		user->WriteNumeric(ERR_USERSDISABLED, "USERS has been disabled");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

@@ -40,16 +40,16 @@ enum class CmdAccess : uint8_t
 };
 
 /** Used to indicate the result of trying to execute a command. */
-enum CmdResult
+enum class CmdResult : uint8_t
 {
-	/** The command exists but its execution failed. */
-	CMD_FAILURE = 0,
-
 	/** The command exists and its execution succeeded. */
-	CMD_SUCCESS = 1,
+	SUCCESS = 0,
+
+	/** The command exists but its execution failed. */
+	FAILURE = 1,
 
 	/* The command does not exist. */
-	CMD_INVALID = 2
+	INVALID = 2,
 };
 
 /** Translation types for translation of parameters to UIDs.
@@ -240,7 +240,7 @@ class CoreExport Command : public CommandBase
 	/** Handle the command from a user.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
-	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 * @return Returns CmdResult::FAILURE on failure, CmdResult::SUCCESS on success, or CmdResult::INVALID
 	 *         if the command was malformed.
 	 */
 	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
@@ -279,7 +279,7 @@ protected:
 	/** Handle the command from a local user.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
-	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 * @return Returns CmdResult::FAILURE on failure, CmdResult::SUCCESS on success, or CmdResult::INVALID
 	 *         if the command was malformed.
 	 */
 	virtual CmdResult HandleLocal(LocalUser* user, const Params& parameters);
@@ -287,7 +287,7 @@ protected:
 	/** Handle the command from a remote user.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
-	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 * @return Returns CmdResult::FAILURE on failure, CmdResult::SUCCESS on success, or CmdResult::INVALID
 	 *         if the command was malformed.
 	 */
 	virtual CmdResult HandleRemote(RemoteUser* user, const Params& parameters);
@@ -295,7 +295,7 @@ protected:
 	/** Handle the command from a server user.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
-	 * @return Returns CMD_FAILURE on failure, CMD_SUCCESS on success, or CMD_INVALID
+	 * @return Returns CmdResult::FAILURE on failure, CmdResult::SUCCESS on success, or CmdResult::INVALID
 	 *         if the command was malformed.
 	 */
 	virtual CmdResult HandleServer(FakeUser* user, const Params& parameters);

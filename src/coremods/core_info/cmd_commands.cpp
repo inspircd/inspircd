@@ -72,5 +72,5 @@ CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 	for(unsigned int i=0; i < list.size(); i++)
 		user->WriteNumeric(RPL_COMMANDS, list[i]);
 	user->WriteNumeric(RPL_COMMANDSEND, "End of COMMANDS list");
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

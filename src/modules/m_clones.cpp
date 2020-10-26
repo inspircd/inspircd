@@ -83,7 +83,7 @@ class CommandClones : public SplitCommand
 		if (batchmanager)
 			batchmanager->End(batch);
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

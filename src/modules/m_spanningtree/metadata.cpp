@@ -32,7 +32,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	{
 		std::string value = params.size() < 3 ? "" : params[2];
 		FOREACH_MOD(OnDecodeMetaData, (NULL,params[1],value));
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	if (params[0][0] == '#')
@@ -44,12 +44,12 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 
 		Channel* c = ServerInstance->FindChan(params[0]);
 		if (!c)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		time_t ChanTS = ServerCommand::ExtractTS(params[1]);
 		if (c->age < ChanTS)
 			// Their TS is newer than ours, discard this command and do not propagate
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		std::string value = params.size() < 4 ? "" : params[3];
 
@@ -72,7 +72,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CommandMetadata::Builder::Builder(User* user, const std::string& key, const std::string& val)

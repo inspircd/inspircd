@@ -43,20 +43,20 @@ class CommandRMode : public Command
 		if (chan == NULL)
 		{
 			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
 			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
 			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		std::string pattern = parameters.size() > 2 ? parameters[2] : "*";
@@ -93,7 +93,7 @@ class CommandRMode : public Command
 		}
 
 		ServerInstance->Modes.Process(user, chan, NULL, changelist);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

@@ -193,7 +193,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	if (!manager.IsEnabled())
 	{
 		user->WriteNumeric(ERR_UNKNOWNCOMMAND, name, "This command has been disabled.");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
@@ -220,7 +220,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	}
 
 	user->WriteNumeric(RPL_ENDOFWHOWAS, parameters[0], "End of WHOWAS");
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const

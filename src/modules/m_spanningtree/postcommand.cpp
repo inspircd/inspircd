@@ -29,7 +29,7 @@
 
 void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop)
 {
-	if (result == CMD_SUCCESS)
+	if (result == CmdResult::SUCCESS)
 		Utils->RouteCommand(NULL, command, parameters, user);
 }
 

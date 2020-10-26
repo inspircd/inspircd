@@ -178,13 +178,13 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& pa
 	if (!quitting)
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Squit from unknown server");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
-	CmdResult ret = CMD_SUCCESS;
+	CmdResult ret = CmdResult::SUCCESS;
 	if (quitting == server)
 	{
-		ret = CMD_FAILURE;
+		ret = CmdResult::FAILURE;
 		server = server->GetParent();
 	}
 	else if (quitting->GetParent() != server)
@@ -192,7 +192,7 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& pa
 
 	server->SQuitChild(quitting, params[1]);
 
-	// XXX: Return CMD_FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
+	// XXX: Return CmdResult::FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
 	// to stop this message from being forwarded.
 	// The squit logic generates a SQUIT message with our sid as the source and sends it to the
 	// remaining servers.

@@ -209,7 +209,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
@@ -217,7 +217,7 @@ public:
 		if (parameters[0] == "*")
 		{
 			ListAccept(user);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
 		std::string tok = parameters[0];
@@ -225,18 +225,18 @@ public:
 		if (!action.first)
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(tok));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if ((!IS_LOCAL(user)) && (!IS_LOCAL(action.first)))
 			// Neither source nor target is local, forward the command to the server of target
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		// The second item in the pair is true if the first char is a '+' (or nothing), false if it's a '-'
 		if (action.second)
-			return (AddAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
+			return (AddAccept(user, action.first) ? CmdResult::SUCCESS : CmdResult::FAILURE);
 		else
-			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
+			return (RemoveAccept(user, action.first) ? CmdResult::SUCCESS : CmdResult::FAILURE);
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

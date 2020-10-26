@@ -34,12 +34,12 @@ CmdResult CommandSave::Handle(User* user, Params& params)
 {
 	User* u = ServerInstance->Users.FindUUID(params[0]);
 	if (!u)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	time_t ts = ConvToNum<time_t>(params[1]);
 
 	if (u->age == ts)
 		u->ChangeNick(u->uuid, SavedTimestamp);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

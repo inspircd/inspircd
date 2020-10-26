@@ -111,7 +111,7 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %d  Max: %d", ServerInstance->Users.LocalUserCount(), counters.max_local));
 	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %d  Max: %d", n_users, counters.max_global));
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class InvisibleWatcher : public ModeWatcher

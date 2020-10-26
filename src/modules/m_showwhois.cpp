@@ -61,14 +61,14 @@ class WhoisNoticeCmd : public Command
 	{
 		User* dest = ServerInstance->Users.Find(parameters[0]);
 		if (!dest)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		User* source = ServerInstance->Users.Find(parameters[1]);
 
 		if (IS_LOCAL(dest) && source)
 			HandleFast(dest, source);
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

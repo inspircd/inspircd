@@ -44,7 +44,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 	if (!c)
 	{
 		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (parameters.size() == 1)
@@ -52,7 +52,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user) && !user->HasPrivPermission("channels/auspex")))
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(c->name));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (c->topic.length())
@@ -63,7 +63,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 		{
 			user->WriteNumeric(RPL_NOTOPICSET, c->name, "No topic is set.");
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	std::string t = parameters[1]; // needed, in case a module wants to change it
@@ -71,13 +71,13 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 	FIRST_MOD_RESULT(OnPreTopicChange, res, (user,c,t));
 
 	if (res == MOD_RES_DENY)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	if (res != MOD_RES_ALLOW)
 	{
 		if (!c->HasUser(user))
 		{
 			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		if (c->IsModeSet(topiclockmode))
 		{
@@ -85,7 +85,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 			{
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 	}
@@ -97,7 +97,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 	// Only change if the new topic is different than the current one
 	if (c->topic != t)
 		c->SetTopic(user, t, ServerInstance->Time());
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 void Topic::ShowTopic(LocalUser* user, Channel* chan)

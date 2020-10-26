@@ -48,17 +48,17 @@ class CommandSakick : public Command
 			if (dest->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if (!channel->HasUser(dest))
 			{
 				user->WriteNotice("*** " + dest->nick + " is not on " + channel->name);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			/* For local clients, directly kick them. For remote clients,
-			 * just return CMD_SUCCESS knowing the protocol module will route the SAKICK to the user's
+			 * just return CmdResult::SUCCESS knowing the protocol module will route the SAKICK to the user's
 			 * local server and that will kick them instead.
 			 */
 			if (IS_LOCAL(dest))
@@ -68,14 +68,14 @@ class CommandSakick : public Command
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + channel->name);
 			}
 
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNotice("*** Invalid nickname or channel");
 		}
 
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

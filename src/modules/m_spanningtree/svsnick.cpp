@@ -53,7 +53,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		{
 			time_t ExpectedTS = ConvToNum<time_t>(parameters[3]);
 			if (u->age != ExpectedTS)
-				return CMD_FAILURE; // Ignore SVSNICK
+				return CmdResult::FAILURE; // Ignore SVSNICK
 		}
 
 		std::string nick = parameters[1];
@@ -62,7 +62,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 
 		time_t NickTS = ConvToNum<time_t>(parameters[2]);
 		if (NickTS <= 0)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		if (!u->ChangeNick(nick, NickTS))
 		{
@@ -71,7 +71,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandSVSNick::GetRouting(User* user, const Params& parameters)

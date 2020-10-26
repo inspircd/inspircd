@@ -46,19 +46,19 @@ class CommandChgname : public Command
 		if ((!dest) || (dest->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (parameters[1].empty())
 		{
 			user->WriteNotice("*** CHGNAME: Real name must be specified");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxReal)
 		{
 			user->WriteNotice("*** CHGNAME: Real name is too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
@@ -67,7 +67,7 @@ class CommandChgname : public Command
 			ServerInstance->SNO.WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->GetRealName().c_str());
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

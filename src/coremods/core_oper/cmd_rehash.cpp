@@ -52,7 +52,7 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 		if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
 		{
 			// Doesn't match us. PreRehash is already done, nothing left to do
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 	}
 	else
@@ -64,7 +64,7 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 			param.erase(param.begin());
 
 		FOREACH_MOD(OnModuleRehash, (user, param));
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	// Rehash for me. Try to start the rehash thread
@@ -90,5 +90,5 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 	}
 
 	// Always return success so spanningtree forwards an incoming REHASH even if we failed
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

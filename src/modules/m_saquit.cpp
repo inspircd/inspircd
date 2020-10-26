@@ -47,22 +47,22 @@ class CommandSaquit : public Command
 			if (dest->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "+parameters[1]);
 
 			ServerInstance->Users.QuitUser(dest, parameters[1]);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNotice("*** Invalid nickname: '" + parameters[0] + "'");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 

@@ -70,7 +70,7 @@ class CommandUninvite : public Command
 				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			}
 
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(user))
@@ -78,7 +78,7 @@ class CommandUninvite : public Command
 			if (c->GetPrefixValue(user) < HALFOP_VALUE)
 			{
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator", c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-"));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
@@ -97,7 +97,7 @@ class CommandUninvite : public Command
 				n.SetServer(user->server);
 				n.push(u->nick).push(c->name).push(InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
 				user->WriteRemoteNumeric(n);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			Numeric::Numeric n(ERR_INVITEREMOVED);
@@ -109,7 +109,7 @@ class CommandUninvite : public Command
 			c->WriteRemoteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

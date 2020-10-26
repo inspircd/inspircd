@@ -54,11 +54,11 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 		 */
 		TreeServer* remoteserver = TreeServer::Get(u);
 		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine())
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 	}
 
 	ServerInstance->SNO.WriteToSnoMask('O', "From %s: User %s (%s@%s) is now a server operator of type %s", u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->GetRealHost().c_str(), opertype.c_str());
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CommandOpertype::Builder::Builder(User* user)

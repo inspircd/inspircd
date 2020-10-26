@@ -52,13 +52,13 @@ class CommandLockserv : public Command
 		if (!locked.empty())
 		{
 			user->WriteNotice("The server is already locked.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		locked = parameters.empty() ? "Server is temporarily closed. Please try again later." : parameters[0];
 		user->WriteNumeric(RPL_SERVLOCKON, user->server->GetName(), "Closed for new connections");
 		ServerInstance->SNO.WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -77,13 +77,13 @@ class CommandUnlockserv : public Command
 		if (locked.empty())
 		{
 			user->WriteNotice("The server isn't locked.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		locked.clear();
 		user->WriteNumeric(RPL_SERVLOCKOFF, user->server->GetName(), "Open for new connections");
 		ServerInstance->SNO.WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

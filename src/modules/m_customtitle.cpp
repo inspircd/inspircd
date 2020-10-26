@@ -101,12 +101,12 @@ class CommandTitle : public Command
 
 				user->WriteNotice("Custom title set to '" + config.title + "'");
 
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 			}
 		}
 
 		user->WriteNotice("Invalid title credentials");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 };

@@ -47,7 +47,7 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 		server->SetDesc(value);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CommandSInfo::Builder::Builder(TreeServer* server, const char* key, const std::string& val)

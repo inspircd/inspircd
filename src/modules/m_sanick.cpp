@@ -48,19 +48,19 @@ class CommandSanick : public Command
 			if (target && target->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if ((!target) || (target->registered != REG_ALL))
 			{
 				user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if (!ServerInstance->IsNick(parameters[1]))
 			{
 				user->WriteNotice("*** Invalid nickname: '" + parameters[1] + "'");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
@@ -79,7 +79,7 @@ class CommandSanick : public Command
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

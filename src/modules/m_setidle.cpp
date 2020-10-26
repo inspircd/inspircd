@@ -51,7 +51,7 @@ class CommandSetidle : public SplitCommand
 		if (!InspIRCd::Duration(parameters[0], idle))
 		{
 			user->WriteNumeric(ERR_INVALIDIDLETIME, "Invalid idle time.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		user->idle_lastmsg = (ServerInstance->Time() - idle);
 		// minor tweak - we cant have signon time shorter than our idle time!
@@ -60,7 +60,7 @@ class CommandSetidle : public SplitCommand
 		ServerInstance->SNO.WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
 		user->WriteNumeric(RPL_IDLETIMESET, "Idle time set.");
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

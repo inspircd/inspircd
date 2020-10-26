@@ -364,9 +364,9 @@ class CommandMonitor : public SplitCommand
 			offline.Flush();
 		}
 		else
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

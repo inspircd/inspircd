@@ -55,7 +55,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		if (match_pass && match_hosts)
 		{
 			user->Oper(ifo);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 	}
 
@@ -73,5 +73,5 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	user->CommandFloodPenalty += 10000;
 
 	ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
-	return CMD_FAILURE;
+	return CmdResult::FAILURE;
 }

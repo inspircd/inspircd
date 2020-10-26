@@ -77,25 +77,25 @@ class CommandKnock : public Command
 		if (!c)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (c->HasUser(user))
 		{
 			user->WriteNumeric(ERR_KNOCKONCHAN, c->name, InspIRCd::Format("Can't KNOCK on %s, you are already on that channel.", c->name.c_str()));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (c->IsModeSet(noknockmode))
 		{
 			user->WriteNumeric(ERR_CANNOTKNOCK, InspIRCd::Format("Can't KNOCK on %s, +K is set.", c->name.c_str()));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (!c->IsModeSet(inviteonlymode))
 		{
 			user->WriteNumeric(ERR_CHANOPEN, c->name, InspIRCd::Format("Can't KNOCK on %s, channel is not invite only so knocking is pointless!", c->name.c_str()));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (notify & KN_SEND_NOTICE)
@@ -115,7 +115,7 @@ class CommandKnock : public Command
 			user->WriteNumeric(RPL_KNOCKDLVR, c->name, "KNOCKing on channel");
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

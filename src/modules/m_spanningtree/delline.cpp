@@ -39,7 +39,7 @@ CmdResult CommandDelLine::Handle(User* user, Params& params)
 	{
 		ServerInstance->SNO.WriteToSnoMask('X', "%s removed %s%s on %s: %s", setter.c_str(),
 				params[0].c_str(), params[0].length() == 1 ? "-line" : "", params[1].c_str(), reason.c_str());
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
-	return CMD_FAILURE;
+	return CmdResult::FAILURE;
 }

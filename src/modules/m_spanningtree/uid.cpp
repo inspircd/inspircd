@@ -134,25 +134,25 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	FOREACH_MOD(OnPostConnect, (_new));
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandFHost::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeDisplayedHost(params[0]);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeIdent(params[0]);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeRealName(params[0]);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CommandUID::Builder::Builder(User* user)

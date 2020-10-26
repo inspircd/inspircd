@@ -59,5 +59,5 @@ CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 		reply.AddNick(token);
 
 	reply.Flush();
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

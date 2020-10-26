@@ -339,15 +339,15 @@ class CommandAuthenticate : public SplitCommand
 	{
 		{
 			if (!cap.IsEnabled(user))
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 
 			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 
 			if (parameters[0].length() > MAX_AUTHENTICATE_SIZE)
 			{
 				user->WriteNumeric(ERR_SASLTOOLONG, "SASL message too long");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			SaslAuthenticator *sasl = authExt.get(user);
@@ -359,7 +359,7 @@ class CommandAuthenticate : public SplitCommand
 				authExt.unset(user);
 			}
 		}
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 
@@ -378,12 +378,12 @@ class CommandSASL : public Command
 		if (!target)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		SaslAuthenticator *sasl = authExt.get(target);
 		if (!sasl)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		SaslState state = sasl->ProcessInboundMessage(parameters);
 		if (state == SASL_DONE)
@@ -391,7 +391,7 @@ class CommandSASL : public Command
 			sasl->AnnounceState();
 			authExt.unset(target);
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

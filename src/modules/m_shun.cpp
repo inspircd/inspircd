@@ -92,7 +92,7 @@ class CommandShun : public Command
 			else
 			{
 				user->WriteNotice("*** Shun " + parameters[0] + " not found on the list.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 		else
@@ -105,7 +105,7 @@ class CommandShun : public Command
 				if (!InspIRCd::Duration(parameters[1], duration))
 				{
 					user->WriteNotice("*** Invalid duration for SHUN.");
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 				expr = parameters[2];
 			}
@@ -134,10 +134,10 @@ class CommandShun : public Command
 			{
 				delete r;
 				user->WriteNotice("*** Shun for " + target + " already exists.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

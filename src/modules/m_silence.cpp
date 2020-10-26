@@ -284,7 +284,7 @@ class CommandSilence : public SplitCommand
 		if (list && list->size() > ext.maxsilence)
 		{
 			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		else if (!list)
 		{
@@ -296,12 +296,12 @@ class CommandSilence : public SplitCommand
 		if (!list->insert(SilenceEntry(flags, mask)).second)
 		{
 			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified already exists");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		SilenceMessage msg("+" + mask, SilenceEntry::BitsToFlags(flags));
 		user->Send(msgprov, msg);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	CmdResult RemoveSilence(LocalUser* user, const std::string& mask, uint32_t flags)
@@ -317,12 +317,12 @@ class CommandSilence : public SplitCommand
 				list->erase(iter);
 				SilenceMessage msg("-" + mask, SilenceEntry::BitsToFlags(flags));
 				user->Send(msgprov, msg);
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 			}
 		}
 
 		user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified could not be found");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	CmdResult ShowSilenceList(LocalUser* user)
@@ -336,7 +336,7 @@ class CommandSilence : public SplitCommand
 			}
 		}
 		user->WriteNumeric(RPL_ENDOFSILELIST, "End of SILENCE list");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
  public:
@@ -377,7 +377,7 @@ class CommandSilence : public SplitCommand
 			if (!SilenceEntry::FlagsToBits(parameters[1], flags))
 			{
 				user->WriteNumeric(ERR_SILENCE, mask, parameters[1], "You specified one or more invalid SILENCE flags");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 			else if (flags == SilenceEntry::SF_EXEMPT)
 			{

@@ -64,9 +64,9 @@ class CoreExport CommandParser
 	 * @param user The user to call the handler on behalf of
 	 * @param cmd If non-NULL and the command was executed it is set to the command handler,
 	 * otherwise it isn't written to.
-	 * @return This method will return CMD_SUCCESS if the command handler was found and called,
-	 * and the command completeld successfully. It will return CMD_FAILURE if the command handler was found
-	 * and called, but the command did not complete successfully, and it will return CMD_INVALID if the
+	 * @return This method will return CmdResult::SUCCESS if the command handler was found and called,
+	 * and the command completeld successfully. It will return CmdResult::FAILURE if the command handler was found
+	 * and called, but the command did not complete successfully, and it will return CmdResult::INVALID if the
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */

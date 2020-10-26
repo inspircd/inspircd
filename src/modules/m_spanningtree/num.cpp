@@ -28,11 +28,11 @@ CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& para
 {
 	User* const target = ServerInstance->Users.FindUUID(params[1]);
 	if (!target)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	LocalUser* const localtarget = IS_LOCAL(target);
 	if (!localtarget)
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	Numeric::Numeric numeric(ConvToNum<unsigned int>(params[2]));
 	// Passing NULL is ok, in that case the numeric source becomes this server
@@ -40,7 +40,7 @@ CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& para
 	numeric.GetParams().insert(numeric.GetParams().end(), params.begin()+3, params.end());
 
 	localtarget->WriteNumeric(numeric);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandNum::GetRouting(User* user, const Params& params)

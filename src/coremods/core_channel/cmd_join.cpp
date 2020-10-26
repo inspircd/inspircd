@@ -40,26 +40,26 @@ CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
 	if (parameters.size() > 1)
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0, 1, false))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0], false, parameters[1]);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 	}
 	else
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0, -1, false))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0]);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 	}
 
 	user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
-	return CMD_FAILURE;
+	return CmdResult::FAILURE;
 }

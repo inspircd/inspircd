@@ -47,23 +47,23 @@ CmdResult CommandPart::Handle(User* user, const Params& parameters)
 	}
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 
 	if (!c)
 	{
 		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (!c->PartUser(user, reason))
 	{
 		user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandPart::GetRouting(User* user, const Params& parameters)

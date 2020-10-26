@@ -43,7 +43,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 	if (!Utils->FindServerMask(parameters[0]))
 	{
 		user->WriteRemoteNotice(InspIRCd::Format("*** RCONNECT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str()));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	/* Is this aimed at our server? */
@@ -70,7 +70,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** RCONNECT: Sending remote connect to \002 " + parameters[0] + "\002 to connect server \002" + parameters[1] + "\002.");
 		}
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandRConnect::GetRouting(User* user, const Params& parameters)

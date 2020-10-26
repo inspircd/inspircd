@@ -58,18 +58,18 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		if (ih.first.empty())
 		{
 			user->WriteNotice("*** Target not found.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		InsaneBan::IPHostMatcher matcher;
 		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "E", "hostmasks"))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for E-line.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(el, user))
@@ -105,5 +105,5 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -41,7 +41,7 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 		LocalUser* localuser = IS_LOCAL(user);
 		if ((localuser) && (!user->IsOper()))
 			localuser->CommandFloodPenalty += 2000;
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	ConfigTag* tag = ServerInstance->Config->EmptyTag;
@@ -54,7 +54,7 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 	if (motd == motds.end())
 	{
 		user->WriteRemoteNumeric(ERR_NOMOTD, "Message of the day file is missing.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	user->WriteRemoteNumeric(RPL_MOTDSTART, InspIRCd::Format("%s message of the day", ServerInstance->Config->ServerName.c_str()));
@@ -64,5 +64,5 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 
 	user->WriteRemoteNumeric(RPL_ENDOFMOTD, "End of message of the day.");
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -284,21 +284,21 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 CmdResult CommandWhois::HandleRemote(RemoteUser* target, const Params& parameters)
 {
 	if (parameters.size() < 2)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	User* user = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!user)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// User doing the whois must be on this server
 	LocalUser* localuser = IS_LOCAL(user);
 	if (!localuser)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	unsigned long idle = ConvToNum<unsigned long>(parameters.back());
 	DoWhois(localuser, target, target->signon, idle);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
@@ -309,7 +309,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 	time_t signon = 0;
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	/*
 	 * If 2 parameters are specified (/whois nick nick), ignore the first one like spanningtree
@@ -344,10 +344,10 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		/* no such nick/channel */
 		user->WriteNumeric(Numerics::NoSuchNick(!parameters[userindex].empty() ? parameters[userindex] : "*"));
 		user->WriteNumeric(RPL_ENDOFWHOIS, (!parameters[userindex].empty() ? parameters[userindex] : "*"), "End of /WHOIS list.");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModWhois : public Module

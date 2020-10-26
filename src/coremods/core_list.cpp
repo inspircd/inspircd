@@ -201,7 +201,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	}
 	user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModList

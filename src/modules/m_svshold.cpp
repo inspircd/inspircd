@@ -113,7 +113,7 @@ class CommandSvshold : public Command
 		if (!user->server->IsULine())
 		{
 			/* don't allow SVSHOLD from non-ulined clients */
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (parameters.size() == 1)
@@ -133,20 +133,20 @@ class CommandSvshold : public Command
 		else
 		{
 			if (parameters.size() < 3)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 
 			unsigned long duration;
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for SVSHOLD.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (silent)
-					return CMD_SUCCESS;
+					return CmdResult::SUCCESS;
 
 				if (!duration)
 				{
@@ -162,11 +162,11 @@ class CommandSvshold : public Command
 			else
 			{
 				delete r;
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

@@ -47,13 +47,13 @@ class CommandMkpasswd : public Command
 			if (!hp)
 			{
 				user->WriteNotice("Unknown hash type");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if (hp->IsKDF())
 			{
 				user->WriteNotice(type + " does not support HMAC");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
@@ -61,19 +61,19 @@ class CommandMkpasswd : public Command
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
 			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + str);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
 		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + parameters[0]);
 		if (!hp)
 		{
 			user->WriteNotice("Unknown hash type");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		std::string hexsum = hp->Generate(parameters[1]);
 		user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + hexsum);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

@@ -748,21 +748,21 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	if (m == creator)
 	{
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (creator->dying)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	if ((m) && (ServerInstance->Modules.CanUnload(m)))
 	{
 		ServerInstance->AtomicActions.AddAction(new ReloadAction(m, user->uuid, parameters[0]));
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 	else
 	{
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 }
 

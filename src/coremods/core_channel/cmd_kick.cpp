@@ -43,7 +43,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 	User* u;
 
 	if (CommandParser::LoopCall(user, this, parameters, 1))
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	if (IS_LOCAL(user))
 		u = ServerInstance->Users.FindNick(parameters[1]);
@@ -53,12 +53,12 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 	if (!c)
 	{
 		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	if ((!u) || (u->registered != REG_ALL))
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	Membership* srcmemb = NULL;
@@ -68,13 +68,13 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		if (!srcmemb)
 		{
 			user->WriteNumeric(ERR_NOTONCHANNEL, parameters[0], "You're not on that channel!");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (u->server->IsULine())
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You may not kick a U-lined client");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 
@@ -82,7 +82,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 	if (victimiter == c->userlist.end())
 	{
 		user->WriteNumeric(ERR_USERNOTINCHANNEL, u->nick, c->name, "They are not on that channel");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	Membership* const memb = victimiter->second;
 
@@ -93,7 +93,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		if (memb->id != Membership::IdFromString(parameters[2]))
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Dropped KICK due to membership id mismatch: " + ConvToStr(memb->id) + " != " + parameters[2]);
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 
@@ -108,7 +108,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		ModResult res;
 		FIRST_MOD_RESULT(OnUserPreKick, res, (user, memb, reason));
 		if (res == MOD_RES_DENY)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		if (res == MOD_RES_PASSTHRU)
 		{
@@ -125,14 +125,14 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 			{
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
 					req > HALFOP_VALUE ? "" : "half-"));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 	}
 
 	c->KickUser(user, victimiter, reason);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandKick::GetRouting(User* user, const Params& parameters)

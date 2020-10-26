@@ -44,19 +44,19 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 	{
 		NickMatcher matcher;
 		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, "Q", "nickmasks"))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)
 		{
 			user->WriteNotice("*** A Q-line only bans a nick pattern, not a nick!user@host pattern.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for Q-line.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 		if (ServerInstance->XLines->AddLine(ql,user))
@@ -90,11 +90,11 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		else
 		{
 			user->WriteNotice("*** Q-line " + parameters[0] + " not found on the list.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 bool CommandQline::NickMatcher::Check(User* user, const std::string& nick) const

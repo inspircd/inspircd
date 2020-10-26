@@ -114,7 +114,7 @@ class CommandCBan : public Command
 			else
 			{
 				user->WriteNotice("*** CBan " + parameters[0] + " not found on the list.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 		else
@@ -124,7 +124,7 @@ class CommandCBan : public Command
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for CBan.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
@@ -146,10 +146,10 @@ class CommandCBan : public Command
 			{
 				delete r;
 				user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

@@ -56,12 +56,12 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 	{
 		ServerInstance->SNO.WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 	else
 	{
 		user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules.LastError());
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 }
 
@@ -92,14 +92,14 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 	if (InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	Module* m = ServerInstance->Modules.Find(parameters[0]);
 	if (m == creator)
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (m && ServerInstance->Modules.Unload(m))
@@ -110,10 +110,10 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 	else
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], (m ? ServerInstance->Modules.LastError() : "No such module"));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModLoadModule : public Module

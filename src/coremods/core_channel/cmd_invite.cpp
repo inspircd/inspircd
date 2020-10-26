@@ -70,7 +70,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				if (!InspIRCd::Duration(parameters[2], duration))
 				{
 					user->WriteNotice("*** Invalid duration for invite");
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 				timeout = ServerInstance->Time() + duration;
 			}
@@ -81,12 +81,12 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		if (!c)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		if ((!u) || (u->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Verify channel timestamp if the INVITE is coming from a remote server
@@ -94,31 +94,31 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		{
 			// Remote INVITE commands must carry a channel timestamp
 			if (parameters.size() < 3)
-				return CMD_INVALID;
+				return CmdResult::INVALID;
 
 			// Drop the invite if our channel TS is lower
 			time_t RemoteTS = ConvToNum<time_t>(parameters[2]);
 			if (c->age < RemoteTS)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 		{
 			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (c->HasUser(u))
 		{
 			user->WriteNumeric(ERR_USERONCHANNEL, u->nick, c->name, "is already on channel");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
 
 		if (MOD_RESULT == MOD_RES_DENY)
 		{
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		else if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
@@ -131,7 +131,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 					ModeHandler* mh = ServerInstance->Modes.FindMode('h', MODETYPE_CHANNEL);
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
 						(mh && mh->name == "halfop" ? "half-" : "")));
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 			}
 		}
@@ -198,7 +198,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		}
 		user->WriteNumeric(RPL_ENDOFINVITELIST, "End of INVITE list");
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandInvite::GetRouting(User* user, const Params& parameters)

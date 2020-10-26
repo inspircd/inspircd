@@ -47,21 +47,21 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 	if (!InspIRCd::IsSID(sid))
 	{
 		socket->SendError("Invalid format server ID: "+sid+"!");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
 		socket->SendError("Server "+servername+" already exists!");
 		ServerInstance->SNO.WriteToSnoMask('L', "Server \002"+CheckDupe->GetName()+"\002 being introduced from \002" + ParentOfThis->GetName() + "\002 denied, already exists. Closing link with " + ParentOfThis->GetName());
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	CheckDupe = Utils->FindServer(sid);
 	if (CheckDupe)
 	{
 		socket->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
 		ServerInstance->SNO.WriteToSnoMask('L', "Server \002"+servername+"\002 being introduced from \002" + ParentOfThis->GetName() + "\002 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	TreeServer* route = ParentOfThis->GetRoute();
@@ -71,7 +71,7 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 	HandleExtra(Node, params);
 
 	ServerInstance->SNO.WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 void CommandServer::HandleExtra(TreeServer* newserver, Params& params)

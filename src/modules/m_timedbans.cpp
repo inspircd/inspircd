@@ -87,14 +87,14 @@ class CommandTban : public Command
 		if (!channel)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		unsigned int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You do not have permission to set bans on this channel");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		TimedBan T;
@@ -102,7 +102,7 @@ class CommandTban : public Command
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("Invalid ban time");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		unsigned long expire = duration + ServerInstance->Time();
 
@@ -114,7 +114,7 @@ class CommandTban : public Command
 		if (IsBanSet(channel, mask))
 		{
 			user->WriteNotice("Ban already set");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		Modes::ChangeList setban;
@@ -125,7 +125,7 @@ class CommandTban : public Command
 		if (ServerInstance->Modes.GetLastChangeList().empty())
 		{
 			user->WriteNotice("Invalid ban mask");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		T.mask = mask;
@@ -146,7 +146,7 @@ class CommandTban : public Command
 			channel->WriteRemoteNotice(message, pfxchar);
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

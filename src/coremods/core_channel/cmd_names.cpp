@@ -49,11 +49,11 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 	if (parameters.empty())
 	{
 		user->WriteNumeric(RPL_ENDOFNAMES, '*', "End of /NAMES list.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
@@ -68,12 +68,12 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 		if ((show_invisible) || (!c->IsModeSet(secretmode)))
 		{
 			SendNames(user, c, show_invisible);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 	}
 
 	user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-	return CMD_FAILURE;
+	return CmdResult::FAILURE;
 }
 
 void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)

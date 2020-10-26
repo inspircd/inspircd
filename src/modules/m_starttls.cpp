@@ -49,19 +49,19 @@ class CommandStartTLS : public SplitCommand
 		if (!ssl)
 		{
 			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not enabled");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted after client registration is complete");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (user->eh.GetIOHook())
 		{
 			user->WriteNumeric(ERR_STARTTLS, "STARTTLS failure");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		user->WriteNumeric(RPL_STARTTLS, "STARTTLS successful, go ahead with TLS handshake");
@@ -77,7 +77,7 @@ class CommandStartTLS : public SplitCommand
 
 		ssl->OnAccept(&user->eh, NULL, NULL);
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

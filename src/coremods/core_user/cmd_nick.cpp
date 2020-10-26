@@ -53,7 +53,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	if (newnick.empty())
 	{
 		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (newnick == "0")
@@ -63,7 +63,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	else if (!ServerInstance->IsNick(newnick))
 	{
 		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	ModResult MOD_RESULT;
@@ -71,7 +71,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 
 	// If a module denied the change, abort now
 	if (MOD_RESULT == MOD_RES_DENY)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
 	// one of the channels they are on
@@ -85,13 +85,13 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
 					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
 						chan->name.c_str()));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 	}
 
 	if (!user->ChangeNick(newnick))
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	if (user->registered < REG_NICKUSER)
 	{
@@ -99,5 +99,5 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		return CommandUser::CheckRegister(user);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

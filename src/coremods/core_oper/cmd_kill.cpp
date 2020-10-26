@@ -62,14 +62,14 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	{
 		// If we got a colon delimited list of nicks then the handler ran for each nick,
 		// and KILL commands were broadcast for remote targets.
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	User* target = ServerInstance->Users.Find(parameters[0]);
 	if (!target)
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	/*
@@ -90,7 +90,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, target, parameters[1]));
 
 		if (MOD_RESULT == MOD_RES_DENY)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		killreason = "Killed (";
 		if (!hidenick.empty())
@@ -137,7 +137,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	// send the quit out
 	ServerInstance->Users.QuitUser(target, killreason);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandKill::GetRouting(User* user, const Params& parameters)

@@ -59,24 +59,24 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		if (ih.first.empty())
 		{
 			user->WriteNotice("*** Target not found.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		InsaneBan::IPHostMatcher matcher;
 		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "K", "hostmasks"))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		if (target.find('!') != std::string::npos)
 		{
 			user->WriteNotice("*** K-line cannot operate on nick!user@host masks.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for K-line.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		KLine* kl = new KLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(kl,user))
@@ -114,5 +114,5 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

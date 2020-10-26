@@ -50,18 +50,18 @@ class CommandSATopic : public Command
 			if (target->topic == newTopic)
 			{
 				user->WriteNotice(InspIRCd::Format("The topic on %s is already what you are trying to change it to.", target->name.c_str()));
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 			}
 
 			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 };

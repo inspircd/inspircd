@@ -42,7 +42,7 @@ class CommandAlltime : public Command
 		user->WriteRemoteNotice(msg);
 
 		/* we want this routed out! */
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

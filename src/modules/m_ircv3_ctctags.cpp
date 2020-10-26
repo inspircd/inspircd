@@ -63,7 +63,7 @@ class CommandTagMsg : public Command
 
 		// Inform modules that a TAGMSG was sent.
 		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserPostTagMessage, (source, msgtarget, msgdetails));
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
@@ -73,14 +73,14 @@ class CommandTagMsg : public Command
 		{
 			// The target channel does not exist.
 			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Fire the pre-message events.
 		MessageTarget msgtarget(chan, pm ? pm->GetPrefix() : 0);
 		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
 		CTCTags::TagMessage message(source, chan, msgdetails.tags_out, msgtarget.status);
@@ -112,7 +112,7 @@ class CommandTagMsg : public Command
 		if (!source->HasPrivPermission("users/mass-message"))
 		{
 			source->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Extract the server glob match from the target parameter.
@@ -122,7 +122,7 @@ class CommandTagMsg : public Command
 		MessageTarget msgtarget(&servername);
 		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// If the current server name matches the server name glob then send
 		// the message out to the local users.
@@ -183,14 +183,14 @@ class CommandTagMsg : public Command
 		{
 			// The target user does not exist or is not fully registered.
 			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Fire the pre-message events.
 		MessageTarget msgtarget(target);
 		CTCTags::TagMessageDetails msgdetails(parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		LocalUser* const localtarget = IS_LOCAL(target);
 		if (localtarget && cap.IsEnabled(localtarget))
@@ -218,17 +218,17 @@ class CommandTagMsg : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		// Check that the source has the message tags capability.
 		if (IS_LOCAL(user) && !cap.IsEnabled(user))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// The specified message tags were empty.
 		if (parameters.GetTags().empty())
 		{
 			user->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// The target is a server glob.

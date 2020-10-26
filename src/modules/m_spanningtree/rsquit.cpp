@@ -46,13 +46,13 @@ CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 	if (!server_target)
 	{
 		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str()));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (server_target->IsRoot())
 	{
 		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str()));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (server_target->IsLocal())
@@ -63,7 +63,7 @@ CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 		server_target->SQuit("Server quit by " + user->GetFullRealHost() + " (" + reason + ")");
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandRSQuit::GetRouting(User* user, const Params& parameters)

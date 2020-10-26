@@ -47,7 +47,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		if (target.find('!') != std::string::npos)
 		{
 			user->WriteNotice("*** You cannot include a nickname in a Z-line, a Z-line must ban only an IP mask.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		User *u = ServerInstance->Users.Find(target);
@@ -68,13 +68,13 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 
 		IPMatcher matcher;
 		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, "Z", "ipmasks"))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		unsigned long duration;
 		if (!InspIRCd::Duration(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for Z-line.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
@@ -108,11 +108,11 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		else
 		{
 			user->WriteNotice("*** Z-line " + target + " not found on the list.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 bool CommandZline::IPMatcher::Check(User* user, const std::string& ip) const

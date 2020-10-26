@@ -84,24 +84,24 @@ class RemoveBase : public Command
 		if (!channel)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(channame));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		if ((!target) || (target->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(username));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (!channel->HasUser(target))
 		{
 			user->WriteNotice(InspIRCd::Format("*** User %s is not on channel %s", target->nick.c_str(), channel->name.c_str()));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (target->server->IsULine())
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a U-line may remove a U-line from a channel.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
@@ -128,7 +128,7 @@ class RemoveBase : public Command
 						p.push_back(":" + parameters[2]);
 					ServerInstance->PI->SendEncapsulatedData(target->server->GetName(), "REMOVE", p, user);
 
-					return CMD_SUCCESS;
+					return CmdResult::SUCCESS;
 				}
 
 				std::string reasonparam;
@@ -150,17 +150,17 @@ class RemoveBase : public Command
 			else
 			{
 				user->WriteNotice(InspIRCd::Format("*** You do not have access to /REMOVE %s from %s", target->nick.c_str(), channel->name.c_str()));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
 			user->WriteNumeric(ERR_RESTRICTED, channel->name, InspIRCd::Format("Can't remove user %s from channel (+Q is set)", target->nick.c_str()));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

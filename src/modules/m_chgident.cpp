@@ -47,19 +47,19 @@ class CommandChgident : public Command
 		if ((!dest) || (dest->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteNotice("*** CHGIDENT: Ident is too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (!ServerInstance->IsIdent(parameters[1]))
 		{
 			user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
@@ -70,7 +70,7 @@ class CommandChgident : public Command
 				ServerInstance->SNO.WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

@@ -245,12 +245,12 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Removed filter '" + parameters[0] + "': " + reason);
 			ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "%s removed filter '%s': %s",
 				user->nick.c_str(), parameters[0].c_str(), reason.c_str());
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNotice("*** Filter '" + parameters[0] + "' not found on the list.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 	}
 	else
@@ -270,7 +270,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'warn', 'block', 'silent', 'kill', and 'shun'.");
 				else
 					user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'zline', 'none', 'warn', 'block', 'silent', and 'kill'.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if (type == FA_GLINE || type == FA_ZLINE || type == FA_SHUN)
@@ -280,14 +280,14 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 					if (!InspIRCd::Duration(parameters[3], duration))
 					{
 						user->WriteNotice("*** Invalid duration for filter");
-						return CMD_FAILURE;
+						return CmdResult::FAILURE;
 					}
 					reasonindex = 4;
 				}
 				else
 				{
 					user->WriteNotice("*** Not enough parameters: When setting a '" + parameters[1] + "' type filter, a duration must be specified as the third parameter.");
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 			}
 			else
@@ -309,18 +309,18 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F',
 					"%s added filter %s", user->nick.c_str(), message.c_str());
 
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 			}
 			else
 			{
 				user->WriteNotice("*** Filter '" + freeform + "' could not be added: " + result.second);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 		else
 		{
 			user->WriteNotice("*** Not enough parameters.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 	}

@@ -39,12 +39,12 @@ class CommandSVSTOPIC : public Command
 		if (!user->server->IsULine())
 		{
 			// Ulines only
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
 		if (!chan)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		if (parameters.size() == 4)
 		{
@@ -53,7 +53,7 @@ class CommandSVSTOPIC : public Command
 			if (!topicts)
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
-				return CMD_INVALID;
+				return CmdResult::INVALID;
 			}
 
 			chan->SetTopic(user, parameters[3], topicts, &parameters[2]);
@@ -65,7 +65,7 @@ class CommandSVSTOPIC : public Command
 			chan->setby.clear();
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

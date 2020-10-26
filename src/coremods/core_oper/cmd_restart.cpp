@@ -67,5 +67,5 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 	{
 		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART Command from %s.", user->GetFullRealHost().c_str());
 	}
-	return CMD_FAILURE;
+	return CmdResult::FAILURE;
 }

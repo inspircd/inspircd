@@ -30,12 +30,12 @@ CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
 {
 	// Check for valid channel name
 	if (!ServerInstance->IsChannel(parameters[1]))
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// Check target exists
 	User* u = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!u)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	/* only join if it's local, otherwise just pass it on! */
 	LocalUser* localuser = IS_LOCAL(u);
@@ -53,7 +53,7 @@ CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
 		Channel::JoinUser(localuser, parameters[1], override, key);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandSVSJoin::GetRouting(User* user, const Params& parameters)

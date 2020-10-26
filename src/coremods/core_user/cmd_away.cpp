@@ -56,7 +56,7 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 		{
 			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreAway, MOD_RESULT, (luser, message));
 			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 		}
 
 		user->awaytime = ServerInstance->Time();
@@ -70,7 +70,7 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 		{
 			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreBack, MOD_RESULT, (luser));
 			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 		}
 
 		user->awaytime = 0;
@@ -79,7 +79,7 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (user));
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandAway::GetRouting(User* user, const Params& parameters)

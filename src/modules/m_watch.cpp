@@ -144,7 +144,7 @@ class CommandWatch : public SplitCommand
 		if (parameters.empty())
 		{
 			HandleList(user, false);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
 		bool watch_l_done = false;
@@ -179,7 +179,7 @@ class CommandWatch : public SplitCommand
 				HandleStats(user);
 			}
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

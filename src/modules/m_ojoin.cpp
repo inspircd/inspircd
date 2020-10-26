@@ -50,7 +50,7 @@ class CommandOjoin : public SplitCommand
 		if (!ServerInstance->IsChannel(parameters[0]))
 		{
 			user->WriteNotice("*** Invalid characters in channel name or name too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		active = true;
@@ -69,7 +69,7 @@ class CommandOjoin : public SplitCommand
 		{
 			channel = ServerInstance->FindChan(parameters[0]);
 			if (!channel)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
@@ -79,7 +79,7 @@ class CommandOjoin : public SplitCommand
 				changelist.push_add(*opmode, user->nick);
 			ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, NULL, changelist);
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

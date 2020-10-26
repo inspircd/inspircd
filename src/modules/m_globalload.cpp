@@ -56,7 +56,7 @@ class CommandGloadmodule : public Command
 		else
 			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
@@ -81,7 +81,7 @@ class CommandGunloadmodule : public Command
 		if (InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 		{
 			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
@@ -107,7 +107,7 @@ class CommandGunloadmodule : public Command
 		else
 			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
@@ -142,13 +142,13 @@ class CommandGreloadmodule : public Command
 			else
 			{
 				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 		else
 			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

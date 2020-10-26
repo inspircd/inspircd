@@ -53,7 +53,7 @@ class CommandOpermotd : public Command
 	{
 		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
 			ShowOperMOTD(user, true);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

@@ -71,13 +71,13 @@ class CommandProp : public SplitCommand
 		if (!chan)
 		{
 			src->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (parameters.size() == 1)
 		{
 			DisplayList(src, chan);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		unsigned int i = 1;
 		Modes::ChangeList modes;
@@ -103,7 +103,7 @@ class CommandProp : public SplitCommand
 			}
 		}
 		ServerInstance->Modes.ProcessSingle(src, chan, NULL, modes, ModeParser::MODE_CHECKACCESS);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

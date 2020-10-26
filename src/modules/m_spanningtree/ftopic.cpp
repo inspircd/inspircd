@@ -30,16 +30,16 @@ CmdResult CommandFTopic::Handle(User* user, Params& params)
 {
 	Channel* c = ServerInstance->FindChan(params[0]);
 	if (!c)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	if (c->age < ServerCommand::ExtractTS(params[1]))
 		// Our channel TS is older, nothing to do
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// Channel::topicset is initialized to 0 on channel creation, so their ts will always win if we never had a topic
 	time_t ts = ServerCommand::ExtractTS(params[2]);
 	if (ts < c->topicset)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	// The topic text is always the last parameter
 	const std::string& newtopic = params.back();
@@ -60,15 +60,15 @@ CmdResult CommandFTopic::Handle(User* user, Params& params)
 	{
 		// Discard if their topic text is "smaller"
 		if (c->topic > newtopic)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// If the texts are equal in addition to the timestamps, decide which setter to keep
 		if ((c->topic == newtopic) && (c->setby >= setter))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 	}
 
 	c->SetTopic(user, newtopic, ts, &setter);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 // Used when bursting and in reply to RESYNC, contains topic setter as the 4th parameter

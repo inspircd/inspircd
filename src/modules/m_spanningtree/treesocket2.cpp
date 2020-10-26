@@ -385,11 +385,11 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	else
 	{
 		res = cmd->Handle(who, newparams);
-		if (res == CMD_INVALID)
+		if (res == CmdResult::INVALID)
 			throw ProtocolException("Error in command handler");
 	}
 
-	if (res == CMD_SUCCESS)
+	if (res == CmdResult::SUCCESS)
 		Utils->RouteCommand(server->GetRoute(), cmdbase, newparams, who);
 }
 

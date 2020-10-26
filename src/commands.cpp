@@ -94,20 +94,20 @@ CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 
 	ServerInstance->Logs.Log("COMMAND", LOG_DEFAULT, "Unknown user type %d in command (uuid=%s)!",
 		user->usertype, user->uuid.c_str());
-	return CMD_INVALID;
+	return CmdResult::INVALID;
 }
 
 CmdResult SplitCommand::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	return CMD_INVALID;
+	return CmdResult::INVALID;
 }
 
 CmdResult SplitCommand::HandleRemote(RemoteUser* user, const Params& parameters)
 {
-	return CMD_INVALID;
+	return CmdResult::INVALID;
 }
 
 CmdResult SplitCommand::HandleServer(FakeUser* user, const Params& parameters)
 {
-	return CMD_INVALID;
+	return CmdResult::INVALID;
 }

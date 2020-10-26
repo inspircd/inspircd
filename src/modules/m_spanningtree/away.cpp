@@ -47,7 +47,7 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 		u->awaymsg.clear();
 		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (u));
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CommandAway::Builder::Builder(User* user)

@@ -53,12 +53,12 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 		if (!user->IsOper())
 		{
 			user->WriteNotice("*** You cannot check what modules other servers have loaded.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// From an oper and not for us, forward
 		if (!for_us)
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 	}
 
 	bool has_priv = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
@@ -72,5 +72,5 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 	}
 	user->WriteRemoteNumeric(RPL_ENDOFMODLIST, "End of MODULES list");
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

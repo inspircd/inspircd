@@ -42,5 +42,5 @@ CmdResult CommandPong::HandleServer(TreeServer* server, CommandBase::Params& par
 		// PONG for us
 		server->OnPong();
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

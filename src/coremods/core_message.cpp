@@ -133,7 +133,7 @@ namespace
 
 		// Inform modules that a message was sent.
 		FOREACH_MOD(OnUserPostMessage, (source, msgtarget, msgdetails));
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 }
 
@@ -149,7 +149,7 @@ class CommandMessage : public Command
 		{
 			// The target channel does not exist.
 			source->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Fire the pre-message events.
@@ -157,7 +157,7 @@ class CommandMessage : public Command
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 		msgdetails.exemptions.insert(source);
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// Send the message to the members of the channel.
 		ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, chan, msgdetails.text, msgdetails.type, msgtarget.status);
@@ -176,7 +176,7 @@ class CommandMessage : public Command
 		if (!source->HasPrivPermission("users/mass-message"))
 		{
 			source->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Extract the server glob match from the target parameter.
@@ -186,7 +186,7 @@ class CommandMessage : public Command
 		MessageTarget msgtarget(&servername);
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// If the current server name matches the server name glob then send
 		// the message out to the local users.
@@ -247,14 +247,14 @@ class CommandMessage : public Command
 		{
 			// The target user does not exist or is not fully registered.
 			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Fire the pre-message events.
 		MessageTarget msgtarget(target);
 		MessageDetailsImpl msgdetails(msgtype, parameters[1], parameters.GetTags());
 		if (!FirePreEvents(source, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// If the target is away then inform the user.
 		if (target->IsAway() && msgdetails.type == MSG_PRIVMSG)
@@ -290,13 +290,13 @@ class CommandMessage : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 
 		// The specified message was empty.
 		if (parameters[1].empty())
 		{
 			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// The target is a server glob.
@@ -342,7 +342,7 @@ class CommandSQuery : public SplitCommand
 		if (parameters[1].empty())
 		{
 			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// The target can be either a nick or a nick@server mask.
@@ -365,14 +365,14 @@ class CommandSQuery : public SplitCommand
 		{
 			// The target user does not exist, is not fully registered, or is not a service.
 			user->WriteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// Fire the pre-message events.
 		MessageTarget msgtarget(target);
 		MessageDetailsImpl msgdetails(MSG_PRIVMSG, parameters[1], parameters.GetTags());
 		if (!FirePreEvents(user, msgtarget, msgdetails))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		// The SQUERY command targets a service on a U-lined server. This can never
 		// be on the server local to the source so we don't need to do any routing

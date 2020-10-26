@@ -62,11 +62,11 @@ void CmdBuilder::UpdateTags()
 CmdResult CommandSNONotice::Handle(User* user, Params& params)
 {
 	ServerInstance->SNO.WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandEndBurst::HandleServer(TreeServer* server, Params& params)
 {
 	server->FinishBurst();
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -43,7 +43,7 @@ class CommandClearChan : public Command
 		if (!chan)
 		{
 			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		// See what method the oper wants to use, default to KILL
@@ -61,12 +61,12 @@ class CommandClearChan : public Command
 			if ((method != "Z") && (method != "G"))
 			{
 				user->WriteNotice("Invalid method for clearing " + chan->name);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			xlf = ServerInstance->XLines->GetFactory(method);
 			if (!xlf)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 		}
 
 		const std::string reason = parameters.size() > 2 ? parameters.back() : "Clearing " + chan->name;
@@ -138,7 +138,7 @@ class CommandClearChan : public Command
 		if (xlf)
 			ServerInstance->XLines->ApplyLines();
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

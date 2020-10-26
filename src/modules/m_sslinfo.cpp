@@ -163,14 +163,14 @@ class CommandSSLInfo : public Command
 		if ((!target) || (target->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 		if (operonlyfp && !user->IsOper() && target != user)
 		{
 			user->WriteNotice("*** You cannot view TLS (SSL) client certificate information for other users");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		ssl_cert* cert = sslapi.GetCertificate(target);
@@ -190,7 +190,7 @@ class CommandSSLInfo : public Command
 			user->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

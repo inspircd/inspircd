@@ -75,7 +75,7 @@ class CommandShowFile : public Command
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	void UpdateSettings(ConfigTag* tag, const std::vector<std::string>& filecontents)

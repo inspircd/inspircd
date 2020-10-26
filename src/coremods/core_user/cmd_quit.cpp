@@ -47,7 +47,7 @@ CmdResult CommandQuit::Handle(User* user, const Params& parameters)
 	std::string* operquitmsg = operquit.get(user);
 	ServerInstance->Users.QuitUser(user, quitmsg, operquitmsg);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandQuit::GetRouting(User* user, const Params& parameters)

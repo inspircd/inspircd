@@ -55,7 +55,7 @@ class CommandNicklock : public Command
 		if ((!target) || (target->registered != REG_ALL))
 		{
 			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		/* Do local sanity checks and bails */
@@ -64,7 +64,7 @@ class CommandNicklock : public Command
 			if (!ServerInstance->IsNick(parameters[1]))
 			{
 				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			user->WriteNumeric(RPL_NICKLOCKON, parameters[1], "Nickname now locked.");
@@ -85,7 +85,7 @@ class CommandNicklock : public Command
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
@@ -115,7 +115,7 @@ class CommandNickunlock : public Command
 		if (!target)
 		{
 			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(target))
@@ -129,11 +129,11 @@ class CommandNickunlock : public Command
 			else
 			{
 				user->WriteRemoteNumeric(ERR_NICKNOTLOCKED, target->nick, "This user's nickname is not locked.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
@@ -148,7 +148,7 @@ class ModuleNickLock : public Module
 	IntExtItem locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
- 
+
  public:
 	ModuleNickLock()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")

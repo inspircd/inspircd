@@ -527,7 +527,7 @@ CmdResult CommandCloak::Handle(User* user, const Params& parameters)
 		const std::string cloak = mod->GenCloak(*iter, sa, ipaddr, parameters[0]);
 		user->WriteNotice(InspIRCd::Format("*** Cloak #%u for %s is %s", ++id, parameters[0].c_str(), cloak.c_str()));
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 MODULE_INIT(ModuleCloaking)

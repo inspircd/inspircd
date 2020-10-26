@@ -54,7 +54,7 @@ class CommandCycle : public SplitCommand
 		if (!channel)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (channel->HasUser(user))
@@ -63,20 +63,20 @@ class CommandCycle : public SplitCommand
 			{
 				// User is banned, send an error and don't cycle them
 				user->WriteNotice("*** You may not cycle, as you are banned on channel " + channel->name);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			channel->PartUser(user, reason);
 			Channel::JoinUser(user, parameters[0], true);
 
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNumeric(ERR_NOTONCHANNEL, channel->name, "You're not on that channel");
 		}
 
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 

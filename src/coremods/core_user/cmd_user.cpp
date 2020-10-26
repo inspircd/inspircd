@@ -50,7 +50,7 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			user->WriteNumeric(ERR_INVALIDUSERNAME, name, "Your username is not valid");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		else
 		{
@@ -63,7 +63,7 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 	{
 		user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not reregister");
 		user->CommandFloodPenalty += 1000;
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	/* parameters 2 and 3 are local and remote hosts, and are ignored */
@@ -72,15 +72,15 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 
 CmdResult CommandUser::CheckRegister(LocalUser* user)
 {
-	// If the user is registered, return CMD_SUCCESS/CMD_FAILURE depending on what modules say, otherwise just
-	// return CMD_SUCCESS without doing anything, knowing the other handler will call us again
+	// If the user is registered, return CmdResult::SUCCESS/CmdResult::FAILURE depending on what modules say, otherwise just
+	// return CmdResult::SUCCESS without doing anything, knowing the other handler will call us again
 	if (user->registered == REG_NICKUSER)
 	{
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
 		if (MOD_RESULT == MOD_RES_DENY)
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

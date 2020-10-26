@@ -44,11 +44,11 @@ class CommandGlobops : public Command
 		if (parameters[0].empty())
 		{
 			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		ServerInstance->SNO.WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

@@ -62,5 +62,5 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 	user->WriteNumeric(RPL_USERHOST, retbuf);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -48,11 +48,11 @@ class CommandPass : public SplitCommand
 		{
 			user->CommandFloodPenalty += 1000;
 			user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not reregister");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		user->password = parameters[0];
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -78,7 +78,7 @@ class CommandPing : public SplitCommand
 	{
 		ClientProtocol::Messages::Pong pong(parameters[0]);
 		user->Send(ServerInstance->GetRFCEvents().pong, pong);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 
@@ -113,7 +113,7 @@ class CommandPong : public Command
 			else
 				localuser->lastping = 1;
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

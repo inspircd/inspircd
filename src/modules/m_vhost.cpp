@@ -74,12 +74,12 @@ class CommandVhost : public Command
 			{
 				user->WriteNotice("Setting your VHost: " + config.vhost);
 				user->ChangeDisplayedHost(config.vhost);
-				return CMD_SUCCESS;
+				return CmdResult::SUCCESS;
 			}
 		}
 
 		user->WriteNotice("Invalid username or password.");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 

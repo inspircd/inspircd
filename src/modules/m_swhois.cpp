@@ -56,7 +56,7 @@ class CommandSwhois : public Command
 		if (!dest) // allow setting swhois using SWHOIS before reg
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		std::string* text = swhois.get(dest);
@@ -87,7 +87,7 @@ class CommandSwhois : public Command
 		 */
 		ServerInstance->PI->SendMetaData(dest, "swhois", parameters[1]);
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 };

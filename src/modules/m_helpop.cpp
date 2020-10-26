@@ -81,7 +81,7 @@ class CommandHelpop : public Command
 		if (titer == help.end())
 		{
 			user->WriteNumeric(ERR_HELPNOTFOUND, topic, nohelp);
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		const HelpTopic& entry = titer->second;
@@ -89,7 +89,7 @@ class CommandHelpop : public Command
 		for (HelpMessage::const_iterator liter = entry.body.begin(); liter != entry.body.end(); ++liter)
 			user->WriteNumeric(RPL_HELPTXT, topic, *liter);
 		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELPOP.");
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

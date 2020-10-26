@@ -183,11 +183,11 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 		if (!s)
 		{
 			user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (!s->IsRoot())
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 	}
 
 	// Max depth and max server name length
@@ -218,7 +218,7 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 		(unsigned int)Utils->serverlist.size(), (Utils->serverlist.size() > 1 ? "s" : ""), (unsigned int)totusers, (totusers > 1 ? "s" : ""), avg_users));
 	user->WriteRemoteNumeric(RPL_ENDMAP, "End of /MAP");
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandMap::GetRouting(User* user, const Params& parameters)

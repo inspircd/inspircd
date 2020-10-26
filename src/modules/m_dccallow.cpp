@@ -199,7 +199,7 @@ class CommandDccallow : public Command
 		{
 			// display current DCCALLOW list
 			DisplayDCCAllowList(user);
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 		else if (parameters.size() > 0)
 		{
@@ -212,18 +212,18 @@ class CommandDccallow : public Command
 				{
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 				else if (irc::equals(parameters[0], "HELP"))
 				{
 					// display help
 					DisplayHelp(user);
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 				else
 				{
 					user->WriteNumeric(ERR_UNKNOWNDCCALLOWCMD, "DCCALLOW command not understood. For help on DCCALLOW, type /DCCALLOW HELP");
-					return CMD_FAILURE;
+					return CmdResult::FAILURE;
 				}
 			}
 
@@ -256,7 +256,7 @@ class CommandDccallow : public Command
 					if (target == user)
 					{
 						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, "You cannot add yourself to your own DCCALLOW list!");
-						return CMD_FAILURE;
+						return CmdResult::FAILURE;
 					}
 
 					dl = ext.get(user);
@@ -271,7 +271,7 @@ class CommandDccallow : public Command
 					if (dl->size() >= ext.maxentries)
 					{
 						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, "Too many nicks on DCCALLOW list");
-						return CMD_FAILURE;
+						return CmdResult::FAILURE;
 					}
 
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
@@ -279,7 +279,7 @@ class CommandDccallow : public Command
 						if (k->nickname == target->nick)
 						{
 							user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is already on your DCCALLOW list", target->nick.c_str()));
-							return CMD_FAILURE;
+							return CmdResult::FAILURE;
 						}
 					}
 
@@ -292,20 +292,20 @@ class CommandDccallow : public Command
 					else if (!InspIRCd::IsValidDuration(parameters[1]))
 					{
 						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is not a valid DCCALLOW duration", parameters[1].c_str()));
-						return CMD_FAILURE;
+						return CmdResult::FAILURE;
 					}
 					else
 					{
 						if (!InspIRCd::Duration(parameters[1], length))
 						{
 							user->WriteNotice("*** Invalid duration for DCC allow");
-							return CMD_FAILURE;
+							return CmdResult::FAILURE;
 						}
 					}
 
 					if (!InspIRCd::IsValidMask(mask))
 					{
-						return CMD_FAILURE;
+						return CmdResult::FAILURE;
 					}
 
 					dl->push_back(DCCAllow(target->nick, mask, ServerInstance->Time(), length));
@@ -320,17 +320,17 @@ class CommandDccallow : public Command
 					}
 
 					/* route it. */
-					return CMD_SUCCESS;
+					return CmdResult::SUCCESS;
 				}
 			}
 			else
 			{
 				// nick doesn't exist
 				user->WriteNumeric(Numerics::NoSuchNick(nick));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

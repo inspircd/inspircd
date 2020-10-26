@@ -70,7 +70,7 @@ class CommandTline : public Command
 		else
 			user->WriteNotice(InspIRCd::Format("*** TLINE: Counted %lu user(s). Matched '%s' against no user(s).", n_counted, parameters[0].c_str()));
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

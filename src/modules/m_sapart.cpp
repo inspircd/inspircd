@@ -40,7 +40,7 @@ class CommandSapart : public Command
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 1))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 
 		User* dest = ServerInstance->Users.Find(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
@@ -54,17 +54,17 @@ class CommandSapart : public Command
 			if (dest->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			if (!channel->HasUser(dest))
 			{
 				user->WriteNotice("*** " + dest->nick + " is not on " + channel->name);
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			/* For local clients, directly part them generating a PART message. For remote clients,
-			 * just return CMD_SUCCESS knowing the protocol module will route the SAPART to the users
+			 * just return CmdResult::SUCCESS knowing the protocol module will route the SAPART to the users
 			 * local server and that will generate the PART instead
 			 */
 			if (IS_LOCAL(dest))
@@ -73,14 +73,14 @@ class CommandSapart : public Command
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+channel->name);
 			}
 
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 		else
 		{
 			user->WriteNotice("*** Invalid nickname or channel");
 		}
 
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

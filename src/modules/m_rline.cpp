@@ -151,7 +151,7 @@ class CommandRLine : public Command
 			if (!InspIRCd::Duration(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for R-line.");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 			XLine *r = NULL;
 
@@ -202,7 +202,7 @@ class CommandRLine : public Command
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

@@ -39,7 +39,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	if (!xlf)
 	{
 		ServerInstance->SNO.WriteToSnoMask('x', "%s sent me an unknown ADDLINE type (%s).", setter.c_str(), params[0].c_str());
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	XLine* xl = NULL;
@@ -50,7 +50,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	catch (ModuleException &e)
 	{
 		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	xl->SetCreateTime(ConvToNum<time_t>(params[3]));
 	if (ServerInstance->XLines->AddLine(xl, NULL))
@@ -75,12 +75,12 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 		{
 			ServerInstance->XLines->ApplyLines();
 		}
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 	else
 	{
 		delete xl;
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 }
 

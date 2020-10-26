@@ -101,12 +101,12 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(Numerics::NoSuchChannel(target));
 		else
 			user->WriteNumeric(Numerics::NoSuchNick(target));
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 	if (parameters.size() == 1)
 	{
 		this->DisplayCurrentModes(user, targetuser, targetchannel);
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	// Populate a temporary Modes::ChangeList with the parameters
@@ -126,7 +126,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 			{
 				// Local users may only change the modes of other users if a module explicitly allows it
 				user->WriteNumeric(ERR_USERSDONTMATCH, "Can't change mode for other users");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			// This is a mode change by a local user and modules didn't explicitly allow/deny.
@@ -134,7 +134,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 			flags |= ModeParser::MODE_CHECKACCESS;
 		}
 		else if (MOD_RESULT == MOD_RES_DENY)
-			return CMD_FAILURE; // Entire mode change denied by a module
+			return CmdResult::FAILURE; // Entire mode change denied by a module
 	}
 	else
 		flags |= ModeParser::MODE_LOCALONLY;
@@ -152,7 +152,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 		this->DisplayListModes(user, targetchannel, parameters[1]);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandMode::GetRouting(User* user, const Params& parameters)

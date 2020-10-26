@@ -42,5 +42,5 @@ CmdResult CommandPing::Handle(User* user, Params& params)
 
 		reply.Unicast(user);
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

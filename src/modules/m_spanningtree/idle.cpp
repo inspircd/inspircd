@@ -41,13 +41,13 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 
 	User* target = ServerInstance->Users.FindUUID(params[0]);
 	if ((!target) || (target->registered != REG_ALL))
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	LocalUser* localtarget = IS_LOCAL(target);
 	if (!localtarget)
 	{
 		// Forward to target's server
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	if (params.size() >= 2)
@@ -71,5 +71,5 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 		reply.Unicast(issuer);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

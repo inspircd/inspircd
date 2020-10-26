@@ -50,14 +50,14 @@ class CommandSamode : public Command
 			if ((!target) || (target->registered != REG_ALL))
 			{
 				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 
 			// Changing the modes of another user requires a special permission
 			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes")))
 			{
 				user->WriteNotice("*** You are not allowed to /SAMODE other users (the privilege users/samode-usermodes is needed to /SAMODE others).");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
@@ -80,7 +80,7 @@ class CommandSamode : public Command
 			LogUsage(user, stdalgo::string::join(parameters));
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	void LogUsage(const User* user, const std::string& text)

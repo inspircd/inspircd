@@ -45,7 +45,7 @@ class CommandSethost : public Command
 		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** SETHOST: Host too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++)
@@ -53,17 +53,17 @@ class CommandSethost : public Command
 			if (!hostmap.test(static_cast<unsigned char>(*x)))
 			{
 				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->GetDisplayedHost());
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 };
 

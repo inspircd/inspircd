@@ -36,7 +36,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 
 		CmdBuilder("RESYNC").push(params[0]).Unicast(user);
 
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	bool apply_modes;
@@ -51,10 +51,10 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 	// Join the user and set the membership id to what they sent
 	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : NULL);
 	if (!memb)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	memb->id = Membership::IdFromString(params[1]);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& params)
@@ -65,7 +65,7 @@ CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& p
 	{
 		// This can happen for a number of reasons, safe to ignore
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Channel does not exist");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	if (!server->IsLocal())
@@ -73,5 +73,5 @@ CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& p
 
 	// Send all known information about the channel
 	server->GetSocket()->SyncChannel(chan);
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -721,7 +721,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param command The command being executed
 	 * @param parameters An array of array of characters containing the parameters for the command
 	 * @param user the user issuing the command
-	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
+	 * @param result The return code given by the command handler, one of CmdResult::SUCCESS or CmdResult::FAILURE
 	 * @param loop Whether the command is being called from LoopCall or directly.
 	 */
 	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);

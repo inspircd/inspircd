@@ -46,7 +46,7 @@ class CommandChghost : public Command
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** CHGHOST: Host too long");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		for (std::string::const_iterator x = parameters[1].begin(); x != parameters[1].end(); x++)
@@ -54,7 +54,7 @@ class CommandChghost : public Command
 			if (!hostmap.test(static_cast<unsigned char>(*x)))
 			{
 				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 			}
 		}
 
@@ -64,7 +64,7 @@ class CommandChghost : public Command
 		if ((!dest) || ((dest->registered != REG_ALL) && (!user->server->IsULine())))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
@@ -76,7 +76,7 @@ class CommandChghost : public Command
 			}
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

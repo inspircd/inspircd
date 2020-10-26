@@ -40,7 +40,7 @@ CmdResult CommandEncap::Handle(User* user, Params& params)
 			ServerCommand* const scmd = Utils->Creator->CmdManager.GetHandler(params[1]);
 			if (scmd)
 				scmd->Handle(user, plist);
-			return CMD_SUCCESS;
+			return CmdResult::SUCCESS;
 		}
 
 		Command* cmd = NULL;
@@ -48,9 +48,9 @@ CmdResult CommandEncap::Handle(User* user, Params& params)
 		// Discard return value, ENCAP shall succeed even if the command does not exist
 
 		if ((cmd) && (cmd->force_manual_route))
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandEncap::GetRouting(User* user, const Params& params)

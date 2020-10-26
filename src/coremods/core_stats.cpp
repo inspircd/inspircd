@@ -391,7 +391,7 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 		LocalUser* localuser = IS_LOCAL(user);
 		if ((localuser) && (!user->IsOper()))
 			localuser->CommandFloodPenalty += 2000;
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 	Stats::Context stats(user, parameters[0][0]);
 	DoStats(stats);
@@ -402,7 +402,7 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 		user->WriteRemoteNumeric(row);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModStats : public Module

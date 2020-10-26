@@ -30,18 +30,18 @@ CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
 {
 	User* u = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!u)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	Channel* c = ServerInstance->FindChan(parameters[1]);
 	if (!c)
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 
 	if (IS_LOCAL(u))
 	{
 		std::string reason = (parameters.size() == 3) ? parameters[2] : "Services forced part";
 		c->PartUser(u, reason);
 	}
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 RouteDescriptor CommandSVSPart::GetRouting(User* user, const Params& parameters)

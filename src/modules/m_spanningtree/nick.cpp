@@ -55,5 +55,5 @@ CmdResult CommandNick::HandleRemote(::RemoteUser* user, Params& params)
 
 	user->ChangeNick(params[0], newts);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

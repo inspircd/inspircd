@@ -83,12 +83,12 @@ static const char* const lines[] = {
 CmdResult CommandInfo::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 
 	int i=0;
 	while (lines[i])
 		user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
 
 	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }

@@ -426,7 +426,7 @@ class CommandCap : public SplitCommand
 		if (irc::equals(subcommand, "REQ"))
 		{
 			if (parameters.size() < 2)
-				return CMD_FAILURE;
+				return CmdResult::FAILURE;
 
 			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
 			DisplaySingleResult(user, replysubcmd, parameters[1], false);
@@ -463,10 +463,10 @@ class CommandCap : public SplitCommand
 		else
 		{
 			user->WriteNumeric(ERR_INVALIDCAPCMD, subcommand.empty() ? "*" : subcommand, "Invalid CAP subcommand");
-			return CMD_FAILURE;
+			return CmdResult::FAILURE;
 		}
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

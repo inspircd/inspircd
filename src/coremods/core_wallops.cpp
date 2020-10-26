@@ -62,7 +62,7 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 	if (parameters[0].empty())
 	{
 		user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-		return CMD_FAILURE;
+		return CmdResult::FAILURE;
 	}
 
 	ClientProtocol::Message msg("WALLOPS", user);
@@ -77,7 +77,7 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 			curr->Send(wallopsevent);
 	}
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 class CoreModWallops : public Module

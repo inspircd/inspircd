@@ -196,7 +196,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	if (apply_other_sides_modes)
 		ServerInstance->Modes.Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY);
 
-	return CMD_SUCCESS;
+	return CmdResult::SUCCESS;
 }
 
 void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin)

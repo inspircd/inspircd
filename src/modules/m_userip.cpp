@@ -78,7 +78,7 @@ class CommandUserip : public Command
 		if (nicks != 0)
 			user->WriteNumeric(RPL_USERIP, retbuf);
 
-		return CMD_SUCCESS;
+		return CmdResult::SUCCESS;
 	}
 };
 

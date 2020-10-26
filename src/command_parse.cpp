@@ -127,7 +127,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 	if (n != cmdlist.end())
 	{
 		if ((!parameters.empty()) && (parameters.back().empty()) && (!n->second->allow_empty_last_param))
-			return CMD_INVALID;
+			return CmdResult::INVALID;
 
 		if (parameters.size() >= n->second->min_params)
 		{
@@ -166,7 +166,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 			}
 		}
 	}
-	return CMD_INVALID;
+	return CmdResult::INVALID;
 }
 
 void CommandParser::ProcessCommand(LocalUser* user, std::string& command, CommandBase::Params& command_p)
