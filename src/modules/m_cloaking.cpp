@@ -146,8 +146,16 @@ class CloakUser : public ModeHandler
 			if (!cloaks)
 			{
 				/* Force creation of missing cloak */
-				creator->OnUserConnect(user);
-				cloaks = ext.get(user);
+				try
+				{
+					creator->OnUserConnect(user);
+					cloaks = ext.get(user);
+				}
+				catch (CoreException& modexcept)
+				{
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Exception caught when generating cloak: " + modexcept.GetReason());
+					return MODEACTION_DENY;
+				}
 			}
 
 			// If we have a cloak then set the hostname.
