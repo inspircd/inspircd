@@ -58,7 +58,7 @@ public:
 
 	bool Matches(const std::string& s) override
 	{
-		return irc::equals(matchtext, s);
+		return InspIRCd::Match(s, matchtext);
 	}
 
 	const std::string& Displayable() override
@@ -95,7 +95,7 @@ class CommandCBan : public Command
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<channel> [<duration> [:<reason>]]" };
+		syntax = { "<channelmask> [<duration> [:<reason>]]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -208,6 +208,11 @@ class ModuleCBan : public Module, public Stats::EventListener
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	void GetLinkData(std::string& data) override
+	{
+		data = "glob";
 	}
 };
 

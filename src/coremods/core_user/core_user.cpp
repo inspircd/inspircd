@@ -64,9 +64,9 @@ class CommandPing : public SplitCommand
 	/** Constructor for ping.
 	 */
 	CommandPing(Module* parent)
-		: SplitCommand(parent, "PING", 1, 2)
+		: SplitCommand(parent, "PING", 1)
 	{
-		syntax = { "<servername> [:<servername>]" };
+		syntax = { "<cookie> [<servername>]" };
 	}
 
 	/** Handle command.
@@ -76,7 +76,14 @@ class CommandPing : public SplitCommand
 	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		ClientProtocol::Messages::Pong pong(parameters[0]);
+		size_t origin = parameters.size() > 1 ? 1 : 0;
+		if (parameters[origin].empty())
+		{
+			user->WriteNumeric(ERR_NOORIGIN, "No origin specified");
+			return CmdResult::FAILURE;
+		}
+
+		ClientProtocol::Messages::Pong pong(parameters[0], origin ? parameters[1] : "");
 		user->Send(ServerInstance->GetRFCEvents().pong, pong);
 		return CmdResult::SUCCESS;
 	}
@@ -90,10 +97,10 @@ class CommandPong : public Command
 	/** Constructor for pong.
 	 */
 	CommandPong(Module* parent)
-		: Command(parent, "PONG", 0, 1)
+		: Command(parent, "PONG", 1)
 	{
 		Penalty = 0;
-		syntax = { "<ping-text>" };
+		syntax = { "<cookie> [<servername>]" };
 	}
 
 	/** Handle command.
@@ -103,6 +110,13 @@ class CommandPong : public Command
 	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
+		size_t origin = parameters.size() > 1 ? 1 : 0;
+		if (parameters[origin].empty())
+		{
+			user->WriteNumeric(ERR_NOORIGIN, "No origin specified");
+			return CmdResult::FAILURE;
+		}
+
 		// set the user as alive so they survive to next ping
 		LocalUser* localuser = IS_LOCAL(user);
 		if (localuser)

@@ -253,17 +253,16 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	 */
 	DNSBLConfEntry::EnumBanaction str2banaction(const std::string &action)
 	{
-		if(action.compare("KILL")==0)
+		if (stdalgo::string::equalsci(action, "kill"))
 			return DNSBLConfEntry::I_KILL;
-		if(action.compare("KLINE")==0)
+		if (stdalgo::string::equalsci(action, "kline"))
 			return DNSBLConfEntry::I_KLINE;
-		if(action.compare("ZLINE")==0)
+		if (stdalgo::string::equalsci(action, "zline"))
 			return DNSBLConfEntry::I_ZLINE;
-		if(action.compare("GLINE")==0)
+		if (stdalgo::string::equalsci(action, "gline"))
 			return DNSBLConfEntry::I_GLINE;
-		if(action.compare("MARK")==0)
+		if (stdalgo::string::equalsci(action, "mark"))
 			return DNSBLConfEntry::I_MARK;
-
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
@@ -294,7 +293,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			e->name = tag->getString("name");
 			e->ident = tag->getString("ident");
 			e->host = tag->getString("host");
-			e->reason = tag->getString("reason");
+			e->reason = tag->getString("reason", "Your IP has been blacklisted.", 1);
 			e->domain = tag->getString("domain");
 
 			if (stdalgo::string::equalsci(tag->getString("type"), "bitmask"))
@@ -336,13 +335,6 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			}
 			else
 			{
-				if (e->reason.empty())
-				{
-					std::string location = tag->getTagLocation();
-					ServerInstance->SNO.WriteGlobalSno('d', "DNSBL(%s): empty reason, using defaults", location.c_str());
-					e->reason = "Your IP has been blacklisted.";
-				}
-
 				/* add it, all is ok */
 				newentries.push_back(e);
 			}

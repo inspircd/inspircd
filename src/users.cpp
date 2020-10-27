@@ -1069,6 +1069,7 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 	if (!changehost)
 		return;
 
+	FOREACH_MOD(OnChangeRealHost, (this, host));
 	realhost = host;
 	this->InvalidateCache();
 }

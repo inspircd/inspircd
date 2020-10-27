@@ -59,7 +59,7 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 inline void dynamic_reference_base::check()
 {
 	if (!value)
-		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
+		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve. Are you missing a module?");
 }
 
 template<typename T>

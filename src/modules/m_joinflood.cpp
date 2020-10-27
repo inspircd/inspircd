@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/server.h"
 
 enum
 {
@@ -132,14 +133,22 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 	}
 };
 
-class ModuleJoinFlood : public Module
+class ModuleJoinFlood
+	: public Module
+	, public ServerProtocol::LinkEventListener
 {
+ private:
 	JoinFlood jf;
+	time_t ignoreuntil;
+	unsigned long bootwait;
+	unsigned long splitwait;
 
  public:
 	ModuleJoinFlood()
 		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
+		, ServerProtocol::LinkEventListener(this)
 		, jf(this)
+		, ignoreuntil(0)
 	{
 	}
 
@@ -147,6 +156,16 @@ class ModuleJoinFlood : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
+		bootwait = tag->getDuration("bootwait", 30);
+		splitwait = tag->getDuration("splitwait", 30);
+
+		ignoreuntil = ServerInstance->startup_time + bootwait;
+	}
+
+	void OnServerSplit(const Server* server, bool error) override
+	{
+		if (splitwait)
+			ignoreuntil = ServerInstance->Time() + splitwait;
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
@@ -166,7 +185,7 @@ class ModuleJoinFlood : public Module
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override
 	{
 		/* We arent interested in JOIN events caused by a network burst */
-		if (sync)
+		if (sync || ignoreuntil > ServerInstance->Time())
 			return;
 
 		joinfloodsettings *f = jf.ext.get(memb->chan);

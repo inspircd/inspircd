@@ -15,6 +15,7 @@
 
 /include/config.h
 
+/src/modules/m_argon2.cpp
 /src/modules/m_geo_maxmind.cpp
 /src/modules/m_ldap.cpp
 /src/modules/m_mysql.cpp

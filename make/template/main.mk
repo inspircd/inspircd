@@ -132,7 +132,6 @@ ifeq ($(INSPIRCD_DEBUG), 3)
   HEADER = std-header
   DBGOK=1
 endif
-FOOTER = finishmessage
 
 MAKEFLAGS += --no-print-directory
 
@@ -163,7 +162,6 @@ TARGET = all
 
 ifdef INSPIRCD_TARGET
     HEADER = mod-header
-    FOOTER = mod-footer
     TARGET = $(INSPIRCD_TARGET)
 endif
 
@@ -171,7 +169,7 @@ ifeq ($(DBGOK), 0)
   HEADER = unknown-debug-level
 endif
 
-all: $(FOOTER)
+all: finishmessage
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
@@ -196,10 +194,6 @@ debug-header:
 
 mod-header:
 	@echo 'Building specific targets:'
-
-mod-footer: target
-	@echo 'To install, copy $(BUILDPATH)/$(TARGET) to $(MODPATH)'
-	@echo 'Or, run "make install"'
 
 std-header:
 	@echo "*************************************"

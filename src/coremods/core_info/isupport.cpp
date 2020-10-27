@@ -83,6 +83,7 @@ void ISupportManager::Build()
 		{ "MAXTARGETS",  ConvToStr(ServerInstance->Config->MaxTargets)      },
 		{ "MODES",       ConvToStr(ServerInstance->Config->Limits.MaxModes) },
 		{ "NETWORK",     ServerInstance->Config->Network                    },
+		{ "NAMELEN",     ConvToStr(ServerInstance->Config->Limits.MaxReal)  },
 		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.NickMax)  },
 		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()              },
 		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)         },

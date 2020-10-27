@@ -802,13 +802,8 @@
 #                                                                     #
 # This configuration tag defines the maximum sizes of various types   #
 # on IRC, such as the maximum length of a channel name, and the       #
-# maximum length of a channel. Note that with the exception of the    #
-# identmax value all values given here are the exact values you would #
-# expect to see on IRC. This contrasts with the older InspIRCd        #
-# releases where these values would be one character shorter than     #
-# defined to account for a null terminator on the end of the text.    #
-#                                                                     #
-# These values should match network-wide otherwise issues will occur. #
+# maximum length of a channel. These values should match network-wide #
+# otherwise issues will occur.                                        #
 #                                                                     #
 # The highest safe value you can set any of these options to is 500,  #
 # but it is recommended that you keep them somewhat                   #

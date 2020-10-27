@@ -38,17 +38,17 @@
 #include <iostream>
 
 ServerLimits::ServerLimits(ConfigTag* tag)
-	: NickMax(tag->getUInt("maxnick", 30))
-	, ChanMax(tag->getUInt("maxchan", 64))
-	, MaxModes(tag->getUInt("maxmodes", 20))
-	, IdentMax(tag->getUInt("maxident", 10))
-	, MaxQuit(tag->getUInt("maxquit", 255))
-	, MaxTopic(tag->getUInt("maxtopic", 307))
-	, MaxKick(tag->getUInt("maxkick", 255))
-	, MaxReal(tag->getUInt("maxreal", 128))
-	, MaxAway(tag->getUInt("maxaway", 200))
-	, MaxLine(tag->getUInt("maxline", 512))
-	, MaxHost(tag->getUInt("maxhost", 64))
+	: MaxLine(tag->getUInt("maxline", 512, 512))
+	, NickMax(tag->getUInt("maxnick", 30, 1, MaxLine))
+	, ChanMax(tag->getUInt("maxchan", 64, 1, MaxLine))
+	, MaxModes(tag->getUInt("maxmodes", 20, 1))
+	, IdentMax(tag->getUInt("maxident", 10, 1))
+	, MaxQuit(tag->getUInt("maxquit", 255, 0, MaxLine))
+	, MaxTopic(tag->getUInt("maxtopic", 307, 1, MaxLine))
+	, MaxKick(tag->getUInt("maxkick", 255, 1, MaxLine))
+	, MaxReal(tag->getUInt("maxreal", 128, 1, MaxLine))
+	, MaxAway(tag->getUInt("maxaway", 200, 1, MaxLine))
+	, MaxHost(tag->getUInt("maxhost", 64, 1, MaxLine))
 {
 }
 

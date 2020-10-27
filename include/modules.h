@@ -205,23 +205,76 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
  */
 enum Implementation
 {
-	I_OnUserConnect, I_OnUserPreQuit, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper,
-	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserPostMessage, I_OnUserMessageBlocked, I_OnMode, I_OnShutdown,
-	I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit, I_OnUserPostInit,
-	I_OnChangeHost, I_OnChangeRealName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
-	I_OnUserPostNick, I_OnPreMode, I_OnKill, I_OnLoadModule,
-	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
-	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan,
-	I_OnPreChangeHost, I_OnPreTopicChange, I_OnConnectionFail,
-	I_OnPostTopicChange, I_OnPostConnect, I_OnPostDeoper,
-	I_OnPreChangeRealName, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnPostCommand, I_OnCommandBlocked, I_OnPostJoin,
-	I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnUserMessage, I_OnPassCompare, I_OnNumeric,
-	I_OnPreRehash, I_OnModuleRehash, I_OnChangeIdent, I_OnSetUserIP,
-	I_OnServiceAdd, I_OnServiceDel, I_OnUserWrite,
+	I_OnAcceptConnection,
+	I_OnAddLine,
+	I_OnBackgroundTimer,
+	I_OnBuildNeighborList,
+	I_OnChangeHost,
+	I_OnChangeIdent,
+	I_OnChangeRealHost,
+	I_OnChangeRealName,
+	I_OnChannelDelete,
+	I_OnChannelPreDelete,
+	I_OnCheckBan,
+	I_OnCheckChannelBan,
+	I_OnCheckInvite,
+	I_OnCheckKey,
+	I_OnCheckLimit,
+	I_OnCheckReady,
+	I_OnCommandBlocked,
+	I_OnConnectionFail,
+	I_OnDecodeMetaData,
+	I_OnDelLine,
+	I_OnExpireLine,
+	I_OnGarbageCollect,
+	I_OnKill,
+	I_OnLoadModule,
+	I_OnMode,
+	I_OnModuleRehash,
+	I_OnNumeric,
+	I_OnOper,
+	I_OnPassCompare,
+	I_OnPostCommand,
+	I_OnPostConnect,
+	I_OnPostDeoper,
+	I_OnPostJoin,
+	I_OnPostOper,
+	I_OnPostTopicChange,
+	I_OnPreChangeHost,
+	I_OnPreChangeRealName,
+	I_OnPreCommand,
+	I_OnPreMode,
+	I_OnPreRehash,
+	I_OnPreTopicChange,
+	I_OnRawMode,
+	I_OnSendSnotice,
+	I_OnServiceAdd,
+	I_OnServiceDel,
+	I_OnSetConnectClass,
+	I_OnSetUserIP,
+	I_OnShutdown,
+	I_OnUnloadModule,
+	I_OnUserConnect,
+	I_OnUserDisconnect,
+	I_OnUserInit,
+	I_OnUserInvite,
+	I_OnUserJoin,
+	I_OnUserKick,
+	I_OnUserMessage,
+	I_OnUserMessageBlocked,
+	I_OnUserPart,
+	I_OnUserPostInit,
+	I_OnUserPostMessage,
+	I_OnUserPostNick,
+	I_OnUserPreInvite,
+	I_OnUserPreJoin,
+	I_OnUserPreKick,
+	I_OnUserPreMessage,
+	I_OnUserPreNick,
+	I_OnUserPreQuit,
+	I_OnUserQuit,
+	I_OnUserRegister,
+	I_OnUserWrite,
 	I_END
 };
 
@@ -577,6 +630,13 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeHost(User* user, const std::string &newhost);
+
+	/** Called whenever a user's real hostname is changed.
+	 * This event triggers after the host has been set.
+	 * @param user The user whos host is being changed
+	 * @param newhost The new hostname being set
+	 */
+	virtual void OnChangeRealHost(User* user, const std::string& newhost);
 
 	/** Called whenever a user's real name is changed.
 	 * This event triggers after the name has been set.

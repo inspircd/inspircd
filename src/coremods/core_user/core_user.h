@@ -24,6 +24,12 @@
 #include "listmode.h"
 #include "modules/away.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_NOORIGIN = 409
+};
+
 class MessageWrapper
 {
 	std::string prefix;

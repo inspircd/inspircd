@@ -184,6 +184,30 @@
 #           uppercase="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Argon2 module: Allows other modules to generate Argon2 hashes,
+# usually for cryptographic uses and security.
+# This module makes the algorithms argon2i, argon2d and argon2id
+# available for use.
+# Note that this module is extra, and must be enabled explicitly
+# to build. It depends on libargon2.
+#<module name="argon2">
+#
+# memory: Memory hardness, in KiB. E.g. 131072 KiB = 128 MiB.
+# iterations: Time hardness in iterations. (def. 3)
+# lanes: How many parallel chains can be run. (def. 1)
+# threads: Maximum amount of threads each invocation can spawn. (def. 1)
+# length: Output length in bytes. (def. 32)
+# saltlength: Salt length in bytes. (def. 16)
+# version: Algorithm version, 10 or 13. (def. 13)
+# The parameters can be customized as follows:
+#<argon2 iterations="3" memory="131074" length="32" saltlength="16">
+# Defines the parameters that are common for all the variants (i/d/id).
+# Can be overridden on individual basis, e.g.
+#<argon2i iterations="4">
+#<argon2d memory="131074"
+#<argon2id iterations="5" memory="262144" length="64" saltlength="32">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Auditorium module: Adds channel mode +u which makes everyone else
 # except you in the channel invisible, used for large meetings etc.
 #<module name="auditorium">
@@ -1204,8 +1228,20 @@
 # Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
 #
-# The number of seconds to close the channel for:
-#<joinflood duration="1m">
+# duration:  The number of seconds to close a channel for when it is
+#            being flooded with joins.
+#
+# bootwait:  The number of seconds to disengage joinflood for after
+#            a server boots. This allows users to reconnect without
+#            being throttled by joinflood.
+#
+# splitwait: The number of seconds to disengage joinflood for after
+#            a server splits. This allows users to reconnect without
+#            being throttled by joinflood.
+#
+#<joinflood duration="1m"
+#           bootwait="30s"
+#           splitwait="30s">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).
