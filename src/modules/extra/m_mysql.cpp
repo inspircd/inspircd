@@ -295,12 +295,12 @@ class SQLConnection : public SQL::Provider
 	}
 
  public:
-	reference<ConfigTag> config;
+	std::shared_ptr<ConfigTag> config;
 	MYSQL* connection = nullptr;
 	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, ConfigTag* tag)
+	SQLConnection(Module* p, std::shared_ptr<ConfigTag> tag)
 		: SQL::Provider(p, tag->getString("id"))
 		, config(tag)
 	{

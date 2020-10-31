@@ -46,7 +46,7 @@ class ModuleConnFlood : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		/* read configuration variables */
-		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
+		auto tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
 		seconds = tag->getDuration("period", 30);
 		maxconns = tag->getUInt("maxconns", 3);

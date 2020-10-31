@@ -159,7 +159,7 @@ class CoreModChannel
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* optionstag = ServerInstance->Config->ConfValue("options");
+		auto optionstag = ServerInstance->Config->ConfValue("options");
 
 		std::string current;
 		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
@@ -177,7 +177,7 @@ class CoreModChannel
 			exempts[restriction] = prefix;
 		}
 
-		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
+		auto securitytag = ServerInstance->Config->ConfValue("security");
 		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
 			{ "all",     Invite::ANNOUNCE_ALL },
 			{ "dynamic", Invite::ANNOUNCE_DYNAMIC },

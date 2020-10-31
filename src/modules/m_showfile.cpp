@@ -78,7 +78,7 @@ class CommandShowFile : public Command
 		return CmdResult::SUCCESS;
 	}
 
-	void UpdateSettings(ConfigTag* tag, const std::vector<std::string>& filecontents)
+	void UpdateSettings(std::shared_ptr<ConfigTag> tag, const std::vector<std::string>& filecontents)
 	{
 		introtext = tag->getString("introtext", "Showing " + name);
 		endtext = tag->getString("endtext", "End of " + name);
@@ -103,7 +103,7 @@ class ModuleShowFile : public Module
  private:
 	std::vector<CommandShowFile*> cmds;
 
-	void ReadTag(ConfigTag* tag, std::vector<CommandShowFile*>& newcmds)
+	void ReadTag(std::shared_ptr<ConfigTag> tag, std::vector<CommandShowFile*>& newcmds)
 	{
 		std::string cmdname = tag->getString("name");
 		if (cmdname.empty())

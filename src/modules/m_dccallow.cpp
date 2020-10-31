@@ -599,7 +599,7 @@ class ModuleDCCAllow : public Module
 		}
 		bfl.swap(newbfl);
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
+		auto tag = ServerInstance->Config->ConfValue("dccallow");
 		cmd.ext.maxentries = tag->getUInt("maxentries", 20);
 		cmd.defaultlength = tag->getDuration("length", 0);
 		blockchat = tag->getBool("blockchat");

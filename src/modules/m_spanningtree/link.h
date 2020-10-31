@@ -29,7 +29,7 @@
 class Link
 {
  public:
-	reference<ConfigTag> tag;
+	std::shared_ptr<ConfigTag> tag;
 	std::string Name;
 	std::string IPAddr;
 	unsigned int Port;
@@ -42,17 +42,23 @@ class Link
 	unsigned int Timeout;
 	std::string Bind;
 	bool Hidden;
-	Link(ConfigTag* Tag) : tag(Tag) {}
+	Link(std::shared_ptr<ConfigTag> Tag)
+		: tag(Tag)
+	{
+	}
 };
 
 class Autoconnect
 {
  public:
-	reference<ConfigTag> tag;
+	std::shared_ptr<ConfigTag> tag;
 	std::vector<std::string> servers;
 	unsigned long Period;
 	time_t NextConnectTime;
 	/** Negative == inactive */
 	int position;
-	Autoconnect(ConfigTag* Tag) : tag(Tag) {}
+	Autoconnect(std::shared_ptr<ConfigTag> Tag)
+		: tag(Tag)
+	{
+	}
 };

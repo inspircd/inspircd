@@ -86,7 +86,7 @@ class ModuleDeaf : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("deaf");
+		auto tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
 		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
 		privdeafuline = tag->getBool("privdeafuline", true);

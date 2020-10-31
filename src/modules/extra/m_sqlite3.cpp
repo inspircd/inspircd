@@ -96,10 +96,10 @@ class SQLite3Result : public SQL::Result
 class SQLConn : public SQL::Provider
 {
 	sqlite3* conn;
-	reference<ConfigTag> config;
+	std::shared_ptr<ConfigTag> config;
 
  public:
-	SQLConn(Module* Parent, ConfigTag* tag)
+	SQLConn(Module* Parent, std::shared_ptr<ConfigTag> tag)
 		: SQL::Provider(Parent, tag->getString("id"))
 		, config(tag)
 	{

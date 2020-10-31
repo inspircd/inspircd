@@ -135,7 +135,7 @@ class ModuleOjoin : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
+		auto Conf = ServerInstance->Config->ConfValue("ojoin");
 		mycommand.notice = Conf->getBool("notice", true);
 		mycommand.op = Conf->getBool("op", true);
 	}

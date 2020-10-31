@@ -144,7 +144,7 @@ class ModuleSQLAuth : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
+		auto conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");
 		if (dbid.empty())
 			SQL.SetProvider("SQL");
@@ -167,7 +167,7 @@ class ModuleSQLAuth : public Module
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Note this is their initial (unresolved) connect block
-		ConfigTag* tag = user->MyClass->config;
+		std::shared_ptr<ConfigTag> tag = user->MyClass->config;
 		if (!tag->getBool("usesqlauth", true))
 			return MOD_RES_PASSTHRU;
 

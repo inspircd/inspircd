@@ -106,7 +106,7 @@ class ModuleAlias : public Module
 			newAliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
 
-		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
+		auto fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
 		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
 		Aliases.swap(newAliases);

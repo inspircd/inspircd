@@ -70,7 +70,7 @@ class ModuleConnectBan
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
+		auto tag = ServerInstance->Config->ConfValue("connectban");
 
 		ipv4_cidr = tag->getUInt("ipv4cidr", 32, 1, 32);
 		ipv6_cidr = tag->getUInt("ipv6cidr", 128, 1, 128);

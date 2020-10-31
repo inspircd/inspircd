@@ -106,7 +106,7 @@ class ModuleOpermotd : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		cmd.opermotd.clear();
-		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
+		auto conf = ServerInstance->Config->ConfValue("opermotd");
 		onoper = conf->getBool("onoper", true);
 
 		try

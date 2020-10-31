@@ -142,7 +142,7 @@ void MessageWrapper::Wrap(const std::string& message, std::string& out)
 
 void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname)
 {
-	ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+	auto tag = ServerInstance->Config->ConfValue("options");
 	prefix = tag->getString(fixedname);
 	fixed = (!prefix.empty());
 	if (!fixed)

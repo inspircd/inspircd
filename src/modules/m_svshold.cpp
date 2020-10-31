@@ -197,7 +197,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
+		auto tag = ServerInstance->Config->ConfValue("svshold");
 		silent = tag->getBool("silent", true);
 	}
 

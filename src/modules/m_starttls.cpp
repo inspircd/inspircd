@@ -99,7 +99,7 @@ class ModuleStartTLS : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("starttls");
+		auto conf = ServerInstance->Config->ConfValue("starttls");
 
 		std::string newprovider = conf->getString("provider");
 		if (newprovider.empty())

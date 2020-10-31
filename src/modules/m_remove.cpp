@@ -227,7 +227,7 @@ class ModuleRemove
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
+		auto tag = ServerInstance->Config->ConfValue("remove");
 		supportnokicks = tag->getBool("supportnokicks");
 		cmd1.protectedrank = cmd2.protectedrank = tag->getUInt("protectedrank", 50000);
 	}

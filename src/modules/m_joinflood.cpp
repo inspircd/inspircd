@@ -154,7 +154,7 @@ class ModuleJoinFlood
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
+		auto tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);

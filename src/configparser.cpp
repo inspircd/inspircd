@@ -108,7 +108,7 @@ struct Parser
 	FILE* const file;
 	FilePosition current;
 	FilePosition last_tag;
-	reference<ConfigTag> tag;
+	std::shared_ptr<ConfigTag> tag;
 	int ungot;
 	std::string mandatory_tag;
 
@@ -382,7 +382,7 @@ struct Parser
 	}
 };
 
-void ParseStack::DoInclude(ConfigTag* tag, int flags)
+void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 {
 	if (flags & FLAG_NO_INC)
 		throw CoreException("Invalid <include> tag in file included with noinclude=\"yes\"");
@@ -690,9 +690,9 @@ std::string ConfigTag::getTagLocation() const
 	return src_name + ":" + ConvToStr(src_line);
 }
 
-ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items)
+std::shared_ptr<ConfigTag> ConfigTag::create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items)
 {
-	ConfigTag* rv = new ConfigTag(Tag, file, line);
+	std::shared_ptr<ConfigTag> rv(new ConfigTag(Tag, file, line));
 	Items = &rv->items;
 	return rv;
 }

@@ -139,7 +139,7 @@ class ModuleKnock : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("knock");
+		auto tag = ServerInstance->Config->ConfValue("knock");
 		cmd.notify = tag->getEnum("notify", KN_SEND_NOTICE, {
 			{ "both",    KN_SEND_BOTH },
 			{ "notice",  KN_SEND_NOTICE },

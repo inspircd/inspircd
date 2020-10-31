@@ -41,7 +41,7 @@ class ModuleDisable : public Module
 	bool notifyopers;
 	ModeStatus usermodes;
 
-	void ReadModes(ConfigTag* tag, const std::string& field, ModeType type, ModeStatus& status)
+	void ReadModes(std::shared_ptr<ConfigTag> tag, const std::string& field, ModeType type, ModeStatus& status)
 	{
 		const std::string modes = tag->getString(field);
 		for (std::string::const_iterator iter = modes.begin(); iter != modes.end(); ++iter)
@@ -85,7 +85,7 @@ class ModuleDisable : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("disabled");
+		auto tag = ServerInstance->Config->ConfValue("disabled");
 
 		// Parse the disabled commands.
 		CommandList newcommands;

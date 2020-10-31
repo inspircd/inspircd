@@ -434,7 +434,7 @@ class ModuleSASL : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("sasl");
+		auto tag = ServerInstance->Config->ConfValue("sasl");
 
 		const std::string target = tag->getString("target");
 		if (target.empty())

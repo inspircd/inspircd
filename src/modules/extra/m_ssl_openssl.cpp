@@ -305,7 +305,7 @@ namespace OpenSSL
 		 * @param tag Config tag defining this profile
 		 * @param context Context object to manipulate
 		 */
-		void SetContextOptions(const std::string& ctxname, ConfigTag* tag, Context& context)
+		void SetContextOptions(const std::string& ctxname, std::shared_ptr<ConfigTag> tag, Context& context)
 		{
 			long setoptions = tag->getInt(ctxname + "setoptions", 0);
 			long clearoptions = tag->getInt(ctxname + "clearoptions", 0);
@@ -341,7 +341,7 @@ namespace OpenSSL
 		}
 
 	 public:
-		Profile(const std::string& profilename, ConfigTag* tag)
+		Profile(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 			: name(profilename)
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
@@ -865,7 +865,7 @@ class OpenSSLIOHookProvider : public IOHookProvider
 	OpenSSL::Profile profile;
 
  public:
-	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, ConfigTag* tag)
+	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 		: IOHookProvider(mod, "ssl/" + profilename, IOHookProvider::IOH_SSL)
 		, profile(profilename, tag)
 	{

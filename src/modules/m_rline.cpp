@@ -269,7 +269,7 @@ class ModuleRLine
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
+		auto tag = ServerInstance->Config->ConfValue("rline");
 
 		MatchOnNickChange = tag->getBool("matchonnickchange");
 		ZlineOnMatch = tag->getBool("zlineonmatch");

@@ -229,7 +229,7 @@ class ModuleWatch
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("watch");
+		auto tag = ServerInstance->Config->ConfValue("watch");
 		cmd.maxwatch = tag->getUInt("maxwatch", 30, 1);
 	}
 

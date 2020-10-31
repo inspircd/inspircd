@@ -1,4 +1,4 @@
-/*
+	/*
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 Puck Meerburg <puck@puckipedia.com>
@@ -329,7 +329,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		{
 			for (auto& [_, ifo] : ServerInstance->Config->oper_blocks)
 			{
-				ConfigTag* tag = ifo->oper_block;
+				std::shared_ptr<ConfigTag> tag = ifo->oper_block;
 				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
 			}
 		}
@@ -417,7 +417,7 @@ class CoreModStats : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		auto security = ServerInstance->Config->ConfValue("security");
 		cmd.userstats = security->getString("userstats");
 	}
 

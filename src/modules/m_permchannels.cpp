@@ -183,7 +183,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
+		auto tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes");
 		SetInterval(tag->getDuration("saveperiod", 5));

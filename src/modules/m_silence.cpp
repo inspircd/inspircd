@@ -446,7 +446,7 @@ class ModuleSilence
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
+		auto tag = ServerInstance->Config->ConfValue("silence");
 		exemptuline = tag->getBool("exemptuline", true);
 		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}

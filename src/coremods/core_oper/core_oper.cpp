@@ -48,7 +48,7 @@ class CoreModOper : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		auto security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
 		cmdkill.hideuline = security->getBool("hideulinekills");
 	}

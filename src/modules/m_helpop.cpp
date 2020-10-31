@@ -172,7 +172,7 @@ class ModuleHelpop
 			newhelp.insert(std::make_pair("index", HelpTopic(indexmsg, "List of help topics")));
 			cmd.help.swap(newhelp);
 
-			ConfigTag* tag = ServerInstance->Config->ConfValue("helpmsg");
+			auto tag = ServerInstance->Config->ConfValue("helpmsg");
 			cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
 		}
 

@@ -94,7 +94,7 @@ class ModuleOverride
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// re-read our config options
-		ConfigTag* tag = ServerInstance->Config->ConfValue("override");
+		auto tag = ServerInstance->Config->ConfValue("override");
 		NoisyOverride = tag->getBool("noisy");
 		RequireKey = tag->getBool("requirekey");
 	}

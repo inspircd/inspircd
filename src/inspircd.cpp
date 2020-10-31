@@ -155,7 +155,7 @@ namespace
 	void DropRoot()
 	{
 #ifndef _WIN32
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		auto security = ServerInstance->Config->ConfValue("security");
 
 		const std::string SetGroup = security->getString("runasgroup");
 		if (!SetGroup.empty())

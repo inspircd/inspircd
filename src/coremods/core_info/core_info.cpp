@@ -111,7 +111,7 @@ class CoreModInfo : public Module
 		ConfigFileCache newmotds;
 		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
 		{
-			ConfigTag* tag = (*iter)->config;
+			std::shared_ptr<ConfigTag> tag = (*iter)->config;
 			// Don't process the file if it has already been processed.
 			const std::string motd = tag->getString("motd", "motd");
 			if (newmotds.find(motd) != newmotds.end())
@@ -129,7 +129,7 @@ class CoreModInfo : public Module
 
 		cmdmotd.motds.swap(newmotds);
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("admin");
+		auto tag = ServerInstance->Config->ConfValue("admin");
 		cmdadmin.AdminName = tag->getString("name");
 		cmdadmin.AdminEmail = tag->getString("email", "null@example.com");
 		cmdadmin.AdminNick = tag->getString("nick", "admin");

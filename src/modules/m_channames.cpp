@@ -105,7 +105,7 @@ class ModuleChannelNames : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
+		auto tag = ServerInstance->Config->ConfValue("channames");
 		std::string denyToken = tag->getString("denyrange");
 		std::string allowToken = tag->getString("allowrange");
 

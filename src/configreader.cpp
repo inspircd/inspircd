@@ -37,7 +37,7 @@
 #include "configparser.h"
 #include <iostream>
 
-ServerLimits::ServerLimits(ConfigTag* tag)
+ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
 	, NickMax(tag->getUInt("maxnick", 30, 1, MaxLine))
 	, ChanMax(tag->getUInt("maxchan", 64, 1, MaxLine))
@@ -52,7 +52,7 @@ ServerLimits::ServerLimits(ConfigTag* tag)
 {
 }
 
-ServerConfig::ServerPaths::ServerPaths(ConfigTag* tag)
+ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
 	: Config(tag->getString("configdir", INSPIRCD_CONFIG_PATH, 1))
 	, Data(tag->getString("datadir", INSPIRCD_DATA_PATH, 1))
 	, Log(tag->getString("logdir", INSPIRCD_LOG_PATH, 1))
@@ -60,7 +60,7 @@ ServerConfig::ServerPaths::ServerPaths(ConfigTag* tag)
 {
 }
 
-static ConfigTag* CreateEmptyTag()
+static std::shared_ptr<ConfigTag> CreateEmptyTag()
 {
 	ConfigItems* items;
 	return ConfigTag::create("empty", "<auto>", 0, items);
@@ -72,11 +72,6 @@ ServerConfig::ServerConfig()
 	, Paths(EmptyTag)
 	, CaseMapping("ascii")
 {
-}
-
-ServerConfig::~ServerConfig()
-{
-	delete EmptyTag;
 }
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
@@ -103,7 +98,7 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 	ServerInstance->XLines->ExpireRemovedConfigLines(make->GetType(), configlines);
 }
 
-typedef std::map<std::string, ConfigTag*> LocalIndex;
+typedef std::map<std::string, std::shared_ptr<ConfigTag>> LocalIndex;
 void ServerConfig::CrossCheckOperClassType()
 {
 	LocalIndex operclass;
@@ -188,7 +183,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	{
 		// No connect blocks found; make a trivial default block
 		ConfigItems* items;
-		ConfigTag* tag = ConfigTag::create("connect", "<auto>", 0, items);
+		std::shared_ptr<ConfigTag> tag = ConfigTag::create("connect", "<auto>", 0, items);
 		(*items)["allow"] = "*";
 		config_data.insert(std::make_pair("connect", tag));
 		blk_count = 1;
@@ -348,9 +343,9 @@ static std::string GetServerName()
 
 void ServerConfig::Fill()
 {
-	ConfigTag* options = ConfValue("options");
-	ConfigTag* security = ConfValue("security");
-	ConfigTag* server = ConfValue("server");
+	std::shared_ptr<ConfigTag> options = ConfValue("options");
+	std::shared_ptr<ConfigTag> security = ConfValue("security");
+	std::shared_ptr<ConfigTag> server = ConfValue("server");
 	if (sid.empty())
 	{
 		ServerName = server->getString("name", GetServerName(), InspIRCd::IsHost);
@@ -628,13 +623,13 @@ void ServerConfig::ApplyModules(User* user)
 	}
 }
 
-ConfigTag* ServerConfig::ConfValue(const std::string &tag)
+std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string &tag)
 {
 	std::pair<ConfigIter, ConfigIter> found = config_data.equal_range(tag);
 	if (found.first == found.second)
 		return EmptyTag;
 
-	ConfigTag* rv = found.first->second;
+	std::shared_ptr<ConfigTag> rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
 		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "

@@ -199,7 +199,7 @@ class ModuleLDAPOper : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapoper");
+		auto tag = ServerInstance->Config->ConfValue("ldapoper");
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 		base = tag->getString("baserdn");
@@ -217,7 +217,7 @@ class ModuleLDAPOper : public Module
 			if (it == ServerInstance->Config->oper_blocks.end())
 				return MOD_RES_PASSTHRU;
 
-			ConfigTag* tag = it->second->oper_block;
+			std::shared_ptr<ConfigTag> tag = it->second->oper_block;
 			if (!tag)
 				return MOD_RES_PASSTHRU;
 

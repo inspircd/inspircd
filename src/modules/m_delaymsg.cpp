@@ -151,7 +151,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 
 void ModuleDelayMsg::ReadConfig(ConfigStatus& status)
 {
-	ConfigTag* tag = ServerInstance->Config->ConfValue("delaymsg");
+	auto tag = ServerInstance->Config->ConfValue("delaymsg");
 	allownotice = tag->getBool("allownotice", true);
 }
 

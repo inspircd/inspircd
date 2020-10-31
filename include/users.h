@@ -74,7 +74,7 @@ enum UserType {
  */
 struct CoreExport ConnectClass : public refcountbase
 {
-	reference<ConfigTag> config;
+	std::shared_ptr<ConfigTag> config;
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
 	char type;
@@ -157,10 +157,10 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Create a new connect class with no settings.
 	 */
-	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask);
 	/** Create a new connect class with inherited settings.
 	 */
-	ConnectClass(ConfigTag* tag, char type, const std::string& mask, const ConnectClass& parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask, const ConnectClass& parent);
 
 	/** Update the settings in this block to match the given block */
 	void Update(const ConnectClass* newSettings);

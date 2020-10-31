@@ -334,7 +334,7 @@ class CoreExport InspIRCd
 	 * @param sa The endpoint to listen on.
 	 * @param old_ports Previously listening ports that may be on the same endpoint.
 	 */
-	bool BindPort(ConfigTag* tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports);
+	bool BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports);
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error

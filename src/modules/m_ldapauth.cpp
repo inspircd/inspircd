@@ -324,7 +324,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
+		auto tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
 		requiredattributes.clear();
 

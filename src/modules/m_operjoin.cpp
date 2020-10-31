@@ -40,7 +40,7 @@ class ModuleOperjoin : public Module
 
 		void ReadConfig(ConfigStatus& status) override
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
+			auto tag = ServerInstance->Config->ConfValue("operjoin");
 
 			override = tag->getBool("override", false);
 			irc::commasepstream ss(tag->getString("channel"));

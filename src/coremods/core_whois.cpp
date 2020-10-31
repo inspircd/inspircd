@@ -364,14 +364,14 @@ class CoreModWhois : public Module
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* options = ServerInstance->Config->ConfValue("options");
+		auto options = ServerInstance->Config->ConfValue("options");
 		cmd.splitwhois = options->getEnum("splitwhois", SPLITWHOIS_NONE, {
 			{ "no",       SPLITWHOIS_NONE },
 			{ "split",    SPLITWHOIS_SPLIT },
 			{ "splitmsg", SPLITWHOIS_SPLITMSG },
 		});
 
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
+		auto security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
 	}
 };

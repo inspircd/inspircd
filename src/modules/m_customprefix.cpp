@@ -25,9 +25,9 @@
 class CustomPrefixMode : public PrefixMode
 {
  public:
-	reference<ConfigTag> tag;
+	std::shared_ptr<ConfigTag> tag;
 
-	CustomPrefixMode(Module* parent, const std::string& Name, char Letter, char Prefix, ConfigTag* Tag)
+	CustomPrefixMode(Module* parent, const std::string& Name, char Letter, char Prefix, std::shared_ptr<ConfigTag> Tag)
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{

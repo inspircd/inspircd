@@ -40,9 +40,11 @@
 #include "token_list.h"
 
 /** Structure representing a single \<tag> in config */
-class CoreExport ConfigTag : public refcountbase
+class CoreExport ConfigTag
 {
+ private:
 	ConfigItems items;
+
  public:
 	const std::string tag;
 	const std::string src_name;
@@ -101,7 +103,7 @@ class CoreExport ConfigTag : public refcountbase
 	inline const ConfigItems& getItems() const { return items; }
 
 	/** Create a new ConfigTag, giving access to the private ConfigItems item list */
-	static ConfigTag* create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items);
+	static std::shared_ptr<ConfigTag> create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items);
  private:
 	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };
@@ -138,7 +140,7 @@ class ServerLimits
 	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
 	 * @param tag Configuration tag to read the limits from
 	 */
-	ServerLimits(ConfigTag* tag);
+	ServerLimits(std::shared_ptr<ConfigTag> tag);
 
 	/** Maximum length of a n!u\@h mask */
 	size_t GetMaxMask() const { return NickMax + 1 + IdentMax + 1 + MaxHost; }
@@ -209,11 +211,11 @@ class CoreExport OperInfo
 	std::bitset<64> AllowedSnomasks;
 
 	/** \<oper> block used for this oper-up. May be NULL. */
-	reference<ConfigTag> oper_block;
+	std::shared_ptr<ConfigTag> oper_block;
 	/** \<type> block used for this oper-up. Valid for local users, may be NULL on remote */
-	reference<ConfigTag> type_block;
+	std::shared_ptr<ConfigTag> type_block;
 	/** \<class> blocks referenced from the \<type> block. These define individual permissions */
-	std::vector<reference<ConfigTag> > class_blocks;
+	std::vector<std::shared_ptr<ConfigTag> > class_blocks;
 	/** Name of the oper type; i.e. the one shown in WHOIS */
 	std::string name;
 
@@ -267,7 +269,7 @@ class CoreExport ServerConfig
 		/** Module path */
 		std::string Module;
 
-		ServerPaths(ConfigTag* tag);
+		ServerPaths(std::shared_ptr<ConfigTag> tag);
 
 		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
 		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
@@ -287,7 +289,7 @@ class CoreExport ServerConfig
 	 * @param tag The name of the tag to get.
 	 * @returns Either a tag from the config or EmptyTag.
 	 */
-	ConfigTag* ConfValue(const std::string& tag);
+	std::shared_ptr<ConfigTag> ConfValue(const std::string& tag);
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.
@@ -296,7 +298,7 @@ class CoreExport ServerConfig
 	ConfigTagList ConfTags(const std::string& tag);
 
 	/** An empty configuration tag. */
-	ConfigTag* EmptyTag;
+	std::shared_ptr<ConfigTag> EmptyTag;
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
@@ -448,8 +450,6 @@ class CoreExport ServerConfig
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig();
-
-	~ServerConfig();
 
 	/** Get server ID as string with required leading zeroes
 	 */

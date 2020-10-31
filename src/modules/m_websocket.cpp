@@ -525,7 +525,7 @@ class ModuleWebSocket : public Module
 			config.allowedorigins.push_back(allow);
 		}
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
+		auto tag = ServerInstance->Config->ConfValue("websocket");
 		config.sendastext = tag->getBool("sendastext", true);
 
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));

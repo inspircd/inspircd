@@ -68,7 +68,7 @@ class ProviderConfig
 
 	ProviderConfig(const std::string& tagname, ProviderConfig* def)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue(tagname);
+		auto tag = ServerInstance->Config->ConfValue(tagname);
 
 		uint32_t def_iterations = def ? def->iterations : 3;
 		this->iterations = tag->getUInt("iterations", def_iterations, 1);

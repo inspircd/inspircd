@@ -178,7 +178,7 @@ private:
 			}
 		}
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("hostname");
+		auto tag = ServerInstance->Config->ConfValue("hostname");
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		hostmap.reset();

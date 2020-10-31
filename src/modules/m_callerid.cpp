@@ -456,7 +456,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
+		auto tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getUInt("maxaccepts", 30);
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getDuration("cooldown", 60);

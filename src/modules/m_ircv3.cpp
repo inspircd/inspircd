@@ -133,7 +133,7 @@ class ModuleIRCv3
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
+		auto conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
 		joinhook.awaycap.SetActive(conf->getBool("awaynotify", true));
 		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));

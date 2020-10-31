@@ -189,7 +189,7 @@ class LDAPCompare : public LDAPRequest
 class LDAPService : public LDAPProvider, public SocketThread
 {
 	LDAP* con = nullptr;
-	reference<ConfigTag> config;
+	std::shared_ptr<ConfigTag> config;
 	time_t last_connect = 0;
 	int searchscope;
 	time_t timeout;
@@ -278,7 +278,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 	query_queue queries, results;
 	std::mutex process_mutex; /* held when processing requests not in either queue */
 
-	LDAPService(Module* c, ConfigTag* tag)
+	LDAPService(Module* c, std::shared_ptr<ConfigTag> tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
 		, config(tag)
 	{

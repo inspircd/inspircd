@@ -59,7 +59,7 @@ class ModuleSecureList
 			newallows.push_back(host);
 		}
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
+		auto tag = ServerInstance->Config->ConfValue("securelist");
 		exemptregistered = tag->getBool("exemptregistered");
 		showmsg = tag->getBool("showmsg", true);
 		WaitTime = tag->getDuration("waittime", 60, 1);

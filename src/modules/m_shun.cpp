@@ -205,7 +205,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
+		auto tag = ServerInstance->Config->ConfValue("shun");
 
 		cleanedcommands.clear();
 		irc::spacesepstream cleanedcmds(tag->getString("cleanedcommands", "AWAY PART QUIT"));

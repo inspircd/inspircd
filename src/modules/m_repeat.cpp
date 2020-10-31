@@ -236,7 +236,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 
 	void ReadConfig()
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("repeat");
+		auto conf = ServerInstance->Config->ConfValue("repeat");
 		ms.MaxLines = conf->getUInt("maxlines", 20);
 		ms.MaxBacklog = conf->getUInt("maxbacklog", 20);
 		ms.MaxSecs = conf->getDuration("maxtime", 0);

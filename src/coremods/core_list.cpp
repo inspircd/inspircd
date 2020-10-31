@@ -221,7 +221,7 @@ class CoreModList
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+		auto tag = ServerInstance->Config->ConfValue("options");
 		cmd.showmodes = tag->getBool("modesinlist");
 	}
 

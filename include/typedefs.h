@@ -101,7 +101,7 @@ typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> ConfigIte
 
 /** The entire configuration
  */
-typedef std::multimap<std::string, reference<ConfigTag>, irc::insensitive_swo> ConfigDataHash;
+typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> ConfigDataHash;
 
 /** Iterator of ConfigDataHash */
 typedef ConfigDataHash::const_iterator ConfigIter;

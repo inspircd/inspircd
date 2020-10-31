@@ -161,7 +161,7 @@ class ModuleIRCv3STS : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// TODO: Multiple SNI profiles
-		ConfigTag* tag = ServerInstance->Config->ConfValue("sts");
+		auto tag = ServerInstance->Config->ConfValue("sts");
 		if (tag == ServerInstance->Config->EmptyTag)
 			throw ModuleException("You must define a STS policy!");
 

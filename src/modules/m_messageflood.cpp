@@ -131,7 +131,7 @@ private:
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("messageflood");
+		auto tag = ServerInstance->Config->ConfValue("messageflood");
 		notice = tag->getFloat("notice", 1.0);
 		privmsg = tag->getFloat("privmsg", 1.0);
 		tagmsg = tag->getFloat("tagmsg", 0.2);

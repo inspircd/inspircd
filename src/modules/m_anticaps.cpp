@@ -188,7 +188,7 @@ class ModuleAntiCaps : public Module
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("anticaps");
+		auto tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
 		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1);

@@ -72,7 +72,7 @@ class ModuleRestrictChans : public Module
 		allowchans.swap(newallows);
 
 		// Global config
-		ConfigTag* tag = ServerInstance->Config->ConfValue("restrictchans");
+		auto tag = ServerInstance->Config->ConfValue("restrictchans");
 		allowregistered = tag->getBool("allowregistered", false);
 	}
 

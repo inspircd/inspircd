@@ -157,7 +157,7 @@ class ModuleGeoMaxMind : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("maxmind");
+		auto tag = ServerInstance->Config->ConfValue("maxmind");
 		const std::string file = ServerInstance->Config->Paths.PrependConfig(tag->getString("file", "GeoLite2-Country.mmdb", 1));
 
 		// Try to read the new database.

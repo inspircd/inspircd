@@ -44,7 +44,7 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 	}
 
-	ConfigTag* tag = ServerInstance->Config->EmptyTag;
+	auto tag = ServerInstance->Config->EmptyTag;
 	LocalUser* localuser = IS_LOCAL(user);
 	if (localuser)
 		tag = localuser->GetClass()->config;

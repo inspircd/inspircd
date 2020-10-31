@@ -405,7 +405,7 @@ namespace mbedTLS
 			const unsigned int outrecsize;
 			const bool requestclientcert;
 
-			Config(const std::string& profilename, ConfigTag* tag, CTRDRBG& ctr_drbg)
+			Config(const std::string& profilename, std::shared_ptr<ConfigTag> tag, CTRDRBG& ctr_drbg)
 				: name(profilename)
 				, ctrdrbg(ctr_drbg)
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))

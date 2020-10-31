@@ -80,7 +80,7 @@ class ModuleConnJoin : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+		auto tag = ServerInstance->Config->ConfValue("autojoin");
 		defchans = tag->getString("channel");
 		defdelay = tag->getDuration("delay", 0, 0, 60*15);
 	}

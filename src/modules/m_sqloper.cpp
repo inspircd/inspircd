@@ -71,7 +71,7 @@ class OperQuery : public SQL::Query
 
 			// Create the oper tag as if we were the conf file.
 			ConfigItems* items;
-			reference<ConfigTag> tag = ConfigTag::create("oper", MODNAME, 0, items);
+			auto tag = ConfigTag::create("oper", MODNAME, 0, items);
 
 			/** Iterate through each column in the SQLOpers table. An infinite number of fields can be specified.
 			 *  Column 'x' with cell value 'y' will be the same as x=y in an OPER block in opers.conf.
@@ -183,7 +183,7 @@ public:
 		// Clear list of our blocks, as ConfigReader just wiped them anyway
 		my_blocks.clear();
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
+		auto tag = ServerInstance->Config->ConfValue("sqloper");
 
 		std::string dbid = tag->getString("dbid");
 		if (dbid.empty())

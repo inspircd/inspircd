@@ -215,7 +215,7 @@ class ModuleTimedBans : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("timedbans");
+		auto tag = ServerInstance->Config->ConfValue("timedbans");
 		cmd.sendnotice = tag->getBool("sendnotice", true);
 	}
 

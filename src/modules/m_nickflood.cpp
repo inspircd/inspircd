@@ -138,7 +138,7 @@ class ModuleNickFlood : public Module
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("nickflood");
+		auto tag = ServerInstance->Config->ConfValue("nickflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
 	}
 

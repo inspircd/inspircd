@@ -402,7 +402,7 @@ class ModuleMonitor
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("monitor");
+		auto tag = ServerInstance->Config->ConfValue("monitor");
 		cmd.maxmonitor = tag->getUInt("maxentries", 30, 1);
 	}
 

@@ -307,7 +307,7 @@ class ModuleIdent : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
+		auto tag = ServerInstance->Config->ConfValue("ident");
 		timeout = tag->getDuration("timeout", 5, 1, 60);
 		prefixunqueried = tag->getBool("prefixunqueried");
 	}
@@ -330,7 +330,7 @@ class ModuleIdent : public Module
 		if (user->registered == REG_ALL)
 			return;
 
-		ConfigTag* tag = user->MyClass->config;
+		std::shared_ptr<ConfigTag> tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
 		{
 			state.set(user, IDENT_SKIPPED);

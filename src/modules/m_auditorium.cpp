@@ -85,7 +85,7 @@ class ModuleAuditorium
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
+		auto tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");
 		OpsCanSee = tag->getBool("opcansee");
 		OperCanSee = tag->getBool("opercansee", true);

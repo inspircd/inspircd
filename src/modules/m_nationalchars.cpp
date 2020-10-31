@@ -273,7 +273,7 @@ class ModuleNationalChars : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
+		auto tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
 		std::string casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset), 1);
 		if (casemapping.find(' ') != std::string::npos)

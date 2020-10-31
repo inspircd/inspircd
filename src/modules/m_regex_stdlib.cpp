@@ -87,7 +87,7 @@ class ModuleRegexStdLib : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("stdregex");
+		auto tag = ServerInstance->Config->ConfValue("stdregex");
 		regex.regextype = tag->getEnum("type", std::regex::ECMAScript,
 		{
 			{ "awk",        std::regex::awk },

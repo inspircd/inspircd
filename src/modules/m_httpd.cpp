@@ -397,7 +397,7 @@ class ModuleHttpServer : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
+		auto tag = ServerInstance->Config->ConfValue("httpd");
 		timeoutsec = tag->getDuration("timeout", 10, 1);
 	}
 

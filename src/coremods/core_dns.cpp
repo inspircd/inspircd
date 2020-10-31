@@ -835,7 +835,7 @@ class ModuleDNS : public Module
 		const std::string oldip = SourceIP;
 		const unsigned int oldport = SourcePort;
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("dns");
+		auto tag = ServerInstance->Config->ConfValue("dns");
 		DNSServer = tag->getString("server");
 		SourceIP = tag->getString("sourceip");
 		SourcePort = tag->getUInt("sourceport", 0, 0, UINT16_MAX);

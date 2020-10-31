@@ -44,7 +44,7 @@ class ModuleQuietBan
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
+		auto tag = ServerInstance->Config->ConfValue("muteban");
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 

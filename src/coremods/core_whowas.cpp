@@ -435,7 +435,7 @@ class ModuleWhoWas : public Module, public Stats::EventListener
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
+		auto tag = ServerInstance->Config->ConfValue("whowas");
 		unsigned int NewGroupSize = tag->getUInt("groupsize", 10, 0, 10000);
 		unsigned int NewMaxGroups = tag->getUInt("maxgroups", 10240, 0, 1000000);
 		unsigned int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);

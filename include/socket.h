@@ -150,9 +150,9 @@ struct CoreExport FailedPort
 	irc::sockets::sockaddrs sa;
 
 	/** The config tag that the listener was created from. */
-	ConfigTag* tag;
+	std::shared_ptr<ConfigTag> tag;
 
-	FailedPort(int err, irc::sockets::sockaddrs& ep, ConfigTag* cfg)
+	FailedPort(int err, irc::sockets::sockaddrs& ep, std::shared_ptr<ConfigTag> cfg)
 		: error(err)
 		, sa(ep)
 		, tag(cfg)
@@ -172,7 +172,7 @@ typedef std::vector<FailedPort> FailedPortList;
 class CoreExport ListenSocket : public EventHandler
 {
  public:
-	reference<ConfigTag> bind_tag;
+	std::shared_ptr<ConfigTag> bind_tag;
 	const irc::sockets::sockaddrs bind_sa;
 
 	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
@@ -193,7 +193,7 @@ class CoreExport ListenSocket : public EventHandler
 
 	/** Create a new listening socket
 	 */
-	ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to);
+	ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to);
 	/** Close the socket
 	 */
 	~ListenSocket();

@@ -501,7 +501,7 @@ namespace GnuTLS
 			return ret;
 		}
 
-		static std::string GetPrioStr(const std::string& profilename, ConfigTag* tag)
+		static std::string GetPrioStr(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 		{
 			// Use default priority string if this tag does not specify one
 			std::string priostr = GnuTLS::Priority::GetDefault();
@@ -545,7 +545,7 @@ namespace GnuTLS
 			unsigned int outrecsize;
 			bool requestclientcert;
 
-			Config(const std::string& profilename, ConfigTag* tag)
+			Config(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 				: name(profilename)
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))

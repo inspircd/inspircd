@@ -34,7 +34,7 @@
 #include <netinet/tcp.h>
 #endif
 
-ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
+ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 {

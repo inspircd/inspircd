@@ -39,7 +39,7 @@ class ModuleRandQuote : public Module
 
 	void init() override
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
+		auto conf = ServerInstance->Config->ConfValue("randquote");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
 		FileReader reader(conf->getString("file", "quotes", 1));

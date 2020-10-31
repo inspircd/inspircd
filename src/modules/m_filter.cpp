@@ -627,7 +627,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		}
 	}
 
-	ConfigTag* tag = ServerInstance->Config->ConfValue("filteropts");
+	auto tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
 	notifyuser = tag->getBool("notifyuser", true);
 	warnonselfmsg = tag->getBool("warnonselfmsg");

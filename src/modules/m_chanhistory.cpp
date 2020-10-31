@@ -196,7 +196,7 @@ class ModuleChanHistory
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
+		auto tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getUInt("maxlines", 50, 1);
 		prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
 		dobots = tag->getBool("bots", true);

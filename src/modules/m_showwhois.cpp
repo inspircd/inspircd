@@ -91,7 +91,7 @@ class ModuleShowwhois : public Module, public Whois::EventListener
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
+		auto tag = ServerInstance->Config->ConfValue("showwhois");
 
 		sw.SetOperOnly(tag->getBool("opersonly", true));
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);

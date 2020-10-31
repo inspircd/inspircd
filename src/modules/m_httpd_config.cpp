@@ -47,11 +47,9 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");
 		std::stringstream buffer;
 
-		ConfigDataHash& config = ServerInstance->Config->config_data;
-		for (ConfigDataHash::const_iterator citer = config.begin(); citer != config.end(); ++citer)
+		for (auto& [_, tag] : ServerInstance->Config->config_data)
 		{
 			// Show the location of the tag in a comment.
-			ConfigTag* tag = citer->second;
 			buffer << "# " << tag->getTagLocation() << std::endl
 				<< '<' << tag->tag << ' ';
 

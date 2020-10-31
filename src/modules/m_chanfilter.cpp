@@ -94,7 +94,7 @@ class ModuleChanFilter : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
+		auto tag = ServerInstance->Config->ConfValue("chanfilter");
 		hidemask = tag->getBool("hidemask");
 		cf.maxlen = tag->getUInt("maxlen", 35, 10, ModeParser::MODE_PARAM_MAX);
 		notifyuser = tag->getBool("notifyuser", true);

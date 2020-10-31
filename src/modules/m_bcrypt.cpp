@@ -86,7 +86,7 @@ class ModuleBCrypt : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
+		auto conf = ServerInstance->Config->ConfValue("bcrypt");
 		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
 	}
 };

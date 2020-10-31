@@ -47,7 +47,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
 		std::shared_ptr<OperInfo> ifo = i->second;
-		ConfigTag* tag = ifo->oper_block;
+		std::shared_ptr<ConfigTag> tag = ifo->oper_block;
 		match_login = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = InspIRCd::MatchMask(tag->getString("host"), userHost, userIP);

@@ -428,10 +428,8 @@ void OperInfo::init()
 	AllowedSnomasks.reset();
 	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
-	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
+	for (auto& tag : class_blocks)
 	{
-		ConfigTag* tag = *iter;
-
 		AllowedOperCommands.AddList(tag->getString("commands"));
 		AllowedPrivs.AddList(tag->getString("privs"));
 
@@ -1226,7 +1224,7 @@ const std::string& FakeUser::GetFullRealHost()
 	return server->GetName();
 }
 
-ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask)
 	: config(tag)
 	, type(t)
 	, name("unnamed")
@@ -1234,7 +1232,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 {
 }
 
-ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask, const ConnectClass& parent)
 {
 	Update(&parent);
 	name = "unnamed";
