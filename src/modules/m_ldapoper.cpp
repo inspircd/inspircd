@@ -91,8 +91,7 @@ class BindInterface : public LDAPOperBase
 			return;
 		}
 
-		OperInfo* ifo = iter->second;
-		user->Oper(ifo);
+		user->Oper(iter->second);
 		delete this;
 	}
 };

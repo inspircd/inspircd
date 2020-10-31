@@ -46,7 +46,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
-		OperInfo* ifo = i->second;
+		std::shared_ptr<OperInfo> ifo = i->second;
 		ConfigTag* tag = ifo->oper_block;
 		match_login = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));

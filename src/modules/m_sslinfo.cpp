@@ -250,7 +250,7 @@ class ModuleSSLInfo
 			ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
-				OperInfo* ifo = i->second;
+				std::shared_ptr<OperInfo> ifo = i->second;
 				ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
@@ -302,9 +302,8 @@ class ModuleSSLInfo
 			return;
 
 		// Find an auto-oper block for this user
-		for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
+		for (auto& [_, ifo] :  ServerInstance->Config->oper_blocks)
 		{
-			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");
 			if (MatchFP(cert, fp) && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);

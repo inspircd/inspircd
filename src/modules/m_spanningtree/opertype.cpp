@@ -44,7 +44,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else
-		u->oper = new OperInfo(opertype);
+		u->oper = std::make_shared<OperInfo>(opertype);
 
 	if (Utils->quiet_bursts)
 	{

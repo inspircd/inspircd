@@ -48,6 +48,7 @@
 #include <deque>
 #include <functional>
 #include <list>
+#include <memory>
 #include <map>
 #include <set>
 #include <sstream>
@@ -167,7 +168,7 @@ class serverstats
 	/** Cpu usage at last sample
 	 */
 	timeval LastCPU;
- 
+
 	/** Time last sample was read
 	 */
 	timespec LastSampled;

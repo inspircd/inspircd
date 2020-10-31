@@ -41,7 +41,6 @@
 
 #include "inspircd.h"
 #include "modules/ssl.h"
-#include <memory>
 
 #include <gnutls/gnutls.h>
 #include <gnutls/crypto.h>

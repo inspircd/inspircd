@@ -380,7 +380,7 @@ CullResult FakeUser::cull()
 	return User::cull();
 }
 
-void User::Oper(OperInfo* info)
+void User::Oper(std::shared_ptr<OperInfo> info)
 {
 	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)

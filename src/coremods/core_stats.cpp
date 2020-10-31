@@ -327,9 +327,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats o */
 		case 'o':
 		{
-			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
+			for (auto& [_, ifo] : ServerInstance->Config->oper_blocks)
 			{
-				OperInfo* ifo = i->second;
 				ConfigTag* tag = ifo->oper_block;
 				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
 			}
@@ -337,9 +336,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		break;
 		case 'O':
 		{
-			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
+			for (auto& [_, tag] : ServerInstance->Config->OperTypes)
 			{
-				OperInfo* tag = i->second;
 				tag->init();
 				std::string umodes;
 				std::string cmodes;

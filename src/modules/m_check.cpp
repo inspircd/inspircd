@@ -201,15 +201,14 @@ class CommandCheck : public Command
 
 			if (targuser->IsOper())
 			{
-				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
-				context.Write("opertype", oper->name);
+				context.Write("opertype", targuser->oper->name);
 				if (loctarg)
 				{
 					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
 					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
-					context.Write("commandperms", oper->AllowedOperCommands.ToString());
-					context.Write("permissions", oper->AllowedPrivs.ToString());
+					context.Write("commandperms", targuser->oper->AllowedOperCommands.ToString());
+					context.Write("permissions", targuser->oper->AllowedPrivs.ToString());
 				}
 			}
 

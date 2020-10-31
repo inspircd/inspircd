@@ -161,7 +161,7 @@ bool User::Deserialize(Serializable::Data& data)
 	if (iter != ServerInstance->Config->OperTypes.end())
 		oper = iter->second;
 	else
-		oper = new OperInfo(user_oper);
+		oper = std::make_shared<OperInfo>(user_oper);
 
 	irc::sockets::sockaddrs sa;
 	if (irc::sockets::aptosa(client_addr, client_port, sa) || irc::sockets::untosa(client_addr, sa))

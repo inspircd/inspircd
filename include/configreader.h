@@ -193,7 +193,7 @@ struct CommandLineConf
 	char** argv;
 };
 
-class CoreExport OperInfo : public refcountbase
+class CoreExport OperInfo
 {
  public:
 	TokenList AllowedOperCommands;
@@ -281,7 +281,7 @@ class CoreExport ServerConfig
 
 	/** Index of valid oper blocks and types
 	 */
-	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
+	typedef insp::flat_map<std::string, std::shared_ptr<OperInfo>> OperIndex;
 
 	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
 	 * @param tag The name of the tag to get.

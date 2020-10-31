@@ -351,7 +351,7 @@ class CoreExport User : public Extensible
 
 	/** The oper type they logged in as, if they are an oper.
 	 */
-	reference<OperInfo> oper;
+	std::shared_ptr<OperInfo> oper;
 
 	/** Used by User to indicate the registration status of the connection
 	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
@@ -434,7 +434,7 @@ class CoreExport User : public Extensible
 	 * oper information can be obtained from User::oper
 	 * @return True if the user is an oper, false otherwise
 	 */
-	bool IsOper() const { return oper; }
+	bool IsOper() const { return !!oper; }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
@@ -511,7 +511,7 @@ class CoreExport User : public Extensible
 	/** Oper up the user using the given opertype.
 	 * This will also give the +o usermode.
 	 */
-	void Oper(OperInfo* info);
+	void Oper(std::shared_ptr<OperInfo> info);
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type

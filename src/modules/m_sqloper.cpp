@@ -96,7 +96,7 @@ class OperQuery : public SQL::Query
 				continue;
 			}
 
-			OperInfo* ifo = new OperInfo(type);
+			auto ifo = std::make_shared<OperInfo>(type);
 
 			ifo->type_block = tblk->second->type_block;
 			ifo->oper_block = tag;
