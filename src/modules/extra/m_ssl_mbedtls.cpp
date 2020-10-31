@@ -859,7 +859,7 @@ class ModuleSSLmbedTLS : public Module
 		ProfileList newprofiles;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
-		if (tags.first != tags.second)
+		if (tags.first == tags.second)
 			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
