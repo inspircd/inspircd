@@ -71,11 +71,9 @@ class ModuleDenyChannels : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		GoodChannels goodchans;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("goodchan");
-		for (ConfigIter iter = tags.first; iter != tags.second; ++iter)
-		{
-			ConfigTag* tag = iter->second;
 
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("goodchan"))
+		{
 			// Ensure that we have the <goodchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
@@ -85,11 +83,8 @@ class ModuleDenyChannels : public Module
 		}
 
 		BadChannels badchans;
-		tags = ServerInstance->Config->ConfTags("badchan");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("badchan"))
 		{
-			ConfigTag* tag = i->second;
-
 			// Ensure that we have the <badchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())

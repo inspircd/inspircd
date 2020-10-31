@@ -285,11 +285,8 @@ class ModuleCgiIRC
 		std::vector<IdentHost> identhosts;
 		std::vector<WebIRCHost> webirchosts;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cgihost"))
 		{
-			ConfigTag* tag = i->second;
-
 			// Ensure that we have the <cgihost:mask> parameter.
 			const std::string mask = tag->getString("mask");
 			if (mask.empty())

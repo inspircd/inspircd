@@ -61,6 +61,7 @@
 #include "flat_map.h"
 #include "compat.h"
 #include "aligned_storage.h"
+#include "iterator_range.h"
 #include "typedefs.h"
 #include "convto.h"
 #include "stdalgo.h"

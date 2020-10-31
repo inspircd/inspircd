@@ -256,13 +256,14 @@ class ModuleSQLite3 : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ClearConns();
-		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
-		for(ConfigIter i = tags.first; i != tags.second; i++)
+
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!stdalgo::string::equalsci(i->second->getString("module"), "sqlite"))
+			if (!stdalgo::string::equalsci(tag->getString("module"), "sqlite"))
 				continue;
-			SQLConn* conn = new SQLConn(this, i->second);
-			conns.insert(std::make_pair(i->second->getString("id"), conn));
+
+			SQLConn* conn = new SQLConn(this, tag);
+			conns.insert(std::make_pair(tag->getString("id"), conn));
 			ServerInstance->Modules.AddService(*conn);
 		}
 	}

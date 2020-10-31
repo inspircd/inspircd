@@ -133,11 +133,8 @@ private:
 	{
 		HostRules rules;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("hostchange");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hostchange"))
 		{
-			ConfigTag* tag = i->second;
-
 			// Ensure that we have the <hostchange:mask> parameter.
 			const std::string mask = tag->getString("mask");
 			if (mask.empty())

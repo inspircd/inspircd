@@ -47,10 +47,9 @@ ModResult ModuleSpanningTree::OnStats(Stats::Context& stats)
 	}
 	else if (stats.GetSymbol() == 'U')
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("uline");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("uline"))
 		{
-			std::string name = i->second->getString("server");
+			std::string name = tag->getString("server");
 			if (!name.empty())
 				stats.AddRow(248, 'U', name);
 		}

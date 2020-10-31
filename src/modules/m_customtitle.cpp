@@ -126,11 +126,9 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
 		CustomVhostMap newtitles;
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("title"))
 		{
-			reference<ConfigTag> tag = i->second;
 			std::string name = tag->getString("name", "", 1);
 			if (name.empty())
 				throw ModuleException("<title:name> is empty at " + tag->getTagLocation());

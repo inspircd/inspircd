@@ -545,11 +545,8 @@ class ModuleLDAP : public Module
 	{
 		ServiceMap conns;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
-		for (ConfigIter i = tags.first; i != tags.second; i++)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			const reference<ConfigTag>& tag = i->second;
-
 			if (!stdalgo::string::equalsci(tag->getString("module"), "ldap"))
 				continue;
 

@@ -83,11 +83,8 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 {
 	insp::flat_set<std::string> configlines;
 
-	ConfigTagList tags = conf->ConfTags(tag);
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, ctag] : conf->ConfTags(tag))
 	{
-		ConfigTag* ctag = i->second;
-
 		const std::string mask = ctag->getString(key);
 		if (mask.empty())
 			throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->getTagLocation());
@@ -110,10 +107,8 @@ typedef std::map<std::string, ConfigTag*> LocalIndex;
 void ServerConfig::CrossCheckOperClassType()
 {
 	LocalIndex operclass;
-	ConfigTagList tags = ConfTags("class");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ConfTags("class"))
 	{
-		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
@@ -121,10 +116,9 @@ void ServerConfig::CrossCheckOperClassType()
 			throw CoreException("Duplicate class block with name " + name + " at " + tag->getTagLocation());
 		operclass[name] = tag;
 	}
-	tags = ConfTags("type");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+
+	for (auto& [_, tag] : ConfTags("type"))
 	{
-		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
@@ -146,11 +140,8 @@ void ServerConfig::CrossCheckOperClassType()
 		}
 	}
 
-	tags = ConfTags("oper");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ConfTags("oper"))
 	{
-		ConfigTag* tag = i->second;
-
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<oper:name> missing from tag at " + tag->getTagLocation());
@@ -210,13 +201,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	for(size_t tries = 0; try_again; tries++)
 	{
 		try_again = false;
-		ConfigTagList tags = ConfTags("connect");
 		size_t i = 0;
-		for(ConfigIter it = tags.first; it != tags.second; ++it, ++i)
+		for (auto& [_, tag] : ConfTags("connect"))
 		{
-			ConfigTag* tag = it->second;
 			if (Classes[i])
+			{
+				i++;
 				continue;
+			}
 
 			ConnectClass* parent = NULL;
 			std::string parentName = tag->getString("parent");
@@ -229,6 +221,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					// couldn't find parent this time. If it's the last time, we'll never find it.
 					if (tries >= blk_count)
 						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block at " + tag->getTagLocation());
+
+					i++;
 					continue;
 				}
 				parent = Classes[parentIter->second];
@@ -330,6 +324,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				me = old;
 			}
 			Classes[i] = me;
+			i++;
 		}
 	}
 }
@@ -467,12 +462,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	{
 		// Ensure the user has actually edited ther config.
 		ConfigTagList dietags = ConfTags("die");
-		if (dietags.first != dietags.second)
+		if (!dietags.empty())
 		{
 			errstr << "Your configuration has not been edited correctly!" << std::endl;
-			for (ConfigIter iter = dietags.first; iter != dietags.second; ++iter)
+			for (auto& [_, tag] : dietags)
 			{
-				ConfigTag* tag = iter->second;
 				const std::string reason = tag->getString("reason", "You left a <die> tag in your config", 1);
 				errstr << reason <<  " (at " << tag->getTagLocation() << ")" << std::endl;
 			}
@@ -497,7 +491,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->WritePID(!old);
 
 	ConfigTagList binds = ConfTags("bind");
-	if (binds.first == binds.second)
+	if (binds.empty())
 		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
 			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
 
@@ -573,10 +567,8 @@ void ServerConfig::ApplyModules(User* user)
 	std::vector<std::string> added_modules;
 	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules.GetModules();
 
-	ConfigTagList tags = ConfTags("module");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ConfTags("module"))
 	{
-		ConfigTag* tag = i->second;
 		std::string name;
 		if (tag->readString("name", name))
 		{
@@ -638,9 +630,10 @@ void ServerConfig::ApplyModules(User* user)
 
 ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 {
-	ConfigTagList found = config_data.equal_range(tag);
+	std::pair<ConfigIter, ConfigIter> found = config_data.equal_range(tag);
 	if (found.first == found.second)
 		return EmptyTag;
+
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
@@ -651,7 +644,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 
 ConfigTagList ServerConfig::ConfTags(const std::string& tag)
 {
-	return config_data.equal_range(tag);
+	return stdalgo::iterator_range<ConfigIter>(config_data.equal_range(tag));
 }
 
 std::string ServerConfig::Escape(const std::string& str)

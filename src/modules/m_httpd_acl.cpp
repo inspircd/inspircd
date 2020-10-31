@@ -58,10 +58,8 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<HTTPACL> new_acls;
-		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
-		for (ConfigIter i = acls.first; i != acls.second; i++)
+		for (auto& [_, c] : ServerInstance->Config->ConfTags("httpdacl"))
 		{
-			ConfigTag* c = i->second;
 			std::string path = c->getString("path");
 			std::string types = c->getString("types");
 			irc::commasepstream sep(types);

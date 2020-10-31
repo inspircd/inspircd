@@ -42,19 +42,14 @@ class ModuleChanLog : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		std::string snomasks;
-		std::string channel;
 		ChanLogTargets newlogs;
-
-		ConfigTagList tags = ServerInstance->Config->ConfTags("chanlog");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("chanlog"))
 		{
-			channel = i->second->getString("channel");
-			snomasks = i->second->getString("snomasks");
-
+			std::string channel = tag->getString("channel");
+			std::string snomasks = tag->getString("snomasks");
 			if (channel.empty() || snomasks.empty())
 			{
-				throw ModuleException("Malformed chanlog tag at " + i->second->getTagLocation());
+				throw ModuleException("Malformed chanlog tag at " + tag->getTagLocation());
 			}
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)

@@ -51,13 +51,11 @@ class ModuleSecureList
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowList newallows;
-
-		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("securehost"))
 		{
-			std::string host = i->second->getString("exception");
+			std::string host = tag->getString("exception");
 			if (host.empty())
-				throw ModuleException("<securehost:exception> is a required field at " + i->second->getTagLocation());
+				throw ModuleException("<securehost:exception> is a required field at " + tag->getTagLocation());
 			newallows.push_back(host);
 		}
 

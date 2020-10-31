@@ -511,14 +511,12 @@ class ModuleWebSocket : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("wsorigin");
-		if (tags.first == tags.second)
+		if (tags.empty())
 			throw ModuleException("You have loaded the websocket module but not configured any allowed origins!");
 
 		WebSocketConfig config;
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : tags)
 		{
-			ConfigTag* tag = i->second;
-
 			// Ensure that we have the <wsorigin:allow> parameter.
 			const std::string allow = tag->getString("allow");
 			if (allow.empty())

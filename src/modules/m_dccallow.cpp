@@ -589,12 +589,12 @@ class ModuleDCCAllow : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		bannedfilelist newbfl;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("banfile"))
 		{
 			BannedFileList bf;
-			bf.filemask = i->second->getString("pattern");
-			bf.action = i->second->getString("action");
+			bf.filemask = tag->getString("pattern");
+			bf.action = tag->getString("action");
 			newbfl.push_back(bf);
 		}
 		bfl.swap(newbfl);

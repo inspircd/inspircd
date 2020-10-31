@@ -546,16 +546,17 @@ class ModulePgSQL : public Module
 	void ReadConf()
 	{
 		ConnMap conns;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
-		for(ConfigIter i = tags.first; i != tags.second; i++)
+
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!stdalgo::string::equalsci(i->second->getString("module"), "pgsql"))
+			if (!stdalgo::string::equalsci(tag->getString("module"), "pgsql"))
 				continue;
-			std::string id = i->second->getString("id");
+
+			std::string id = tag->getString("id");
 			ConnMap::iterator curr = connections.find(id);
 			if (curr == connections.end())
 			{
-				SQLConn* conn = new SQLConn(this, i->second);
+				SQLConn* conn = new SQLConn(this, tag);
 				if (conn->status != DEAD)
 				{
 					conns.insert(std::make_pair(id, conn));

@@ -55,11 +55,8 @@ class ModuleCustomPrefix : public Module
 
 	void init() override
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");
-		for (ConfigIter iter = tags.first; iter != tags.second; ++iter)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("customprefix"))
 		{
-			ConfigTag* tag = iter->second;
-
 			const std::string name = tag->getString("name");
 			if (name.empty())
 				throw ModuleException("<customprefix:name> must be specified at " + tag->getTagLocation());

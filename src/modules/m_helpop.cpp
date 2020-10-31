@@ -116,13 +116,11 @@ class ModuleHelpop
 
 			HelpMap newhelp;
 			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
-			if (tags.first == tags.second)
+			if (tags.empty())
 				throw ModuleException("You have loaded the helpop module but not configured any help topics!");
 
-			for (ConfigIter i = tags.first; i != tags.second; ++i)
+			for (auto& [_, tag] : tags)
 			{
-				ConfigTag* tag = i->second;
-
 				// Attempt to read the help key.
 				const std::string key = tag->getString("key");
 				if (key.empty())

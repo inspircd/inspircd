@@ -284,10 +284,8 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	{
 		DNSBLConfList newentries;
 
-		ConfigTagList dnsbls = ServerInstance->Config->ConfTags("dnsbl");
-		for(ConfigIter i = dnsbls.first; i != dnsbls.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
 		{
-			ConfigTag* tag = i->second;
 			auto e = std::make_shared<DNSBLConfEntry>();
 
 			e->name = tag->getString("name");

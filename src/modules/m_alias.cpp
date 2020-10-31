@@ -83,10 +83,8 @@ class ModuleAlias : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AliasMap newAliases;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
-		for(ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("alias"))
 		{
-			ConfigTag* tag = i->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text");
 			if (a.AliasedCommand.empty())

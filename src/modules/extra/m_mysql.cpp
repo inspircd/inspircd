@@ -467,16 +467,17 @@ ModuleSQL::~ModuleSQL()
 void ModuleSQL::ReadConfig(ConfigStatus& status)
 {
 	ConnMap conns;
-	ConfigTagList tags = ServerInstance->Config->ConfTags("database");
-	for(ConfigIter i = tags.first; i != tags.second; i++)
+
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 	{
-		if (!stdalgo::string::equalsci(i->second->getString("module"), "mysql"))
+		if (!stdalgo::string::equalsci(tag->getString("module"), "mysql"))
 			continue;
-		std::string id = i->second->getString("id");
+
+		std::string id = tag->getString("id");
 		ConnMap::iterator curr = connections.find(id);
 		if (curr == connections.end())
 		{
-			SQLConnection* conn = new SQLConnection(this, i->second);
+			SQLConnection* conn = new SQLConnection(this, tag);
 			conns.insert(std::make_pair(id, conn));
 			ServerInstance->Modules.AddService(*conn);
 		}

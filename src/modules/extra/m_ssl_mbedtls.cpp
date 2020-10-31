@@ -859,12 +859,11 @@ class ModuleSSLmbedTLS : public Module
 		ProfileList newprofiles;
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
-		if (tags.first == tags.second)
+		if (tags.empty())
 			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : tags)
 		{
-			ConfigTag* tag = i->second;
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring non-mbedTLS <sslprofile> tag at " + tag->getTagLocation());

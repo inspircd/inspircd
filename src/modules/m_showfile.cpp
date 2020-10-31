@@ -150,10 +150,8 @@ class ModuleShowFile : public Module
 	{
 		std::vector<CommandShowFile*> newcmds;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("showfile");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("showfile"))
 		{
-			ConfigTag* tag = i->second;
 			try
 			{
 				ReadTag(tag, newcmds);

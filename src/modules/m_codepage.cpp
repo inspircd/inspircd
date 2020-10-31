@@ -124,11 +124,9 @@ class ModuleCodepage
 
 		AllowedChars newallowedchars;
 		AllowedChars newallowedfrontchars;
-		ConfigTagList cpchars = ServerInstance->Config->ConfTags("cpchars");
-		for (ConfigIter i = cpchars.first; i != cpchars.second; ++i)
-		{
-			ConfigTag* tag = i->second;
 
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
+		{
 			unsigned char begin = tag->getUInt("begin", tag->getUInt("index", 0), 1, UCHAR_MAX);
 			if (!begin)
 				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->getTagLocation());
@@ -162,11 +160,9 @@ class ModuleCodepage
 		unsigned char newcasemap[UCHAR_MAX];
 		for (size_t i = 0; i < UCHAR_MAX; ++i)
 			newcasemap[i] = i;
-		ConfigTagList cpcase = ServerInstance->Config->ConfTags("cpcase");
-		for (ConfigIter i = cpcase.first; i != cpcase.second; ++i)
-		{
-			ConfigTag* tag = i->second;
 
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
+		{
 			unsigned char lower = tag->getUInt("lower", 0, 1, UCHAR_MAX);
 			if (!lower)
 				throw ModuleException("<cpcase:lower> is required at " + tag->getTagLocation());

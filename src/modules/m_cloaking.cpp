@@ -427,23 +427,23 @@ class ModuleCloaking : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("cloak");
-		if (tags.first == tags.second)
+		if (tags.empty())
 			throw ModuleException("You have loaded the cloaking module but not configured any <cloak> tags!");
 
+		bool firstcloak = true;
 		std::vector<CloakInfo> newcloaks;
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : tags)
 		{
-			ConfigTag* tag = i->second;
-
 			// Ensure that we have the <cloak:key> parameter.
 			const std::string key = tag->getString("key");
 			if (key.empty())
 				throw ModuleException("You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->getTagLocation());
 
 			// If we are the first cloak method then mandate a strong key.
-			if (i == tags.first && key.length() < minkeylen)
+			if (firstcloak && key.length() < minkeylen)
 				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->getTagLocation());
 
+			firstcloak = false;
 			const bool ignorecase = tag->getBool("ignorecase");
 			const std::string mode = tag->getString("mode");
 			const std::string prefix = tag->getString("prefix");

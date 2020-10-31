@@ -254,10 +254,9 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
-	ConfigTagList tags = ServerInstance->Config->ConfTags("link");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("link"))
 	{
-		ConfigTag* tag = i->second;
 		auto L = std::make_shared<Link>(tag);
 
 		irc::spacesepstream sep = tag->getString("allowmask");
@@ -310,10 +309,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 		LinkBlocks.push_back(L);
 	}
 
-	tags = ServerInstance->Config->ConfTags("autoconnect");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("autoconnect"))
 	{
-		ConfigTag* tag = i->second;
 		auto A = std::make_shared<Autoconnect>(tag);
 		A->Period = tag->getDuration("period", 60, 1);
 		A->NextConnectTime = ServerInstance->Time() + A->Period;

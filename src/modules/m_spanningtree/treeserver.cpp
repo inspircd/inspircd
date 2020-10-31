@@ -242,10 +242,8 @@ void TreeServer::CheckULine()
 {
 	uline = silentuline = false;
 
-	ConfigTagList tags = ServerInstance->Config->ConfTags("uline");
-	for (ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("uline"))
 	{
-		ConfigTag* tag = i->second;
 		std::string server = tag->getString("server");
 		if (irc::equals(server, GetName()))
 		{

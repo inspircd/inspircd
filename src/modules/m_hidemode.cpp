@@ -42,10 +42,8 @@ class Settings
 	{
 		RanksToSeeMap newranks;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("hidemode");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hidemode"))
 		{
-			ConfigTag* tag = i->second;
 			const std::string modename = tag->getString("mode");
 			if (modename.empty())
 				throw ModuleException("<hidemode:mode> is empty at " + tag->getTagLocation());

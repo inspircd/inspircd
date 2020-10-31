@@ -108,10 +108,8 @@ class ModuleCensor : public Module
 		 */
 		censor_t newcensors;
 
-		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
-		for (ConfigIter i = badwords.first; i != badwords.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("badword"))
 		{
-			ConfigTag* tag = i->second;
 			const std::string text = tag->getString("text");
 			if (text.empty())
 				throw ModuleException("<badword:text> is empty! at " + tag->getTagLocation());

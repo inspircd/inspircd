@@ -60,12 +60,11 @@ class ModuleHideList : public Module
  public:
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("hidelist");
 		typedef std::vector<std::pair<std::string, unsigned int> > NewConfigs;
 		NewConfigs newconfigs;
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hidelist"))
 		{
-			ConfigTag* tag = i->second;
 			std::string modename = tag->getString("mode");
 			if (modename.empty())
 				throw ModuleException("Empty <hidelist:mode> at " + tag->getTagLocation());

@@ -65,13 +65,11 @@ void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 
 void ListModeBase::DoRehash()
 {
-	ConfigTagList tags = ServerInstance->Config->ConfTags("maxlist");
 	limitlist newlimits;
 	bool seen_default = false;
-	for (ConfigIter i = tags.first; i != tags.second; i++)
-	{
-		ConfigTag* c = i->second;
 
+	for (auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
+	{
 		const std::string mname = c->getString("mode");
 		if (!mname.empty() && !stdalgo::string::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;

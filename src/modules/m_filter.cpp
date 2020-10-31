@@ -612,14 +612,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 
 void ModuleFilter::ReadConfig(ConfigStatus& status)
 {
-	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
 	exemptedchans.clear();
 	exemptednicks.clear();
 
-	for (ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("exemptfromfilter"))
 	{
-		ConfigTag* tag = i->second;
-
 		const std::string target = tag->getString("target");
 		if (!target.empty())
 		{
@@ -856,16 +853,13 @@ void ModuleFilter::ReadFilters()
 		filter++;
 	}
 
-	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
-	for (ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("keyword"))
 	{
-		std::string pattern = i->second->getString("pattern");
-		std::string reason = i->second->getString("reason");
-		std::string action = i->second->getString("action");
-		std::string flgs = i->second->getString("flags");
-		unsigned long duration = i->second->getDuration("duration", 10*60, 1);
-		if (flgs.empty())
-			flgs = "*";
+		std::string pattern = tag->getString("pattern");
+		std::string reason = tag->getString("reason");
+		std::string action = tag->getString("action");
+		std::string flgs = tag->getString("flags", "*", 1);
+		unsigned long duration = tag->getDuration("duration", 10*60, 1);
 
 		FilterAction fa;
 		if (!StringToFilterAction(action, fa))

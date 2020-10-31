@@ -98,10 +98,8 @@ class ModuleVHost : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		CustomVhostMap newhosts;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("vhost"))
 		{
-			ConfigTag* tag = i->second;
 			std::string mask = tag->getString("host");
 			if (mask.empty())
 				throw ModuleException("<vhost:host> is empty! at " + tag->getTagLocation());

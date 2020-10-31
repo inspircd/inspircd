@@ -186,15 +186,13 @@ class ModulePBKDF2 : public Module
 
 		// Then the specific values
 		ProviderConfigMap newconfigs;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("pbkdf2prov");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		for (auto& [_, ptag] : ServerInstance->Config->ConfTags("pbkdf2prov"))
 		{
-			tag = i->second;
-			std::string hash_name = "hash/" + tag->getString("hash");
+			std::string hash_name = "hash/" + ptag->getString("hash");
 			ProviderConfig& config = newconfigs[hash_name];
 
-			config.iterations = tag->getUInt("iterations", newglobal.iterations, 1);
-			config.dkey_length = tag->getUInt("length", newglobal.dkey_length, 1, 1024);
+			config.iterations = ptag->getUInt("iterations", newglobal.iterations, 1);
+			config.dkey_length = ptag->getUInt("length", newglobal.dkey_length, 1, 1024);
 		}
 
 		// Config is valid, apply it
@@ -208,7 +206,7 @@ class ModulePBKDF2 : public Module
 		: Module(VF_VENDOR, "Allows other modules to generate PBKDF2 hashes.")
 	{
 	}
-	
+
 	~ModulePBKDF2()
 	{
 		stdalgo::delete_all(providers);

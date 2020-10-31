@@ -105,8 +105,9 @@ typedef std::multimap<std::string, reference<ConfigTag>, irc::insensitive_swo> C
 
 /** Iterator of ConfigDataHash */
 typedef ConfigDataHash::const_iterator ConfigIter;
+
 /** Iterator pair, used for tag-name ranges */
-typedef std::pair<ConfigIter,ConfigIter> ConfigTagList;
+typedef stdalgo::iterator_range<ConfigIter> ConfigTagList;
 
 /** Files read by the configuration */
 typedef std::map<std::string, file_cache> ConfigFileCache;

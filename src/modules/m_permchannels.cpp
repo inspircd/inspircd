@@ -198,10 +198,8 @@ public:
 		 * Process config-defined list of permanent channels.
 		 * -- w00t
 		 */
-		ConfigTagList permchannels = ServerInstance->Config->ConfTags("permchannels");
-		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
+		for (auto& [_, tag] : ServerInstance->Config->ConfTags("permchannels"))
 		{
-			ConfigTag* tag = i->second;
 			std::string channel = tag->getString("channel");
 			std::string modes = tag->getString("modes");
 

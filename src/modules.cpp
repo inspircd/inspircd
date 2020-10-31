@@ -477,10 +477,8 @@ void ModuleManager::LoadAll()
 	LoadCoreModules(servicemap);
 
 	// Step 1: load all of the modules.
-	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
-	for (ConfigIter i = tags.first; i != tags.second; ++i)
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("module"))
 	{
-		ConfigTag* tag = i->second;
 		std::string name = ExpandModName(tag->getString("name"));
 		this->NewServices = &servicemap[name];
 

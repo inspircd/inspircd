@@ -73,10 +73,9 @@ void LogManager::OpenFileLogs()
 	if (!ServerInstance->Config->cmdline.writelog)
 		return;
 	std::map<std::string, FileWriter*> logmap;
-	ConfigTagList tags = ServerInstance->Config->ConfTags("log");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
+
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("log"))
 	{
-		ConfigTag* tag = i->second;
 		std::string method = tag->getString("method");
 		if (!stdalgo::string::equalsci(method, "file"))
 		{
