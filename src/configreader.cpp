@@ -183,7 +183,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	{
 		// No connect blocks found; make a trivial default block
 		ConfigItems* items;
-		std::shared_ptr<ConfigTag> tag = ConfigTag::create("connect", "<auto>", 0, items);
+		auto tag = ConfigTag::create("connect", "<auto>", 0, items);
 		(*items)["allow"] = "*";
 		config_data.insert(std::make_pair("connect", tag));
 		blk_count = 1;
@@ -343,9 +343,9 @@ static std::string GetServerName()
 
 void ServerConfig::Fill()
 {
-	std::shared_ptr<ConfigTag> options = ConfValue("options");
-	std::shared_ptr<ConfigTag> security = ConfValue("security");
-	std::shared_ptr<ConfigTag> server = ConfValue("server");
+	auto options = ConfValue("options");
+	auto security = ConfValue("security");
+	auto server = ConfValue("server");
 	if (sid.empty())
 	{
 		ServerName = server->getString("name", GetServerName(), InspIRCd::IsHost);
