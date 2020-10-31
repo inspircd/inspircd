@@ -232,7 +232,7 @@ namespace GnuTLS
 		unsigned int size() const { return certs.size(); }
 	};
 
-	class X509CRL : public refcountbase
+	class X509CRL
 	{
 		class RAIICRL
 		{
