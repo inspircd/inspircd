@@ -1067,7 +1067,10 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 	if (!changehost)
 		return;
 
-	FOREACH_MOD(OnChangeRealHost, (this, host));
+	// Don't call the OnChangeRealHost event when initialising a user.
+	if (!realhost.empty())
+		FOREACH_MOD(OnChangeRealHost, (this, host));
+
 	realhost = host;
 	this->InvalidateCache();
 }

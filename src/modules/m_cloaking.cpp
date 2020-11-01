@@ -6,7 +6,7 @@
  *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Thomas Fargeix <t.fargeix@gmail.com>
  *   Copyright (C) 2013, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2016-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2011 jackmcbarn <jackmcbarn@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
