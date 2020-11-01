@@ -87,7 +87,7 @@ class DCCAllow
 	time_t set_on;
 	unsigned long length;
 
-	DCCAllow() { }
+	DCCAllow() = default;
 
 	DCCAllow(const std::string& nick, const std::string& hm, time_t so, unsigned long ln)
 		: nickname(nick)

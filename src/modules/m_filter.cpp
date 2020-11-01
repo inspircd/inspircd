@@ -162,9 +162,7 @@ class FilterResult
 		return flags;
 	}
 
-	FilterResult()
-	{
-	}
+	FilterResult() = default;
 };
 
 class CommandFilter : public Command

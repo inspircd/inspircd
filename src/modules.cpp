@@ -59,10 +59,6 @@ CullResult Module::cull()
 	return classbase::cull();
 }
 
-Module::~Module()
-{
-}
-
 std::string Module::GetPropertyString() const
 {
 	// D = VF_CORE ("default")
@@ -168,14 +164,6 @@ void ServiceProvider::DisableAutoRegister()
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
 		stdalgo::erase(*ServerInstance->Modules.NewServices, this);
-}
-
-ModuleManager::ModuleManager()
-{
-}
-
-ModuleManager::~ModuleManager()
-{
 }
 
 bool ModuleManager::Attach(Implementation i, Module* mod)

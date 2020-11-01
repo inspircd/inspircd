@@ -55,10 +55,6 @@ classbase::~classbase()
 #endif
 }
 
-CullResult::CullResult()
-{
-}
-
 // This trick detects heap allocations of refcountbase objects
 static void* last_heap = NULL;
 
@@ -93,10 +89,6 @@ usecountbase::~usecountbase()
 	if (usecount && ServerInstance)
 		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
 			(void*)this, usecount);
-}
-
-ServiceProvider::~ServiceProvider()
-{
 }
 
 void ServiceProvider::RegisterService()

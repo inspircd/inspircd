@@ -31,10 +31,6 @@ CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpa
 {
 }
 
-CommandBase::~CommandBase()
-{
-}
-
 void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
 {
 }

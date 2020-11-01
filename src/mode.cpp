@@ -47,10 +47,6 @@ CullResult ModeHandler::cull()
 	return classbase::cull();
 }
 
-ModeHandler::~ModeHandler()
-{
-}
-
 bool ModeHandler::NeedsParam(bool adding) const
 {
 	switch (parameters_taken)
@@ -874,8 +870,4 @@ ModeParser::ModeParser()
 	/* Clear mode handler list */
 	memset(modehandlers, 0, sizeof(modehandlers));
 	memset(modehandlersbyid, 0, sizeof(modehandlersbyid));
-}
-
-ModeParser::~ModeParser()
-{
 }

@@ -65,9 +65,7 @@ class CoreExport XLine : public classbase
 
 	/** Destructor
 	 */
-	virtual ~XLine()
-	{
-	}
+	virtual ~XLine() = default;
 
 	/** Change creation time of an xline. Updates expiry
 	 * to be after the creation time.
@@ -175,12 +173,6 @@ class CoreExport KLine : public XLine
 		matchtext.append("@").append(this->hostmask);
 	}
 
-	/** Destructor
-	 */
-	~KLine()
-	{
-	}
-
 	bool Matches(User* u) override;
 
 	bool Matches(const std::string& str) override;
@@ -221,12 +213,6 @@ class CoreExport GLine : public XLine
 		matchtext.append("@").append(this->hostmask);
 	}
 
-	/** Destructor
-	 */
-	~GLine()
-	{
-	}
-
 	bool Matches(User* u) override;
 
 	bool Matches(const std::string& str) override;
@@ -263,10 +249,6 @@ class CoreExport ELine : public XLine
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
-	}
-
-	~ELine()
-	{
 	}
 
 	bool Matches(User* u) override;
@@ -306,12 +288,6 @@ class CoreExport ZLine : public XLine
 	{
 	}
 
-	/** Destructor
-	 */
-	~ZLine()
-	{
-	}
-
 	bool Matches(User* u) override;
 
 	bool Matches(const std::string& str) override;
@@ -342,11 +318,6 @@ class CoreExport QLine : public XLine
 	{
 	}
 
-	/** Destructor
-	 */
-	~QLine()
-	{
-	}
 	bool Matches(User* u) override;
 
 	bool Matches(const std::string& str) override;
@@ -399,7 +370,7 @@ class CoreExport XLineFactory
 
 	/** Destructor
 	 */
-	virtual ~XLineFactory() { }
+	virtual ~XLineFactory() = default;
 };
 
 /** XLineManager is a class used to manage G-lines, K-lines, E-lines, Z-lines and Q-lines,

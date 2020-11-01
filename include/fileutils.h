@@ -58,7 +58,7 @@ class CoreExport FileReader
 class CoreExport FileSystem
 {
 private:
-	FileSystem() { }
+	FileSystem() = delete;
 
 public:
 	/** Expands a path fragment to a full path.

@@ -23,7 +23,7 @@
 class CoreExport Serializable
 {
  protected:
-	Serializable() { }
+	Serializable() = default;
 
  public:
 	/** Encapsulates a chunk of serialised data. */

@@ -124,10 +124,6 @@ LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
 	Deserialize(data);
 }
 
-User::~User()
-{
-}
-
 const std::string& User::MakeHost()
 {
 	if (!this->cached_makehost.empty())

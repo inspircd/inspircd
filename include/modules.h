@@ -333,7 +333,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Default destructor.
 	 * destroys a module class
 	 */
-	virtual ~Module();
+	virtual ~Module() = default;
 
 	/** Retrieves link compatibility data for this module.
 	 * @param data The location to store link compatibility data.
@@ -1076,14 +1076,6 @@ class CoreExport ModuleManager
 	 * @return Module name starting with "m_" and ending with ".so"
 	 */
 	static std::string ExpandModName(const std::string& modname);
-
-	/** Simple, bog-standard, boring constructor.
-	 */
-	ModuleManager();
-
-	/** Destructor
-	 */
-	~ModuleManager();
 
 	/** Change the priority of one event in a module.
 	 * Each module event has a list of modules which are attached to that event type.

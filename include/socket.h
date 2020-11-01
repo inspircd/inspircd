@@ -88,7 +88,7 @@ namespace irc
 			/** Raw bits. Unused bits must be zero */
 			unsigned char bits[16];
 
-			cidr_mask() {}
+			cidr_mask() = default;
 			/** Construct a CIDR mask from the string. Will normalize (127.0.0.1/8 => 127.0.0.0/8). */
 			cidr_mask(const std::string& mask);
 			/** Construct a CIDR mask of a given length from the given address */

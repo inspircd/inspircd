@@ -107,7 +107,7 @@ class CoreExport LogStream : public classbase
 	/* A LogStream's destructor should do whatever it needs to close any resources it was using (or indicate that it is no longer using a resource
 	 * in the event that the resource is shared, see for example FileLogStream).
 	 */
-	virtual ~LogStream() { }
+	virtual ~LogStream() = default;
 
 	/** Changes the loglevel for this LogStream on-the-fly.
 	 * This is needed for -nofork. But other LogStreams could use it to change loglevels.
@@ -148,8 +148,6 @@ class CoreExport LogManager
 	FileLogMap FileLogs;
 
  public:
-	~LogManager();
-
 	/** Adds a FileWriter instance to LogManager, or increments the reference count of an existing instance.
 	 * Used for file-stream sharing for FileLogStreams.
 	 */

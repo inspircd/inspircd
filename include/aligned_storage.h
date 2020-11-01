@@ -30,9 +30,7 @@ class insp::aligned_storage
 	mutable typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
 
  public:
-	aligned_storage()
-	{
-	}
+	aligned_storage() = default;
 
 	aligned_storage(const aligned_storage& other)
 	{

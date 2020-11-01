@@ -25,7 +25,7 @@ class LDAPException : public ModuleException
  public:
 	LDAPException(const std::string& reason) : ModuleException(reason) { }
 
-	virtual ~LDAPException() throw() { }
+	virtual ~LDAPException() noexcept = default;
 };
 
 struct LDAPModification
@@ -130,7 +130,7 @@ class LDAPInterface
 	ModuleRef creator;
 
 	LDAPInterface(Module* m) : creator(m) { }
-	virtual ~LDAPInterface() { }
+	virtual ~LDAPInterface() = default;
 
 	virtual void OnResult(const LDAPResult& r) = 0;
 	virtual void OnError(const LDAPResult& err) = 0;

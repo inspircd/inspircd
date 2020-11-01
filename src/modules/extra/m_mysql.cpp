@@ -151,7 +151,6 @@ class DispatcherThread : public SocketThread
 	ModuleSQL* const Parent;
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
-	~DispatcherThread() { }
 	void OnStart() override;
 	void OnNotify() override;
 };

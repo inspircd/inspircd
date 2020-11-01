@@ -152,7 +152,7 @@ class CoreExport CommandBase : public ServiceProvider
 		}
 
 		/** Initializes a new empty instance. */
-		Params() { }
+		Params() = default;
 
 		/** Retrieves the IRCv3 message tags. */
 		const ClientProtocol::TagMap& GetTags() const { return tags; }
@@ -201,7 +201,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 */
 	virtual void EncodeParameter(std::string& parameter, unsigned int index);
 
-	virtual ~CommandBase();
+	virtual ~CommandBase() = default;
 };
 
 class CoreExport Command : public CommandBase

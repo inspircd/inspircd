@@ -370,10 +370,6 @@ bool CommandParser::AddCommand(Command *f)
 	return false;
 }
 
-CommandParser::CommandParser()
-{
-}
-
 std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final, CommandBase* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();

@@ -211,9 +211,7 @@ class SQL::Query : public classbase
 	const ModuleRef creator;
 
 	/* Destroys this Query instance. */
-	virtual ~Query()
-	{
-	}
+	virtual ~Query() = default;
 
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.

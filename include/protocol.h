@@ -56,7 +56,7 @@ class CoreExport ProtocolInterface
 
 	typedef std::vector<ServerInfo> ServerList;
 
-	virtual ~ProtocolInterface() { }
+	virtual ~ProtocolInterface() = default;
 
 	/** Send an ENCAP message to all servers matching a wildcard string.
 	 * See the protocol documentation for the purpose of ENCAP.

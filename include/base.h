@@ -36,7 +36,7 @@
 /** Dummy class to help enforce culls being parent-called up to classbase */
 class CullResult
 {
-	CullResult();
+	CullResult() = default;
 	friend class classbase;
 };
 
@@ -66,7 +66,7 @@ class CoreExport classbase
 class CoreExport interfacebase
 {
  public:
-	interfacebase() {}
+	interfacebase() = default;
 	static inline void* operator new(size_t, void* m) { return m; }
  private:
 	interfacebase(const interfacebase&);
@@ -208,7 +208,7 @@ class CoreExport CoreException : public std::exception
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
 	 */
-	virtual ~CoreException() throw() {}
+	virtual ~CoreException() noexcept = default;
 	/** Returns the reason for the exception.
 	 * @return Human readable description of the error
 	 */
@@ -257,7 +257,7 @@ class CoreExport ServiceProvider : public classbase
 	/** Type of service (must match object type) */
 	const ServiceType service;
 	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
-	virtual ~ServiceProvider();
+	virtual ~ServiceProvider() = default;
 
 	/** Register this service in the appropriate registrar
 	 */

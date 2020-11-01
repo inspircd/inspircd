@@ -611,7 +611,7 @@ class CoreExport User : public Extensible
 
 	/** Default destructor
 	 */
-	virtual ~User();
+	virtual ~User() = default;
 	CullResult cull() override;
 
 	/** @copydoc Serializable::Deserialize */

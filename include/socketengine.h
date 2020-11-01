@@ -200,7 +200,7 @@ class CoreExport EventHandler : public classbase
 
 	/** Destructor
 	 */
-	virtual ~EventHandler() {}
+	virtual ~EventHandler() = default;
 
 	/** Called by the socket engine in case of a read event
 	 */

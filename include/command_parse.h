@@ -49,10 +49,6 @@ class CoreExport CommandParser
 	CommandMap cmdlist;
 
  public:
-	/** Default constructor.
-	 */
-	CommandParser();
-
 	/** Get a command name -> Command* map containing all client to server commands
 	 * @return A map of command handlers keyed by command names
 	 */

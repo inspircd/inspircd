@@ -175,7 +175,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	CullResult cull() override;
-	virtual ~ModeHandler();
+	virtual ~ModeHandler() = default;
 
 	/** Register this object in the ModeParser
 	 */
@@ -659,7 +659,6 @@ class CoreExport ModeParser
 	};
 
 	ModeParser();
-	~ModeParser();
 
 	static bool IsModeChar(char chr);
 
