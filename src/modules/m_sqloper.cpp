@@ -64,13 +64,13 @@ class OperQuery : public SQL::Query
 
 		SQL::Row row;
 		// Iterate through DB results to create oper blocks from sqloper rows
-		while (res.GetRow(row))
+		for (size_t rowidx = 1; res.GetRow(row); ++rowidx)
 		{
 			std::vector<std::string> cols;
 			res.GetCols(cols);
 
 			// Create the oper tag as if we were the conf file.
-			auto tag = std::make_shared<ConfigTag>("oper", FilePosition("<" MODNAME ">", 0, 0));
+			auto tag = std::make_shared<ConfigTag>("oper", FilePosition("<" MODNAME ">" , rowidx, 0));
 
 			/** Iterate through each column in the SQLOpers table. An infinite number of fields can be specified.
 			 *  Column 'x' with cell value 'y' will be the same as x=y in an OPER block in opers.conf.
