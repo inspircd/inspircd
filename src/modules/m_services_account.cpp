@@ -317,7 +317,11 @@ class ModuleServicesAccount
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+		{
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires the user to be logged into an account",
+				myclass->GetName().c_str());
 			return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

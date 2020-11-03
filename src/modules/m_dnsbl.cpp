@@ -427,12 +427,20 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 		std::string* match = nameExt.get(user);
 		if (!match)
+		{
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a DNSBL mark",
+					myclass->GetName().c_str());
 			return MOD_RES_DENY;
+		}
 
-		if (InspIRCd::Match(*match, dnsbl))
-			return MOD_RES_PASSTHRU;
+		if (!InspIRCd::Match(*match, dnsbl))
+		{
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the DNSBL mark (%s) does not match %s",
+					myclass->GetName().c_str(), match->c_str(), dnsbl.c_str());
+			return MOD_RES_DENY;
+		}
 
-		return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
