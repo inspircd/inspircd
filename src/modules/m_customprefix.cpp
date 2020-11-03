@@ -59,17 +59,17 @@ class ModuleCustomPrefix : public Module
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("<customprefix:name> must be specified at " + tag->getTagLocation());
+				throw ModuleException("<customprefix:name> must be specified at " + tag->source.str());
 
 			if (tag->getBool("change"))
 			{
 				ModeHandler* mh = ServerInstance->Modes.FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
-					throw ModuleException("<customprefix:change> specified for a nonexistent mode at " + tag->getTagLocation());
+					throw ModuleException("<customprefix:change> specified for a nonexistent mode at " + tag->source.str());
 
 				PrefixMode* pm = mh->IsPrefixMode();
 				if (!pm)
-					throw ModuleException("<customprefix:change> specified for a non-prefix mode at " + tag->getTagLocation());
+					throw ModuleException("<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
 
 				unsigned long rank = tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX);
 				unsigned long setrank = tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX);
@@ -84,11 +84,11 @@ class ModuleCustomPrefix : public Module
 
 			const std::string letter = tag->getString("letter");
 			if (letter.length() != 1)
-				throw ModuleException("<customprefix:letter> must be set to a mode character at " + tag->getTagLocation());
+				throw ModuleException("<customprefix:letter> must be set to a mode character at " + tag->source.str());
 
 			const std::string prefix = tag->getString("prefix");
 			if (prefix.length() != 1)
-				throw ModuleException("<customprefix:prefix> must be set to a mode prefix at " + tag->getTagLocation());
+				throw ModuleException("<customprefix:prefix> must be set to a mode prefix at " + tag->source.str());
 
 			try
 			{
@@ -98,7 +98,7 @@ class ModuleCustomPrefix : public Module
 			}
 			catch (ModuleException& e)
 			{
-				throw ModuleException(e.GetReason() + " (while creating mode from " + tag->getTagLocation() + ")");
+				throw ModuleException(e.GetReason() + " (while creating mode from " + tag->source.str() + ")");
 			}
 		}
 	}

@@ -131,17 +131,17 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 		{
 			std::string name = tag->getString("name", "", 1);
 			if (name.empty())
-				throw ModuleException("<title:name> is empty at " + tag->getTagLocation());
+				throw ModuleException("<title:name> is empty at " + tag->source.str());
 
 			std::string pass = tag->getString("password");
 			if (pass.empty())
-				throw ModuleException("<title:password> is empty at " + tag->getTagLocation());
+				throw ModuleException("<title:password> is empty at " + tag->source.str());
 
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<title> tag for %s at %s contains an plain text password, this is insecure!",
-					name.c_str(), tag->getTagLocation().c_str());
+					name.c_str(), tag->source.str().c_str());
 			}
 
 			std::string host = tag->getString("host", "*@*", 1);

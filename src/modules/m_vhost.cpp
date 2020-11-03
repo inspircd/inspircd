@@ -102,21 +102,21 @@ class ModuleVHost : public Module
 		{
 			std::string mask = tag->getString("host");
 			if (mask.empty())
-				throw ModuleException("<vhost:host> is empty! at " + tag->getTagLocation());
+				throw ModuleException("<vhost:host> is empty! at " + tag->source.str());
 
 			std::string username = tag->getString("user");
 			if (username.empty())
-				throw ModuleException("<vhost:user> is empty! at " + tag->getTagLocation());
+				throw ModuleException("<vhost:user> is empty! at " + tag->source.str());
 
 			std::string pass = tag->getString("pass");
 			if (pass.empty())
-				throw ModuleException("<vhost:pass> is empty! at " + tag->getTagLocation());
+				throw ModuleException("<vhost:pass> is empty! at " + tag->source.str());
 
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<vhost> tag for %s at %s contains an plain text password, this is insecure!",
-					username.c_str(), tag->getTagLocation().c_str());
+					username.c_str(), tag->source.str().c_str());
 			}
 
 			CustomVhost vhost(username, pass, hash, mask);

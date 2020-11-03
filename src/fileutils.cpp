@@ -26,6 +26,18 @@
 # include <dirent.h>
 #endif
 
+FilePosition::FilePosition(const std::string& Name, unsigned int Line, unsigned int Column)
+	: name(Name)
+	, line(Line)
+	, column(Column)
+{
+}
+
+std::string FilePosition::str() const
+{
+	return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
+}
+
 FileReader::FileReader(const std::string& filename)
 {
 	Load(filename);

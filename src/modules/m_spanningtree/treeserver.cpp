@@ -249,7 +249,7 @@ void TreeServer::CheckULine()
 		{
 			if (this->IsRoot())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->getTagLocation() + ")");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->source.str() + ")");
 				return;
 			}
 

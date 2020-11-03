@@ -55,7 +55,7 @@ class ModuleSecureList
 		{
 			std::string host = tag->getString("exception");
 			if (host.empty())
-				throw ModuleException("<securehost:exception> is a required field at " + tag->getTagLocation());
+				throw ModuleException("<securehost:exception> is a required field at " + tag->source.str());
 			newallows.push_back(host);
 		}
 

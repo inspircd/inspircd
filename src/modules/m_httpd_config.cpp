@@ -50,7 +50,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		for (auto& [_, tag] : ServerInstance->Config->config_data)
 		{
 			// Show the location of the tag in a comment.
-			buffer << "# " << tag->getTagLocation() << std::endl
+			buffer << "# " << tag->source.str() << std::endl
 				<< '<' << tag->tag << ' ';
 
 			// Print out the tag with all keys aligned vertically.

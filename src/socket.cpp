@@ -37,7 +37,7 @@ bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sock
 		{
 			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
 			ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Replacing listener on %s from old tag at %s with new tag from %s",
-				sa.str().c_str(), (*n)->bind_tag->getTagLocation().c_str(), tag->getTagLocation().c_str());
+				sa.str().c_str(), (*n)->bind_tag->source.str().c_str(), tag->source.str().c_str());
 			(*n)->bind_tag = tag;
 			(*n)->ResetIOHookProvider();
 
@@ -50,12 +50,12 @@ bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sock
 	if (!ll->HasFd())
 	{
 		ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Failed to listen on %s from tag at %s: %s",
-			sa.str().c_str(), tag->getTagLocation().c_str(), strerror(errno));
+			sa.str().c_str(), tag->source.str().c_str(), strerror(errno));
 		delete ll;
 		return false;
 	}
 
-	ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Added a listener on %s from tag at %s", sa.str().c_str(), tag->getTagLocation().c_str());
+	ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Added a listener on %s from tag at %s", sa.str().c_str(), tag->source.str().c_str());
 	ports.push_back(ll);
 	return true;
 }
@@ -79,7 +79,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			// A TCP listener with no ports is not very useful.
 			if (portlist.empty())
 				this->Logs.Log("SOCKET", LOG_DEFAULT, "TCP listener on %s at %s has no ports specified!",
-					address.empty() ? "*" : address.c_str(), tag->getTagLocation().c_str());
+					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
 			irc::portparser portrange(portlist, false);
 			for (int port; (port = portrange.GetToken()); )
@@ -109,7 +109,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			if (fullpath.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
 			{
 				this->Logs.Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path that is too long!",
-					fullpath.c_str(), tag->getTagLocation().c_str());
+					fullpath.c_str(), tag->source.str().c_str());
 				continue;
 			}
 
@@ -117,7 +117,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			if (fullpath.find_first_of("\n\r\t!@: ") != std::string::npos)
 			{
 				this->Logs.Log("SOCKET", LOG_DEFAULT, "UNIX listener on %s at %s specified a path containing invalid characters!",
-					fullpath.c_str(), tag->getTagLocation().c_str());
+					fullpath.c_str(), tag->source.str().c_str());
 				continue;
 			}
 

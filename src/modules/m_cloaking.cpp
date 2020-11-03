@@ -437,11 +437,11 @@ class ModuleCloaking : public Module
 			// Ensure that we have the <cloak:key> parameter.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException("You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->getTagLocation());
+				throw ModuleException("You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->source.str());
 
 			// If we are the first cloak method then mandate a strong key.
 			if (firstcloak && key.length() < minkeylen)
-				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->getTagLocation());
+				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
 
 			firstcloak = false;
 			const bool ignorecase = tag->getBool("ignorecase");
@@ -456,7 +456,7 @@ class ModuleCloaking : public Module
 			else if (stdalgo::string::equalsci(mode, "full"))
 				newcloaks.push_back(CloakInfo(MODE_OPAQUE, key, prefix, suffix, ignorecase));
 			else
-				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->getTagLocation());
+				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->source.str());
 		}
 
 		// The cloak configuration was valid so we can apply it.

@@ -51,15 +51,15 @@ public:
 
  public:
 	const std::string tag;
-	const std::string src_name;
-	const int src_line;
+
+	/** The position within the source file that this tag was read from. */
+	const FilePosition source;
 
 	/** Creates a new ConfigTag instance with the specified tag name, file, and line.
 	 * @param Tag The name of this config tag (e.g. "foo" for \<foo>).
-	 * @param file The file this config tag was read from.
-	 * @param line The line of \p file that this config tag exists in.
+	 * @param Source The source of this config tag.
 	 */
-	ConfigTag(const std::string& Tag, const std::string& file, int line);
+	ConfigTag(const std::string& Tag, const FilePosition& Source);
 
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator) const;
@@ -98,7 +98,7 @@ public:
 		std::vector<const char*> enumkeys;
 		std::transform(enumvals.begin(), enumvals.end(), std::back_inserter(enumkeys), [](const std::pair<const char*, TReturn>& ev) { return ev.first; });
 		throw ModuleException(val + " is an invalid value for <" + tag + ":" + key + ">; acceptable values are " +
-			stdalgo::string::join(enumkeys, ' ') + ", at " + getTagLocation());
+			stdalgo::string::join(enumkeys, ' ') + ", at " + source.str());
 	}
 
 	/** Get the value of an option
@@ -108,8 +108,6 @@ public:
 	 * @return true if the option exists
 	 */
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false) const;
-
-	std::string getTagLocation() const;
 
 	/** Retrieves the underlying map of config entries. */
 	inline const Items& GetItems() const { return items; }

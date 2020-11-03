@@ -124,16 +124,16 @@ class ModuleHelpop
 				// Attempt to read the help key.
 				const std::string key = tag->getString("key");
 				if (key.empty())
-					throw ModuleException(InspIRCd::Format("<helpop:key> is empty at %s", tag->getTagLocation().c_str()));
+					throw ModuleException(InspIRCd::Format("<helpop:key> is empty at %s", tag->source.str().c_str()));
 				else if (irc::equals(key, "index"))
-					throw ModuleException(InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->getTagLocation().c_str()));
+					throw ModuleException(InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->source.str().c_str()));
 				else if (key.length() > longestkey)
 					longestkey = key.length();
 
 				// Attempt to read the help value.
 				std::string value;
 				if (!tag->readString("value", value, true) || value.empty())
-					throw ModuleException(InspIRCd::Format("<helpop:value> is empty at %s", tag->getTagLocation().c_str()));
+					throw ModuleException(InspIRCd::Format("<helpop:value> is empty at %s", tag->source.str().c_str()));
 
 				// Parse the help body. Empty lines are replaced with a single
 				// space because some clients are unable to show blank lines.
@@ -147,7 +147,7 @@ class ModuleHelpop
 				if (!newhelp.insert(std::make_pair(key, HelpTopic(helpmsg, title))).second)
 				{
 					throw ModuleException(InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
-						key.c_str(), tag->getTagLocation().c_str()));
+						key.c_str(), tag->source.str().c_str()));
 				}
 			}
 

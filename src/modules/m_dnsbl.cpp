@@ -317,19 +317,19 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			/* yeah, logic here is a little messy */
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
-				throw ModuleException("Invalid <dnsbl:bitmask> at " + tag->getTagLocation());
+				throw ModuleException("Invalid <dnsbl:bitmask> at " + tag->source.str());
 			}
 			else if (e->name.empty())
 			{
-				throw ModuleException("Empty <dnsbl:name> at " + tag->getTagLocation());
+				throw ModuleException("Empty <dnsbl:name> at " + tag->source.str());
 			}
 			else if (e->domain.empty())
 			{
-				throw ModuleException("Empty <dnsbl:domain> at " + tag->getTagLocation());
+				throw ModuleException("Empty <dnsbl:domain> at " + tag->source.str());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
-				throw ModuleException("Unknown <dnsbl:action> at " + tag->getTagLocation());
+				throw ModuleException("Unknown <dnsbl:action> at " + tag->source.str());
 			}
 			else
 			{

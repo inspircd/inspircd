@@ -1239,7 +1239,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::st
 	// Connect classes can inherit from each other but this is problematic for modules which can't use
 	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as
 	// well as the parent class.
-	config = std::make_shared<ConfigTag>(tag->tag, tag->src_name, tag->src_line);
+	config = std::make_shared<ConfigTag>(tag->tag, tag->source);
 	for (const auto& [key, value] : parent->config->GetItems())
 	{
 		// The class name and parent name are not inherited

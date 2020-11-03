@@ -913,14 +913,14 @@ class ModuleSSLOpenSSL : public Module
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->source.str());
 				continue;
 			}
 
@@ -931,7 +931,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);

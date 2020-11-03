@@ -77,7 +77,7 @@ class ModuleDenyChannels : public Module
 			// Ensure that we have the <goodchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("<goodchan:name> is a mandatory field, at " + tag->getTagLocation());
+				throw ModuleException("<goodchan:name> is a mandatory field, at " + tag->source.str());
 
 			goodchans.push_back(name);
 		}
@@ -88,19 +88,19 @@ class ModuleDenyChannels : public Module
 			// Ensure that we have the <badchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("<badchan:name> is a mandatory field, at " + tag->getTagLocation());
+				throw ModuleException("<badchan:name> is a mandatory field, at " + tag->source.str());
 
 			// Ensure that we have the <badchan:reason> parameter.
 			const std::string reason = tag->getString("reason");
 			if (reason.empty())
-				throw ModuleException("<badchan:reason> is a mandatory field, at " + tag->getTagLocation());
+				throw ModuleException("<badchan:reason> is a mandatory field, at " + tag->source.str());
 
 			const std::string redirect = tag->getString("redirect");
 			if (!redirect.empty())
 			{
 				// Ensure that <badchan:redirect> contains a channel name.
 				if (!ServerInstance->IsChannel(redirect))
-					throw ModuleException("<badchan:redirect> is not a valid channel name, at " + tag->getTagLocation());
+					throw ModuleException("<badchan:redirect> is not a valid channel name, at " + tag->source.str());
 
 				// We defer the rest of the validation of the redirect channel until we have
 				// finished parsing all of the badchans.

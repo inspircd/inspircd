@@ -20,6 +20,30 @@
 
 #pragma once
 
+/** Represents the position within a file. */
+class CoreExport FilePosition
+{
+ public:
+	/** The name of the file that the position points to. */
+	std::string name;
+
+	/** The line of the file that this position points to. */
+	unsigned int line;
+
+	/** The column of the file that this position points to. */
+	unsigned int column;
+
+	/** Initialises a new file position with the specified name, line, and column.
+	 * @param name The name of the file that the position points to.
+	 * @param line The line of the file that this position points to.
+	 * @param column The column of the file that this position points to.
+	 */
+	FilePosition(const std::string& Name, unsigned int Line = 1, unsigned int Column = 1);
+
+	/** Returns a string that represents this file position. */
+	std::string str() const;
+};
+
 /** Provides an easy method of reading a text file into memory. */
 class CoreExport FileReader
 {

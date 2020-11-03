@@ -65,7 +65,7 @@ class ModuleRestrictChans : public Module
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("Empty <allowchannel:name> at " + tag->getTagLocation());
+				throw ModuleException("Empty <allowchannel:name> at " + tag->source.str());
 
 			newallows.insert(name);
 		}

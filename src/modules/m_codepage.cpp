@@ -129,11 +129,11 @@ class ModuleCodepage
 		{
 			unsigned char begin = tag->getUInt("begin", tag->getUInt("index", 0), 1, UCHAR_MAX);
 			if (!begin)
-				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->getTagLocation());
+				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->source.str());
 
 			unsigned char end = tag->getUInt("end", begin, 1, UCHAR_MAX);
 			if (begin > end)
-				throw ModuleException("<cpchars:begin> must be lower than <cpchars:end> at " + tag->getTagLocation());
+				throw ModuleException("<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
 			bool front = tag->getBool("front", false);
 			for (unsigned short pos = begin; pos <= end; ++pos)
@@ -141,13 +141,13 @@ class ModuleCodepage
 				if (pos == '\n' || pos == '\r' || pos == ' ')
 				{
 					throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden character: %u at %s",
-						pos, tag->getTagLocation().c_str()));
+						pos, tag->source.str().c_str()));
 				}
 
 				if (front && (pos == ':' || isdigit(pos)))
 				{
 					throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden front character: %u at %s",
-						pos, tag->getTagLocation().c_str()));
+						pos, tag->source.str().c_str()));
 				}
 
 				newallowedchars.set(pos);
@@ -165,11 +165,11 @@ class ModuleCodepage
 		{
 			unsigned char lower = tag->getUInt("lower", 0, 1, UCHAR_MAX);
 			if (!lower)
-				throw ModuleException("<cpcase:lower> is required at " + tag->getTagLocation());
+				throw ModuleException("<cpcase:lower> is required at " + tag->source.str());
 
 			unsigned char upper = tag->getUInt("upper", 0, 1, UCHAR_MAX);
 			if (!upper)
-				throw ModuleException("<cpcase:upper> is required at " + tag->getTagLocation());
+				throw ModuleException("<cpcase:upper> is required at " + tag->source.str());
 
 			newcasemap[upper] = lower;
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %u (%c) as the lower case version of %u (%c)",

@@ -382,7 +382,7 @@ namespace
 			{
 				const FailedPort& fp = *iter;
 				std::cout << "  " << con_bright << fp.sa.str() << con_reset << ": " << strerror(fp.error) << '.' << std::endl
-					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl
+					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl
 					<< std::endl;
 			}
 

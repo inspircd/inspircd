@@ -77,7 +77,7 @@ void ListModeBase::DoRehash()
 		ListLimit limit(c->getString("chan", "*", 1), c->getUInt("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
-			throw ModuleException(InspIRCd::Format("<maxlist:chan> is empty, at %s", c->getTagLocation().c_str()));
+			throw ModuleException(InspIRCd::Format("<maxlist:chan> is empty, at %s", c->source.str().c_str()));
 
 		if (limit.mask == "*" || limit.mask == "#*")
 			seen_default = true;

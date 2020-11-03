@@ -70,7 +70,7 @@ class OperQuery : public SQL::Query
 			res.GetCols(cols);
 
 			// Create the oper tag as if we were the conf file.
-			auto tag = std::make_shared<ConfigTag>("oper", MODNAME, 0);
+			auto tag = std::make_shared<ConfigTag>("oper", FilePosition("<" MODNAME ">", 0, 0));
 
 			/** Iterate through each column in the SQLOpers table. An infinite number of fields can be specified.
 			 *  Column 'x' with cell value 'y' will be the same as x=y in an OPER block in opers.conf.

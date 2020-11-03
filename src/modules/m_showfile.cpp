@@ -158,7 +158,7 @@ class ModuleShowFile : public Module
 			}
 			catch (CoreException& ex)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error: " + ex.GetReason() + " at " + tag->getTagLocation());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error: " + ex.GetReason() + " at " + tag->source.str());
 			}
 		}
 

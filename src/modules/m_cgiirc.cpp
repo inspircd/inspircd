@@ -290,7 +290,7 @@ class ModuleCgiIRC
 			// Ensure that we have the <cgihost:mask> parameter.
 			const std::string mask = tag->getString("mask");
 			if (mask.empty())
-				throw ModuleException("<cgihost:mask> is a mandatory field, at " + tag->getTagLocation());
+				throw ModuleException("<cgihost:mask> is a mandatory field, at " + tag->source.str());
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
@@ -309,19 +309,19 @@ class ModuleCgiIRC
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
-					throw ModuleException("When using <cgihost type=\"webirc\"> either the fingerprint or password field is required, at " + tag->getTagLocation());
+					throw ModuleException("When using <cgihost type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
 					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<cgihost> tag at %s contains an plain text password, this is insecure!",
-						tag->getTagLocation().c_str());
+						tag->source.str().c_str());
 				}
 
 				webirchosts.push_back(WebIRCHost(mask, fingerprint, password, passwordhash));
 			}
 			else
 			{
-				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->getTagLocation());
+				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->source.str());
 			}
 		}
 

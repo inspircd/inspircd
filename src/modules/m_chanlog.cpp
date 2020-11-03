@@ -49,7 +49,7 @@ class ModuleChanLog : public Module
 			std::string snomasks = tag->getString("snomasks");
 			if (channel.empty() || snomasks.empty())
 			{
-				throw ModuleException("Malformed chanlog tag at " + tag->getTagLocation());
+				throw ModuleException("Malformed chanlog tag at " + tag->source.str());
 			}
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)

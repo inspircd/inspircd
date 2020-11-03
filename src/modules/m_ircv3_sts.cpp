@@ -167,11 +167,11 @@ class ModuleIRCv3STS : public Module
 
 		const std::string host = tag->getString("host");
 		if (host.empty())
-			throw ModuleException("<sts:host> must contain a hostname, at " + tag->getTagLocation());
+			throw ModuleException("<sts:host> must contain a hostname, at " + tag->source.str());
 
 		unsigned int port = tag->getUInt("port", 0, 0, UINT16_MAX);
 		if (!HasValidSSLPort(port))
-			throw ModuleException("<sts:port> must be a TLS port, at " + tag->getTagLocation());
+			throw ModuleException("<sts:port> must be a TLS port, at " + tag->source.str());
 
 		unsigned long duration = tag->getDuration("duration", 5*60, 60);
 		bool preload = tag->getBool("preload");

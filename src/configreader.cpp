@@ -61,7 +61,7 @@ ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
 }
 
 ServerConfig::ServerConfig()
-	: EmptyTag(std::make_shared<ConfigTag>("empty", "<auto>", 0))
+	: EmptyTag(std::make_shared<ConfigTag>("empty", FilePosition("<auto>", 0, 0)))
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
 	, CaseMapping("ascii")
@@ -76,11 +76,11 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 	{
 		const std::string mask = ctag->getString(key);
 		if (mask.empty())
-			throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->getTagLocation());
+			throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->source.str());
 
 		const std::string reason = ctag->getString("reason");
 		if (reason.empty())
-			throw CoreException("<" + tag + ":reason> missing at " + ctag->getTagLocation());
+			throw CoreException("<" + tag + ":reason> missing at " + ctag->source.str());
 
 		XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
 		xl->from_config = true;
@@ -100,9 +100,9 @@ void ServerConfig::CrossCheckOperClassType()
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
-			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
+			throw CoreException("<class:name> missing from tag at " + tag->source.str());
 		if (operclass.find(name) != operclass.end())
-			throw CoreException("Duplicate class block with name " + name + " at " + tag->getTagLocation());
+			throw CoreException("Duplicate class block with name " + name + " at " + tag->source.str());
 		operclass[name] = tag;
 	}
 
@@ -110,9 +110,9 @@ void ServerConfig::CrossCheckOperClassType()
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
-			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
+			throw CoreException("<type:name> is missing from tag at " + tag->source.str());
 		if (OperTypes.find(name) != OperTypes.end())
-			throw CoreException("Duplicate type block with name " + name + " at " + tag->getTagLocation());
+			throw CoreException("Duplicate type block with name " + name + " at " + tag->source.str());
 
 		auto ifo = std::make_shared<OperInfo>(name);
 		OperTypes[name] = ifo;
@@ -133,14 +133,14 @@ void ServerConfig::CrossCheckOperClassType()
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
-			throw CoreException("<oper:name> missing from tag at " + tag->getTagLocation());
+			throw CoreException("<oper:name> missing from tag at " + tag->source.str());
 
 		std::string type = tag->getString("type");
 		OperIndex::iterator tblk = OperTypes.find(type);
 		if (tblk == OperTypes.end())
 			throw CoreException("Oper block " + name + " has missing type " + type);
 		if (oper_blocks.find(name) != oper_blocks.end())
-			throw CoreException("Duplicate oper block with name " + name + " at " + tag->getTagLocation());
+			throw CoreException("Duplicate oper block with name " + name + " at " + tag->source.str());
 
 		auto ifo = std::make_shared<OperInfo>(type);
 		ifo->oper_block = tag;
@@ -175,7 +175,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	if (blk_count == 0)
 	{
 		// No connect blocks found; make a trivial default block
-		auto tag = std::make_shared<ConfigTag>("connect", "<auto>", 0);
+		auto tag = std::make_shared<ConfigTag>("connect", FilePosition("<auto>", 0, 0));
 		tag->GetItems()["allow"] = "*";
 		config_data.insert(std::make_pair("connect", tag));
 		blk_count = 1;
@@ -207,7 +207,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					try_again = true;
 					// couldn't find parent this time. If it's the last time, we'll never find it.
 					if (tries >= blk_count)
-						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block at " + tag->getTagLocation());
+						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block at " + tag->source.str());
 
 					i++;
 					continue;
@@ -237,7 +237,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 			else
 			{
-				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->getTagLocation());
+				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->source.str());
 			}
 
 			if (name.empty())
@@ -290,7 +290,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			if (!me->password.empty() && (me->passwordhash.empty() || stdalgo::string::equalsci(me->passwordhash, "plaintext")))
 			{
 				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEFAULT, "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
-					name.c_str(), tag->getTagLocation().c_str());
+					name.c_str(), tag->source.str().c_str());
 			}
 
 			std::string ports = tag->getString("port");
@@ -408,7 +408,7 @@ void ServerConfig::Fill()
 	else if (stdalgo::string::equalsci(restrictbannedusers, "yes"))
 		RestrictBannedUsers =  ServerConfig::BUT_RESTRICT_NOTIFY;
 	else
-		throw CoreException(restrictbannedusers + " is an invalid <options:restrictbannedusers> value, at " + options->getTagLocation());
+		throw CoreException(restrictbannedusers + " is an invalid <options:restrictbannedusers> value, at " + options->source.str());
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it
@@ -454,7 +454,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			for (auto& [_, tag] : dietags)
 			{
 				const std::string reason = tag->getString("reason", "You left a <die> tag in your config", 1);
-				errstr << reason <<  " (at " << tag->getTagLocation() << ")" << std::endl;
+				errstr << reason <<  " (at " << tag->source.str() << ")" << std::endl;
 			}
 		}
 
@@ -493,7 +493,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			{
 				const FailedPort& fp = *iter;
 				errstr << "  " << fp.sa.str() << ": " << strerror(fp.error) << std::endl
-					<< "  " << "Created from <bind> tag at " << fp.tag->getTagLocation() << std::endl;
+					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl;
 			}
 		}
 	}
@@ -624,7 +624,7 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string &tag)
 	found.first++;
 	if (found.first != found.second)
 		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
-			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
+			"(first at " + rv->source.str() + "; second at " + found.first->second->source.str() + ")");
 	return rv;
 }
 

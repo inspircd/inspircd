@@ -168,7 +168,7 @@ class CoreModChannel
 		{
 			std::string::size_type pos = current.find(':');
 			if (pos == std::string::npos || (pos + 2) > current.size())
-				throw ModuleException("Invalid exemptchanops value '" + current + "' at " + optionstag->getTagLocation());
+				throw ModuleException("Invalid exemptchanops value '" + current + "' at " + optionstag->source.str());
 
 			const std::string restriction = current.substr(0, pos);
 			const char prefix = current[pos + 1];

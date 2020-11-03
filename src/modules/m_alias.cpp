@@ -88,11 +88,11 @@ class ModuleAlias : public Module
 			Alias a;
 			a.AliasedCommand = tag->getString("text");
 			if (a.AliasedCommand.empty())
-				throw ModuleException("<alias:text> is empty! at " + tag->getTagLocation());
+				throw ModuleException("<alias:text> is empty! at " + tag->source.str());
 
 			tag->readString("replace", a.ReplaceFormat, true);
 			if (a.ReplaceFormat.empty())
-				throw ModuleException("<alias:replace> is empty! at " + tag->getTagLocation());
+				throw ModuleException("<alias:replace> is empty! at " + tag->source.str());
 
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");

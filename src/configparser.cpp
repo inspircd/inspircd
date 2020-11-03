@@ -41,30 +41,6 @@ enum ParseFlags
 	FLAG_NO_ENV = 8
 };
 
-// Represents the position within a config file.
-struct FilePosition
-{
-	// The name of the file which is being read.
-	std::string name;
-
-	// The line of the file that this position points to.
-	unsigned int line = 1;
-
-	// The column of the file that this position points to.
-	unsigned int column = 1;
-
-	FilePosition(const std::string& Name)
-		: name(Name)
-	{
-	}
-
-	/** Returns a string that represents this file position. */
-	std::string str()
-	{
-		return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
-	}
-};
-
 // RAII wrapper for FILE* which closes the file when it goes out of scope.
 class FileWrapper
 {
@@ -286,7 +262,7 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		tag = std::make_shared<ConfigTag>(name, current.name, current.line);
+		tag = std::make_shared<ConfigTag>(name, current);
 		while (kv())
 		{
 			// Do nothing here (silences a GCC warning).
@@ -366,7 +342,7 @@ struct Parser
 		{
 			stack.errstr << err.GetReason() << " at " << current.str();
 			if (tag)
-				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->src_line << ")\n";
+				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->source.line << ")\n";
 			else
 				stack.errstr << " (last tag was on line " << last_tag.line << ")\n";
 		}
@@ -495,7 +471,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = ivalue;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -641,7 +617,7 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	unsigned long ret;
 	if (!InspIRCd::Duration(duration, ret))
 	{
-		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
 			" is not a duration; value set to " + ConvToStr(def) + ".");
 		return def;
 	}
@@ -673,18 +649,14 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	if (stdalgo::string::equalsci(result, "no") || stdalgo::string::equalsci(result, "false") || stdalgo::string::equalsci(result, "off"))
 		return false;
 
-	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
 		" is not valid, ignoring");
 	return def;
 }
 
-std::string ConfigTag::getTagLocation() const
-{
-	return src_name + ":" + ConvToStr(src_line);
-}
-
-ConfigTag::ConfigTag(const std::string& Tag, const std::string& file, int line)
-	: tag(Tag), src_name(file), src_line(line)
+ConfigTag::ConfigTag(const std::string& Tag, const FilePosition& Source)
+	: tag(Tag)
+	, source(Source)
 {
 }
 

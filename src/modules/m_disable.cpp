@@ -51,13 +51,13 @@ class ModuleDisable : public Module
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
 				throw ModuleException(InspIRCd::Format("Invalid mode '%c' was specified in <disabled:%s> at %s",
-					chr, field.c_str(), tag->getTagLocation().c_str()));
+					chr, field.c_str(), tag->source.str().c_str()));
 
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
 			if (!mh)
 				throw ModuleException(InspIRCd::Format("Nonexistent mode '%c' was specified in <disabled:%s> at %s",
-					chr, field.c_str(), tag->getTagLocation().c_str()));
+					chr, field.c_str(), tag->source.str().c_str()));
 
 			// Disable the mode.
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %c (%s) %s mode has been disabled",
@@ -96,7 +96,7 @@ class ModuleDisable : public Module
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
 				throw ModuleException(InspIRCd::Format("Nonexistent command '%s' was specified in <disabled:commands> at %s",
-					command.c_str(), tag->getTagLocation().c_str()));
+					command.c_str(), tag->source.str().c_str()));
 
 			// Prevent admins from disabling MODULES for transparency reasons.
 			if (handler->name == "MODULES")

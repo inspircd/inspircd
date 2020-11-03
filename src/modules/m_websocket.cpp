@@ -520,7 +520,7 @@ class ModuleWebSocket : public Module
 			// Ensure that we have the <wsorigin:allow> parameter.
 			const std::string allow = tag->getString("allow");
 			if (allow.empty())
-				throw ModuleException("<wsorigin:allow> is a mandatory field, at " + tag->getTagLocation());
+				throw ModuleException("<wsorigin:allow> is a mandatory field, at " + tag->source.str());
 
 			config.allowedorigins.push_back(allow);
 		}
