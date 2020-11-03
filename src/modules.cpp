@@ -480,12 +480,12 @@ void ModuleManager::LoadAll()
 	{
 		ConfigTag* tag = i->second;
 		std::string name = ExpandModName(tag->getString("name"));
-		this->NewServices = &servicemap[name];
 
 		// Skip modules which are already loaded.
 		if (Modules.find(name) != Modules.end())
 			continue;
 
+		this->NewServices = &servicemap[name];
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 		if (!this->Load(name, true))
 		{
