@@ -89,8 +89,15 @@ struct Parser
 	std::string mandatory_tag;
 
 	Parser(ParseStack& me, int myflags, FILE* conf, const std::string& name, const std::string& mandatorytag)
-		: stack(me), flags(myflags), file(conf), current(name), last_tag(name), ungot(-1), mandatory_tag(mandatorytag)
-	{ }
+		: stack(me)
+		, flags(myflags)
+		, file(conf)
+		, current(name, 1, 0)
+		, last_tag(name, 0, 0)
+		, ungot(-1)
+		, mandatory_tag(mandatorytag)
+	{
+	}
 
 	int next(bool eof_ok = false)
 	{
@@ -108,7 +115,7 @@ struct Parser
 		else if (ch == '\n')
 		{
 			current.line++;
-			current.column = 0;
+			current.column = 1;
 		}
 		else
 		{
@@ -262,7 +269,7 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		tag = std::make_shared<ConfigTag>(name, current);
+		tag = std::make_shared<ConfigTag>(name, last_tag);
 		while (kv())
 		{
 			// Do nothing here (silences a GCC warning).
