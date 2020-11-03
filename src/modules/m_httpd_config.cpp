@@ -55,10 +55,10 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 
 			// Print out the tag with all keys aligned vertically.
 			const std::string indent(tag->tag.length() + 2, ' ');
-			const ConfigItems& items = tag->getItems();
-			for (ConfigItems::const_iterator kiter = items.begin(); kiter != items.end(); )
+			const ConfigTag::Items& items = tag->GetItems();
+			for (ConfigTag::Items::const_iterator kiter = items.begin(); kiter != items.end(); )
 			{
-				ConfigItems::const_iterator curr = kiter++;
+				ConfigTag::Items::const_iterator curr = kiter++;
 				buffer << curr->first << "=\"" << ServerConfig::Escape(curr->second) << '"';
 				if (kiter != items.end())
 					buffer << std::endl << indent;

@@ -70,7 +70,7 @@ class OperQuery : public SQL::Query
 			res.GetCols(cols);
 
 			// Create the oper tag as if we were the conf file.
-			ConfigItems* items;
+			ConfigTag::Items* items;
 			auto tag = ConfigTag::create("oper", MODNAME, 0, items);
 
 			/** Iterate through each column in the SQLOpers table. An infinite number of fields can be specified.

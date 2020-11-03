@@ -42,8 +42,12 @@
 /** Structure representing a single \<tag> in config */
 class CoreExport ConfigTag
 {
+public:
+	/** A mapping of configuration keys to their assigned values. */
+	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> Items;
+
  private:
-	ConfigItems items;
+	Items items;
 
  public:
 	const std::string tag;
@@ -100,10 +104,10 @@ class CoreExport ConfigTag
 
 	std::string getTagLocation() const;
 
-	inline const ConfigItems& getItems() const { return items; }
+	inline const Items& GetItems() const { return items; }
 
 	/** Create a new ConfigTag, giving access to the private ConfigItems item list */
-	static std::shared_ptr<ConfigTag> create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items);
+	static std::shared_ptr<ConfigTag> create(const std::string& Tag, const std::string& file, int line, Items*& Items);
  private:
 	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };

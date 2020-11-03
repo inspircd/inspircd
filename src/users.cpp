@@ -1239,26 +1239,24 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::st
 	// Connect classes can inherit from each other but this is problematic for modules which can't use
 	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as
 	// well as the parent class.
-	ConfigItems* items = NULL;
+	ConfigTag::Items* items;
 	config = ConfigTag::create(tag->tag, tag->src_name, tag->src_line, items);
 
-	const ConfigItems& parentkeys = parent->config->getItems();
-	for (ConfigItems::const_iterator piter = parentkeys.begin(); piter != parentkeys.end(); ++piter)
+	for (const auto& [key, value] : parent->config->GetItems())
 	{
 		// The class name and parent name are not inherited
-		if (stdalgo::string::equalsci(piter->first, "name") || stdalgo::string::equalsci(piter->first, "parent"))
+		if (stdalgo::string::equalsci(key, "name") || stdalgo::string::equalsci(key, "parent"))
 			continue;
 
 		// Store the item in the config tag. If this item also
 		// exists in the child it will be overwritten.
-		(*items)[piter->first] = piter->second;
+		(*items)[key] = value;
 	}
 
-	const ConfigItems& childkeys = tag->getItems();
-	for (ConfigItems::const_iterator citer = childkeys.begin(); citer != childkeys.end(); ++citer)
+	for (const auto& [key, value] : tag->GetItems())
 	{
 		// This will overwrite the parent value if present.
-		(*items)[citer->first] = citer->second;
+		(*items)[key] = value;
 	}
 }
 

@@ -179,7 +179,7 @@ struct Parser
 		unget(ch);
 	}
 
-	bool kv(ConfigItems* items)
+	bool kv(ConfigTag::Items* items)
 	{
 		std::string key;
 		nextword(key);
@@ -288,7 +288,7 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		ConfigItems* items;
+		ConfigTag::Items* items;
 		tag = ConfigTag::create(name, current.name, current.line, items);
 
 		while (kv(items))
@@ -308,17 +308,13 @@ struct Parser
 		}
 		else if (stdalgo::string::equalsci(name, "files"))
 		{
-			for(ConfigItems::const_iterator i = items->begin(); i != items->end(); i++)
-			{
-				stack.DoReadFile(i->first, i->second, flags, false);
-			}
+			for (const auto& [key, value] : *items)
+				stack.DoReadFile(key, value, flags, false);
 		}
 		else if (stdalgo::string::equalsci(name, "execfiles"))
 		{
-			for(ConfigItems::const_iterator i = items->begin(); i != items->end(); i++)
-			{
-				stack.DoReadFile(i->first, i->second, flags, true);
-			}
+			for (const auto& [key, value] : *items)
+				stack.DoReadFile(key, value, flags, true);
 		}
 		else if (stdalgo::string::equalsci(name, "define"))
 		{
@@ -495,11 +491,12 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf) const
 {
-	for(ConfigItems::const_iterator j = items.begin(); j != items.end(); ++j)
+	for (const auto& [ikey, ivalue] : items)
 	{
-		if(j->first != key)
+		if (!stdalgo::string::equalsci(ikey, key))
 			continue;
-		value = j->second;
+
+		value = ivalue;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
 			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
@@ -690,7 +687,7 @@ std::string ConfigTag::getTagLocation() const
 	return src_name + ":" + ConvToStr(src_line);
 }
 
-std::shared_ptr<ConfigTag> ConfigTag::create(const std::string& Tag, const std::string& file, int line, ConfigItems*& Items)
+std::shared_ptr<ConfigTag> ConfigTag::create(const std::string& Tag, const std::string& file, int line, Items*& Items)
 {
 	std::shared_ptr<ConfigTag> rv(new ConfigTag(Tag, file, line));
 	Items = &rv->items;

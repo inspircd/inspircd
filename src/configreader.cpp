@@ -62,7 +62,7 @@ ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
 
 static std::shared_ptr<ConfigTag> CreateEmptyTag()
 {
-	ConfigItems* items;
+	ConfigTag::Items* items;
 	return ConfigTag::create("empty", "<auto>", 0, items);
 }
 
@@ -181,7 +181,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	if (blk_count == 0)
 	{
 		// No connect blocks found; make a trivial default block
-		ConfigItems* items;
+		ConfigTag::Items* items;
 		auto tag = ConfigTag::create("connect", "<auto>", 0, items);
 		(*items)["allow"] = "*";
 		config_data.insert(std::make_pair("connect", tag));
