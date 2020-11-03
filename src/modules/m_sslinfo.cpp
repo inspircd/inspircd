@@ -313,21 +313,25 @@ class ModuleSSLInfo
 	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
-		bool ok = true;
+		const char* error = NULL;
 		const std::string requiressl = myclass->config->getString("requiressl");
 		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{
-			ok = (cert && cert->IsCAVerified());
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted TLS (SSL) client certificate. Client %s one.", (ok ? "has" : "does not have"));
+			if (!cert || !cert->IsCAVerified())
+				error = "a trusted TLS (SSL) client certificate";
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
-			ok = (cert != NULL);
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class requires a secure connection. Client %s on a secure connection.", (ok ? "is" : "is not"));
+			if (!cert)
+				error = "a TLS (SSL) connection";
 		}
 
-		if (!ok)
+		if (error)
+		{
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires %s",
+				myclass->GetName().c_str(), error);
 			return MOD_RES_DENY;
+		}
 
 		return MOD_RES_PASSTHRU;
 	}

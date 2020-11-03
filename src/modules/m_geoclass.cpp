@@ -64,6 +64,8 @@ class ModuleGeoClass
 
 		// A list of country codes were specified but the user didn't match
 		// any of them.
+		ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the origin country (%s) is not any of %s",
+			myclass->GetName().c_str(), code.c_str(), country.c_str());
 		return MOD_RES_DENY;
 	}
 

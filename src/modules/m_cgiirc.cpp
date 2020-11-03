@@ -344,11 +344,22 @@ class ModuleCgiIRC
 		// cannot match this connect class.
 		const std::string* gateway = cmd.gateway.get(user);
 		if (!gateway)
+		{
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
+					myclass->GetName().c_str());
 			return MOD_RES_DENY;
+		}
 
 		// If the gateway matches the <connect:webirc> constraint then
 		// allow the check to continue. Otherwise, reject it.
-		return InspIRCd::Match(*gateway, webirc) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
+		if (!InspIRCd::Match(*gateway, webirc))
+		{
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s",
+					myclass->GetName().c_str(), gateway->c_str(), webirc.c_str());
+			return MOD_RES_DENY;
+		}
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override

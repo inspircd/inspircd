@@ -1093,17 +1093,18 @@ bool User::ChangeIdent(const std::string& newident)
  */
 void LocalUser::SetClass(const std::string &explicit_name)
 {
+	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for %s (%s) ...",
+		this->uuid.c_str(), this->GetFullRealHost().c_str());
+
 	std::shared_ptr<ConnectClass> found;
-
-	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
-
 	if (!explicit_name.empty())
 	{
 		for (const auto& c : ServerInstance->Config->Classes)
 		{
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Connect class explicitly set to %s",
+					explicit_name.c_str());
 				found = c;
 			}
 		}
@@ -1112,31 +1113,43 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	{
 		for (const auto& c : ServerInstance->Config->Classes)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Checking the %s connect class ...",
+					c->GetName().c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
 			if (MOD_RESULT == MOD_RES_DENY)
 				continue;
+
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class was explicitly chosen by a module",
+					c->GetName().c_str());
 				found = c;
 				break;
 			}
 
 			if (c->type == CC_NAMED)
+			{
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set",
+						c->GetName().c_str());
 				continue;
+			}
 
 			bool regdone = (registered != REG_NONE);
 			if (c->config->getBool("registered", regdone) != regdone)
+			{
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires that the user is %s",
+						c->GetName().c_str(), regdone ? "not fully connected" : "fully connected");
 				continue;
+			}
 
 			/* check if host matches.. */
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 				!InspIRCd::MatchCIDR(this->GetRealHost(), c->GetHost(), NULL))
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
+					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), c->GetHost().c_str());
 				continue;
 			}
 
@@ -1147,31 +1160,29 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (c->limit && (c.use_count() >= static_cast<long>(c->limit)))
 			{
 				// HACK: using use_count() is awful and should be removed before v4 is released.
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it has reached its user limit (%lu)",
+						c->GetName().c_str(), c->limit);
 				continue;
 			}
 
-			/* if it requires a port ... */
-			if (!c->ports.empty())
+			/* if it requires a port and our port doesn't match, fail */
+			if (!c->ports.empty() && !c->ports.count(this->server_sa.port()))
 			{
-				/* and our port doesn't match, fail. */
-				if (!c->ports.count(this->server_sa.port()))
-				{
-					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Requires a different port, skipping");
-					continue;
-				}
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the connection port (%d) is not any of %s",
+					c->GetName().c_str(), this->server_sa.port(), stdalgo::string::join(c->ports).c_str());
+				continue;
 			}
 
-			if (regdone && !c->password.empty())
+			if (regdone && !c->password.empty() && !ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
 			{
-				if (!ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
-				{
-					ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
-					continue;
-				}
+				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as requires a password and %s",
+					c->GetName().c_str(), password.empty() ? "one was not provided" : "the provided password was incorrect");
+				continue;
 			}
 
 			/* we stop at the first class that meets ALL critera. */
+			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is suitable for %s (%s)",
+				c->GetName().c_str(), this->uuid.c_str(), this->GetFullRealHost().c_str());
 			found = c;
 			break;
 		}
