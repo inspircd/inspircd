@@ -310,7 +310,7 @@ class ModuleSSLInfo
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		bool ok = true;

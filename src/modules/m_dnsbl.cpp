@@ -411,7 +411,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		std::string dnsbl;
 		if (!myclass->config->readString("dnsbl", dnsbl))

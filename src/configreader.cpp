@@ -158,13 +158,12 @@ void ServerConfig::CrossCheckOperClassType()
 
 void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 {
-	typedef std::map<std::string, ConnectClass*> ClassMap;
+	typedef std::map<std::string, std::shared_ptr<ConnectClass>> ClassMap;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
-		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
+		for (auto& c : current->Classes)
 		{
-			ConnectClass* c = *i;
 			if (c->name.compare(0, 8, "unnamed-", 8))
 			{
 				oldBlocksByMask["n" + c->name] = c;
@@ -205,7 +204,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				continue;
 			}
 
-			ConnectClass* parent = NULL;
+			std::shared_ptr<ConnectClass> parent;
 			std::string parentName = tag->getString("parent");
 			if (!parentName.empty())
 			{
@@ -261,9 +260,9 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
 			names[name] = i;
 
-			ConnectClass* me = parent ?
-				new ConnectClass(tag, type, mask, *parent) :
-				new ConnectClass(tag, type, mask);
+			auto me = parent
+				? std::make_shared<ConnectClass>(tag, type, mask, parent)
+				: std::make_shared<ConnectClass>(tag, type, mask);
 
 			me->name = name;
 
@@ -312,10 +311,9 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
 			{
-				ConnectClass* old = oldMask->second;
+				std::shared_ptr<ConnectClass> old = oldMask->second;
 				oldBlocksByMask.erase(oldMask);
 				old->Update(me);
-				delete me;
 				me = old;
 			}
 			Classes[i] = me;

@@ -968,7 +968,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return MOD_RES_ALLOW to force the class to match, MOD_RES_DENY to forbid it, or
 	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
 	 */
-	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
+	virtual ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass);
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 

@@ -72,7 +72,7 @@ enum UserType {
 
 /** Holds information relevant to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
-struct CoreExport ConnectClass : public refcountbase
+struct CoreExport ConnectClass
 {
 	std::shared_ptr<ConfigTag> config;
 	/** Type of line, either CC_ALLOW or CC_DENY
@@ -160,10 +160,10 @@ struct CoreExport ConnectClass : public refcountbase
 	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask);
 	/** Create a new connect class with inherited settings.
 	 */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask, const ConnectClass& parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask, std::shared_ptr<ConnectClass> parent);
 
 	/** Update the settings in this block to match the given block */
-	void Update(const ConnectClass* newSettings);
+	void Update(const std::shared_ptr<ConnectClass> newSettings);
 
 	const std::string& GetName() { return name; }
 	const std::string& GetHost() { return host; }
@@ -707,12 +707,12 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
 	/** Contains a pointer to the connect class a user is on from
 	 */
-	reference<ConnectClass> MyClass;
+	std::shared_ptr<ConnectClass> MyClass;
 
 	/** Get the connect class which this user belongs to.
 	 * @return A pointer to this user's connect class.
 	 */
-	ConnectClass* GetClass() const { return MyClass; }
+	std::shared_ptr<ConnectClass> GetClass() const { return MyClass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */

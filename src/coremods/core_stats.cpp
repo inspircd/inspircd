@@ -132,9 +132,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 		case 'i':
 		{
-			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
+			for (const auto& c : ServerInstance->Config->Classes)
 			{
-				ConnectClass* c = *i;
 				Stats::Row row(215);
 				row.push("I").push(c->name);
 
@@ -165,9 +164,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		case 'Y':
 		{
 			int idx = 0;
-			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+			for (const auto& c : ServerInstance->Config->Classes)
 			{
-				ConnectClass* c = *i;
 				stats.AddRow(215, 'i', "NOMATCH", '*', c->GetHost(), (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
 				stats.AddRow(218, 'Y', idx, c->GetPingTime(), '0', c->GetSendqHardMax(), ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;

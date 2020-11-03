@@ -403,7 +403,7 @@ class ModuleIdent : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		if (myclass->config->getBool("requireident") && state.get(user) != IDENT_FOUND)
 			return MOD_RES_DENY;

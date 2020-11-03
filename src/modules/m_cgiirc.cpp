@@ -333,7 +333,7 @@ class ModuleCgiIRC
 		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		// If <connect:webirc> is not set then we have nothing to do.
 		const std::string webirc = myclass->config->getString("webirc");

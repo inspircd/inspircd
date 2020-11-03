@@ -42,7 +42,7 @@ class ModuleGeoClass
 	{
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		const std::string country = myclass->config->getString("country");
 		if (country.empty())

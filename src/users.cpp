@@ -504,7 +504,7 @@ void User::UnOper()
  */
 void LocalUser::CheckClass(bool clone_count)
 {
-	ConnectClass* a = this->MyClass;
+	std::shared_ptr<ConnectClass> a = this->MyClass;
 
 	if (!a)
 	{
@@ -1093,16 +1093,14 @@ bool User::ChangeIdent(const std::string& newident)
  */
 void LocalUser::SetClass(const std::string &explicit_name)
 {
-	ConnectClass *found = NULL;
+	std::shared_ptr<ConnectClass> found;
 
 	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 
 	if (!explicit_name.empty())
 	{
-		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
+		for (const auto& c : ServerInstance->Config->Classes)
 		{
-			ConnectClass* c = *i;
-
 			if (explicit_name == c->name)
 			{
 				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
@@ -1112,9 +1110,8 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	}
 	else
 	{
-		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
+		for (const auto& c : ServerInstance->Config->Classes)
 		{
-			ConnectClass* c = *i;
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
 
 			ModResult MOD_RESULT;
@@ -1147,8 +1144,9 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
 			 * because we should attempt to find another class if this one doesn't match us. -- w00t
 			 */
-			if (c->limit && (c->GetReferenceCount() >= c->limit))
+			if (c->limit && (c.use_count() >= static_cast<long>(c->limit)))
 			{
+				// HACK: using use_count() is awful and should be removed before v4 is released.
 				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
 			}
@@ -1231,9 +1229,9 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::st
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask, const ConnectClass& parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask, std::shared_ptr<ConnectClass> parent)
 {
-	Update(&parent);
+	Update(parent);
 	name = "unnamed";
 	type = t;
 	host = mask;
@@ -1244,7 +1242,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::st
 	ConfigItems* items = NULL;
 	config = ConfigTag::create(tag->tag, tag->src_name, tag->src_line, items);
 
-	const ConfigItems& parentkeys = parent.config->getItems();
+	const ConfigItems& parentkeys = parent->config->getItems();
 	for (ConfigItems::const_iterator piter = parentkeys.begin(); piter != parentkeys.end(); ++piter)
 	{
 		// The class name and parent name are not inherited
@@ -1264,7 +1262,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::st
 	}
 }
 
-void ConnectClass::Update(const ConnectClass* src)
+void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
 {
 	config = src->config;
 	type = src->type;

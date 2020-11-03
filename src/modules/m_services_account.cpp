@@ -316,7 +316,7 @@ class ModuleServicesAccount
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
