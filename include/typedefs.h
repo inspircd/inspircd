@@ -95,16 +95,6 @@ typedef std::vector<Membership*> IncludeChanList;
  */
 typedef std::vector<std::string> file_cache;
 
-/** The entire configuration
- */
-typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> ConfigDataHash;
-
-/** Iterator of ConfigDataHash */
-typedef ConfigDataHash::const_iterator ConfigIter;
-
-/** Iterator pair, used for tag-name ranges */
-typedef stdalgo::iterator_range<ConfigIter> ConfigTagList;
-
 /** Files read by the configuration */
 typedef std::map<std::string, file_cache> ConfigFileCache;
 

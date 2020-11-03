@@ -115,7 +115,7 @@ class ModuleHelpop
 			size_t longestkey = 0;
 
 			HelpMap newhelp;
-			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
+			auto tags = ServerInstance->Config->ConfTags("helpop");
 			if (tags.empty())
 				throw ModuleException("You have loaded the helpop module but not configured any help topics!");
 

@@ -858,7 +858,7 @@ class ModuleSSLmbedTLS : public Module
 		// avoiding unpleasant situations where no new TLS (SSL) connections are possible.
 		ProfileList newprofiles;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
+		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
 			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 

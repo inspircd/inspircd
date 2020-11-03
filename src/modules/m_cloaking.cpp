@@ -426,7 +426,7 @@ class ModuleCloaking : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("cloak");
+		auto tags = ServerInstance->Config->ConfTags("cloak");
 		if (tags.empty())
 			throw ModuleException("You have loaded the cloaking module but not configured any <cloak> tags!");
 

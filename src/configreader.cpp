@@ -447,7 +447,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	try
 	{
 		// Ensure the user has actually edited ther config.
-		ConfigTagList dietags = ConfTags("die");
+		auto dietags = ConfTags("die");
 		if (!dietags.empty())
 		{
 			errstr << "Your configuration has not been edited correctly!" << std::endl;
@@ -476,7 +476,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (valid)
 		ServerInstance->WritePID(!old);
 
-	ConfigTagList binds = ConfTags("bind");
+	auto binds = ConfTags("bind");
 	if (binds.empty())
 		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
 			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
@@ -614,9 +614,9 @@ void ServerConfig::ApplyModules(User* user)
 	}
 }
 
-std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string &tag)
+std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag)
 {
-	std::pair<ConfigIter, ConfigIter> found = config_data.equal_range(tag);
+	auto found = config_data.equal_range(tag);
 	if (found.first == found.second)
 		return EmptyTag;
 
@@ -628,9 +628,9 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string &tag)
 	return rv;
 }
 
-ConfigTagList ServerConfig::ConfTags(const std::string& tag)
+ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag)
 {
-	return stdalgo::iterator_range<ConfigIter>(config_data.equal_range(tag));
+	return ServerConfig::TagList(config_data.equal_range(tag));
 }
 
 std::string ServerConfig::Escape(const std::string& str)

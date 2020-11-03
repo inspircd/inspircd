@@ -292,6 +292,12 @@ class CoreExport ServerConfig
 	 */
 	typedef insp::flat_map<std::string, std::shared_ptr<OperInfo>> OperIndex;
 
+	/** Holds the server config. */
+	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
+
+	/** Holds iterators to a subsection of the server config map. */
+	typedef stdalgo::iterator_range<TagMap::const_iterator> TagList;
+
 	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
 	 * @param tag The name of the tag to get.
 	 * @returns Either a tag from the config or EmptyTag.
@@ -300,9 +306,9 @@ class CoreExport ServerConfig
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.
-	 * @returns Either a list of tags from the config or an empty ConfigTagList.
+	 * @returns Either a list of tags from the config or an empty TagList.
 	 */
-	ConfigTagList ConfTags(const std::string& tag);
+	TagList ConfTags(const std::string& tag);
 
 	/** An empty configuration tag. */
 	std::shared_ptr<ConfigTag> EmptyTag;
@@ -320,7 +326,7 @@ class CoreExport ServerConfig
 	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
 	 */
-	ConfigDataHash config_data;
+	TagMap config_data;
 
 	/** This holds all extra files that have been read in the configuration
 	 * (for example, MOTD and RULES files are stored here)

@@ -905,7 +905,7 @@ class ModuleSSLOpenSSL : public Module
 	void ReadProfiles()
 	{
 		ProfileList newprofiles;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
+		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
 			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 

@@ -510,7 +510,7 @@ class ModuleWebSocket : public Module
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("wsorigin");
+		auto tags = ServerInstance->Config->ConfTags("wsorigin");
 		if (tags.empty())
 			throw ModuleException("You have loaded the websocket module but not configured any allowed origins!");
 
