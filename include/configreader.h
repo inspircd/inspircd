@@ -54,6 +54,13 @@ public:
 	const std::string src_name;
 	const int src_line;
 
+	/** Creates a new ConfigTag instance with the specified tag name, file, and line.
+	 * @param Tag The name of this config tag (e.g. "foo" for \<foo>).
+	 * @param file The file this config tag was read from.
+	 * @param line The line of \p file that this config tag exists in.
+	 */
+	ConfigTag(const std::string& Tag, const std::string& file, int line);
+
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator) const;
 	/** Get the value of an option, using def if it does not exist */
@@ -104,12 +111,9 @@ public:
 
 	std::string getTagLocation() const;
 
+	/** Retrieves the underlying map of config entries. */
 	inline const Items& GetItems() const { return items; }
-
-	/** Create a new ConfigTag, giving access to the private ConfigItems item list */
-	static std::shared_ptr<ConfigTag> create(const std::string& Tag, const std::string& file, int line, Items*& Items);
- private:
-	ConfigTag(const std::string& Tag, const std::string& file, int line);
+	inline Items& GetItems() { return items; }
 };
 
 /** Defines the server's length limits on various length-limited

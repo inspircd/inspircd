@@ -179,7 +179,7 @@ struct Parser
 		unget(ch);
 	}
 
-	bool kv(ConfigTag::Items* items)
+	bool kv()
 	{
 		std::string key;
 		nextword(key);
@@ -266,10 +266,8 @@ struct Parser
 				value.push_back(ch);
 		}
 
-		if (items->find(key) != items->end())
+		if (!tag->GetItems().insert({key, value}).second)
 			throw CoreException("Duplicate key '" + key + "' found");
-
-		(*items)[key] = value;
 		return true;
 	}
 
@@ -288,10 +286,8 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		ConfigTag::Items* items;
-		tag = ConfigTag::create(name, current.name, current.line, items);
-
-		while (kv(items))
+		tag = std::make_shared<ConfigTag>(name, current.name, current.line);
+		while (kv())
 		{
 			// Do nothing here (silences a GCC warning).
 		}
@@ -308,12 +304,12 @@ struct Parser
 		}
 		else if (stdalgo::string::equalsci(name, "files"))
 		{
-			for (const auto& [key, value] : *items)
+			for (const auto& [key, value] : tag->GetItems())
 				stack.DoReadFile(key, value, flags, false);
 		}
 		else if (stdalgo::string::equalsci(name, "execfiles"))
 		{
-			for (const auto& [key, value] : *items)
+			for (const auto& [key, value] : tag->GetItems())
 				stack.DoReadFile(key, value, flags, true);
 		}
 		else if (stdalgo::string::equalsci(name, "define"))
@@ -685,13 +681,6 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 std::string ConfigTag::getTagLocation() const
 {
 	return src_name + ":" + ConvToStr(src_line);
-}
-
-std::shared_ptr<ConfigTag> ConfigTag::create(const std::string& Tag, const std::string& file, int line, Items*& Items)
-{
-	std::shared_ptr<ConfigTag> rv(new ConfigTag(Tag, file, line));
-	Items = &rv->items;
-	return rv;
 }
 
 ConfigTag::ConfigTag(const std::string& Tag, const std::string& file, int line)
