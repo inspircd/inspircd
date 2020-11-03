@@ -178,7 +178,7 @@ struct Parser
 		ch = next();
 		if (ch != '"')
 		{
-			throw CoreException("Invalid character in value of <" + tag->tag + ":" + key + ">");
+			throw CoreException("Invalid character in value of <" + tag->name + ":" + key + ">");
 		}
 		while (1)
 		{
@@ -195,7 +195,7 @@ struct Parser
 						break;
 					else
 					{
-						stack.errstr << "Invalid XML entity name in value of <" + tag->tag + ":" + key + ">\n"
+						stack.errstr << "Invalid XML entity name in value of <" + tag->name + ":" + key + ">\n"
 							<< "To include an ampersand or quote, use &amp; or &quot;\n";
 						throw CoreException("Parse error");
 					}
@@ -342,7 +342,7 @@ struct Parser
 		{
 			stack.errstr << err.GetReason() << " at " << current.str();
 			if (tag)
-				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->source.line << ")\n";
+				stack.errstr << " (inside tag " << tag->name << " at line " << tag->source.line << ")\n";
 			else
 				stack.errstr << " (last tag was on line " << last_tag.line << ")\n";
 		}
@@ -471,7 +471,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = ivalue;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
+			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + name + ":" + key + "> at " + source.str() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -491,7 +491,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 	if (!validator(res))
 	{
 		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "WARNING: The value of <%s:%s> is not valid; value set to %s.",
-			tag.c_str(), key.c_str(), def.c_str());
+			name.c_str(), key.c_str(), def.c_str());
 		return def;
 	}
 	return res;
@@ -506,7 +506,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 	if (res.length() < minlen || res.length() > maxlen)
 	{
 		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
-			tag.c_str(), key.c_str(), minlen, maxlen, def.c_str());
+			name.c_str(), key.c_str(), minlen, maxlen, def.c_str());
 		return def;
 	}
 	return res;
@@ -586,8 +586,8 @@ long ConfigTag::getInt(const std::string& key, long def, long min, long max) con
 	if (res_tail == res_cstr)
 		return def;
 
-	CheckMagnitude(tag, key, result, res, def, res_tail);
-	CheckRange(tag, key, res, def, min, max);
+	CheckMagnitude(key, key, result, res, def, res_tail);
+	CheckRange(key, key, res, def, min, max);
 	return res;
 }
 
@@ -603,8 +603,8 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 	if (res_tail == res_cstr)
 		return def;
 
-	CheckMagnitude(tag, key, result, res, def, res_tail);
-	CheckRange(tag, key, res, def, min, max);
+	CheckMagnitude(key, key, result, res, def, res_tail);
+	CheckRange(key, key, res, def, min, max);
 	return res;
 }
 
@@ -617,12 +617,12 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	unsigned long ret;
 	if (!InspIRCd::Duration(duration, ret))
 	{
-		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + name + ":" + key + "> at " + source.str() +
 			" is not a duration; value set to " + ConvToStr(def) + ".");
 		return def;
 	}
 
-	CheckRange(tag, key, ret, def, min, max);
+	CheckRange(name, key, ret, def, min, max);
 	return ret;
 }
 
@@ -633,7 +633,7 @@ double ConfigTag::getFloat(const std::string& key, double def, double min, doubl
 		return def;
 
 	double res = strtod(result.c_str(), NULL);
-	CheckRange(tag, key, res, def, min, max);
+	CheckRange(name, key, res, def, min, max);
 	return res;
 }
 
@@ -649,13 +649,13 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	if (stdalgo::string::equalsci(result, "no") || stdalgo::string::equalsci(result, "false") || stdalgo::string::equalsci(result, "off"))
 		return false;
 
-	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + source.str() +
+	ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + name + ":" + key + "> at " + source.str() +
 		" is not valid, ignoring");
 	return def;
 }
 
-ConfigTag::ConfigTag(const std::string& Tag, const FilePosition& Source)
-	: tag(Tag)
+ConfigTag::ConfigTag(const std::string& Name, const FilePosition& Source)
+	: name(Name)
 	, source(Source)
 {
 }

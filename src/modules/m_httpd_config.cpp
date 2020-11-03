@@ -51,10 +51,10 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		{
 			// Show the location of the tag in a comment.
 			buffer << "# " << tag->source.str() << std::endl
-				<< '<' << tag->tag << ' ';
+				<< '<' << tag->name << ' ';
 
 			// Print out the tag with all keys aligned vertically.
-			const std::string indent(tag->tag.length() + 2, ' ');
+			const std::string indent(tag->name.length() + 2, ' ');
 			const ConfigTag::Items& items = tag->GetItems();
 			for (ConfigTag::Items::const_iterator kiter = items.begin(); kiter != items.end(); )
 			{
