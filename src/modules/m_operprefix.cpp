@@ -110,7 +110,7 @@ class ModuleOperPrefixMode : public Module
 	void Prioritize() override
 	{
 		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
-		Module* opermodes = ServerInstance->Modules.Find("m_opermodes.so");
+		Module* opermodes = ServerInstance->Modules.Find("opermodes");
 		ServerInstance->Modules.SetPriority(this, I_OnPostOper, PRIORITY_AFTER, opermodes);
 	}
 };

@@ -31,13 +31,10 @@
 # include <dlfcn.h>
 #endif
 
-/** The extension that dynamic libraries end with. */
-#define DLL_EXTENSION ".so"
-
 DLLManager::DLLManager(const std::string& name)
 	: libname(name)
 {
-	static size_t extlen = strlen(DLL_EXTENSION);
+	const static size_t extlen = strlen(DLL_EXTENSION);
 	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION))
 	{
 		err.assign(name + " is not a module (no " DLL_EXTENSION " extension)");

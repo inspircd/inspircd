@@ -189,7 +189,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
 	void Prioritize() override
 	{
-		Module* alias = ServerInstance->Modules.Find("m_alias.so");
+		Module* alias = ServerInstance->Modules.Find("alias");
 		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
 	}
 

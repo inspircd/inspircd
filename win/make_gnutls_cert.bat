@@ -1,6 +1,6 @@
 @echo off
 
-echo This program will generate SSL certificates for m_ssl_gnutls.so
+echo This program will generate SSL certificates for the ssl_gnutls module
 echo Ensure certtool.exe is in your system path. It can be downloaded
 echo at ftp://ftp.gnu.org/gnu/gnutls/w32/. If you do not know the answer
 echo to one of the questions just press enter.

@@ -428,7 +428,7 @@ class ModuleSASL : public Module
 
 	void init() override
 	{
-		if (!ServerInstance->Modules.Find("m_services_account.so") || !ServerInstance->Modules.Find("m_cap.so"))
+		if (!ServerInstance->Modules.Find("services_account") || !ServerInstance->Modules.Find("cap"))
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: m_services_account and m_cap are not loaded! m_sasl will NOT function correctly until these two modules are loaded!");
 	}
 

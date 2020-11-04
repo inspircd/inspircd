@@ -170,7 +170,7 @@ class ModuleNickLock : public Module
 
 	void Prioritize() override
 	{
-		Module *nflood = ServerInstance->Modules.Find("m_nickflood.so");
+		Module *nflood = ServerInstance->Modules.Find("nickflood");
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, nflood);
 	}
 };

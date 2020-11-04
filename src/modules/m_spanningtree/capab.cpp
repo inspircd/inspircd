@@ -47,6 +47,10 @@ std::string TreeSocket::MyModules(int filter)
 		if (i != modlist.begin())
 			capabilities.push_back(' ');
 
+		std::string modname = i->first;
+		modname.replace(modname.end() - strlen(DLL_EXTENSION) - 1, modname.end(), ".so");
+		capabilities.append(modname);
+
 		std::string link_data;
 		mod->GetLinkData(link_data);
 		if (!link_data.empty())
@@ -204,7 +208,7 @@ void TreeSocket::SendCapabilities(int phase)
 			// in 2.0, we advertise it here to not break linking to previous versions.
 			// Protocol version 1201 (1.2) does not have this issue because we advertise m_globops
 			// to 1201 protocol servers irrespectively of its module flags.
-			(ServerInstance->Modules.Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
+			(ServerInstance->Modules.Find("globops") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
 			);
 
 	this->WriteLine("CAPAB END");

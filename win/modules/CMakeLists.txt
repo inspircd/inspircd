@@ -9,7 +9,7 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	else(IS_DIRECTORY "${MODULE_NAME}")
 		string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1" BASE_NAME ${MODULE_NAME})
 	endif(IS_DIRECTORY "${MODULE_NAME}")
-	set(SO_NAME "${BASE_NAME}.so")
+	set(SO_NAME "${BASE_NAME}.dll")
 
 	if(IS_DIRECTORY "${MODULE_NAME}")
 		file(GLOB MODULES_SUBDIR_SRCS "${MODULE_NAME}/*.cpp")

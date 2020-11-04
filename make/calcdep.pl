@@ -39,7 +39,8 @@ use make::common;
 
 use constant {
 	BUILDPATH  => $ENV{BUILDPATH},
-	SOURCEPATH => $ENV{SOURCEPATH}
+	SOURCEPATH => $ENV{SOURCEPATH},
+	DLL_EXT    => $^O eq 'darwin' ? '.dylib' : '.so'
 };
 
 sub find_output;
@@ -111,7 +112,7 @@ END
 			}
 			if ($file =~ /^(?:core|m)_/ && -d "$directory/$file" && dep_dir "$directory/$file", "modules/$file") {
 				mkdir "${\BUILDPATH}/obj/$file";
-				push @modlist, "modules/$file.so";
+				push @modlist, "modules/$file${\DLL_EXT}";
 			}
 			if ($file =~ /^.*\.cpp$/) {
 				my $out = dep_so "$directory/$file";
@@ -140,7 +141,7 @@ sub find_output {
 	my $file = shift;
 	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp# or die "Bad file $file";
 	if ($path eq 'modules/' || $path eq 'coremods/') {
-		return "modules/$base.so";
+		return "modules/$base${\DLL_EXT}";
 	} elsif ($path eq '' || $path eq 'modes/' || $path =~ /^[a-z]+engines\/$/) {
 		return "obj/$base.o";
 	} elsif ($path =~ m#modules/(m_.*)/# || $path =~ m#coremods/(core_.*)/#) {
@@ -198,7 +199,7 @@ sub dep_so($) {
 	my($file) = @_;
 	my $out = find_output $file;
 
-	my $name = basename $out, '.so';
+	my $name = basename $out, DLL_EXT;
 	print MAKE ".PHONY: $name\n";
 	print MAKE "$name: $out\n";
 
@@ -221,8 +222,8 @@ sub dep_dir($$) {
 		my $ofiles = join ' ', @ofiles;
 		my $name = basename $outdir;
 		print MAKE ".PHONY: $name\n";
-		print MAKE "$name: $outdir.so\n";
-		print MAKE "$outdir.so: $ofiles\n";
+		print MAKE "$name: $outdir${\DLL_EXT}\n";
+		print MAKE "$outdir${\DLL_EXT}: $ofiles\n";
 		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir \$\@ ${\SOURCEPATH}/src/$dir \$^ \$>\n";
 		return 1;
 	} else {

@@ -67,6 +67,12 @@ INSTMODE_BIN ?= 0755
 INSTMODE_TXT ?= 0644
 INSTMODE_PRV ?= 0640
 
+ifeq ($(SYSTEM), darwin)
+  DLLEXT = "dylib"
+else
+  DLLEXT = "so"
+endif
+
 ifneq ($(COMPILER), ICC)
   CORECXXFLAGS += -Woverloaded-virtual -Wshadow
 ifneq ($(SYSTEM), openbsd)
@@ -229,7 +235,7 @@ install: target
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.so $(MODPATH)
+	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.$(DLLEXT) $(MODPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
 ifeq ($(SYSTEM), darwin)
@@ -280,8 +286,8 @@ deinstall:
 	-rm -rf $(EXAPATH)
 	-rm -f $(MANPATH)/inspircd.1
 	-rm -f $(MANPATH)/inspircd-genssl.1
-	-rm -f $(MODPATH)/m_*.so
-	-rm -f $(MODPATH)/core_*.so
+	-rm -f $(MODPATH)/m_*.$(DLLEXT)
+	-rm -f $(MODPATH)/core_*.$(DLLEXT)
 	-rm -f $(SCRPATH)/inspircd.service
 	-rm -f $(SCRPATH)/org.inspircd.plist
 

@@ -569,8 +569,8 @@ void ServerConfig::ApplyModules(User* user)
 	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
 	{
 		const std::string& modname = i->first;
-		// Don't remove core_*.so, just remove m_*.so
-		if (InspIRCd::Match(modname, "core_*.so", ascii_case_insensitive_map))
+		// Don't remove core_*, just remove m_*
+		if (InspIRCd::Match(modname, "core_*" DLL_EXTENSION, ascii_case_insensitive_map))
 			continue;
 		if (ServerInstance->Modules.Unload(i->second))
 		{
