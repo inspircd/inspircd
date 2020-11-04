@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       CXX: ${{ matrix.compiler }}
-      INSPIRCD_DEBUG: 1
+      INSPIRCD_DEBUG: 3
       INSPIRCD_VERBOSE: 1
     steps:
       - uses: actions/checkout@v2
