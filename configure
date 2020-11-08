@@ -111,8 +111,8 @@ exit 1 unless GetOptions(
 );
 
 if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
-	@opt_enableextras = split /[, ]+/, join(',', @opt_enableextras);
-	@opt_disableextras = split /[, ]+/, join(',', @opt_disableextras);
+	@opt_enableextras = grep { /\S/ } split /[, ]+/, join(',', @opt_enableextras);
+	@opt_disableextras = grep { /\S/ } split /[, ]+/, join(',', @opt_disableextras);
 	enable_extras(@opt_enableextras);
 	disable_extras(@opt_disableextras);
 	list_extras;
