@@ -64,12 +64,6 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
-enum UserType {
-	USERTYPE_LOCAL = 1,
-	USERTYPE_REMOTE = 2,
-	USERTYPE_SERVER = 3
-};
-
 /** Holds information relevant to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass
@@ -290,6 +284,19 @@ class CoreExport User : public Extensible
 		virtual void Execute(LocalUser* user) = 0;
 	};
 
+	/** An enumeration of all possible types of user. */
+	enum Type : uint8_t
+	{
+		/** The user is connected to the local server. */
+		TYPE_LOCAL = 0,
+
+		/** The user is connected to a remote server. */
+		TYPE_REMOTE = 1,
+
+		/** The user is a server pseudo-user. */
+		TYPE_SERVER = 2,
+	};
+
 	/** List of Memberships for this user
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
@@ -367,7 +374,7 @@ class CoreExport User : public Extensible
 	unsigned int quitting:1;
 
 	/** What type of user is this? */
-	const unsigned int usertype:2;
+	const uint8_t usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
@@ -402,7 +409,7 @@ class CoreExport User : public Extensible
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
-	User(const std::string& uid, Server* srv, UserType objtype);
+	User(const std::string& uid, Server* srv, Type objtype);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -832,7 +839,8 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 class RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_REMOTE)
+	RemoteUser(const std::string& uid, Server* srv)
+		: User(uid, srv, TYPE_REMOTE)
 	{
 	}
 };
@@ -841,13 +849,13 @@ class CoreExport FakeUser : public User
 {
  public:
 	FakeUser(const std::string& uid, Server* srv)
-		: User(uid, srv, USERTYPE_SERVER)
+		: User(uid, srv, TYPE_SERVER)
 	{
 		nick = srv->GetName();
 	}
 
 	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
-		: User(uid, new Server(uid, sname, sdesc), USERTYPE_SERVER)
+		: User(uid, new Server(uid, sname, sdesc), TYPE_SERVER)
 	{
 		nick = sname;
 	}
@@ -861,17 +869,17 @@ class CoreExport FakeUser : public User
 /** Is a local user */
 inline LocalUser* IS_LOCAL(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_LOCAL) ? static_cast<LocalUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == User::TYPE_LOCAL) ? static_cast<LocalUser*>(u) : nullptr;
 }
 /** Is a remote user */
 inline RemoteUser* IS_REMOTE(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_REMOTE) ? static_cast<RemoteUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == User::TYPE_REMOTE) ? static_cast<RemoteUser*>(u) : nullptr;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)
 {
-	return (u != NULL && u->usertype == USERTYPE_SERVER) ? static_cast<FakeUser*>(u) : NULL;
+	return (u != nullptr && u->usertype == User::TYPE_SERVER) ? static_cast<FakeUser*>(u) : nullptr;
 }
 
 inline bool User::IsModeSet(const ModeHandler* mh) const
