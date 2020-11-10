@@ -479,9 +479,13 @@ void ModuleManager::LoadAll()
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		std::string name = ExpandModName(tag->getString("name"));
+
+		const std::string shortname = tag->getString("name");
+		if (shortname.empty())
+			continue; // Skip malformed module tags.
 
 		// Skip modules which are already loaded.
+		const std::string name = ExpandModName(shortname);
 		if (Modules.find(name) != Modules.end())
 			continue;
 
