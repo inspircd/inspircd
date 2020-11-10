@@ -80,7 +80,7 @@ ifneq ($(SYSTEM), openbsd)
 endif
 endif
 
-ifeq ($(COMPILER),$(filter $(COMPILER),AppleClang Clang))
+ifeq ($(COMPILER),AppleClang)
   CXX += -stdlib=libc++
 endif
 
