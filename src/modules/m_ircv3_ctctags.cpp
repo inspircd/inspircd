@@ -33,8 +33,7 @@ class CommandTagMsg : public Command
 	bool FirePreEvents(User* source, MessageTarget& msgtarget, CTCTags::TagMessageDetails& msgdetails)
 	{
 		// Inform modules that a TAGMSG wants to be sent.
-		ModResult modres;
-		FIRST_MOD_RESULT_CUSTOM(tagevprov, CTCTags::EventListener, OnUserPreTagMessage, modres, (source, msgtarget, msgdetails));
+		ModResult modres = tagevprov.FirstResult(&CTCTags::EventListener::OnUserPreTagMessage, source, msgtarget, msgdetails);
 		if (modres == MOD_RES_DENY)
 		{
 			// Inform modules that a module blocked the TAGMSG.

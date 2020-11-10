@@ -99,9 +99,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		return;
 	}
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT_CUSTOM(statsevprov, Stats::EventListener, OnStats, MOD_RESULT, (stats));
-	if (MOD_RESULT == MOD_RES_DENY)
+	ModResult res = statsevprov.FirstResult(&Stats::EventListener::OnStats, stats);
+	if (res == MOD_RES_DENY)
 	{
 		stats.AddRow(219, statschar, "End of /STATS report");
 		ServerInstance->SNO.WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",

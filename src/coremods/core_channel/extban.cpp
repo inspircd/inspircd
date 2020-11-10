@@ -37,8 +37,7 @@ void ExtBanManager::BuildISupport(std::string& out)
 
 ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* channel) const
 {
-	ModResult res;
-	FIRST_MOD_RESULT_CUSTOM(evprov, ExtBan::EventListener, OnExtBanCheck, res, (user, channel, extban));
+	ModResult res = evprov.FirstResult(&ExtBan::EventListener::OnExtBanCheck, user, channel, extban);
 	if (res != MOD_RES_PASSTHRU)
 		return res;
 

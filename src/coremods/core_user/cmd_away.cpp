@@ -47,15 +47,13 @@ CommandAway::CommandAway(Module* parent)
 CmdResult CommandAway::Handle(User* user, const Params& parameters)
 {
 	LocalUser* luser = IS_LOCAL(user);
-	ModResult MOD_RESULT;
-
 	if (!parameters.empty())
 	{
 		std::string message(parameters[0]);
 		if (luser)
 		{
-			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreAway, MOD_RESULT, (luser, message));
-			if (MOD_RESULT == MOD_RES_DENY)
+			ModResult res = awayevprov.FirstResult(&Away::EventListener::OnUserPreAway, luser, message);
+			if (res == MOD_RES_DENY)
 				return CmdResult::FAILURE;
 		}
 
@@ -68,8 +66,8 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 	{
 		if (luser)
 		{
-			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreBack, MOD_RESULT, (luser));
-			if (MOD_RESULT == MOD_RES_DENY)
+			ModResult res = awayevprov.FirstResult(&Away::EventListener::OnUserPreBack, luser);
+			if (res == MOD_RES_DENY)
 				return CmdResult::FAILURE;
 		}
 

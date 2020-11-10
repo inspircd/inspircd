@@ -292,17 +292,16 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	void ServeData()
 	{
-		ModResult MOD_RESULT;
 		std::string method = http_method_str(static_cast<http_method>(parser.method));
 		HTTPRequestURI parsed;
 		ParseURI(uri, parsed);
 		HTTPRequest acl(method, parsed, &headers, this, ip, body);
-		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
-		if (MOD_RESULT != MOD_RES_DENY)
+		ModResult res = aclevprov->FirstResult(&HTTPACLEventListener::OnHTTPACLCheck, acl);
+		if (res != MOD_RES_DENY)
 		{
 			HTTPRequest request(method, parsed, &headers, this, ip, body);
-			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (request));
-			if (MOD_RESULT == MOD_RES_PASSTHRU)
+			res = reqevprov->FirstResult(&HTTPRequestEventListener::OnHTTPRequest, request);
+			if (res == MOD_RES_PASSTHRU)
 			{
 				SendHTTPError(404);
 			}

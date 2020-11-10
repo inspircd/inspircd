@@ -32,7 +32,9 @@ namespace Events
  * to the macro.
  * Event providers are identified using a unique identifier string.
  */
-class Events::ModuleEventProvider : public ServiceProvider, private dynamic_reference_base::CaptureHook
+class Events::ModuleEventProvider
+	: public ServiceProvider
+	, private dynamic_reference_base::CaptureHook
 {
  public:
 	struct Comp
@@ -80,6 +82,13 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
 		subscribers.erase(subscriber);
 		OnUnsubscribe(subscriber);
 	}
+
+	/**
+	 * Run the given hook provided by a module until some module returns MOD_RES_ALLOW or MOD_RES_DENY.
+	 * If no module does that, result is set to MOD_RES_PASSTHRU.
+	 */
+	template<typename Class, typename... FunArgs, typename... FwdArgs>
+	inline ModResult FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const;
 
  private:
 	void OnCapture() override
@@ -191,24 +200,20 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
 	} \
 } while (0);
 
-/**
- * Run the given hook provided by a module until some module returns MOD_RES_ALLOW or MOD_RES_DENY.
- * If no module does that, result is set to MOD_RES_PASSTHRU.
- *
- * Example: ModResult MOD_RESULT;
- * FIRST_MOD_RESULT_CUSTOM(httpevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (request));
- */
-#define FIRST_MOD_RESULT_CUSTOM(prov, listenerclass, func, result, params) do { \
-	result = MOD_RES_PASSTHRU; \
-	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
-	{ \
-		listenerclass* _t = static_cast<listenerclass*>(*_i); \
-		const Module* _m = _t->GetModule(); \
-		if (!_m || _m->dying) \
-			continue; \
-		result = _t->func params ; \
-		if (result != MOD_RES_PASSTHRU) \
-			break; \
-	} \
-} while (0);
+template<typename Class, typename... FunArgs, typename... FwdArgs>
+inline ModResult Events::ModuleEventProvider::FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const
+{
+	ModResult result;
+	for (ModuleEventListener* subscriber : subscribers)
+	{
+		const Module* mod = subscriber->GetModule();
+		if (!mod || mod->dying)
+			continue;
+
+		Class* klass = static_cast<Class*>(subscriber);
+		result = (klass->*function)(std::forward<FwdArgs>(args)...);
+		if (result != MOD_RES_PASSTHRU)
+			break;
+	}
+	return result;
+}

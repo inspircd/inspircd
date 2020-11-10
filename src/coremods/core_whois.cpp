@@ -75,10 +75,8 @@ class WhoisContextImpl : public Whois::Context
 
 void WhoisContextImpl::SendLine(Numeric::Numeric& numeric)
 {
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT_CUSTOM(lineevprov, Whois::LineEventListener, OnWhoisLine, MOD_RESULT, (*this, numeric));
-
-	if (MOD_RESULT != MOD_RES_DENY)
+	ModResult res = lineevprov.FirstResult(&Whois::LineEventListener::OnWhoisLine, *this, numeric);
+	if (res != MOD_RES_DENY)
 		source->WriteNumeric(numeric);
 }
 

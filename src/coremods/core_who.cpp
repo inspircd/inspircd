@@ -552,8 +552,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		wholine.GetParams().back().append(user->GetRealName());
 	}
 
-	ModResult res;
-	FIRST_MOD_RESULT_CUSTOM(whoevprov, Who::EventListener, OnWhoLine, res, (data, source, user, memb, wholine));
+	ModResult res = whoevprov.FirstResult(&Who::EventListener::OnWhoLine, data, source, user, memb, wholine);
 	if (res != MOD_RES_DENY)
 		data.results.push_back(wholine);
 }

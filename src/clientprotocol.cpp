@@ -99,8 +99,7 @@ void ClientProtocol::Event::GetMessagesForUser(LocalUser* user, MessageList& mes
 		messagelist = *initialmsglist;
 
 	// Let modules modify the message list
-	ModResult res;
-	FIRST_MOD_RESULT_CUSTOM(*event, EventHook, OnPreEventSend, res, (user, *this, messagelist));
+	ModResult res = event->FirstResult(&EventHook::OnPreEventSend, user, *this, messagelist);
 	if (res == MOD_RES_DENY)
 		messagelist.clear();
 }

@@ -109,8 +109,7 @@ void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible
 			prefixlist.push_back(prefix);
 		nick = i->first->nick;
 
-		ModResult res;
-		FIRST_MOD_RESULT_CUSTOM(namesevprov, Names::EventListener, OnNamesListItem, res, (user, memb, prefixlist, nick));
+		ModResult res = namesevprov.FirstResult(&Names::EventListener::OnNamesListItem, user, memb, prefixlist, nick);
 		if (res != MOD_RES_DENY)
 			reply.Add(prefixlist, nick);
 	}

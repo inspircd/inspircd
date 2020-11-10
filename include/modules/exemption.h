@@ -69,7 +69,5 @@ class CheckExemption::EventProvider
 
 inline ModResult CheckExemption::Call(const CheckExemption::EventProvider& prov, User* user, Channel* chan, const std::string& restriction)
 {
-	ModResult result;
-	FIRST_MOD_RESULT_CUSTOM(prov, CheckExemption::EventListener, OnCheckExemption, result, (user, chan, restriction));
-	return result;
+	return prov.FirstResult(&CheckExemption::EventListener::OnCheckExemption, user, chan, restriction);
 }
