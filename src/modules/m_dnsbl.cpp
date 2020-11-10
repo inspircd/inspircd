@@ -279,6 +279,12 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		ServerInstance->SNO->EnableSnomask('d', "DNSBL");
 	}
 
+	void Prioritize() CXX11_OVERRIDE
+	{
+		Module* corexline = ServerInstance->Modules->Find("core_xline");
+		ServerInstance->Modules->SetPriority(this, I_OnSetUserIP, PRIORITY_AFTER, corexline);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows the server administrator to check the IP address of connecting users against a DNSBL.", VF_VENDOR);

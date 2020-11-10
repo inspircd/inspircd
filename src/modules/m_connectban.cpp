@@ -67,6 +67,12 @@ class ModuleConnectBan
 	{
 	}
 
+	void Prioritize() CXX11_OVERRIDE
+	{
+		Module* corexline = ServerInstance->Modules->Find("core_xline");
+		ServerInstance->Modules->SetPriority(this, I_OnSetUserIP, PRIORITY_AFTER, corexline);
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Z-lines IP addresses which make excessive connections to the server.", VF_VENDOR);
