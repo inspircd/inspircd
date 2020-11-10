@@ -90,7 +90,7 @@ void ISupportManager::Build()
 		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic) },
 		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.IdentMax) },
 	};
-	FOREACH_MOD_CUSTOM(isupportevprov, ISupport::EventListener, OnBuildISupport, (tokens));
+	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 
 	// Transform the map into a list of numerics ready to be sent to clients.
 	std::vector<Numeric::Numeric> numerics;

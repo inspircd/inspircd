@@ -91,14 +91,14 @@ class ServerProtocol::MessageEventListener
 	 * @param name The name of the command which was sent.
 	 * @param tags The tags which will be sent with the message.
 	 */
-	virtual void OnBuildMessage(User* source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnBuildUserMessage(User* source, const char* name, ClientProtocol::TagMap& tags) { }
 
 	/** Fired when a server message is being sent by a server.
 	 * @param source The server who sent the message.
 	 * @param name The name of the command which was sent.
 	 * @param tags The tags which will be sent with the message.
 	 */
-	virtual void OnBuildMessage(Server* source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnBuildServerMessage(Server* source, const char* name, ClientProtocol::TagMap& tags) { }
 };
 
 class ServerProtocol::SyncEventListener

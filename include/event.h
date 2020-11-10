@@ -83,6 +83,10 @@ class Events::ModuleEventProvider
 		OnUnsubscribe(subscriber);
 	}
 
+	/** Run the given hook provided by a module. */
+	template<typename Class, typename... FunArgs, typename... FwdArgs>
+	inline void Call(void (Class::*function)(FunArgs...), FwdArgs&&... args) const;
+
 	/**
 	 * Run the given hook provided by a module until some module returns MOD_RES_ALLOW or MOD_RES_DENY.
 	 * If no module does that, result is set to MOD_RES_PASSTHRU.
@@ -184,27 +188,25 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
 	return std::less<ModuleEventListener*>()(lhs, rhs);
 }
 
-/**
- * Run the given hook provided by a module
- *
- * FOREACH_MOD_CUSTOM(accountevprov, AccountEventListener, OnAccountChange, MOD_RESULT, (user, newaccount))
- */
-#define FOREACH_MOD_CUSTOM(prov, listenerclass, func, params) do { \
-	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
-	{ \
-		listenerclass* _t = static_cast<listenerclass*>(*_i); \
-		const Module* _m = _t->GetModule(); \
-		if (_m && !_m->dying) \
-			_t->func params ; \
-	} \
-} while (0);
+template<typename Class, typename... FunArgs, typename... FwdArgs>
+inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...), FwdArgs&&... args) const
+{
+	for (const auto& subscriber : subscribers)
+	{
+		const Module* mod = subscriber->GetModule();
+		if (!mod || mod->dying)
+			continue;
+
+		Class* klass = static_cast<Class*>(subscriber);
+		(klass->*function)(std::forward<FwdArgs>(args)...);
+	}
+}
 
 template<typename Class, typename... FunArgs, typename... FwdArgs>
 inline ModResult Events::ModuleEventProvider::FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const
 {
 	ModResult result;
-	for (ModuleEventListener* subscriber : subscribers)
+	for (const auto& subscriber : subscribers)
 	{
 		const Module* mod = subscriber->GetModule();
 		if (!mod || mod->dying)

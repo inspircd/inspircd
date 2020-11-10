@@ -193,7 +193,7 @@ class CommandWebIRC : public SplitCommand
 			}
 
 			// Inform modules about the WebIRC attempt.
-			FOREACH_MOD_CUSTOM(webircevprov, WebIRC::EventListener, OnWebIRCAuth, (user, (hasflags ? &flags : NULL)));
+			webircevprov.Call(&WebIRC::EventListener::OnWebIRCAuth, user, (hasflags ? &flags : nullptr));
 
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.

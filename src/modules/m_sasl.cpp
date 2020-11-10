@@ -171,7 +171,7 @@ static void SendSASL(LocalUser* user, const std::string& agent, char mode, const
 
 	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
 	{
-		FOREACH_MOD_CUSTOM(*saslevprov, SASLEventListener, OnSASLAuth, (params));
+		saslevprov->Call(&SASLEventListener::OnSASLAuth, params);
 	}
 }
 

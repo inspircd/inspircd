@@ -118,7 +118,7 @@ namespace Stats
 		data << "<isupport>";
 
 		ISupport::TokenMap tokens;
-		FOREACH_MOD_CUSTOM(*isevprov, ISupport::EventListener, OnBuildISupport, (tokens));
+		isevprov->Call(&ISupport::EventListener::OnBuildISupport, tokens);
 		for (ISupport::TokenMap::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 		{
 			data << "<token><name>" << Sanitize(it->first)

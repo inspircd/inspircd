@@ -180,7 +180,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		caps.insert(std::make_pair(cap->GetName(), cap));
 		ServerInstance->Modules.AddReferent("cap/" + cap->GetName(), cap);
 
-		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, true));
+		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, true);
 	}
 
 	void DelCap(Cap::Capability* cap) override
@@ -192,7 +192,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unregistering cap %s", cap->GetName().c_str());
 
 		// Fire the event first so modules can still see who is using the cap which is being unregistered
-		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapAddDel, (cap, false));
+		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, false);
 
 		// Turn off the cap for all users
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
@@ -218,7 +218,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	void NotifyValueChange(Capability* cap) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
-		FOREACH_MOD_CUSTOM(evprov, Cap::EventListener, OnCapValueChange, (cap));
+		evprov.Call(&Cap::EventListener::OnCapValueChange, cap);
 	}
 
 	Protocol GetProtocol(LocalUser* user) const

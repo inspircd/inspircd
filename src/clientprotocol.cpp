@@ -64,7 +64,7 @@ const ClientProtocol::SerializedMessage& ClientProtocol::Serializer::SerializeFo
 	if (!msg.msginit_done)
 	{
 		msg.msginit_done = true;
-		FOREACH_MOD_CUSTOM(evprov, MessageTagProvider, OnPopulateTags, (msg));
+		evprov.Call(&MessageTagProvider::OnPopulateTags, msg);
 	}
 	return msg.GetSerialized(Message::SerializedInfo(this, MakeTagWhitelist(user, msg.GetTags())));
 }
@@ -89,7 +89,7 @@ void ClientProtocol::Event::GetMessagesForUser(LocalUser* user, MessageList& mes
 	if (!eventinit_done)
 	{
 		eventinit_done = true;
-		FOREACH_MOD_CUSTOM(*event, EventHook, OnEventInit, (*this));
+		event->Call(&EventHook::OnEventInit, *this);
 	}
 
 	// Most of the time there's only a single message but in rare cases there are more

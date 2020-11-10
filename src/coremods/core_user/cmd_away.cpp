@@ -60,7 +60,7 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 		user->awaytime = ServerInstance->Time();
 		user->awaymsg.assign(message, 0, ServerInstance->Config->Limits.MaxAway);
 		user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (user));
+		awayevprov.Call(&Away::EventListener::OnUserAway, user);
 	}
 	else
 	{
@@ -74,7 +74,7 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 		user->awaytime = 0;
 		user->awaymsg.clear();
 		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (user));
+		awayevprov.Call(&Away::EventListener::OnUserBack, user);
 	}
 
 	return CmdResult::SUCCESS;

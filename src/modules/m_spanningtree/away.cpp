@@ -39,13 +39,13 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 			u->awaytime = ServerInstance->Time();
 
 		u->awaymsg = params.back();
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (u));
+		awayevprov.Call(&Away::EventListener::OnUserAway, u);
 	}
 	else
 	{
 		u->awaytime = 0;
 		u->awaymsg.clear();
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (u));
+		awayevprov.Call(&Away::EventListener::OnUserBack, u);
 	}
 	return CmdResult::SUCCESS;
 }

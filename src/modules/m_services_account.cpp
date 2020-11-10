@@ -138,7 +138,7 @@ class AccountExtItemImpl : public AccountExtItem
 			}
 		}
 
-		FOREACH_MOD_CUSTOM(eventprov, AccountEventListener, OnAccountChange, (user, value));
+		eventprov.Call(&AccountEventListener::OnAccountChange, user, value);
 	}
 };
 

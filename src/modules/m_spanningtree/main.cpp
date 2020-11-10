@@ -691,7 +691,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			TreeServer* server = i->second;
 			if (!server->IsRoot())
-				FOREACH_MOD_CUSTOM(GetLinkEventProvider(), ServerProtocol::LinkEventListener, OnServerSplit, (server, false));
+				GetLinkEventProvider().Call(&ServerProtocol::LinkEventListener::OnServerSplit, server, false);
 		}
 		return;
 	}

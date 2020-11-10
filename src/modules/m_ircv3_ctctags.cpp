@@ -37,7 +37,7 @@ class CommandTagMsg : public Command
 		if (modres == MOD_RES_DENY)
 		{
 			// Inform modules that a module blocked the TAGMSG.
-			FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessageBlocked, (source, msgtarget, msgdetails));
+			tagevprov.Call(&CTCTags::EventListener::OnUserTagMessageBlocked, source, msgtarget, msgdetails);
 			return false;
 		}
 
@@ -49,7 +49,7 @@ class CommandTagMsg : public Command
 		}
 
 		// Inform modules that a TAGMSG is about to be sent.
-		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserTagMessage, (source, msgtarget, msgdetails));
+		tagevprov.Call(&CTCTags::EventListener::OnUserTagMessage, source, msgtarget, msgdetails);
 		return true;
 	}
 
@@ -61,7 +61,7 @@ class CommandTagMsg : public Command
 			lsource->idle_lastmsg = ServerInstance->Time();
 
 		// Inform modules that a TAGMSG was sent.
-		FOREACH_MOD_CUSTOM(tagevprov, CTCTags::EventListener, OnUserPostTagMessage, (source, msgtarget, msgdetails));
+		tagevprov.Call(&CTCTags::EventListener::OnUserPostTagMessage, source, msgtarget, msgdetails);
 		return CmdResult::SUCCESS;
 	}
 

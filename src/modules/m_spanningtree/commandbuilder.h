@@ -37,10 +37,10 @@ class CmdBuilder
 	/** The size of tags within the contents. */
 	size_t tagsize = 0;
 
-	/** Fires the ServerProtocol::MessageEventListener::OnBuildMessage event for a server target. */
+	/** Fires the ServerProtocol::MessageEventListener::OnBuildServerMessage event. */
 	void FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist);
 
-	/** Fires the ServerProtocol::MessageEventListener::OnBuildMessage event for a user target. */
+	/** Fires the ServerProtocol::MessageEventListener::OnBuildUserMessage. */
 	void FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist);
 
 	/** Updates the tag string within the buffer. */

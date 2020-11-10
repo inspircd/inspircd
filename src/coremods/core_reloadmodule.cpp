@@ -518,7 +518,7 @@ void DataKeeper::Save(Module* currmod)
 	CreateModeList(MODETYPE_CHANNEL);
 	DoSaveChans();
 
-	FOREACH_MOD_CUSTOM(*reloadevprov, ReloadModule::EventListener, OnReloadModuleSave, (mod, this->moddata));
+	reloadevprov->Call(&ReloadModule::EventListener::OnReloadModuleSave, mod, this->moddata);
 
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans %lu modules", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size(), (unsigned long)moddata.list.size());
 }

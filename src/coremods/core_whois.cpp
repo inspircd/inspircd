@@ -265,7 +265,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 		}
 	}
 
-	FOREACH_MOD_CUSTOM(evprov, Whois::EventListener, OnWhois, (whois));
+	evprov.Call(&Whois::EventListener::OnWhois, whois);
 
 	/*
 	 * We only send these if we've been provided them. That is, if hideserver is turned off, and user is local, or

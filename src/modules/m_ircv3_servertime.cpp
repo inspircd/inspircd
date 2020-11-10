@@ -47,8 +47,6 @@ class ServerTimeTag
 	}
 
  public:
-	using ServerProtocol::MessageEventListener::OnBuildMessage;
-
 	ServerTimeTag(Module* mod)
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")
@@ -64,7 +62,7 @@ class ServerTimeTag
 		return &lasttimestring;
 	}
 
-	void OnBuildMessage(User* source, const char* command, ClientProtocol::TagMap& tags) override
+	void OnBuildUserMessage(User* source, const char* command, ClientProtocol::TagMap& tags) override
 	{
 		// Server protocol.
 		RefreshTimeString();
