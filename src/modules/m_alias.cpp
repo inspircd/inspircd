@@ -180,7 +180,7 @@ class ModuleAlias : public Module
 		{
 			if (alias.UserCommand)
 			{
-				if (DoAlias(user, NULL, &alias, compare, original_line))
+				if (DoAlias(user, NULL, alias, compare, original_line))
 				{
 					return MOD_RES_DENY;
 				}
@@ -254,58 +254,58 @@ class ModuleAlias : public Module
 			if (alias.ChannelCommand)
 			{
 				// We use substr here to remove the fantasy prefix
-				if (DoAlias(user, c, &alias, compare, details.text.substr(fprefix.size())))
+				if (DoAlias(user, c, alias, compare, details.text.substr(fprefix.size())))
 					return;
 			}
 		}
 	}
 
 
-	int DoAlias(User *user, Channel *c, const Alias *a, const std::string& compare, const std::string& safe)
+	int DoAlias(User *user, Channel *c, const Alias& a, const std::string& compare, const std::string& safe)
 	{
 		std::string stripped(compare);
-		if (a->StripColor)
+		if (a.StripColor)
 			InspIRCd::StripColor(stripped);
 
 		/* Does it match the pattern? */
-		if (!a->format.empty())
+		if (!a.format.empty())
 		{
-			if (!InspIRCd::Match(stripped, a->format))
+			if (!InspIRCd::Match(stripped, a.format))
 				return 0;
 		}
 
-		if ((a->OperOnly) && (!user->IsOper()))
+		if ((a.OperOnly) && (!user->IsOper()))
 			return 0;
 
-		if (!a->RequiredNick.empty())
+		if (!a.RequiredNick.empty())
 		{
-			User* u = ServerInstance->Users.FindNick(a->RequiredNick);
+			User* u = ServerInstance->Users.FindNick(a.RequiredNick);
 			if (!u)
 			{
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is currently unavailable. Please try again later.");
+				user->WriteNumeric(ERR_NOSUCHNICK, a.RequiredNick, "is currently unavailable. Please try again later.");
 				return 1;
 			}
 
-			if ((a->ULineOnly) && (!u->server->IsULine()))
+			if ((a.ULineOnly) && (!u->server->IsULine()))
 			{
-				ServerInstance->SNO.WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick, "is not a network service! Please inform a server operator as soon as possible.");
+				ServerInstance->SNO.WriteToSnoMask('a', "NOTICE -- Service "+a.RequiredNick+" required by alias "+a.AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
+				user->WriteNumeric(ERR_NOSUCHNICK, a.RequiredNick, "is not a network service! Please inform a server operator as soon as possible.");
 				return 1;
 			}
 		}
 
 		/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
 
-		std::string::size_type crlf = a->ReplaceFormat.find('\n');
+		std::string::size_type crlf = a.ReplaceFormat.find('\n');
 
 		if (crlf == std::string::npos)
 		{
-			DoCommand(a->ReplaceFormat, user, c, safe, a);
+			DoCommand(a.ReplaceFormat, user, c, safe, a);
 			return 1;
 		}
 		else
 		{
-			irc::sepstream commands(a->ReplaceFormat, '\n');
+			irc::sepstream commands(a.ReplaceFormat, '\n');
 			std::string scommand;
 			while (commands.GetToken(scommand))
 			{
@@ -315,7 +315,7 @@ class ModuleAlias : public Module
 		}
 	}
 
-	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line, const Alias* a)
+	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string& original_line, const Alias& a)
 	{
 		std::string result;
 		result.reserve(newline.length());
@@ -359,7 +359,7 @@ class ModuleAlias : public Module
 				}
 				else if (!newline.compare(i, 12, "$requirement", 12))
 				{
-					result.append(a->RequiredNick);
+					result.append(a.RequiredNick);
 					i += 11;
 				}
 				else
