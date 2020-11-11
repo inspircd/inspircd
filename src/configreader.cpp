@@ -616,21 +616,21 @@ void ServerConfig::ApplyModules(User* user)
 
 std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag)
 {
-	auto found = config_data.equal_range(tag);
-	if (found.first == found.second)
+	auto tags = stdalgo::equal_range(config_data, tag);
+	if (tags.empty())
 		return EmptyTag;
 
-	std::shared_ptr<ConfigTag> rv = found.first->second;
-	found.first++;
-	if (found.first != found.second)
-		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
-			"(first at " + rv->source.str() + "; second at " + found.first->second->source.str() + ")");
-	return rv;
+	if (tags.count() > 1)
+	{
+		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
+			tags.count(), tag.c_str(), tags.begin()->second->source.str().c_str(), std::prev(tags.end())->second->source.str().c_str());
+	}
+	return tags.begin()->second;
 }
 
 ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag)
 {
-	return ServerConfig::TagList(config_data.equal_range(tag));
+	return stdalgo::equal_range(config_data, tag);
 }
 
 std::string ServerConfig::Escape(const std::string& str)

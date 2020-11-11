@@ -66,7 +66,6 @@ struct CustomTitle
 };
 
 typedef std::multimap<std::string, CustomTitle> CustomVhostMap;
-typedef std::pair<CustomVhostMap::iterator, CustomVhostMap::iterator> MatchingConfigs;
 
 /** Handle /TITLE
  */
@@ -85,11 +84,8 @@ class CommandTitle : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		MatchingConfigs matching = configs.equal_range(parameters[0]);
-
-		for (MatchingConfigs::first_type i = matching.first; i != matching.second; ++i)
+		for (const auto& [_, config] : stdalgo::equal_range(configs, parameters[0]))
 		{
-			CustomTitle config = i->second;
 			if (config.MatchUser(user) && config.CheckPass(user, parameters[1]))
 			{
 				ctitle.set(user, config.title);

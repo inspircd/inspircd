@@ -23,8 +23,19 @@ namespace stdalgo
 {
 	template <typename Iterator>
 	class iterator_range;
+
+	/** Returns a range containing all elements equivalent to \p value.
+	 * @param collection The collection to search within.
+	 * @param value The value to search for.
+	 */
+	template <typename Collection, typename Value>
+	iterator_range<typename Collection::const_iterator> equal_range(const Collection& collection, const Value& value)
+	{
+		return collection.equal_range(value);
+	}
 }
 
+/** Represents a range of iterators. */
 template <typename Iterator>
 class stdalgo::iterator_range
 {

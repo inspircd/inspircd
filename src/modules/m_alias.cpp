@@ -166,8 +166,8 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(command);
-		if (iters.first == iters.second)
+		auto aliases = stdalgo::equal_range(Aliases, command);
+		if (aliases.empty())
 			return MOD_RES_PASSTHRU;
 
 		/* The parameters for the command in their original form, with the command stripped off */
@@ -176,11 +176,11 @@ class ModuleAlias : public Module
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
+		for (const auto& [_, alias] : aliases)
 		{
-			if (i->second.UserCommand)
+			if (alias.UserCommand)
 			{
-				if (DoAlias(user, NULL, &(i->second), compare, original_line))
+				if (DoAlias(user, NULL, &alias, compare, original_line))
 				{
 					return MOD_RES_DENY;
 				}
@@ -240,8 +240,8 @@ class ModuleAlias : public Module
 		// nor do we give a shit about the prefix
 		scommand.erase(0, fprefix.size());
 
-		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(scommand);
-		if (iters.first == iters.second)
+		auto aliases = stdalgo::equal_range(Aliases, scommand);
+		if (aliases.empty())
 			return;
 
 		/* The parameters for the command in their original form, with the command stripped off */
@@ -249,19 +249,19 @@ class ModuleAlias : public Module
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
+		for (const auto& [_, alias] : aliases)
 		{
-			if (i->second.ChannelCommand)
+			if (alias.ChannelCommand)
 			{
 				// We use substr here to remove the fantasy prefix
-				if (DoAlias(user, c, &(i->second), compare, details.text.substr(fprefix.size())))
+				if (DoAlias(user, c, &alias, compare, details.text.substr(fprefix.size())))
 					return;
 			}
 		}
 	}
 
 
-	int DoAlias(User *user, Channel *c, Alias *a, const std::string& compare, const std::string& safe)
+	int DoAlias(User *user, Channel *c, const Alias *a, const std::string& compare, const std::string& safe)
 	{
 		std::string stripped(compare);
 		if (a->StripColor)
@@ -315,7 +315,7 @@ class ModuleAlias : public Module
 		}
 	}
 
-	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line, Alias* a)
+	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line, const Alias* a)
 	{
 		std::string result;
 		result.reserve(newline.length());

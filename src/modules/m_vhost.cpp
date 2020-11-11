@@ -48,7 +48,6 @@ struct CustomVhost
 };
 
 typedef std::multimap<std::string, CustomVhost> CustomVhostMap;
-typedef std::pair<CustomVhostMap::iterator, CustomVhostMap::iterator> MatchingConfigs;
 
 /** Handle /VHOST
  */
@@ -65,11 +64,8 @@ class CommandVhost : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		MatchingConfigs matching = vhosts.equal_range(parameters[0]);
-
-		for (MatchingConfigs::first_type i = matching.first; i != matching.second; ++i)
+		for (const auto& [_, config] : stdalgo::equal_range(vhosts, parameters[0]))
 		{
-			CustomVhost config = i->second;
 			if (config.CheckPass(user, parameters[1]))
 			{
 				user->WriteNotice("Setting your VHost: " + config.vhost);

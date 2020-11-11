@@ -297,10 +297,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	}
 
 	// Ask mode watchers whether this mode change is OK
-	std::pair<ModeWatcherMap::iterator, ModeWatcherMap::iterator> itpair = modewatchermap.equal_range(mh->name);
-	for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
+	for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
 	{
-		ModeWatcher* mw = i->second;
 		if (mw->GetModeType() == type)
 		{
 			if (!mw->BeforeMode(user, targetuser, chan, parameter, adding))
@@ -337,10 +335,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	if (ma != MODEACTION_ALLOW)
 		return ma;
 
-	itpair = modewatchermap.equal_range(mh->name);
-	for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
+	for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
 	{
-		ModeWatcher* mw = i->second;
 		if (mw->GetModeType() == type)
 			mw->AfterMode(user, targetuser, chan, parameter, adding);
 	}
@@ -502,10 +498,8 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		bool display = true;
 
 		// Ask mode watchers whether it's OK to show the list
-		std::pair<ModeWatcherMap::iterator, ModeWatcherMap::iterator> itpair = modewatchermap.equal_range(mh->name);
-		for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
+		for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
 		{
-			ModeWatcher* mw = i->second;
 			if (mw->GetModeType() == MODETYPE_CHANNEL)
 			{
 				std::string dummyparam;

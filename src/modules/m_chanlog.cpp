@@ -64,15 +64,14 @@ class ModuleChanLog : public Module
 
 	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) override
 	{
-		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
-		if (itpair.first == itpair.second)
+		auto channels = stdalgo::equal_range(logstreams, sno);
+		if (channels.empty())
 			return MOD_RES_PASSTHRU;
 
 		const std::string snotice = "\002" + desc + "\002: " + msg;
-
-		for (ChanLogTargets::const_iterator it = itpair.first; it != itpair.second; ++it)
+		for (const auto& [_, channel] : channels)
 		{
-			Channel *c = ServerInstance->FindChan(it->second);
+			Channel* c = ServerInstance->FindChan(channel);
 			if (c)
 			{
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->Config->ServerName, c, snotice);
