@@ -60,7 +60,7 @@ class CommandClones : public SplitCommand
 		if (batchmanager)
 		{
 			batchmanager->Start(batch);
-			batch.GetBatchStartMessage().PushParam(ConvToStr(limit));
+			batch.GetBatchStartMessage().PushParam(limit);
 		}
 
 		const UserManager::CloneMap& clonemap = ServerInstance->Users.GetCloneMap();

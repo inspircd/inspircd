@@ -97,74 +97,14 @@ class IRCv3::Replies::Reply
 		SendInternal(user, msg);
 	}
 
-	template<typename T1>
-	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const std::string& description)
-	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
-		msg.PushParamRef(command->name);
-		msg.PushParam(code);
-		msg.PushParam(ConvToStr(p1));
-		msg.PushParam(description);
-		SendInternal(user, msg);
-	}
-
-	template<typename T1, typename T2>
-	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
+	template<typename... Args>
+	void Send(LocalUser* user, Command* command, const std::string& code, Args&&... args,
 		const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
 		msg.PushParamRef(command->name);
 		msg.PushParam(code);
-		msg.PushParam(ConvToStr(p1));
-		msg.PushParam(ConvToStr(p2));
-		msg.PushParam(description);
-		SendInternal(user, msg);
-	}
-
-	template<typename T1, typename T2, typename T3>
-	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
-		const T3& p3, const std::string& description)
-	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
-		msg.PushParamRef(command->name);
-		msg.PushParam(code);
-		msg.PushParam(ConvToStr(p1));
-		msg.PushParam(ConvToStr(p2));
-		msg.PushParam(ConvToStr(p3));
-		msg.PushParam(description);
-		SendInternal(user, msg);
-	}
-
-	template<typename T1, typename T2, typename T3, typename T4>
-	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
-		const T3& p3, const T4& p4, const std::string& description)
-	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
-		msg.PushParamRef(command->name);
-		msg.PushParam(code);
-		msg.PushParam(ConvToStr(p1));
-		msg.PushParam(ConvToStr(p2));
-		msg.PushParam(ConvToStr(p3));
-		msg.PushParam(ConvToStr(p4));
-		msg.PushParam(description);
-		SendInternal(user, msg);
-	}
-
-	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const T2& p2,
-		const T3& p3, const T4& p4, const T5& p5, const std::string& description)
-	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
-		if (command)
-			msg.PushParamRef(command->name);
-		else
-			msg.PushParam("*");
-		msg.PushParam(code);
-		msg.PushParam(ConvToStr(p1));
-		msg.PushParam(ConvToStr(p2));
-		msg.PushParam(ConvToStr(p3));
-		msg.PushParam(ConvToStr(p4));
-		msg.PushParam(ConvToStr(p5));
+		msg.PushParam(std::forward<Args>(args)...);
 		msg.PushParam(description);
 		SendInternal(user, msg);
 	}
@@ -186,52 +126,12 @@ class IRCv3::Replies::Reply
 			SendNoticeInternal(user, command, description);
 	}
 
-	template<typename T1>
+	template<typename... Args>
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const T1& p1, const std::string& description)
+		Args&&... args, const std::string& description)
 	{
 		if (cap.IsEnabled(user))
-			Send(user, command, code, p1, description);
-		else
-			SendNoticeInternal(user, command, description);
-	}
-
-	template<typename T1, typename T2>
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const T1& p1, const T2& p2, const std::string& description)
-	{
-		if (cap.IsEnabled(user))
-			Send(user, command, code, p1, p2, description);
-		else
-			SendNoticeInternal(user, command, description);
-	}
-
-	template<typename T1, typename T2, typename T3>
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const T1& p1, const T2& p2, const T3& p3, const std::string& description)
-	{
-		if (cap.IsEnabled(user))
-			Send(user, command, code, p1, p2, p3, description);
-		else
-			SendNoticeInternal(user, command, description);
-	}
-
-	template<typename T1, typename T2, typename T3, typename T4>
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const std::string& description)
-	{
-		if (cap.IsEnabled(user))
-			Send(user, command, code, p1, p2, p3, p4, description);
-		else
-			SendNoticeInternal(user, command, description);
-	}
-
-	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const T5& p5, const std::string& description)
-	{
-		if (cap.IsEnabled(user))
-			Send(user, command, code, p1, p2, p3, p4, p5, description);
+			Send<Args&&...>(user, command, code, std::forward<Args>(args)..., description);
 		else
 			SendNoticeInternal(user, command, description);
 	}

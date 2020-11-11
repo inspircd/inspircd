@@ -355,6 +355,26 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	 */
 	void PushParam(const std::string& str) { params.push_back(Param(0, str)); }
 
+	/** Add a non-string parameter to the parameter list.
+	 * @param arg1 Non-string to add, will be copied.
+	 */
+	template<typename T>
+	void PushParam(T&& param)
+	{
+		PushParam(ConvToStr(param));
+	}
+
+	/** Adds a variable number of parameters to the parameter list.
+	 * @param arg1 The first argument to push.
+	 * @param args A variable number of arguments to push.
+	 */
+	template<typename FirstArg, typename... FwdArgs>
+	void PushParam(FirstArg&& arg1, FwdArgs&&... args)
+	{
+		PushParam(arg1);
+		PushParam(std::forward<FwdArgs>(args)...);
+	}
+
 	/** Add a parameter to the parameter list.
 	 * @param str String to add.
 	 * The string will NOT be copied, it must remain alive until ClearParams() is called or until the object is destroyed.
