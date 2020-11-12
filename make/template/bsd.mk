@@ -28,6 +28,4 @@
 
 all clean configureclean debug deinstall distclean help install:
 	@echo "InspIRCd no longer supports BSD Make. You should install GNU Make instead."
-	@echo "If this is problematic for you then please contact us via our IRC channel"
-	@echo "at irc.inspircd.org #InspIRCd."
 	@exit 1
