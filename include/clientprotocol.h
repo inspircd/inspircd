@@ -239,13 +239,15 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 		}
 
 		Param(int, const char* s)
-			: owned(true)
+			: ptr(NULL)
+			, owned(true)
 		{
 			new(str) std::string(s);
 		}
 
 		Param(int, const std::string& s)
-			: owned(true)
+			: ptr(NULL)
+			, owned(true)
 		{
 			 new(str) std::string(s);
 		}
