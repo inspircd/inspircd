@@ -20,7 +20,7 @@ jobs:
         ^./.github/workflows
         ^./.mailmap
         ^./vendor
-        ^./make/directive.pm:287:atleast
+        ^./make/directive.pm:280:atleast
         ^./src/modules/m_disable.cpp:119:existant
         ALLTIME$
         alltime$
