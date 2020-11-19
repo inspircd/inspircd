@@ -370,6 +370,10 @@ class WebSocketHook : public IOHookMiddle
 					// Give the user their real IP address.
 					if (realsa != luser->client_sa)
 						luser->SetClientIP(realsa);
+
+					// Error if changing their IP gets them banned.
+					if (luser->quitting)
+						return -1;
 					break;
 				}
 			}
