@@ -331,7 +331,7 @@ class ModuleIdent : public Module
 			return;
 
 		// We don't want to look this up once the user has connected.
-		if (user->registered == REG_ALL)
+		if (user->registered == REG_ALL || user->quitting)
 			return;
 
 		ConfigTag* tag = user->MyClass->config;

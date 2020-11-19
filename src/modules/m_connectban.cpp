@@ -105,7 +105,7 @@ class ModuleConnectBan
 
 	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
 	{
-		if (u->exempt)
+		if (u->exempt || u->quitting)
 			return;
 
 		irc::sockets::cidr_mask mask(u->client_sa, GetRange(u));

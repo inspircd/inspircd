@@ -357,7 +357,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((user->exempt) || !DNS)
+		if (user->exempt || user->quitting || !DNS)
 			return;
 
 		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
@@ -370,7 +370,10 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 				return;
 		}
 		else
+		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
+			return;
+		}
 
 		std::string reversedip;
 		if (user->client_sa.family() == AF_INET)
