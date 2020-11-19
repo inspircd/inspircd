@@ -30,7 +30,7 @@ class ModuleBadChannelExtban : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds the j extended ban which checks whether users are in a channel matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds the j: extended ban which checks whether users are in a channel matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
