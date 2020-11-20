@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -39,7 +39,7 @@ class ModuleConnFlood : public Module
 
  public:
 	ModuleConnFlood()
-		: Module(VF_VENDOR, "Throttles IP addresses which make excessive connections to the server.")
+		: Module(VF_VENDOR, "Throttles excessive connections to the server.")
 	{
 	}
 

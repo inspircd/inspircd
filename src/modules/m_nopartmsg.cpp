@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2013, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -33,7 +33,7 @@ class ModulePartMsgBan : public Module
 
  public:
 	ModulePartMsgBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the p extended ban which blocks the part message of matching users.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the p: extended ban which blocks the part message of matching users.")
 		, extban(this, "partmsg", 'p')
 	{
 	}

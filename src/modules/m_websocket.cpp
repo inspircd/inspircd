@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2016-2017 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -370,6 +370,10 @@ class WebSocketHook : public IOHookMiddle
 					// Give the user their real IP address.
 					if (realsa != luser->client_sa)
 						luser->SetClientIP(realsa);
+
+					// Error if changing their IP gets them banned.
+					if (luser->quitting)
+						return -1;
 					break;
 				}
 			}

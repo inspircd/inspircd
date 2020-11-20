@@ -490,7 +490,7 @@ class ModuleCloaking : public Module
 	void OnSetUserIP(LocalUser* user) override
 	{
 		// Connecting users are handled in OnUserConnect not here.
-		if (user->registered != REG_ALL)
+		if (user->registered != REG_ALL || user->quitting)
 			return;
 
 		// Remove the cloaks and generate new ones.

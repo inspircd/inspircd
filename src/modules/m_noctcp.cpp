@@ -40,7 +40,7 @@ class ModuleNoCTCP : public Module
 
  public:
 	ModuleNoCTCP()
-		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs.")
+		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs and user mode T (u_noctcp) which allows users to block private messages that contain CTCPs.")
 		, exemptionprov(this)
 		, extban(this, "noctcp", 'C')
 		, nc(this, "noctcp", 'C')

@@ -1,9 +1,9 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2013, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2014-2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -65,7 +65,7 @@ class ModuleBadChannelExtban
 
  public:
 	ModuleBadChannelExtban()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the j extended ban which checks whether users are in a channel matching the specified glob pattern.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the j: extended ban which checks whether users are in a channel matching the specified glob pattern.")
 		, extban(this)
 	{
 	}

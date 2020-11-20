@@ -467,13 +467,16 @@ void ModuleManager::LoadAll()
 	// Step 1: load all of the modules.
 	for (auto& [_, tag] : ServerInstance->Config->ConfTags("module"))
 	{
-		std::string name = ExpandModName(tag->getString("name"));
-		this->NewServices = &servicemap[name];
+		const std::string shortname = tag->getString("name");
+		if (shortname.empty())
+			continue; // Skip malformed module tags.
 
 		// Skip modules which are already loaded.
+		const std::string name = ExpandModName(shortname);
 		if (Modules.find(name) != Modules.end())
 			continue;
 
+		this->NewServices = &servicemap[name];
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 		if (!this->Load(name, true))
 		{
