@@ -170,7 +170,7 @@ class ModuleOverride : public Module
 
 		if (CanOverride(source, "MODE"))
 		{
-			std::string msg = source->nick + " overriding modes: ";
+			std::string msg = source->nick + " used oper override to set modes on " + channel->name + ": ";
 
 			// Construct a MODE string in the old format for sending it as a snotice
 			std::string params;
