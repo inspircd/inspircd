@@ -69,7 +69,7 @@ class CommandSanick : public Command
 		{
 			const std::string oldnick = target->nick;
 			const std::string newnick = parameters[1];
-			if (target->ChangeNick(newnick))
+			if (!ServerInstance->FindNickOnly(newnick) && target->ChangeNick(newnick))
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SANICK to change " + oldnick + " to " + newnick);
 			}
