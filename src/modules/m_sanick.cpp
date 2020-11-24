@@ -67,15 +67,15 @@ class CommandSanick : public Command
 		/* Have we hit target's server yet? */
 		if (target && IS_LOCAL(target))
 		{
-			std::string oldnick = user->nick;
-			std::string newnick = target->nick;
-			if (target->ChangeNick(parameters[1]))
+			const std::string oldnick = target->nick;
+			const std::string newnick = parameters[1];
+			if (target->ChangeNick(newnick))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SANICK to change " + oldnick + " to " + newnick);
 			}
 			else
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " failed SANICK (from " + oldnick + " to " + newnick + ")");
 			}
 		}
 
