@@ -1470,9 +1470,9 @@
 #<module name="namedmodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# NAMESX module: Provides support for the NAMESX extension which allows
-# clients to see all the prefixes set on a user without getting confused.
-# This is supported by mIRC, x-chat, klient, and maybe more.
+# NAMESX module: Provides support for the IRCv3 multi-prefix capability
+# and legacy NAMESX extension which allow clients to see all the prefix
+# modes set on a user.
 #<module name="namesx">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2355,11 +2355,9 @@
 #<module name="topiclock">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# UHNAMES support module: Adds support for the IRCX style UHNAMES
-# extension, which displays ident and hostname in the names list for
-# each user, saving clients from doing a WHO on the channel.
-# If a client does not support UHNAMES it will not enable it, this will
-# not break incompatible clients.
+# UHNAMES support module: Adds support for the IRCv3 userhost-in-names
+# capability and legacy UHNAMES extension which display the ident and
+# hostname of users in the NAMES list.
 #<module name="uhnames">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
