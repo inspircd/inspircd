@@ -9,6 +9,7 @@
 /Makefile
 /GNUmakefile
 /build
+/core
 /docs/doxygen
 /run
 
