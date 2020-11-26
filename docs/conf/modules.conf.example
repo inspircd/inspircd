@@ -78,13 +78,13 @@
 #                    matched, or it has no format value. Aliases are  #
 #                    read from the top of the file to the bottom.     #
 #                                                                     #
-# usercommand -      If this is true, the alias can be run simply as  #
-#                    /ALIASNAME. Defaults to true.                    #
+# usercommand -      If set to yes, the alias can be run simply as    #
+#                    /ALIASNAME. Defaults to yes.                     #
 #                                                                     #
-# channelcommand -   If this is true, the alias can be used as an     #
+# channelcommand -   If set to yes, the alias can be used as an       #
 #                    in-channel alias or 'fantasy command', prefixed  #
 #                    by the fantasy prefix character, !aliasname by   #
-#                    default. Defaults to false.                      #
+#                    default. Defaults to no.                         #
 #                                                                     #
 # format      -      If this is defined, the parameters of the alias  #
 #                    must match this glob pattern. For example if you #
@@ -116,11 +116,11 @@
 #                    to successfully trigger. If they are not, then   #
 #                    the user receives a 'no such nick' 401 numeric.  #
 #                                                                     #
-# stripcolor  -      If this is true, the text from the user will be  #
+# stripcolor  -      If set to yes, the text from the user will be    #
 #                    stripped of color and format codes before        #
 #                    matching against 'text'.                         #
 #                                                                     #
-# uline       -      Setting this to true will ensure that the user   #
+# uline       -      Setting this to yes will ensure that the user    #
 #                    given in 'requires' is also on a U-lined server, #
 #                    as well as actually being on the network. If the #
 #                    user is online, but not on a U-lined server,     #
@@ -128,7 +128,7 @@
 #                    possibly a sign of a user trying to impersonate  #
 #                    a service.                                       #
 #                                                                     #
-# operonly    -      If true, this will make the alias oper only.     #
+# operonly    -      If yes, this will make the alias oper only.      #
 #                    If a non-oper attempts to use the alias, it will #
 #                    appear to not exist.                             #
 #                                                                     #
@@ -340,7 +340,7 @@
 #<module name="cban">
 # CBAN does not allow glob channelmasks by default for compatibility
 # reasons. You can enable glob support by uncommenting the next line.
-#<cban glob="true">
+#<cban glob="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Censor module: Adds channel and user mode +G which block phrases that
@@ -1023,9 +1023,9 @@
 #<module name="hidechans">
 #
 # This mode can optionally prevent opers from seeing channels on a +I
-# user, for more privacy if set to true.
+# user, for more privacy if set to yes.
 # This setting is not recommended for most mainstream networks.
-#<hidechans affectsopers="false">
+#<hidechans affectsopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide list module: Allows for hiding the list of listmodes from users
@@ -1147,10 +1147,10 @@
 # the timeout for ident lookups here. If not defined, it will default #
 # to 5 seconds. This is a non-blocking timeout which holds the user   #
 # in a 'connecting' state until the lookup is complete.               #
-# prefixunqueried: If on, the idents of users being in a connect class#
-# with ident lookups disabled (i.e. <connect useident="off">) will be #
-# prefixed with a "~". If off, the ident of those users will not be   #
-# prefixed. Default is off.                                           #
+# prefixunqueried: If yes, the idents of users in a connect class     #
+# with ident lookups disabled (i.e. <connect useident="no">) will be  #
+# prefixed with a "~". If no, the ident of those users will not be    #
+# prefixed. Default is no.                                            #
 #
 #<ident timeout="5" prefixunqueried="no">
 
@@ -1176,7 +1176,7 @@
 # The following block can be used to control which extensions are
 # enabled. Note that extended-join can be incompatible with delayjoin
 # and host cycling.
-#<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
+#<ircv3 accountnotify="yes" awaynotify="yes" extendedjoin="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 account-tag module. Adds the 'account' tag which contains the
@@ -1591,8 +1591,8 @@
 #<module name="operlog">
 #
 # If the following option is on then all oper commands will be sent to
-# the snomask 'r'. The default is off.
-#<operlog tosnomask="off">
+# the snomask 'r'. The default is no.
+#<operlog tosnomask="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper prefixing module: Adds a channel prefix mode +y which is given
@@ -1731,8 +1731,8 @@
 # whenever +P is set, unset, or the topic/modes on a +P channel is changed.
 # If you want to do this, set the filename below, and uncomment the include.
 #
-# If 'listmodes' is true then all list modes (+b, +I, +e, +g...) will be
-# saved. Defaults to false.
+# If 'listmodes' is yes then all list modes (+b, +I, +e, +g...) will be
+# saved. Defaults to no.
 #
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
@@ -1844,8 +1844,8 @@
 # in the same way as /REMOVE.
 #<module name="remove">
 #
-# supportnokicks: If true, /REMOVE is not allowed on channels where the
-# nokicks (+Q) mode is set. Defaults to false.
+# supportnokicks: If yes, /REMOVE is not allowed on channels where the
+# nokicks (+Q) mode is set. Defaults to no.
 # protectedrank: Members having this rank or above may not be /REMOVE'd
 # by anyone. Set to 0 to disable this feature. Defaults to 50000.
 #<remove supportnokicks="yes" protectedrank="50000">
@@ -2327,7 +2327,7 @@
 #<module name="svshold">
 # SVSHOLD does not generate server notices by default, you can turn
 # notices on by uncommenting the next line.
-#<svshold silent="false">
+#<svshold silent="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitrary lines to user WHOIS.

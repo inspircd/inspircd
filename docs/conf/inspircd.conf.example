@@ -304,8 +304,8 @@
          # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
          globalmax="3"
 
-         # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to on)
-         maxconnwarn="off"
+         # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to yes)
+         maxconnwarn="no"
 
          # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
          # in this class. This can save a lot of resources on very busy servers.
@@ -435,7 +435,7 @@
          # immediately killing them; their commands are held in the recvq and processed later
          # as the user's command penalty drops. Note that if this is enabled, flooders will
          # quit with "RecvQ exceeded" rather than "Excess Flood".
-         fakelag="on"
+         fakelag="yes"
 
          # localmax: Maximum local connections per IP.
          localmax="3"
@@ -728,13 +728,13 @@
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
 
-             # clonesonconnect: If this is set to false, we won't check for clones
+             # clonesonconnect: If this is set to no, we won't check for clones
              # on initial connection, but only after the DNS check is done.
              # This can be useful where your main class is more restrictive
              # than some other class a user can be assigned after DNS lookup is complete.
              # Turning this option off will make the server spend more time on users we may
              # potentially not want. Normally this should be negligible, though.
-             # Default value is true
+             # Default value is yes
              clonesonconnect="yes"
 
              # timeskipwarn: The time period that a server clock can jump by before
