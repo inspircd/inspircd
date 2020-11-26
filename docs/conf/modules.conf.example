@@ -1498,7 +1498,7 @@
 # which allows up to X nick changes in Y seconds.
 #<module name="nickflood">
 #
-# The number of seconds to prevent nick changes for:
+# The time period to prevent nick changes for:
 #<nickflood duration="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
