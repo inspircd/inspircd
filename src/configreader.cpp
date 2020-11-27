@@ -39,7 +39,7 @@
 
 ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
-	, NickMax(tag->getUInt("maxnick", 30, 1, MaxLine))
+	, MaxNick(tag->getUInt("maxnick", 30, 1, MaxLine))
 	, ChanMax(tag->getUInt("maxchan", 64, 1, MaxLine))
 	, MaxModes(tag->getUInt("maxmodes", 20, 1))
 	, MaxUser(tag->getUInt("maxident", 10, 1))

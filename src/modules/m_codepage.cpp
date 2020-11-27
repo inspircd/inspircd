@@ -34,7 +34,7 @@ namespace
 
 	bool IsValidNick(const std::string& nick)
 	{
-		if (nick.empty() || nick.length() > ServerInstance->Config->Limits.NickMax)
+		if (nick.empty() || nick.length() > ServerInstance->Config->Limits.MaxNick)
 			return false;
 
 		for (std::string::const_iterator iter = nick.begin(); iter != nick.end(); ++iter)

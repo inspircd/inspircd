@@ -199,7 +199,7 @@ bool InspIRCd::DefaultIsChannel(const std::string& chname)
 /* true for valid nickname, false else */
 bool InspIRCd::DefaultIsNick(const std::string& n)
 {
-	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
+	if (n.empty() || n.length() > ServerInstance->Config->Limits.MaxNick)
 		return false;
 
 	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)

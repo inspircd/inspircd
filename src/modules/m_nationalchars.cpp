@@ -217,7 +217,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 	}
 
 	/* too long? or not -- pointer arithmetic rocks */
-	return (p < ServerInstance->Config->Limits.NickMax);
+	return (p < ServerInstance->Config->Limits.MaxNick);
 }
 
 
