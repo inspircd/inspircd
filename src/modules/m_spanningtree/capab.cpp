@@ -136,44 +136,13 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	const char sep = ' ';
-	irc::sepstream modulelist(MyModules(VF_COMMON), sep);
-	irc::sepstream optmodulelist(MyModules(VF_OPTCOMMON), sep);
-	/* Send module names, split at 509 length */
-	std::string item;
-	std::string line = "CAPAB MODULES :";
-	while (modulelist.GetToken(item))
-	{
-		if (line.length() + item.length() + 1 > 509)
-		{
-			this->WriteLine(line);
-			line = "CAPAB MODULES :";
-		}
+	const std::string modulelist = MyModules(VF_COMMON);
+	if (!modulelist.empty())
+		WriteLine("CAPAB MODULES :" + modulelist);
 
-		if (line != "CAPAB MODULES :")
-			line.push_back(sep);
-
-		line.append(item);
-	}
-	if (line != "CAPAB MODULES :")
-		this->WriteLine(line);
-
-	line = "CAPAB MODSUPPORT :";
-	while (optmodulelist.GetToken(item))
-	{
-		if (line.length() + item.length() + 1 > 509)
-		{
-			this->WriteLine(line);
-			line = "CAPAB MODSUPPORT :";
-		}
-
-		if (line != "CAPAB MODSUPPORT :")
-			line.push_back(sep);
-
-		line.append(item);
-	}
-	if (line != "CAPAB MODSUPPORT :")
-		this->WriteLine(line);
+	const std::string optmodulelist = MyModules(VF_OPTCOMMON);
+	if (!optmodulelist.empty())
+		WriteLine("CAPAB MODSUPPORT :" + optmodulelist);
 
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
