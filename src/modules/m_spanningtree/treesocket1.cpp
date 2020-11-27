@@ -42,13 +42,11 @@
 TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> myac, const irc::sockets::sockaddrs& dest)
 	: linkID(link->Name)
 	, LinkState(CONNECTING)
+	, capab(std::make_unique<CapabData>(dest))
 	, age(ServerInstance->Time())
 {
-	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;
-	capab->capab_phase = 0;
-	capab->remotesa = dest;
 
 	irc::sockets::sockaddrs bind;
 	memset(&bind, 0, sizeof(bind));
@@ -81,12 +79,9 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	: BufferedSocket(newfd)
 	, linkID("inbound from " + client->addr())
 	, LinkState(WAIT_AUTH_1)
+	, capab(std::make_unique<CapabData>(*client))
 	, age(ServerInstance->Time())
 {
-	capab = new CapabData;
-	capab->capab_phase = 0;
-	capab->remotesa = *client;
-
 	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
 	{
 		ListenSocket::IOHookProvRef& iohookprovref = *i;
@@ -112,8 +107,7 @@ void TreeSocket::CleanNegotiationInfo()
 	// connect is good, reset the autoconnect block (if used)
 	if (capab->ac)
 		capab->ac->position = -1;
-	delete capab;
-	capab = NULL;
+	capab.reset();
 }
 
 CullResult TreeSocket::cull()
@@ -122,11 +116,6 @@ CullResult TreeSocket::cull()
 	if (capab && capab->ac)
 		Utils->Creator->ConnectServer(capab->ac, false);
 	return this->BufferedSocket::cull();
-}
-
-TreeSocket::~TreeSocket()
-{
-	delete capab;
 }
 
 /** When an outbound connection finishes connecting, we receive

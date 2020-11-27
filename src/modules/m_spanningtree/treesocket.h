@@ -88,6 +88,12 @@ struct CapabData
 	std::string sid;
 	std::string name;
 	bool hidden;
+
+	CapabData(const irc::sockets::sockaddrs& sa)
+		: capab_phase(0)
+		, remotesa(sa)
+	{
+	}
 };
 
 /** Every SERVER connection inbound or outbound is represented by an object of
@@ -100,7 +106,7 @@ class TreeSocket : public BufferedSocket
 
 	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */
-	CapabData* capab;			/* Link setup data (held until burst is sent) */
+	std::unique_ptr<CapabData> capab;	/* Link setup data (held until burst is sent) */
 
 	/* The server we are talking to */
 	TreeServer* MyRoot = NULL;
@@ -208,9 +214,6 @@ class TreeSocket : public BufferedSocket
 	void CleanNegotiationInfo();
 
 	CullResult cull() override;
-	/** Destructor
-	 */
-	~TreeSocket();
 
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string
