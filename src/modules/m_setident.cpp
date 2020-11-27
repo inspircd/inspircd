@@ -40,7 +40,7 @@ class CommandSetident : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
+		if (parameters[0].size() > ServerInstance->Config->Limits.MaxUser)
 		{
 			user->WriteNotice("*** SETIDENT: Ident is too long");
 			return CmdResult::FAILURE;

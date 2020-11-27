@@ -50,7 +50,7 @@ class CommandChgident : public Command
 			return CmdResult::FAILURE;
 		}
 
-		if (parameters[1].length() > ServerInstance->Config->Limits.IdentMax)
+		if (parameters[1].length() > ServerInstance->Config->Limits.MaxUser)
 		{
 			user->WriteNotice("*** CHGIDENT: Ident is too long");
 			return CmdResult::FAILURE;

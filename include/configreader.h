@@ -129,8 +129,8 @@ class ServerLimits
 	size_t ChanMax;
 	/** Maximum number of modes per line */
 	size_t MaxModes;
-	/** Maximum length of ident, not including ~ etc */
-	size_t IdentMax;
+	/** Maximum length of a username (ident) */
+	size_t MaxUser;
 	/** Maximum length of a quit message */
 	size_t MaxQuit;
 	/** Maximum topic length */
@@ -150,7 +150,7 @@ class ServerLimits
 	ServerLimits(std::shared_ptr<ConfigTag> tag);
 
 	/** Maximum length of a n!u\@h mask */
-	size_t GetMaxMask() const { return NickMax + 1 + IdentMax + 1 + MaxHost; }
+	size_t GetMaxMask() const { return NickMax + 1 + MaxUser + 1 + MaxHost; }
 };
 
 struct CommandLineConf

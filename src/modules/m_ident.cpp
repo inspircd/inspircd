@@ -238,7 +238,7 @@ class IdentRequestSocket : public EventHandler
 		/* Truncate the ident at any characters we don't like, skip leading spaces */
 		for (std::string::const_iterator i = buf.begin()+lastcolon+1; i != buf.end(); ++i)
 		{
-			if (result.size() == ServerInstance->Config->Limits.IdentMax)
+			if (result.size() == ServerInstance->Config->Limits.MaxUser)
 				/* Ident is getting too long */
 				break;
 
@@ -290,8 +290,8 @@ class ModuleIdent : public Module
 		newident.insert(newident.begin(), '~');
 
 		// If the username is too long then truncate it.
-		if (newident.length() > ServerInstance->Config->Limits.IdentMax)
-			newident.erase(ServerInstance->Config->Limits.IdentMax);
+		if (newident.length() > ServerInstance->Config->Limits.MaxUser)
+			newident.erase(ServerInstance->Config->Limits.MaxUser);
 
 		// Apply the new username.
 		user->ChangeIdent(newident);

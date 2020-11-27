@@ -1078,7 +1078,7 @@ bool User::ChangeIdent(const std::string& newident)
 
 	FOREACH_MOD(OnChangeIdent, (this,newident));
 
-	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax);
+	this->ident.assign(newident, 0, ServerInstance->Config->Limits.MaxUser);
 	this->InvalidateCache();
 
 	return true;

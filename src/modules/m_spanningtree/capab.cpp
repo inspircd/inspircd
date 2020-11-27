@@ -163,7 +163,7 @@ void TreeSocket::SendCapabilities(int phase)
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
 			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
 			" MAXMODES="+ConvToStr(ServerInstance->Config->Limits.MaxModes)+
-			" IDENTMAX="+ConvToStr(ServerInstance->Config->Limits.IdentMax)+
+			" IDENTMAX="+ConvToStr(ServerInstance->Config->Limits.MaxUser)+
 			" MAXQUIT="+ConvToStr(ServerInstance->Config->Limits.MaxQuit)+
 			" MAXTOPIC="+ConvToStr(ServerInstance->Config->Limits.MaxTopic)+
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+

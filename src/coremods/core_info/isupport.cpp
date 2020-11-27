@@ -88,7 +88,7 @@ void ISupportManager::Build()
 		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()              },
 		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)         },
 		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic) },
-		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.IdentMax) },
+		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.MaxUser)  },
 	};
 	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 
