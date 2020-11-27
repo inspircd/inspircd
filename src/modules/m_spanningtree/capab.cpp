@@ -161,7 +161,7 @@ void TreeSocket::SendCapabilities(int phase)
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.MaxNick)+
-			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
+			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.MaxChannel)+
 			" MAXMODES="+ConvToStr(ServerInstance->Config->Limits.MaxModes)+
 			" IDENTMAX="+ConvToStr(ServerInstance->Config->Limits.MaxUser)+
 			" MAXQUIT="+ConvToStr(ServerInstance->Config->Limits.MaxQuit)+

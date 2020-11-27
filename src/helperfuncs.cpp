@@ -176,7 +176,7 @@ void InspIRCd::ProcessColors(file_cache& input)
 /* true for valid channel name, false else */
 bool InspIRCd::DefaultIsChannel(const std::string& chname)
 {
-	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.ChanMax)
+	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.MaxChannel)
 		return false;
 
 	if (chname[0] != '#')

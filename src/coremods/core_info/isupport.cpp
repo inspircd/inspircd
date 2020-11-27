@@ -73,22 +73,22 @@ void ISupportManager::Build()
 {
 	// Modules can add new tokens and also edit or remove existing tokens.
 	ISupport::TokenMap tokens = {
-		{ "AWAYLEN",     ConvToStr(ServerInstance->Config->Limits.MaxAway)  },
-		{ "CASEMAPPING", ServerInstance->Config->CaseMapping                },
-		{ "CHANNELLEN",  ConvToStr(ServerInstance->Config->Limits.ChanMax)  },
-		{ "CHANTYPES",   "#"                                                },
-		{ "HOSTLEN",     ConvToStr(ServerInstance->Config->Limits.MaxHost)  },
-		{ "KICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxKick)  },
-		{ "LINELEN",     ConvToStr(ServerInstance->Config->Limits.MaxLine)  },
-		{ "MAXTARGETS",  ConvToStr(ServerInstance->Config->MaxTargets)      },
-		{ "MODES",       ConvToStr(ServerInstance->Config->Limits.MaxModes) },
-		{ "NETWORK",     ServerInstance->Config->Network                    },
-		{ "NAMELEN",     ConvToStr(ServerInstance->Config->Limits.MaxReal)  },
-		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxNick)  },
-		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()              },
-		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)         },
-		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic) },
-		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.MaxUser)  },
+		{ "AWAYLEN",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
+		{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
+		{ "CHANNELLEN",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
+		{ "CHANTYPES",   "#"                                                  },
+		{ "HOSTLEN",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+		{ "KICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
+		{ "LINELEN",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
+		{ "MAXTARGETS",  ConvToStr(ServerInstance->Config->MaxTargets)        },
+		{ "MODES",       ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
+		{ "NETWORK",     ServerInstance->Config->Network                      },
+		{ "NAMELEN",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
+		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
+		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()                },
+		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)           },
+		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
+		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};
 	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 

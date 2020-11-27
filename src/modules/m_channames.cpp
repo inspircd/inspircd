@@ -34,7 +34,7 @@ class NewIsChannelHandler
 
 bool NewIsChannelHandler::Call(const std::string& channame)
 {
-	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.ChanMax || channame[0] != '#')
+	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.MaxChannel || channame[0] != '#')
 		return false;
 
 	for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)

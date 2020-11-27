@@ -193,8 +193,8 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	}
 
 	// Crop channel name if it's too long
-	if (cname.length() > ServerInstance->Config->Limits.ChanMax)
-		cname.resize(ServerInstance->Config->Limits.ChanMax);
+	if (cname.length() > ServerInstance->Config->Limits.MaxChannel)
+		cname.resize(ServerInstance->Config->Limits.MaxChannel);
 
 	Channel* chan = ServerInstance->FindChan(cname);
 	bool created_by_local = (chan == NULL); // Flag that will be passed to modules in the OnUserJoin() hook later

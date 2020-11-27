@@ -126,7 +126,7 @@ class ServerLimits
 	/** Maximum nickname length */
 	size_t MaxNick;
 	/** Maximum channel length */
-	size_t ChanMax;
+	size_t MaxChannel;
 	/** Maximum number of modes per line */
 	size_t MaxModes;
 	/** Maximum length of a username (ident) */
