@@ -121,21 +121,10 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
-#   Enter the port and address bindings here.                         #
+#   Configure the port and address bindings here.                     #
 #                                                                     #
-#                                                                     #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-#  If you want to link servers to InspIRCd you must load the          #
-#  spanningtree module! Please see the modules list for               #
-#  information on how to load this module! If you do not load this    #
-#  module, server ports will NOT work!                                #
 
-# Listener that binds on a TCP/IP endpoint:
+# TLS (SSL) listener that binds on a TCP/IP endpoint:
 <bind
       # address: IP address to bind to if the box that you are hosting
       # on has more than one IP, else the ircd will try to bind to all
@@ -178,6 +167,7 @@
       # not have brought the network interfaces up yet.
       free="no">
 
+# Plaintext listener that binds on a TCP/IP endpoint:
 <bind address="" port="6667" type="clients">
 
 
@@ -226,9 +216,6 @@
 # When linking servers, the OpenSSL, GnuTLS, and mbedTLS implementations are
 # completely link-compatible and can be used alongside each other on each end
 # of the link without any significant issues.
-
-<bind address="" port="7000,7001" type="servers">
-<bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
