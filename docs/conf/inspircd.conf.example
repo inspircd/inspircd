@@ -178,6 +178,9 @@
       # not have brought the network interfaces up yet.
       free="no">
 
+<bind address="" port="6667" type="clients">
+
+
 # Listener that binds on a UNIX endpoint (not supported on Windows):
 #<bind
 
@@ -203,15 +206,15 @@
     # shut down cleanly and left a zombie socket behind.
     #replace="yes">
 
-<bind address="" port="6667" type="clients">
 
 # Listener accepting HTML5 WebSocket connections.
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
 
+
 # You can define a custom <sslprofile> tag which defines the TLS (SSL) configuration
-# for this listener. See the docs page for the TLS (SSL) module you are using for
+# for these listeners. See the docs page for the TLS (SSL) module you are using for
 # more details.
 #
 # Alternatively, you can use one of the default TLS (SSL) profiles which are created
