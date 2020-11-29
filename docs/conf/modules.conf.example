@@ -883,6 +883,8 @@
 # See <options:exemptchanops> in inspircd.conf.example for a more     #
 # detailed list of the restriction modes that can be exempted.        #
 # These are settable using: /MODE #chan +X <restriction>:<status>     #
+# Furthermore, the exemptions configured in <options:exemptchanops>   #
+# can also be negated by using: /MODE #chan +X <restriction>:*        #
 #<module name="exemptchanops">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
