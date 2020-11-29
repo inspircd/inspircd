@@ -685,8 +685,9 @@
          #  - stripcolor      Channel mode +S - strips formatting codes from
          #                    messages (requires the stripcolor module).
          #  - topiclock       Channel mode +t - limits changing the topic to (half)ops
-         # You can also configure this on a per-channel basis with a channel mode.
-         # See m_exemptchanops in modules.conf.example for more details.
+         # You can also configure this on a per-channel basis with a channel mode and
+         # even negate the configured exemptions below.
+         # See exemptchanops in modules.conf.example for more details.
          exemptchanops="censor:o filter:o nickflood:o nonick:v regmoderated:o"
 
          # invitebypassmodes: This allows /INVITE to bypass other channel modes.
@@ -962,10 +963,10 @@
 
 <badnick
          # nick: Nick to disallow. Wildcards are supported.
-         nick="ChanServ"
+         nick="Tr0ll123"
 
          # reason: Reason to display on /NICK.
-         reason="Reserved for a network service">
+         reason="Don't use this nick.">
 
 <badhost
          # host: ident@hostname to ban.
