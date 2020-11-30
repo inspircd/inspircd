@@ -232,20 +232,6 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			// describing the situation, so we may stop here without sending anything
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
-
-			// If no module returned MOD_RES_DENY or MOD_RES_ALLOW (which is the case
-			// most of the time) then proceed to check channel bans.
-			//
-			// If a module explicitly allowed the join (by returning MOD_RES_ALLOW),
-			// then this entire section is skipped
-			if (MOD_RESULT == MOD_RES_PASSTHRU)
-			{
-				if (chan->IsBanned(user))
-				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
-					return NULL;
-				}
-			}
 		}
 	}
 

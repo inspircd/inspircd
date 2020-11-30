@@ -279,6 +279,13 @@ class CoreModChannel
 			}
 		}
 
+		// Check whether the user is banned from joining the channel.
+		if (chan->IsBanned(user))
+		{
+			user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
+			return MOD_RES_DENY;
+		}
+
 		// Everything looks okay.
 		return MOD_RES_PASSTHRU;
 	}
