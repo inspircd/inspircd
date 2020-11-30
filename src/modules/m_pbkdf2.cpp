@@ -209,6 +209,14 @@ class ModulePBKDF2 : public Module
 		stdalgo::delete_all(providers);
 	}
 
+	void init() CXX11_OVERRIDE
+	{
+		// Let ourself know about any existing services.
+		const ModuleManager::DataProviderMap& dataproviders = ServerInstance->Modules->DataProviders;
+		for (ModuleManager::DataProviderMap::const_iterator it = dataproviders.begin(); it != dataproviders.end(); ++it)
+			OnServiceAdd(*it->second);
+	}
+
 	void OnServiceAdd(ServiceProvider& provider) CXX11_OVERRIDE
 	{
 		// Check if it's a hash provider
