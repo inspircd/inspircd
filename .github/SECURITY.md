@@ -10,7 +10,7 @@ Version | Supported
 ------- | ---------
 4.x.y   | :warning:
 3.x.y   | :white_check_mark:
-2.0.x   | :white_check_mark:
+2.0.x   | :warning:
 1.2.y   | :x:
 1.1.y   | :x:
 1.0.y   | :x:
