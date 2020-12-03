@@ -222,8 +222,7 @@ class ModuleLDAPOper : public Module
 				return MOD_RES_PASSTHRU;
 
 			std::string acceptedhosts = tag->getString("host");
-			std::string hostname = user->ident + "@" + user->GetRealHost();
-			if (!InspIRCd::MatchMask(acceptedhosts, hostname, user->GetIPString()))
+			if (!InspIRCd::MatchMask(acceptedhosts, user->MakeHost(), user->MakeHostIP()))
 				return MOD_RES_PASSTHRU;
 
 			if (!LDAP)
