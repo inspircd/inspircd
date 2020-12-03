@@ -199,6 +199,14 @@ void TreeSocket::SendCapabilities(int phase)
 			.append(" PREFIX="+ ServerInstance->Modes->BuildPrefixes());
 	}
 
+	// HACK: Allow services to know what extbans exist. This will be
+	// replaced by CAPAB EXTBANS in the next protocol version.
+	std::map<std::string, std::string> tokens;
+	FOREACH_MOD(On005Numeric, (tokens));
+	std::map<std::string, std::string>::const_iterator eiter = tokens.find("EXTBAN");
+	if (eiter != tokens.end())
+		extra.append(" EXTBANS=" + eiter->second);
+
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
 			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
