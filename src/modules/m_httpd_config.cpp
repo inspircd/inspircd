@@ -41,12 +41,12 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 
 	ModResult OnHTTPRequest(HTTPRequest& request) override
 	{
-		if ((request.GetPath() != "/config") && (request.GetPath() != "/config/"))
+		if (request.GetPath() != "/config")
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling request for the HTTP /config route");
-		std::stringstream buffer;
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", request.GetPath().c_str());
 
+		std::stringstream buffer;
 		for (auto& [_, tag] : ServerInstance->Config->config_data)
 		{
 			// Show the location of the tag in a comment.

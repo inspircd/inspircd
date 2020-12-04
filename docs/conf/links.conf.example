@@ -1,3 +1,23 @@
+#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+#   Configure the port and address bindings for linking here.         #
+#                                                                     #
+#   Refer to the port configuration section in inspircd.conf.example  #
+#   for more information about the available options.                 #
+#                                                                     #
+
+# TLS (SSL) listener that binds on a TCP/IP endpoint:
+<bind address="1.2.3.4"
+      port="7005"
+      type="servers"
+      ssl="gnutls">
+
+# Plaintext listener that binds on a TCP/IP endpoint:
+<bind address=""
+      port="7000,7001"
+      type="servers">
+
+
 #-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Defines which servers can link to this one, and which servers this  #
@@ -10,8 +30,8 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  spanningtree module!                                               #
-#                                                                     #
+#  spanningtree module! If you do not load this module, server ports  #
+#  will NOT work!                                                     #
 #                                                                     #
 
 <link

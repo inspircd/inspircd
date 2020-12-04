@@ -167,7 +167,7 @@ class SHA1HashProvider : public HashProvider
 {
  public:
  	SHA1HashProvider(Module* mod)
-		: HashProvider(mod, "hash/sha1", 20, 64)
+		: HashProvider(mod, "sha1", 20, 64)
 	{
 	}
 

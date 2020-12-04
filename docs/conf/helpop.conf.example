@@ -10,8 +10,6 @@
 #   -- w00t 16/dec/2006
 #
 
-<config format="xml">
-
 <alias text="HELP" replace="HELPOP $2-">
 
 <helpmsg nohelp="There is no help for the topic you searched for. Please try again.">

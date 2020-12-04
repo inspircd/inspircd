@@ -112,21 +112,10 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
-#   Enter the port and address bindings here.                         #
+#   Configure the port and address bindings here.                     #
 #                                                                     #
-#                                                                     #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-#  If you want to link servers to InspIRCd you must load the          #
-#  spanningtree module! Please see the modules list for               #
-#  information on how to load this module! If you do not load this    #
-#  module, server ports will NOT work!                                #
 
-# Listener that binds on a TCP/IP endpoint:
+# TLS (SSL) listener that binds on a TCP/IP endpoint:
 <bind
       # address: IP address to bind to if the box that you are hosting
       # on has more than one IP, else the ircd will try to bind to all
@@ -168,6 +157,10 @@
       # not have brought the network interfaces up yet.
       free="no">
 
+# Plaintext listener that binds on a TCP/IP endpoint:
+<bind address="" port="6667" type="clients">
+
+
 # Listener that binds on a UNIX endpoint (not supported on Windows):
 #<bind
 
@@ -193,7 +186,6 @@
     # shut down cleanly and left a zombie socket behind.
     #replace="yes">
 
-<bind address="" port="6667" type="clients">
 
 # Listener accepting HTML5 WebSocket connections.
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
@@ -207,9 +199,6 @@
 # When linking servers, the OpenSSL, GnuTLS, and mbedTLS implementations are
 # completely link-compatible and can be used alongside each other on each end
 # of the link without any significant issues.
-
-<bind address="" port="7000,7001" type="servers">
-<bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -288,8 +277,8 @@
          # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
          globalmax="3"
 
-         # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to on)
-         maxconnwarn="off"
+         # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to yes)
+         maxconnwarn="no"
 
          # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
          # in this class. This can save a lot of resources on very busy servers.
@@ -419,7 +408,7 @@
          # immediately killing them; their commands are held in the recvq and processed later
          # as the user's command penalty drops. Note that if this is enabled, flooders will
          # quit with "RecvQ exceeded" rather than "Excess Flood".
-         fakelag="on"
+         fakelag="yes"
 
          # localmax: Maximum local connections per IP.
          localmax="3"
@@ -665,8 +654,9 @@
          #  - stripcolor      Channel mode +S - strips formatting codes from
          #                    messages (requires the stripcolor module).
          #  - topiclock       Channel mode +t - limits changing the topic to (half)ops
-         # You can also configure this on a per-channel basis with a channel mode.
-         # See m_exemptchanops in modules.conf.example for more details.
+         # You can also configure this on a per-channel basis with a channel mode and
+         # even negate the configured exemptions below.
+         # See exemptchanops in modules.conf.example for more details.
          exemptchanops="censor:o filter:o nickflood:o nonick:v regmoderated:o"
 
          # invitebypassmodes: This allows /INVITE to bypass other channel modes.
@@ -698,13 +688,13 @@
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
 
-             # clonesonconnect: If this is set to false, we won't check for clones
+             # clonesonconnect: If this is set to no, we won't check for clones
              # on initial connection, but only after the DNS check is done.
              # This can be useful where your main class is more restrictive
              # than some other class a user can be assigned after DNS lookup is complete.
              # Turning this option off will make the server spend more time on users we may
              # potentially not want. Normally this should be negligible, though.
-             # Default value is true
+             # Default value is yes
              clonesonconnect="yes"
 
              # timeskipwarn: The time period that a server clock can jump by before
@@ -938,10 +928,10 @@
 
 <badnick
          # nick: Nick to disallow. Wildcards are supported.
-         nick="ChanServ"
+         nick="Tr0ll123"
 
          # reason: Reason to display on /NICK.
-         reason="Reserved for a network service">
+         reason="Don't use this nick.">
 
 <badhost
          # host: ident@hostname to ban.

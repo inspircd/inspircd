@@ -159,6 +159,21 @@ void TreeSocket::SendCapabilities(int phase)
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
+	// 1205 HACK: Allow services to know what extbans exist.
+	if (proto_version <= PROTO_INSPIRCD_30)
+	{
+		dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
+		if (extbanmgr)
+		{
+			std::string extbanchars;
+			for (const auto& [extban, _] : extbanmgr->GetLetterMap())
+				extbanchars.push_back(extban);
+
+			if (!extbanchars.empty())
+				extra.append(" EXTBANS=" + extbanchars);
+		}
+	}
+
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.MaxNick)+
 			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.MaxChannel)+

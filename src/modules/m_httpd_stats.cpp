@@ -432,32 +432,27 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 	ModResult HandleRequest(HTTPRequest* http)
 	{
-		std::string path = http->GetPath();
-
-		if (path != "/stats" && path.substr(0, 7) != "/stats/")
+		if (http->GetPath() != "/stats")
 			return MOD_RES_PASSTHRU;
 
-		if (path[path.size() - 1] == '/')
-			path.erase(path.size() - 1, 1);
-
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", http->GetPath().c_str());
 
 		bool found = true;
 		std::stringstream data;
 		data << "<inspircdstats>";
 
-		if (path == "/stats")
+		if (http->GetPath() == "/stats")
 		{
 			data << Stats::ServerInfo << Stats::General
 				<< Stats::XLines << Stats::Modules
 				<< Stats::Channels << Stats::Users
 				<< Stats::Servers << Stats::Commands;
 		}
-		else if (path == "/stats/general")
+		else if (http->GetPath() == "/stats/general")
 		{
 			data << Stats::General;
 		}
-		else if (path == "/stats/users")
+		else if (http->GetPath() == "/stats/users")
 		{
 			if (enableparams)
 				Stats::ListUsers(data, http->GetParsedURI().query_params);

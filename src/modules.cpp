@@ -166,6 +166,26 @@ void ServiceProvider::DisableAutoRegister()
 		stdalgo::erase(*ServerInstance->Modules.NewServices, this);
 }
 
+const char* ServiceProvider::GetTypeString() const
+{
+	switch (service)
+	{
+		case SERVICE_COMMAND:
+			return "command";
+		case SERVICE_MODE:
+			return "mode";
+		case SERVICE_METADATA:
+			return "metadata";
+		case SERVICE_IOHOOK:
+			return "iohook";
+		case SERVICE_DATA:
+			return "data service";
+		case SERVICE_CUSTOM:
+			return "module service";
+	}
+	return "unknown service";
+}
+
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
 	if (stdalgo::isin(EventHandlers[i], mod))
@@ -400,7 +420,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	{
 		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
 		if (curr->second->creator == mod)
+		{
 			DataProviders.erase(curr);
+			FOREACH_MOD(OnServiceDel, (*curr->second));
+		}
 	}
 
 	dynamic_reference_base::reset_all();
@@ -549,6 +572,8 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
+	ServerInstance->Logs.Log("SERVICE", LOG_DEBUG, "Adding %s %s provided by %s", item.name.c_str(),
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{
 		case SERVICE_DATA:
@@ -576,6 +601,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
+	ServerInstance->Logs.Log("SERVICE", LOG_DEBUG, "Deleting %s %s provided by %s", item.name.c_str(),
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{
 		case SERVICE_MODE:
@@ -586,7 +613,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_IOHOOK:
 		{
 			DelReferent(&item);
-			return;
+			break;
 		}
 		default:
 			throw ModuleException("Cannot delete unknown service type");

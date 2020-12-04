@@ -247,14 +247,18 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		Close();
 	}
 
-	void SendHTTPError(unsigned int response)
+	void SendHTTPError(unsigned int response, const char* errstr = NULL)
 	{
+		if (!errstr)
+			errstr = http_status_str((http_status)response);
+
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Sending HTTP error %u: %s", response, errstr);
 		static HTTPHeaders empty;
 		std::string data = InspIRCd::Format(
 			"<html><head></head><body style='font-family: sans-serif; text-align: center'>"
 			"<h1 style='font-size: 48pt'>Error %u</h1><h2 style='font-size: 24pt'>%s</h2><hr>"
 			"<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>",
-			response, http_status_str((http_status)response));
+			response, errstr);
 
 		Page(data, response, &empty);
 	}
@@ -286,8 +290,10 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		if (parser.upgrade || HTTP_PARSER_ERRNO(&parser))
 			return;
 		http_parser_execute(&parser, &parser_settings, recvq.data(), recvq.size());
-		if (parser.upgrade || HTTP_PARSER_ERRNO(&parser))
+		if (parser.upgrade)
 			SendHTTPError(status_code ? status_code : 400);
+		else if (HTTP_PARSER_ERRNO(&parser))
+			SendHTTPError(status_code ? status_code : 400, http_errno_description((http_errno)parser.http_errno));
 	}
 
 	void ServeData()
@@ -327,7 +333,32 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			return false;
 
 		if (url.field_set & (1 << UF_PATH))
-			out.path = uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
+		{
+			// Normalise the path.
+			std::vector<std::string> pathsegments;
+			irc::sepstream pathstream(uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len), '/');
+			for (std::string pathsegment; pathstream.GetToken(pathsegment); )
+			{
+				if (pathsegment == ".")
+				{
+					 // Stay at the current level.
+					continue;
+				}
+
+				if (pathsegment == "..")
+				{
+					// Traverse up to the previous level.
+					if (!pathsegments.empty())
+						pathsegments.pop_back();
+					continue;
+				}
+
+				pathsegments.push_back(pathsegment);
+			}
+
+			out.path.reserve(url.field_data[UF_PATH].len);
+			out.path.append("/").append(stdalgo::string::join(pathsegments, '/'));
+		}
 
 		if (url.field_set & (1 << UF_FRAGMENT))
 			out.fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
