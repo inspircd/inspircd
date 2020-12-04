@@ -367,7 +367,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 				{
 					// Traverse up to the previous level.
 					if (!pathsegments.empty())
-						pathsegment.pop_back();
+						pathsegments.pop_back();
 					continue;
 				}
 
