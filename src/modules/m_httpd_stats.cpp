@@ -431,7 +431,7 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		if (path[path.size() - 1] == '/')
 			path.erase(path.size() - 1, 1);
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", http->GetPath().c_str());
 
 		bool found = true;
 		std::stringstream data;

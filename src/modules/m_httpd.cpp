@@ -266,12 +266,16 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 	void SendHTTPError(unsigned int response, const char* errstr = NULL)
 	{
+		if (!errstr)
+			errstr = http_status_str((http_status)response);
+
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Sending HTTP error %u: %s", response, errstr);
 		static HTTPHeaders empty;
 		std::string data = InspIRCd::Format(
 			"<html><head></head><body style='font-family: sans-serif; text-align: center'>"
 			"<h1 style='font-size: 48pt'>Error %u</h1><h2 style='font-size: 24pt'>%s</h2><hr>"
 			"<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>",
-			response, errstr ? errstr : http_status_str((http_status)response));
+			response, errstr);
 
 		Page(data, response, &empty);
 	}
