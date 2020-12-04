@@ -147,10 +147,6 @@ void TreeSocket::SendCapabilities(int phase)
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
-	std::string extbans;
-	if (BuildExtBanList(extbans))
-		WriteLine("CAPAB EXTBANS :" + extbans);
-
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
 	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
@@ -172,6 +168,12 @@ void TreeSocket::SendCapabilities(int phase)
 			if (!extbanchars.empty())
 				extra.append(" EXTBANS=" + extbanchars);
 		}
+	}
+	else
+	{
+		std::string extbans;
+		if (BuildExtBanList(extbans))
+			WriteLine("CAPAB EXTBANS :" + extbans);
 	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
