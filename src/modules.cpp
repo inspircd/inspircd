@@ -167,6 +167,26 @@ void ServiceProvider::DisableAutoRegister()
 		stdalgo::erase(*ServerInstance->Modules->NewServices, this);
 }
 
+const char* ServiceProvider::GetTypeString() const
+{
+	switch (service)
+	{
+		case SERVICE_COMMAND:
+			return "command";
+		case SERVICE_MODE:
+			return "mode";
+		case SERVICE_METADATA:
+			return "metadata";
+		case SERVICE_IOHOOK:
+			return "iohook";
+		case SERVICE_DATA:
+			return "data service";
+		case SERVICE_CUSTOM:
+			return "module service";
+	}
+	return "unknown service";
+}
+
 ModuleManager::ModuleManager()
 {
 }
@@ -565,6 +585,8 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
+	ServerInstance->Logs->Log("SERVICE", LOG_DEBUG, "Adding %s %s provided by %s", item.name.c_str(),
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{
 		case SERVICE_DATA:
@@ -592,6 +614,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
+	ServerInstance->Logs->Log("SERVICE", LOG_DEBUG, "Deleting %s %s provided by %s", item.name.c_str(),
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{
 		case SERVICE_MODE:
