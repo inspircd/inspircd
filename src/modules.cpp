@@ -409,7 +409,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	{
 		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
 		if (curr->second->creator == mod)
+		{
 			DataProviders.erase(curr);
+			FOREACH_MOD(OnServiceDel, (*curr->second));
+		}
 	}
 
 	dynamic_reference_base::reset_all();
@@ -599,7 +602,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_IOHOOK:
 		{
 			DelReferent(&item);
-			return;
+			break;
 		}
 		default:
 			throw ModuleException("Cannot delete unknown service type");
