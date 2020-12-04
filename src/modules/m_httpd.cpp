@@ -351,7 +351,32 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			return false;
 
 		if (url.field_set & (1 << UF_PATH))
-			out.path = uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
+		{
+			// Normalise the path.
+			std::vector<std::string> pathsegments;
+			irc::sepstream pathstream(uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len), '/');
+			for (std::string pathsegment; pathstream.GetToken(pathsegment); )
+			{
+				if (pathsegment == ".")
+				{
+					 // Stay at the current level.
+					continue;
+				}
+
+				if (pathsegment == "..")
+				{
+					// Traverse up to the previous level.
+					if (!pathsegments.empty())
+						pathsegment.pop_back();
+					continue;
+				}
+
+				pathsegments.push_back(pathsegment);
+			}
+
+			out.path.reserve(url.field_data[UF_PATH].len);
+			out.path.append("/").append(stdalgo::string::join(pathsegments, '/'));
+		}
 
 		if (url.field_set & (1 << UF_FRAGMENT))
 			out.fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
