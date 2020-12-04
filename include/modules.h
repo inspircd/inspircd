@@ -1050,6 +1050,7 @@ class CoreExport Module : public classbase, public usecountbase
 class CoreExport ModuleManager : public fakederef<ModuleManager>
 {
  public:
+	typedef std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviderMap;
 	typedef std::vector<ServiceProvider*> ServiceList;
 
  private:
@@ -1092,7 +1093,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	Module::List EventHandlers[I_END];
 
 	/** List of data services keyed by name */
-	std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviders;
+	DataProviderMap DataProviders;
 
 	/** A list of ServiceProviders waiting to be registered.
 	 * Non-NULL when constructing a Module, NULL otherwise.
