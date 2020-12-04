@@ -147,27 +147,40 @@ void TreeSocket::SendCapabilities(int phase)
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
-	std::string extra;
-	/* Do we have sha256 available? If so, we send a challenge */
-	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
-	{
-		SetOurChallenge(ServerInstance->GenRandomStr(20));
-		extra = " CHALLENGE=" + this->GetOurChallenge();
-	}
+	std::unordered_map<std::string, std::string> capabilities = {
+		{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
+		{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
+		{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
+		{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+		{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
+		{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
+		{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
+		{ "MAXNICK",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
+		{ "MAXQUIT",     ConvToStr(ServerInstance->Config->Limits.MaxQuit)    },
+		{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
+		{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
+		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
+	};
 
-	// 1205 HACK: Allow services to know what extbans exist.
 	if (proto_version <= PROTO_INSPIRCD_30)
 	{
+		// 1205 HACK: Allow services to know what extbans exist.
 		dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
 		if (extbanmgr)
 		{
-			std::string extbanchars;
+			std::string extbans;
 			for (const auto& [extban, _] : extbanmgr->GetLetterMap())
-				extbanchars.push_back(extban);
+				extbans.push_back(extban);
 
-			if (!extbanchars.empty())
-				extra.append(" EXTBANS=" + extbanchars);
+			if (!extbans.empty())
+				capabilities["EXTBANS"] = extbans;
 		}
+
+		// These have been renamed in the 1206 protocol.
+		capabilities["CHANMAX"]  = capabilities["MAXCHANNEL"];
+		capabilities["IDENTMAX"] = capabilities["MAXUSER"];
+		capabilities["NICKMAX"]  = capabilities["MAXNICK"];
+
 	}
 	else
 	{
@@ -176,27 +189,27 @@ void TreeSocket::SendCapabilities(int phase)
 			WriteLine("CAPAB EXTBANS :" + extbans);
 	}
 
-	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
-			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.MaxNick)+
-			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.MaxChannel)+
-			" MAXMODES="+ConvToStr(ServerInstance->Config->Limits.MaxModes)+
-			" IDENTMAX="+ConvToStr(ServerInstance->Config->Limits.MaxUser)+
-			" MAXQUIT="+ConvToStr(ServerInstance->Config->Limits.MaxQuit)+
-			" MAXTOPIC="+ConvToStr(ServerInstance->Config->Limits.MaxTopic)+
-			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
-			" MAXREAL="+ConvToStr(ServerInstance->Config->Limits.MaxReal)+
-			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
-			" MAXHOST="+ConvToStr(ServerInstance->Config->Limits.MaxHost)+
-			extra+
-			" CASEMAPPING="+ServerInstance->Config->CaseMapping+
-			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
-			// Services want to know about it, and since m_globops was not marked as VF_(OPT)COMMON
-			// in 2.0, we advertise it here to not break linking to previous versions.
-			// Protocol version 1201 (1.2) does not have this issue because we advertise m_globops
-			// to 1201 protocol servers irrespectively of its module flags.
-			(ServerInstance->Modules.Find("globops") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
-			);
+	// If SHA256 hashing support is available then send a challenge token.
+	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
+	{
+		SetOurChallenge(ServerInstance->GenRandomStr(20));
+		capabilities["CHALLENGE"] = GetOurChallenge();
+	}
 
+	// Advertise the presence or absence of the globops snomask in CAPAB CAPABILITIES. Services
+	// needs to know about it and since m_globops is not marked as VF_(OPT)COMMON we advertise it
+	// here to not break linking to previous versions.
+	capabilities["GLOBOPS"] = ConvToStr(!!ServerInstance->Modules.Find("globops"));
+
+	std::stringstream capabilitystr;
+	char separator = ':';
+	for (const auto& [capkey, capvalue] : capabilities)
+	{
+		capabilitystr << separator << capkey << '=' << capvalue;
+		separator = ' ';
+	}
+
+	this->WriteLine("CAPAB CAPABILITIES " + capabilitystr.str());
 	this->WriteLine("CAPAB END");
 }
 
