@@ -44,12 +44,21 @@ std::string TreeSocket::MyModules(int filter)
 		if ((!(mod->properties & filter)))
 			continue;
 
-		if (i != modlist.begin())
+		if (!capabilities.empty())
 			capabilities.push_back(' ');
 
-		std::string modname = i->first;
-		modname.replace(modname.end() - strlen(DLL_EXTENSION) - 1, modname.end(), ".so");
-		capabilities.append(modname);
+		size_t endpos = i->first.length() - strlen(DLL_EXTENSION);
+		if (proto_version <= PROTO_INSPIRCD_30)
+		{
+			// Replace m_foo.dylib with m_foo.so
+			capabilities.append(i->first.substr(0, endpos)).append(".so");
+		}
+		else
+		{
+			// Replace m_foo.dylib with foo
+			size_t startpos = i->first.compare(0, 2, "m_", 2) ? 0 : 2;
+			capabilities.append(i->first.substr(startpos, endpos - startpos));
+		}
 
 		std::string link_data;
 		mod->GetLinkData(link_data);
