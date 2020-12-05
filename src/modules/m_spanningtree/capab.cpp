@@ -247,7 +247,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		this->SendError("Invalid number of parameters for CAPAB - Mismatched version");
 		return false;
 	}
-	if (params[0] == "START")
+	if (irc::equals(params[0], "START"))
 	{
 		capab->ModuleList.clear();
 		capab->OptModuleList.clear();
@@ -266,7 +266,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 
 		SendCapabilities(2);
 	}
-	else if (params[0] == "END")
+	else if (irc::equals(params[0], "END"))
 	{
 		/* Compare ModuleList and check CapKeys */
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
@@ -413,7 +413,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			}
 		}
 	}
-	else if ((params[0] == "MODULES") && (params.size() == 2))
+	else if (irc::equals(params[0] , "MODULES") && (params.size() == 2))
 	{
 		if (!capab->ModuleList.length())
 		{
@@ -425,7 +425,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			capab->ModuleList.append(params[1]);
 		}
 	}
-	else if ((params[0] == "MODSUPPORT") && (params.size() == 2))
+	else if (irc::equals(params[0], "MODSUPPORT") && (params.size() == 2))
 	{
 		if (!capab->OptModuleList.length())
 		{
@@ -437,19 +437,19 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			capab->OptModuleList.append(params[1]);
 		}
 	}
-	else if ((params[0] == "CHANMODES") && (params.size() == 2))
+	else if (irc::equals(params[0], "CHANMODES") && (params.size() == 2))
 	{
 		capab->ChanModes = params[1];
 	}
-	else if ((params[0] == "USERMODES") && (params.size() == 2))
+	else if (irc::equals(params[0], "USERMODES") && (params.size() == 2))
 	{
 		capab->UserModes = params[1];
 	}
-	else if ((params[0] == "EXTBANS") && (params.size() == 2))
+	else if (irc::equals(params[0], "EXTBANS") && (params.size() == 2))
 	{
 		capab->ExtBans = params[1];
 	}
-	else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
+	else if (irc::equals(params[0], "CAPABILITIES") && (params.size() == 2))
 	{
 		irc::spacesepstream capabs(params[1]);
 		std::string item;
