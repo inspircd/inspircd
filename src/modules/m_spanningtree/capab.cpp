@@ -33,43 +33,110 @@
 #include "main.h"
 #include "modules/extban.h"
 
-std::string TreeSocket::MyModules(int filter)
+namespace
 {
-	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules.GetModules();
+	// A map which holds the difference between local and remote tokens.
+	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> TokenDiff;
 
-	std::string capabilities;
-	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+	// Builds a list of the local modules with the specified property.
+	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
 	{
-		Module* const mod = i->second;
-		if ((!(mod->properties & filter)))
-			continue;
-
-		if (!capabilities.empty())
-			capabilities.push_back(' ');
-
-		size_t endpos = i->first.length() - strlen(DLL_EXTENSION);
-		if (proto_version <= PROTO_INSPIRCD_30)
+		CapabData::ModuleMap modules;
+		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
 		{
-			// Replace m_foo.dylib with m_foo.so
-			capabilities.append(i->first.substr(0, endpos)).append(".so");
-		}
-		else
-		{
-			// Replace m_foo.dylib with foo
-			size_t startpos = i->first.compare(0, 2, "m_", 2) ? 0 : 2;
-			capabilities.append(i->first.substr(startpos, endpos - startpos));
-		}
+			if (!(module->properties & property))
+				continue;
 
-		std::string link_data;
-		mod->GetLinkData(link_data);
-		if (!link_data.empty())
-		{
-			capabilities.push_back('=');
-			capabilities.append(link_data);
+			std::string modname;
+			size_t endpos = name.length() - strlen(DLL_EXTENSION);
+			if (protocol <= PROTO_INSPIRCD_30)
+			{
+				// Replace m_foo.dylib with m_foo.so
+				modname.append(name.substr(0, endpos)).append(".so");
+			}
+			else
+			{
+				// Replace m_foo.dylib with foo
+				size_t startpos = name.compare(0, 2, "m_", 2) ? 0 : 2;
+				modname.assign(name.substr(startpos, endpos - startpos));
+			}
+
+			module->GetLinkData(modules[modname]);
 		}
+		return modules;
 	}
 
-	return capabilities;
+	// Compares the lists of module on a remote server to the local server.
+	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
+		std::ostringstream& out)
+	{
+		// If the remote didn't send a module list then don't compare.
+		if (!remote)
+			return true;
+
+		// Retrieve the local module list and compare to the remote.
+		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
+		TokenDiff modulediff;
+		stdalgo::map::difference(mymodules, remote.value(), modulediff);
+
+		std::ostringstream diffconfig, localmissing, remotemissing;
+		for (auto& [module, values] : modulediff)
+		{
+			if (values.first && values.second)
+			{
+				// Exists on both but with different link data.
+				diffconfig << ' ' << module << " (" << *values.first << " here, " << *values.second << " there)";
+			}
+			else if (values.first && !values.second)
+			{
+				// Only exists on the local server.
+				remotemissing << ' ' << module;
+			}
+			else if (!values.first && values.second)
+			{
+				// Only exists on the remote server.
+				localmissing << ' ' << module;
+			}
+		}
+
+		if (!diffconfig.str().empty())
+			out << "Loaded on both with different config:" << diffconfig.str() << ". ";
+		if (!localmissing.str().empty())
+			out << "Not loaded on the local server:" << localmissing.str() << ". ";
+		if (!remotemissing.str().empty())
+			out << "Not loaded on the remote server:" << remotemissing.str() << ". ";
+		return modulediff.empty();
+	}
+
+	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
+	std::string FormatModules(ModuleFlags property, uint16_t protocol)
+	{
+		std::ostringstream modules;
+		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
+		for (const auto& [module, linkdata] : mymodules)
+		{
+			modules << module;
+			if (!linkdata.empty())
+			 	modules << '=' << linkdata;
+
+		}
+		return modules.str();
+	}
+
+	// Parses a module list in the format "m_foo.so=bar m_bar.so=baz" to a map.
+	void ParseModules(const std::string& modlist, std::optional<CapabData::ModuleMap>& out)
+	{
+		CapabData::ModuleMap& map = out ? *out : out.emplace();
+		irc::spacesepstream modstream(modlist);
+		for (std::string mod; modstream.GetToken(mod); )
+		{
+			size_t split = mod.find('=');
+			if (split == std::string::npos)
+				map.emplace(mod, "");
+			else
+				map.emplace(mod.substr(0, split), mod.substr(split + 1));
+		}
+	}
 }
 
 std::string TreeSocket::BuildModeList(ModeType mtype)
@@ -145,14 +212,8 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	const std::string modulelist = MyModules(VF_COMMON);
-	if (!modulelist.empty())
-		WriteLine("CAPAB MODULES :" + modulelist);
-
-	const std::string optmodulelist = MyModules(VF_OPTCOMMON);
-	if (!optmodulelist.empty())
-		WriteLine("CAPAB MODSUPPORT :" + optmodulelist);
-
+	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON, proto_version));
+	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON, proto_version));
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
@@ -189,7 +250,6 @@ void TreeSocket::SendCapabilities(int phase)
 		capabilities["CHANMAX"]  = capabilities["MAXCHANNEL"];
 		capabilities["IDENTMAX"] = capabilities["MAXUSER"];
 		capabilities["NICKMAX"]  = capabilities["MAXNICK"];
-
 	}
 	else
 	{
@@ -258,9 +318,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	if (irc::equals(params[0], "START"))
 	{
-		capab->ModuleList.clear();
-		capab->OptModuleList.clear();
+		capab->requiredmodules.reset();
+		capab->optionalmodules.reset();
 		capab->CapKeys.clear();
+
 		if (params.size() > 1)
 			proto_version = ConvToNum<uint16_t>(params[1]);
 
@@ -277,46 +338,25 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	else if (irc::equals(params[0], "END"))
 	{
-		/* Compare ModuleList and check CapKeys */
-		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
+		std::ostringstream errormsg;
+		if (!CompareModules(VF_COMMON, proto_version, this->capab->requiredmodules, errormsg))
 		{
-			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), ' ', diffIneed, diffUneed);
-			if (diffIneed.length() || diffUneed.length())
-			{
-				std::string reason = "Modules incorrectly matched on these servers.";
-				if (diffIneed.length())
-					reason += " Not loaded here:" + diffIneed;
-				if (diffUneed.length())
-					reason += " Not loaded there:" + diffUneed;
-				this->SendError("CAPAB negotiation failed: "+reason);
-				return false;
-			}
+			SendError("CAPAB negotiation failed. Required modules incorrectly matched on these servers. "
+				+ errormsg.str());
+			return false;
 		}
-
-		if (this->capab->OptModuleList != this->MyModules(VF_OPTCOMMON) && this->capab->OptModuleList.length())
+		else if (!CompareModules(VF_OPTCOMMON, proto_version, this->capab->requiredmodules, errormsg))
 		{
-			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->OptModuleList, this->MyModules(VF_OPTCOMMON), ' ', diffIneed, diffUneed);
-			if (diffIneed.length() || diffUneed.length())
+			if (Utils->AllowOptCommon)
 			{
-				if (Utils->AllowOptCommon)
-				{
-					ServerInstance->SNO.WriteToSnoMask('l',
-						"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
-						diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
-						diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());
-				}
-				else
-				{
-					std::string reason = "Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled.";
-					if (diffIneed.length())
-						reason += " Not loaded here:" + diffIneed;
-					if (diffUneed.length())
-						reason += " Not loaded there:" + diffUneed;
-					this->SendError("CAPAB negotiation failed: "+reason);
-					return false;
-				}
+				ServerInstance->SNO.WriteToSnoMask('l', "Optional modules do not match. Some features may not work globally! "
+					+ errormsg.str());
+			}
+			else
+			{
+				SendError("CAPAB negotiation failed. Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled. "
+					+ errormsg.str());
+				return false;
 			}
 		}
 
@@ -422,29 +462,15 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			}
 		}
 	}
-	else if (irc::equals(params[0] , "MODULES") && (params.size() == 2))
+	else if (irc::equals(params[0] , "MODULES"))
 	{
-		if (!capab->ModuleList.length())
-		{
-			capab->ModuleList = params[1];
-		}
-		else
-		{
-			capab->ModuleList.push_back(' ');
-			capab->ModuleList.append(params[1]);
-		}
+		if (params.size() >= 2)
+			ParseModules(params[1], capab->requiredmodules);
 	}
-	else if (irc::equals(params[0], "MODSUPPORT") && (params.size() == 2))
+	else if (irc::equals(params[0], "MODSUPPORT"))
 	{
-		if (!capab->OptModuleList.length())
-		{
-			capab->OptModuleList = params[1];
-		}
-		else
-		{
-			capab->OptModuleList.push_back(' ');
-			capab->OptModuleList.append(params[1]);
-		}
+		if (params.size() >= 2)
+			ParseModules(params[1], capab->optionalmodules);
 	}
 	else if (irc::equals(params[0], "CHANMODES") && (params.size() == 2))
 	{

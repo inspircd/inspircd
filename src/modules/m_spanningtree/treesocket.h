@@ -68,10 +68,17 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData
 {
+	// A map of module names to their link data.
+	typedef std::map<std::string, std::string, irc::insensitive_swo> ModuleMap;
+
+	// The optional modules sent by the remote server.
+	std::optional<ModuleMap> optionalmodules;
+
+	// The required modules sent by the remote server.
+	std::optional<ModuleMap> requiredmodules;
+
 	std::shared_ptr<Link> link;			/* Link block used for this connection */
 	std::shared_ptr<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
-	std::string ModuleList;			/* Required module list of other server from CAPAB */
-	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::string ChanModes;
 	std::string UserModes;
 	std::string ExtBans;
@@ -242,11 +249,6 @@ class TreeSocket : public BufferedSocket
 	 * (and any of ITS servers too) of what servers we know about.
 	 */
 	void SendServers(TreeServer* Current, TreeServer* s);
-
-	/** Returns module list as a string, filtered by filter
-	 * @param filter a module version bitmask, such as VF_COMMON or VF_OPTCOMMON
-	 */
-	std::string MyModules(int filter);
 
 	/** Returns mode list as a string, filtered by type.
 	 * @param type The type of modes to return.
