@@ -10,6 +10,7 @@ PLEASE DO NOT FILE CRASH/SECURITY REPORTS ON GITHUB. You can read our security p
 
 The GitHub issue tracker is for bug reports ONLY. General support can be found at the following locations:
 
+Discussions: https://github.com/inspircd/inspircd/discussions
 Docs: https://docs.inspircd.org
 IRC: irc.inspircd.org #inspircd
 

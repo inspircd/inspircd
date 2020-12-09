@@ -179,7 +179,8 @@ FLAGS
                                 will search for c++, g++, clang++ or icpc.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
-at irc.inspircd.org #InspIRCd for support.
+at irc.inspircd.org #InspIRCd or create a support discussion at
+https://github.com/inspircd/inspircd/discussions.
 
 Packagers: see https://docs.inspircd.org/packaging/ for packaging advice.
 EOH
