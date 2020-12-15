@@ -278,7 +278,7 @@ sub __function_require_version {
 	}
 
 	# Check with pkg-config whether we have the required version.
-	return undef if defined $minimum && system "pkg-config --atleast-version $minimum $name";
+	return undef if defined $minimum && system "pkg-config --at least-version $minimum $name";
 	return undef if defined $maximum && system "pkg-config --max-version $maximum $name";
 
 	# Requirement directives don't change anything directly.
