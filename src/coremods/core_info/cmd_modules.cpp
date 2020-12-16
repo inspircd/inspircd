@@ -77,7 +77,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 					flags[pos] = '-';
 
 			const char* srcrev = m->ModuleDLLManager->GetVersion();
-			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev ? "*" : srcrev, flags, V.description);
+			user->WriteRemoteNumeric(RPL_MODLIST, m->ModuleSourceFile, srcrev ? srcrev : "*", flags, V.description);
 		}
 		else
 		{
