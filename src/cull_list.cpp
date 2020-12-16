@@ -73,7 +73,7 @@ void CullList::Apply()
 		classbase* c = queue[i];
 		delete c;
 	}
-	if (list.size())
+	if (!list.empty())
 	{
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
 		Apply();

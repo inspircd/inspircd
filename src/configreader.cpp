@@ -524,7 +524,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		// On first run, ports are bound later on
 		FailedPortList pl;
 		ServerInstance->BindPorts(pl);
-		if (pl.size())
+		if (!pl.empty())
 		{
 			std::cout << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
 			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
