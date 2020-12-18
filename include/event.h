@@ -58,6 +58,9 @@ class Events::ModuleEventProvider : public ServiceProvider, private dynamic_refe
 		prov.SetCaptureHook(this);
 	}
 
+	/** Retrieves the module which created this listener. */
+	const Module* GetModule() const { return prov.creator; }
+
 	/** Get list of objects subscribed to this event
 	 * @return List of subscribed objects
 	 */
@@ -181,13 +184,16 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
  * FOREACH_MOD_CUSTOM(accountevprov, AccountEventListener, OnAccountChange, MOD_RESULT, (user, newaccount))
  */
 #define FOREACH_MOD_CUSTOM(prov, listenerclass, func, params) do { \
-	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+	if (!(prov).GetModule() || (prov).GetModule()->dying) \
 	{ \
-		listenerclass* _t = static_cast<listenerclass*>(*_i); \
-		const Module* _m = _t->GetModule(); \
-		if (_m && !_m->dying) \
+		const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
+		for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+		{ \
+			listenerclass* _t = static_cast<listenerclass*>(*_i); \
+			const Module* _m = _t->GetModule(); \
+			if (_m && !_m->dying) \
 			_t->func params ; \
+		} \
 	} \
 } while (0);
 
@@ -200,15 +206,18 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
  */
 #define FIRST_MOD_RESULT_CUSTOM(prov, listenerclass, func, result, params) do { \
 	result = MOD_RES_PASSTHRU; \
-	const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
-	for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+	if (!(prov).GetModule() || (prov).GetModule()->dying) \
 	{ \
-		listenerclass* _t = static_cast<listenerclass*>(*_i); \
-		const Module* _m = _t->GetModule(); \
-		if (!_m || _m->dying) \
-			continue; \
-		result = _t->func params ; \
-		if (result != MOD_RES_PASSTHRU) \
-			break; \
+		const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
+		for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+		{ \
+			listenerclass* _t = static_cast<listenerclass*>(*_i); \
+			const Module* _m = _t->GetModule(); \
+			if (!_m || _m->dying) \
+				continue; \
+			result = _t->func params ; \
+			if (result != MOD_RES_PASSTHRU) \
+				break; \
+		} \
 	} \
 } while (0);

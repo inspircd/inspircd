@@ -26,12 +26,18 @@
 
 void CmdBuilder::FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
 {
+	if (!Utils->Creator || Utils->Creator->dying)
+		return;
+
 	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
 	UpdateTags();
 }
 
 void CmdBuilder::FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist)
 {
+	if (!Utils->Creator || Utils->Creator->dying)
+		return;
+
 	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
 	UpdateTags();
 }
