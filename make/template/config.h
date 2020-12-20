@@ -43,6 +43,9 @@
 /** The default location that module files are stored in. */
 #define INSPIRCD_MODULE_PATH "@MODULE_DIR@"
 
+/** The URL of the InspIRCd docs site. */
+#define INSPIRCD_DOCS "https://docs.inspircd.org/@VERSION_MAJOR@/"
+
 #ifndef _WIN32
  %target include/config.h
 
