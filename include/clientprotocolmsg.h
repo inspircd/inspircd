@@ -68,7 +68,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 	 * @param user User to send the numeric to. May be unregistered, must remain valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, User* user)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer()->GetName() : ServerInstance->Config->ServerName))
+		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetName())
 	{
 		if (user->registered & REG_NICK)
 			PushParamRef(user->nick);
@@ -82,7 +82,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 	 * @param target Target string, must stay valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, const std::string& target)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer()->GetName() : ServerInstance->Config->ServerName))
+		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetName())
 	{
 		PushParamRef(target);
 		InitFromNumeric(num);
@@ -92,7 +92,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 	 * @param num Numeric number.
 	 */
 	Numeric(unsigned int num)
-		: ClientProtocol::Message(NULL, ServerInstance->Config->ServerName)
+		: ClientProtocol::Message(NULL, ServerInstance->Config->GetServerName())
 	{
 		InitCommand(num);
 		PushParam("*");
@@ -643,7 +643,7 @@ struct ClientProtocol::Messages::Ping : public ClientProtocol::Message
 	Ping()
 		: ClientProtocol::Message("PING")
 	{
-		PushParamRef(ServerInstance->Config->ServerName);
+		PushParamRef(ServerInstance->Config->GetServerName());
 	}
 
 	/** Constructor.
@@ -666,9 +666,9 @@ struct ClientProtocol::Messages::Pong : public ClientProtocol::Message
 	 * @param server Pinged server. Must remain valid as long as this object is alive if non-empty.
 	 */
 	Pong(const std::string& cookie, const std::string& server = "")
-		: ClientProtocol::Message("PONG", ServerInstance->Config->ServerName)
+		: ClientProtocol::Message("PONG", ServerInstance->Config->GetServerName())
 	{
-		PushParamRef(ServerInstance->Config->ServerName);
+		PushParamRef(ServerInstance->Config->GetServerName());
 		if (!server.empty())
 			PushParamRef(server);
 		PushParamRef(cookie);

@@ -77,7 +77,7 @@ class CommandLinks : public Command
 	 */
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->ServerName, ServerInstance->Config->ServerName, InspIRCd::Format("0 %s", ServerInstance->Config->ServerDesc.c_str()));
+		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->GetServerName(), ServerInstance->Config->GetServerName(), InspIRCd::Format("0 %s", ServerInstance->Config->GetServerDesc().c_str()));
 		user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 		return CMD_SUCCESS;
 	}

@@ -335,7 +335,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 }
 
-static std::string GetServerName()
+static std::string GetServerHost()
 {
 #ifndef _WIN32
 	char hostname[256];
@@ -359,7 +359,7 @@ void ServerConfig::Fill()
 	ConfigTag* server = ConfValue("server");
 	if (sid.empty())
 	{
-		ServerName = server->getString("name", GetServerName(), InspIRCd::IsHost);
+		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsHost);
 
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))

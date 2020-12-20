@@ -26,7 +26,7 @@ class BatchMessage : public ClientProtocol::Message
 {
  public:
 	BatchMessage(const IRCv3::Batch::Batch& batch, bool start)
-		: ClientProtocol::Message("BATCH", ServerInstance->Config->ServerName)
+		: ClientProtocol::Message("BATCH", ServerInstance->Config->GetServerName())
 	{
 		char c = (start ? '+' : '-');
 		PushParam(std::string(1, c) + batch.GetRefTagStr());

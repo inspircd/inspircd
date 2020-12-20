@@ -369,7 +369,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 {
 	std::string message;
 	VAFORMAT(message, text, text);
-	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, ServerInstance->Config->ServerName, message, MSG_NOTICE);
+	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, ServerInstance->Config->GetServerName(), message, MSG_NOTICE);
 	ClientProtocol::Event msgevent(ServerInstance->GetRFCEvents().privmsg, msg);
 
 	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)

@@ -320,7 +320,7 @@ namespace Cap
 	{
 	 public:
 		MessageBase(const std::string& subcmd)
-			: ClientProtocol::Message("CAP", ServerInstance->Config->ServerName)
+			: ClientProtocol::Message("CAP", ServerInstance->Config->GetServerName())
 		{
 			PushParamPlaceholder();
 			PushParam(subcmd);

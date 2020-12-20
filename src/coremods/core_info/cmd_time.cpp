@@ -37,7 +37,6 @@ CmdResult CommandTime::Handle(User* user, const Params& parameters)
 	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 		return CMD_SUCCESS;
 
-	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, InspIRCd::TimeString(ServerInstance->Time()));
-
+	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), InspIRCd::TimeString(ServerInstance->Time()));
 	return CMD_SUCCESS;
 }
