@@ -146,7 +146,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 					// If this child is not my last child, then add |
 					// to be able to "link" the next server in my list to me, and to indent this child's servers
 					if (!last)
-						prefix = "| ";
+						prefix = "│ ";
 					// Otherwise this is my last child, so just use a space as there's nothing else linked to me below this
 					else
 						prefix = "  ";
@@ -156,10 +156,10 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 				{
 					// If this is the last child, it gets a `-
 					if (last)
-						prefix = "`-";
+						prefix = "└─";
 					// Otherwise this isn't the last child, so it gets |-
 					else
-						prefix = "|-";
+						prefix = "├─";
 				}
 			}
 			else
