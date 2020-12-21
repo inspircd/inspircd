@@ -345,7 +345,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				+ errormsg.str());
 			return false;
 		}
-		else if (!CompareModules(VF_OPTCOMMON, proto_version, this->capab->requiredmodules, errormsg))
+		else if (!CompareModules(VF_OPTCOMMON, proto_version, this->capab->optionalmodules, errormsg))
 		{
 			if (Utils->AllowOptCommon)
 			{
