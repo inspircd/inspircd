@@ -468,6 +468,12 @@ class CoreExport ServerConfig
 	 */
 	const std::string& GetSID() const { return sid; }
 
+	/** Retrieves the server name which should be shown to users. */
+	const std::string& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }
+
+	/** Retrieves the server description which should be shown to users. */
+	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : HideServer; }
+
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
 	 * should be used only by the core.

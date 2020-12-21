@@ -290,7 +290,7 @@ class ModuleSSLInfo
 
 		std::string text = "*** You are connected to ";
 		if (!ssliohook->GetServerName(text))
-			text.append(ServerInstance->Config->ServerName);
+			text.append(ServerInstance->Config->GetServerName());
 		text.append(" using TLS (SSL) cipher '");
 		ssliohook->GetCiphersuite(text);
 		text.push_back('\'');

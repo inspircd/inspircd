@@ -8,6 +8,7 @@ about: Request that a new feature is added to InspIRCd.
 
 The GitHub issue tracker is for feature requests ONLY. General support can be found at the following locations:
 
+Discussions: https://github.com/inspircd/inspircd/discussions
 Docs: https://docs.inspircd.org
 IRC: irc.inspircd.org #inspircd
 

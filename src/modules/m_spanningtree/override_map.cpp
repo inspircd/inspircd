@@ -53,22 +53,26 @@ static inline bool IsHidden(User* user, TreeServer* server)
 }
 
 // Calculate the map depth the servers go, and the longest server name
-static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int& max_depth, unsigned int& max_len)
+static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int& max_depth, unsigned int& max_len, unsigned int& max_version)
 {
 	if (depth > max_depth)
 		max_depth = depth;
+
 	if (current->GetName().length() > max_len)
 		max_len = current->GetName().length();
+
+	if (current->GetRawVersion().length() > max_version)
+		max_version = current->GetRawVersion().length();
 
 	const TreeServer::ChildServers& servers = current->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = servers.begin(); i != servers.end(); ++i)
 	{
 		TreeServer* child = *i;
-		GetDepthAndLen(child, depth + 1, max_depth, max_len);
+		GetDepthAndLen(child, depth + 1, max_depth, max_len, max_version);
 	}
 }
 
-static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned int max_len, unsigned int depth)
+static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned int max_len, unsigned int max_version_len, unsigned int depth)
 {
 	float percent = 0;
 
@@ -89,6 +93,8 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 			buffer += " " + cur_vers;
 
 		buffer += ")";
+
+		buffer.append(max_version_len - current->GetRawVersion().length(), ' ');
 	}
 
 	// Pad with spaces until its at max len, max_len must always be >= my names length
@@ -132,7 +138,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 		}
 
 		// Build the map for this child
-		std::vector<std::string> child_map = GetMap(user, child, next_len, depth + 1);
+		std::vector<std::string> child_map = GetMap(user, child, next_len, max_version_len, depth + 1);
 
 		for (std::vector<std::string>::const_iterator j = child_map.begin(); j != child_map.end(); ++j)
 		{
@@ -193,7 +199,8 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 	// Max depth and max server name length
 	unsigned int max_depth = 0;
 	unsigned int max_len = 0;
-	GetDepthAndLen(Utils->TreeRoot, 0, max_depth, max_len);
+	unsigned int max_version = 0;
+	GetDepthAndLen(Utils->TreeRoot, 0, max_depth, max_len, max_version);
 
 	unsigned int max;
 	if (user->IsOper() || !Utils->FlatLinks)
@@ -205,9 +212,11 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 	{
 		// This user can't see any depth
 		max = max_len;
+		if (!user->IsOper())
+			max_version = 0;
 	}
 
-	std::vector<std::string> map = GetMap(user, Utils->TreeRoot, max, 0);
+	std::vector<std::string> map = GetMap(user, Utils->TreeRoot, max, max_version, 0);
 	for (std::vector<std::string>::const_iterator i = map.begin(); i != map.end(); ++i)
 		user->WriteRemoteNumeric(RPL_MAP, *i);
 

@@ -209,7 +209,7 @@ class SaslAuthenticator
 		params.push_back(method);
 
 		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
-		if (fp.size())
+		if (!fp.empty())
 			params.push_back(fp);
 
 		SendSASL(user, "*", 'S', params);

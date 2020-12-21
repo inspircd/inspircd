@@ -416,9 +416,9 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		user->doUnhookExtensions(items);
 	}
 
-	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
-		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
+		DataProviderMap::iterator curr = i++;
 		if (curr->second->creator == mod)
 		{
 			DataProviders.erase(curr);
@@ -629,7 +629,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.find(name);
+			DataProviderMap::iterator i = DataProviders.find(name);
 			if (i != DataProviders.end() && i->second->service == type)
 				return i->second;
 			return NULL;
@@ -685,7 +685,7 @@ void dynamic_reference_base::resolve()
 {
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
 	// to ensure a dynref with the same name as another one resolves to the same object
-	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
+	ModuleManager::DataProviderMap::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
 	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
 	{
 		ServiceProvider* newvalue = i->second;
@@ -718,7 +718,7 @@ void ModuleManager::AddReferent(const std::string& name, ServiceProvider* servic
 
 void ModuleManager::DelReferent(ServiceProvider* service)
 {
-	for (std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
 		ServiceProvider* curr = i->second;
 		if (curr == service)

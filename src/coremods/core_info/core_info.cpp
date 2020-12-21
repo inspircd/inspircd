@@ -140,7 +140,7 @@ class CoreModInfo : public Module
 	void OnUserConnect(LocalUser* user) override
 	{
 		user->WriteNumeric(RPL_WELCOME, InspIRCd::Format("Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), user->GetFullRealHost().c_str()));
-		user->WriteNumeric(RPL_YOURHOST, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH));
+		user->WriteNumeric(RPL_YOURHOST, InspIRCd::Format("Your host is %s, running version %s", ServerInstance->Config->GetServerName().c_str(), INSPIRCD_BRANCH));
 		user->WriteNumeric(RPL_CREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);
 		isupport.SendTo(user);

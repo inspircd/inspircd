@@ -90,7 +90,7 @@ class IRCv3::Replies::Reply
 	 */
 	void Send(LocalUser* user, Command* command, const std::string& code, const std::string& description)
 	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
 		msg.PushParamRef(command->name);
 		msg.PushParam(code);
 		msg.PushParam(description);
@@ -101,7 +101,7 @@ class IRCv3::Replies::Reply
 	void Send(LocalUser* user, Command* command, const std::string& code, Args&&... args,
 		const std::string& description)
 	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->ServerName);
+		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
 		msg.PushParamRef(command->name);
 		msg.PushParam(code);
 		msg.PushParam(std::forward<Args>(args)...);

@@ -225,7 +225,7 @@ public:
 						topicset = ServerInstance->Time();
 					std::string topicsetby = tag->getString("topicsetby");
 					if (topicsetby.empty())
-						topicsetby = ServerInstance->Config->ServerName;
+						topicsetby = ServerInstance->Config->GetServerName();
 					c->SetTopic(ServerInstance->FakeClient, topic, topicset, &topicsetby);
 				}
 

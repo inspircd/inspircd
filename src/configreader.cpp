@@ -315,7 +315,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 }
 
-static std::string GetServerName()
+static std::string GetServerHost()
 {
 #ifndef _WIN32
 	char hostname[256];
@@ -339,7 +339,7 @@ void ServerConfig::Fill()
 	auto server = ConfValue("server");
 	if (sid.empty())
 	{
-		ServerName = server->getString("name", GetServerName(), InspIRCd::IsHost);
+		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsHost);
 
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
@@ -486,7 +486,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		// On first run, ports are bound later on
 		FailedPortList pl;
 		ServerInstance->BindPorts(pl);
-		if (pl.size())
+		if (!pl.empty())
 		{
 			std::cout << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
 			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)

@@ -212,6 +212,14 @@ class ModulePBKDF2 : public Module
 		stdalgo::delete_all(providers);
 	}
 
+	void init() override
+	{
+		// Let ourself know about any existing services.
+		const ModuleManager::DataProviderMap& dataproviders = ServerInstance->Modules.DataProviders;
+		for (ModuleManager::DataProviderMap::const_iterator it = dataproviders.begin(); it != dataproviders.end(); ++it)
+			OnServiceAdd(*it->second);
+	}
+
 	void OnServiceAdd(ServiceProvider& provider) override
 	{
 		// Check if it's a hash provider

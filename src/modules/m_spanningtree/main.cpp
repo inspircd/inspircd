@@ -143,7 +143,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		return;
 
 	user->WriteNumeric(RPL_LINKS, Current->GetName(),
-			(((Utils->FlatLinks) && (!user->IsOper())) ? ServerInstance->Config->ServerName : Parent),
+			(((Utils->FlatLinks) && (!user->IsOper())) ? ServerInstance->Config->GetServerName() : Parent),
 			InspIRCd::Format("%d %s", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc().c_str()));
 }
 
