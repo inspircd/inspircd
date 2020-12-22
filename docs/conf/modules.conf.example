@@ -872,7 +872,17 @@
 #<module name="dnsbl">
 #                                                                     #
 # For configuration options please see the docs page for dnsbl at     #
-# https://docs.inspircd.org/3/modules/dnsbl                           #
+# https://docs.inspircd.org/3/modules/dnsbl. You can also use one or  #
+# more of the following example configs for popular DNSBLs:           #
+#                                                                     #
+# DroneBL (https://dronebl.org)                                       #
+#<include file="examples/providers/dronebl.conf.example">
+#                                                                     #
+# EFnet RBL (https://rbl.efnetrbl.org)                                #
+#<include file="examples/providers/efnet-rbl.conf.example">
+#                                                                     #
+# dan.me.uk Tor exit node DNSBL (https://www.dan.me.uk/dnsbl)         #
+#<include file="examples/providers/torexit.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
