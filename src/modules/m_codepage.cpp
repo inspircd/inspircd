@@ -83,7 +83,10 @@ class ModuleCodepage
 		{
 			LocalUser* user = *iter;
 			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
+			{
+				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer valid.");
 				user->ChangeNick(user->uuid);
+			}
 		}
 	}
 

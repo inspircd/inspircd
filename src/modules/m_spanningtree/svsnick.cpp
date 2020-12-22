@@ -67,6 +67,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		if (!u->ChangeNick(nick, NickTS))
 		{
 			// Changing to 'nick' failed (it may already be in use), change to the uuid
+			u->WriteNumeric(RPL_SAVENICK, u->uuid, "Your nickname is in use by an older user on a new server.");
 			u->ChangeNick(u->uuid);
 		}
 	}

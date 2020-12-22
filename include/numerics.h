@@ -49,6 +49,7 @@ enum
 	RPL_MAP                         = 15, // ircu
 	RPL_ENDMAP                      = 17, // ircu
 	RPL_MAPUSERS                    = 18, // insp-specific
+	RPL_SAVENICK                    = 43, // From irc2.
 
 	RPL_STATS                       = 210, // From aircd.
 	RPL_UMODEIS                     = 221,
