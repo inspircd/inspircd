@@ -39,16 +39,19 @@ enum
 	RPL_WHOISGATEWAY = 350
 };
 
+// One or more hostmask globs or CIDR ranges.
+typedef std::vector<std::string> MaskList;
+
 // Encapsulates information about an ident host.
 class IdentHost
 {
  private:
-	std::string hostmask;
+	MaskList hostmasks;
 	std::string newident;
 
  public:
-	IdentHost(const std::string& mask, const std::string& ident)
-		: hostmask(mask)
+	IdentHost(const MaskList& masks, const std::string& ident)
+		: hostmasks(masks)
 		, newident(ident)
 	{
 	}
@@ -60,10 +63,19 @@ class IdentHost
 
 	bool Matches(LocalUser* user) const
 	{
-		if (!InspIRCd::Match(user->GetRealHost(), hostmask, ascii_case_insensitive_map))
-			return false;
+		for (MaskList::const_iterator iter = hostmasks.begin(); iter != hostmasks.end(); ++iter)
+		{
+			// Does the user's hostname match this hostmask?
+			if (InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map))
+				return true;
 
-		return InspIRCd::MatchCIDR(user->GetIPString(), hostmask, ascii_case_insensitive_map);
+			// Does the user's IP address match this hostmask?
+			if (InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+				return true;
+		}
+
+		// The user didn't match any hostmasks.
+		return false;
 	}
 };
 
@@ -71,14 +83,14 @@ class IdentHost
 class WebIRCHost
 {
  private:
-	std::string hostmask;
+	MaskList hostmasks;
 	std::string fingerprint;
 	std::string password;
 	std::string passhash;
 
  public:
-	WebIRCHost(const std::string& mask, const std::string& fp, const std::string& pass, const std::string& hash)
-		: hostmask(mask)
+	WebIRCHost(const MaskList& masks, const std::string& fp, const std::string& pass, const std::string& hash)
+		: hostmasks(masks)
 		, fingerprint(fp)
 		, password(pass)
 		, passhash(hash)
@@ -96,26 +108,22 @@ class WebIRCHost
 		if (!fingerprint.empty() && !InspIRCd::TimingSafeCompare(fp, fingerprint))
 			return false;
 
-		// Does the user's hostname match our hostmask?
-		if (InspIRCd::Match(user->GetRealHost(), hostmask, ascii_case_insensitive_map))
-			return true;
+		for (MaskList::const_iterator iter = hostmasks.begin(); iter != hostmasks.end(); ++iter)
+		{
+			// Does the user's hostname match this hostmask?
+			if (InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map))
+				return true;
 
-		// Does the user's IP address match our hostmask?
-		return InspIRCd::MatchCIDR(user->GetIPString(), hostmask, ascii_case_insensitive_map);
+			// Does the user's IP address match this hostmask?
+			if (InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+				return true;
+		}
+
+		// The user didn't match any hostmasks.
+		return false;
 	}
 };
 
-/*
- * WEBIRC
- *  This is used for the webirc method of CGIIRC auth, and is (really) the best way to do these things.
- *  Syntax: WEBIRC password gateway hostname ip
- *  Where password is a shared key, gateway is the name of the WebIRC gateway and version (e.g. cgiirc), hostname
- *  is the resolved host of the client issuing the command and IP is the real IP of the client.
- *
- * How it works:
- *  To tie in with the rest of cgiirc module, and to avoid race conditions, /webirc is only processed locally
- *  and simply sets metadata on the user, which is later decoded on full connect to give something meaningful.
- */
 class CommandWebIRC : public SplitCommand
 {
  public:
@@ -289,9 +297,13 @@ class ModuleCgiIRC
 		{
 			ConfigTag* tag = i->second;
 
+			MaskList masks;
+			irc::spacesepstream maskstream(tag->getString("mask"));
+			for (std::string mask; maskstream.GetToken(mask); )
+				masks.push_back(mask);
+
 			// Ensure that we have the <cgihost:mask> parameter.
-			const std::string mask = tag->getString("mask");
-			if (mask.empty())
+			if (masks.empty())
 				throw ModuleException("<cgihost:mask> is a mandatory field, at " + tag->getTagLocation());
 
 			// Determine what lookup type this host uses.
@@ -300,7 +312,7 @@ class ModuleCgiIRC
 			{
 				// The IP address should be looked up from the hex IP address.
 				const std::string newident = tag->getString("newident", "gateway", ServerInstance->IsIdent);
-				identhosts.push_back(IdentHost(mask, newident));
+				identhosts.push_back(IdentHost(masks, newident));
 			}
 			else if (stdalgo::string::equalsci(type, "webirc"))
 			{
@@ -319,7 +331,7 @@ class ModuleCgiIRC
 						tag->getTagLocation().c_str());
 				}
 
-				webirchosts.push_back(WebIRCHost(mask, fingerprint, password, passwordhash));
+				webirchosts.push_back(WebIRCHost(masks, fingerprint, password, passwordhash));
 			}
 			else
 			{

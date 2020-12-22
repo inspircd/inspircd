@@ -375,14 +375,14 @@
 # message to the server on connection. For more details please read the
 # IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
 #
-# When using this method you must specify a wildcard mask or CIDR range
-# to allow gateway connections from and at least one of either a TLS (SSL)
-# client certificate fingerprint for the gateway or a password to be
-# sent in the WEBIRC command.
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from and at least one of
+# either a TLS (SSL) client certificate fingerprint for the gateway or
+# a password to be sent in the WEBIRC command.
 #
 # <cgihost type="webirc"
 #          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
-#          mask="192.0.2.0/24">
+#          mask="192.0.2.0/24 198.51.100.*">
 # <cgihost type="webirc"
 #          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
 #          hash="bcrypt"
@@ -393,13 +393,14 @@
 # address in the ident sent by the user. This is not recommended as it
 # only works with IPv4 connections.
 #
-# When using this method you must specify a wildcard mask or CIDR range to allow
-# gateway connections from. You can also optionally configure the static value
-# that replaces the IP in the ident to avoid leaking the real IP address of
-# gateway clients (defaults to "gateway" if not set).
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from. You can also
+# optionally configure the static value that replaces the IP in the
+# ident to avoid leaking the real IP address of gateway clients
+# (defaults to "gateway" if not set).
 #
 # <cgihost type="ident"
-#          mask="198.51.100.0/24"
+#          mask="198.51.100.0/24 203.0.113.*"
 #          newident="wibble">
 # <cgihost type="ident"
 #          mask="*.ident.gateway.example.com"
