@@ -2024,8 +2024,6 @@
 # securelist blocking these sites from listing, define exception tags #
 # as shown below:                                                     #
 #<securehost exception="*@*.netsplit.de">
-#<securehost exception="*@*.ircdriven.com">
-#<securehost exception="*@*.ircs.me">
 #                                                                     #
 # exemptregistered - Whether the waiting period applies to users who  #
 #                    are logged in to a services account.             #
