@@ -184,7 +184,7 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
  * FOREACH_MOD_CUSTOM(accountevprov, AccountEventListener, OnAccountChange, MOD_RESULT, (user, newaccount))
  */
 #define FOREACH_MOD_CUSTOM(prov, listenerclass, func, params) do { \
-	if ((prov).GetModule() && !(prov).GetModule()->dying) \
+	if (!(prov).GetModule() || !(prov).GetModule()->dying) \
 	{ \
 		const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
 		for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
@@ -206,7 +206,7 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
  */
 #define FIRST_MOD_RESULT_CUSTOM(prov, listenerclass, func, result, params) do { \
 	result = MOD_RES_PASSTHRU; \
-	if ((prov).GetModule() && !(prov).GetModule()->dying) \
+	if (!(prov).GetModule() || !(prov).GetModule()->dying) \
 	{ \
 		const ::Events::ModuleEventProvider::SubscriberList& _handlers = (prov).GetSubscribers(); \
 		for (::Events::ModuleEventProvider::SubscriberList::const_iterator _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
