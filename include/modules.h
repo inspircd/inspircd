@@ -1072,11 +1072,18 @@ class CoreExport ModuleManager
 	ServiceList* NewServices;
 
 	/** Expands the name of a module by prepending "m_" and appending ".so".
-	 * No-op if the name already has the ".so" extension.
+	 * No-op if the name is already expanded.
 	 * @param modname Module name to expand
 	 * @return Module name starting with "m_" and ending with ".so"
 	 */
 	static std::string ExpandModName(const std::string& modname);
+
+	/** Shrinks the name of a module by removing the "m_" prefix and ".so" suffix.
+	 * No-op if the name is already shrunk.
+	 * @param modname Module name to expand
+	 * @return Module name with the "m_" prefix and ".so" suffix removed.
+	 */
+	static std::string ShrinkModName(const std::string& modname);
 
 	/** Change the priority of one event in a module.
 	 * Each module event has a list of modules which are attached to that event type.

@@ -652,6 +652,14 @@ std::string ModuleManager::ExpandModName(const std::string& modname)
 	return fullname;
 }
 
+std::string ModuleManager::ShrinkModName(const std::string& modname)
+{
+	const static size_t extlen = strlen(DLL_EXTENSION);
+	size_t startpos = modname.compare(0, 2, "m_", 2) ? 0 : 2;
+	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, ".so", extlen) ? 0 : extlen;
+	return modname.substr(startpos, modname.length() - endpos - startpos);
+}
+
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
 	: name(Name)
 	, creator(Creator)
