@@ -66,15 +66,10 @@ class ModuleOperChans : public Module
 		if (!user->IsOper())
 			return MOD_RES_PASSTHRU;
 
-		// Check whether the oper's type matches the ban.
-		const std::string submask = mask.substr(2);
-		if (InspIRCd::Match(user->oper->name, submask))
-			return MOD_RES_DENY;
-
-		// If the oper's type contains spaces recheck with underscores.
+		// Replace spaces with underscores as they're prohibited in mode parameters.
 		std::string opername(user->oper->name);
 		stdalgo::string::replace_all(opername, space, underscore);
-		if (InspIRCd::Match(opername, submask))
+		if (InspIRCd::Match(opername, mask.substr(2)))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;
