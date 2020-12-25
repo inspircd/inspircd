@@ -34,6 +34,7 @@ use File::Spec::Functions qw(rel2abs);
 
 our @EXPORT = qw(command
                  execute_command
+                 console_format
                  print_format
                  print_error
                  print_warning
@@ -59,20 +60,23 @@ struct 'command' => {
 	'description' => '$',
 };
 
-sub __console_format($$) {
-	my ($name, $data) = @_;
-	return $data unless -t STDOUT;
-	return $FORMAT_CODES{uc $name} . $data . $FORMAT_CODES{DEFAULT};
+sub console_format($) {
+	my $message = shift;
+	while ($message =~ /(<\|(\S+)\s(.*?)\|>)/) {
+		my ($match, $type, $text) = ($1, uc $2, $3);
+		if (-t STDOUT && exists $FORMAT_CODES{$type}) {
+			$message =~ s/\Q$match\E/$FORMAT_CODES{$type}$text$FORMAT_CODES{DEFAULT}/;
+		} else {
+			$message =~ s/\Q$match\E/$text/;
+		}
+	}
+	return $message;
 }
 
 sub print_format($;$) {
 	my $message = shift;
 	my $stream = shift // *STDOUT;
-	while ($message =~ /(<\|(\S+)\s(.*?)\|>)/) {
-		my $formatted = __console_format $2, $3;
-		$message =~ s/\Q$1\E/$formatted/;
-	}
-	print { $stream } $message;
+	print { $stream } console_format $message;
 }
 
 sub print_error {
