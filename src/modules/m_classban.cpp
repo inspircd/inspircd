@@ -22,14 +22,28 @@
 
 class ModuleClassBan : public Module
 {
+ private:
+	std::string space;
+	std::string underscore;
+
  public:
+	ModuleClassBan()
+		: space(" ")
+		, underscore("_")
+	{
+	}
+
 	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) CXX11_OVERRIDE
 	{
 		LocalUser* localUser = IS_LOCAL(user);
 		if ((localUser) && (mask.length() > 2) && (mask[0] == 'n') && (mask[1] == ':'))
 		{
-			if (InspIRCd::Match(localUser->GetClass()->name, mask.substr(2)))
+			// Replace spaces with underscores as they're prohibited in mode parameters.
+			std::string classname(localUser->GetClass()->name);
+			stdalgo::string::replace_all(classname, space, underscore);
+			if (InspIRCd::Match(classname, mask.substr(2)))
 				return MOD_RES_DENY;
+
 		}
 		return MOD_RES_PASSTHRU;
 	}
