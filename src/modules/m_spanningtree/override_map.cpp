@@ -36,6 +36,7 @@
 CommandMap::CommandMap(Module* Creator)
 	: Command(Creator, "MAP", 0, 1)
 {
+	allow_empty_last_param = false;
 	Penalty = 2;
 }
 
