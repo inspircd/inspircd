@@ -661,6 +661,7 @@ bool QLine::Matches(User *u)
 void QLine::Apply(User* u)
 {
 	/* Force to uuid on apply of Q-line, no need to disconnect anymore :) */
+	u->WriteNumeric(RPL_SAVENICK, u->uuid, "Your nickname has been Q-lined.");
 	u->ChangeNick(u->uuid);
 }
 

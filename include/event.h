@@ -194,7 +194,7 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
 template<typename Class, typename... FunArgs, typename... FwdArgs>
 inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...), FwdArgs&&... args) const
 {
-	if (!GetModule() || GetModule()->dying)
+	if (GetModule() && GetModule()->dying)
 		return;
 
 	for (const auto& subscriber : subscribers)
@@ -211,7 +211,7 @@ inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...
 template<typename Class, typename... FunArgs, typename... FwdArgs>
 inline ModResult Events::ModuleEventProvider::FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const
 {
-	if (!GetModule() || GetModule()->dying)
+	if (GetModule() && GetModule()->dying)
 		return MOD_RES_PASSTHRU;
 
 	ModResult result;

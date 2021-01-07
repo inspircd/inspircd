@@ -1,0 +1,11 @@
+# This file contains configuration for using the dnsbl module with
+# the dan.me.uk Tor exit node DNSBL. See https://www.dan.me.uk/dnsbl
+# for more information on the dan.me.uk Tor exit node DNSBL.
+
+<dnsbl name="torexit.dan.me.uk"
+       domain="torexit.dan.me.uk"
+       type="record"
+       records="100"
+       action="zline"
+       duration="7d"
+       reason="Tor exit nodes are not allowed on this network. See https://metrics.torproject.org/rs.html#search/%ip% for more information.">

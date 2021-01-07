@@ -76,6 +76,21 @@ class ModuleCodepage
 		hashmap.swap(newhash);
 	}
 
+	void CheckDuplicateNick()
+	{
+		insp::flat_set<std::string, irc::insensitive_swo> duplicates;
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		{
+			LocalUser* user = *iter;
+			if (user->nick != user->uuid && !duplicates.insert(user->nick).second)
+			{
+				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer available.");
+				user->ChangeNick(user->uuid);
+			}
+		}
+	}
+
 	void CheckInvalidNick()
 	{
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
@@ -83,7 +98,10 @@ class ModuleCodepage
 		{
 			LocalUser* user = *iter;
 			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
+			{
+				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer valid.");
 				user->ChangeNick(user->uuid);
+			}
 		}
 	}
 
@@ -113,6 +131,7 @@ class ModuleCodepage
 
 		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
+		CheckDuplicateNick();
 		CheckRehash(casemap);
 	}
 

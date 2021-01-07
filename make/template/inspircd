@@ -172,7 +172,7 @@ sub cmd_rehash()
 {
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
-		system("kill -HUP $pid >/dev/null 2>&1");
+		kill HUP => $pid;
 		print "InspIRCd rehashed (pid: $pid).\n";
 		exit GENERIC_EXIT_SUCCESS;
 	} else {

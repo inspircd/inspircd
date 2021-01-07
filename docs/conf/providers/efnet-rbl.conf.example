@@ -1,0 +1,11 @@
+# This file contains configuration for using the dnsbl module with
+# the EFnet RBL. See https://rbl.efnetrbl.org/ for more information
+# on the EFnet RBL.
+
+<dnsbl name="EFnet RBL"
+       domain="rbl.efnetrbl.org"
+       type="record"
+       records="1,2,3,4,5"
+       action="zline"
+       duration="7d"
+       reason="You are listed in the EFnet RBL. Please visit https://rbl.efnetrbl.org/?i=%ip% for more information.">

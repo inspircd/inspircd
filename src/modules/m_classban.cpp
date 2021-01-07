@@ -24,16 +24,28 @@
 class ClassExtBan
 	: public ExtBan::MatchingBase
 {
+ private:
+	std::string space;
+	std::string underscore;
+
  public:
 	ClassExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "class", 'n')
+		, space(" ")
+		, underscore("_")
 	{
 	}
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		return luser && InspIRCd::Match(luser->GetClass()->name, text);
+		if (!luser)
+			return false;
+
+		// Replace spaces with underscores as they're prohibited in mode parameters.
+		std::string classname(luser->GetClass()->name);
+		stdalgo::string::replace_all(classname, space, underscore);
+		return InspIRCd::Match(classname, text);
 	}
 };
 

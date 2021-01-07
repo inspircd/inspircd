@@ -343,14 +343,14 @@
 # message to the server on connection. For more details please read the
 # IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
 #
-# When using this method you must specify a wildcard mask or CIDR range
-# to allow gateway connections from and at least one of either a TLS (SSL)
-# client certificate fingerprint for the gateway or a password to be
-# sent in the WEBIRC command.
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from and at least one of
+# either a TLS (SSL) client certificate fingerprint for the gateway or
+# a password to be sent in the WEBIRC command.
 #
 # <cgihost type="webirc"
 #          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
-#          mask="192.0.2.0/24">
+#          mask="192.0.2.0/24 198.51.100.*">
 # <cgihost type="webirc"
 #          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
 #          hash="bcrypt"
@@ -361,13 +361,14 @@
 # address in the ident sent by the user. This is not recommended as it
 # only works with IPv4 connections.
 #
-# When using this method you must specify a wildcard mask or CIDR range to allow
-# gateway connections from. You can also optionally configure the static value
-# that replaces the IP in the ident to avoid leaking the real IP address of
-# gateway clients (defaults to "gateway" if not set).
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from. You can also
+# optionally configure the static value that replaces the IP in the
+# ident to avoid leaking the real IP address of gateway clients
+# (defaults to "gateway" if not set).
 #
 # <cgihost type="ident"
-#          mask="198.51.100.0/24"
+#          mask="198.51.100.0/24 203.0.113.*"
 #          newident="wibble">
 # <cgihost type="ident"
 #          mask="*.ident.gateway.example.com"
@@ -836,7 +837,17 @@
 #<module name="dnsbl">
 #                                                                     #
 # For configuration options please see the docs page for dnsbl at     #
-# https://docs.inspircd.org/3/modules/dnsbl                           #
+# https://docs.inspircd.org/3/modules/dnsbl. You can also use one or  #
+# more of the following example configs for popular DNSBLs:           #
+#                                                                     #
+# DroneBL (https://dronebl.org)                                       #
+#<include file="examples/providers/dronebl.conf.example">
+#                                                                     #
+# EFnet RBL (https://rbl.efnetrbl.org)                                #
+#<include file="examples/providers/efnet-rbl.conf.example">
+#                                                                     #
+# dan.me.uk Tor exit node DNSBL (https://www.dan.me.uk/dnsbl)         #
+#<include file="examples/providers/torexit.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Exempt channel operators module: Provides support for allowing      #
@@ -1953,8 +1964,6 @@
 # securelist blocking these sites from listing, define exception tags #
 # as shown below:                                                     #
 #<securehost exception="*@*.netsplit.de">
-#<securehost exception="*@*.ircdriven.com">
-#<securehost exception="*@*.ircs.me">
 #                                                                     #
 # exemptregistered - Whether the waiting period applies to users who  #
 #                    are logged in to a services account.             #

@@ -53,11 +53,7 @@ class OperExtBan
 		if (!user->IsOper())
 			return false;
 
-		// Check whether the oper's type matches the ban.
-		if (InspIRCd::Match(user->oper->name, text))
-			return true;
-
-		// If the oper's type contains spaces recheck with underscores.
+		// Replace spaces with underscores as they're prohibited in mode parameters.
 		std::string opername(user->oper->name);
 		stdalgo::string::replace_all(opername, space, underscore);
 		return InspIRCd::Match(opername, text);

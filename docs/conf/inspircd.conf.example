@@ -132,13 +132,17 @@
       # to this bind section.
       type="clients"
 
-      # ssl: If you want the port(s) in this bind tag to use TLS (SSL), set this to
-      # the name of a custom <sslprofile> tag that you have defined. See the
-      # docs page for the TLS (SSL) module you are using for more details.
+      # ssl: If you want the port(s) in this bind tag to use TLS (SSL), set this
+      # to the name of a custom <sslprofile> tag that you have defined. See the
+      # docs page for the TLS (SSL) module you are using for more details:
+      #
+      # GnuTLS:  https://docs.inspircd.org/3/modules/ssl_gnutls#sslprofile
+      # mbedTLS: https://docs.inspircd.org/3/modules/ssl_mbedtls#sslprofile
+      # OpenSSL: https://docs.inspircd.org/3/modules/ssl_openssl#sslprofile
       #
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
       # for GnuTLS and ssl_mbedtls for mbedTLS.
-      ssl="gnutls"
+      ssl="Clients"
 
       # defer: When this is non-zero, connections will not be handed over to
       # the daemon from the operating system before data is ready.
