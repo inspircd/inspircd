@@ -240,6 +240,8 @@ class ModuleChanHistory
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
 				message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
+			if (!dobots)
+				message.append(" (opt out with bot mode +B)");
 			memb->WriteNotice(message);
 		}
 
