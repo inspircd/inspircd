@@ -124,12 +124,24 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 	}
 };
 
+class NoHistoryMode : public SimpleUserModeHandler
+{
+public:
+	NoHistoryMode(Module* Creator)
+		: SimpleUserModeHandler(Creator, "nohistory", 'N')
+	{
+		if (!ServerInstance->Config->ConfValue("chanhistory")->getBool("enableumode"))
+			DisableAutoRegister();
+	}
+};
+
 class ModuleChanHistory
 	: public Module
 	, public ServerProtocol::BroadcastEventListener
 {
  private:
-	HistoryMode m;
+	HistoryMode historymode;
+	NoHistoryMode nohistorymode;
 	bool prefixmsg;
 	UserModeReference botmode;
 	bool dobots;
@@ -183,7 +195,8 @@ class ModuleChanHistory
  public:
 	ModuleChanHistory()
 		: ServerProtocol::BroadcastEventListener(this)
-		, m(this)
+		, historymode(this)
+		, nohistorymode(this)
 		, botmode(this, "bot")
 		, batchcap(this)
 		, batchmanager(this)
@@ -196,14 +209,14 @@ class ModuleChanHistory
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
-		m.maxlines = tag->getUInt("maxlines", 50, 1);
+		historymode.maxlines = tag->getUInt("maxlines", 50, 1);
 		prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
 		dobots = tag->getBool("bots", true);
 	}
 
 	ModResult OnBroadcastMessage(Channel* channel, const Server* server) CXX11_OVERRIDE
 	{
-		return channel->IsModeSet(m) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+		return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
@@ -212,7 +225,7 @@ class ModuleChanHistory
 		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION")))
 		{
 			Channel* c = target.Get<Channel>();
-			HistoryList* list = m.ext.get(c);
+			HistoryList* list = historymode.ext.get(c);
 			if (list)
 			{
 				list->lines.push_back(HistoryItem(user, details));
@@ -231,7 +244,10 @@ class ModuleChanHistory
 		if (memb->user->IsModeSet(botmode) && !dobots)
 			return;
 
-		HistoryList* list = m.ext.get(memb->chan);
+		if (memb->user->IsModeSet(nohistorymode))
+			return;
+
+		HistoryList* list = historymode.ext.get(memb->chan);
 		if (!list)
 			return;
 
