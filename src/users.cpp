@@ -425,6 +425,26 @@ void User::Oper(OperInfo* info)
 	FOREACH_MOD(OnPostOper, (this, oper->name, opername));
 }
 
+namespace
+{
+	bool ParseModeList(std::bitset<64>& modeset, ConfigTag* tag, const std::string& field)
+	{
+		std::string modes;
+		bool hasmodes = tag->readString(field, modes);
+		for (std::string::const_iterator iter = modes.begin(); iter != modes.end(); ++iter)
+		{
+			const char& chr = *iter;
+			if (chr == '*')
+				modeset.set();
+			else if (ModeParser::IsModeChar(chr))
+				modeset.set(chr - 'A');
+			else
+				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
+		}
+		return hasmodes;
+	}
+}
+
 void OperInfo::init()
 {
 	AllowedOperCommands.Clear();
@@ -434,6 +454,7 @@ void OperInfo::init()
 	AllowedSnomasks.reset();
 	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
+	bool defaultsnomasks = true;
 	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
 	{
 		ConfigTag* tag = *iter;
@@ -441,36 +462,16 @@ void OperInfo::init()
 		AllowedOperCommands.AddList(tag->getString("commands"));
 		AllowedPrivs.AddList(tag->getString("privs"));
 
-		const std::string umodes = tag->getString("usermodes");
-		for (std::string::const_iterator c = umodes.begin(); c != umodes.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedUserModes.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedUserModes[chr - 'A'] = true;
-		}
-
-		const std::string cmodes = tag->getString("chanmodes");
-		for (std::string::const_iterator c = cmodes.begin(); c != cmodes.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedChanModes.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedChanModes[chr - 'A'] = true;
-		}
-
-		const std::string snomasks = tag->getString("snomasks", "*");
-		for (std::string::const_iterator c = snomasks.begin(); c != snomasks.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedSnomasks.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedSnomasks[chr - 'A'] = true;
-		}
+		ParseModeList(AllowedChanModes, tag, "chanmodes");
+		ParseModeList(AllowedUserModes, tag, "usermodes");
+		if (ParseModeList(AllowedSnomasks, tag, "snomasks"))
+			defaultsnomasks = false;
 	}
+
+	// Compatibility for older configs that don't have the snomasks field.
+	// TODO: remove this before v4 is released.
+	if (defaultsnomasks)
+		AllowedSnomasks.set();
 }
 
 void User::UnOper()
