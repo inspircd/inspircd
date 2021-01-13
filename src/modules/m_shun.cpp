@@ -155,11 +155,16 @@ class ModuleShun : public Module, public Stats::EventListener
 	ShunFactory shun;
 	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
 	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
+	bool allowconnect;
 	bool allowtags;
 	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
 	{
+		// Exempt the user if they are not fully connected and allowconnect is enabled.
+		if (allowconnect && user->registered != REG_ALL)
+			return false;
+
 		// Exempt the user from shuns if they are an oper with the servers/ignore-shun privilege.
 		if (user->HasPrivPermission("servers/ignore-shun"))
 			return false;
@@ -217,6 +222,7 @@ class ModuleShun : public Module, public Stats::EventListener
 			enabledcommands.insert(enabledcmd);
 
 		allowtags = tag->getBool("allowtags");
+		allowconnect = tag->getBool("allowconnect");
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 

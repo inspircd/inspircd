@@ -418,13 +418,25 @@
 # the current topic of conversation is when joining the channel.
 #<module name="chanhistory">
 #
-# Set the maximum number of lines allowed to be stored per channel below.
-# This is the hard limit for 'X'.
-# If prefixmsg is set to yes, joining users without batch support will get
-# a NOTICE before playback telling them about the following lines being
-# the pre-join history.
-# If bots is set to yes, it will also send to users marked with +B
-#<chanhistory maxlines="50" prefixmsg="yes" bots="yes">
+#-#-#-#-#-#-#-#-#-#-#- CHANHISTORY CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# bots - Whether to send channel history to bots. Defaults to yes.    #
+#                                                                     #
+# enableumode - Whether to enable the +N user mode which allows users #
+#               to opt-out of receiving channel history. Defaults to  #
+#               no.                                                   #
+#                                                                     #
+# maxlines - The maximum number of lines of chat history to send to a #
+#            joining users. Defaults to 50.                           #
+#                                                                     #
+# prefixmsg - Whether to send an explanatory message to clients that  #
+#             don't support the chathistory batch type. Defaults to   #
+#             yes.                                                    #
+#                                                                     #
+#<chanhistory bots="yes"
+#             enableumode="yes"
+#             maxlines="50"
+#             prefixmsg="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: Used to send snotice output to channels, to
@@ -2109,6 +2121,9 @@
 #
 # Configuration:
 #
+#  allowconnect: Whether to only apply shuns to users who are fully
+#                connected to the server.
+#
 #  allowtags: Whether to allow client tags to be attached to enabled
 #             commands.
 #
@@ -2124,6 +2139,7 @@
 #
 #<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN"
 #      cleanedcommands="AWAY PART QUIT"
+#      allowconnect="no"
 #      allowtags="no"
 #      notifyuser="yes">
 

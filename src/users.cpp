@@ -415,6 +415,22 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 	FOREACH_MOD(OnPostOper, (this, oper->name, opername));
 }
 
+namespace
+{
+	void ParseModeList(std::bitset<64>& modeset, std::shared_ptr<ConfigTag> tag, const std::string& field)
+	{
+		for (const auto& chr : tag->getString(field))
+		{
+			if (chr == '*')
+				modeset.set();
+			else if (ModeParser::IsModeChar(chr))
+				modeset.set(chr - 'A');
+			else
+				ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
+		}
+	}
+}
+
 void OperInfo::init()
 {
 	AllowedOperCommands.Clear();
@@ -428,36 +444,9 @@ void OperInfo::init()
 	{
 		AllowedOperCommands.AddList(tag->getString("commands"));
 		AllowedPrivs.AddList(tag->getString("privs"));
-
-		const std::string umodes = tag->getString("usermodes");
-		for (std::string::const_iterator c = umodes.begin(); c != umodes.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedUserModes.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedUserModes[chr - 'A'] = true;
-		}
-
-		const std::string cmodes = tag->getString("chanmodes");
-		for (std::string::const_iterator c = cmodes.begin(); c != cmodes.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedChanModes.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedChanModes[chr - 'A'] = true;
-		}
-
-		const std::string snomasks = tag->getString("snomasks", "*");
-		for (std::string::const_iterator c = snomasks.begin(); c != snomasks.end(); ++c)
-		{
-			const char& chr = *c;
-			if (chr == '*')
-				this->AllowedSnomasks.set();
-			else if (ModeParser::IsModeChar(chr))
-				this->AllowedSnomasks[chr - 'A'] = true;
-		}
+		ParseModeList(AllowedChanModes, tag, "chanmodes");
+		ParseModeList(AllowedUserModes, tag, "usermodes");
+		ParseModeList(AllowedSnomasks, tag, "snomasks");
 	}
 }
 
