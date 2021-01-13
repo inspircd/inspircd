@@ -156,11 +156,16 @@ class ModuleShun : public Module, public Stats::EventListener
 	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
 	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
 	bool affectopers;
+	bool allowconnect;
 	bool allowtags;
 	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
 	{
+		// Exempt the user if they are not fully connected and allowconnect is enabled.
+		if (allowconnect && user->registered != REG_ALL)
+			return false;
+
 		// Exempt the user from shuns if they are an oper and affectopers is disabled.
 		if (!affectopers && user->IsOper())
 			return false;
@@ -222,6 +227,7 @@ class ModuleShun : public Module, public Stats::EventListener
 
 		affectopers = tag->getBool("affectopers", false);
 		allowtags = tag->getBool("allowtags");
+		allowconnect = tag->getBool("allowconnect");
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 

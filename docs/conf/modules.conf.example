@@ -2185,6 +2185,9 @@
 #               option is deprecated; you should instead give exempt
 #               server operators the servers/ignore-shun privilege.
 #
+#  allowconnect: Whether to only apply shuns to users who are fully
+#                connected to the server.
+#
 #  allowtags: Whether to allow client tags to be attached to enabled
 #             commands.
 #
@@ -2201,6 +2204,7 @@
 #<shun enabledcommands="ADMIN OPER PING PONG QUIT PART JOIN"
 #      cleanedcommands="AWAY PART QUIT"
 #      affectopers="no"
+#      allowconnect="no"
 #      allowtags="no"
 #      notifyuser="yes">
 
