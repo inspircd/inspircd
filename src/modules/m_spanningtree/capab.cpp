@@ -203,9 +203,9 @@ void TreeSocket::SendCapabilities(int phase)
 	// replaced by CAPAB EXTBANS in the next protocol version.
 	std::map<std::string, std::string> tokens;
 	FOREACH_MOD(On005Numeric, (tokens));
-	std::map<std::string, std::string>::const_iterator eiter = tokens.find("EXTBAN");
-	if (eiter != tokens.end())
-		extra.append(" EXTBANS=" + eiter->second);
+	std::map<std::string, std::string>::const_iterator either = tokens.find("EXTBAN");
+	if (either != tokens.end())
+		extra.append(" EXTBANS=" + either->second);
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
