@@ -104,6 +104,13 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
 						continue;
 					}
+					else if (!user->IsOper())
+					{
+						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset snomask %c",
+							adding ? "" : "un", *i));
+						continue;
+
+					}
 					else if (!user->HasSnomaskPermission(*i))
 					{
 						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
