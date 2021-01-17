@@ -1900,7 +1900,8 @@
 #               less CPU usage. Increasing this beyond 512 doesn't have
 #               any effect, as the maximum length of a message on IRC
 #               cannot exceed that.
-#<repeat maxbacklog="20" maxdistance="50" maxlines="20" maxtime="0" size="512">
+# kickmessage - Kick message when * is specified
+#<repeat maxbacklog="20" maxdistance="50" maxlines="20" maxtime="0" size="512" kickmessage="Repeat flood">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
