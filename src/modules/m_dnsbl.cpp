@@ -43,8 +43,16 @@ class DNSBLConfEntry : public refcountbase
 		unsigned long duration;
 		unsigned int bitmask;
 		unsigned char records[256];
-		unsigned long stats_hits, stats_misses;
-		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
+		unsigned long stats_hits, stats_misses, stats_errors;
+		DNSBLConfEntry()
+			: type(A_BITMASK)
+			, duration(86400)
+			, bitmask(0)
+			, stats_hits(0)
+			, stats_misses(0)
+			, stats_errors(0)
+		{
+		}
 };
 
 
@@ -86,7 +94,7 @@ class DNSBLResolver : public DNS::Request
 		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
 		if (!ans_record)
 		{
-			ConfEntry->stats_misses++;
+			ConfEntry->stats_errors++;
 			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an result with no IPv4 address.",
 				ConfEntry->name.c_str());
 			return;
@@ -96,7 +104,7 @@ class DNSBLResolver : public DNS::Request
 		in_addr resultip;
 		if (inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip) != 1)
 		{
-			ConfEntry->stats_misses++;
+			ConfEntry->stats_errors++;
 			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an invalid IPv4 address: %s",
 				ConfEntry->name.c_str(), ans_record->rdata.c_str());
 			return;
@@ -105,7 +113,7 @@ class DNSBLResolver : public DNS::Request
 		// The DNSBL reply should be in the 127.0.0.0/8 range.
 		if ((resultip.s_addr & 0xFF) != 127)
 		{
-			ConfEntry->stats_misses++;
+			ConfEntry->stats_errors++;
 			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an IPv4 address which is outside of the 127.0.0.0/8 subnet: %s",
 				ConfEntry->name.c_str(), ans_record->rdata.c_str());
 			return;
@@ -248,6 +256,7 @@ class DNSBLResolver : public DNS::Request
 			return;
 		}
 
+		ConfEntry->stats_errors++;
 		ServerInstance->SNO->WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
 			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), this->manager->GetErrorStr(q->error).c_str());
 	}
@@ -478,20 +487,22 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		if (stats.GetSymbol() != 'd')
 			return MOD_RES_PASSTHRU;
 
-		unsigned long total_hits = 0, total_misses = 0;
-
+		unsigned long total_hits = 0;
+		unsigned long total_misses = 0;
+		unsigned long total_errors = 0;
 		for (std::vector<reference<DNSBLConfEntry> >::const_iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); ++i)
 		{
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;
+			total_errors += (*i)->stats_errors;
 
-			stats.AddRow(304, "DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
-					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
+			stats.AddRow(304, InspIRCd::Format("DNSBLSTATS \"%s\" had %lu hits, %lu misses, and %lu errors",
+				(*i)->name.c_str(), (*i)->stats_hits, (*i)->stats_misses, (*i)->stats_errors));
 		}
 
 		stats.AddRow(304, "DNSBLSTATS Total hits: " + ConvToStr(total_hits));
 		stats.AddRow(304, "DNSBLSTATS Total misses: " + ConvToStr(total_misses));
-
+		stats.AddRow(304, "DNSBLSTATS Total errors: " + ConvToStr(total_errors));
 		return MOD_RES_PASSTHRU;
 	}
 };
