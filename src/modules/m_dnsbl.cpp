@@ -78,41 +78,55 @@ class DNSBLResolver : public DNS::Request
 		if (!them || them->client_sa != theirsa)
 			return;
 
-		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
-		if (!ans_record)
-			return;
-
-		// All replies should be in 127.0.0.0/8
-		if (ans_record->rdata.compare(0, 4, "127.") != 0)
-		{
-			ServerInstance->SNO->WriteGlobalSno('d', "DNSBL: %s returned address outside of acceptable subnet 127.0.0.0/8: %s", ConfEntry->domain.c_str(), ans_record->rdata.c_str());
-			ConfEntry->stats_misses++;
-			return;
-		}
-
 		int i = countExt.get(them);
 		if (i)
 			countExt.set(them, i - 1);
 
-		// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
+		// The DNSBL reply must contain an A result.
+		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
+		if (!ans_record)
+		{
+			ConfEntry->stats_misses++;
+			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an result with no IPv4 address.",
+				ConfEntry->name.c_str());
+			return;
+		}
 
-		unsigned int bitmask = 0, record = 0;
-		bool match = false;
+		// The DNSBL reply must be a valid IPv4 address.
 		in_addr resultip;
+		if (inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip) != 1)
+		{
+			ConfEntry->stats_misses++;
+			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an invalid IPv4 address: %s",
+				ConfEntry->name.c_str(), ans_record->rdata.c_str());
+			return;
+		}
 
-		inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip);
+		// The DNSBL reply should be in the 127.0.0.0/8 range.
+		if ((resultip.s_addr & 0xFF) != 127)
+		{
+			ConfEntry->stats_misses++;
+			ServerInstance->SNO->WriteGlobalSno('d', "%s returned an IPv4 address which is outside of the 127.0.0.0/8 subnet: %s",
+				ConfEntry->name.c_str(), ans_record->rdata.c_str());
+			return;
+		}
 
+		bool match = false;
+		unsigned int result = 0;
 		switch (ConfEntry->type)
 		{
 			case DNSBLConfEntry::A_BITMASK:
-				bitmask = resultip.s_addr >> 24; /* Last octet (network byte order) */
-				bitmask &= ConfEntry->bitmask;
-				match = (bitmask != 0);
-			break;
+			{
+				result = (resultip.s_addr >> 24) & ConfEntry->bitmask;
+				match = (result != 0);
+				break;
+			}
 			case DNSBLConfEntry::A_RECORD:
-				record = resultip.s_addr >> 24; /* Last octet */
-				match = (ConfEntry->records[record] == 1);
-			break;
+			{
+				result = resultip.s_addr >> 24;
+				match = (ConfEntry->records[result] == 1);
+				break;
+			}
 		}
 
 		if (match)
@@ -212,7 +226,7 @@ class DNSBLResolver : public DNS::Request
 			}
 
 			ServerInstance->SNO->WriteGlobalSno('d', "Connecting user %s (%s) detected as being on the '%s' DNS blacklist with result %d",
-				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), result);
 		}
 		else
 			ConfEntry->stats_misses++;
