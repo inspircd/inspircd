@@ -141,6 +141,8 @@ class ModuleJoinFlood
 	time_t ignoreuntil;
 	unsigned long bootwait;
 	unsigned long splitwait;
+	std::string denymessage;
+	std::string notifymessage;
 
  public:
 	// Stop GCC warnings about the deprecated OnServerSplit event.
@@ -159,6 +161,8 @@ class ModuleJoinFlood
 		duration = tag->getDuration("duration", 60, 10, 600);
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
+		denymessage = tag->getString("denymessage", "This channel is temporarily unavailable (+j is set). Please try again later.");
+		notifymessage = tag->getString("notifymessage", "This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.");
 
 		ignoreuntil = ServerInstance->startup_time + bootwait;
 	}
@@ -176,7 +180,7 @@ class ModuleJoinFlood
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j is set). Please try again later.");
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, denymessage);
 				return MOD_RES_DENY;
 			}
 		}
@@ -199,7 +203,7 @@ class ModuleJoinFlood
 			{
 				f->clear();
 				f->lock();
-				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs));
+				memb->chan->WriteNotice(InspIRCd::Format(notifymessage.c_str(), duration, f->joins, f->secs));
 			}
 		}
 	}
