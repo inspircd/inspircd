@@ -28,7 +28,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("openssl")
+/// $CompilerFlags: find_compiler_flags("openssl" "")
 /// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
 
 /// $PackageInfo: require_system("arch") openssl pkgconf
