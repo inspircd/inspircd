@@ -89,6 +89,8 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		unsigned int MaxBacklog = 0;
 		unsigned int MaxDiff = 0;
 		unsigned int MaxMessageSize = 0;
+		std::string KickMessage;
+
 	};
 
 	std::vector<unsigned int> mx[2];
@@ -249,11 +251,18 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (newsize > ServerInstance->Config->Limits.MaxLine)
 			newsize = ServerInstance->Config->Limits.MaxLine;
 		Resize(newsize);
+
+		ms.KickMessage = conf->getString("kickmessage", "Repeat flood");
 	}
 
 	std::string GetModuleSettings() const
 	{
 		return ConvToStr(ms.MaxLines) + ":" + ConvToStr(ms.MaxSecs) + ":" + ConvToStr(ms.MaxDiff) + ":" + ConvToStr(ms.MaxBacklog);
+	}
+
+	std::string GetKickMessage() const
+	{
+		return ms.KickMessage;
 	}
 
 	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
@@ -401,7 +410,7 @@ class RepeatModule : public Module
 				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist);
 			}
 
-			memb->chan->KickUser(ServerInstance->FakeClient, user, "Repeat flood");
+			memb->chan->KickUser(ServerInstance->FakeClient, user, rm.GetKickMessage());
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

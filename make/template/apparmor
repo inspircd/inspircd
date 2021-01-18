@@ -37,6 +37,7 @@
 	@MODULE_DIR@/core_*.so mr,
 	@MODULE_DIR@/m_*.so mr,
 	@LOG_DIR@/** w,
+	@RUNTIME_DIR@/** rw,
 
 	# Required by the ldap module:
 	#include <abstractions/ldapclient>

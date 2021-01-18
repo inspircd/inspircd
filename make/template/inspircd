@@ -66,7 +66,7 @@ my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@";
 my $binpath	=	"@BINARY_DIR@";
 my $runpath	=	"@BASE_DIR@";
-my $datadir	=       "@DATA_DIR@";
+my $runtimedir = "@RUNTIME_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
@@ -359,18 +359,6 @@ sub cmd_stop()
 # Generic Helper Functions.
 ###
 
-# GetPidfile Version 2 - Now With Include Support..
-# I beg for months for include support in insp, then..
-# when it is added, it comes around and BITES ME IN THE ASS,
-# because i then have to code support into this script.. Evil.
-
-# Craig got bitten in the ass again --
-# in 1.1 beta the include file is manditory, therefore
-# if we cant find it, default to %conf%/inspircd.pid.
-# Note, this also contains a fix for when the pid file is
-# defined, but defined in a comment (line starts with #)
-# -- Brain
-
 my %filesparsed;
 
 sub getpidfile
@@ -404,7 +392,7 @@ sub getpidfile
 		if (($i =~ /<pid file=\"(\S+)\">/i) && ($i !~ /^#/))
 		{
 			# Set the PID file and return.
-			$pidfile = expand_fragment $datadir, $1;
+			$pidfile = expand_fragment $runtimedir, $1;
 			return;
 		}
 	}
@@ -426,7 +414,7 @@ sub getpidfile
 	}
 
 	# End of includes / No includes found. Using default.
-	$pidfile = $datadir . "/inspircd.pid";
+	$pidfile = $runtimedir . "/inspircd.pid";
 }
 
 sub getstatus {

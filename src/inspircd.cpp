@@ -332,7 +332,7 @@ namespace
 
 		if (do_version)
 		{
-			std::cout << std::endl << INSPIRCD_VERSION << std::endl;
+			std::cout << INSPIRCD_VERSION << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_NOERROR);
 		}
 
@@ -446,7 +446,7 @@ void InspIRCd::WritePID(bool exitonfail)
 	}
 
 	const std::string pidfile = ServerInstance->Config->ConfValue("pid")->getString("file", "inspircd.pid", 1);
-	std::ofstream outfile(ServerInstance->Config->Paths.PrependData(pidfile));
+	std::ofstream outfile(ServerInstance->Config->Paths.PrependRuntime(pidfile));
 	if (outfile.is_open())
 	{
 		outfile << getpid();
@@ -485,6 +485,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
+	ParseOptions();
 
 #ifdef _WIN32
 	// Initialize the console values
@@ -516,7 +517,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
 		<< std::endl;
 
-	ParseOptions();
 	if (Config->cmdline.forcedebug)
 	{
 		FileWriter* fw = new FileWriter(stdout, 1);

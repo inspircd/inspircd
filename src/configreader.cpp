@@ -57,6 +57,7 @@ ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
 	, Data(tag->getString("datadir", INSPIRCD_DATA_PATH, 1))
 	, Log(tag->getString("logdir", INSPIRCD_LOG_PATH, 1))
 	, Module(tag->getString("moduledir", INSPIRCD_MODULE_PATH, 1))
+	, Runtime(tag->getString("runtimedir", INSPIRCD_RUNTIME_PATH, 1))
 {
 }
 

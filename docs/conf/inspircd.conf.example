@@ -515,8 +515,8 @@
 # rehash the ircd from the shell or to terminate the ircd from the    #
 # shell using shell scripts, perl scripts, etc... and to monitor the  #
 # ircd's state via cron jobs. If this is a relative path, it will be  #
-# relative to the configuration directory, and if it is not defined,  #
-# the default of 'inspircd.pid' is used.                              #
+# relative to the runtime directory, and if it is not defined, the    #
+# default of 'inspircd.pid' is used.                                  #
 #                                                                     #
 
 #<pid file="/path/to/inspircd.pid">
