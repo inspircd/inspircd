@@ -250,12 +250,16 @@ class CoreExport ServerConfig
 		/** Module path */
 		std::string Module;
 
+		/** Runtime path */
+		std::string Runtime;
+
 		ServerPaths(ConfigTag* tag);
 
 		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
 		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
 		std::string PrependLog(const std::string& fn) const { return FileSystem::ExpandPath(Log, fn); }
 		std::string PrependModule(const std::string& fn) const { return FileSystem::ExpandPath(Module, fn); }
+		std::string PrependRuntime(const std::string& fn) const { return FileSystem::ExpandPath(Runtime, fn); }
 	};
 
 	/** Holds a complete list of all connect blocks

@@ -66,6 +66,7 @@ my ($opt_binary_dir,
     $opt_module_dir,
     $opt_portable,
     $opt_prefix,
+    $opt_runtime_dir,
     $opt_script_dir,
     $opt_socketengine,
     $opt_system,
@@ -99,6 +100,7 @@ exit 1 unless GetOptions(
 	'module-dir=s'         => \$opt_module_dir,
 	'portable'             => \$opt_portable,
 	'prefix=s'             => \$opt_prefix,
+	'runtime-dir=s'        => \$opt_runtime_dir,
 	'script-dir=s'         => \$opt_script_dir,
 	'socketengine=s'       => \$opt_socketengine,
 	'system'               => \$opt_system,
@@ -137,6 +139,7 @@ our $interactive = !(
 	defined $opt_module_dir ||
 	defined $opt_portable ||
 	defined $opt_prefix ||
+	defined $opt_runtime_dir ||
 	defined $opt_script_dir ||
 	defined $opt_socketengine ||
 	defined $opt_system ||
@@ -203,6 +206,7 @@ if (defined $opt_portable) {
 	$config{LOG_DIR}     = $opt_log_dir     // 'logs';
 	$config{MANUAL_DIR}  = $opt_manual_dir  // 'manuals';
 	$config{MODULE_DIR}  = $opt_module_dir  // 'modules';
+	$config{RUNTIME_DIR} = $opt_runtime_dir // $config{DATA_DIR};
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
 } elsif (defined $opt_system) {
 	$config{BASE_DIR}    = $opt_prefix      // '/var/lib/inspircd';
@@ -213,7 +217,8 @@ if (defined $opt_portable) {
 	$config{LOG_DIR}     = $opt_log_dir     // '/var/log/inspircd';
 	$config{MANUAL_DIR}  = $opt_manual_dir  // '/usr/share/man/man1';
 	$config{MODULE_DIR}  = $opt_module_dir  // '/usr/lib/inspircd';
-	$config{SCRIPT_DIR}  = $opt_script_dir  // '/usr/share/inspircd'
+	$config{RUNTIME_DIR} = $opt_runtime_dir // '/var/run';
+	$config{SCRIPT_DIR}  = $opt_script_dir  // '/usr/share/inspircd';
 } else {
 	$config{BASE_DIR}    = rel2abs $opt_prefix // $config{BASE_DIR}    // catdir $RealDir,            'run';
 	$config{BINARY_DIR}  = $opt_binary_dir     // $config{BINARY_DIR}  // catdir $config{BASE_DIR},   'bin';
@@ -223,6 +228,7 @@ if (defined $opt_portable) {
 	$config{LOG_DIR}     = $opt_log_dir        // $config{LOG_DIR}     // catdir $config{BASE_DIR},   'logs';
 	$config{MANUAL_DIR}  = $opt_manual_dir     // $config{MANUAL_DIR}  // catdir $config{BASE_DIR},   'manuals';
 	$config{MODULE_DIR}  = $opt_module_dir     // $config{MODULE_DIR}  // catdir $config{BASE_DIR},   'modules';
+	$config{RUNTIME_DIR} = $opt_runtime_dir    // $config{RUNTIME_DIR} // $config{DATA_DIR};
 	$config{SCRIPT_DIR}  = $opt_script_dir     // $config{SCRIPT_DIR}  // $config{BASE_DIR};
 }
 
@@ -345,6 +351,7 @@ if (prompt_bool $interactive, $question, 0) {
 	$config{MODULE_DIR} = prompt_dir $interactive, 'In what directory are modules to be placed?',             $config{MODULE_DIR};
 	$config{SCRIPT_DIR} = prompt_dir $interactive, 'In what directory are scripts to be placed?',             $config{SCRIPT_DIR};
 	$config{EXAMPLE_DIR} = $config{CONFIG_DIR} . '/examples';
+	$config{RUNTIME_DIR} = $config{DATA_DIR};
 }
 
 # Configure module settings.
@@ -461,6 +468,7 @@ print_format <<"EOM";
   <|GREEN Log:|>     $config{LOG_DIR}
   <|GREEN Manual:|>  $config{MANUAL_DIR}
   <|GREEN Module:|>  $config{MODULE_DIR}
+  <|GREEN Runtime:|> $config{RUNTIME_DIR}
   <|GREEN Script:|>  $config{SCRIPT_DIR}
 
 <|GREEN Execution Group:|> $config{GROUP} ($config{GID})

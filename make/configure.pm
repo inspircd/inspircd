@@ -192,6 +192,7 @@ sub cmd_update {
 	say 'Updating...';
 	my %config = read_config_file(CONFIGURE_CACHE_FILE);
 	$config{EXAMPLE_DIR} //= catdir $config{CONFIG_DIR}, 'examples';
+	$config{RUNTIME_DIR} //= $config{DATA_DIR};
 	my %compiler = get_compiler_info($config{CXX});
 	my %version = get_version $config{DISTRIBUTION};
 	parse_templates(\%config, \%compiler, \%version);
