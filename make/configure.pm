@@ -191,6 +191,7 @@ sub cmd_update {
 	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f CONFIGURE_CACHE_FILE;
 	say 'Updating...';
 	my %config = read_config_file(CONFIGURE_CACHE_FILE);
+	$config{EXAMPLE_DIR} //= catdir $config{CONFIG_DIR}, 'examples';
 	my %compiler = get_compiler_info($config{CXX});
 	my %version = get_version $config{DISTRIBUTION};
 	parse_templates(\%config, \%compiler, \%version);
