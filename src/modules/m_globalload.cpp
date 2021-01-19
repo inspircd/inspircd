@@ -143,7 +143,7 @@ class CommandGReloadModule : public Command
 			}
 			else
 			{
-				user->WriteRemoteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
+				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "Could not find module by that name");
 				return CMD_FAILURE;
 			}
 		}
