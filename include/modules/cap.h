@@ -304,6 +304,12 @@ namespace Cap
 		{
 		}
 
+		/** Retrieves the underlying cap. */
+		operator const Cap::Capability*() const
+		{
+			return ref ? *ref : NULL;
+		}
+
 		/** Check whether a user has the referenced capability turned on.
 		 * @param user User to check
 		 * @return True if the user is using the referenced capability, false otherwise
