@@ -409,6 +409,19 @@ class MyManager : public Manager, public Timer, public EventHandler
 		this->cache[r.question] = r;
 	}
 
+	void Close()
+	{
+		// Shutdown the socket if it exists.
+		if (HasFd())
+		{
+			SocketEngine::Shutdown(this, 2);
+			SocketEngine::Close(this);
+		}
+
+		// Remove all entries from the cache.
+		cache.clear();
+	}
+
  public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 
@@ -423,6 +436,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	~MyManager()
 	{
 		// Ensure Process() will fail for new requests
+		Close();
 		unloading = true;
 
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
@@ -703,23 +717,15 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void Rehash(const std::string& dnsserver, std::string sourceaddr, unsigned int sourceport)
 	{
-		if (this->HasFd())
-		{
-			SocketEngine::Shutdown(this, 2);
-			SocketEngine::Close(this);
-
-			// Remove all entries from the cache.
-			cache.clear();
-		}
-
 		irc::sockets::aptosa(dnsserver, DNS::PORT, myserver);
 
 		/* Initialize mastersocket */
+		Close();
 		int s = socket(myserver.family(), SOCK_DGRAM, 0);
 		this->SetFd(s);
 
 		/* Have we got a socket? */
-		if (this->GetFd() != -1)
+		if (this->HasFd())
 		{
 			SocketEngine::SetReuse(s);
 			SocketEngine::NonBlocking(s);
