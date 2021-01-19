@@ -26,13 +26,13 @@
 
 #include "inspircd.h"
 
-/** Handle /GLOADMODULE
- */
-class CommandGloadmodule : public Command
+class CommandGLoadModule : public Command
 {
  public:
-	CommandGloadmodule(Module* Creator) : Command(Creator,"GLOADMODULE", 1)
+	CommandGLoadModule(Module* Creator)
+		: Command(Creator,"GLOADMODULE", 1)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<modulename> [<servermask>]";
 	}
@@ -46,11 +46,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
+				user->WriteRemoteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
 			{
-				user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
+				user->WriteRemoteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -65,23 +65,24 @@ class CommandGloadmodule : public Command
 	}
 };
 
-/** Handle /GUNLOADMODULE
- */
-class CommandGunloadmodule : public Command
+class CommandGUnloadModule : public Command
 {
  public:
-	CommandGunloadmodule(Module* Creator) : Command(Creator,"GUNLOADMODULE", 1)
+	bool allowcoreunload;
+
+	CommandGUnloadModule(Module* Creator)
+		: Command(Creator,"GUNLOADMODULE", 1)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<modulename> [<servermask>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
-			InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
+		if (!allowcoreunload && InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 		{
-			user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
+			user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
 			return CMD_FAILURE;
 		}
 
@@ -99,7 +100,7 @@ class CommandGunloadmodule : public Command
 				}
 				else
 				{
-					user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
+					user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
 				}
 			}
 			else
@@ -117,13 +118,13 @@ class CommandGunloadmodule : public Command
 	}
 };
 
-/** Handle /GRELOADMODULE
- */
-class CommandGreloadmodule : public Command
+class CommandGReloadModule : public Command
 {
  public:
-	CommandGreloadmodule(Module* Creator) : Command(Creator, "GRELOADMODULE", 1)
+	CommandGReloadModule(Module* Creator)
+		: Command(Creator, "GRELOADMODULE", 1)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<modulename> [<servermask>]";
 	}
@@ -142,7 +143,7 @@ class CommandGreloadmodule : public Command
 			}
 			else
 			{
-				user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
+				user->WriteRemoteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
 				return CMD_FAILURE;
 			}
 		}
@@ -160,14 +161,23 @@ class CommandGreloadmodule : public Command
 
 class ModuleGlobalLoad : public Module
 {
-	CommandGloadmodule cmd1;
-	CommandGunloadmodule cmd2;
-	CommandGreloadmodule cmd3;
+ private:
+	CommandGLoadModule cmdgloadmodule;
+	CommandGUnloadModule cmdgunloadmodule;
+	CommandGReloadModule cmdgreloadmodule;
 
  public:
 	ModuleGlobalLoad()
-		: cmd1(this), cmd2(this), cmd3(this)
+		: cmdgloadmodule(this)
+		, cmdgunloadmodule(this)
+		, cmdgreloadmodule(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* securitytag = ServerInstance->Config->ConfValue("security");
+		cmdgunloadmodule.allowcoreunload = securitytag->getBool("allowcoreunload");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
