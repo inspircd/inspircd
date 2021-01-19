@@ -409,19 +409,6 @@ class MyManager : public Manager, public Timer, public EventHandler
 		this->cache[r.question] = r;
 	}
 
-	void Close()
-	{
-		// Shutdown the socket if it exists.
-		if (HasFd())
-		{
-			SocketEngine::Shutdown(this, 2);
-			SocketEngine::Close(this);
-		}
-
-		// Remove all entries from the cache.
-		cache.clear();
-	}
-
  public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 
@@ -453,10 +440,31 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 	}
 
+	void Close()
+	{
+		// Shutdown the socket if it exists.
+		if (HasFd())
+		{
+			SocketEngine::Shutdown(this, 2);
+			SocketEngine::Close(this);
+		}
+
+		// Remove all entries from the cache.
+		cache.clear();
+	}
+
 	void Process(DNS::Request* req) CXX11_OVERRIDE
 	{
 		if ((unloading) || (req->creator->dying))
 			throw Exception("Module is being unloaded");
+
+		if (!HasFd())
+		{
+			Query rr(req->question);
+			rr.error = ERROR_DISABLED;
+			req->OnError(&rr);
+			return;
+		}
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing request to lookup " + req->question.name + " of type " + ConvToStr(req->question.type) + " to " + this->myserver.addr());
 
@@ -547,6 +555,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 			case ERROR_DOMAIN_NOT_FOUND:
 			case ERROR_NO_RECORDS:
 				return "Domain not found";
+			case ERROR_DISABLED:
+				return "DNS lookups are disabled";
 			case ERROR_NONE:
 			case ERROR_UNKNOWN:
 			default:
@@ -838,13 +848,25 @@ class ModuleDNS : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		std::string oldserver = DNSServer;
-		const std::string oldip = SourceIP;
-		const unsigned int oldport = SourcePort;
-
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dns");
+		if (!tag->getBool("enabled", true))
+		{
+			// Clear these so they get reset if DNS is enabled again.
+			DNSServer.clear();
+			SourceIP.clear();
+			SourcePort = 0;
+
+			this->manager.Close();
+			return;
+		}
+
+		const std::string oldserver = DNSServer;
 		DNSServer = tag->getString("server");
+
+		const std::string oldip = SourceIP;
 		SourceIP = tag->getString("sourceip");
+
+		const unsigned int oldport = SourcePort;
 		SourcePort = tag->getUInt("sourceport", 0, 0, UINT16_MAX);
 
 		if (DNSServer.empty())
