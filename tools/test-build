@@ -18,15 +18,7 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -42,6 +34,7 @@ $ENV{INSPIRCD_VERBOSE} = 1;
 
 execute 'git', 'clean', '-dfx';
 
+my $root = dirname $RealDir;
 my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
 foreach my $compiler (@compilers) {
 	if (system "$compiler -v > /dev/null 2>&1") {
@@ -57,14 +50,14 @@ foreach my $compiler (@compilers) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
 		my @configure_flags;
 		if (defined $ENV{TEST_BUILD_MODULES}) {
-			execute './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES};
+			execute "$root/configure", '--enable-extras', $ENV{TEST_BUILD_MODULES};
 			push @configure_flags, '--disable-auto-extras';
 		}
-		if (execute './configure', '--development', '--socketengine', $socketengine, @configure_flags) {
+		if (execute "$root/configure", '--development', '--socketengine', $socketengine, @configure_flags) {
 			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
-		if (execute 'make', '--jobs', get_cpu_count() + 1, 'install') {
+		if (execute 'make', '--directory', $root, '--jobs', get_cpu_count() + 1, 'install') {
 			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
