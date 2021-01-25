@@ -21,13 +21,9 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-}
-
 package make::configure;
 
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 

@@ -22,7 +22,6 @@
 
 
 BEGIN {
-	require 5.10.0;
 	unless (eval "use LWP::Simple; 1") {
 		die "Your system is missing the LWP::Simple Perl module!";
 	}
@@ -31,7 +30,7 @@ BEGIN {
 	}
 }
 
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -65,7 +64,7 @@ sub parse_url {
 	return if $url_seen{$src};
 	$url_seen{$src}++;
 
-	my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
+	my $ua = LWP::UserAgent->new;
 	my $response = $ua->get($src);
 
 	unless ($response->is_success) {
@@ -107,7 +106,7 @@ sub parse_url {
 }
 
 # hash of installed module versions from our mini-database, key (m_foobar) to version (00abacca..).
-my %mod_versions = read_config_file '.modulemanager';
+my %mod_versions = read_config_file "$RealDir/.modulemanager";
 
 # useless helper stub
 sub getmodversion {
@@ -116,7 +115,7 @@ sub getmodversion {
 }
 
 # read in external URL sources
-open SRC, 'sources.list' or die "Could not open sources.list: $!";
+open SRC, "$RealDir/sources.list" or die "Could not open sources.list: $!";
 while (<SRC>) {
 	next if /^\s*#/;
 	parse_url($_);
@@ -310,7 +309,7 @@ print "Processing changes...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
 	print "Uninstalling $mod $installed{$mod}\n";
-	unlink "src/modules/$mod.cpp";
+	unlink "$RealDir/src/modules/$mod.cpp";
 }
 
 my $count = scalar keys %todo;
@@ -334,7 +333,7 @@ for my $mod (sort keys %todo) {
 	my $response = $ua->get($url);
 
 	if ($response->is_success) {
-		open(MF, ">src/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
+		open(MF, '>', "$RealDir/src/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
 		print MF $response->content;
 		close(MF);
 		print " - done\n";
@@ -344,6 +343,6 @@ for my $mod (sort keys %todo) {
 }
 
 # write database of installed versions
-write_config_file '.modulemanager', %mod_versions;
+write_config_file "$RealDir/.modulemanager", %mod_versions;
 
 print "Finished!\n";

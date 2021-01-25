@@ -18,15 +18,7 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -49,11 +41,12 @@ my @ignored_revisions = (
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
 );
 
-my @paths = File::Util->new->list_dir('.' => { recurse => 1 });
+my @paths = File::Util->new->list_dir(dirname($RealDir) => { recurse => 1 });
 my @updated;
 for my $path (@paths) {
 	next unless -f $path;
 	next if $path =~ /\/\./;
+	next if $path =~ /\/build\//;
 	next if $path =~ /\/vendor\//;
 
 	if (system "git ls-files --error-unmatch -- $path 1>/dev/null 2>/dev/null") {
