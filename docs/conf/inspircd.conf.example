@@ -304,6 +304,10 @@
          # in this class. This can save a lot of resources on very busy servers.
          resolvehostnames="yes"
 
+         # useconnectban: Defines if users in this class should be exempt from connectban limits.
+         # This setting only has effect when the connectban module is loaded.
+         #useconnectban="yes"
+
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
          # This setting only has effect when the dnsbl module is loaded.
          #usednsbl="yes"
