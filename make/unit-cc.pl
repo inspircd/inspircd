@@ -57,9 +57,9 @@ exit 1;
 sub message($$$) {
 	my ($type, $file, $command) = @_;
 	if ($ENV{INSPIRCD_VERBOSE}) {
-		print "$command\n";
+		say $command;
 	} else {
-		print_format "\t<|GREEN $type:|>\t\t$file\n";
+		say console_format "\t<|GREEN $type:|>\t\t$file";
 	}
 }
 

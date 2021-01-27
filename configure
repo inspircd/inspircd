@@ -143,7 +143,7 @@ our $interactive = !(
 );
 
 my %version = get_version $opt_distribution_label;
-print_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>\n";
+say console_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>";
 
 my %config;
 if ($interactive) {
@@ -433,7 +433,7 @@ $config{DISTRIBUTION} = $opt_distribution_label if $opt_distribution_label;
 write_configure_cache %config;
 parse_templates \%config, \%compiler, \%version;
 
-print_format <<"EOM";
+print console_format <<"EOM";
 
 Configuration is complete! You have chosen to build with the following settings:
 
@@ -453,7 +453,7 @@ my @makeargs;
 push @makeargs, "-C${\abs2rel $RealDir}" unless getcwd eq $RealDir;
 push @makeargs, "-j${\(get_cpu_count() + 1)}";
 
-print_format <<"EOM";
+say console_format <<"EOM";
 
 <|GREEN Paths:|>
   <|GREEN Base:|>    $config{BASE_DIR}
@@ -596,7 +596,7 @@ sub enable_extras(@) {
 		if (-e $modulepath) {
 			print_error "unable to symlink <|GREEN ${\abs2rel $modulepath}|> to <|GREEN ${\abs2rel $extrapath}|>: the target exists and is not a symlink.";
 		} else {
-			print_format "Enabling the <|GREEN $shortname|> module ...\n";
+			say console_format "Enabling the <|GREEN $shortname|> module ...";
 			symlink $extrapath, $modulepath or print_error "unable to symlink <|GREEN ${\abs2rel $modulepath}|> to <|GREEN ${\abs2rel $extrapath}|>: $!";
 		}
 	}
@@ -619,7 +619,7 @@ sub disable_extras(@) {
 		} elsif ((-e $modulepath && !-e $extrapath) || !-l $modulepath) {
 			print_error "the <|GREEN $shortname|> module is not an extra module!";
 		} else {
-			print_format "Disabling the <|GREEN $shortname|> module ...\n";
+			say console_format "Disabling the <|GREEN $shortname|> module ...";
 			unlink $modulepath or print_error "unable to unlink <|GREEN $extrapath|>: $!";
 		}
 	}

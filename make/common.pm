@@ -45,7 +45,7 @@ sub create_directory($$) {
 }
 
 sub execute(@) {
-	print_format "<|BOLD \$|> @_\n";
+	say console_format "<|BOLD \$|> @_";
 	return system @_;
 }
 

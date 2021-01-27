@@ -35,7 +35,7 @@ use make::common;
 use make::console;
 
 unless (scalar @ARGV) {
-	print_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>\n", *STDERR;
+	say STDERR console_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>";
 	exit 1;
 }
 

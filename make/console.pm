@@ -76,17 +76,17 @@ sub print_format($;$) {
 }
 
 sub print_error {
-	print_format "<|RED Error:|> ", *STDERR;
+	print STDERR console_format "<|RED Error:|> ";
 	for my $line (@_) {
-		print_format "$line\n", *STDERR;
+		say STDERR console_format $line;
 	}
 	exit 1;
 }
 
 sub print_warning {
-	print_format "<|YELLOW Warning:|> ", *STDERR;
+	print STDERR console_format "<|YELLOW Warning:|> ";
 	for my $line (@_) {
-		print_format "$line\n", *STDERR;
+		print STDERR console_format $line;
 	}
 }
 
@@ -119,8 +119,8 @@ sub prompt_dir($$$;$) {
 sub prompt_string($$$) {
 	my ($interactive, $question, $default) = @_;
 	return $default unless $interactive;
-	print_format "$question\n";
-	print_format "[<|GREEN $default|>] => ";
+	say console_format $question;
+	say console_format "[<|GREEN $default|>] => ";
 	chomp(my $answer = <STDIN>);
 	say '';
 	return $answer ? $answer : $default;

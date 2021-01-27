@@ -43,7 +43,7 @@ my ($data, $error) = from_toml $contents;
 print_error "unable to parse $config: $!" if $error;
 
 while (my ($name, $info) = each %{$data}) {
-	print_format "Updating <|GREEN $name|> ...\n";
+	say console_format "Updating <|GREEN $name|> ...";
 
 	my $unpackdir = File::Temp->newdir;
 	my $vendordir = catdir $RealDir, $name;
