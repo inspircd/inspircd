@@ -30,7 +30,7 @@ use make::console;
 use make::directive;
 
 if (scalar @ARGV < 2) {
-	print_format "<|GREEN Usage:|> $0 <<|UNDERLINE FILE|>> [<|UNDERLINE DIRECTIVES...|>]\n", *STDERR;
+	say STDERR console_format "<|GREEN Usage:|> $0 <<|UNDERLINE FILE|>> [<|UNDERLINE DIRECTIVES...|>]";
 	exit 1
 }
 
@@ -40,7 +40,7 @@ print_error "<|GREEN $file|> does not exist and/or is not a file!" unless -f $fi
 for my $directive (@ARGV) {
 	my $value = get_directive $file, $directive, '';
 	if (-t STDOUT) {
-		print_format "<|GREEN $directive|>: $value\n";
+		say console_format "<|GREEN $directive|>: $value";
 	} else {
 		say $value;
 	}
