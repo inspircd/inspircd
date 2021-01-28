@@ -1,5 +1,7 @@
 Adam <Adam@anope.org>                        Adam <adam@inspircd.org>
 Adam <Adam@anope.org>                        Adam <adam@sigterm.info>
+Ariadne Conill <ariadne@dereferenced.org>    nenolod <nenolod@e03df62e-2008-0410-955e-edbf42e46eb7>
+Ariadne Conill <ariadne@dereferenced.org>    William Pitcock <nenolod@dereferenced.org>
 Attila Molnar <attilamolnar@hush.com>        Attila Molnar <am63770@gmail.com>
 Attila Molnar <attilamolnar@hush.com>        attilamolnar <am63770@gmail.com>
 Attila Molnar <attilamolnar@hush.com>        attilamolnar <attilamolnar@hush.com>
@@ -40,7 +42,6 @@ Robin Burchell <robin+git@viroteck.net>      w00t <w00t@e03df62e-2008-0410-955e-
 Sadie Powell <sadie@witchery.services>       Peter Powell <petpow@saberuk.com>
 Thomas Stagner <aquanight@inspircd.org>      aquanight <aquanight@e03df62e-2008-0410-955e-edbf42e46eb7>
 Uli Schlachter <psychon@inspircd.org>        psychon <psychon@e03df62e-2008-0410-955e-edbf42e46eb7>
-William Pitcock <nenolod@dereferenced.org>   nenolod <nenolod@e03df62e-2008-0410-955e-edbf42e46eb7>
 
 # The identities of the following people could not be verified:
 #
