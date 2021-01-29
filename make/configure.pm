@@ -205,7 +205,7 @@ sub run_test($$;$) {
 	my ($what, $result, $adjective) = @_;
 	$adjective //= 'available';
 	print console_format "Checking whether <|GREEN $what|> is $adjective ... ";
-	say console_format $result ? "<|GREEN yes|>" : "<|RED no|>";
+	say console_format($result ? "<|GREEN yes|>" : "<|RED no|>");
 	return $result;
 }
 
