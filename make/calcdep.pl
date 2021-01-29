@@ -90,7 +90,7 @@ END
 		push @core_deps, $out;
 	}
 
-	foreach my $directory (qw(coremods modules)) {
+	for my $directory (qw(coremods modules)) {
 		opendir(my $moddir, $directory);
 		for my $file (sort readdir $moddir) {
 			next if $file =~ /^\./;
