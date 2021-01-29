@@ -106,73 +106,78 @@ sub cmd_clean {
 
 sub cmd_help {
 	my $SELIST = join ', ', __get_socketengines();
-	print <<EOH;
-Usage: $0 [options]
+	print console_format <<EOH;
+<|GREEN Usage:|> <|BOLD $0 [OPTIONS|>]
 
 When no options are specified, configure runs in interactive mode and you must
 specify any required values manually. If one or more options are specified,
 non-interactive configuration is started and any omitted values are defaulted.
 
-PATH OPTIONS
+<|GREEN PATH OPTIONS|>
 
-  --system                      Automatically set up the installation paths
-                                for system-wide installation.
-  --prefix=[dir]                The root install directory. If this is set then
+  <|BOLD --portable|>                    Automatically set up the installation paths for
+                                portable installation.
+  <|BOLD --system|>                      Automatically set up the installation paths for
+                                system-wide installation.
+  <|BOLD --prefix <DIR>|>                The root install directory. If this is set then
                                 all subdirectories will be adjusted accordingly.
                                 [${\CONFIGURE_ROOT}/run]
-  --binary-dir=[dir]            The location where the main server binary is
+  <|BOLD --binary-dir <DIR>|>            The location where the main server binary is
                                 stored.
                                 [${\CONFIGURE_ROOT}/run/bin]
-  --config-dir=[dir]            The location where the configuration files and
+  <|BOLD --config-dir <DIR>|>            The location where the configuration files and
                                 SSL certificates are stored.
                                 [${\CONFIGURE_ROOT}/run/conf]
-  --data-dir=[dir]              The location where the data files, such as the
-                                pid file, are stored.
+  <|BOLD --data-dir <DIR>|>              The location where the data files, such as the
+                                xline database, are stored.
                                 [${\CONFIGURE_ROOT}/run/data]
-  --example-dir=[dir]           The location where the example configuration files
-                                and SQL schemas are stored.
+  <|BOLD --example-dir <DIR>|>           The location where the example configuration
+                                files and SQL schemas are stored.
                                 [${\CONFIGURE_ROOT}/run/conf/examples]
-  --log-dir=[dir]               The location where the log files are stored.
+  <|BOLD --log-dir <DIR>|>               The location where the log files are stored.
                                 [${\CONFIGURE_ROOT}/run/logs]
-  --manual-dir=[dir]            The location where the manual files are stored.
+  <|BOLD --manual-dir <DIR>|>            The location where the manual files are stored.
                                 [${\CONFIGURE_ROOT}/run/manuals]
-  --module-dir=[dir]            The location where the loadable modules are
+  <|BOLD --module-dir <DIR>|>            The location where the loadable modules are
                                 stored.
                                 [${\CONFIGURE_ROOT}/run/modules]
-  --script-dir=[dir]            The location where the scripts, such as the
+  <|BOLD --runtime-dir <DIR>|>            The location where the runtime files, such as
+                                the pid file, are stored.
+                                [${\CONFIGURE_ROOT}/run/data]
+  <|BOLD --script-dir <DIR>|>            The location where the scripts, such as the
                                 init scripts, are stored.
                                 [${\CONFIGURE_ROOT}/run]
 
-EXTRA MODULE OPTIONS
+<|GREEN EXTRA MODULE OPTIONS|>
 
-  --enable-extras=[extras]      Enables a comma separated list of extra modules.
-  --disable-extras=[extras]     Disables a comma separated list of extra modules.
-  --list-extras                 Shows the availability status of all extra
+  <|BOLD --enable-extras <MODULE>|>      Enables a comma separated list of extra modules.
+  <|BOLD --disable-extras <MODULE>|>     Disables a comma separated list of extra modules.
+  <|BOLD --list-extras|>                 Shows the availability status of all extra
                                 modules.
 
-MISC OPTIONS
+<|GREEN MISC OPTIONS|>
 
-  --clean                       Remove the configuration cache file and start
+  <|BOLD --clean|>                       Remove the configuration cache file and start
                                 the interactive configuration wizard.
-  --disable-auto-extras         Disables automatically enabling extra modules
+  <|BOLD --disable-auto-extras|>         Disables automatically enabling extra modules
                                 for which the dependencies are available.
-  --disable-interactive         Disables the interactive configuration wizard.
-  --distribution-label=[text]   Sets a distribution specific version label in
+  <|BOLD --disable-interactive|>         Disables the interactive configuration wizard.
+  <|BOLD --distribution-label <TEXT>|>   Sets a distribution specific version label in
                                 the build configuration.
-  --gid=[id|name]               Sets the group to run InspIRCd as.
-  --help                        Show this message and exit.
-  --socketengine=[name]         Sets the socket engine to be used. Possible
+  <|BOLD --gid <ID|NAME>|>               Sets the group to run InspIRCd as.
+  <|BOLD --help|>                        Show this message and exit.
+  <|BOLD --socketengine <NAME>|>         Sets the socket engine to be used. Possible
                                 values are $SELIST.
-  --uid=[id|name]               Sets the user to run InspIRCd as.
-  --update                      Updates the build environment with the settings
+  <|BOLD --uid [ID|NAME]|>               Sets the user to run InspIRCd as.
+  <|BOLD --update|>                      Updates the build environment with the settings
                                 from the cache.
 
+<|GREEN FLAGS|>
 
-FLAGS
-
-  CXX=[name]                    Sets the C++ compiler to use when building the
+  <|BOLD CXX=<NAME>|>                    Sets the C++ compiler to use when building the
                                 server. If not specified then the build system
                                 will search for c++, g++, clang++ or icpc.
+  <|BOLD INSPIRCD_VERBOSE=<0|1>|>        Shows additional information for debugging.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
 at irc.inspircd.org #InspIRCd or create a support discussion at
