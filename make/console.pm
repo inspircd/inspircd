@@ -31,7 +31,6 @@ use File::Spec::Functions qw(rel2abs);
 our @EXPORT = qw(command
                  execute_command
                  console_format
-                 print_format
                  print_error
                  print_warning
                  prompt_bool
@@ -67,12 +66,6 @@ sub console_format($) {
 		}
 	}
 	return $message;
-}
-
-sub print_format($;$) {
-	my $message = shift;
-	my $stream = shift // *STDOUT;
-	print { $stream } console_format $message;
 }
 
 sub print_error {
@@ -120,7 +113,7 @@ sub prompt_string($$$) {
 	my ($interactive, $question, $default) = @_;
 	return $default unless $interactive;
 	say console_format $question;
-	say console_format "[<|GREEN $default|>] => ";
+	print console_format "[<|GREEN $default|>] => ";
 	chomp(my $answer = <STDIN>);
 	say '';
 	return $answer ? $answer : $default;
@@ -143,13 +136,14 @@ sub command_alias($$) {
 sub execute_command(@) {
 	my $command = defined $_[0] ? lc shift : 'help';
 	if ($command eq 'help') {
-		print_format "<|GREEN Usage:|> $0 <<|UNDERLINE COMMAND|>> [<|UNDERLINE OPTIONS...|>]\n\n";
-		print_format "<|GREEN Commands:|>\n";
+		say console_format "<|GREEN Usage:|> $0 <<|UNDERLINE COMMAND|>> [<|UNDERLINE OPTIONS...|>]";
+		say '';
+		say console_format "<|GREEN Commands:|>";
 		for my $key (sort keys %commands) {
 			next unless defined $commands{$key}->description;
 			my $name = sprintf "%-15s", $key;
 			my $description = $commands{$key}->description;
-			print_format "  <|BOLD $name|> # $description\n";
+			say console_format "  <|BOLD $name|> # $description";
 		}
 		exit 0;
 	} elsif (!$commands{$command}) {

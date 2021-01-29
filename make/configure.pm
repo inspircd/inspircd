@@ -199,8 +199,8 @@ sub cmd_update {
 sub run_test($$;$) {
 	my ($what, $result, $adjective) = @_;
 	$adjective //= 'available';
-	print_format "Checking whether <|GREEN $what|> is $adjective ... ";
-	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
+	print console_format "Checking whether <|GREEN $what|> is $adjective ... ";
+	say console_format $result ? "<|GREEN yes|>" : "<|RED no|>";
 	return $result;
 }
 
@@ -237,11 +237,11 @@ sub module_shrink($) {
 
 sub write_configure_cache(%) {
 	unless (-e CONFIGURE_DIRECTORY) {
-		print_format "Creating <|GREEN ${\abs2rel CONFIGURE_DIRECTORY, CONFIGURE_ROOT}|> ...\n";
+		say console_format "Creating <|GREEN ${\abs2rel CONFIGURE_DIRECTORY, CONFIGURE_ROOT}|> ...";
 		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
 	}
 
-	print_format "Writing <|GREEN ${\abs2rel CONFIGURE_CACHE_FILE, CONFIGURE_ROOT}|> ...\n";
+	say console_format "Writing <|GREEN ${\abs2rel CONFIGURE_CACHE_FILE, CONFIGURE_ROOT}|> ...";
 	my %config = @_;
 	write_config_file CONFIGURE_CACHE_FILE, %config;
 }
@@ -277,7 +277,7 @@ sub parse_templates($$$) {
 
 	# Iterate through files in make/template.
 	foreach my $template (<${\CONFIGURE_ROOT}/make/template/*>) {
-		print_format "Parsing <|GREEN ${\abs2rel $template, CONFIGURE_ROOT}|> ...\n";
+		say console_format "Parsing <|GREEN ${\abs2rel $template, CONFIGURE_ROOT}|> ...";
 		open(my $fh, $template) or print_error "unable to read $template: $!";
 		my (@lines, $mode, @platforms, @targets);
 
@@ -336,12 +336,12 @@ sub parse_templates($$$) {
 				# Create the directory if it doesn't already exist.
 				my $directory = dirname $target;
 				unless (-e $directory) {
-					print_format "Creating <|GREEN ${\abs2rel $directory, CONFIGURE_ROOT}|> ...\n";
+					say console_format "Creating <|GREEN ${\abs2rel $directory, CONFIGURE_ROOT}|> ...";
 					create_directory $directory, 0750 or print_error "unable to create $directory: $!";
 				};
 
 				# Write the template file.
-				print_format "Writing <|GREEN ${\abs2rel $target, CONFIGURE_ROOT}|> ...\n";
+				say console_format "Writing <|GREEN ${\abs2rel $target, CONFIGURE_ROOT}|> ...";
 				open(my $fh, '>', $target) or print_error "unable to write $target: $!";
 				foreach (@lines) {
 					say $fh $_;
