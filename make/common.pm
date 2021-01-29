@@ -17,13 +17,9 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-}
-
 package make::common;
 
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -49,7 +45,7 @@ sub create_directory($$) {
 }
 
 sub execute(@) {
-	print_format "<|BOLD \$|> @_\n";
+	say console_format "<|BOLD \$|> @_";
 	return system @_;
 }
 

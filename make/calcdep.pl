@@ -21,20 +21,13 @@
 #
 
 
-BEGIN {
-	push @INC, $ENV{SOURCEPATH};
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
 use strict;
 use warnings FATAL => qw(all);
 
-use File::Basename qw(basename);
+use File::Basename qw(basename dirname);
+use FindBin        qw($RealDir);
 
+use lib dirname $RealDir;
 use make::common;
 
 use constant {
@@ -100,7 +93,7 @@ END
 		push @core_deps, $out;
 	}
 
-	foreach my $directory (qw(coremods modules)) {
+	for my $directory (qw(coremods modules)) {
 		opendir(my $moddir, $directory);
 		for my $file (sort readdir $moddir) {
 			next if $file =~ /^\./;

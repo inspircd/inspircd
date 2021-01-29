@@ -736,7 +736,10 @@ class ReloadAction : public ActionBase
 		ServerInstance->SNO.WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
 		User* user = ServerInstance->Users.FindUUID(uuid);
 		if (user)
-			user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));
+		{
+			int numeric = result ? RPL_LOADEDMODULE : ERR_CANTUNLOADMODULE;
+			user->WriteNumeric(numeric, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));
+		}
 
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
@@ -747,7 +750,7 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	Module* m = ServerInstance->Modules.Find(parameters[0]);
 	if (m == creator)
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
 		return CmdResult::FAILURE;
 	}
 
@@ -761,7 +764,7 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Could not find module by that name");
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "Could not find module by that name");
 		return CmdResult::FAILURE;
 	}
 }

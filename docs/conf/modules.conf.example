@@ -582,6 +582,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames
 # and case mapping.
+#<module name="codepage">
 #
 # You should include one of the following files to set your codepage:
 #<include file="examples/codepages/ascii.conf.example">

@@ -18,15 +18,7 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -42,8 +34,8 @@ use lib dirname $RealDir;
 use make::common;
 use make::console;
 
-if (scalar @ARGV < 1) {
-	print_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>\n", *STDERR;
+unless (scalar @ARGV) {
+	say STDERR console_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>";
 	exit 1;
 }
 
@@ -51,7 +43,8 @@ my %version = get_version();
 my $docdir = rel2abs catdir $ARGV[0], 'docs', $version{MAJOR}, 'modules';
 print_error "unable to find the module directory at $docdir!" unless -d $docdir;
 
-for my $module (<src/modules/extra/m_*.cpp>, <src/modules/m_*.cpp>, <src/modules/m_*/main.cpp>) {
+my $root = dirname $RealDir;
+for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, <$root/src/modules/m_*/main.cpp>) {
 	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
 	my $docfile = catfile $docdir, "$1.md";
 	print_error "unable to find the module documentation at $docfile!" unless -f $docfile;

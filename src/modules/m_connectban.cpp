@@ -61,6 +61,16 @@ class ModuleConnectBan
 		return 0;
 	}
 
+	static bool IsExempt(LocalUser* user)
+	{
+		// E-lined and already banned users shouldn't be hit.
+		if (user->exempt || user->quitting)
+			return true;
+
+		// Users in an exempt class shouldn't be hit.
+		return user->GetClass() && !user->GetClass()->config->getBool("useconnectban", true);
+	}
+
  public:
 	ModuleConnectBan()
 		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
@@ -87,7 +97,7 @@ class ModuleConnectBan
 
 	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
 	{
-		if (user->exempt)
+		if (IsExempt(user))
 			return;
 
 		// HACK: Lower the connection attempts for the gateway IP address. The user
@@ -101,7 +111,7 @@ class ModuleConnectBan
 
 	void OnSetUserIP(LocalUser* u) override
 	{
-		if (u->exempt || u->quitting)
+		if (IsExempt(u))
 			return;
 
 		irc::sockets::cidr_mask mask(u->client_sa, GetRange(u));

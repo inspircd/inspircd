@@ -102,7 +102,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 		if (!path.empty())
 		{
 			// Expand the path relative to the config directory.
-			const std::string fullpath = ServerInstance->Config->Paths.PrependData(path);
+			const std::string fullpath = ServerInstance->Config->Paths.PrependRuntime(path);
 
 			// UNIX socket paths are length limited to less than PATH_MAX.
 			irc::sockets::sockaddrs bindspec;

@@ -18,15 +18,7 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -51,7 +43,7 @@ my ($data, $error) = from_toml $contents;
 print_error "unable to parse $config: $!" if $error;
 
 while (my ($name, $info) = each %{$data}) {
-	print_format "Updating <|GREEN $name|> ...\n";
+	say console_format "Updating <|GREEN $name|> ...";
 
 	my $unpackdir = File::Temp->newdir;
 	my $vendordir = catdir $RealDir, $name;

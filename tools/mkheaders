@@ -18,15 +18,7 @@
 #
 
 
-BEGIN {
-	require 5.10.0;
-	unless (-f 'configure') {
-		print "Error: $0 must be run from the main source directory!\n";
-		exit 1;
-	}
-}
-
-use feature ':5.10';
+use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -49,15 +41,16 @@ my @ignored_revisions = (
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
 );
 
-my @paths = File::Util->new->list_dir('.' => { recurse => 1 });
+my @paths = File::Util->new->list_dir(dirname($RealDir) => { recurse => 1 });
 my @updated;
 for my $path (@paths) {
 	next unless -f $path;
 	next if $path =~ /\/\./;
+	next if $path =~ /\/build\//;
 	next if $path =~ /\/vendor\//;
 
 	if (system "git ls-files --error-unmatch -- $path 1>/dev/null 2>/dev/null") {
-		print_format "Skipping <|YELLOW $path|> as it has not been committed.\n" if defined $ENV{MKHEADERS_VERBOSE};
+		say STDERR console_format "Skipping <|YELLOW $path|> as it has not been committed." if defined $ENV{MKHEADERS_VERBOSE};
 		next;
 	}
 
@@ -75,7 +68,7 @@ for my $path (@paths) {
 	close $fh;
 
 	if (defined $copyright) {
-		print_format "Updating copyright headers in <|GREEN $path|>.\n" if defined $ENV{MKHEADERS_VERBOSE};
+		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
 		my (%author, %authors);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
 		for my $line (split /\n+/, `git blame $ignored_args --incremental -w HEAD -- $path`) {
@@ -142,7 +135,7 @@ for my $path (@paths) {
 		close $fh;
 		push @updated, $path;
 	} else {
-		print_format "Skipping <|YELLOW $path|> as it contains no copyright headers.\n" if defined $ENV{MKHEADERS_VERBOSE};
+		say STDERR console_format "Skipping <|YELLOW $path|> as it contains no copyright headers." if defined $ENV{MKHEADERS_VERBOSE};
 	}
 }
 
