@@ -58,7 +58,7 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
 
 sub __get_socketengines {
 	my @socketengines;
-	foreach (<${\CONFIGURE_ROOT}/src/socketengines/socketengine_*.cpp>) {
+	for (<${\CONFIGURE_ROOT}/src/socketengines/socketengine_*.cpp>) {
 		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
 		push @socketengines, $1;
 	}
@@ -261,7 +261,7 @@ sub get_compiler_info($) {
 
 sub find_compiler {
 	my @compilers = qw(c++ g++ clang++ icpc);
-	foreach my $compiler (shift // @compilers) {
+	for my $compiler (shift // @compilers) {
 		return $compiler if __test_compiler $compiler;
 		return "xcrun $compiler" if $^O eq 'darwin' && __test_compiler "xcrun $compiler";
 	}
@@ -276,7 +276,7 @@ sub parse_templates($$$) {
 	my %settings = __get_template_settings($config, $compiler, $version);
 
 	# Iterate through files in make/template.
-	foreach my $template (<${\CONFIGURE_ROOT}/make/template/*>) {
+	for my $template (<${\CONFIGURE_ROOT}/make/template/*>) {
 		say console_format "Parsing <|GREEN ${\abs2rel $template, CONFIGURE_ROOT}|> ...";
 		open(my $fh, $template) or print_error "unable to read $template: $!";
 		my (@lines, $mode, @platforms, @targets);
@@ -343,7 +343,7 @@ sub parse_templates($$$) {
 				# Write the template file.
 				say console_format "Writing <|GREEN ${\abs2rel $target, CONFIGURE_ROOT}|> ...";
 				open(my $fh, '>', $target) or print_error "unable to write $target: $!";
-				foreach (@lines) {
+				for (@lines) {
 					say $fh $_;
 				}
 				close $fh;

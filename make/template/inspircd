@@ -149,8 +149,8 @@ sub cmd_help()
 	my @cmds = grep /^cmd_/, @subs;
 	my @devs = grep /^dev_/, @subs;
 	local $_;
-	$_ =~ s/^(cmd|dev)_// foreach (@cmds, @devs);
-	$_ =~ s/_/-/g foreach (@cmds, @devs);
+	$_ =~ s/^(cmd|dev)_// for (@cmds, @devs);
+	$_ =~ s/_/-/g for (@cmds, @devs);
 	print STDERR "Usage: ./inspircd (" . join("|", @cmds) . ")\n";
 	print STDERR "Developer arguments: (" . join("|", @devs) . ")\n";
 	exit GENERIC_EXIT_SUCCESS;
