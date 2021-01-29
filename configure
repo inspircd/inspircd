@@ -453,7 +453,7 @@ my @makeargs;
 push @makeargs, "-C${\abs2rel $RealDir}" unless getcwd eq $RealDir;
 push @makeargs, "-j${\(get_cpu_count() + 1)}";
 
-say console_format <<"EOM";
+print console_format <<"EOM";
 
 <|GREEN Paths:|>
   <|GREEN Base:|>    $config{BASE_DIR}
