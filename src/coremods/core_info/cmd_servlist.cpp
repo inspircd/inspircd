@@ -53,7 +53,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 			.push(uline->nick)
 			.push(uline->server->GetName())
 			.push("*")
-			.push(user->IsOper() ? user->oper->name : "*")
+			.push(uline->IsOper() ? uline->oper->name : "*")
 			.push(0)
 			.push(uline->GetRealName());
 		user->WriteNumeric(numeric);
