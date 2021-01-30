@@ -67,7 +67,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Hide U-Lined servers in /MAP and /LINKS
 	 */
-	bool HideULines;
+	bool HideServices;
 	/** Announce TS changes to channels on merge
 	 */
 	bool AnnounceTSChange;

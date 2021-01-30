@@ -240,7 +240,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	auto security = ServerInstance->Config->ConfValue("security");
 	auto options = ServerInstance->Config->ConfValue("options");
 	FlatLinks = security->getBool("flatlinks");
-	HideULines = security->getBool("hideulines");
+	HideServices = security->getBool("hideservices", security->getBool("hideulines"));
 	HideSplits = security->getBool("hidesplits");
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");

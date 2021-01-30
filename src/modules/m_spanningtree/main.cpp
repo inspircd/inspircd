@@ -123,7 +123,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		if ((server->Hidden) || ((Utils->HideULines) && (server->IsULine())))
+		if ((server->Hidden) || ((Utils->HideServices) && (server->IsULine())))
 		{
 			if (user->IsOper())
 			{
@@ -136,7 +136,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isn't an oper */
-	if ((Utils->HideULines) && (Current->IsULine()) && (!user->IsOper()))
+	if ((Utils->HideServices) && (Current->IsULine()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
 	else if ((Current->Hidden) && (!user->IsOper()))

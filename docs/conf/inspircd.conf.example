@@ -729,9 +729,9 @@
           #             higher ranked users. This is the recommended setting.
           announceinvites="dynamic"
 
-          # hideulines: If this value is set to yes, U-lined servers will
+          # hideservices: If this value is set to yes, services servers will
           # be hidden from non-opers in /LINKS and /MAP.
-          hideulines="no"
+          hideservices="no"
 
           # flatlinks: If this value is set to yes, /MAP and /LINKS will
           # be flattened when shown to non-opers.
