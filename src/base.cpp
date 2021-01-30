@@ -170,7 +170,7 @@ ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 	return i->second;
 }
 
-void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove)
+void Extensible::UnhookExtensions(const std::vector<reference<ExtensionItem>>& toRemove)
 {
 	for(std::vector<reference<ExtensionItem> >::const_iterator i = toRemove.begin(); i != toRemove.end(); ++i)
 	{

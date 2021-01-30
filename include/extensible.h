@@ -152,7 +152,7 @@ class CoreExport Extensible
 	Extensible();
 	CullResult cull() override;
 	virtual ~Extensible();
-	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
+	void UnhookExtensions(const std::vector<reference<ExtensionItem>>& toRemove);
 
 	/**
 	 * Free all extension items attached to this Extensible

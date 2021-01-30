@@ -397,12 +397,12 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		Channel* chan = c->second;
 		++c;
 		mod->OnCleanup(ExtensionItem::EXT_CHANNEL, chan);
-		chan->doUnhookExtensions(items);
+		chan->UnhookExtensions(items);
 		const Channel::MemberMap& users = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator mi = users.begin(); mi != users.end(); ++mi)
 		{
 			mod->OnCleanup(ExtensionItem::EXT_MEMBERSHIP, mi->second);
-			mi->second->doUnhookExtensions(items);
+			mi->second->UnhookExtensions(items);
 		}
 	}
 
@@ -413,7 +413,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		// The module may quit the user (e.g. TLS (SSL) mod unloading) and that will remove it from the container
 		++u;
 		mod->OnCleanup(ExtensionItem::EXT_USER, user);
-		user->doUnhookExtensions(items);
+		user->UnhookExtensions(items);
 	}
 
 	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
