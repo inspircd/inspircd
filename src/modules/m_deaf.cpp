@@ -74,7 +74,7 @@ class ModuleDeaf : public Module
 	PrivDeafMode privdeafmode;
 	std::string deaf_bypasschars;
 	std::string deaf_bypasschars_service;
-	bool privdeafuline;
+	bool privdeafservice;
 
  public:
 	ModuleDeaf()
@@ -89,7 +89,7 @@ class ModuleDeaf : public Module
 		auto tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
 		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsuline"));
-		privdeafuline = tag->getBool("privdeafuline", true);
+		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafuline", true));
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -117,12 +117,12 @@ class ModuleDeaf : public Module
 					if (!i->first->IsModeSet(deafmode))
 						continue;
 
-					bool is_a_uline = i->first->server->IsULine();
+					bool is_a_service = i->first->server->IsULine();
 					// matched a U-line only bypass
-					if (is_bypasschar_service && is_a_uline)
+					if (is_bypasschar_service && is_a_service)
 						continue;
 					// matched a regular bypass
-					if (is_bypasschar && !is_a_uline)
+					if (is_bypasschar && !is_a_service)
 						continue;
 
 					// don't deliver message!
@@ -136,7 +136,7 @@ class ModuleDeaf : public Module
 				if (!targ->IsModeSet(privdeafmode))
 					return MOD_RES_PASSTHRU;
 
-				if (!privdeafuline && user->server->IsULine())
+				if (!privdeafservice && user->server->IsULine())
 					return MOD_RES_DENY;
 
 				if (!user->HasPrivPermission("users/ignore-privdeaf"))
