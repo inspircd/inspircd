@@ -757,15 +757,15 @@
 #<module name="deaf">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-  DEAF CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#  bypasschars       - Characters that bypass deaf to a regular user.
-#  bypasscharsuline  - Characters that bypass deaf to a U-lined user (services).
-#                      Both of these take a list of characters that must match
-#                      the starting character of a message.
-#                      If 'bypasscharsuline' is empty, then 'bypasschars' will
-#                      match for both regular and U-lined users.
+#  bypasschars        - Characters that bypass deaf to a regular user.
+#  servicebypasschars - Characters that bypass deaf to a services users.
+#                       Both of these take a list of characters that must match
+#                       the starting character of a message.
+#                       If 'servicebypasschars' is empty, then 'bypasschars' will
+#                       match for both regular and services users.
 #  privdeafuline     - Whether U-lined users bypass user mode +D (privdeaf).
 #
-#<deaf bypasschars="" bypasscharsuline="!" privdeafuline="yes">
+#<deaf bypasschars="" servicebypasschars="!" privdeafuline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Delay join module: Adds the channel mode +D which delays all JOIN

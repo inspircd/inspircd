@@ -73,7 +73,7 @@ class ModuleDeaf : public Module
 	DeafMode deafmode;
 	PrivDeafMode privdeafmode;
 	std::string deaf_bypasschars;
-	std::string deaf_bypasschars_uline;
+	std::string deaf_bypasschars_service;
 	bool privdeafuline;
 
  public:
@@ -88,7 +88,7 @@ class ModuleDeaf : public Module
 	{
 		auto tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
-		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
+		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsuline"));
 		privdeafuline = tag->getBool("privdeafuline", true);
 	}
 
@@ -100,14 +100,14 @@ class ModuleDeaf : public Module
 			{
 				Channel* chan = target.Get<Channel>();
 				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
-				bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
+				bool is_bypasschar_service = (deaf_bypasschars_service.find(details.text[0]) != std::string::npos);
 
-				// If we have no bypasschars_uline in config, and this is a bypasschar (regular)
+				// If we have no bypasschars_service in config, and this is a bypasschar (regular)
 				// Then it is obviously going to get through +d, no exemption list required
-				if (deaf_bypasschars_uline.empty() && is_bypasschar)
+				if (deaf_bypasschars_service.empty() && is_bypasschar)
 					return MOD_RES_PASSTHRU;
-				// If it matches both bypasschar and bypasschar_uline, it will get through.
-				if (is_bypasschar && is_bypasschar_uline)
+				// If it matches both bypasschar and bypasschar_service, it will get through.
+				if (is_bypasschar && is_bypasschar_service)
 					return MOD_RES_PASSTHRU;
 
 				const Channel::MemberMap& ulist = chan->GetUsers();
@@ -119,7 +119,7 @@ class ModuleDeaf : public Module
 
 					bool is_a_uline = i->first->server->IsULine();
 					// matched a U-line only bypass
-					if (is_bypasschar_uline && is_a_uline)
+					if (is_bypasschar_service && is_a_uline)
 						continue;
 					// matched a regular bypass
 					if (is_bypasschar && !is_a_uline)
