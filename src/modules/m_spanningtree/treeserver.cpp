@@ -242,7 +242,7 @@ void TreeServer::CheckULine()
 {
 	uline = silentuline = false;
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("uline"))
+	for (auto& [_, tag] : ServerInstance->Config->ConfTags("service", ServerInstance->Config->ConfTags("uline")))
 	{
 		std::string server = tag->getString("server");
 		if (irc::equals(server, GetName()))

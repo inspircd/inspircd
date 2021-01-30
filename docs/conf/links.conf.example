@@ -130,16 +130,16 @@
 	server="hub.us.example.org hub.eu.example.org leaf.eu.example.org">
 
 
-#-#-#-#-#-#-#-#-#-#-#-#-# U-LINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
-# This tag defines a U-lined server. A U-lined server has special       #
-# permissions, and should be used with caution. Services servers are    #
-# usually U-lined in this manner.                                       #
+#-#-#-#-#-#-#-#-#-#-#-#-# SERVICE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+# This tag defines a services server. A services server has special     #
+# permissions, and should be used with caution. This should be used for #
+# the server that has ChanServ, NickServ, etc on it not a user server.  #
 #                                                                       #
 # The 'silent' value, if set to yes, indicates that this server should  #
 # not generate quit and connect notices, which can cut down on noise    #
 # to opers on the network.                                              #
 #                                                                       #
-<uline server="services.example.com" silent="yes">
+<service server="services.example.com" silent="yes">
 
 # Once you have edited this file you can remove this line. This is just to
 # ensure that you don't hastily include the file without reading it.
