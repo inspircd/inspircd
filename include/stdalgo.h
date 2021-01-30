@@ -152,22 +152,10 @@ namespace stdalgo
 	}
 
 	/**
-	 * Deleter that uses operator delete to delete the item
-	 */
-	template <typename T>
-	struct defaultdeleter
-	{
-		void operator()(T* o)
-		{
-			delete o;
-		}
-	};
-
-	/**
 	 * Deleter that adds the item to the cull list, that is, queues it for
 	 * deletion at the end of the current mainloop iteration
 	 */
-	struct culldeleter
+	struct cull_delete
 	{
 		void operator()(classbase* item);
 	};
@@ -179,7 +167,7 @@ namespace stdalgo
 	template <template<typename, typename> class Cont, typename T, typename Alloc>
 	inline void delete_all(const Cont<T*, Alloc>& cont)
 	{
-		std::for_each(cont.begin(), cont.end(), defaultdeleter<T>());
+		std::for_each(cont.begin(), cont.end(), std::default_delete<T>());
 	}
 
 	/** Deletes a object and zeroes the memory location that pointed to it.

@@ -185,7 +185,7 @@ class CoreExport ExtensionManager
 };
 
 /** Represents a simple ExtensionItem. */
-template <typename T, typename Del = stdalgo::defaultdeleter<T> >
+template <typename T, typename Del = std::default_delete<T>>
 class SimpleExtItem : public ExtensionItem
 {
  public:

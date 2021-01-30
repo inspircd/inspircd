@@ -564,7 +564,7 @@ class CoreExport InspIRCd
 
 ENTRYPOINT;
 
-inline void stdalgo::culldeleter::operator()(classbase* item)
+inline void stdalgo::cull_delete::operator()(classbase* item)
 {
 	if (item)
 		ServerInstance->GlobalCulls.AddItem(item);

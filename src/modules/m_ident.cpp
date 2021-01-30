@@ -276,7 +276,7 @@ class ModuleIdent : public Module
  private:
 	unsigned int timeout;
 	bool prefixunqueried;
-	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> socket;
+	SimpleExtItem<IdentRequestSocket, stdalgo::cull_delete> socket;
 	IntExtItem state;
 
 	static void PrefixIdent(LocalUser* user)
