@@ -40,7 +40,7 @@ class ModuleCommonChans
 		if (!targuser->IsModeSet(mode) || user->SharesChannelWith(targuser))
 			return MOD_RES_PASSTHRU;
 
-		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
+		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsService())
 			return MOD_RES_PASSTHRU;
 
 		user->WriteNumeric(Numerics::CannotSendTo(targuser, "messages", &mode));

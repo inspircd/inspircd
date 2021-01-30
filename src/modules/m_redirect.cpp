@@ -105,7 +105,7 @@ class ModuleRedirect : public Module
 				{
 					const std::string& channel = *re.ext.get(chan);
 
-					/* sometimes broken ulines can make circular or chained +L, avoid this */
+					/* sometimes broken services can make circular or chained +L, avoid this */
 					Channel* destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet(re))
 					{

@@ -361,7 +361,7 @@ class CommandSQuery : public SplitCommand
 			target = ServerInstance->Users.FindNick(parameters[0]);
 		}
 
-		if (!target || target->registered != REG_ALL || !target->server->IsULine())
+		if (!target || target->registered != REG_ALL || !target->server->IsService())
 		{
 			// The target user does not exist, is not fully registered, or is not a service.
 			user->WriteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");

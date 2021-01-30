@@ -206,9 +206,9 @@ class TreeServer : public Server
 	/** Recursive call for child servers */
 	void FinishBurstInternal();
 
-	/** (Re)check the uline state of this server
+	/** (Re)check the service state of this server
 	 */
-	void CheckULine();
+	void CheckService();
 
 	/** Get the bursting state of this server
 	 * @return True if this server is bursting, false if it isn't

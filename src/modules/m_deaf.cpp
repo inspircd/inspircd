@@ -117,7 +117,7 @@ class ModuleDeaf : public Module
 					if (!i->first->IsModeSet(deafmode))
 						continue;
 
-					bool is_a_service = i->first->server->IsULine();
+					bool is_a_service = i->first->server->IsService();
 					// matched a U-line only bypass
 					if (is_bypasschar_service && is_a_service)
 						continue;
@@ -136,7 +136,7 @@ class ModuleDeaf : public Module
 				if (!targ->IsModeSet(privdeafmode))
 					return MOD_RES_PASSTHRU;
 
-				if (!privdeafservice && user->server->IsULine())
+				if (!privdeafservice && user->server->IsService())
 					return MOD_RES_DENY;
 
 				if (!user->HasPrivPermission("users/ignore-privdeaf"))

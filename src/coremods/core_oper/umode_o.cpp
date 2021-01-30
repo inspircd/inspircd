@@ -35,7 +35,7 @@ ModeUserOperator::ModeUserOperator(Module* Creator)
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
 {
 	/* Only opers can execute this class at all */
-	if (!source->server->IsULine() && !source->IsOper())
+	if (!source->server->IsService() && !source->IsOper())
 		return MODEACTION_DENY;
 
 	/* Not even opers can GIVE the +o mode, only take it away */

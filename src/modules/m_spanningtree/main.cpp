@@ -123,7 +123,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		if ((server->Hidden) || ((Utils->HideServices) && (server->IsULine())))
+		if ((server->Hidden) || ((Utils->HideServices) && (server->IsService())))
 		{
 			if (user->IsOper())
 			{
@@ -135,8 +135,8 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			ShowLinks(server, user, hops+1);
 		}
 	}
-	/* Don't display the line if its a uline, hide ulines is on, and the user isn't an oper */
-	if ((Utils->HideServices) && (Current->IsULine()) && (!user->IsOper()))
+	/* Don't display the line if its a service, hide services is on, and the user isn't an oper */
+	if ((Utils->HideServices) && (Current->IsService()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
 	else if ((Current->Hidden) && (!user->IsOper()))
@@ -572,9 +572,9 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 	{
 		// Hide the message if one of the following is true:
 		// - User is being quit due to a netsplit and quietbursts is on
-		// - Server is a silent uline
+		// - User is on a silent services server
 		TreeServer* server = TreeServer::Get(user);
-		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentULine()));
+		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentService()));
 		if (!hide)
 		{
 			ServerInstance->SNO.WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",

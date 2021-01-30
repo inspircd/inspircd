@@ -101,7 +101,7 @@ class ModuleBotMode
 			return MOD_RES_PASSTHRU;
 
 		// Allow sending PRIVMSGs to services pseudoclients.
-		if (target.type == MessageTarget::TYPE_USER && target.Get<User>()->server->IsULine())
+		if (target.type == MessageTarget::TYPE_USER && target.Get<User>()->server->IsService())
 			return MOD_RES_PASSTHRU;
 
 		// Force the message to be broadcast as a NOTICE.

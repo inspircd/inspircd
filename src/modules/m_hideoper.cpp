@@ -152,7 +152,7 @@ class ModuleHideOper
 		for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 		{
 			User* oper = *i;
-			if (!oper->server->IsULine() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
+			if (!oper->server->IsService() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
 			{
 				LocalUser* lu = IS_LOCAL(oper);
 				stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->GetDisplayedHost() + ") Idle: " +

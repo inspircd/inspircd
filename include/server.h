@@ -36,13 +36,11 @@ class CoreExport Server : public classbase
 	 */
 	std::string description;
 
-	/** True if this server is ulined
-	 */
-	bool uline = false;
+	/** True if this server is a service. */
+	bool service = false;
 
-	/** True if this server is a silent uline, i.e. silent="yes" in the uline block
-	 */
-	bool silentuline =  false;
+	/** True if this server is a silent service, i.e. silent="yes" in the service block. */
+	bool silentservice = false;
 
 	/** Allow ConfigReaderThread to update the description on a rehash
 	 */
@@ -71,15 +69,15 @@ class CoreExport Server : public classbase
 	const std::string& GetDesc() const { return description; }
 
 	/**
-	 * Checks whether this server is ulined
-	 * @return True if this server is ulined, false otherwise.
+	 * Checks whether this server is a service.
+	 * @return True if this server is a service, false otherwise.
 	 */
-	bool IsULine() const { return uline; }
+	bool IsService() const { return service; }
 
 	/**
-	 * Checks whether this server is a silent uline
-	 * Silent uline servers introduce, quit and oper up users without a snotice being generated.
-	 * @return True if this server is a silent uline, false otherwise.
+	 * Checks whether this server is a silent service.
+	 * Silent services servers introduce, quit and oper up users without a snotice being generated.
+	 * @return True if this server is a silent service, false otherwise.
 	 */
-	bool IsSilentULine() const { return silentuline; }
+	bool IsSilentService() const { return silentservice; }
 };

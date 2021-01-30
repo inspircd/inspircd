@@ -330,7 +330,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	}
 
 	for (server_hash::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
-		i->second->CheckULine();
+		i->second->CheckService();
 
 	RefreshIPCache();
 }

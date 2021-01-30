@@ -40,9 +40,9 @@ class ModuleRestrictMsg
 			// message allowed if:
 			// (1) the sender is opered
 			// (2) the recipient is opered
-			// (3) the recipient is on a ulined server
+			// (3) the recipient is on a services server
 			// anything else, blocked.
-			if (u->IsOper() || user->IsOper() || u->server->IsULine())
+			if (u->IsOper() || user->IsOper() || u->server->IsService())
 				return MOD_RES_PASSTHRU;
 
 			user->WriteNumeric(Numerics::CannotSendTo(u, "You cannot send messages to this user."));

@@ -68,7 +68,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, Hidden(Hide)
 {
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
-	CheckULine();
+	CheckService();
 
 	ServerInstance->Timers.AddTimer(&pingtimer);
 
@@ -238,9 +238,9 @@ unsigned int TreeServer::QuitUsers(const std::string& reason)
 	return original_size - users.size();
 }
 
-void TreeServer::CheckULine()
+void TreeServer::CheckService()
 {
-	uline = silentuline = false;
+	service = silentservice = false;
 
 	for (auto& [_, tag] : ServerInstance->Config->ConfTags("service", ServerInstance->Config->ConfTags("uline")))
 	{
@@ -249,12 +249,12 @@ void TreeServer::CheckULine()
 		{
 			if (this->IsRoot())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->source.str() + ")");
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not mark themselves as a service (at " + tag->source.str() + ")");
 				return;
 			}
 
-			uline = true;
-			silentuline = tag->getBool("silent");
+			service = true;
+			silentservice = tag->getBool("silent");
 			break;
 		}
 	}

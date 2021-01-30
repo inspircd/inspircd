@@ -28,7 +28,7 @@ ServiceTag::ServiceTag(Module* mod)
 void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
 {
 	User* const user = msg.GetSourceUser();
-	if (user && user->server->IsULine())
+	if (user && user->server->IsService())
 		msg.AddTag("inspircd.org/service", this, "");
 }
 

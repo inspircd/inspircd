@@ -44,7 +44,7 @@ class CommandSaquit : public Command
 		User* dest = ServerInstance->Users.Find(parameters[0]);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (dest->server->IsULine())
+			if (dest->server->IsService())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CmdResult::FAILURE;

@@ -36,7 +36,7 @@ class CommandSVSTOPIC : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (!user->server->IsULine())
+		if (!user->server->IsService())
 		{
 			// Ulines only
 			return CmdResult::FAILURE;

@@ -112,7 +112,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 		killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
 	}
 
-	if ((!hideservicekills) || (!user->server->IsULine()))
+	if ((!hideservicekills) || (!user->server->IsService()))
 	{
 		if (IS_LOCAL(user) && IS_LOCAL(target))
 			ServerInstance->SNO.WriteGlobalSno('k', "Local kill by %s: %s (%s)", user->nick.c_str(), target->GetFullRealHost().c_str(), parameters[1].c_str());

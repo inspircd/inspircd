@@ -98,9 +98,9 @@ class ModulePassForward : public Module
 
 		if (!nickrequired.empty())
 		{
-			/* Check if nick exists and its server is ulined */
+			/* Check if nick exists and is on a services server. */
 			User* u = ServerInstance->Users.Find(nickrequired);
-			if (!u || !u->server->IsULine())
+			if (!u || !u->server->IsService())
 				return;
 		}
 

@@ -416,7 +416,7 @@ class ModuleSilence
 		if (!IS_LOCAL(target))
 			return true;
 
-		if (exemptservice && source->server->IsULine())
+		if (exemptservice && source->server->IsService())
 			return true;
 
 		SilenceList* list = cmd.ext.get(target);

@@ -71,7 +71,7 @@ class CommandClearChan : public Command
 
 		const std::string reason = parameters.size() > 2 ? parameters.back() : "Clearing " + chan->name;
 
-		if (!user->server->IsSilentULine())
+		if (!user->server->IsSilentService())
 			ServerInstance->SNO.WriteToSnoMask((IS_LOCAL(user) ? 'a' : 'A'), user->nick + " has cleared \002" + chan->name + "\002 (" + method + "): " + reason);
 
 		user->WriteNotice("Clearing \002" + chan->name + "\002 (" + method + "): " + reason);

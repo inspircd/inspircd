@@ -71,7 +71,7 @@ class ModuleGeoBan
 
 	void OnWhois(Whois::Context& whois) override
 	{
-		if (whois.GetTarget()->server->IsULine())
+		if (whois.GetTarget()->server->IsService())
 			return;
 
 		Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : NULL;

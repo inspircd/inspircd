@@ -154,7 +154,7 @@ enum
 	ERR_BANLISTFULL                 = 478,
 
 	ERR_NOPRIVILEGES                = 481, // rfc, beware though, we use this for other things opers may not do also
-	ERR_CHANOPRIVSNEEDED            = 482, // rfc, beware though, we use this for other things like trying to kick a uline
+	ERR_CHANOPRIVSNEEDED            = 482,
 
 	ERR_RESTRICTED                  = 484,
 

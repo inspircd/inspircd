@@ -46,7 +46,7 @@ class CoreExport UserManager
 	typedef std::vector<User*> OperList;
 
 	/** A list containing users who are on a U-lined servers. */
-	typedef std::vector<User*> ULineList;
+	typedef std::vector<User*> ServiceList;
 
 	/** A list holding local users
 	*/
@@ -91,8 +91,8 @@ class CoreExport UserManager
 	 */
 	OperList all_opers;
 
-	/** A list of users on U-lined servers. */
-	ULineList all_ulines;
+	/** A list of users on services servers. */
+	ServiceList all_services;
 
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
@@ -164,10 +164,10 @@ class CoreExport UserManager
 	 */
 	unsigned int UnregisteredUserCount() const { return this->unregistered_count; }
 
-	/** Return a count of users on a u-lined servers.
-	 * @return The number of users on u-lined servers.
+	/** Return a count of users on a services servers.
+	 * @return The number of users on services servers.
 	 */
-	unsigned int ULineCount() const { return this->all_ulines.size(); }
+	unsigned int ULineCount() const { return this->all_services.size(); }
 
 	/** Return a count of local registered users
 	 * @return The number of registered local users

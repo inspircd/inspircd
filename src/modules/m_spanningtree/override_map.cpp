@@ -46,7 +46,7 @@ static inline bool IsHidden(User* user, TreeServer* server)
 	{
 		if (server->Hidden)
 			return true;
-		if (Utils->HideServices && server->IsULine())
+		if (Utils->HideServices && server->IsService())
 			return true;
 	}
 

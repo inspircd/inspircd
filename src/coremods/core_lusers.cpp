@@ -40,7 +40,7 @@ struct LusersCounters
 		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			User* u = i->second;
-			if (!u->server->IsULine() && u->IsModeSet(invisiblemode))
+			if (!u->server->IsService() && u->IsModeSet(invisiblemode))
 				invisible++;
 		}
 	}
@@ -128,7 +128,7 @@ public:
 		if (dest->registered != REG_ALL)
 			return;
 
-		if (dest->server->IsULine())
+		if (dest->server->IsService())
 			return;
 
 		if (adding)
@@ -158,13 +158,13 @@ class ModuleLusers : public Module
 	void OnPostConnect(User* user) override
 	{
 		counters.UpdateMaxUsers();
-		if (!user->server->IsULine() && user->IsModeSet(invisiblemode))
+		if (!user->server->IsService() && user->IsModeSet(invisiblemode))
 			counters.invisible++;
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		if (!user->server->IsULine() && user->IsModeSet(invisiblemode))
+		if (!user->server->IsService() && user->IsModeSet(invisiblemode))
 			counters.invisible--;
 	}
 };

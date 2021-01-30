@@ -126,7 +126,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	bool dosend = true;
 
-	if ((Utils->quiet_bursts && remoteserver->IsBehindBursting()) || _new->server->IsSilentULine())
+	if ((Utils->quiet_bursts && remoteserver->IsBehindBursting()) || _new->server->IsSilentService())
 		dosend = false;
 
 	if (dosend)

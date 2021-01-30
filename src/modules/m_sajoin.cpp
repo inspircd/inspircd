@@ -58,7 +58,7 @@ class CommandSajoin : public Command
 				return CmdResult::FAILURE;
 			}
 
-			if (dest->server->IsULine())
+			if (dest->server->IsService())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CmdResult::FAILURE;

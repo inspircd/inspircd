@@ -88,8 +88,8 @@ User::User(const std::string& uid, Server* srv, Type type)
 
 	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
-	if (srv->IsULine())
-		ServerInstance->Users.all_ulines.push_back(this);
+	if (srv->IsService())
+		ServerInstance->Users.all_services.push_back(this);
 
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != User::TYPE_SERVER)
@@ -356,8 +356,8 @@ CullResult User::cull()
 	if (client_sa.family() != AF_UNSPEC)
 		ServerInstance->Users.RemoveCloneCounts(this);
 
-	if (server->IsULine())
-		stdalgo::erase(ServerInstance->Users.all_ulines, this);
+	if (server->IsService())
+		stdalgo::erase(ServerInstance->Users.all_services, this);
 
 	return Extensible::cull();
 }

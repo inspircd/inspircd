@@ -91,7 +91,7 @@ class SSLMode : public ModeHandler
 					for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 					{
 						ssl_cert* cert = API->GetCertificate(i->first);
-						if (!cert && !i->first->server->IsULine())
+						if (!cert && !i->first->server->IsService())
 							nonssl++;
 					}
 
@@ -211,8 +211,8 @@ class ModuleSSLModes
 
 		User* target = msgtarget.Get<User>();
 
-		/* If one or more of the parties involved is a ulined service, we won't stop it. */
-		if (user->server->IsULine() || target->server->IsULine())
+		/* If one or more of the parties involved is a services user, we won't stop it. */
+		if (user->server->IsService() || target->server->IsService())
 			return MOD_RES_PASSTHRU;
 
 		/* If the target is +z */

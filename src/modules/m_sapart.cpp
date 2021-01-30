@@ -51,7 +51,7 @@ class CommandSapart : public Command
 			if (parameters.size() > 2)
 				reason = parameters[2];
 
-			if (dest->server->IsULine())
+			if (dest->server->IsService())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CmdResult::FAILURE;

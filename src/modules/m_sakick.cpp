@@ -45,7 +45,7 @@ class CommandSakick : public Command
 		{
 			const std::string& reason = (parameters.size() > 2) ? parameters[2] : dest->nick;
 
-			if (dest->server->IsULine())
+			if (dest->server->IsService())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
 				return CmdResult::FAILURE;

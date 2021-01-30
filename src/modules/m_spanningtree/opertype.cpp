@@ -49,11 +49,11 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	if (Utils->quiet_bursts)
 	{
 		/*
-		 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
+		 * If quiet bursts are enabled, and server is bursting or a silent services server
 		 * then do nothing. -- w00t
 		 */
 		TreeServer* remoteserver = TreeServer::Get(u);
-		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine())
+		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentService())
 			return CmdResult::SUCCESS;
 	}
 

@@ -179,7 +179,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 			{
 				User* oper = *i;
-				if (!oper->server->IsULine())
+				if (!oper->server->IsService())
 				{
 					LocalUser* lu = IS_LOCAL(oper);
 					stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->GetDisplayedHost() + ") Idle: " +

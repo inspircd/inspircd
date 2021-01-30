@@ -38,20 +38,19 @@ CommandServList::CommandServList(Module* parent)
 CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	const std::string& mask = parameters.empty() ? "*" : parameters[0];
-	for (UserManager::ULineList::const_iterator iter = ServerInstance->Users.all_ulines.begin(); iter != ServerInstance->Users.all_ulines.end(); ++iter)
+	for (auto* service : ServerInstance->Users.all_services)
 	{
-		User* uline = *iter;
-		if (uline->IsModeSet(invisiblemode) || !InspIRCd::Match(uline->nick, mask))
+		if (service->IsModeSet(invisiblemode) || !InspIRCd::Match(service->nick, mask))
 			continue;
 
 		Numeric::Numeric numeric(RPL_SERVLIST);
 		numeric
-			.push(uline->nick)
-			.push(uline->server->GetName())
+			.push(service->nick)
+			.push(service->server->GetName())
 			.push(mask)
 			.push(0)
 			.push(0)
-			.push(uline->GetRealName());
+			.push(service->GetRealName());
 		user->WriteNumeric(numeric);
 	}
 	user->WriteNumeric(RPL_SERVLISTEND, mask, 0, "End of service listing");

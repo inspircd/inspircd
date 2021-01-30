@@ -47,7 +47,7 @@ class ServProtectMode : public ModeHandler
 		 * way to add this mode and that is at client introduction in the UID command,
 		 * as this calls OnModeChange for each mode but disregards the return values.
 		 * The mode cannot be manually added or removed, not even by a server or by a remote
-		 * user or uline, which prevents its (ab)use as a kiddie 'god mode' on such networks.
+		 * user or service, which prevents its (ab)use as a kiddie 'god mode' on such networks.
 		 * I'm sure if someone really wants to do that they can make a copy of this module
 		 * that does the job. It won't be me though!
 		 */
@@ -83,7 +83,7 @@ class ModuleServProtectMode
 	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
-		 * and the user making the change is not a uline
+		 * and the user making the change is not a service.
 		 */
 		if (!adding && chan && IS_LOCAL(user) && !param.empty())
 		{

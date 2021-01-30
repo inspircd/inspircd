@@ -98,7 +98,7 @@ class RemoveBase : public Command
 			return CmdResult::FAILURE;
 		}
 
-		if (target->server->IsULine())
+		if (target->server->IsService())
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a U-line may remove a U-line from a channel.");
 			return CmdResult::FAILURE;
@@ -109,7 +109,7 @@ class RemoveBase : public Command
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
-			  a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
+			  a services target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove people with >= protectedrank rank.
 			 */
 			unsigned int ulevel = channel->GetPrefixValue(user);
