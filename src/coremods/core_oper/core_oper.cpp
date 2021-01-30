@@ -50,7 +50,7 @@ class CoreModOper : public Module
 	{
 		auto security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
-		cmdkill.hideuline = security->getBool("hideulinekills");
+		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}
 
 	void OnPostOper(User* user, const std::string&, const std::string&) override

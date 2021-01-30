@@ -753,8 +753,8 @@
           # hidekills: If defined, replaces who executed a /KILL with a custom string.
           hidekills=""
 
-          # hideulinekills: Hide kills from clients of ulined servers from server notices.
-          hideulinekills="yes"
+          # hideservicekills: Hide kills from clients of services servers from server notices.
+          hideservicekills="yes"
 
           # hidesplits: If enabled, non-opers will not be able to see which
           # servers split in a netsplit, they will only be able to see that one
