@@ -32,28 +32,32 @@ CommandServList::CommandServList(Module* parent)
 	, invisiblemode(parent, "invisible")
 {
 	allow_empty_last_param = false;
-	syntax = "[<mask>]";
+	syntax = "[<mask> [<type>]]";
 }
 
 CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	const std::string& mask = parameters.empty() ? "*" : parameters[0];
+	const bool has_type = parameters.size() > 1;
 	for (UserManager::ULineList::const_iterator iter = ServerInstance->Users.all_ulines.begin(); iter != ServerInstance->Users.all_ulines.end(); ++iter)
 	{
 		User* uline = *iter;
 		if (uline->IsModeSet(invisiblemode) || !InspIRCd::Match(uline->nick, mask))
 			continue;
 
+		if (has_type && (!user->IsOper() || !InspIRCd::Match(user->oper->name, parameters[2	])))
+			continue;
+
 		Numeric::Numeric numeric(RPL_SERVLIST);
 		numeric
 			.push(uline->nick)
 			.push(uline->server->GetName())
-			.push(mask)
-			.push(0)
+			.push("*")
+			.push(user->IsOper() ? user->oper->name : "*")
 			.push(0)
 			.push(uline->GetRealName());
 		user->WriteNumeric(numeric);
 	}
-	user->WriteNumeric(RPL_SERVLISTEND, mask, 0, "End of service listing");
+	user->WriteNumeric(RPL_SERVLISTEND, mask, has_type ? parameters[1] : "*", "End of service listing");
 	return CMD_SUCCESS;
 }
