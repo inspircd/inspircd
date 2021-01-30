@@ -615,11 +615,11 @@ void ServerConfig::ApplyModules(User* user)
 	}
 }
 
-std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag)
+std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def)
 {
 	auto tags = stdalgo::equal_range(config_data, tag);
 	if (tags.empty())
-		return EmptyTag;
+		return def ? def : EmptyTag;
 
 	if (tags.count() > 1)
 	{
@@ -629,9 +629,10 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag)
 	return tags.begin()->second;
 }
 
-ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag)
+ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag, std::optional<TagList> def)
 {
-	return stdalgo::equal_range(config_data, tag);
+	auto range = stdalgo::equal_range(config_data, tag);
+	return range.empty() && def ? *def : range;
 }
 
 std::string ServerConfig::Escape(const std::string& str)
