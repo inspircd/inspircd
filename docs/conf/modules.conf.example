@@ -2233,8 +2233,8 @@
 # Set the maximum number of entries allowed on a user's silence list.
 #<silence maxentries="32"
 #
-# Whether messages from U-lined servers will bypass silence masks.
-#exemptuline="yes">
+# Whether messages from services servers will bypass silence masks.
+#exemptservice="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #

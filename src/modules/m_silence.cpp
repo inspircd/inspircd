@@ -396,7 +396,7 @@ class ModuleSilence
 	, public ISupport::EventListener
 {
  private:
-	bool exemptuline;
+	bool exemptservice;
 	CommandSilence cmd;
 
 	ModResult BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions)
@@ -416,7 +416,7 @@ class ModuleSilence
 		if (!IS_LOCAL(target))
 			return true;
 
-		if (exemptuline && source->server->IsULine())
+		if (exemptservice && source->server->IsULine())
 			return true;
 
 		SilenceList* list = cmd.ext.get(target);
@@ -447,7 +447,7 @@ class ModuleSilence
 	void ReadConfig(ConfigStatus& status) override
 	{
 		auto tag = ServerInstance->Config->ConfValue("silence");
-		exemptuline = tag->getBool("exemptuline", true);
+		exemptservice = tag->getBool("exemptservice", tag->getBool("exemptuline", true));
 		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}
 
