@@ -6,4 +6,4 @@
 
 # /GLOBAL <message>
 # Sends a global notice.
-<alias text="GLOBAL" format="*" replace="SQUERY $requirement :GLOBAL $2-" requires="Global" uline="yes" operonly="yes">
+<alias text="GLOBAL" format="*" replace="SQUERY $requirement :GLOBAL $2-" requires="Global" service="yes" operonly="yes">

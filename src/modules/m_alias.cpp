@@ -41,8 +41,8 @@ class Alias
 	/** Nickname required to perform alias */
 	std::string RequiredNick;
 
-	/** Alias requires ulined server */
-	bool ULineOnly;
+	/** Alias requires the required nick to be on a services server */
+	bool ServiceOnly;
 
 	/** Requires oper? */
 	bool OperOnly;
@@ -95,7 +95,7 @@ class ModuleAlias : public Module
 				throw ModuleException("<alias:replace> is empty! at " + tag->source.str());
 
 			a.RequiredNick = tag->getString("requires");
-			a.ULineOnly = tag->getBool("uline");
+			a.ServiceOnly = tag->getBool("service", tag->getBool("uline"));
 			a.ChannelCommand = tag->getBool("channelcommand", false);
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
@@ -286,7 +286,7 @@ class ModuleAlias : public Module
 				return 1;
 			}
 
-			if ((a.ULineOnly) && (!u->server->IsULine()))
+			if ((a.ServiceOnly) && (!u->server->IsService()))
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "NOTICE -- Service "+a.RequiredNick+" required by alias "+a.AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
 				user->WriteNumeric(ERR_NOSUCHNICK, a.RequiredNick, "is not a network service! Please inform a server operator as soon as possible.");
