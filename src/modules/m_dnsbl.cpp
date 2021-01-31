@@ -372,23 +372,15 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 	void OnSetUserIP(LocalUser* user) override
 	{
-		if (user->exempt || user->quitting || !DNS)
+		if (user->exempt || user->quitting || !DNS || !user->GetClass())
 			return;
 
 		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
 		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
 			return;
 
-		if (user->MyClass)
-		{
-			if (!user->MyClass->config->getBool("usednsbl", true))
-				return;
-		}
-		else
-		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
+		if (!user->GetClass()->config->getBool("usednsbl", true))
 			return;
-		}
 
 		std::string reversedip;
 		if (user->client_sa.family() == AF_INET)

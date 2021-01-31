@@ -39,7 +39,7 @@ void CullList::Apply()
 		{
 			LocalUser *u = *a;
 			ServerInstance->SNO.WriteGlobalSno('a', "User %s SendQ exceeds connect class maximum of %lu",
-				u->nick.c_str(), u->MyClass->GetSendqHardMax());
+				u->nick.c_str(), u->GetClass()->GetSendqHardMax());
 			ServerInstance->Users.QuitUser(u, "SendQ exceeded");
 		}
 		working.clear();

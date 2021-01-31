@@ -178,7 +178,7 @@ class ModuleHostnameLookup : public Module
 	{
 		// If core_dns is not loaded or hostname resolution is disabled for the user's
 		// connect class then the logic in this function does not apply.
-		if (!DNS || user->quitting || !user->MyClass->resolvehostnames)
+		if (!DNS || user->quitting || !user->GetClass()->resolvehostnames)
 			return;
 
 		// Clients can't have a DNS hostname if they aren't connected via IPv4 or IPv6.

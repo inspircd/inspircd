@@ -330,7 +330,7 @@ class ModuleIdent : public Module
 		if (user->registered == REG_ALL || user->quitting)
 			return;
 
-		std::shared_ptr<ConfigTag> tag = user->MyClass->config;
+		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;
 		if (!tag->getBool("useident", true))
 		{
 			state.set(user, IDENT_SKIPPED);

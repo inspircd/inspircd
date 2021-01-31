@@ -86,7 +86,7 @@ class ModulePassForward : public Module
 			return;
 
 		// If the connect class requires a password, don't forward it
-		if (!user->MyClass->config->getString("password").empty())
+		if (!user->GetClass()->config->getString("password").empty())
 			return;
 
 		AccountExtItem* actext = GetAccountExtItem();

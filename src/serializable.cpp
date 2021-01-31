@@ -263,8 +263,8 @@ bool LocalUser::Serialize(Serializable::Data& data)
 
 	// The following member variables not checked above are not serialised:
 	// * already_sent (can't be networked reliably)
+	// * connectclass (might not be the same on a different server)
 	// * eh (shouldn't be networked)
-	// * MyClass (might not be the same on a different server)
 	// * serializer (might not be the same on a different connection)
 	data.Store("bytes_in", bytes_in)
 		.Store("bytes_out", bytes_out)

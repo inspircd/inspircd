@@ -167,7 +167,7 @@ class ModuleSQLAuth : public Module
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Note this is their initial (unresolved) connect block
-		std::shared_ptr<ConfigTag> tag = user->MyClass->config;
+		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;
 		if (!tag->getBool("usesqlauth", true))
 			return MOD_RES_PASSTHRU;
 

@@ -71,11 +71,11 @@ namespace
 			{
 				// A module is preventing this user from being timed out.
 				user->lastping = 1;
-				user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
+				user->nextping = ServerInstance->Time() + user->GetClass()->GetPingTime();
 				return;
 			}
 
-			time_t secs = ServerInstance->Time() - (user->nextping - user->MyClass->GetPingTime());
+			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->GetPingTime());
 			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
 			ServerInstance->Users.QuitUser(user, message);
 			return;
@@ -85,7 +85,7 @@ namespace
 		ClientProtocol::Messages::Ping ping;
 		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 		user->lastping = 0;
-		user->nextping = ServerInstance->Time() + user->MyClass->GetPingTime();
+		user->nextping = ServerInstance->Time() + user->GetClass()->GetPingTime();
 	}
 
 	void CheckRegistrationTimeout(LocalUser* user)
@@ -394,7 +394,7 @@ void UserManager::DoBackgroundUserStuff()
 
 		if (curr->CommandFloodPenalty || curr->eh.GetSendQSize())
 		{
-			unsigned int rate = curr->MyClass->GetCommandRate();
+			unsigned int rate = curr->GetClass()->GetCommandRate();
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else

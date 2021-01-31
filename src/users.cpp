@@ -231,21 +231,21 @@ void UserIOHandler::OnDataReady()
 	if (user->quitting)
 		return;
 
-	if (recvq.length() > user->MyClass->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > user->GetClass()->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
-			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
+			user->nick.c_str(), (unsigned long)recvq.length(), user->GetClass()->GetRecvqMax());
 		return;
 	}
 
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = user->MyClass->GetSendqSoftMax();
+		sendqmax = user->GetClass()->GetSendqSoftMax();
 
 	unsigned long penaltymax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
+		penaltymax = user->GetClass()->GetPenaltyThreshold() * 1000;
 
 	// The cleaned message sent by the user or empty if not found yet.
 	std::string line;
@@ -300,7 +300,7 @@ void UserIOHandler::OnDataReady()
 		line.clear();
 	}
 
-	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
+	if (user->CommandFloodPenalty >= penaltymax && !user->GetClass()->fakelag)
 		ServerInstance->Users.QuitUser(user, "Excess Flood");
 }
 
@@ -308,7 +308,7 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 {
 	if (user->quitting_sendq)
 		return;
-	if (!user->quitting && GetSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
+	if (!user->quitting && GetSendQSize() + data.length() > user->GetClass()->GetSendqHardMax() &&
 		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		user->quitting_sendq = true;
@@ -493,7 +493,7 @@ void User::UnOper()
  */
 void LocalUser::CheckClass(bool clone_count)
 {
-	std::shared_ptr<ConnectClass> a = this->MyClass;
+	std::shared_ptr<ConnectClass> a = GetClass();
 
 	if (!a)
 	{
@@ -565,7 +565,7 @@ void LocalUser::FullConnect()
 	 * may put the user into a totally separate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	MyClass = NULL;
+	connectclass = NULL;
 	SetClass();
 	CheckClass();
 	CheckLines();
@@ -587,7 +587,7 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->server_sa.port(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
+		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -774,7 +774,7 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.
-	this->MyClass = NULL;
+	this->connectclass = NULL;
 	this->SetClass();
 	this->CheckClass();
 
@@ -1182,7 +1182,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	 */
 	if (found)
 	{
-		MyClass = found;
+		connectclass = found;
 	}
 }
 

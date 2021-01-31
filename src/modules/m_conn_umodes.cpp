@@ -33,7 +33,7 @@ class ModuleModesOnConnect : public Module
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		const std::string modestr = user->MyClass->config->getString("modes");
+		const std::string modestr = user->GetClass()->config->getString("modes");
 		if (modestr.empty())
 			return;
 

@@ -663,6 +663,9 @@ typedef unsigned int already_sent_t;
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
  private:
+	/** The connect class this user is in. */
+	std::shared_ptr<ConnectClass> connectclass;
+
 	/** Message list, can be passed to the two parameter Send(). */
 	static ClientProtocol::MessageList sendmsglist;
 
@@ -712,14 +715,10 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	std::string password;
 
-	/** Contains a pointer to the connect class a user is on from
-	 */
-	std::shared_ptr<ConnectClass> MyClass;
-
 	/** Get the connect class which this user belongs to.
 	 * @return A pointer to this user's connect class.
 	 */
-	std::shared_ptr<ConnectClass> GetClass() const { return MyClass; }
+	std::shared_ptr<ConnectClass> GetClass() const { return connectclass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */
