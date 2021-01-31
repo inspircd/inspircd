@@ -62,11 +62,10 @@ use constant {
 };
 
 my $scriptpath = "@SCRIPT_DIR@";
-my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@";
 my $binpath	=	"@BINARY_DIR@";
 my $runtimedir = "@RUNTIME_DIR@";
-my $valgrindlogpath	=	"$basepath/valgrindlogs";
+my $valgrindlogpath = "@LOG_DIR@/valgrind";
 my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
 my $uid = "@UID@";
