@@ -662,6 +662,10 @@ typedef unsigned int already_sent_t;
 
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
+ private:
+	/** Message list, can be passed to the two parameter Send(). */
+	static ClientProtocol::MessageList sendmsglist;
+
 	/** Add a serialized message to the send queue of the user.
 	 * @param serialized Bytes to add.
 	 */
@@ -673,10 +677,6 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * before Write().
 	 */
 	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
-
-	/** Message list, can be passed to the two parameter Send().
-	 */
-	static ClientProtocol::MessageList sendmsglist;
 
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
