@@ -148,6 +148,7 @@ class CommandSSLInfo : public Command
 {
  public:
 	UserCertificateAPIImpl sslapi;
+	bool operonlyfp;
 
 	CommandSSLInfo(Module* Creator)
 		: Command(Creator, "SSLINFO", 1)
@@ -166,7 +167,6 @@ class CommandSSLInfo : public Command
 			return CMD_FAILURE;
 		}
 
-		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 		if (operonlyfp && !user->IsOper() && target != user)
 		{
 			user->WriteNotice("*** You cannot view TLS (SSL) client certificate information for other users");
@@ -217,6 +217,12 @@ class ModuleSSLInfo
 	{
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("sslinfo");
+		cmd.operonlyfp = tag->getBool("operonly");
+	}
+
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds user facing TLS (SSL) information, various TLS (SSL) configuration options, and the /SSLINFO command to look up TLS (SSL) certificate information for other users.", VF_VENDOR);
@@ -228,8 +234,7 @@ class ModuleSSLInfo
 		if (cert)
 		{
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
-			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-			if ((!operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
+			if ((!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
 				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has TLS (SSL) client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
