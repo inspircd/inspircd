@@ -524,7 +524,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (Config->cmdline.forcedebug)
 	{
-		FileWriter* fw = new FileWriter(stdout, 1);
+		FILE* newstdout = fdopen(dup(STDOUT_FILENO), "w");
+		FileWriter* fw = new FileWriter(newstdout, 1);
 		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
