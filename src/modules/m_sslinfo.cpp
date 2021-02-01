@@ -144,23 +144,23 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	}
 };
 
-class CommandSSLInfo : public Command
+class CommandSSLInfo : public SplitCommand
 {
  public:
 	UserCertificateAPIImpl sslapi;
 	bool operonlyfp;
 
 	CommandSSLInfo(Module* Creator)
-		: Command(Creator, "SSLINFO", 1)
+		: SplitCommand(Creator, "SSLINFO", 1)
 		, sslapi(Creator)
 	{
+		allow_empty_last_param = false;
 		syntax = "<nick>";
 	}
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
-
 		if ((!target) || (target->registered != REG_ALL))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
