@@ -174,6 +174,25 @@ class CommandSSLInfo : public SplitCommand
 		}
 	}
 
+	CmdResult HandleUser(LocalUser* source, const std::string& nick)
+	{
+		User* target = ServerInstance->FindNickOnly(nick);
+		if (!target || target->registered != REG_ALL)
+		{
+			source->WriteNumeric(Numerics::NoSuchNick(nick));
+			return CMD_FAILURE;
+		}
+
+		if (operonlyfp && !source->IsOper() && source != target)
+		{
+			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS (SSL) client certificate information for other users.");
+			return CMD_FAILURE;
+		}
+
+		HandleUserInternal(source, target, true);
+		return CMD_SUCCESS;
+	}
+
 	CmdResult HandleChannel(LocalUser* source, const std::string& channel)
 	{
 		Channel* chan = ServerInstance->FindChan(channel);
@@ -226,22 +245,8 @@ class CommandSSLInfo : public SplitCommand
 	{
 		if (ServerInstance->IsChannel(parameters[0]))
 			return HandleChannel(user, parameters[0]);
-
-		User* target = ServerInstance->FindNickOnly(parameters[0]);
-		if ((!target) || (target->registered != REG_ALL))
-		{
-			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
-		}
-
-		if (operonlyfp && !user->IsOper() && target != user)
-		{
-			user->WriteNotice("*** You cannot view TLS (SSL) client certificate information for other users");
-			return CMD_FAILURE;
-		}
-
-		HandleUserInternal(user, target, true);
-		return CMD_SUCCESS;
+		else
+			return HandleUser(user, parameters[0]);
 	}
 };
 
