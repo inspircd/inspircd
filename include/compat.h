@@ -24,7 +24,7 @@
  * Some implementations of the C++11 standard library are incomplete so we use
  * the implementation of the same types from C++ Technical Report 1 instead.
  */
-#if defined _LIBCPP_VERSION || defined _WIN32
+#if defined _LIBCPP_VERSION || defined _WIN32 || __cplusplus >= 201103L
 # define TR1NS std
 # include <array>
 # include <functional>
