@@ -146,20 +146,87 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 
 class CommandSSLInfo : public SplitCommand
 {
+ private:
+	ChanModeReference sslonlymode;
+
+	void HandleUserInternal(LocalUser* source, User* target, bool verbose)
+	{
+		ssl_cert* cert = sslapi.GetCertificate(target);
+		if (!cert)
+		{
+			source->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS (SSL).", target->nick.c_str()));
+		}
+		else if (cert->GetError().length())
+		{
+			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) but has not specified a valid client certificate (%s).",
+				target->nick.c_str(), cert->GetError().c_str()));
+		}
+		else if (!verbose)
+		{
+			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) with a valid client certificate (%s).",
+				target->nick.c_str(), cert->GetFingerprint().c_str()));
+		}
+		else
+		{
+			source->WriteNotice("*** Distinguished Name: " + cert->GetDN());
+			source->WriteNotice("*** Issuer:             " + cert->GetIssuer());
+			source->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
+		}
+	}
+
+	CmdResult HandleChannel(LocalUser* source, const std::string& channel)
+	{
+		Channel* chan = ServerInstance->FindChan(channel);
+		if (!chan)
+		{
+			source->WriteNumeric(Numerics::NoSuchChannel(channel));
+			return CMD_FAILURE;
+		}
+
+		if (operonlyfp && !source->IsOper())
+		{
+			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS (SSL) client certificate information for channels.");
+			return CMD_FAILURE;
+		}
+
+		if (!source->IsOper() && chan->GetPrefixValue(source) < OP_VALUE)
+		{
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, "You must be a channel operator.");
+			return CMD_FAILURE;
+		}
+
+		if (sslonlymode)
+		{
+			source->WriteNotice(InspIRCd::Format("*** %s %s have channel mode +%c (%s) set.",
+				chan->name.c_str(), chan->IsModeSet(sslonlymode) ? "does" : "does not",
+				sslonlymode->GetModeChar(), sslonlymode->name.c_str()));
+		}
+
+		const Channel::MemberMap& userlist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
+			HandleUserInternal(source, i->first, false);
+
+		return CMD_SUCCESS;
+	}
+
  public:
 	UserCertificateAPIImpl sslapi;
 	bool operonlyfp;
 
 	CommandSSLInfo(Module* Creator)
 		: SplitCommand(Creator, "SSLINFO", 1)
+		, sslonlymode(Creator, "sslonly")
 		, sslapi(Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "<nick>";
+		syntax = "<channel|nick>";
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
 	{
+		if (ServerInstance->IsChannel(parameters[0]))
+			return HandleChannel(user, parameters[0]);
+
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
 		if ((!target) || (target->registered != REG_ALL))
 		{
@@ -173,23 +240,7 @@ class CommandSSLInfo : public SplitCommand
 			return CMD_FAILURE;
 		}
 
-		ssl_cert* cert = sslapi.GetCertificate(target);
-		if (!cert)
-		{
-			user->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS (SSL).", target->nick.c_str()));
-		}
-		else if (cert->GetError().length())
-		{
-			user->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) but has not specified a valid client certificate (%s).",
-				target->nick.c_str(), cert->GetError().c_str()));
-		}
-		else
-		{
-			user->WriteNotice("*** Distinguished Name: " + cert->GetDN());
-			user->WriteNotice("*** Issuer:             " + cert->GetIssuer());
-			user->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
-		}
-
+		HandleUserInternal(user, target, true);
 		return CMD_SUCCESS;
 	}
 };
