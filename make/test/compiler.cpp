@@ -19,7 +19,7 @@
 
 
 #include <iostream>
-#if defined _LIBCPP_VERSION
+#if defined _LIBCPP_VERSION || __cplusplus >= 201103L
 # include <array>
 # include <type_traits>
 # include <unordered_map>
