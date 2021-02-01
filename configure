@@ -321,7 +321,6 @@ EOW
 my $question = <<"EOQ";
 Currently, InspIRCd is configured with the following paths:
 
-<|BOLD Base:|>   $config{BASE_DIR}
 <|BOLD Binary:|> $config{BINARY_DIR}
 <|BOLD Config:|> $config{CONFIG_DIR}
 <|BOLD Data:|>   $config{DATA_DIR}
@@ -454,7 +453,6 @@ push @makeargs, "-j${\(get_cpu_count() + 1)}";
 print console_format <<"EOM";
 
 <|GREEN Paths:|>
-  <|GREEN Base:|>    $config{BASE_DIR}
   <|GREEN Binary:|>  $config{BINARY_DIR}
   <|GREEN Config:|>  $config{CONFIG_DIR}
   <|GREEN Data:|>    $config{DATA_DIR}

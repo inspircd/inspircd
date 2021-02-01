@@ -102,6 +102,8 @@ typedef SSIZE_T ssize_t;
 #define popen _popen
 #define pclose _pclose
 #define getpid _getpid
+#define dup _dup
+#define fdopen _fdopen
 
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 // Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.

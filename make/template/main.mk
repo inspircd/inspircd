@@ -51,7 +51,6 @@ CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
 
 DESTDIR := $(if $(DESTDIR),$(DESTDIR),"@DESTDIR|@")
-BASE    = "$(DESTDIR)@BASE_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
@@ -222,7 +221,6 @@ finishmessage: target
 	@echo "*************************************"
 
 install: target
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BASE)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BINPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
@@ -262,7 +260,6 @@ endif
 	@echo "*        INSTALL COMPLETE!          *"
 	@echo "*************************************"
 	@echo 'Paths:'
-	@echo '  Base install:' $(BASE)
 	@echo '  Configuration:' $(CONPATH)
 	@echo '  Binaries:' $(BINPATH)
 	@echo '  Modules:' $(MODPATH)
@@ -318,7 +315,6 @@ help:
 	@echo 'Targets:'
 	@echo ' all       Complete build of InspIRCd, without installing (default)'
 	@echo ' install   Build and install InspIRCd to the directory chosen in ./configure'
-	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
 	@echo ' INSPIRCD_TARGET=target  Builds a user-specified target, such as "inspircd" or "core_dns"'

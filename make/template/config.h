@@ -29,7 +29,7 @@
 #define INSPIRCD_VERSION_BEFORE(MAJOR, MINOR) (((@VERSION_MAJOR@ << 8) | @VERSION_MINOR@) < ((MAJOR << 8) | (MINOR)))
 
 /** Determines whether this version of InspIRCd is equal to or newer than the requested version. */
-#define INSPIRCD_VERSION_SINCE(MAJOR, MINOR) (((@VERSION_MAJOR@ << 16) | @VERSION_MINOR@) >= ((MAJOR << 8) | (MINOR)))
+#define INSPIRCD_VERSION_SINCE(MAJOR, MINOR) (((@VERSION_MAJOR@ << 8) | @VERSION_MINOR@) >= ((MAJOR << 8) | (MINOR)))
 
 /** The default location that config files are stored in. */
 #define INSPIRCD_CONFIG_PATH "@CONFIG_DIR@"
