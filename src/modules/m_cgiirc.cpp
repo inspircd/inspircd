@@ -173,8 +173,9 @@ class CommandWebIRC : public SplitCommand
 			realhost.set(user, user->GetRealHost());
 			realip.set(user, user->GetIPString());
 
-			WriteLog("Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
-				user->uuid.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
+			WriteLog("Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
+				user->uuid.c_str(), parameters[1].c_str(),
+				user->GetIPString().c_str(), parameters[3].c_str());
 
 			// If we have custom flags then deal with them.
 			WebIRC::FlagMap flags;
