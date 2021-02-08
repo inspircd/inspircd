@@ -205,10 +205,10 @@ if (defined $opt_portable) {
 	$config{RUNTIME_DIR} = $opt_runtime_dir // $config{DATA_DIR};
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
 } elsif (defined $opt_system) {
-	$config{BASE_DIR}    = $opt_prefix      // '/var/lib/inspircd';
+	$config{BASE_DIR}    = $opt_prefix      // '/';
 	$config{BINARY_DIR}  = $opt_binary_dir  // '/usr/sbin';
 	$config{CONFIG_DIR}  = $opt_config_dir  // '/etc/inspircd';
-	$config{DATA_DIR}    = $opt_data_dir    // '/var/inspircd';
+	$config{DATA_DIR}    = $opt_data_dir    // '/var/lib/inspircd';
 	$config{EXAMPLE_DIR} = $opt_example_dir // '/usr/share/doc/inspircd';
 	$config{LOG_DIR}     = $opt_log_dir     // '/var/log/inspircd';
 	$config{MANUAL_DIR}  = $opt_manual_dir  // '/usr/share/man/man1';
