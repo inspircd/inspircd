@@ -1381,7 +1381,7 @@ class ModuleSSLGnuTLS : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO->WriteToSnoMask('a', "TLS (SSL) module GnuTLS rehashed.");
+			ServerInstance->SNO->WriteToSnoMask('a', "GnuTLS TLS (SSL) profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
