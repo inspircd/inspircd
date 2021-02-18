@@ -24,11 +24,6 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From RFC 2812.
-	ERR_NOSUCHSERVICE = 408
-};
 
 class MessageDetailsImpl : public MessageDetails
 {
