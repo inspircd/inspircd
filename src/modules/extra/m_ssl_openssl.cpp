@@ -1075,7 +1075,7 @@ class ModuleSSLOpenSSL : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO->WriteToSnoMask('a', "TLS (SSL) module OpenSSL rehashed.");
+			ServerInstance->SNO->WriteToSnoMask('a', "OpenSSL TLS (SSL) profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{

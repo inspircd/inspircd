@@ -951,7 +951,7 @@ class ModuleSSLmbedTLS : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO->WriteToSnoMask('a', "TLS (SSL) module mbedTLS rehashed.");
+			ServerInstance->SNO->WriteToSnoMask('a', "mbedTLS TLS (SSL) profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
