@@ -124,6 +124,84 @@ class WebIRCHost
 	}
 };
 
+class CommandHexIP : public SplitCommand
+{
+ public:
+	CommandHexIP(Module* Creator)
+		: SplitCommand(Creator, "HEXIP", 1)
+	{
+		allow_empty_last_param = false;
+		Penalty = 2;
+		syntax = "<hex-ip|raw-ip>";
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
+	{
+		irc::sockets::sockaddrs sa;
+		if (irc::sockets::aptosa(parameters[0], 0, sa))
+		{
+			if (sa.family() != AF_INET)
+			{
+				user->WriteNotice("*** HEXIP: You can only hex encode an IPv4 address!");
+				return CMD_FAILURE;
+			}
+
+			uint32_t addr = sa.in4.sin_addr.s_addr;
+			user->WriteNotice(InspIRCd::Format("*** HEXIP: %s encodes to %02x%02x%02x%02x.",
+				sa.addr().c_str(), (addr & 0xFF), ((addr >> 8) & 0xFF), ((addr >> 16) & 0xFF),
+				((addr >> 24) & 0xFF)));
+			return CMD_SUCCESS;
+		}
+
+		if (ParseIP(parameters[0], sa))
+		{
+			user->WriteNotice(InspIRCd::Format("*** HEXIP: %s decodes to %s.",
+				parameters[0].c_str(), sa.addr().c_str()));
+			return CMD_SUCCESS;
+		}
+
+		user->WriteNotice(InspIRCd::Format("*** HEXIP: %s is not a valid raw or hex encoded IPv4 address.",
+			parameters[0].c_str()));
+		return CMD_FAILURE;
+	}
+
+	static bool ParseIP(const std::string& in, irc::sockets::sockaddrs& out)
+	{
+		const char* ident = NULL;
+		if (in.length() == 8)
+		{
+			// The ident is an IPv4 address encoded in hexadecimal with two characters
+			// per address segment.
+			ident = in.c_str();
+		}
+		else if (in.length() == 9 && in[0] == '~')
+		{
+			// The same as above but m_ident got to this user before we did. Strip the
+			// ident prefix and continue as normal.
+			ident = in.c_str() + 1;
+		}
+		else
+		{
+			// The user either does not have an IPv4 in their ident or the gateway server
+			// is also running an identd. In the latter case there isn't really a lot we
+			// can do so we just assume that the client in question is not connecting via
+			// an ident gateway.
+			return false;
+		}
+
+		// Try to convert the IP address to a string. If this fails then the user
+		// does not have an IPv4 address in their ident.
+		errno = 0;
+		unsigned long address = strtoul(ident, NULL, 16);
+		if (errno)
+			return false;
+
+		out.in4.sin_family = AF_INET;
+		out.in4.sin_addr.s_addr = htonl(address);
+		return true;
+	}
+};
+
 class CommandWebIRC : public SplitCommand
 {
  public:
@@ -236,49 +314,15 @@ class ModuleCgiIRC
 	, public Whois::EventListener
 {
  private:
+	CommandHexIP cmdhexip;
 	CommandWebIRC cmdwebirc;
 	std::vector<IdentHost> hosts;
-
-	static bool ParseIdent(LocalUser* user, irc::sockets::sockaddrs& out)
-	{
-		const char* ident = NULL;
-		if (user->ident.length() == 8)
-		{
-			// The ident is an IPv4 address encoded in hexadecimal with two characters
-			// per address segment.
-			ident = user->ident.c_str();
-		}
-		else if (user->ident.length() == 9 && user->ident[0] == '~')
-		{
-			// The same as above but m_ident got to this user before we did. Strip the
-			// ident prefix and continue as normal.
-			ident = user->ident.c_str() + 1;
-		}
-		else
-		{
-			// The user either does not have an IPv4 in their ident or the gateway server
-			// is also running an identd. In the latter case there isn't really a lot we
-			// can do so we just assume that the client in question is not connecting via
-			// an ident gateway.
-			return false;
-		}
-
-		// Try to convert the IP address to a string. If this fails then the user
-		// does not have an IPv4 address in their ident.
-		errno = 0;
-		unsigned long address = strtoul(ident, NULL, 16);
-		if (errno)
-			return false;
-
-		out.in4.sin_family = AF_INET;
-		out.in4.sin_addr.s_addr = htonl(address);
-		return true;
-	}
 
  public:
 	ModuleCgiIRC()
 		: WebIRC::EventListener(this)
 		, Whois::EventListener(this)
+		, cmdhexip(this)
 		, cmdwebirc(this)
 	{
 	}
@@ -392,7 +436,7 @@ class ModuleCgiIRC
 			// We have matched an <cgihost> block! Try to parse the encoded IPv4 address
 			// out of the ident.
 			irc::sockets::sockaddrs address(user->client_sa);
-			if (!ParseIdent(user, address))
+			if (!CommandHexIP::ParseIP(user->ident, address))
 				return MOD_RES_PASSTHRU;
 
 			// Store the hostname and IP of the gateway for later use.
