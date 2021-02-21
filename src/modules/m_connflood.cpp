@@ -27,6 +27,7 @@
 
 class ModuleConnFlood : public Module
 {
+ private:
 	unsigned int seconds;
 	unsigned int timeout;
 	unsigned int boot_wait;
@@ -35,6 +36,16 @@ class ModuleConnFlood : public Module
 	bool throttled;
 	time_t first;
 	std::string quitmsg;
+
+	static bool IsExempt(LocalUser* user)
+	{
+		// E-lined and already banned users shouldn't be hit.
+		if (user->exempt || user->quitting)
+			return true;
+
+		// Users in an exempt class shouldn't be hit.
+		return user->GetClass() && !user->GetClass()->config->getBool("useconnflood", true);
+	}
 
 public:
 	ModuleConnFlood()
@@ -65,7 +76,7 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (user->exempt)
+		if (IsExempt(user))
 			return MOD_RES_PASSTHRU;
 
 		time_t next = ServerInstance->Time();
