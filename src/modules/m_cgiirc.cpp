@@ -236,7 +236,7 @@ class ModuleCgiIRC
 	, public Whois::EventListener
 {
  private:
-	CommandWebIRC cmd;
+	CommandWebIRC cmdwebirc;
 	std::vector<IdentHost> hosts;
 
 	static bool ParseIdent(LocalUser* user, irc::sockets::sockaddrs& out)
@@ -279,7 +279,7 @@ class ModuleCgiIRC
 	ModuleCgiIRC()
 		: WebIRC::EventListener(this)
 		, Whois::EventListener(this)
-		, cmd(this)
+		, cmdwebirc(this)
 	{
 	}
 
@@ -342,10 +342,10 @@ class ModuleCgiIRC
 
 		// The host configuration was valid so we can apply it.
 		hosts.swap(identhosts);
-		cmd.hosts.swap(webirchosts);
+		cmdwebirc.hosts.swap(webirchosts);
 
 		// Do we send an oper notice when a m_cgiirc client has their IP changed?
-		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		cmdwebirc.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
@@ -357,7 +357,7 @@ class ModuleCgiIRC
 
 		// If the user is not connecting via a WebIRC gateway then they
 		// cannot match this connect class.
-		const std::string* gateway = cmd.gateway.get(user);
+		const std::string* gateway = cmdwebirc.gateway.get(user);
 		if (!gateway)
 		{
 			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
@@ -380,7 +380,7 @@ class ModuleCgiIRC
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		// There is no need to check for gateways if one is already being used.
-		if (cmd.realhost.get(user))
+		if (cmdwebirc.realhost.get(user))
 			return MOD_RES_PASSTHRU;
 
 		for (std::vector<IdentHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
@@ -396,11 +396,11 @@ class ModuleCgiIRC
 				return MOD_RES_PASSTHRU;
 
 			// Store the hostname and IP of the gateway for later use.
-			cmd.realhost.set(user, user->GetRealHost());
-			cmd.realip.set(user, user->GetIPString());
+			cmdwebirc.realhost.set(user, user->GetRealHost());
+			cmdwebirc.realip.set(user, user->GetIPString());
 
 			const std::string& newident = iter->GetIdent();
-			cmd.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
+			cmdwebirc.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 
 			user->ChangeIdent(newident);
@@ -476,12 +476,12 @@ class ModuleCgiIRC
 			return;
 
 		// If these fields are not set then the client is not using a gateway.
-		const std::string* realhost = cmd.realhost.get(whois.GetTarget());
-		const std::string* realip = cmd.realip.get(whois.GetTarget());
+		const std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
+		const std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
 
-		const std::string* gateway = cmd.gateway.get(whois.GetTarget());
+		const std::string* gateway = cmdwebirc.gateway.get(whois.GetTarget());
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
