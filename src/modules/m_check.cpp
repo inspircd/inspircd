@@ -146,6 +146,15 @@ class CommandCheck : public Command
 		return ret;
 	}
 
+	static std::string GetAllowedOperOnlySnomasks(LocalUser* user)
+	{
+		std::string ret;
+		for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
+			if (ServerInstance->SNO->IsSnomaskUsable(sno) && user->HasSnomaskPermission(sno))
+				ret.push_back(sno);
+		return ret;
+	}
+
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
@@ -209,6 +218,7 @@ class CommandCheck : public Command
 				{
 					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
 					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
+					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(loctarg));
 					context.Write("commandperms", oper->AllowedOperCommands.ToString());
 					context.Write("permissions", oper->AllowedPrivs.ToString());
 				}
