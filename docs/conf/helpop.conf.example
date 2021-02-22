@@ -153,7 +153,7 @@ which caused trouble for some users.
 ">
 
 <helpop key="hexip" title="/HEXIP <hex-ip|raw-ip>" value="
-If the specified argument is an raw IP address then respond with the
+If the specified argument is a raw IP address then respond with the
 hex encoded equivalent as if sent by an ident gateway. Otherwise, if
 the specified argument is a hex encoded IP address then respond with
 the equivalent raw IP address.
