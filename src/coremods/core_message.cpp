@@ -298,15 +298,26 @@ class CommandMessage : public Command
 		if (parameters[0][0] == '$')
 			return HandleServerTarget(user, parameters);
 
-		// If the message begins with a status character then look it up.
+		// If the message begins with one or more status characters then look them up.
 		const char* target = parameters[0].c_str();
-		PrefixMode* pmh = ServerInstance->Modes->FindPrefix(target[0]);
-		if (pmh)
-			target++;
+		PrefixMode* targetpfx = NULL;
+		for (PrefixMode* pfx; (pfx = ServerInstance->Modes->FindPrefix(target[0])); ++target)
+		{
+			// We want the lowest ranked prefix specified.
+			if (!targetpfx || pfx->GetPrefixRank() < targetpfx->GetPrefixRank())
+				targetpfx = pfx;
+		}
+
+		if (!target[0])
+		{
+			// The target consisted solely of prefix modes.
+			user->WriteNumeric(ERR_NORECIPIENT, "No recipient given");
+			return CMD_FAILURE;
+		}
 
 		// The target is a channel name.
 		if (*target == '#')
-			return HandleChannelTarget(user, parameters, target, pmh);
+			return HandleChannelTarget(user, parameters, target, targetpfx);
 
 		// The target is a nickname.
 		return HandleUserTarget(user, parameters);
