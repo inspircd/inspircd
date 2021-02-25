@@ -27,11 +27,13 @@
 #include "modules/cap.h"
 #include "modules/names.h"
 #include "modules/who.h"
+#include "modules/whois.h"
 
 class ModuleNamesX
 	: public Module
 	, public Names::EventListener
 	, public Who::EventListener
+	, public Whois::LineEventListener
 {
  private:
 	Cap::Capability cap;
@@ -40,6 +42,7 @@ class ModuleNamesX
 	ModuleNamesX()
 		: Names::EventListener(this)
 		, Who::EventListener(this)
+		, Whois::LineEventListener(this)
 		, cap(this, "multi-prefix")
 	{
 	}
@@ -102,6 +105,50 @@ class ModuleNamesX
 			return MOD_RES_PASSTHRU;
 
 		numeric.GetParams()[flag_index].append(prefixes, 1, std::string::npos);
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS || !cap.get(whois.GetSource()))
+			return MOD_RES_PASSTHRU;
+
+		// :testnet.inspircd.org 319 test Sadie :#test ~#inspircd
+		if (numeric.GetParams().size() < 2 || numeric.GetParams().back().empty())
+			return MOD_RES_PASSTHRU;
+
+		std::stringstream newchannels;
+		irc::spacesepstream channelstream(numeric.GetParams().back());
+		for (std::string channel; channelstream.GetToken(channel); )
+		{
+			size_t hashpos = channel.find('#');
+			if (!hashpos || hashpos == std::string::npos)
+			{
+				// The entry is malformed or the user has no privs.
+				newchannels << channel << ' ';
+				continue;
+			}
+
+			Channel* chan = ServerInstance->FindChan(channel.substr(hashpos));
+			if (!chan)
+			{
+				// Should never happen.
+				newchannels << channel << ' ';
+				continue;
+			}
+
+			Membership* memb = chan->GetUser(whois.GetTarget());
+			if (!memb)
+			{
+				// Should never happen.
+				newchannels << channel << ' ';
+				continue;
+			}
+
+			newchannels << memb->GetAllPrefixChars() << chan->name << ' ';
+		}
+
+		numeric.GetParams().back() = newchannels.str();
 		return MOD_RES_PASSTHRU;
 	}
 };

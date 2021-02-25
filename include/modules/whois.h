@@ -28,6 +28,22 @@ namespace Whois
 	class Context;
 }
 
+enum
+{
+	// From RFC 1459.
+	RPL_WHOISUSER = 311,
+	RPL_WHOISOPERATOR = 313,
+	RPL_WHOISIDLE = 317,
+	RPL_WHOISCHANNELS = 319,
+
+	// From UnrealIRCd.
+	RPL_WHOISHOST = 378,
+	RPL_WHOISMODES = 379,
+
+	// InspIRCd-specific.
+	RPL_CHANNELSMSG = 651
+};
+
 class Whois::EventListener : public Events::ModuleEventListener
 {
  public:
