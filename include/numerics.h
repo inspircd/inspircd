@@ -114,6 +114,7 @@ enum
 	ERR_TOOMANYCHANNELS             = 405,
 	ERR_WASNOSUCHNICK               = 406,
 	ERR_NOSUCHSERVICE               = 408, // From RFC 2812.
+	ERR_NORECIPIENT                 = 411,
 	ERR_NOTEXTTOSEND                = 412,
 	ERR_UNKNOWNCOMMAND              = 421,
 	ERR_NOMOTD                      = 422,
