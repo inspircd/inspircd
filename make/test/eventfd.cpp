@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2012 William Pitcock <nenolod@dereferenced.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Ariadne Conill <ariadne@dereferenced.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
