@@ -104,6 +104,14 @@ void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 		user->WriteNumeric(Numerics::InvalidModeParameter(dest, this, "*", message));
 }
 
+void ModeHandler::OnParameterInvalid(User* user, Channel* targetchannel, User* targetuser, const std::string& parameter)
+{
+	if (targetchannel)
+		user->WriteNumeric(Numerics::InvalidModeParameter(targetchannel, this, "*"));
+	else
+		user->WriteNumeric(Numerics::InvalidModeParameter(targetuser, this, "*"));
+}
+
 bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ours, Channel*)
 {
 	return (theirs < ours);
@@ -403,7 +411,10 @@ static bool IsModeParamValid(User* user, Channel* targetchannel, User* targetuse
 
 	// The parameter cannot begin with a ':' character or contain a space
 	if ((item.param[0] == ':') || (item.param.find(' ') != std::string::npos))
+	{
+		item.mh->OnParameterInvalid(user, targetchannel, targetuser, item.param);
 		return false;
+	}
 
 	return true;
 }
