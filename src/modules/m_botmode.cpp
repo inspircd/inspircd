@@ -45,8 +45,12 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
 	{
 		User* const user = msg.GetSourceUser();
-		if (user && user->IsModeSet(botmode))
-			msg.AddTag("inspircd.org/bot", this, "");
+		if (!user || !user->IsModeSet(botmode))
+			return;
+
+		// TODO: remove inspircd.org/bot in v4.
+		msg.AddTag("bot", this, "");
+		msg.AddTag("inspircd.org/bot", this, "");
 	}
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
