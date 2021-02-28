@@ -19,7 +19,7 @@
 
 package make::console;
 
-use v5.10.0;
+use v5.26.0;
 use strict;
 use warnings FATAL => qw(all);
 
