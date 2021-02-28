@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2020-2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -44,7 +44,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 		if (serviceuser->IsModeSet(invisiblemode) || !InspIRCd::Match(serviceuser->nick, mask))
 			continue;
 
-		if (has_type && (!user->IsOper() || !InspIRCd::Match(user->oper->name, parameters[2	])))
+		if (has_type && (!serviceuser->IsOper() || !InspIRCd::Match(serviceuser->oper->name, parameters[2])))
 			continue;
 
 		Numeric::Numeric numeric(RPL_SERVLIST);

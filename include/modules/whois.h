@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -27,6 +28,22 @@ namespace Whois
 	class LineEventListener;
 	class Context;
 }
+
+enum
+{
+	// From RFC 1459.
+	RPL_WHOISUSER = 311,
+	RPL_WHOISOPERATOR = 313,
+	RPL_WHOISIDLE = 317,
+	RPL_WHOISCHANNELS = 319,
+
+	// From UnrealIRCd.
+	RPL_WHOISHOST = 378,
+	RPL_WHOISMODES = 379,
+
+	// InspIRCd-specific.
+	RPL_CHANNELSMSG = 651
+};
 
 class Whois::EventListener : public Events::ModuleEventListener
 {

@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -146,6 +146,15 @@ class CommandCheck : public Command
 		return ret;
 	}
 
+	static std::string GetAllowedOperOnlySnomasks(LocalUser* user)
+	{
+		std::string ret;
+		for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
+			if (ServerInstance->SNO.IsSnomaskUsable(sno) && user->HasSnomaskPermission(sno))
+				ret.push_back(sno);
+		return ret;
+	}
+
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
@@ -208,6 +217,7 @@ class CommandCheck : public Command
 				{
 					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
 					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
+					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(loctarg));
 					context.Write("commandperms", targuser->oper->AllowedOperCommands.ToString());
 					context.Write("permissions", targuser->oper->AllowedPrivs.ToString());
 				}

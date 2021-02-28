@@ -8,6 +8,7 @@
          globalmax="100"
          localmax="100"
          useconnectban="no"
+         useconnflood="no"
          usednsbl="no">
 
 <connect name="IRCCloud (Brockwell)"  parent="IRCCloud" allow="192.184.10.118">

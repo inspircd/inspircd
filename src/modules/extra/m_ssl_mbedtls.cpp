@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2016-2017 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -927,7 +927,7 @@ class ModuleSSLmbedTLS : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "TLS (SSL) module mbedTLS rehashed.");
+			ServerInstance->SNO.WriteToSnoMask('a', "mbedTLS TLS (SSL) profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{

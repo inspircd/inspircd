@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2020 satmd <satmd@users.noreply.github.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2017 Adam <Adam@anope.org>
  *   Copyright (C) 2016 Sheogorath <sheogorath@shivering-isles.com>

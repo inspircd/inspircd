@@ -157,7 +157,7 @@ class CoreExport UserManager
 	/** Return a count of fully registered connections on the network
 	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ULineCount(); }
+	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ServiceCount(); }
 
 	/** Return a count of local unregistered (before NICK/USER) users
 	 * @return The number of local unregistered (unknown) connections
@@ -167,7 +167,7 @@ class CoreExport UserManager
 	/** Return a count of users on a services servers.
 	 * @return The number of users on services servers.
 	 */
-	unsigned int ULineCount() const { return this->all_services.size(); }
+	unsigned int ServiceCount() const { return this->all_services.size(); }
 
 	/** Return a count of local registered users
 	 * @return The number of registered local users

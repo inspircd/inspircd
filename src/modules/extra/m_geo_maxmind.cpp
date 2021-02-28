@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -41,6 +41,12 @@ class GeolocationExtItem : public ExtensionItem
 	GeolocationExtItem(Module* parent)
 		: ExtensionItem(parent, "geolocation", ExtensionItem::EXT_USER)
 	{
+	}
+
+	std::string ToHuman(const Extensible* container, void* item) const override
+	{
+		Geolocation::Location* location = static_cast<Geolocation::Location*>(item);
+		return location->GetName() + " [" + location->GetCode() + "]";
 	}
 
 	void Delete(Extensible* container, void* item) override

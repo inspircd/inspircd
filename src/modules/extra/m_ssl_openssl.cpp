@@ -6,7 +6,7 @@
  *   Copyright (C) 2017 Wade Cline <wadecline@hotmail.com>
  *   Copyright (C) 2014, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Julien Vehent <julien@linuxwall.info>
- *   Copyright (C) 2013-2014, 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
@@ -981,7 +981,7 @@ class ModuleSSLOpenSSL : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "TLS (SSL) module OpenSSL rehashed.");
+			ServerInstance->SNO.WriteToSnoMask('a', "OpenSSL TLS (SSL) profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{

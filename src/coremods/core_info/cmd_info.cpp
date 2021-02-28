@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -57,7 +57,7 @@ static const char* const lines[] = {
 	"    Robin Burchell,         w00t,       <w00t@inspircd.org>",
 	" ",
 	"\002Active Contributors\002:",
-	"   Adam            linuxdaemon     Robby           Sheogorath",
+	"   Adam            Robby",
 	" ",
 	"\002Former Contributors\002:",
 	"   Adremelech      Ankit           AnMaster        Bricker",
@@ -65,16 +65,17 @@ static const char* const lines[] = {
 	"   Dan             djGrrr          dmb             eggy",
 	"   GreenReaper     HiroP           jackmcbarn      jamie",
 	"   Jason           jilles          John2           kaniini",
-	"   LeaChim         MacGyver        Majic           Namegduf",
-	"   owine           Phoenix         pippijn         praetorian",
-	"   Quension        satmd           Shawn           Shutter",
-	"   skenmy          Skip            Stskeeps        Taros",
-	"   ThaPrince       Thunderhacker   typobox43       Zaba",
+	"   LeaChim         linuxdaemon     MacGyver        majic",
+	"   Namegduf        owine           Phoenix         pippijn",
+	"   praetorian      Quension        satmd           Shawn",
+	"   Sheogorath      Shutter         skenmy          Skip",
+	"   Stskeeps        Taros           ThaPrince       Thunderhacker",
+	"   typobox43       Zaba",
 	" ",
 	"\002Thanks To\002:",
 	"   Asmo            Brik            fraggeln        prawnsalad",
 	" ",
-	" Best experienced with: \002An IRC client\002",
+	" Best experienced with \002an IRC client\002",
 	NULL
 };
 

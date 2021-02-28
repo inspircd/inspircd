@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2014 md_5 <git@md-5.net>
  *   Copyright (C) 2014 Googolplexed <googol@googolplexed.net>
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2013, 2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -124,6 +124,84 @@ class WebIRCHost
 	}
 };
 
+class CommandHexIP : public SplitCommand
+{
+ public:
+	CommandHexIP(Module* Creator)
+		: SplitCommand(Creator, "HEXIP", 1)
+	{
+		allow_empty_last_param = false;
+		Penalty = 2;
+		syntax = { "<hex-ip|raw-ip>" };
+	}
+
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
+	{
+		irc::sockets::sockaddrs sa;
+		if (irc::sockets::aptosa(parameters[0], 0, sa))
+		{
+			if (sa.family() != AF_INET)
+			{
+				user->WriteNotice("*** HEXIP: You can only hex encode an IPv4 address!");
+				return CmdResult::FAILURE;
+			}
+
+			uint32_t addr = sa.in4.sin_addr.s_addr;
+			user->WriteNotice(InspIRCd::Format("*** HEXIP: %s encodes to %02x%02x%02x%02x.",
+				sa.addr().c_str(), (addr & 0xFF), ((addr >> 8) & 0xFF), ((addr >> 16) & 0xFF),
+				((addr >> 24) & 0xFF)));
+			return CmdResult::SUCCESS;
+		}
+
+		if (ParseIP(parameters[0], sa))
+		{
+			user->WriteNotice(InspIRCd::Format("*** HEXIP: %s decodes to %s.",
+				parameters[0].c_str(), sa.addr().c_str()));
+			return CmdResult::SUCCESS;
+		}
+
+		user->WriteNotice(InspIRCd::Format("*** HEXIP: %s is not a valid raw or hex encoded IPv4 address.",
+			parameters[0].c_str()));
+		return CmdResult::FAILURE;
+	}
+
+	static bool ParseIP(const std::string& in, irc::sockets::sockaddrs& out)
+	{
+		const char* ident = NULL;
+		if (in.length() == 8)
+		{
+			// The ident is an IPv4 address encoded in hexadecimal with two characters
+			// per address segment.
+			ident = in.c_str();
+		}
+		else if (in.length() == 9 && in[0] == '~')
+		{
+			// The same as above but m_ident got to this user before we did. Strip the
+			// ident prefix and continue as normal.
+			ident = in.c_str() + 1;
+		}
+		else
+		{
+			// The user either does not have an IPv4 in their ident or the gateway server
+			// is also running an identd. In the latter case there isn't really a lot we
+			// can do so we just assume that the client in question is not connecting via
+			// an ident gateway.
+			return false;
+		}
+
+		// Try to convert the IP address to a string. If this fails then the user
+		// does not have an IPv4 address in their ident.
+		errno = 0;
+		unsigned long address = strtoul(ident, NULL, 16);
+		if (errno)
+			return false;
+
+		out.in4.sin_family = AF_INET;
+		out.in4.sin_addr.s_addr = htonl(address);
+		return true;
+	}
+};
+
 class CommandWebIRC : public SplitCommand
 {
  public:
@@ -173,8 +251,9 @@ class CommandWebIRC : public SplitCommand
 			realhost.set(user, user->GetRealHost());
 			realip.set(user, user->GetIPString());
 
-			WriteLog("Connecting user %s is using a WebIRC gateway; changing their IP from %s to %s.",
-				user->uuid.c_str(), user->GetIPString().c_str(), parameters[3].c_str());
+			WriteLog("Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
+				user->uuid.c_str(), parameters[1].c_str(),
+				user->GetIPString().c_str(), parameters[3].c_str());
 
 			// If we have custom flags then deal with them.
 			WebIRC::FlagMap flags;
@@ -235,51 +314,17 @@ class ModuleCgiIRC
 	, public Whois::EventListener
 {
  private:
-	CommandWebIRC cmd;
+	CommandHexIP cmdhexip;
+	CommandWebIRC cmdwebirc;
 	std::vector<IdentHost> hosts;
-
-	static bool ParseIdent(LocalUser* user, irc::sockets::sockaddrs& out)
-	{
-		const char* ident = NULL;
-		if (user->ident.length() == 8)
-		{
-			// The ident is an IPv4 address encoded in hexadecimal with two characters
-			// per address segment.
-			ident = user->ident.c_str();
-		}
-		else if (user->ident.length() == 9 && user->ident[0] == '~')
-		{
-			// The same as above but m_ident got to this user before we did. Strip the
-			// ident prefix and continue as normal.
-			ident = user->ident.c_str() + 1;
-		}
-		else
-		{
-			// The user either does not have an IPv4 in their ident or the gateway server
-			// is also running an identd. In the latter case there isn't really a lot we
-			// can do so we just assume that the client in question is not connecting via
-			// an ident gateway.
-			return false;
-		}
-
-		// Try to convert the IP address to a string. If this fails then the user
-		// does not have an IPv4 address in their ident.
-		errno = 0;
-		unsigned long address = strtoul(ident, NULL, 16);
-		if (errno)
-			return false;
-
-		out.in4.sin_family = AF_INET;
-		out.in4.sin_addr.s_addr = htonl(address);
-		return true;
-	}
 
  public:
 	ModuleCgiIRC()
 		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
-		, cmd(this)
+		, cmdhexip(this)
+		, cmdwebirc(this)
 	{
 	}
 
@@ -339,10 +384,10 @@ class ModuleCgiIRC
 
 		// The host configuration was valid so we can apply it.
 		hosts.swap(identhosts);
-		cmd.hosts.swap(webirchosts);
+		cmdwebirc.hosts.swap(webirchosts);
 
 		// Do we send an oper notice when a m_cgiirc client has their IP changed?
-		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		cmdwebirc.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
@@ -354,7 +399,7 @@ class ModuleCgiIRC
 
 		// If the user is not connecting via a WebIRC gateway then they
 		// cannot match this connect class.
-		const std::string* gateway = cmd.gateway.get(user);
+		const std::string* gateway = cmdwebirc.gateway.get(user);
 		if (!gateway)
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
@@ -377,7 +422,7 @@ class ModuleCgiIRC
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// There is no need to check for gateways if one is already being used.
-		if (cmd.realhost.get(user))
+		if (cmdwebirc.realhost.get(user))
 			return MOD_RES_PASSTHRU;
 
 		for (std::vector<IdentHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
@@ -389,15 +434,15 @@ class ModuleCgiIRC
 			// We have matched an <cgihost> block! Try to parse the encoded IPv4 address
 			// out of the ident.
 			irc::sockets::sockaddrs address(user->client_sa);
-			if (!ParseIdent(user, address))
+			if (!CommandHexIP::ParseIP(user->ident, address))
 				return MOD_RES_PASSTHRU;
 
 			// Store the hostname and IP of the gateway for later use.
-			cmd.realhost.set(user, user->GetRealHost());
-			cmd.realip.set(user, user->GetIPString());
+			cmdwebirc.realhost.set(user, user->GetRealHost());
+			cmdwebirc.realip.set(user, user->GetIPString());
 
 			const std::string& newident = iter->GetIdent();
-			cmd.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
+			cmdwebirc.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 
 			user->ChangeIdent(newident);
@@ -473,12 +518,12 @@ class ModuleCgiIRC
 			return;
 
 		// If these fields are not set then the client is not using a gateway.
-		const std::string* realhost = cmd.realhost.get(whois.GetTarget());
-		const std::string* realip = cmd.realip.get(whois.GetTarget());
+		const std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
+		const std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
 
-		const std::string* gateway = cmd.gateway.get(whois.GetTarget());
+		const std::string* gateway = cmdwebirc.gateway.get(whois.GetTarget());
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else

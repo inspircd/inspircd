@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2015, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -211,18 +211,20 @@ class ModuleChanHistory
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
+		if (target.type != MessageTarget::TYPE_CHANNEL || target.status)
+			return;
+
 		std::string ctcpname;
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (target.status == 0) && (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION")))
-		{
-			Channel* c = target.Get<Channel>();
-			HistoryList* list = historymode.ext.get(c);
-			if (list)
-			{
-				list->lines.push_back(HistoryItem(user, details));
-				if (list->lines.size() > list->maxlen)
-					list->lines.pop_front();
-			}
-		}
+		if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
+			return;
+
+		HistoryList* list = historymode.ext.get(target.Get<Channel>());
+		if (!list)
+			return;
+
+		list->lines.push_back(HistoryItem(user, details));
+		if (list->lines.size() > list->maxlen)
+			list->lines.pop_front();
 	}
 
 	void OnPostJoin(Membership* memb) override

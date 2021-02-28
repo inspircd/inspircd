@@ -30,14 +30,14 @@ parameter for this command.
 
 <helpop key="cuser" title="User Commands" value="
 ACCEPT      ADMIN       AWAY        COMMANDS    CYCLE       DCCALLOW
-FPART       INFO        INVITE      ISON        JOIN        KICK
-KNOCK       LINKS       LIST        LUSERS      MAP         MKPASSWD
-MODE        MODULES     MONITOR     MOTD        NAMES       NICK
-NOTICE      OPER        PART        PASS        PING        PONG
-PRIVMSG     QUIT        REMOVE      SERVLIST    SETNAME     SILENCE
-SQUERY      SSLINFO     STATS       TBAN        TIME        TITLE
-TOPIC       UNINVITE    USER        USERHOST    VERSION     VHOST
-WATCH       WHO         WHOIS       WHOWAS
+FPART       HEXIP       INFO        INVITE      ISON        JOIN
+KICK        KNOCK       LINKS       LIST        LUSERS      MAP
+MKPASSWD    MODE        MODULES     MONITOR     MOTD        NAMES
+NICK        NOTICE      OPER        PART        PASS        PING
+PONG        PRIVMSG     QUIT        REMOVE      SERVLIST    SETNAME
+SILENCE     SQUERY      SSLINFO     STATS       TBAN        TIME
+TITLE       TOPIC       UNINVITE    USER        USERHOST    VERSION
+VHOST       WATCH       WHO         WHOIS       WHOWAS
 ">
 
 <helpop key="squery" title="/SQUERY <target> :<message>" value="
@@ -148,6 +148,13 @@ E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.
 <helpop key="fpart" title="/FPART <channel> <nick> [:<reason>]" value="
 This behaves identically to /REMOVE. /REMOVE is a built-in mIRC command
 which caused trouble for some users.
+">
+
+<helpop key="hexip" title="/HEXIP <hex-ip|raw-ip>" value="
+If the specified argument is a raw IP address then respond with the
+hex encoded equivalent as if sent by an ident gateway. Otherwise, if
+the specified argument is a hex encoded IP address then respond with
+the equivalent raw IP address.
 ">
 
 <helpop key="silence" title="/SILENCE [(+|-)<mask> [CcdiNnPpTtx]]" value="

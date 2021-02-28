@@ -20,8 +20,9 @@ jobs:
         ^./.github/workflows
         ^./.mailmap
         ^./vendor
-        ^./make/directive.pm:281:atleast
+        ^./make/directive.pm:.*:atleast
         ^./src/modules/m_disable.cpp:119:existant
+        ^.*\.\(cpp\|h\).*eiter$
         ALLTIME$
         alltime$
         Alltime$\
@@ -29,7 +30,7 @@ jobs:
     - uses: sobolevn/misspell-fixer-action@master
       with:
         options: '-rvnfuRVD .'
-    - uses: peter-evans/create-pull-request@v2.4.4
+    - uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ env.REF_BRANCH }}+fix-spellings-${{ env.DATE }}
