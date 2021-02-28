@@ -237,7 +237,8 @@ sub module_expand($) {
 
 sub module_shrink($) {
 	my $module = basename shift;
-	return $module =~ s/(?:^m_|\.cpp$)//gr;
+	$module =~ s/(?:^m_|\.cpp$)//g;
+	return $module;
 }
 
 sub write_configure_cache(%) {
