@@ -299,6 +299,15 @@ and crashes. Please consider using a different OS like FreeBSD/NetBSD instead.
 EOW
 }
 
+# Warn about Perl versions that will not be supported in the future.
+if ($^V lt 'v5.26.0') {
+	print_warning <<"EOW";
+You are building InspIRCd with Perl $^V. This is very old and will
+not be supported by the next major version of InspIRCd. Please consider updating
+to Perl v5.26 or newer.
+EOW
+}
+
 # Check that the user actually wants this version.
 if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
