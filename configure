@@ -308,6 +308,20 @@ to Perl v5.26 or newer.
 EOW
 }
 
+# Warn about compiler versions that will not be supported in the future.
+my %future_compilers = (
+	AppleClang => version->parse('10.0'),
+	Clang      => version->parse('5.0'),
+	GCC        => version->parse('7.0'),
+);
+if (exists $future_compilers{$compiler{NAME}} && $compiler{VERSION} lt $future_compilers{$compiler{NAME}}) {
+	print_warning <<"EOW";
+You are building InspIRCd with $compiler{NAME} v$compiler{VERSION}. This is very old and
+will not be supported by the next major version of InspIRCd. Please consider
+updating to $compiler{NAME} v$future_compilers{$compiler{NAME}} or newer.
+EOW
+}
+
 # Check that the user actually wants this version.
 if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
