@@ -527,7 +527,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (!pl.empty())
 		{
-			std::cout << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
+			errstr << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
 			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
 			{
 				const FailedPort& fp = *iter;
