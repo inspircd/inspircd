@@ -77,9 +77,6 @@ struct WhoData : public Who::Request
 		if (matchtext == "0")
 			matchtext = "*";
 
-		// Fuzzy matches are when the source has not specified a specific user.
-		fuzzy_match = (parameters.size() > 1) || (matchtext.find_first_of("*?.") != std::string::npos);
-
 		// If flags have been specified by the source.
 		if (parameters.size() > 1)
 		{
@@ -108,6 +105,9 @@ struct WhoData : public Who::Request
 				current_bitset->set(chr);
 			}
 		}
+
+		// Fuzzy matches are when the source has not specified a specific user.
+		fuzzy_match = flags.any() || (matchtext.find_first_of("*?.") != std::string::npos);
 	}
 };
 
