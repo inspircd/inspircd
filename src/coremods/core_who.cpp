@@ -391,13 +391,14 @@ void CommandWho::WhoChannel(LocalUser* source, const std::vector<std::string>& p
 template<typename T>
 void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data)
 {
+	bool source_has_users_auspex = source->HasPrivPermission("users/auspex");
 	for (typename T::const_iterator iter = users.begin(); iter != users.end(); ++iter)
 	{
 		User* user = GetUser(iter);
 
 		// Only show users in response to a fuzzy WHO if we can see them normally.
 		bool can_see_normally = user == source || source->SharesChannelWith(user) || !user->IsModeSet(invisiblemode);
-		if (data.fuzzy_match && !can_see_normally && !source->HasPrivPermission("users/auspex"))
+		if (data.fuzzy_match && !can_see_normally && !source_has_users_auspex)
 			continue;
 
 		// Skip the user if it doesn't match the query.
