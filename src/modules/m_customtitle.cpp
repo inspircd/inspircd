@@ -84,7 +84,7 @@ class CommandTitle : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		for (const auto& [_, config] : stdalgo::equal_range(configs, parameters[0]))
+		for (const auto& [_, config] : insp::equal_range(configs, parameters[0]))
 		{
 			if (config.MatchUser(user) && config.CheckPass(user, parameters[1]))
 			{

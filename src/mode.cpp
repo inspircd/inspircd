@@ -305,7 +305,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	}
 
 	// Ask mode watchers whether this mode change is OK
-	for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
+	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
 	{
 		if (mw->GetModeType() == type)
 		{
@@ -343,7 +343,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	if (ma != MODEACTION_ALLOW)
 		return ma;
 
-	for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
+	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
 	{
 		if (mw->GetModeType() == type)
 			mw->AfterMode(user, targetuser, chan, parameter, adding);
@@ -509,7 +509,7 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		bool display = true;
 
 		// Ask mode watchers whether it's OK to show the list
-		for (const auto& [_, mw] : stdalgo::equal_range(modewatchermap, mh->name))
+		for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
 		{
 			if (mw->GetModeType() == MODETYPE_CHANNEL)
 			{

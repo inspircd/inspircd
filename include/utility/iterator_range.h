@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace stdalgo
+namespace insp
 {
 	template <typename Iterator>
 	class iterator_range;
@@ -37,7 +37,7 @@ namespace stdalgo
 
 /** Represents a range of iterators. */
 template <typename Iterator>
-class stdalgo::iterator_range
+class insp::iterator_range final
 {
  private:
 	/** An iterator which points to the start of the range. */

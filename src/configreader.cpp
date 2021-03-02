@@ -617,7 +617,7 @@ void ServerConfig::ApplyModules(User* user)
 
 std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def)
 {
-	auto tags = stdalgo::equal_range(config_data, tag);
+	auto tags = insp::equal_range(config_data, tag);
 	if (tags.empty())
 		return def ? def : EmptyTag;
 
@@ -631,7 +631,7 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::
 
 ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag, std::optional<TagList> def)
 {
-	auto range = stdalgo::equal_range(config_data, tag);
+	auto range = insp::equal_range(config_data, tag);
 	return range.empty() && def ? *def : range;
 }
 

@@ -64,7 +64,7 @@ class CommandVhost : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		for (const auto& [_, config] : stdalgo::equal_range(vhosts, parameters[0]))
+		for (const auto& [_, config] : insp::equal_range(vhosts, parameters[0]))
 		{
 			if (config.CheckPass(user, parameters[1]))
 			{

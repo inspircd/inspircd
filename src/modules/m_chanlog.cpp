@@ -64,7 +64,7 @@ class ModuleChanLog : public Module
 
 	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) override
 	{
-		auto channels = stdalgo::equal_range(logstreams, sno);
+		auto channels = insp::equal_range(logstreams, sno);
 		if (channels.empty())
 			return MOD_RES_PASSTHRU;
 

@@ -300,7 +300,7 @@ class CoreExport ServerConfig
 	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
 
 	/** Holds iterators to a subsection of the server config map. */
-	typedef stdalgo::iterator_range<TagMap::const_iterator> TagList;
+	typedef insp::iterator_range<TagMap::const_iterator> TagList;
 
 	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
 	 * @param tag The name of the tag to get.

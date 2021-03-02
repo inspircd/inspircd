@@ -166,7 +166,7 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		auto aliases = stdalgo::equal_range(Aliases, command);
+		auto aliases = insp::equal_range(Aliases, command);
 		if (aliases.empty())
 			return MOD_RES_PASSTHRU;
 
@@ -240,7 +240,7 @@ class ModuleAlias : public Module
 		// nor do we give a shit about the prefix
 		scommand.erase(0, fprefix.size());
 
-		auto aliases = stdalgo::equal_range(Aliases, scommand);
+		auto aliases = insp::equal_range(Aliases, scommand);
 		if (aliases.empty())
 			return;
 
