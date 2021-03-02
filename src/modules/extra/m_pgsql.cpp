@@ -200,11 +200,11 @@ class SQLConn : public SQL::Provider, public EventHandler
 			DelayReconnect();
 	}
 
-	CullResult cull() override
+	Cullable::Result Cull() override
 	{
-		this->SQL::Provider::cull();
+		this->SQL::Provider::Cull();
 		ServerInstance->Modules.DelService(*this);
-		return this->EventHandler::cull();
+		return this->EventHandler::Cull();
 	}
 
 	~SQLConn()
@@ -579,7 +579,7 @@ class ModulePgSQL : public Module
 	{
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 		{
-			i->second->cull();
+			i->second->Cull();
 			delete i->second;
 		}
 		connections.clear();

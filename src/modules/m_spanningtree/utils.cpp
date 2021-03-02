@@ -112,7 +112,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	ServerInstance->Timers.AddTimer(&RefreshTimer);
 }
 
-CullResult SpanningTreeUtilities::cull()
+Cullable::Result SpanningTreeUtilities::Cull()
 {
 	const TreeServer::ChildServers& children = TreeRoot->GetChildren();
 	while (!children.empty())
@@ -126,9 +126,9 @@ CullResult SpanningTreeUtilities::cull()
 		TreeSocket* s = i->first;
 		s->Close();
 	}
-	TreeRoot->cull();
+	TreeRoot->Cull();
 
-	return classbase::cull();
+	return Cullable::Cull();
 }
 
 SpanningTreeUtilities::~SpanningTreeUtilities()

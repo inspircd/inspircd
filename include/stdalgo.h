@@ -157,7 +157,7 @@ namespace stdalgo
 	 */
 	struct cull_delete
 	{
-		void operator()(classbase* item);
+		void operator()(Cullable* item);
 	};
 
 	/**

@@ -72,7 +72,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "config.h"
 #include "dynref.h"
 #include "consolecolors.h"
-#include "cull_list.h"
+#include "cull.h"
 #include "serialize.h"
 #include "extensible.h"
 #include "fileutils.h"
@@ -565,7 +565,7 @@ class CoreExport InspIRCd
 
 ENTRYPOINT;
 
-inline void stdalgo::cull_delete::operator()(classbase* item)
+inline void stdalgo::cull_delete::operator()(Cullable* item)
 {
 	if (item)
 		ServerInstance->GlobalCulls.AddItem(item);

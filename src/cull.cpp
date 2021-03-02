@@ -26,8 +26,42 @@
 
 #include "inspircd.h"
 #ifdef INSPIRCD_ENABLE_RTTI
-#include <typeinfo>
+# include <typeinfo>
 #endif
+
+Cullable::Cullable()
+{
+#ifdef INSPIRCD_ENABLE_RTTI
+	if (ServerInstance)
+	{
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::+%s @%p",
+				typeid(*this).name(), (void*)this);
+	}
+#endif
+}
+
+Cullable::~Cullable()
+{
+#ifdef INSPIRCD_ENABLE_RTTI
+	if (ServerInstance)
+	{
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::~%s @%p",
+			typeid(*this).name(), (void*)this);
+	}
+#endif
+}
+
+Cullable::Result Cullable::Cull()
+{
+#ifdef INSPIRCD_ENABLE_RTTI
+	if (ServerInstance)
+	{
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::-%s @%p",
+			typeid(*this).name(), (void*)this);
+	}
+#endif
+	return Result();
+}
 
 void CullList::Apply()
 {
@@ -44,12 +78,12 @@ void CullList::Apply()
 		}
 		working.clear();
 	}
-	std::set<classbase*> gone;
-	std::vector<classbase*> queue;
+	std::set<Cullable*> gone;
+	std::vector<Cullable*> queue;
 	queue.reserve(list.size() + 32);
 	for(unsigned int i=0; i < list.size(); i++)
 	{
-		classbase* c = list[i];
+		Cullable* c = list[i];
 		if (gone.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
@@ -58,7 +92,7 @@ void CullList::Apply()
 #else
 			ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Deleting @%p", (void*)c);
 #endif
-			c->cull();
+			c->Cull();
 			queue.push_back(c);
 		}
 		else
@@ -70,7 +104,7 @@ void CullList::Apply()
 	list.clear();
 	for(unsigned int i=0; i < queue.size(); i++)
 	{
-		classbase* c = queue[i];
+		Cullable* c = queue[i];
 		delete c;
 	}
 	if (!list.empty())

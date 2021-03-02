@@ -64,7 +64,7 @@ class IOHookProvider : public refcountbase, public ServiceProvider
 	virtual void OnConnect(StreamSocket* sock) = 0;
 };
 
-class IOHook : public classbase
+class IOHook : public Cullable
 {
  public:
 	/** The IOHookProvider for this hook, contains information about the hook,

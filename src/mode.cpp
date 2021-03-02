@@ -40,11 +40,11 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 {
 }
 
-CullResult ModeHandler::cull()
+Cullable::Result ModeHandler::Cull()
 {
 	if (ServerInstance)
 		ServerInstance->Modes.DelMode(this);
-	return classbase::cull();
+	return Cullable::Cull();
 }
 
 bool ModeHandler::NeedsParam(bool adding) const

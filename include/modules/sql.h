@@ -101,7 +101,7 @@ class SQL::Field
 };
 
 /** Represents the result of an SQL query. */
-class SQL::Result : public classbase
+class SQL::Result : public Cullable
 {
  public:
 	/**
@@ -198,7 +198,7 @@ class SQL::Error
  * You should store whatever information is needed to have the callbacks work in
  * this object (UID of user, channel name, etc).
  */
-class SQL::Query : public classbase
+class SQL::Query : public Cullable
 {
  protected:
 	/** Creates a new SQL query. */
@@ -216,12 +216,12 @@ class SQL::Query : public classbase
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.
 	 */
-	virtual void OnError(Error& error) = 0;
+	virtual void OnError(SQL::Error& error) = 0;
 
 	/** Called when a SQL result is received.
 	 * @param result The result of the SQL query.
 	 */
-	virtual void OnResult(Result& result) = 0;
+	virtual void OnResult(SQL::Result& result) = 0;
 };
 
 /**

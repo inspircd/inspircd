@@ -283,7 +283,7 @@ enum Implementation
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevant section) for the module to be initialised.
  */
-class CoreExport Module : public classbase, public usecountbase
+class CoreExport Module : public Cullable, public usecountbase
 {
  protected:
 	/** Initializes a new instance of the Module class.
@@ -328,7 +328,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup
 	 */
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** Default destructor.
 	 * destroys a module class

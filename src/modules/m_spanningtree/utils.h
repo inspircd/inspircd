@@ -45,7 +45,7 @@ typedef std::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrH
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
-class SpanningTreeUtilities : public classbase
+class SpanningTreeUtilities : public Cullable
 {
 	CacheRefreshTimer RefreshTimer;
 
@@ -112,7 +112,6 @@ class SpanningTreeUtilities : public classbase
 	 * valgrind warning in TimerManager on unload
 	 */
 	unsigned int PingFreq = 60;
-	
 
 	/** Initialise utility class
 	 */
@@ -120,7 +119,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Prepare for class destruction
 	 */
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** Destroy class and free listeners etc
 	 */

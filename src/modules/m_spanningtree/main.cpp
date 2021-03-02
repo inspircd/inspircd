@@ -802,11 +802,11 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 		children.front()->SQuit(reason, true);
 }
 
-CullResult ModuleSpanningTree::cull()
+Cullable::Result ModuleSpanningTree::Cull()
 {
 	if (Utils)
-		Utils->cull();
-	return this->Module::cull();
+		Utils->Cull();
+	return Module::Cull();
 }
 
 ModuleSpanningTree::~ModuleSpanningTree()

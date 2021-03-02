@@ -220,7 +220,7 @@ class TreeSocket : public BufferedSocket
 	 */
 	void CleanNegotiationInfo();
 
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string

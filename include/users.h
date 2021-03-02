@@ -306,7 +306,7 @@ class CoreExport User : public Extensible
 	time_t age;
 
 	/** Time the connection was created, set in the constructor. This
-	 * may be different from the time the user's classbase object was
+	 * may be different from the time the user's Cullable object was
 	 * created.
 	 */
 	time_t signon = 0;
@@ -619,7 +619,7 @@ class CoreExport User : public Extensible
 	/** Default destructor
 	 */
 	virtual ~User() = default;
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) override;
@@ -685,7 +685,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	LocalUser(int fd, const std::string& uuid, Serializable::Data& data);
 
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	UserIOHandler eh;
 
@@ -859,7 +859,7 @@ class CoreExport FakeUser : public User
 		nick = sname;
 	}
 
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 	const std::string& GetFullHost() override;
 	const std::string& GetFullRealHost() override;
 };

@@ -135,7 +135,7 @@ SocketThread::~SocketThread()
 {
 	if (socket)
 	{
-		socket->cull();
+		socket->Cull();
 		delete socket;
 	}
 }

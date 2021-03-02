@@ -26,34 +26,6 @@
 #include "inspircd.h"
 #include "base.h"
 #include <time.h>
-#ifdef INSPIRCD_ENABLE_RTTI
-#include <typeinfo>
-#endif
-
-classbase::classbase()
-{
-#ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::+%s @%p", typeid(*this).name(), (void*)this);
-#endif
-}
-
-CullResult classbase::cull()
-{
-#ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p", typeid(*this).name(), (void*)this);
-#endif
-	return CullResult();
-}
-
-classbase::~classbase()
-{
-#ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "classbase::~%s @%p", typeid(*this).name(), (void*)this);
-#endif
-}
 
 // This trick detects heap allocations of refcountbase objects
 static void* last_heap = NULL;
@@ -189,11 +161,11 @@ Extensible::Extensible()
 {
 }
 
-CullResult Extensible::cull()
+Cullable::Result Extensible::Cull()
 {
 	FreeAllExtItems();
 	culled = true;
-	return classbase::cull();
+	return Cullable::Cull();
 }
 
 void Extensible::FreeAllExtItems()

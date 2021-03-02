@@ -33,7 +33,7 @@
  * to a known line type is done by means of an XLineFactory object (see
  * below).
  */
-class CoreExport XLine : public classbase
+class CoreExport XLine : public Cullable
 {
  protected:
 

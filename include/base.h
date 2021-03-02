@@ -34,30 +34,7 @@
 #include <list>
 
 #include "utility/uncopiable.h"
-
-/** Dummy class to help enforce culls being parent-called up to classbase */
-class CullResult
-{
-	CullResult() = default;
-	friend class classbase;
-};
-
-/** The base class for all inspircd classes with a well-defined lifetime.
- * Classes that inherit from this may be destroyed through GlobalCulls,
- * and may rely on cull() being called prior to their deletion.
- */
-class CoreExport classbase
-	: private insp::uncopiable
-{
- public:
-	classbase();
-
-	/**
-	 * Called just prior to destruction via cull list.
-	 */
-	virtual CullResult cull();
-	virtual ~classbase();
-};
+#include "cull.h"
 
 /** The base class for inspircd classes that provide a wrapping interface, and
  * should only exist while being used. Prevents heap allocation.
@@ -239,7 +216,7 @@ enum ServiceType {
 };
 
 /** A structure defining something that a module can provide */
-class CoreExport ServiceProvider : public classbase
+class CoreExport ServiceProvider : public Cullable
 {
  public:
 	/** Module that is providing this service */

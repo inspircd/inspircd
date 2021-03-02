@@ -264,10 +264,10 @@ class IdentRequestSocket : public EventHandler
 		done = true;
 	}
 
-	CullResult cull() override
+	Cullable::Result Cull() override
 	{
 		Close();
-		return EventHandler::cull();
+		return EventHandler::Cull();
 	}
 };
 

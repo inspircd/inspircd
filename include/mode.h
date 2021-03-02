@@ -174,7 +174,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param mclass The object type of this mode handler, one of ModeHandler::Class
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 	virtual ~ModeHandler() = default;
 
 	/** Register this object in the ModeParser
@@ -498,7 +498,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
  * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
  * A ModeWatcher will be called both before and after the mode change.
  */
-class CoreExport ModeWatcher : public classbase
+class CoreExport ModeWatcher : public Cullable
 {
  private:
 	/**

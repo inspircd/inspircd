@@ -448,20 +448,20 @@ class ModuleHttpServer : public Module
 			++i;
 			if (sock->GetModHook(mod))
 			{
-				sock->cull();
+				sock->Cull();
 				delete sock;
 			}
 		}
 	}
 
-	CullResult cull() override
+	Cullable::Result Cull() override
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			HttpServerSocket* sock = *i;
 			sock->Close();
 		}
-		return Module::cull();
+		return Module::Cull();
 	}
 };
 

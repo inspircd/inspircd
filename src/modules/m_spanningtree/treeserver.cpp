@@ -197,7 +197,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool 
 	if (server->IsLocal())
 		server->GetSocket()->Close();
 
-	// Add the server to the cull list, the servers behind it are handled by cull() and the destructor
+	// Add the server to the cull list, the servers behind it are handled by Cull() and the destructor
 	ServerInstance->GlobalCulls.AddItem(server);
 }
 
@@ -270,18 +270,18 @@ void TreeServer::AddHashEntry()
 	Utils->sidlist[GetId()] = this;
 }
 
-CullResult TreeServer::cull()
+Cullable::Result TreeServer::Cull()
 {
 	// Recursively cull all servers that are under us in the tree
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		server->cull();
+		server->Cull();
 	}
 
 	if (!IsRoot())
-		ServerUser->cull();
-	return classbase::cull();
+		ServerUser->Cull();
+	return Cullable::Cull();
 }
 
 TreeServer::~TreeServer()

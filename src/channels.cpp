@@ -106,7 +106,7 @@ void Channel::CheckDestroy()
 void Channel::DelUser(const MemberMap::iterator& membiter)
 {
 	Membership* memb = membiter->second;
-	memb->cull();
+	memb->Cull();
 	memb->~Membership();
 	userlist.erase(membiter);
 

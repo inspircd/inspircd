@@ -24,6 +24,30 @@
 
 #pragma once
 
+/* Allows deleting instances of an inheriting type at the end of the current main loop iteration. */
+class CoreExport Cullable
+	: private insp::uncopiable
+{
+ protected:
+	/** Default constructor for the Cullable class. */
+	Cullable();
+
+ public:
+	/** Dummy class to help ensure all superclasses get culled. */
+	class Result final
+	{
+	 public:
+		/** Default constructor for the Cullable::Result class. */
+		Result() = default;
+	};
+
+	/** Destroys this instance of the Cullable class. */
+	virtual ~Cullable();
+
+	/** Called just before the instance is deleted to allow culling members. */
+	virtual Result Cull();
+};
+
 /**
  * The CullList class is used to delete objects at the end of the main loop to
  * avoid problems with references to deleted pointers if an object were deleted
@@ -31,13 +55,13 @@
  */
 class CoreExport CullList
 {
-	std::vector<classbase*> list;
+	std::vector<Cullable*> list;
 	std::vector<LocalUser*> SQlist;
 
  public:
 	/** Adds an item to the cull list
 	 */
-	void AddItem(classbase* item) { list.push_back(item); }
+	void AddItem(Cullable* item) { list.push_back(item); }
 	void AddSQItem(LocalUser* item) { SQlist.push_back(item); }
 
 	/** Applies the cull list (deletes the contents)
@@ -46,7 +70,7 @@ class CoreExport CullList
 };
 
 /** Represents an action which is executable by an action list */
-class CoreExport ActionBase : public classbase
+class CoreExport ActionBase : public Cullable
 {
  public:
 	 /** Executes this action. */

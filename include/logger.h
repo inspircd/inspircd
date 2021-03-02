@@ -93,7 +93,7 @@ class CoreExport FileWriter
 
 /** LogStream base class. Modules (and other stuff) inherit from this to decide what logging they are interested in, and what to do with it.
  */
-class CoreExport LogStream : public classbase
+class CoreExport LogStream : public Cullable
 {
  protected:
 	LogLevel loglvl;

@@ -132,10 +132,10 @@ void StreamSocket::Close(bool writeblock)
 		Close();
 }
 
-CullResult StreamSocket::cull()
+Cullable::Result StreamSocket::Cull()
 {
 	Close();
-	return EventHandler::cull();
+	return EventHandler::Cull();
 }
 
 int StreamSocket::HookChainRead(IOHook* hook, std::string& rq)

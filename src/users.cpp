@@ -348,7 +348,7 @@ void UserIOHandler::OnError(BufferedSocketError sockerr)
 		ServerInstance->Users.QuitUser(user, GetError());
 }
 
-CullResult User::cull()
+Cullable::Result User::Cull()
 {
 	if (!quitting)
 		ServerInstance->Users.QuitUser(this, "Culled without QuitUser");
@@ -359,21 +359,21 @@ CullResult User::cull()
 	if (server->IsService())
 		stdalgo::erase(ServerInstance->Users.all_services, this);
 
-	return Extensible::cull();
+	return Extensible::Cull();
 }
 
-CullResult LocalUser::cull()
+Cullable::Result LocalUser::Cull()
 {
-	eh.cull();
-	return User::cull();
+	eh.Cull();
+	return User::Cull();
 }
 
-CullResult FakeUser::cull()
+Cullable::Result FakeUser::Cull()
 {
 	// Fake users don't quit, they just get culled.
 	quitting = true;
 	// Fake users are not inserted into UserManager::clientlist or uuidlist, so we don't need to modify those here
-	return User::cull();
+	return User::Cull();
 }
 
 void User::Oper(std::shared_ptr<OperInfo> info)

@@ -353,7 +353,7 @@ class CoreExport StreamSocket : public EventHandler
 	void Close(bool writeblock);
 
 	/** This ensures that close is called prior to destructor */
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** Get the IOHook of a module attached to this socket
 	 * @param mod Module whose IOHook to return

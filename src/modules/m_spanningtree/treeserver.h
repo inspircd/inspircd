@@ -230,7 +230,7 @@ class TreeServer : public Server
 	 */
 	void OnPong() { pingtimer.OnPong(); }
 
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 
 	/** Destructor, deletes ServerUser unless IsRoot()
 	 */

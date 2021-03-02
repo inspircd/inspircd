@@ -125,7 +125,7 @@ class CoreExport ExtensionItem
  * supports arbitrary data storage).
  */
 class CoreExport Extensible
-	: public classbase
+	: public Cullable
 	, public Serializable
 {
  public:
@@ -150,7 +150,7 @@ class CoreExport Extensible
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 
 	Extensible();
-	CullResult cull() override;
+	Cullable::Result Cull() override;
 	virtual ~Extensible();
 	void UnhookExtensions(const std::vector<reference<ExtensionItem>>& toRemove);
 

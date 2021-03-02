@@ -52,11 +52,11 @@ Module::Module(int mprops, const std::string& mdesc)
 }
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
-CullResult Module::cull()
+Cullable::Result Module::Cull()
 {
 	if (ModuleDLLManager)
 		ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
-	return classbase::cull();
+	return Cullable::Cull();
 }
 
 std::string Module::GetPropertyString() const

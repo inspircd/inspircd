@@ -110,12 +110,12 @@ void TreeSocket::CleanNegotiationInfo()
 	capab.reset();
 }
 
-CullResult TreeSocket::cull()
+Cullable::Result TreeSocket::Cull()
 {
 	Utils->timeoutlist.erase(this);
 	if (capab && capab->ac)
 		Utils->Creator->ConnectServer(capab->ac, false);
-	return this->BufferedSocket::cull();
+	return this->BufferedSocket::Cull();
 }
 
 /** When an outbound connection finishes connecting, we receive

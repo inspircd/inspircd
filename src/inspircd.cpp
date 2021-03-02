@@ -405,7 +405,7 @@ void InspIRCd::Cleanup()
 	// Close all listening sockets
 	for (unsigned int i = 0; i < ports.size(); i++)
 	{
-		ports[i]->cull();
+		ports[i]->Cull();
 		delete ports[i];
 	}
 	ports.clear();
@@ -427,7 +427,7 @@ void InspIRCd::Cleanup()
 	if (FakeClient)
 	{
 		delete FakeClient->server;
-		FakeClient->cull();
+		FakeClient->Cull();
 	}
 	stdalgo::delete_zero(this->FakeClient);
 	stdalgo::delete_zero(this->XLines);
