@@ -33,6 +33,8 @@
 #include <string>
 #include <list>
 
+#include "utility/uncopiable.h"
+
 /** Dummy class to help enforce culls being parent-called up to classbase */
 class CullResult
 {
@@ -45,6 +47,7 @@ class CullResult
  * and may rely on cull() being called prior to their deletion.
  */
 class CoreExport classbase
+	: private insp::uncopiable
 {
  public:
 	classbase();
@@ -54,23 +57,18 @@ class CoreExport classbase
 	 */
 	virtual CullResult cull();
 	virtual ~classbase();
- private:
-	// uncopyable
-	classbase(const classbase&);
-	void operator=(const classbase&);
 };
 
 /** The base class for inspircd classes that provide a wrapping interface, and
  * should only exist while being used. Prevents heap allocation.
  */
 class CoreExport interfacebase
+	: private insp::uncopiable
 {
  public:
 	interfacebase() = default;
 	static inline void* operator new(size_t, void* m) { return m; }
  private:
-	interfacebase(const interfacebase&);
-	void operator=(const interfacebase&);
 	static void* operator new(size_t);
 	static void operator delete(void*);
 };
@@ -89,6 +87,7 @@ class CoreExport interfacebase
  * will avoid the slight overhead of changing the reference count.
  */
 class CoreExport refcountbase
+	: private insp::uncopiable
 {
 	mutable unsigned int refcount = 0;
  public:
@@ -100,10 +99,6 @@ class CoreExport refcountbase
 	static void operator delete(void*);
 	inline void refcount_inc() const { refcount++; }
 	inline bool refcount_dec() const { refcount--; return !refcount; }
- private:
-	// uncopyable
-	refcountbase(const refcountbase&);
-	void operator=(const refcountbase&);
 };
 
 /** Base class for use count tracking. Uses reference<>, but does not
@@ -112,6 +107,7 @@ class CoreExport refcountbase
  * Safe for use as a second parent class; will not add a second vtable.
  */
 class CoreExport usecountbase
+	: private insp::uncopiable
 {
 	mutable unsigned int usecount = 0;
  public:
@@ -120,10 +116,6 @@ class CoreExport usecountbase
 	inline unsigned int GetUseCount() const { return usecount; }
 	inline void refcount_inc() const { usecount++; }
 	inline bool refcount_dec() const { usecount--; return false; }
- private:
-	// uncopyable
-	usecountbase(const usecountbase&);
-	void operator=(const usecountbase&);
 };
 
 template <typename T>
