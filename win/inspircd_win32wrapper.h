@@ -61,6 +61,11 @@
 #define DllExport __declspec(dllimport)
 #endif
 
+// File numbers for standard streams.
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 /* Redirect main() through a different method in win32service.cpp, to intercept service startup */
 #define ENTRYPOINT CoreExport int smain(int argc, char** argv)
 
