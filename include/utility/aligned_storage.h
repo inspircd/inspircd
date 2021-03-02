@@ -24,25 +24,24 @@ namespace insp
 	template <typename T> class aligned_storage;
 }
 
+/** */
 template <typename T>
-class insp::aligned_storage
+class insp::aligned_storage final
 {
+ private:
+	/** The underlying aligned storage block. */
 	mutable typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
 
  public:
+	/** Default constructor for the aligned_storage class. */
 	aligned_storage() = default;
 
-	aligned_storage(const aligned_storage& other)
-	{
-	}
+	/** Ignores copying via the copy constructor. */
+	aligned_storage(const aligned_storage&) { }
 
-	T* operator->() const
-	{
-		return static_cast<T*>(static_cast<void*>(&data));
-	}
+	/** Accessor for the underlying aligned storage block. */
+	T* operator->() const { return static_cast<T*>(static_cast<void*>(&data)); }
 
-	operator T*() const
-	{
-		return operator->();
-	}
+	/** Constant accessor for the underlying aligned storage block. */
+	operator T*() const { return operator->(); }
 };
