@@ -196,3 +196,11 @@ struct sockaddr_un
 	ADDRESS_FAMILY sun_family;
 	char sun_path[6];
 };
+
+struct WindowsStream
+{
+	WORD BackgroundColor;
+	WORD ForegroundColor;
+	HANDLE Handle;
+	WindowsStream(DWORD handle);
+};
