@@ -41,9 +41,11 @@
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
 #else
-	WORD g_wOriginalColors;
-	WORD g_wBackgroundColor;
-	HANDLE g_hStdout;
+	/** Manages formatting lines written to stderr on Windows. */
+	WindowsStream StandardError(STD_ERROR_HANDLE);
+
+	/** Manages formatting lines written to stdout on Windows. */
+	WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
 #endif
 
 #include <fstream>
@@ -491,22 +493,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
 	ParseOptions();
-
-#ifdef _WIN32
-	// Initialize the console values
-	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO bufinf;
-	if(GetConsoleScreenBufferInfo(g_hStdout, &bufinf))
-	{
-		g_wOriginalColors = bufinf.wAttributes & 0x00FF;
-		g_wBackgroundColor = bufinf.wAttributes & 0x00F0;
-	}
-	else
-	{
-		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
-		g_wBackgroundColor = 0;
-	}
-#endif
 
 	{
 		ServiceProvider* provs[] =

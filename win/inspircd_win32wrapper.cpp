@@ -55,3 +55,16 @@ DWORD CWin32Exception::GetErrorCode()
 {
 	return dwErrorCode;
 }
+
+WindowsStream::WindowsStream(DWORD handle)
+	: BackgroundColor(0)
+	, ForegroundColor(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN)
+{
+	this->Handle = GetStdHandle(handle);
+	CONSOLE_SCREEN_BUFFER_INFO bufinf;
+	if (GetConsoleScreenBufferInfo(this->Handle, &bufinf))
+	{
+		this->BackgroundColor = bufinf.wAttributes & 0x00F0;
+		this->ForegroundColor = bufinf.wAttributes & 0x00FF;
+	}
+}
