@@ -9,4 +9,4 @@ CREATE TABLE ircd_opers (
   autologin tinyint(1) NOT NULL DEFAULT 0,
   active tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY  (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
