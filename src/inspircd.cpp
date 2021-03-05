@@ -3,19 +3,19 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 Chris Novakovic <chrisnovakovic@users.noreply.github.com>
- *   Copyright (C) 2013, 2018-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012-2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012 Ariadne Conill <ariadne@dereferenced.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2008-2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
- *   Copyright (C) 2007-2008, 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2007 Oliver Lupton <om@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2006-2007 Oliver Lupton <om@inspircd.org>
+ *   Copyright (C) 2005-2010 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -41,9 +41,11 @@
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
 #else
-	WORD g_wOriginalColors;
-	WORD g_wBackgroundColor;
-	HANDLE g_hStdout;
+	/** Manages formatting lines written to stderr on Windows. */
+	WindowsStream StandardError(STD_ERROR_HANDLE);
+
+	/** Manages formatting lines written to stdout on Windows. */
+	WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
 #endif
 
 #include <fstream>
@@ -486,22 +488,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
 	ParseOptions();
-
-#ifdef _WIN32
-	// Initialize the console values
-	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO bufinf;
-	if(GetConsoleScreenBufferInfo(g_hStdout, &bufinf))
-	{
-		g_wOriginalColors = bufinf.wAttributes & 0x00FF;
-		g_wBackgroundColor = bufinf.wAttributes & 0x00F0;
-	}
-	else
-	{
-		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
-		g_wBackgroundColor = 0;
-	}
-#endif
 
 	{
 		ServiceProvider* provs[] =

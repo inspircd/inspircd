@@ -79,7 +79,7 @@ sub print_error {
 sub print_warning {
 	print STDERR console_format "<|YELLOW Warning:|> ";
 	for my $line (@_) {
-		print STDERR console_format $line;
+		say STDERR console_format $line;
 	}
 }
 

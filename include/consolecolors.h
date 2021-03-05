@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2019, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -25,9 +25,12 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+# include <iostream>
 # include <io.h>
 # define isatty(x) _isatty((x))
 # define fileno(x) _fileno((x))
+extern WindowsStream StandardError;
+extern WindowsStream StandardOutput;
 #else
 # include <unistd.h>
 #endif
@@ -42,55 +45,83 @@ namespace
 		return isatty(fileno(stdout));
 #endif
 	}
+
+#ifdef _WIN32
+	inline WindowsStream& GetStreamHandle(std::ostream& os)
+	{
+		if (os.rdbuf() == std::cerr.rdbuf())
+			return StandardError;
+
+		if (os.rdbuf() == std::cout.rdbuf())
+			return StandardOutput;
+
+		// This will never happen.
+		throw std::invalid_argument("Tried to write color codes to a stream other than stdout or stderr!");
+	}
+#endif
 }
 
 #ifdef _WIN32
 
 #include <windows.h>
 
-extern WORD g_wOriginalColors;
-extern WORD g_wBackgroundColor;
-extern HANDLE g_hStdout;
-
 inline std::ostream& con_green(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, FOREGROUND_GREEN | FOREGROUND_INTENSITY | ws.BackgroundColor);
+	}
 	return stream;
 }
 
 inline std::ostream& con_red(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_INTENSITY|g_wBackgroundColor);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_INTENSITY | ws.BackgroundColor);
+	}
 	return stream;
 }
 
 inline std::ostream& con_white(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|g_wBackgroundColor);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | ws.BackgroundColor);
+	}
 	return stream;
 }
 
 inline std::ostream& con_white_bright(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_INTENSITY|g_wBackgroundColor);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | ws.BackgroundColor);
+	}
 	return stream;
 }
 
 inline std::ostream& con_bright(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, FOREGROUND_INTENSITY|g_wBackgroundColor);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, FOREGROUND_INTENSITY | ws.BackgroundColor);
+	}
 	return stream;
 }
 
 inline std::ostream& con_reset(std::ostream& stream)
 {
 	if (CanUseColors())
-		SetConsoleTextAttribute(g_hStdout, g_wOriginalColors);
+	{
+		const WindowsStream& ws = GetStreamHandle(stream);
+		SetConsoleTextAttribute(ws.Handle, ws.ForegroundColor);
+	}
 	return stream;
 }
 

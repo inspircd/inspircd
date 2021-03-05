@@ -2,11 +2,12 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2019, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2011 Adam <Adam@anope.org>
  *   Copyright (C) 2007-2008 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -54,4 +55,17 @@ const char* CWin32Exception::what() const throw()
 DWORD CWin32Exception::GetErrorCode()
 {
 	return dwErrorCode;
+}
+
+WindowsStream::WindowsStream(DWORD handle)
+	: BackgroundColor(0)
+	, ForegroundColor(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN)
+{
+	this->Handle = GetStdHandle(handle);
+	CONSOLE_SCREEN_BUFFER_INFO bufinf;
+	if (GetConsoleScreenBufferInfo(this->Handle, &bufinf))
+	{
+		this->BackgroundColor = bufinf.wAttributes & 0x00F0;
+		this->ForegroundColor = bufinf.wAttributes & 0x00FF;
+	}
 }

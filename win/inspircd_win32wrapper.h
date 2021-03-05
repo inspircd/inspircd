@@ -61,6 +61,11 @@
 #define DllExport __declspec(dllimport)
 #endif
 
+// File numbers for standard streams.
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 /* Redirect main() through a different method in win32service.cpp, to intercept service startup */
 #define ENTRYPOINT CoreExport int smain(int argc, char** argv)
 
@@ -190,4 +195,12 @@ struct sockaddr_un
 {
 	ADDRESS_FAMILY sun_family;
 	char sun_path[6];
+};
+
+struct WindowsStream
+{
+	WORD BackgroundColor;
+	WORD ForegroundColor;
+	HANDLE Handle;
+	WindowsStream(DWORD handle);
 };

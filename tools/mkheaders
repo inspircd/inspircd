@@ -69,31 +69,28 @@ for my $path (@paths) {
 
 	if (defined $copyright) {
 		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
-		my (%author, %authors);
+		my (%authors, $commit, %commits);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
-		for my $line (split /\n+/, `git blame $ignored_args --incremental -w HEAD -- $path`) {
+		for my $line (split /\n+/, `git blame $ignored_args --incremental -M -w HEAD -- $path`) {
 			if ($line =~ /^([0-9a-f]{40})(?:\s\d+){3}$/) {
-				$author{COMMITS} //= [];
-				push @{$author{COMMITS}}, $1;
+				$commit = $1;
+				$commits{$commit} //= {};
 			} elsif ($line =~ /^author (.+)/) {
-				$author{NAME} = $1;
+				$commits{$commit}->{NAME} = $1;
 			} elsif ($line =~ /^author-mail <(.+)>/) {
-				$author{EMAIL} = $1;
+				$commits{$commit}->{EMAIL} = $1;
 			} elsif ($line =~ /^author-time (.+)/) {
-				$author{YEAR} = strftime '%Y', gmtime $1;
+				$commits{$commit}->{YEAR} = strftime '%Y', gmtime $1;
 			} elsif ($line =~ /^filename /) {
-				next unless scalar keys %author > 1;
-				my $display = sprintf "%s <%s>", $author{NAME}, $author{EMAIL};
+				my $display = sprintf "%s <%s>", $commits{$commit}->{NAME}, $commits{$commit}->{EMAIL};
 				$authors{$display} //= [];
-				push @{$authors{$display}}, $author{YEAR};
-				for my $commit (uniq @{$author{COMMITS}}) {
-					my $details = `git rev-list --format=%B --max-count=1 $commit`;
-					while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
-						$authors{$1} //= [];
-						push @{$authors{$1}}, $author{YEAR};
-					}
+				push @{$authors{$display}}, $commits{$commit}->{YEAR};
+				my $details = `git rev-list --format=%B --max-count=1 $commit`;
+				while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
+					$authors{$1} //= [];
+					push @{$authors{$1}}, $commits{$commit}->{YEAR};
 				}
-				undef %author;
+				undef $commit;
 			}
 		}
 

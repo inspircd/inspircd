@@ -2,15 +2,15 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2017-2018 Adam <Adam@anope.org>
+ *   Copyright (C) 2018 Adam <Adam@anope.org>
+ *   Copyright (C) 2017-2019, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 John Brooks <special@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2007-2008, 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2006-2008, 2010 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -78,9 +78,6 @@ struct WhoData : public Who::Request
 		if (matchtext == "0")
 			matchtext = "*";
 
-		// Fuzzy matches are when the source has not specified a specific user.
-		fuzzy_match = (parameters.size() > 1) || (matchtext.find_first_of("*?.") != std::string::npos);
-
 		// If flags have been specified by the source.
 		if (parameters.size() > 1)
 		{
@@ -109,6 +106,9 @@ struct WhoData : public Who::Request
 				current_bitset->set(chr);
 			}
 		}
+
+		// Fuzzy matches are when the source has not specified a specific user.
+		fuzzy_match = flags.any() || (matchtext.find_first_of("*?.") != std::string::npos);
 	}
 };
 
@@ -395,13 +395,14 @@ void CommandWho::WhoChannel(LocalUser* source, const std::vector<std::string>& p
 template<typename T>
 void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data)
 {
+	bool source_has_users_auspex = source->HasPrivPermission("users/auspex");
 	for (typename T::const_iterator iter = users.begin(); iter != users.end(); ++iter)
 	{
 		User* user = GetUser(iter);
 
 		// Only show users in response to a fuzzy WHO if we can see them normally.
 		bool can_see_normally = user == source || source->SharesChannelWith(user) || !user->IsModeSet(invisiblemode);
-		if (data.fuzzy_match && !can_see_normally && !source->HasPrivPermission("users/auspex"))
+		if (data.fuzzy_match && !can_see_normally && !source_has_users_auspex)
 			continue;
 
 		// Skip the user if it doesn't match the query.
