@@ -29,12 +29,6 @@
 
 #pragma once
 
-#include <cstring>
-#include <string>
-#include <vector>
-#include <deque>
-#include <map>
-#include <set>
 #include "inspircd.h"
 #include "convto.h"
 

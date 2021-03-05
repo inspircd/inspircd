@@ -30,14 +30,7 @@
 
 #pragma once
 
-#include <sstream>
-#include <string>
-#include <vector>
-#include <map>
 #include "inspircd.h"
-#include "modules.h"
-#include "socketengine.h"
-#include "socket.h"
 #include "token_list.h"
 
 /** Structure representing a single \<tag> in config */

@@ -21,7 +21,6 @@
  */
 
 
-#include "config.h"
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <windows.h>

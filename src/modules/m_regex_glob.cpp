@@ -23,8 +23,8 @@
  */
 
 
-#include "modules/regex.h"
 #include "inspircd.h"
+#include "modules/regex.h"
 
 class GlobRegex : public Regex
 {

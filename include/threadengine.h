@@ -23,10 +23,6 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <map>
-#include "config.h"
 #include "base.h"
 
 /** Derive from this class to implement your own threaded sections of
