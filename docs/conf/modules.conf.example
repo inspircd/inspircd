@@ -37,7 +37,7 @@
 #<module name="md5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SHA256 module: Allows other modules to generate SHA256 hashes,
+# SHA2 module: Allows other modules to generate SHA2 hashes,
 # usually for cryptographic uses and security.
 #
 # IMPORTANT:
@@ -46,7 +46,7 @@
 # function without this module but when it is loaded their features will
 # be enhanced (for example the addition of HMAC authentication).
 #
-#<module name="sha256">
+#<module name="sha2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la
@@ -1673,7 +1673,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PBKDF2 module: Allows other modules to generate PBKDF2 hashes,
 # usually for cryptographic uses and security.
-# This module relies on other hash providers (e.g. SHA256).
+# This module relies on other hash providers (e.g. SHA2).
 #<module name="pbkdf2">
 #
 # iterations: Iterations the hashing function runs when generating new
@@ -1681,7 +1681,7 @@
 # length: Length in bytes of the derived key.
 #<pbkdf2 iterations="12288" length="32">
 # You can override these values with specific values
-# for specific providers if you want to. Example given for SHA256.
+# for specific providers if you want to. Example given for SHA2.
 #<pbkdf2prov hash="sha256" iterations="24576">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

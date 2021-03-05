@@ -25,46 +25,47 @@
 
 /// $CompilerFlags: -Ivendor_directory("sha2")
 
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-#endif
 
 #include "inspircd.h"
 #include "modules/hash.h"
 
 #include <sha2.c>
 
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
-
-class HashSHA256 : public HashProvider
+template<void (*SHA)(const unsigned char*, unsigned int, unsigned char*)>
+class HashSHA2 : public HashProvider
 {
  public:
+	HashSHA2(Module* parent, const std::string& Name, unsigned int osize, unsigned int bsize)
+		: HashProvider(parent, Name, osize, bsize)
+	{
+	}
+
 	std::string GenerateRaw(const std::string& data) override
 	{
-		unsigned char bytes[SHA256_DIGEST_SIZE];
-		sha256((unsigned char*)data.data(), data.length(),  bytes);
-		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
-	}
-
-	HashSHA256(Module* parent)
-		: HashProvider(parent, "sha256", 32, 64)
-	{
+		std::vector<char> bytes(out_size);
+		SHA((unsigned char*)data.data(), data.size(), (unsigned char*)&bytes[0]);
+		return std::string(&bytes[0], bytes.size());
 	}
 };
 
-class ModuleSHA256 : public Module
+
+class ModuleSHA2 : public Module
 {
  private:
-	HashSHA256 sha;
+	HashSHA2<sha224> sha224algo;
+	HashSHA2<sha256> sha256algo;
+	HashSHA2<sha384> sha384algo;
+	HashSHA2<sha512> sha512algo;
 
  public:
-	ModuleSHA256()
-		: Module(VF_VENDOR, "Allows other modules to generate SHA-256 hashes.")
-		, sha(this)
+	ModuleSHA2()
+		: Module(VF_VENDOR, "Allows other modules to generate SHA-2 hashes.")
+		, sha224algo(this, "sha224", SHA224_DIGEST_SIZE, SHA224_BLOCK_SIZE)
+		, sha256algo(this, "sha256", SHA256_DIGEST_SIZE, SHA256_BLOCK_SIZE)
+		, sha384algo(this, "sha384", SHA384_DIGEST_SIZE, SHA384_BLOCK_SIZE)
+		, sha512algo(this, "sha512", SHA512_DIGEST_SIZE, SHA512_BLOCK_SIZE)
 	{
 	}
 };
 
-MODULE_INIT(ModuleSHA256)
+MODULE_INIT(ModuleSHA2)
