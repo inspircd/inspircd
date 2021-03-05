@@ -36,8 +36,7 @@ class CoreExport UIDGenerator
  public:
 	/**
 	* This is the maximum length of a UUID (unique user identifier).
-	* This length is set in compliance with TS6 protocol, and really should not be changed. Ever.
-	* It allows for a lot of clients as-is. -- w00t.
+	* It allows up to 12,960 servers and 2,176,782,336 users per server.
 	*/
 	static const unsigned int UUID_LENGTH = 9;
 
