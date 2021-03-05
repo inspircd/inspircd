@@ -35,8 +35,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "exitcodes.h"
-#include <iostream>
 
 /* Find a user record by nickname and return a pointer to it */
 User* InspIRCd::FindNick(const std::string &nick)

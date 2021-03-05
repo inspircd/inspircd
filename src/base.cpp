@@ -25,7 +25,7 @@
 
 #include "inspircd.h"
 #include "base.h"
-#include <time.h>
+
 #ifdef INSPIRCD_ENABLE_RTTI
 #include <typeinfo>
 #endif

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "inspircd.h"
+#include "event.h"
 
 class Regex : public classbase
 {

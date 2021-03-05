@@ -24,7 +24,8 @@
 #pragma once
 
 #include <pthread.h>
-#include "typedefs.h"
+
+class Thread;
 
 /** The ThreadEngine class has the responsibility of initialising
  * Thread derived classes. It does this by creating operating system

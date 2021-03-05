@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include "hashcomp.h"
-
 class User;
 
 class ProtocolServer
