@@ -101,7 +101,6 @@ exit 1 unless GetOptions(
 	'system'               => \$opt_system,
 	'uid=s'                => \$opt_uid,
 
-	# TODO: when the modulemanager rewrite is done these should be removed.
 	'disable-extras=s@' => \@opt_disableextras,
 	'enable-extras=s@'  => \@opt_enableextras,
 	'list-extras'       => sub { list_extras; exit 0; },
@@ -385,10 +384,13 @@ if (prompt_bool $interactive, $question, 0) {
 		}
 	}
 } elsif (!defined $opt_disable_auto_extras) {
-	# TODO: finish modulemanager rewrite and replace this code with:
-	# system './modulemanager', 'enable', '--auto';
 	my %modules = (
-		# Missing: m_ldap, m_regex_stdlib, m_ssl_mbedtls
+		# We can't automatically enable the following modules because there is
+		# no way to autodetect their dependencies:
+		#
+		#  * ldap (no pkg-config support)
+		#  * regex_stdlib (no C++11 compiler detection)
+		#  * ssl_mbedtls (no pkg-config support)
 		'm_argon2.cpp'          => 'pkg-config --exists libargon2',
 		'm_geo_maxmind.cpp'     => 'pkg-config --exists libmaxminddb',
 		'm_mysql.cpp'           => 'mysql_config --version',

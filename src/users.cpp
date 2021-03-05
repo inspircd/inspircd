@@ -469,7 +469,6 @@ void OperInfo::init()
 	}
 
 	// Compatibility for older configs that don't have the snomasks field.
-	// TODO: remove this before v4 is released.
 	if (defaultsnomasks)
 		AllowedSnomasks.set();
 }

@@ -65,8 +65,6 @@ sub __get_socketengines {
 	return @socketengines;
 }
 
-# TODO: when buildtool is done this can be mostly removed with
-#       the remainder being merged into parse_templates.
 sub __get_template_settings($$$) {
 
 	# These are actually hash references
