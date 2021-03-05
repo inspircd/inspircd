@@ -9,6 +9,7 @@
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006-2007 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2005 Robin Burchell <robin+git@viroteck.net>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

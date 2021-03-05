@@ -7,6 +7,7 @@
  *   Copyright (C) 2011, 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2009 John Brooks <special@inspircd.org>
  *   Copyright (C) 2007-2008 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
