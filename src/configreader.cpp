@@ -154,21 +154,22 @@ void ServerConfig::CrossCheckOperClassType()
 
 void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 {
-	typedef std::map<std::string, std::shared_ptr<ConnectClass>> ClassMap;
+	typedef std::map<std::pair<std::string, char>, std::shared_ptr<ConnectClass>> ClassMap;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
 		for (auto& c : current->Classes)
 		{
-			if (c->name.compare(0, 8, "unnamed-", 8))
+			switch (c->type)
 			{
-				oldBlocksByMask["n" + c->name] = c;
-			}
-			else if (c->type == CC_ALLOW || c->type == CC_DENY)
-			{
-				std::string typeMask = (c->type == CC_ALLOW) ? "a" : "d";
-				typeMask += c->host;
-				oldBlocksByMask[typeMask] = c;
+				case CC_ALLOW:
+				case CC_DENY:
+					oldBlocksByMask[std::make_pair(c->host, c->type)] = c;
+					break;
+
+				case CC_NAMED:
+					oldBlocksByMask[std::make_pair(c->name, c->type)] = c;
+					break;
 			}
 		}
 	}
@@ -218,24 +219,17 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 
 			std::string name = tag->getString("name");
-			std::string mask, typeMask;
+			std::string mask;
 			char type;
 
 			if (tag->readString("allow", mask, false))
-			{
 				type = CC_ALLOW;
-				typeMask = 'a' + mask;
-			}
 			else if (tag->readString("deny", mask, false))
-			{
 				type = CC_DENY;
-				typeMask = 'd' + mask;
-			}
 			else if (!name.empty())
 			{
 				type = CC_NAMED;
 				mask = name;
-				typeMask = 'n' + mask;
 			}
 			else
 			{
@@ -243,13 +237,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 
 			if (name.empty())
-			{
 				name = "unnamed-" + ConvToStr(i);
-			}
-			else
-			{
-				typeMask = 'n' + name;
-			}
 
 			if (names.find(name) != names.end())
 				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
@@ -303,7 +291,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					me->ports.insert(port);
 			}
 
-			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
+			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
 				std::shared_ptr<ConnectClass> old = oldMask->second;

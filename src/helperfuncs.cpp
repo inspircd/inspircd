@@ -35,8 +35,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "exitcodes.h"
-#include <iostream>
 
 /* find a channel record by channel name and return a pointer to it */
 

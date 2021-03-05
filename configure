@@ -101,7 +101,6 @@ exit 1 unless GetOptions(
 	'system'               => \$opt_system,
 	'uid=s'                => \$opt_uid,
 
-	# TODO: when the modulemanager rewrite is done these should be removed.
 	'disable-extras=s@' => \@opt_disableextras,
 	'enable-extras=s@'  => \@opt_enableextras,
 	'list-extras'       => sub { list_extras; exit 0; },
@@ -361,20 +360,20 @@ if (prompt_bool $interactive, $question, 0) {
 		}
 	}
 } elsif (!defined $opt_disable_auto_extras) {
-	# TODO: finish modulemanager rewrite and replace this code with:
-	# system './modulemanager', 'enable', '--auto';
 	my %modules = (
-		# Missing: m_ldap, m_regex_stdlib, m_ssl_mbedtls
 		'm_argon2.cpp'          => 'pkg-config --exists libargon2',
 		'm_geo_maxmind.cpp'     => 'pkg-config --exists libmaxminddb',
 		'm_mysql.cpp'           => 'mysql_config --version',
 		'm_pgsql.cpp'           => 'pg_config --version',
+		'm_ldap.cpp'            => "echo '#include <ldap.h>' | $config{CXX} -E -",
 		'm_regex_pcre.cpp'      => 'pcre-config --version',
 		'm_regex_posix.cpp'     => undef,
 		'm_regex_re2.cpp'       => 'pkg-config --exists re2',
+		'm_regex_stdlib.cpp'    => '$config{CXX} -o /dev/null -std=c++11 $RealDir/make/test/compiler.cpp',
 		'm_regex_tre.cpp'       => 'pkg-config --exists tre',
 		'm_sqlite3.cpp'         => 'pkg-config --exists sqlite3',
 		'm_ssl_gnutls.cpp'      => 'pkg-config --exists gnutls',
+		'm_ssl_mbedtls.cpp'     => "echo '#include <mbedtls/version.h>' | $config{CXX} -E -",
 		'm_ssl_openssl.cpp'     => 'pkg-config --exists openssl',
 		'm_sslrehashsignal.cpp' => undef,
 	);

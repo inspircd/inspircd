@@ -37,7 +37,6 @@
 #include "base.h"
 #include "ctables.h"
 #include "inspsocket.h"
-#include "timer.h"
 #include "mode.h"
 
 /** Used to specify the behaviour of a module. */

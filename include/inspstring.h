@@ -27,8 +27,6 @@
 
 #pragma once
 
-// This (config) is needed as inspstring doesn't pull in the central header
-#include "config.h"
 #include <cstring>
 
 /** Sets ret to the formatted string. last is the last parameter before ..., and format is the format in printf-style */

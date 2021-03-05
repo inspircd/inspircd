@@ -30,14 +30,7 @@
 
 #pragma once
 
-#include <sstream>
-#include <string>
-#include <vector>
-#include <map>
 #include "inspircd.h"
-#include "modules.h"
-#include "socketengine.h"
-#include "socket.h"
 #include "token_list.h"
 
 /** Structure representing a single \<tag> in config */
@@ -460,7 +453,7 @@ class CoreExport ServerConfig
 	 */
 	OperIndex OperTypes;
 
-	/** TS6-like server ID.
+	/** Unique server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
 	 * for services use.

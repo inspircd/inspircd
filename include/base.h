@@ -28,10 +28,8 @@
 
 #pragma once
 
-#include <map>
-#include <deque>
+#include "compat.h"
 #include <string>
-#include <list>
 
 #include "utility/uncopiable.h"
 #include "cull.h"

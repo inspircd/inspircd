@@ -25,7 +25,6 @@
 
 #include "inspircd.h"
 #include "base.h"
-#include <time.h>
 
 // This trick detects heap allocations of refcountbase objects
 static void* last_heap = NULL;
