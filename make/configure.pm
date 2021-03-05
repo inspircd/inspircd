@@ -58,8 +58,8 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
 
 sub __get_socketengines {
 	my @socketengines;
-	for (<${\CONFIGURE_ROOT}/src/socketengines/socketengine_*.cpp>) {
-		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
+	for (<${\CONFIGURE_ROOT}/src/socketengines/*.cpp>) {
+		s/src\/socketengines\/(\w+)\.cpp/$1/;
 		push @socketengines, $1;
 	}
 	return @socketengines;

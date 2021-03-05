@@ -181,7 +181,7 @@ push @socketengines, 'select';
 
 if (defined $opt_socketengine) {
 	unless (grep { $_ eq $opt_socketengine } @socketengines) {
-		my $reason = -f "src/socketengines/socketengine_$opt_socketengine.cpp" ? 'is not available on this platform' : 'does not exist';
+		my $reason = -f "src/socketengines/$opt_socketengine.cpp" ? 'is not available on this platform' : 'does not exist';
 		print_error "The socket engine you requested ($opt_socketengine) $reason!",
 			'Available socket engines are:',
 			map { "  * $_" } @socketengines;

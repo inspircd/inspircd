@@ -80,10 +80,9 @@ all: inspircd modules
 
 END
 	my(@core_deps, @modlist);
-	for my $file (<*.cpp>, <socketengines/*.cpp>) {
+	for my $file (<*.cpp>, "socketengines/$ENV{SOCKETENGINE}.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
-		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";
 		# Having a module in the src directory is a bad idea because it will be linked to the core binary
 		if ($file =~ /^(m|core)_.*\.cpp/) {
 			my $correctsubdir = ($file =~ /^m_/ ? "modules" : "coremods");
