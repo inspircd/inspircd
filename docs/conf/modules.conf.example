@@ -919,12 +919,6 @@
 #<include file="examples/filter.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Real name ban: Implements two extended bans:                        #
-# 'a', which matches a n!u@h+realname mask like +b a:*!*@host+*real*  #
-# 'r', which matches a realname mask like +b r:*realname?here*        #
-#<module name="gecosban">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Geolocation ban module: Adds support for extban 'G' which matches   #
 # against the ISO 3166-1 alpha-2 codes for the countries that users   #
 # are connecting from. Users connecting from unknown origins such as  #
@@ -1752,6 +1746,12 @@
 # below the path to the quotes file.                                  #
 #                                                                     #
 #<randquote file="quotes.txt">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Real name ban: Implements two extended bans:                        #
+# 'a', which matches a n!u@h+realname mask like +b a:*!*@host+*real*  #
+# 'r', which matches a realname mask like +b r:*realname?here*        #
+#<module name="realnameban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Redirect module: Adds channel mode +L which redirects users to      #

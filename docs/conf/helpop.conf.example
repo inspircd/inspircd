@@ -1097,13 +1097,13 @@ Matching extbans:
 
  a:<mask>      Matches user with both a matching banmask and real name,
                where <mask> is in the format nick!user@host+realname
-               (requires gecosban module).
+               (requires realnameban module).
  j:<channel>   Matches anyone in the given channel. Does not support
                wildcards (requires the channelban module).
  n:<class>     Matches users in a matching connect class (requires
                the classban module).
  r:<realname>  Matches users with a matching real name (requires the
-               gecosban module).
+               realnameban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
  z:<certfp>    Matches users having the given TLS (SSL) certificate
