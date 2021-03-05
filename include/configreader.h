@@ -439,7 +439,7 @@ class CoreExport ServerConfig
 	 */
 	unsigned int OperMaxChans;
 
-	/** TS6-like server ID.
+	/** Unique server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
 	 * for services use.
