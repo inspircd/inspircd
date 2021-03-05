@@ -71,7 +71,7 @@ for my $path (@paths) {
 		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
 		my (%author, %authors);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
-		for my $line (split /\n+/, `git blame $ignored_args --incremental -w HEAD -- $path`) {
+		for my $line (split /\n+/, `git blame $ignored_args --incremental -M -w HEAD -- $path`) {
 			if ($line =~ /^([0-9a-f]{40})(?:\s\d+){3}$/) {
 				$author{COMMITS} //= [];
 				push @{$author{COMMITS}}, $1;
