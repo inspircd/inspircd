@@ -117,10 +117,21 @@ void CommandStats::DoStats(Stats::Context& stats)
 			for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
 			{
 				ListenSocket* ls = *i;
-				const std::string type = ls->bind_tag->getString("type", "clients", 1);
-				const std::string hook = ls->bind_tag->getString("ssl", "plaintext", 1);
+				std::stringstream portentry;
 
-				stats.AddRow(249, ls->bind_sa.str() + " (" + type + ", " + hook + ")");
+				const std::string type = ls->bind_tag->getString("type", "clients", 1);
+				portentry << ls->bind_sa.str() << " (type: " << type;
+
+				const std::string hook = ls->bind_tag->getString("hook");
+				if (!hook.empty())
+					portentry << ", hook: " << hook;
+
+				const std::string sslprofile = ls->bind_tag->getString("ssl");
+				if (!sslprofile.empty())
+					portentry << ", ssl profile: " << sslprofile;
+
+				portentry << ')';
+				stats.AddRow(249, portentry.str());
 			}
 		}
 		break;
