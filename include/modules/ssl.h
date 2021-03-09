@@ -151,6 +151,16 @@ class ssl_cert : public refcountbase
 	}
 };
 
+/** I/O hook provider for SSL modules. */
+class SSLIOHookProvider : public IOHookProvider
+{
+public:
+	SSLIOHookProvider(Module* mod, const std::string& Name)
+		: IOHookProvider(mod, "ssl/" + Name, IOH_SSL)
+	{
+	}
+};
+
 class SSLIOHook : public IOHook
 {
  protected:
