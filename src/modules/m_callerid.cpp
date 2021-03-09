@@ -67,8 +67,10 @@ class callerid_data
 		for (UserSet::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			User* u = *i;
-			// Encode UIDs.
-			oss << "," << (human ? u->nick : u->uuid);
+			if (human)
+				oss << ' ' << u->nick;
+			else
+				oss << ',' << u->uuid;
 		}
 		return oss.str();
 	}
