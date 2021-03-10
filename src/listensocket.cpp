@@ -97,7 +97,8 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	}
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first
-	int timeout = tag->getDuration("defer", (tag->getString("ssl").empty() ? 0 : 3));
+	unsigned int timeoutdef = tag->getString("sslprofile", tag->getString("ssl")).empty() ? 0 : 3;
+	int timeout = tag->getDuration("defer", timeoutdef, 0, 60);
 	if (timeout && !rv)
 	{
 #if defined TCP_DEFER_ACCEPT
@@ -240,7 +241,7 @@ void ListenSocket::ResetIOHookProvider()
 			curr.SetProvider(std::string());
 	}
 
-	std::string provname = bind_tag->getString("ssl");
+	std::string provname = bind_tag->getString("sslprofile",  bind_tag->getString("ssl"));
 	if (!provname.empty())
 		provname.insert(0, "ssl/");
 

@@ -127,7 +127,7 @@ class ModuleFlashPD : public Module
 				if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients", 1), "clients"))
 					continue;
 
-				if (!ls->bind_tag->getString("ssl").empty())
+				if (!ls->bind_tag->getString("sslprofile", ls->bind_tag->getString("ssl")).empty())
 					continue;
 
 				to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');
