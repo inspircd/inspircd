@@ -126,7 +126,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				if (!hook.empty())
 					portentry << ", hook: " << hook;
 
-				const std::string sslprofile = ls->bind_tag->getString("ssl");
+				const std::string sslprofile = ls->bind_tag->getString("sslprofile", ls->bind_tag->getString("ssl"));
 				if (!sslprofile.empty())
 					portentry << ", ssl profile: " << sslprofile;
 

@@ -10,7 +10,7 @@
 <bind address="1.2.3.4"
       port="7005"
       type="servers"
-      ssl="Servers">
+      sslprofile="Servers">
 
 # Plaintext listener that binds on a TCP/IP endpoint:
 <bind address=""
@@ -100,7 +100,7 @@
       port="7000"
       allowmask="203.0.113.0/24 127.0.0.0/8 2001:db8::/32"
       timeout="5m"
-      ssl="Servers"
+      sslprofile="Servers"
       bind="1.2.3.4"
       statshidden="no"
       hidden="no"

@@ -161,7 +161,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 			{
 				ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
 					iohookprovref.GetProvider().c_str(),
-					i == via->iohookprovs.begin() ? "hook" : "ssl",
+					i == via->iohookprovs.begin() ? "hook" : "sslprofile",
 					via->bind_tag->getTagLocation().c_str());
 				this->QuitUser(New, "Internal error handling connection");
 				return;

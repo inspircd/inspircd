@@ -142,7 +142,7 @@ class ModuleIRCv3STS : public Module
 				continue;
 
 			// Is this listener using TLS (SSL)?
-			if (ls->bind_tag->getString("ssl").empty())
+			if (ls->bind_tag->getString("sslprofile", ls->bind_tag->getString("ssl")).empty())
 				continue;
 
 			// TODO: Add a way to check if a listener's TLS cert is CA-verified.
