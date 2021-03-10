@@ -89,7 +89,7 @@ class CloakExtItem : public SimpleExtItem<CloakList>
 	{
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const CXX11_OVERRIDE
 	{
 		return stdalgo::string::join(*static_cast<CloakList*>(item), ' ');
 	}
