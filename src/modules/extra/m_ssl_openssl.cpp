@@ -861,13 +861,13 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 	return ret;
 }
 
-class OpenSSLIOHookProvider : public IOHookProvider
+class OpenSSLIOHookProvider : public SSLIOHookProvider
 {
 	OpenSSL::Profile profile;
 
  public:
 	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, std::shared_ptr<ConfigTag> tag)
-		: IOHookProvider(mod, "ssl/" + profilename, IOHookProvider::IOH_SSL)
+		: SSLIOHookProvider(mod, profilename)
 		, profile(profilename, tag)
 	{
 		ServerInstance->Modules.AddService(*this);

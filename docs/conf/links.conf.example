@@ -10,7 +10,7 @@
 <bind address="1.2.3.4"
       port="7005"
       type="servers"
-      ssl="Servers">
+      sslprofile="Servers">
 
 # Plaintext listener that binds on a TCP/IP endpoint:
 <bind address=""
@@ -56,7 +56,7 @@
       # failover (see above).
       timeout="5m"
 
-      # ssl: If defined, this states the TLS (SSL) profile that will be used
+      # sslprofile: If defined, this states the TLS (SSL) profile that will be used
       # when making an outbound connection to the server. See the docs page for
       # the TLS (SSL) module you are using for more details:
       #
@@ -67,7 +67,7 @@
       # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
       # for GnuTLS and ssl_mbedtls for mbedTLS. The server port that you
       # connect to must be capable of accepting this type of connection.
-      ssl="Servers"
+      sslprofile="Servers"
 
       # fingerprint: If defined, this option will force servers to be
       # authenticated using TLS (SSL) certificate fingerprints. See
@@ -100,7 +100,7 @@
       port="7000"
       allowmask="203.0.113.0/24 127.0.0.0/8 2001:db8::/32"
       timeout="5m"
-      ssl="Servers"
+      sslprofile="Servers"
       bind="1.2.3.4"
       statshidden="no"
       hidden="no"

@@ -1070,7 +1070,7 @@
 # a <bind> tag with type "httpd", and load at least one of the other
 # httpd_* modules to provide pages to display.
 # <bind address="127.0.0.1" port="8067" type="httpd">
-# <bind address="127.0.0.1" port="8097" type="httpd" ssl="gnutls">
+# <bind address="127.0.0.1" port="8097" type="httpd" sslprofile="Clients">
 #
 # You can adjust the timeout for HTTP connections below. All HTTP
 # connections will be closed after (roughly) this time period.

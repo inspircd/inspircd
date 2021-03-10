@@ -806,13 +806,13 @@ class mbedTLSIOHook : public SSLIOHook
 	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
-class mbedTLSIOHookProvider : public IOHookProvider
+class mbedTLSIOHookProvider : public SSLIOHookProvider
 {
 	mbedTLS::Profile profile;
 
  public:
  	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile::Config& config)
-		: IOHookProvider(mod, "ssl/" + config.name, IOHookProvider::IOH_SSL)
+		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
 	{
 		ServerInstance->Modules.AddService(*this);

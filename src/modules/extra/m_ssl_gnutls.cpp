@@ -1074,13 +1074,13 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	return 0;
 }
 
-class GnuTLSIOHookProvider : public IOHookProvider
+class GnuTLSIOHookProvider : public SSLIOHookProvider
 {
 	GnuTLS::Profile profile;
 
  public:
  	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
-		: IOHookProvider(mod, "ssl/" + config.name, IOHookProvider::IOH_SSL)
+		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
 	{
 		ServerInstance->Modules.AddService(*this);

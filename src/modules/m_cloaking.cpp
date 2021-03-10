@@ -81,20 +81,32 @@ struct CloakInfo
 
 typedef std::vector<std::string> CloakList;
 
-/** Handles user mode +x
- */
+class CloakExtItem : public SimpleExtItem<CloakList>
+{
+ public:
+	CloakExtItem(Module* Creator)
+		: SimpleExtItem(Creator, "cloaks", ExtensionItem::EXT_USER)
+	{
+	}
+
+	std::string ToHuman(const Extensible* container, void* item) const override
+	{
+		return stdalgo::string::join(*static_cast<CloakList*>(item), ' ');
+	}
+};
+
 class CloakUser : public ModeHandler
 {
  public:
 	bool active = false;
-	SimpleExtItem<CloakList> ext;
+	CloakExtItem ext;
 	std::string debounce_uid;
 	time_t debounce_ts = 0;
 	int debounce_count = 0;
 
 	CloakUser(Module* source)
 		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
-		, ext(source, "cloaked_host", ExtensionItem::EXT_USER)
+		, ext(source)
 	{
 	}
 
