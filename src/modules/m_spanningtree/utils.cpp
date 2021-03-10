@@ -274,7 +274,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Fingerprint = tag->getString("fingerprint");
 		L->HiddenFromStats = tag->getBool("statshidden");
 		L->Timeout = tag->getDuration("timeout", 30);
-		L->Hook = tag->getString("ssl");
+		L->Hook = tag->getString("sslprofile", tag->getString("ssl"));
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
 
