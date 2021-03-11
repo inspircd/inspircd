@@ -91,7 +91,10 @@ class IRCv3::Replies::Reply
 	void Send(LocalUser* user, Command* command, const std::string& code, const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(description);
 		SendInternal(user, msg);
@@ -101,7 +104,10 @@ class IRCv3::Replies::Reply
 	void Send(LocalUser* user, Command* command, const std::string& code, const T1& p1, const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(ConvToStr(p1));
 		msg.PushParam(description);
@@ -113,7 +119,10 @@ class IRCv3::Replies::Reply
 		const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(ConvToStr(p1));
 		msg.PushParam(ConvToStr(p2));
@@ -126,7 +135,10 @@ class IRCv3::Replies::Reply
 		const T3& p3, const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(ConvToStr(p1));
 		msg.PushParam(ConvToStr(p2));
@@ -140,7 +152,10 @@ class IRCv3::Replies::Reply
 		const T3& p3, const T4& p4, const std::string& description)
 	{
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		msg.PushParamRef(command->name);
+		if (command)
+			msg.PushParamRef(command->name);
+		else
+			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(ConvToStr(p1));
 		msg.PushParam(ConvToStr(p2));
