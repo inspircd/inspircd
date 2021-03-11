@@ -204,15 +204,15 @@ if (defined $opt_portable) {
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
 } elsif (defined $opt_system) {
 	$config{BASE_DIR}    = $opt_prefix      // '/';
-	$config{BINARY_DIR}  = $opt_binary_dir  // '/usr/sbin';
-	$config{CONFIG_DIR}  = $opt_config_dir  // '/etc/inspircd';
-	$config{DATA_DIR}    = $opt_data_dir    // '/var/lib/inspircd';
-	$config{EXAMPLE_DIR} = $opt_example_dir // '/usr/share/doc/inspircd';
-	$config{LOG_DIR}     = $opt_log_dir     // '/var/log/inspircd';
-	$config{MANUAL_DIR}  = $opt_manual_dir  // '/usr/share/man/man1';
-	$config{MODULE_DIR}  = $opt_module_dir  // '/usr/lib/inspircd';
-	$config{RUNTIME_DIR} = $opt_runtime_dir // '/var/run';
-	$config{SCRIPT_DIR}  = $opt_script_dir  // '/usr/share/inspircd';
+	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/sbin';
+	$config{CONFIG_DIR}  = $opt_config_dir  // catdir $config{BASE_DIR}, 'etc/inspircd';
+	$config{DATA_DIR}    = $opt_data_dir    // catdir $config{BASE_DIR}, 'var/lib/inspircd';
+	$config{EXAMPLE_DIR} = $opt_example_dir // catdir $config{BASE_DIR}, 'usr/share/doc/inspircd';
+	$config{LOG_DIR}     = $opt_log_dir     // catdir $config{BASE_DIR}, 'var/log/inspircd';
+	$config{MANUAL_DIR}  = $opt_manual_dir  // catdir $config{BASE_DIR}, 'usr/share/man/man1';
+	$config{MODULE_DIR}  = $opt_module_dir  // catdir $config{BASE_DIR}, 'usr/lib/inspircd';
+	$config{RUNTIME_DIR} = $opt_runtime_dir // catdir $config{BASE_DIR}, 'var/run';
+	$config{SCRIPT_DIR}  = $opt_script_dir  // catdir $config{BASE_DIR}, 'usr/share/inspircd';
 } else {
 	$config{BASE_DIR}    = rel2abs $opt_prefix // $config{BASE_DIR}    // catdir $RealDir,            'run';
 	$config{BINARY_DIR}  = $opt_binary_dir     // $config{BINARY_DIR}  // catdir $config{BASE_DIR},   'bin';
