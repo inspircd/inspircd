@@ -1,0 +1,60 @@
+# This file contains ISO 8859-2 codepage rules for use with the codepage module.
+
+<codepage name="iso-8859-2">
+
+<cpchars index="161" front="yes">           # Ą
+<cpchars index="163" front="yes">           # Ł
+<cpchars begin="165" end="166" front="yes"> # ĽŚ
+<cpchars begin="169" end="172" front="yes"> # ŠŞŤŹ
+<cpchars begin="174" end="175" front="yes"> # ŽŻ
+<cpchars index="177" front="yes">           # ą
+<cpchars index="179" front="yes">           # ł
+<cpchars begin="181" end="182" front="yes"> # ľś
+<cpchars begin="185" end="188" front="yes"> # šşťź
+<cpchars begin="190" end="214" front="yes"> # žżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ
+<cpchars begin="216" end="246" front="yes"> # ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö
+<cpchars begin="248" end="254" front="yes"> # řůúűüýţ
+
+<cpcase lower="177" upper="161"> # ą => Ą
+<cpcase lower="179" upper="163"> # ł => Ł
+<cpcase lower="181" upper="165"> # ľ => Ľ
+<cpcase lower="182" upper="166"> # ś => Ś
+<cpcase lower="185" upper="169"> # š => Š
+<cpcase lower="186" upper="170"> # ş => Ş
+<cpcase lower="187" upper="171"> # ť => Ť
+<cpcase lower="188" upper="172"> # ź => Ź
+<cpcase lower="190" upper="174"> # ž => Ž
+<cpcase lower="191" upper="175"> # ż => Ż
+<cpcase lower="224" upper="192"> # ŕ => Ŕ
+<cpcase lower="225" upper="193"> # á => Á
+<cpcase lower="226" upper="194"> # â => Â
+<cpcase lower="227" upper="195"> # ă => Ă
+<cpcase lower="228" upper="196"> # ä => Ä
+<cpcase lower="229" upper="197"> # ĺ => Ĺ
+<cpcase lower="230" upper="198"> # ć => Ć
+<cpcase lower="231" upper="199"> # ç => Ç
+<cpcase lower="232" upper="200"> # č => Č
+<cpcase lower="233" upper="201"> # é => É
+<cpcase lower="234" upper="202"> # ę => Ę
+<cpcase lower="235" upper="203"> # ë => Ë
+<cpcase lower="236" upper="204"> # ě => Ě
+<cpcase lower="237" upper="205"> # í => Í
+<cpcase lower="238" upper="206"> # î => Î
+<cpcase lower="239" upper="207"> # ď => Ď
+<cpcase lower="240" upper="208"> # đ => Đ
+<cpcase lower="241" upper="209"> # ń => Ń
+<cpcase lower="242" upper="210"> # ň => Ň
+<cpcase lower="243" upper="211"> # ó => Ó
+<cpcase lower="244" upper="212"> # ô => Ô
+<cpcase lower="245" upper="213"> # ő => Ő
+<cpcase lower="246" upper="214"> # ö => Ö
+<cpcase lower="248" upper="216"> # ř => Ř
+<cpcase lower="249" upper="217"> # ů => Ů
+<cpcase lower="250" upper="218"> # ú => Ú
+<cpcase lower="251" upper="219"> # ű => Ű
+<cpcase lower="252" upper="220"> # ü => Ü
+<cpcase lower="253" upper="221"> # ý => Ý
+<cpcase lower="254" upper="222"> # ţ => Ţ
+
+# Include the ASCII rules to avoid duplication.
+<include file="examples/codepages/ascii.conf.example">
