@@ -628,7 +628,7 @@ namespace
 long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 {
 	std::string result;
-	if(!readString(key, result))
+	if(!readString(key, result) || result.empty())
 		return def;
 
 	const char* res_cstr = result.c_str();
@@ -645,7 +645,7 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
 {
 	std::string result;
-	if (!readString(key, result))
+	if (!readString(key, result) || result.empty())
 		return def;
 
 	const char* res_cstr = result.c_str();
@@ -662,7 +662,7 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, unsigned long min, unsigned long max)
 {
 	std::string duration;
-	if (!readString(key, duration))
+	if (!readString(key, duration) || duration.empty())
 		return def;
 
 	unsigned long ret;
@@ -691,7 +691,7 @@ double ConfigTag::getFloat(const std::string& key, double def, double min, doubl
 bool ConfigTag::getBool(const std::string &key, bool def)
 {
 	std::string result;
-	if(!readString(key, result))
+	if(!readString(key, result) || result.empty())
 		return def;
 
 	if (stdalgo::string::equalsci(result, "yes") || stdalgo::string::equalsci(result, "true") || stdalgo::string::equalsci(result, "on") || result == "1")
