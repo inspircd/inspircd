@@ -185,7 +185,7 @@ public:
 	{
 		auto tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
-		save_listmodes = tag->getBool("listmodes");
+		save_listmodes = tag->getBool("listmodes", true);
 		SetInterval(tag->getDuration("saveperiod", 5));
 
 		if (!permchannelsconf.empty())
