@@ -618,7 +618,7 @@
 #
 # You should include one of the following files to set your codepage:
 #<include file="examples/codepages/ascii.conf.example">
-#<include file="examples/codepages/latin1.conf.example">
+#<include file="examples/codepages/iso-8859-1.conf.example">
 #<include file="examples/codepages/rfc1459.conf.example">
 #<include file="examples/codepages/strict-rfc1459.conf.example">
 #
