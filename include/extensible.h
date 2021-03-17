@@ -58,34 +58,34 @@ class CoreExport ExtensionItem
 	 * @param container A container the ExtensionItem should be set on.
 	 * @param value A value in the internal format.
 	 */
-	virtual void FromInternal(Extensible* container, const std::string& value);
+	virtual void FromInternal(Extensible* container, const std::string& value) noexcept;
 
 	/** Sets an ExtensionItem using a value in the network format.
 	 * @param container A container the ExtensionItem should be set on.
 	 * @param value A value in the network format.
 	 */
-	virtual void FromNetwork(Extensible* container, const std::string& value);
+	virtual void FromNetwork(Extensible* container, const std::string& value) noexcept;
 
 	/** Gets an ExtensionItem's value in a human-readable format.
 	 * @param container The container the ExtensionItem is set on.
 	 * @param item The value to convert to a human-readable format.
 	 * @return The value specified in \p item in a human readable format.
 	 */
-	virtual std::string ToHuman(const Extensible* container, void* item) const;
+	virtual std::string ToHuman(const Extensible* container, void* item) const noexcept;
 
 	/** Gets an ExtensionItem's value in the internal format.
 	 * @param container The container the ExtensionItem is set on.
 	 * @param item The value to convert to the internal format.
 	 * @return The value specified in \p item in the internal format.
 	 */
-	virtual std::string ToInternal(const Extensible* container, void* item) const ;
+	virtual std::string ToInternal(const Extensible* container, void* item) const noexcept;
 
 	/** Gets an ExtensionItem's value in the network format.
 	 * @param container The container the ExtensionItem is set on.
 	 * @param item The value to convert to the network format.
 	 * @return The value specified in \p item in the network format.
 	 */
-	virtual std::string ToNetwork(const Extensible* container, void* item) const;
+	virtual std::string ToNetwork(const Extensible* container, void* item) const noexcept;
 
 	/** Deallocates the specified ExtensionItem value.
 	 * @param container The container that the ExtensionItem is set on.
@@ -252,16 +252,16 @@ class CoreExport StringExtItem : public SimpleExtItem<std::string>
 	virtual ~StringExtItem() = default;
 
 	/** @copydoc ExtensionItem::FromInternal */
-	void FromInternal(Extensible* container, const std::string& value) override;
+	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
 	/** @copydoc ExtensionItem::FromNetwork */
-	void FromNetwork(Extensible* container, const std::string& value) override;
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const override;
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
 
 	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const override;
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 };
 
 /** Encapsulates an ExtensionItem which has a integer value. */
@@ -293,10 +293,10 @@ class CoreExport IntExtItem : public ExtensionItem
 	intptr_t Get(const Extensible* container) const;
 
 	/** @copydoc ExtensionItem::FromInternal */
-	void FromInternal(Extensible* container, const std::string& value) override;
+	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
 	/** @copydoc ExtensionItem::FromNetwork */
-	void FromNetwork(Extensible* container, const std::string& value) override;
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
 
 	/** Sets a value for this IntExtItem.
 	 * @param container A container that the IntExtItem should be set on.
@@ -304,10 +304,10 @@ class CoreExport IntExtItem : public ExtensionItem
 	void Set(Extensible* container, intptr_t value);
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const override;
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
 
 	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const override;
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 
 	/** Removes the value for this IntExtItem.
 	 * @param container A container the ExtensionItem should be removed from.

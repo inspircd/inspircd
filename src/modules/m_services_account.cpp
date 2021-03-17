@@ -114,12 +114,12 @@ class AccountExtItemImpl : public AccountExtItem
 	{
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) override
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
 		StringExtItem::FromInternal(container, value);
 	}
 
-	void FromNetwork(Extensible* container, const std::string& value) override
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
 		StringExtItem::FromNetwork(container, value);
 

@@ -99,17 +99,17 @@ class Invite::ExtItem : public ExtensionItem
 		delete store;
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
 	{
 		return ToString(item, true);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const override
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		return ToString(item, false);
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) override
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
 		if (ExtType != ExtensionItem::EXT_CHANNEL)
 			UnserializeInvite(static_cast<LocalUser*>(container), value);

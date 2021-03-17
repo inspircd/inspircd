@@ -82,19 +82,19 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 		return dat->ToString(true);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const override
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 		return dat->ToString(false);
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) override
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
 		void* old = GetRaw(container);
 		if (old)

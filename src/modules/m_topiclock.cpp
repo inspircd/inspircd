@@ -88,18 +88,18 @@ class FlagExtItem : public ExtensionItem
 		return (GetRaw(container) != NULL);
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
 	{
 		// Make the human version more readable.
 		return "true";
 	}
 
-	std::string ToNetwork(const Extensible* container, void* item) const override
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
 	{
 		return "1";
 	}
 
-	void FromNetwork(Extensible* container, const std::string& value) override
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
 		if (value == "1")
 			SetRaw(container, this);

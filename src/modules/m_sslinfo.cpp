@@ -66,12 +66,12 @@ class SSLCertExt : public ExtensionItem
 		Delete(container, UnsetRaw(container));
 	}
 
-	std::string ToNetwork(const Extensible* container, void* item) const override
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
 
-	void FromNetwork(Extensible* container, const std::string& value) override
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
 		ssl_cert* cert = new ssl_cert;
 		Set(container, cert);

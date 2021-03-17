@@ -30,12 +30,12 @@ void IntExtItem::Delete(Extensible* container, void* item)
 	// Intentionally left blank.
 }
 
-void IntExtItem::FromInternal(Extensible* container, const std::string& value)
+void IntExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	Set(container, ConvToNum<intptr_t>(value));
 }
 
-void IntExtItem::FromNetwork(Extensible* container, const std::string& value)
+void IntExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
 {
 	if (synced)
 		FromInternal(container, value);
@@ -54,12 +54,12 @@ void IntExtItem::Set(Extensible* container, intptr_t value)
 		UnsetRaw(container);
 }
 
-std::string IntExtItem::ToInternal(const Extensible* container, void* item) const
+std::string IntExtItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
 
-std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
+std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
 {
 	return synced ? ToInternal(container, item) : std::string();
 }
@@ -75,7 +75,7 @@ StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleTy
 {
 }
 
-void StringExtItem::FromInternal(Extensible* container, const std::string& value)
+void StringExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	if (value.empty())
 		Unset(container);
@@ -83,18 +83,18 @@ void StringExtItem::FromInternal(Extensible* container, const std::string& value
 		Set(container, value);
 }
 
-void StringExtItem::FromNetwork(Extensible* container, const std::string& value)
+void StringExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
 {
 	if (synced)
 		FromInternal(container, value);
 }
 
-std::string StringExtItem::ToInternal(const Extensible* container, void* item) const
+std::string StringExtItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
 	return item ? *static_cast<std::string*>(item) : std::string();
 }
 
-std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const
+std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
 {
 	return synced ? ToInternal(container, item) : std::string();
 }

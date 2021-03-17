@@ -115,7 +115,7 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 	{
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) override
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
 		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 		if (!user)
@@ -158,7 +158,7 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 		Set(user, list);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const override
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		dccallowlist* list = static_cast<dccallowlist*>(item);
 		std::string buf;

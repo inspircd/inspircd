@@ -85,7 +85,7 @@ class IRCv3::Monitor::Manager
 			Delete(container, UnsetRaw(container));
 		}
 
-		std::string ToInternal(const Extensible* container, void* item) const override
+		std::string ToInternal(const Extensible* container, void* item) const noexcept override
 		{
 			std::string ret;
 			const ExtData* extdata = static_cast<ExtData*>(item);
@@ -99,7 +99,7 @@ class IRCv3::Monitor::Manager
 			return ret;
 		}
 
-		void FromInternal(Extensible* container, const std::string& value) override;
+		void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
 		void Delete(Extensible* container, void* item) override
 		{
@@ -245,7 +245,7 @@ class IRCv3::Monitor::Manager
  	WatchedList emptywatchedlist;
 };
 
-void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const std::string& value)
+void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	irc::spacesepstream ss(value);
 	for (std::string nick; ss.GetToken(nick); )

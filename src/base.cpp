@@ -182,16 +182,16 @@ Extensible::~Extensible()
 		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
-void ExtensionItem::FromInternal(Extensible* container, const std::string& value)
+void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	FromNetwork(container, value);
 }
 
-void ExtensionItem::FromNetwork(Extensible* container, const std::string& value)
+void ExtensionItem::FromNetwork(Extensible* container, const std::string& value) noexcept
 {
 }
 
-std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const
+std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const noexcept
 {
 	// Try to use the network form by default.
 	std::string ret = ToNetwork(container, item);
@@ -203,12 +203,12 @@ std::string ExtensionItem::ToHuman(const Extensible* container, void* item) cons
 	return ret;
 }
 
-std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const
+std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
 	return ToNetwork(container, item);
 }
 
-std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const
+std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const noexcept
 {
 	return std::string();
 }

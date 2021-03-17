@@ -331,17 +331,17 @@ Cap::ExtItem::ExtItem(Module* mod)
 {
 }
 
-std::string Cap::ExtItem::ToHuman(const Extensible* container, void* item) const
+std::string Cap::ExtItem::ToHuman(const Extensible* container, void* item) const noexcept
 {
 	return SerializeCaps(container, item, true);
 }
 
-std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) const
+std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
 	return SerializeCaps(container, item, false);
 }
 
-void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
+void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 	if (!user)

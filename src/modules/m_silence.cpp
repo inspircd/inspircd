@@ -194,7 +194,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 	{
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) override
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
 		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 		if (!user)
@@ -245,7 +245,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 		Set(user, list);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const override
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		SilenceList* list = static_cast<SilenceList*>(item);
 		std::string buf;

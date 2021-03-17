@@ -43,7 +43,7 @@ class GeolocationExtItem : public ExtensionItem
 	{
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const override
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
 	{
 		Geolocation::Location* location = static_cast<Geolocation::Location*>(item);
 		return location->GetName() + " [" + location->GetCode() + "]";
