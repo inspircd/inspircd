@@ -19,20 +19,101 @@
 
 #include "inspircd.h"
 
-typedef std::bitset<UCHAR_MAX + 1> AllowedChars;
-
-namespace
+class Codepage
 {
+ public:
+	enum AllowCharacterResult
+	{
+		// The character is allowed in a nick.
+		ACR_OKAY,
+
+		// The character is never valid in a nick.
+		ACR_NOT_VALID,
+
+		// The character is not valid at the front of a nick.
+		ACR_NOT_VALID_AT_FRONT
+	};
+
+	// The mapping of lower case characters to upper case characters.
+	unsigned char casemap[UCHAR_MAX + 1];
+
+	// Initialises the Codepage class.
+	Codepage()
+	{
+		for (size_t i = 0; i <= UCHAR_MAX; ++i)
+			casemap[i] = i;
+	}
+
+	// Destroys the Codepage class.
+	virtual ~Codepage() = default;
+
+	// Specifies that a character is allowed.
+	virtual AllowCharacterResult AllowCharacter(uint32_t character, bool front)
+	{
+		if (front)
+		{
+			// Nicknames can not begin with a number as that would collide with
+			// a user identifier.
+			if (character >= '0' && character <= '9')
+				return ACR_NOT_VALID_AT_FRONT;
+
+			// Nicknames can not begin with a : as it has special meaning within
+			// the IRC message format.
+			if (character == ':')
+				return ACR_NOT_VALID_AT_FRONT;
+		}
+
+		// Nicknames can never contain NUL, CR, LF, or SPACE as they are either
+		// banned within an IRC message or have special meaning within the IRC
+		// message format.
+		if (!character || character == '\n' || character == '\r' || character == ' ')
+			return ACR_NOT_VALID;
+
+		// The character is probably okay?
+		return ACR_OKAY;
+	}
+
+	// Determines whether a nickname is valid.
+	virtual bool IsValidNick(const std::string& nick) = 0;
+
+	// Retrieves the link data for this codepage.
+	virtual std::string LinkData() const = 0;
+
+	// Maps an upper case character to a lower case character.
+	virtual bool Map(unsigned long upper, unsigned long lower) = 0;
+};
+
+class SingleByteCodepage final
+	: public Codepage
+{
+ private:
+	typedef std::bitset<UCHAR_MAX + 1> AllowedChars;
+
 	// The characters which are allowed in nicknames.
 	AllowedChars allowedchars;
 
 	// The characters which are allowed at the front of a nickname.
 	AllowedChars allowedfrontchars;
 
-	// The mapping of lower case characters to upper case characters.
-	unsigned char casemap[UCHAR_MAX];
+ public:
+	AllowCharacterResult AllowCharacter(uint32_t character, bool front) override
+	{
+		// Single byte codepage can, as their name suggests, only be one byte in size.
+		if (character > UCHAR_MAX)
+			return ACR_NOT_VALID;
 
-	bool IsValidNick(const std::string& nick)
+		// Check the common allowed character rules.
+		AllowCharacterResult result = Codepage::AllowCharacter(character, front);
+		if (result != ACR_OKAY)
+			return result;
+
+		// The character is okay.
+		allowedchars.set(character);
+		allowedfrontchars.set(character, front);
+		return ACR_OKAY;
+	}
+
+	bool IsValidNick(const std::string& nick) override
 	{
 		if (nick.empty() || nick.length() > ServerInstance->Config->Limits.MaxNick)
 			return false;
@@ -52,12 +133,46 @@ namespace
 
 		return true;
 	}
-}
 
-class ModuleCodepage
+	std::string LinkData() const override
+	{
+		std::stringstream linkdata;
+
+		linkdata << "front=";
+		for (size_t i = 0; i < allowedfrontchars.size(); ++i)
+			if (allowedfrontchars[i])
+				linkdata << static_cast<unsigned char>(i);
+
+		linkdata << "&middle=";
+		for (size_t i = 0; i < allowedchars.size(); ++i)
+			if (allowedchars[i])
+				linkdata << static_cast<unsigned char>(i);
+
+		linkdata << "&map=";
+		for (size_t i = 0; i < sizeof(casemap); ++i)
+			if (casemap[i] != i)
+				linkdata << static_cast<unsigned char>(i) << casemap[i] << ',';
+
+		return linkdata.str();
+	}
+
+	bool Map(unsigned long upper, unsigned long lower) override
+	{
+		if (upper > UCHAR_MAX || lower > UCHAR_MAX)
+			return false;
+
+		casemap[upper] = lower;
+		return true;
+	}
+};
+
+class ModuleCodepage final
 	: public Module
 {
  private:
+	// The currently active codepage.
+	std::unique_ptr<Codepage> codepage;
+
 	// The character map which was set before this module was loaded.
 	const unsigned char* origcasemap;
 
@@ -114,6 +229,7 @@ class ModuleCodepage
  public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
+		, codepage(nullptr)
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->IsNick)
@@ -128,7 +244,8 @@ class ModuleCodepage
 		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
 		CheckDuplicateNick();
-		CheckRehash(casemap);
+		if (codepage) // nullptr if ReadConfig throws on load.
+			CheckRehash(codepage->casemap);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -137,92 +254,69 @@ class ModuleCodepage
 		if (name.empty())
 			throw ModuleException("<codepage:name> is a required field!");
 
-		AllowedChars newallowedchars;
-		AllowedChars newallowedfrontchars;
-
+		std::unique_ptr<Codepage> newcodepage = std::make_unique<SingleByteCodepage>();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
-			unsigned char begin = tag->getUInt("begin", tag->getUInt("index", 0), 1, UCHAR_MAX);
+			unsigned long begin = tag->getUInt("begin", tag->getUInt("index", 0));
 			if (!begin)
 				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->source.str());
 
-			unsigned char end = tag->getUInt("end", begin, 1, UCHAR_MAX);
+			unsigned long end = tag->getUInt("end", begin);
 			if (begin > end)
 				throw ModuleException("<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
 			bool front = tag->getBool("front", false);
-			for (unsigned short pos = begin; pos <= end; ++pos)
+			for (unsigned long pos = begin; pos <= end; ++pos)
 			{
-				if (pos == '\n' || pos == '\r' || pos == ' ')
+				switch (newcodepage->AllowCharacter(pos, front))
 				{
-					throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden character: %u at %s",
-						pos, tag->source.str().c_str()));
-				}
+					case Codepage::ACR_OKAY:
+						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as allowed (front: %s)",
+							pos, reinterpret_cast<unsigned char*>(&pos), front ? "yes" : "no");
+						break;
 
-				if (front && (pos == ':' || isdigit(pos)))
-				{
-					throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden front character: %u at %s",
-						pos, tag->source.str().c_str()));
-				}
+					case Codepage::ACR_NOT_VALID:
+						throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden character: %lu at %s",
+							pos, tag->source.str().c_str()));
 
-				newallowedchars.set(pos);
-				newallowedfrontchars.set(pos, front);
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %u (%c) as allowed (front: %s)",
-					pos, pos, front ? "yes" : "no");
+					case Codepage::ACR_NOT_VALID_AT_FRONT:
+						throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden front character: %lu at %s",
+							pos, tag->source.str().c_str()));
+				}
 			}
 		}
 
-		unsigned char newcasemap[UCHAR_MAX];
-		for (size_t i = 0; i < UCHAR_MAX; ++i)
-			newcasemap[i] = i;
-
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
 		{
-			unsigned char lower = tag->getUInt("lower", 0, 1, UCHAR_MAX);
+			unsigned long lower = tag->getUInt("lower", 0);
 			if (!lower)
 				throw ModuleException("<cpcase:lower> is required at " + tag->source.str());
 
-			unsigned char upper = tag->getUInt("upper", 0, 1, UCHAR_MAX);
+			unsigned long upper = tag->getUInt("upper", 0);
 			if (!upper)
 				throw ModuleException("<cpcase:upper> is required at " + tag->source.str());
 
-			newcasemap[upper] = lower;
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %u (%c) as the lower case version of %u (%c)",
-				lower, lower, upper, upper);
+			if (!newcodepage->Map(upper, lower))
+				throw ModuleException("Malformed <cpcase> tag at " + tag->source.str());
+
+			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
+				lower, reinterpret_cast<unsigned char*>(&lower), upper, reinterpret_cast<unsigned char*>(&upper));
 		}
 
-		std::swap(allowedchars, newallowedchars);
-		std::swap(allowedfrontchars, newallowedfrontchars);
-		std::swap(casemap, newcasemap);
-
-		ServerInstance->IsNick = &IsValidNick;
+		std::swap(codepage, newcodepage);
+		ServerInstance->IsNick = [this](const std::string& nick) { return codepage->IsValidNick(nick); };
 		CheckInvalidNick();
 
 		ServerInstance->Config->CaseMapping = name;
-		national_case_insensitive_map = casemap;
-		CheckRehash(newcasemap);
+		national_case_insensitive_map = codepage->casemap;
+		if (newcodepage) // nullptr on first read.
+			CheckRehash(newcodepage->casemap);
 	}
 
 	void GetLinkData(std::string& data) override
 	{
-		std::stringstream linkdata;
-
-		linkdata << "front=";
-		for (size_t i = 0; i < allowedfrontchars.size(); ++i)
-			if (allowedfrontchars[i])
-				linkdata << static_cast<unsigned char>(i);
-
-		linkdata << "&middle=";
-		for (size_t i = 0; i < allowedchars.size(); ++i)
-			if (allowedchars[i])
-				linkdata << static_cast<unsigned char>(i);
-
-		linkdata << "&map=";
-		for (size_t i = 0; i < sizeof(casemap); ++i)
-			if (casemap[i] != i)
-				linkdata << static_cast<unsigned char>(i) << casemap[i] << ',';
-
-		data = linkdata.str();
+		data.assign(codepage ? codepage->LinkData() : "");
 	}
 };
+
 MODULE_INIT(ModuleCodepage)
