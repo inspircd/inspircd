@@ -110,7 +110,7 @@ class SSLCertExt : public ExtensionItem
 class UserCertificateAPIImpl : public UserCertificateAPIBase
 {
  public:
-	IntExtItem nosslext;
+	BoolExtItem nosslext;
 	SSLCertExt sslext;
 
 	UserCertificateAPIImpl(Module* mod)
@@ -416,7 +416,7 @@ class ModuleSSLInfo
 		{
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
-			cmd.sslapi.nosslext.Set(user, 1);
+			cmd.sslapi.nosslext.Set(user);
 			cmd.sslapi.sslext.Unset(user);
 			return;
 		}

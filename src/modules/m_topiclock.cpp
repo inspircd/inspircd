@@ -74,69 +74,17 @@ class CommandSVSTOPIC : public Command
 	}
 };
 
-// TODO: add a BoolExtItem to replace this.
-class FlagExtItem : public ExtensionItem
-{
- public:
-	FlagExtItem(const std::string& key, Module* owner)
-		: ExtensionItem(owner, key, ExtensionItem::EXT_CHANNEL)
-	{
-	}
-
-	bool Get(const Extensible* container) const
-	{
-		return (GetRaw(container) != NULL);
-	}
-
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
-	{
-		// Make the human version more readable.
-		return "true";
-	}
-
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
-	{
-		return "1";
-	}
-
-	void FromNetwork(Extensible* container, const std::string& value) noexcept override
-	{
-		if (value == "1")
-			SetRaw(container, this);
-		else
-			UnsetRaw(container);
-	}
-
-	void set(Extensible* container, bool value)
-	{
-		if (value)
-			SetRaw(container, this);
-		else
-			UnsetRaw(container);
-	}
-
-	void Unset(Extensible* container)
-	{
-		UnsetRaw(container);
-	}
-
-	void Delete(Extensible* container, void* item) override
-	{
-		// nothing to free
-	}
-};
-
 class ModuleTopicLock : public Module
 {
  private:
 	CommandSVSTOPIC cmd;
-	FlagExtItem topiclock;
+	BoolExtItem topiclock;
 
  public:
 	ModuleTopicLock()
 		: Module(VF_VENDOR | VF_COMMON, "Allows services to lock the channel topic so that it can not be changed.")
 		, cmd(this)
-		, topiclock("topiclock", this)
+		, topiclock(this, "topiclock", ExtensionItem::EXT_CHANNEL)
 	{
 	}
 

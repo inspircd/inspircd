@@ -31,10 +31,10 @@
 class DelayJoinMode : public ModeHandler
 {
  private:
-	IntExtItem& unjoined;
+	BoolExtItem& unjoined;
 
  public:
-	DelayJoinMode(Module* Parent, IntExtItem& ext)
+	DelayJoinMode(Module* Parent, BoolExtItem& ext)
 		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 		, unjoined(ext)
 	{
@@ -56,10 +56,11 @@ namespace
  */
 class JoinHook : public ClientProtocol::EventHook
 {
-	const IntExtItem& unjoined;
+ private:
+	const BoolExtItem& unjoined;
 
  public:
-	JoinHook(Module* mod, const IntExtItem& unjoinedref)
+	JoinHook(Module* mod, const BoolExtItem& unjoinedref)
 		: ClientProtocol::EventHook(mod, "JOIN", 10)
 		, unjoined(unjoinedref)
 	{
@@ -84,7 +85,7 @@ class ModuleDelayJoin
 	, public Names::EventListener
 {
  public:
-	IntExtItem unjoined;
+	BoolExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
 
@@ -156,7 +157,7 @@ static void populate(CUList& except, Membership* memb)
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
-		unjoined.Set(memb, 1);
+		unjoined.Set(memb);
 }
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)

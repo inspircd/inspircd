@@ -29,7 +29,7 @@ namespace
 {
 	Module* me;
 	std::string killreason;
-	IntExtItem* authed;
+	BoolExtItem* authed;
 	bool verbose;
 	std::string vhost;
 	StringExtItem* vhosts;
@@ -126,7 +126,7 @@ class BindInterface : public LDAPInterface
 
 			// We're done, there are no attributes to check
 			SetVHost(user, DN);
-			authed->Set(user, 1);
+			authed->Set(user);
 
 			delete this;
 			return;
@@ -144,7 +144,7 @@ class BindInterface : public LDAPInterface
 					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
 
 				SetVHost(user, DN);
-				authed->Set(user, 1);
+				authed->Set(user);
 			}
 
 			// Delete this if this is the last ref
@@ -302,7 +302,7 @@ class AdminBindInterface : public LDAPInterface
 class ModuleLDAPAuth : public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
-	IntExtItem ldapAuthed;
+	BoolExtItem ldapAuthed;
 	StringExtItem ldapVhost;
 	std::string base;
 	std::string attribute;

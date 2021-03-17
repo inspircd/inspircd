@@ -38,7 +38,7 @@ enum
 class CommandSwhois : public Command
 {
  public:
-	IntExtItem operblock;
+	BoolExtItem operblock;
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
@@ -128,7 +128,7 @@ class ModuleSWhois
 		if (!swhois.length())
 			return;
 
-		cmd.operblock.Set(user, 1);
+		cmd.operblock.Set(user);
 		cmd.swhois.Set(user, swhois);
 	}
 

@@ -326,3 +326,59 @@ class CoreExport IntExtItem : public ExtensionItem
 	 */
 	void Unset(Extensible* container, bool sync = true);
 };
+
+/** Encapsulates an ExtensionItem which has a boolean value. */
+class CoreExport BoolExtItem : public ExtensionItem
+{
+ protected:
+	/** Whether to sync this BoolExtItem across the network. */
+	bool synced;
+
+ public:
+	/** Initializes an instance of the BoolExtItem class.
+	 * @param owner The module which created this BoolExtItem.
+	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param exttype The type of Extensible that this BoolExtItem applies to.
+	 * @param sync Whether this BoolExtItem should be broadcast to other servers.
+	 */
+	BoolExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+
+	/** Destroys an instance of the BoolExtItem class. */
+	virtual ~BoolExtItem() = default;
+
+	/** @copydoc ExtensionItem::Delete */
+	void Delete(Extensible* container, void* item) override;
+
+	/** @copydoc ExtensionItem::FromInternal */
+	void FromInternal(Extensible* container, const std::string& value) noexcept override;
+
+	/** @copydoc ExtensionItem::FromNetwork */
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
+
+	/** @copydoc ExtensionItem::ToHuman */
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override;
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
+
+	/** @copydoc ExtensionItem::ToNetwork */
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
+
+	/** Retrieves the value for this BoolExtItem.
+	 * @param container The container that the BoolExtItem is set on.
+	 * @return Either the value of this BoolExtItem or NULL if it is not set.
+	 */
+	bool Get(const Extensible* container) const;
+
+	/** Sets a value for this BoolExtItem.
+	 * @param container A container that the BoolExtItem should be set on.
+	 * @param sync Whether to sync this set to the network.
+	 */
+	void Set(Extensible* container, bool sync = true);
+
+	/** Removes the value for this BoolExtItem.
+	 * @param container A container the ExtensionItem should be removed from.
+	 * @param sync Whether to sync this unset to the network.
+	 */
+	void Unset(Extensible* container, bool sync = true);
+};

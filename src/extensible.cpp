@@ -182,6 +182,65 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
+BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
+	: ExtensionItem(owner, key, exttype)
+	, synced(sync)
+{
+}
+
+void BoolExtItem::Delete(Extensible* container, void* item)
+{
+	// Intentionally left blank.
+}
+
+void BoolExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
+{
+	if (ConvToNum<intptr_t>(value))
+		Set(container, false);
+	else
+		Unset(container, false);
+}
+
+std::string BoolExtItem::ToHuman(const Extensible* container, void* item) const noexcept
+{
+	return item ? "set" : "unset";
+}
+
+void BoolExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
+{
+	if (synced)
+		FromInternal(container, value);
+}
+
+std::string BoolExtItem::ToInternal(const Extensible* container, void* item) const noexcept
+{
+	return ConvToStr(!!item);
+}
+
+std::string BoolExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
+{
+	return synced ? ToInternal(container, item) : std::string();
+}
+
+bool BoolExtItem::Get(const Extensible* container) const
+{
+	return GetRaw(container);
+}
+
+void BoolExtItem::Set(Extensible* container, bool sync)
+{
+	SetRaw(container, reinterpret_cast<void*>(1));
+	if (sync)
+		Sync(container, reinterpret_cast<void*>(1));
+}
+
+void BoolExtItem::Unset(Extensible* container, bool sync)
+{
+	UnsetRaw(container);
+	if (sync)
+		Sync(container, reinterpret_cast<void*>(0));
+}
+
 IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)

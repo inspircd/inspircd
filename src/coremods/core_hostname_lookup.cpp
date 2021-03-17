@@ -25,7 +25,7 @@
 
 namespace
 {
-	IntExtItem* dl;
+	BoolExtItem* dl;
 }
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
@@ -162,7 +162,7 @@ class UserResolver : public DNS::Request
 class ModuleHostnameLookup : public Module
 {
  private:
-	IntExtItem dnsLookup;
+	BoolExtItem dnsLookup;
 	dynamic_reference<DNS::Manager> DNS;
 
  public:
@@ -193,7 +193,7 @@ class ModuleHostnameLookup : public Module
 			/* If both the reverse and forward queries are cached, the user will be able to pass DNS completely
 			 * before Process() completes, which is why dnsLookup.set() is here, before Process()
 			 */
-			this->dnsLookup.Set(user, 1);
+			this->dnsLookup.Set(user);
 			this->DNS->Process(res_reverse);
 		}
 		catch (DNS::Exception& e)

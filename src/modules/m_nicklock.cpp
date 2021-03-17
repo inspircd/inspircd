@@ -39,8 +39,8 @@ enum
 class CommandNicklock : public Command
 {
  public:
-	IntExtItem& locked;
-	CommandNicklock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKLOCK", 2),
+	BoolExtItem& locked;
+	CommandNicklock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKLOCK", 2),
 		locked(ext)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -73,7 +73,7 @@ class CommandNicklock : public Command
 		/* If we made it this far, extend the user */
 		if (IS_LOCAL(target))
 		{
-			locked.Set(target, 1);
+			locked.Set(target);
 
 			std::string oldnick = target->nick;
 			if (target->ChangeNick(parameters[1]))
@@ -99,8 +99,8 @@ class CommandNicklock : public Command
 class CommandNickunlock : public Command
 {
  public:
-	IntExtItem& locked;
-	CommandNickunlock (Module* Creator, IntExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
+	BoolExtItem& locked;
+	CommandNickunlock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
 		locked(ext)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -145,7 +145,7 @@ class CommandNickunlock : public Command
 class ModuleNickLock : public Module
 {
  private:
-	IntExtItem locked;
+	BoolExtItem locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
 

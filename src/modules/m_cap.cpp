@@ -405,7 +405,7 @@ class CommandCap : public SplitCommand
 	}
 
  public:
-	IntExtItem holdext;
+	BoolExtItem holdext;
 
 	CommandCap(Module* mod)
 		: SplitCommand(mod, "CAP", 1)
@@ -420,7 +420,7 @@ class CommandCap : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		if (user->registered != REG_ALL)
-			holdext.Set(user, 1);
+			holdext.Set(user);
 
 		const std::string& subcommand = parameters[0];
 		if (irc::equals(subcommand, "REQ"))
