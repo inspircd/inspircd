@@ -19,6 +19,146 @@
 
 #include "inspircd.h"
 
+bool ExtensionManager::Register(ExtensionItem* item)
+{
+	return types.emplace(item->name, item).second;
+}
+
+void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem>>& items)
+{
+	for (ExtMap::iterator type = types.begin(); type != types.end(); )
+	{
+		ExtMap::iterator thistype = type++;
+		ExtensionItem* item = thistype->second;
+		if (item->creator == module)
+		{
+			items.push_back(item);
+			types.erase(thistype);
+		}
+	}
+}
+
+ExtensionItem* ExtensionManager::GetItem(const std::string& name)
+{
+	ExtMap::iterator iter = types.find(name);
+	if (iter == types.end())
+		return nullptr;
+
+	return iter->second;
+}
+
+Extensible::Extensible()
+	: culled(false)
+{
+}
+
+Extensible::~Extensible()
+{
+	if ((!extensions.empty() || !culled) && ServerInstance)
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
+}
+
+Cullable::Result Extensible::Cull()
+{
+	FreeAllExtItems();
+	culled = true;
+	return Cullable::Cull();
+}
+
+void Extensible::FreeAllExtItems()
+{
+	for (const auto& [extension, item] : extensions)
+		extension->Delete(this, item);
+	extensions.clear();
+}
+
+void Extensible::UnhookExtensions(const std::vector<reference<ExtensionItem>>& items)
+{
+	for (const auto& item : items)
+	{
+		ExtensibleStore::iterator iter = extensions.find(item);
+		if (iter != extensions.end())
+		{
+			item->Delete(this, iter->second);
+			extensions.erase(iter);
+		}
+	}
+}
+
+ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensibleType exttype)
+	: ServiceProvider(mod, Key, SERVICE_METADATA)
+	, type(exttype)
+{
+}
+
+void ExtensionItem::RegisterService()
+{
+	if (!ServerInstance->Extensions.Register(this))
+		throw ModuleException("Extension already exists: " + name);
+}
+
+void* ExtensionItem::GetRaw(const Extensible* container) const
+{
+	auto iter = container->extensions.find(const_cast<ExtensionItem*>(this));
+	if (iter == container->extensions.end())
+		return nullptr;
+
+	return iter->second;
+}
+
+void* ExtensionItem::SetRaw(Extensible* container, void* value)
+{
+	auto result = container->extensions.insert(std::make_pair(this, value));
+	if (result.second)
+		return nullptr;
+
+	void* old = result.first->second;
+	result.first->second = value;
+	return old;
+}
+
+void* ExtensionItem::UnsetRaw(Extensible* container)
+{
+	auto iter = container->extensions.find(this);
+	if (iter == container->extensions.end())
+		return nullptr;
+
+	void* result = iter->second;
+	container->extensions.erase(iter);
+	return result;
+}
+
+void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
+{
+	FromNetwork(container, value);
+}
+
+void ExtensionItem::FromNetwork(Extensible* container, const std::string& value) noexcept
+{
+}
+
+std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const noexcept
+{
+	// Try to use the network form by default.
+	std::string ret = ToNetwork(container, item);
+
+	// If there's no network form then fall back to the internal form.
+	if (ret.empty())
+		ret = ToInternal(container, item);
+
+	return ret;
+}
+
+std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const noexcept
+{
+	return ToNetwork(container, item);
+}
+
+std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const noexcept
+{
+	return std::string();
+}
+
 IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
