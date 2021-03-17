@@ -115,7 +115,7 @@ class FlagExtItem : public ExtensionItem
 			UnsetRaw(container);
 	}
 
-	void unset(Extensible* container)
+	void Unset(Extensible* container)
 	{
 		UnsetRaw(container);
 	}

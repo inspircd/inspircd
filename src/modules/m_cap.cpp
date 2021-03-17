@@ -289,7 +289,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	void HandleClear(LocalUser* user, std::vector<std::string>& result)
 	{
 		HandleList(result, user, false, false, true);
-		capext.unset(user);
+		capext.Unset(user);
 	}
 };
 
@@ -433,7 +433,7 @@ class CommandCap : public SplitCommand
 		}
 		else if (irc::equals(subcommand, "END"))
 		{
-			holdext.unset(user);
+			holdext.Unset(user);
 		}
 		else if (irc::equals(subcommand, "LS") || irc::equals(subcommand, "LIST"))
 		{

@@ -64,7 +64,7 @@ std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
 	return synced ? ToInternal(container, item) : std::string();
 }
 
-void IntExtItem::unset(Extensible* container)
+void IntExtItem::Unset(Extensible* container)
 {
 	UnsetRaw(container);
 }
@@ -78,7 +78,7 @@ StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleTy
 void StringExtItem::FromInternal(Extensible* container, const std::string& value)
 {
 	if (value.empty())
-		unset(container);
+		Unset(container);
 	else
 		Set(container, value);
 }

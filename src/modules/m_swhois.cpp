@@ -74,9 +74,9 @@ class CommandSwhois : public Command
 			ServerInstance->SNO.WriteGlobalSno('a', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 		}
 
-		operblock.unset(user);
+		operblock.Unset(user);
 		if (parameters[1].empty())
-			swhois.unset(dest);
+			swhois.Unset(dest);
 		else
 			swhois.Set(dest, parameters[1]);
 
@@ -150,8 +150,8 @@ class ModuleSWhois
 		if (!cmd.operblock.Get(user))
 			return;
 
-		cmd.operblock.unset(user);
-		cmd.swhois.unset(user);
+		cmd.operblock.Unset(user);
+		cmd.swhois.Unset(user);
 		ServerInstance->PI->SendMetaData(user, "swhois", "");
 	}
 
@@ -159,7 +159,7 @@ class ModuleSWhois
 	{
 		User* dest = static_cast<User*>(target);
 		if (dest && (extname == "swhois"))
-			cmd.operblock.unset(dest);
+			cmd.operblock.Unset(dest);
 	}
 };
 

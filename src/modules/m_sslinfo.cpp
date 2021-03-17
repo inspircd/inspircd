@@ -61,7 +61,7 @@ class SSLCertExt : public ExtensionItem
 			delete old;
 	}
 
-	void unset(Extensible* container)
+	void Unset(Extensible* container)
 	{
 		Delete(container, UnsetRaw(container));
 	}
@@ -414,7 +414,7 @@ class ModuleSSLInfo
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
 			cmd.sslapi.nosslext.Set(user, 1);
-			cmd.sslapi.sslext.unset(user);
+			cmd.sslapi.sslext.Unset(user);
 			return;
 		}
 

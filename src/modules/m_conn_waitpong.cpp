@@ -71,7 +71,7 @@ class ModuleWaitPong : public Module
 			{
 				if (!parameters.empty() && *pingrpl == parameters[0])
 				{
-					ext.unset(user);
+					ext.Unset(user);
 					return MOD_RES_DENY;
 				}
 				else

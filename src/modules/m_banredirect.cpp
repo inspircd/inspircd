@@ -227,7 +227,7 @@ class BanRedirect : public ModeWatcher
 
 								if(redirects->empty())
 								{
-									extItem.unset(channel);
+									extItem.Unset(channel);
 								}
 
 								break;

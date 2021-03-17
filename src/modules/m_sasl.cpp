@@ -356,7 +356,7 @@ class CommandAuthenticate : public SplitCommand
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 			{
 				sasl->AnnounceState();
-				authExt.unset(user);
+				authExt.Unset(user);
 			}
 		}
 		return CmdResult::FAILURE;
@@ -389,7 +389,7 @@ class CommandSASL : public Command
 		if (state == SASL_DONE)
 		{
 			sasl->AnnounceState();
-			authExt.unset(target);
+			authExt.Unset(target);
 		}
 		return CmdResult::SUCCESS;
 	}

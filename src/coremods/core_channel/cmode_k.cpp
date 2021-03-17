@@ -77,7 +77,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		ext.Set(channel, parameter);
 	}
 	else
-		ext.unset(channel);
+		ext.Unset(channel);
 
 	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;

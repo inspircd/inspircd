@@ -319,7 +319,7 @@ class ModuleIdent : public Module
 		{
 			// If an ident lookup request was in progress then cancel it.
 			isock->Close();
-			socket.unset(user);
+			socket.Unset(user);
 		}
 
 		// The ident protocol requires that clients are connecting over a protocol with ports.
@@ -399,7 +399,7 @@ class ModuleIdent : public Module
 		}
 
 		isock->Close();
-		socket.unset(user);
+		socket.Unset(user);
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -417,7 +417,7 @@ class ModuleIdent : public Module
 	void OnUserConnect(LocalUser* user) override
 	{
 		// Clear this as it is no longer necessary.
-		state.unset(user);
+		state.Unset(user);
 	}
 };
 

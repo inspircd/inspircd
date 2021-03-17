@@ -67,7 +67,7 @@ class GeolocationExtItem : public ExtensionItem
 		Delete(item, SetRaw(item, value));
 	}
 
-	void unset(Extensible* container)
+	void Unset(Extensible* container)
 	{
 		Delete(container, UnsetRaw(container));
 	}
@@ -205,7 +205,7 @@ class ModuleGeoMaxMind : public Module
 	{
 		// Unset the extension so that the location of this user is looked
 		// up again next time it is requested.
-		geoapi.ext.unset(user);
+		geoapi.ext.Unset(user);
 	}
 };
 

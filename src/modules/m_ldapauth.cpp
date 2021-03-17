@@ -369,7 +369,7 @@ public:
 		if (cc)
 		{
 			user->ChangeDisplayedHost(*cc);
-			ldapVhost.unset(user);
+			ldapVhost.Unset(user);
 		}
 	}
 

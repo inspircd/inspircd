@@ -163,7 +163,7 @@ void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUL
 {
 	if (unjoined.Get(memb))
 	{
-		unjoined.unset(memb);
+		unjoined.Unset(memb);
 		populate(except, memb);
 	}
 }
@@ -172,7 +172,7 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 {
 	if (unjoined.Get(memb))
 	{
-		unjoined.unset(memb);
+		unjoined.Unset(memb);
 		populate(except, memb);
 	}
 }
@@ -216,7 +216,7 @@ void DelayJoinMode::RevealUser(User* user, Channel* chan)
 	}
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
-	unjoined.unset(memb);
+	unjoined.Unset(memb);
 	CUList except_list;
 	except_list.insert(user);
 	ClientProtocol::Events::Join joinevent(memb);

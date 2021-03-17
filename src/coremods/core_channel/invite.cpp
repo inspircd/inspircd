@@ -64,7 +64,7 @@ void Invite::APIImpl::Destruct(Invite* inv, bool remove_user, bool remove_chan)
 	{
 		ustore->invites.erase(inv);
 		if ((remove_user) && (ustore->invites.empty()))
-			userext.unset(inv->user);
+			userext.Unset(inv->user);
 	}
 
 	Store<Channel>* cstore = chanext.Get(inv->chan);
@@ -72,7 +72,7 @@ void Invite::APIImpl::Destruct(Invite* inv, bool remove_user, bool remove_chan)
 	{
 		cstore->invites.erase(inv);
 		if ((remove_chan) && (cstore->invites.empty()))
-			chanext.unset(inv->chan);
+			chanext.Unset(inv->chan);
 	}
 
 	delete inv;

@@ -122,7 +122,7 @@ class CommandNickunlock : public Command
 		{
 			if (locked.Get(target))
 			{
-				locked.unset(target);
+				locked.Unset(target);
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
 				user->WriteRemoteNumeric(RPL_NICKLOCKOFF, target->nick, "Nickname now unlocked.");
 			}

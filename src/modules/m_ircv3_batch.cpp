@@ -112,7 +112,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		for (UserManager::LocalList::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			LocalUser* const user = *i;
-			batchbits.unset(user);
+			batchbits.Unset(user);
 		}
 	}
 

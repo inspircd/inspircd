@@ -44,7 +44,7 @@ class UserResolver : public DNS::Request
 		bool display_is_real = user->GetDisplayedHost() == user->GetRealHost();
 		user->ChangeRealHost(user->GetIPString(), display_is_real);
 
-		dl->unset(user);
+		dl->Unset(user);
 	}
 
  public:
@@ -139,7 +139,7 @@ class UserResolver : public DNS::Request
 				bound_user->WriteNotice("*** Found your hostname (" + this->question.name + (r->cached ? ") -- cached" : ")"));
 				bool display_is_real = bound_user->GetDisplayedHost() == bound_user->GetRealHost();
 				bound_user->ChangeRealHost(this->question.name, display_is_real);
-				dl->unset(bound_user);
+				dl->Unset(bound_user);
 			}
 			else
 			{
@@ -198,7 +198,7 @@ class ModuleHostnameLookup : public Module
 		}
 		catch (DNS::Exception& e)
 		{
-			this->dnsLookup.unset(user);
+			this->dnsLookup.Unset(user);
 			delete res_reverse;
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 		}

@@ -220,7 +220,7 @@ class SimpleExtItem : public ExtensionItem
 		Delete(container, old);
 	}
 
-	inline void unset(Extensible* container)
+	inline void Unset(Extensible* container)
 	{
 		T* old = static_cast<T*>(UnsetRaw(container));
 		Delete(container, old);
@@ -313,5 +313,5 @@ class CoreExport IntExtItem : public ExtensionItem
 	/** Removes the value for this IntExtItem.
 	 * @param container A container the ExtensionItem should be removed from.
 	 */
-	void unset(Extensible* container);
+	void Unset(Extensible* container);
 };

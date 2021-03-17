@@ -80,7 +80,7 @@ class IRCv3::Monitor::Manager
 			return extdata;
 		}
 
-		void unset(Extensible* container)
+		void Unset(Extensible* container)
 		{
 			Delete(container, UnsetRaw(container));
 		}
@@ -148,7 +148,7 @@ class IRCv3::Monitor::Manager
 		bool ret = RemoveWatcher(nick, user, *list);
 		// If no longer watching any nick unset ext
 		if (list->empty())
-			ext.unset(user);
+			ext.Unset(user);
 		return ret;
 	}
 
@@ -171,7 +171,7 @@ class IRCv3::Monitor::Manager
 			Entry* entry = list->front();
 			RemoveWatcher(entry->GetNick(), user, *list);
 		}
-		ext.unset(user);
+		ext.Unset(user);
 	}
 
 	WatcherList* GetWatcherList(const std::string& nick)

@@ -78,7 +78,7 @@ class Invite::ExtItem : public ExtensionItem
 		return store;
 	}
 
-	void unset(Extensible* ext)
+	void Unset(Extensible* ext)
 	{
 		void* store = UnsetRaw(ext);
 		if (store)
@@ -129,8 +129,8 @@ class Invite::APIImpl : public APIBase
 	bool Remove(LocalUser* user, Channel* chan) override;
 	const List* GetList(LocalUser* user) override;
 
-	void RemoveAll(LocalUser* user) { userext.unset(user); }
-	void RemoveAll(Channel* chan) { chanext.unset(chan); }
+	void RemoveAll(LocalUser* user) { userext.Unset(user); }
+	void RemoveAll(Channel* chan) { chanext.Unset(chan); }
 	void Destruct(Invite* inv, bool remove_chan = true, bool remove_user = true);
 	void Unserialize(LocalUser* user, const std::string& value);
 };

@@ -140,7 +140,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		// Unset the per-membership extension when the mode is removed
 		const Channel::MemberMap& users = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
-			MemberInfoExt.unset(i->second);
+			MemberInfoExt.Unset(i->second);
 	}
 
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override

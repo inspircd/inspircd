@@ -507,7 +507,7 @@ class ModuleCloaking : public Module
 			return;
 
 		// Remove the cloaks and generate new ones.
-		cu.ext.unset(user);
+		cu.ext.Unset(user);
 		OnUserConnect(user);
 
 		// If a user is using a cloak then update it.

@@ -59,7 +59,7 @@ class JoinTimer : public Timer
 		if (user->chans.empty())
 			JoinChannels(user, channels);
 
-		ext.unset(user);
+		ext.Unset(user);
 		return false;
 	}
 };

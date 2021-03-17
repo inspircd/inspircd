@@ -144,7 +144,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	else
 	{
 		/* Timer has expired, we can stop checking now */
-		djm.jointime.unset(memb);
+		djm.jointime.Unset(memb);
 	}
 	return MOD_RES_PASSTHRU;
 }

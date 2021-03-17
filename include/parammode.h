@@ -65,7 +65,7 @@ class ParamMode : public ParamModeBase
 	void OnUnsetInternal(User* source, Channel* chan) override
 	{
 		this->OnUnset(source, chan);
-		ext.unset(chan);
+		ext.Unset(chan);
 	}
 
 	void GetParameter(Channel* chan, std::string& out) override

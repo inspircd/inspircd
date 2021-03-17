@@ -122,7 +122,7 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 			return;
 
 		// Remove the old list and create a new one.
-		unset(user);
+		Unset(user);
 		dccallowlist* list = new dccallowlist();
 
 		irc::spacesepstream ts(value);
