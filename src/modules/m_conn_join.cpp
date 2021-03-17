@@ -110,7 +110,7 @@ class ModuleConnJoin : public Module
 		if (!chandelay)
 			JoinChannels(localuser, chanlist);
 		else
-			ext.Set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
+			ext.Set(localuser, localuser, ext, chanlist, chandelay);
 	}
 };
 

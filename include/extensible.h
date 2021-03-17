@@ -207,17 +207,16 @@ class SimpleExtItem : public ExtensionItem
 		return static_cast<T*>(GetRaw(container));
 	}
 
-	inline void Set(Extensible* container, const T& value)
-	{
-		T* ptr = new T(value);
-		T* old = static_cast<T*>(SetRaw(container, ptr));
-		Delete(container, old);
-	}
-
 	inline void Set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
+	}
+
+	template <typename... Args>
+	inline void Set(Extensible* container, Args&&... args)
+	{
+		Set(container, new T(std::forward<Args>(args)...));
 	}
 
 	inline void Unset(Extensible* container)
