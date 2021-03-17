@@ -236,7 +236,7 @@ class CommandDccallow : public Command
 				if (action == '-')
 				{
 					// check if it contains any entries
-					dl = ext.get(user);
+					dl = ext.Get(user);
 					if (dl)
 					{
 						for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
@@ -259,7 +259,7 @@ class CommandDccallow : public Command
 						return CmdResult::FAILURE;
 					}
 
-					dl = ext.get(user);
+					dl = ext.Get(user);
 					if (!dl)
 					{
 						dl = new dccallowlist;
@@ -355,7 +355,7 @@ class CommandDccallow : public Command
 		 // display current DCCALLOW list
 		user->WriteNumeric(RPL_DCCALLOWSTART, "Users on your DCCALLOW list:");
 
-		dl = ext.get(user);
+		dl = ext.Get(user);
 		if (dl)
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
@@ -387,7 +387,7 @@ class ModuleDCCAllow : public Module
 
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) override
 	{
-		dccallowlist* udl = ext.get(user);
+		dccallowlist* udl = ext.Get(user);
 
 		// remove their DCCALLOW list if they have one
 		if (udl)
@@ -427,7 +427,7 @@ class ModuleDCCAllow : public Module
 
 				if (irc::equals(ctcpname, "DCC") && !ctcpbody.empty())
 				{
-					dl = ext.get(u);
+					dl = ext.Get(u);
 					if (dl && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
@@ -511,7 +511,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end();)
 		{
 			User* u = (User*)(*iter);
-			dl = ext.get(u);
+			dl = ext.Get(u);
 			if (dl)
 			{
 				if (dl->size())
@@ -546,7 +546,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end();)
 		{
 			User *u = (User*)(*iter);
-			dl = ext.get(u);
+			dl = ext.Get(u);
 			if (dl)
 			{
 				if (dl->size())

@@ -103,7 +103,7 @@ class ModuleRedirect : public Module
 			{
 				if (chan->GetUserCounter() >= ConvToNum<size_t>(chan->GetModeParameter(limitmode)))
 				{
-					const std::string& channel = *re.ext.get(chan);
+					const std::string& channel = *re.ext.Get(chan);
 
 					/* sometimes broken services can make circular or chained +L, avoid this */
 					Channel* destchan = ServerInstance->FindChan(channel);

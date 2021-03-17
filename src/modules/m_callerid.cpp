@@ -114,14 +114,14 @@ struct CallerIDExtInfo : public ExtensionItem
 			{
 				if (dat->accepting.insert(u).second)
 				{
-					callerid_data* other = this->get(u, true);
+					callerid_data* other = this->Get(u, true);
 					other->wholistsme.push_back(dat);
 				}
 			}
 		}
 	}
 
-	callerid_data* get(User* user, bool create)
+	callerid_data* Get(User* user, bool create)
 	{
 		callerid_data* dat = static_cast<callerid_data*>(GetRaw(user));
 		if (create && !dat)
@@ -139,7 +139,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
 		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
 		{
-			callerid_data *targ = this->get(*it, false);
+			callerid_data *targ = this->Get(*it, false);
 
 			if (!targ)
 			{
@@ -266,7 +266,7 @@ public:
 
 	void ListAccept(User* user)
 	{
-		callerid_data* dat = extInfo.get(user, false);
+		callerid_data* dat = extInfo.Get(user, false);
 		if (dat)
 		{
 			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
@@ -278,7 +278,7 @@ public:
 	bool AddAccept(User* user, User* whotoadd)
 	{
 		// Add this user to my accept list first, so look me up..
-		callerid_data* dat = extInfo.get(user, true);
+		callerid_data* dat = extInfo.Get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
 			user->WriteNumeric(ERR_ACCEPTFULL, InspIRCd::Format("Accept list is full (limit is %d)", maxaccepts));
@@ -291,7 +291,7 @@ public:
 		}
 
 		// Now, look them up, and add me to their list
-		callerid_data *targ = extInfo.get(whotoadd, true);
+		callerid_data *targ = extInfo.Get(whotoadd, true);
 		targ->wholistsme.push_back(dat);
 
 		user->WriteNotice(whotoadd->nick + " is now on your accept list");
@@ -301,7 +301,7 @@ public:
 	bool RemoveAccept(User* user, User* whotoremove)
 	{
 		// Remove them from my list, so look up my list..
-		callerid_data* dat = extInfo.get(user, false);
+		callerid_data* dat = extInfo.Get(user, false);
 		if (!dat)
 		{
 			user->WriteNumeric(ERR_ACCEPTNOT, whotoremove->nick, "is not on your accept list");
@@ -314,7 +314,7 @@ public:
 		}
 
 		// Look up their list to remove me.
-		callerid_data *dat2 = extInfo.get(whotoremove, false);
+		callerid_data *dat2 = extInfo.Get(whotoremove, false);
 		if (!dat2)
 		{
 			// How the fuck is this possible.
@@ -345,7 +345,7 @@ class CallerIDAPIImpl : public CallerID::APIBase
 
 	bool IsOnAcceptList(User* source, User* target) override
 	{
-		callerid_data* dat = ext.get(target, true);
+		callerid_data* dat = ext.Get(target, true);
 		return dat->accepting.count(source);
 	}
 };
@@ -371,7 +371,7 @@ class ModuleCallerID
 	void RemoveFromAllAccepts(User* who)
 	{
 		// First, find the list of people who have me on accept
-		callerid_data *userdata = cmd.extInfo.get(who, false);
+		callerid_data *userdata = cmd.extInfo.Get(who, false);
 		if (!userdata)
 			return;
 
@@ -417,7 +417,7 @@ public:
 		if (user->HasPrivPermission("users/ignore-callerid"))
 			return MOD_RES_PASSTHRU;
 
-		callerid_data* dat = cmd.extInfo.get(dest, true);
+		callerid_data* dat = cmd.extInfo.Get(dest, true);
 		if (!dat->accepting.count(user))
 		{
 			time_t now = ServerInstance->Time();

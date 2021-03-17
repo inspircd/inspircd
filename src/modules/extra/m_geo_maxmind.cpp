@@ -56,7 +56,7 @@ class GeolocationExtItem : public ExtensionItem
 			old->refcount_dec();
 	}
 
-	Geolocation::Location* get(const Extensible* item) const
+	Geolocation::Location* Get(const Extensible* item) const
 	{
 		return static_cast<Geolocation::Location*>(GetRaw(item));
 	}
@@ -91,7 +91,7 @@ class GeolocationAPIImpl : public Geolocation::APIBase
 	Geolocation::Location* GetLocation(User* user) override
 	{
 		// If we have the location cached then use that instead.
-		Geolocation::Location* location = ext.get(user);
+		Geolocation::Location* location = ext.Get(user);
 		if (location)
 			return location;
 

@@ -90,7 +90,7 @@ class ModulePassForward : public Module
 			return;
 
 		AccountExtItem* actext = GetAccountExtItem();
-		if (actext && actext->get(user))
+		if (actext && actext->Get(user))
 		{
 			// User is logged in already (probably via SASL) don't forward the password
 			return;

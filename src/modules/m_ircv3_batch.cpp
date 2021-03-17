@@ -74,7 +74,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 		Batch& batch = *static_cast<Batch*>(tagdata.provdata);
 		// Check if this is the first message the user is getting that is part of the batch
-		const intptr_t bits = batchbits.get(user);
+		const intptr_t bits = batchbits.Get(user);
 		if (!(bits & batch.GetBit()))
 		{
 			// Send the start batch command ("BATCH +reftag TYPE"), remember the user so we can send them a
@@ -125,7 +125,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 	void RemoveFromAll(LocalUser* user)
 	{
-		const intptr_t bits = batchbits.get(user);
+		const intptr_t bits = batchbits.Get(user);
 
 		// User is quitting, remove them from all lists
 		for (BatchList::iterator i = active_batches.begin(); i != active_batches.end(); ++i)
@@ -173,7 +173,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		{
 			LocalUser* const user = *i;
 			user->Send(batchinfo.endevent);
-			batchbits.set(user, batchbits.get(user) & ~batch.GetBit());
+			batchbits.set(user, batchbits.Get(user) & ~batch.GetBit());
 		}
 
 		// erase() not swaperase because the reftag generation logic depends on the order of the elements

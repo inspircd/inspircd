@@ -228,7 +228,7 @@ class CommandWebIRC : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		if (user->registered == REG_ALL || realhost.get(user))
+		if (user->registered == REG_ALL || realhost.Get(user))
 			return CmdResult::FAILURE;
 
 		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
@@ -399,7 +399,7 @@ class ModuleCgiIRC
 
 		// If the user is not connecting via a WebIRC gateway then they
 		// cannot match this connect class.
-		const std::string* gateway = cmdwebirc.gateway.get(user);
+		const std::string* gateway = cmdwebirc.gateway.Get(user);
 		if (!gateway)
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
@@ -422,7 +422,7 @@ class ModuleCgiIRC
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// There is no need to check for gateways if one is already being used.
-		if (cmdwebirc.realhost.get(user))
+		if (cmdwebirc.realhost.Get(user))
 			return MOD_RES_PASSTHRU;
 
 		for (std::vector<IdentHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
@@ -518,12 +518,12 @@ class ModuleCgiIRC
 			return;
 
 		// If these fields are not set then the client is not using a gateway.
-		const std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
-		const std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
+		const std::string* realhost = cmdwebirc.realhost.Get(whois.GetTarget());
+		const std::string* realip = cmdwebirc.realip.Get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
 
-		const std::string* gateway = cmdwebirc.gateway.get(whois.GetTarget());
+		const std::string* gateway = cmdwebirc.gateway.Get(whois.GetTarget());
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else

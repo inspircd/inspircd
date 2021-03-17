@@ -197,7 +197,7 @@ namespace Cap
 		{
 			if (!IsRegistered())
 				return false;
-			Ext caps = extitem->get(user);
+			Ext caps = extitem->Get(user);
 			return ((caps & GetMask()) != 0);
 		}
 
@@ -209,7 +209,7 @@ namespace Cap
 		{
 			if (!IsRegistered())
 				return;
-			Ext curr = extitem->get(user);
+			Ext curr = extitem->Get(user);
 			extitem->set(user, (val ? AddToMask(curr) : DelFromMask(curr)));
 		}
 
@@ -254,7 +254,7 @@ namespace Cap
 		 */
 		Protocol GetProtocol(LocalUser* user) const
 		{
-			return ((IsRegistered() && (extitem->get(user) & CAP_302_BIT)) ? CAP_302 : CAP_LEGACY);
+			return ((IsRegistered() && (extitem->Get(user) & CAP_302_BIT)) ? CAP_302 : CAP_LEGACY);
 		}
 
 		/** Called when a user requests to turn this capability on or off.

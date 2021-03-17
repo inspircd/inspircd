@@ -79,7 +79,7 @@ class JoinHook : public ClientProtocol::EventHook
 		const AccountExtItem* const accountext = GetAccountExtItem();
 		if (accountext)
 		{
-			const std::string* accountname = accountext->get(memb->user);
+			const std::string* accountname = accountext->Get(memb->user);
 			if (accountname)
 				account = accountname;
 		}

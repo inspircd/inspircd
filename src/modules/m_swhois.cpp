@@ -60,7 +60,7 @@ class CommandSwhois : public Command
 			return CmdResult::FAILURE;
 		}
 
-		std::string* text = swhois.get(dest);
+		std::string* text = swhois.Get(dest);
 		if (text)
 		{
 			// We already had it set...
@@ -115,7 +115,7 @@ class ModuleSWhois
 		if (numeric.GetNumeric() == 312)
 		{
 			/* Insert our numeric before 312 */
-			std::string* swhois = cmd.swhois.get(whois.GetTarget());
+			std::string* swhois = cmd.swhois.Get(whois.GetTarget());
 			if (swhois)
 			{
 				whois.SendLine(RPL_WHOISSPECIAL, *swhois);
@@ -143,11 +143,11 @@ class ModuleSWhois
 
 	void OnPostDeoper(User* user) override
 	{
-		std::string* swhois = cmd.swhois.get(user);
+		std::string* swhois = cmd.swhois.Get(user);
 		if (!swhois)
 			return;
 
-		if (!cmd.operblock.get(user))
+		if (!cmd.operblock.Get(user))
 			return;
 
 		cmd.operblock.unset(user);

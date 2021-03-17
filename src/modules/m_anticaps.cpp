@@ -235,7 +235,7 @@ class ModuleAntiCaps : public Module
 
 		// Retrieve the anticaps config. This should never be
 		// null but its better to be safe than sorry.
-		AntiCapsSettings* config = mode.ext.get(channel);
+		AntiCapsSettings* config = mode.ext.Get(channel);
 		if (!config)
 			return MOD_RES_PASSTHRU;
 

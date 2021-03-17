@@ -183,7 +183,7 @@ class BanRedirect : public ModeWatcher
 				if(adding)
 				{
 					/* It's a properly valid redirecting ban, and we're adding it */
-					redirects = extItem.get(channel);
+					redirects = extItem.Get(channel);
 					if (!redirects)
 					{
 						redirects = new BanRedirectList;
@@ -214,7 +214,7 @@ class BanRedirect : public ModeWatcher
 				else
 				{
 					/* Removing a ban, if there's no extensible there are no redirecting bans and we're fine. */
-					redirects = extItem.get(channel);
+					redirects = extItem.Get(channel);
 					if (redirects)
 					{
 						/* But there were, so we need to remove the matching one if there is one */
@@ -267,7 +267,7 @@ class ModuleBanRedirect : public Module
 		if (type == ExtensionItem::EXT_CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
-			BanRedirectList* redirects = re.extItem.get(chan);
+			BanRedirectList* redirects = re.extItem.Get(chan);
 
 			if(redirects)
 			{
@@ -289,7 +289,7 @@ class ModuleBanRedirect : public Module
 	{
 		if (chan)
 		{
-			BanRedirectList* redirects = re.extItem.get(chan);
+			BanRedirectList* redirects = re.extItem.Get(chan);
 
 			if (redirects)
 			{

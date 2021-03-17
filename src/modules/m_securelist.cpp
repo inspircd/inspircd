@@ -81,7 +81,7 @@ class ModuleSecureList
 					return MOD_RES_PASSTHRU;
 
 			const AccountExtItem* ext = GetAccountExtItem();
-			if (exemptregistered && ext && ext->get(user))
+			if (exemptregistered && ext && ext->Get(user))
 				return MOD_RES_PASSTHRU;
 
 			if (showmsg)

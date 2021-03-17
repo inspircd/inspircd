@@ -89,7 +89,7 @@ class DNSBLResolver : public DNS::Request
 			return;
 		}
 
-		int i = countExt.get(them);
+		int i = countExt.Get(them);
 		if (i)
 			countExt.set(them, i - 1);
 
@@ -263,7 +263,7 @@ class DNSBLResolver : public DNS::Request
 		if (!them || them->client_sa != theirsa)
 			return;
 
-		int i = countExt.get(them);
+		int i = countExt.Get(them);
 		if (i)
 			countExt.set(them, i - 1);
 
@@ -454,7 +454,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		if (!myclass->config->readString("dnsbl", dnsbl))
 			return MOD_RES_PASSTHRU;
 
-		std::string* match = nameExt.get(user);
+		std::string* match = nameExt.Get(user);
 		if (!match)
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a DNSBL mark",
@@ -474,7 +474,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 	ModResult OnCheckReady(LocalUser *user) override
 	{
-		if (countExt.get(user))
+		if (countExt.Get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

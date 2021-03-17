@@ -120,7 +120,7 @@ class CommandNickunlock : public Command
 
 		if (IS_LOCAL(target))
 		{
-			if (locked.get(target))
+			if (locked.Get(target))
 			{
 				locked.unset(target);
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
@@ -160,7 +160,7 @@ class ModuleNickLock : public Module
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
-		if (locked.get(user))
+		if (locked.Get(user))
 		{
 			user->WriteNumeric(ERR_CANTCHANGENICK, "You cannot change your nickname (your nick is locked)");
 			return MOD_RES_DENY;

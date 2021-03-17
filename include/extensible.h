@@ -202,7 +202,7 @@ class SimpleExtItem : public ExtensionItem
 	/** Destroys an instance of the SimpleExtItem class. */
 	virtual ~SimpleExtItem() = default;
 
-	inline T* get(const Extensible* container) const
+	inline T* Get(const Extensible* container) const
 	{
 		return static_cast<T*>(GetRaw(container));
 	}
@@ -291,7 +291,7 @@ class CoreExport IntExtItem : public ExtensionItem
 	 * @param container The container that the IntExtItem is set on.
 	 * @return Either the value of this IntExtItem or NULL if it is not set.
 	 */
-	intptr_t get(const Extensible* container) const;
+	intptr_t Get(const Extensible* container) const;
 
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) override;

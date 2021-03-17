@@ -157,7 +157,7 @@ private:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string* account = accountext.get(user);
+		const std::string* account = accountext.Get(user);
 		return account && InspIRCd::Match(*account, text);
 	}
 };
@@ -177,7 +177,7 @@ private:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string* account = accountext.get(user);
+		const std::string* account = accountext.Get(user);
 		return !account && channel->CheckBan(user, text);
 	}
 };
@@ -220,7 +220,7 @@ class ModuleServicesAccount
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	void OnWhois(Whois::Context& whois) override
 	{
-		std::string* account = accountname.get(whois.GetTarget());
+		std::string* account = accountname.Get(whois.GetTarget());
 
 		if (account)
 		{
@@ -246,7 +246,7 @@ class ModuleServicesAccount
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string *account = accountname.get(user);
+		std::string *account = accountname.Get(user);
 		bool is_registered = account && !account->empty();
 
 		switch (target.type)
@@ -298,7 +298,7 @@ class ModuleServicesAccount
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
-		std::string *account = accountname.get(user);
+		std::string *account = accountname.Get(user);
 		bool is_registered = account && !account->empty();
 
 		if (chan)
@@ -318,7 +318,7 @@ class ModuleServicesAccount
 
 	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
-		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+		if (myclass->config->getBool("requireaccount") && !accountname.Get(user))
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires the user to be logged into an account",
 				myclass->GetName().c_str());

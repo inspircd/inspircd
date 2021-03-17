@@ -99,7 +99,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 		if (len > maxlines)
 			len = maxlines;
 
-		HistoryList* history = ext.get(channel);
+		HistoryList* history = ext.Get(channel);
 		if (history)
 		{
 			// Shrink the list if the new line number limit is lower than the old one
@@ -218,7 +218,7 @@ class ModuleChanHistory
 		if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
 			return;
 
-		HistoryList* list = historymode.ext.get(target.Get<Channel>());
+		HistoryList* list = historymode.ext.Get(target.Get<Channel>());
 		if (!list)
 			return;
 
@@ -239,7 +239,7 @@ class ModuleChanHistory
 		if (memb->user->IsModeSet(nohistorymode))
 			return;
 
-		HistoryList* list = historymode.ext.get(memb->chan);
+		HistoryList* list = historymode.ext.Get(memb->chan);
 		if (!list)
 			return;
 

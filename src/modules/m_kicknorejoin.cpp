@@ -146,7 +146,7 @@ public:
 	{
 		if (chan)
 		{
-			const KickRejoinData* data = kr.ext.get(chan);
+			const KickRejoinData* data = kr.ext.Get(chan);
 			if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user)))
 			{
 				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)", data->delay));
@@ -161,7 +161,7 @@ public:
 		if ((!IS_LOCAL(memb->user)) || (source == memb->user))
 			return;
 
-		KickRejoinData* data = kr.ext.get(memb->chan);
+		KickRejoinData* data = kr.ext.Get(memb->chan);
 		if (data)
 		{
 			data->add(memb->user);

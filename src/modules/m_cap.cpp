@@ -223,17 +223,17 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	Protocol GetProtocol(LocalUser* user) const
 	{
-		return ((capext.get(user) & CAP_302_BIT) ? CAP_302 : CAP_LEGACY);
+		return ((capext.Get(user) & CAP_302_BIT) ? CAP_302 : CAP_LEGACY);
 	}
 
 	void Set302Protocol(LocalUser* user)
 	{
-		capext.set(user, capext.get(user) | CAP_302_BIT);
+		capext.set(user, capext.Get(user) | CAP_302_BIT);
 	}
 
 	bool HandleReq(LocalUser* user, const std::string& reqlist)
 	{
-		Ext usercaps = capext.get(user);
+		Ext usercaps = capext.Get(user);
 		irc::spacesepstream ss(reqlist);
 		for (std::string capname; ss.GetToken(capname); )
 		{
@@ -257,7 +257,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	void HandleList(std::vector<std::string>& out, LocalUser* user, bool show_all, bool show_values, bool minus_prefix = false) const
 	{
-		Ext show_caps = (show_all ? ~0 : capext.get(user));
+		Ext show_caps = (show_all ? ~0 : capext.Get(user));
 
 		for (CapMap::const_iterator i = caps.begin(); i != caps.end(); ++i)
 		{
@@ -503,7 +503,7 @@ class ModuleCap : public Module
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		return (cmd.holdext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU);
+		return (cmd.holdext.Get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU);
 	}
 };
 

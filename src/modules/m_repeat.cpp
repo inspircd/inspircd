@@ -175,7 +175,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (message.size() > ms.MaxMessageSize)
 			message.erase(ms.MaxMessageSize);
 
-		MemberInfo* rp = MemberInfoExt.get(memb);
+		MemberInfo* rp = MemberInfoExt.Get(memb);
 		if (!rp)
 		{
 			rp = new MemberInfo;
@@ -384,7 +384,7 @@ class RepeatModule : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = target.Get<Channel>();
-		ChannelSettings* settings = rm.ext.get(chan);
+		ChannelSettings* settings = rm.ext.Get(chan);
 		if (!settings)
 			return MOD_RES_PASSTHRU;
 

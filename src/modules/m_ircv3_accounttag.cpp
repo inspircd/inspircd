@@ -35,7 +35,7 @@ class AccountTag : public IRCv3::CapTag<AccountTag>
 		if (!accextitem)
 			return NULL;
 
-		return accextitem->get(user);
+		return accextitem->Get(user);
 	}
 
 	AccountTag(Module* mod)

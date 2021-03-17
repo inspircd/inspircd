@@ -172,7 +172,7 @@ class ModuleJoinFlood
 	{
 		if (chan)
 		{
-			joinfloodsettings *f = jf.ext.get(chan);
+			joinfloodsettings *f = jf.ext.Get(chan);
 			if (f && f->islocked())
 			{
 				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j is set). Please try again later.");
@@ -188,7 +188,7 @@ class ModuleJoinFlood
 		if (sync || ignoreuntil > ServerInstance->Time())
 			return;
 
-		joinfloodsettings *f = jf.ext.get(memb->chan);
+		joinfloodsettings *f = jf.ext.Get(memb->chan);
 
 		/* But all others are OK */
 		if ((f) && (!f->islocked()))

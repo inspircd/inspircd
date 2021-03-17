@@ -280,7 +280,7 @@ class CommandSilence : public SplitCommand
 
 	CmdResult AddSilence(LocalUser* user, const std::string& mask, uint32_t flags)
 	{
-		SilenceList* list = ext.get(user);
+		SilenceList* list = ext.Get(user);
 		if (list && list->size() > ext.maxsilence)
 		{
 			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
@@ -306,7 +306,7 @@ class CommandSilence : public SplitCommand
 
 	CmdResult RemoveSilence(LocalUser* user, const std::string& mask, uint32_t flags)
 	{
-		SilenceList* list = ext.get(user);
+		SilenceList* list = ext.Get(user);
 		if (list)
 		{
 			for (SilenceList::iterator iter = list->begin(); iter != list->end(); ++iter)
@@ -327,7 +327,7 @@ class CommandSilence : public SplitCommand
 
 	CmdResult ShowSilenceList(LocalUser* user)
 	{
-		SilenceList* list = ext.get(user);
+		SilenceList* list = ext.Get(user);
 		if (list)
 		{
 			for (SilenceList::const_iterator iter = list->begin(); iter != list->end(); ++iter)
@@ -419,7 +419,7 @@ class ModuleSilence
 		if (exemptservice && source->server->IsService())
 			return true;
 
-		SilenceList* list = cmd.ext.get(target);
+		SilenceList* list = cmd.ext.Get(target);
 		if (!list)
 			return true;
 

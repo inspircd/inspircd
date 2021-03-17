@@ -48,7 +48,7 @@ class SSLCertExt : public ExtensionItem
 	{
 	}
 
-	ssl_cert* get(const Extensible* item) const
+	ssl_cert* Get(const Extensible* item) const
 	{
 		return static_cast<ssl_cert*>(GetRaw(item));
 	}
@@ -119,12 +119,12 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 
 	ssl_cert* GetCertificate(User* user) override
 	{
-		ssl_cert* cert = sslext.get(user);
+		ssl_cert* cert = sslext.Get(user);
 		if (cert)
 			return cert;
 
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser || nosslext.get(luser))
+		if (!luser || nosslext.Get(luser))
 			return NULL;
 
 		cert = SSLClientCert::GetCertificate(&luser->eh);
@@ -343,7 +343,7 @@ class ModuleSSLInfo
 			return;
 
 		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
-		if (!ssliohook || cmd.sslapi.nosslext.get(localuser))
+		if (!ssliohook || cmd.sslapi.nosslext.Get(localuser))
 			return;
 
 		ssl_cert* const cert = ssliohook->GetCertificate();

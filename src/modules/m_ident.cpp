@@ -314,7 +314,7 @@ class ModuleIdent : public Module
 
 	void OnSetUserIP(LocalUser* user) override
 	{
-		IdentRequestSocket* isock = socket.get(user);
+		IdentRequestSocket* isock = socket.Get(user);
 		if (isock)
 		{
 			// If an ident lookup request was in progress then cancel it.
@@ -357,10 +357,10 @@ class ModuleIdent : public Module
 	ModResult OnCheckReady(LocalUser *user) override
 	{
 		/* Does user have an ident socket attached at all? */
-		IdentRequestSocket* isock = socket.get(user);
+		IdentRequestSocket* isock = socket.Get(user);
 		if (!isock)
 		{
-			if (prefixunqueried && state.get(user) == IDENT_SKIPPED)
+			if (prefixunqueried && state.Get(user) == IDENT_SKIPPED)
 			{
 				PrefixIdent(user);
 				state.set(user, IDENT_PREFIXED);
@@ -405,7 +405,7 @@ class ModuleIdent : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
 	{
-		if (myclass->config->getBool("requireident") && state.get(user) != IDENT_FOUND)
+		if (myclass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires an identd response",
 				myclass->GetName().c_str());

@@ -59,7 +59,7 @@ Invite::APIImpl::APIImpl(Module* parent)
 
 void Invite::APIImpl::Destruct(Invite* inv, bool remove_user, bool remove_chan)
 {
-	Store<LocalUser>* ustore = userext.get(inv->user);
+	Store<LocalUser>* ustore = userext.Get(inv->user);
 	if (ustore)
 	{
 		ustore->invites.erase(inv);
@@ -67,7 +67,7 @@ void Invite::APIImpl::Destruct(Invite* inv, bool remove_user, bool remove_chan)
 			userext.unset(inv->user);
 	}
 
-	Store<Channel>* cstore = chanext.get(inv->chan);
+	Store<Channel>* cstore = chanext.Get(inv->chan);
 	if (cstore)
 	{
 		cstore->invites.erase(inv);
@@ -126,8 +126,8 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 			ServerInstance->Timers.AddTimer(inv->expiretimer);
 		}
 
-		userext.get(user, true)->invites.push_front(inv);
-		chanext.get(chan, true)->invites.push_front(inv);
+		userext.Get(user, true)->invites.push_front(inv);
+		chanext.Get(chan, true)->invites.push_front(inv);
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): created new Invite %p", (void*) inv);
 	}
 }
@@ -150,7 +150,7 @@ Invite::Invite* Invite::APIImpl::Find(LocalUser* user, Channel* chan)
 
 const Invite::List* Invite::APIImpl::GetList(LocalUser* user)
 {
-	Store<LocalUser>* list = userext.get(user);
+	Store<LocalUser>* list = userext.Get(user);
 	if (list)
 		return &list->invites;
 	return NULL;

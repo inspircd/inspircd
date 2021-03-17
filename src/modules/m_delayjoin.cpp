@@ -70,7 +70,7 @@ class JoinHook : public ClientProtocol::EventHook
 		const ClientProtocol::Events::Join& join = static_cast<const ClientProtocol::Events::Join&>(ev);
 		const Membership* const memb = join.GetMember();
 		const User* const u = memb->user;
-		if ((unjoined.get(memb)) && (u != user))
+		if ((unjoined.Get(memb)) && (u != user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
@@ -136,7 +136,7 @@ ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, 
 		return MOD_RES_PASSTHRU;
 
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
-	if (unjoined.get(memb))
+	if (unjoined.Get(memb))
 		return MOD_RES_DENY;
 
 	return MOD_RES_PASSTHRU;
@@ -161,7 +161,7 @@ void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
 {
-	if (unjoined.get(memb))
+	if (unjoined.Get(memb))
 	{
 		unjoined.unset(memb);
 		populate(except, memb);
@@ -170,7 +170,7 @@ void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUL
 
 void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except)
 {
-	if (unjoined.get(memb))
+	if (unjoined.Get(memb))
 	{
 		unjoined.unset(memb);
 		populate(except, memb);
@@ -182,7 +182,7 @@ void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include
 	for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 	{
 		Membership* memb = *i;
-		if (unjoined.get(memb))
+		if (unjoined.Get(memb))
 			i = include.erase(i);
 		else
 			++i;
@@ -210,7 +210,7 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
-	if (!memb || !unjoined.get(memb))
+	if (!memb || !unjoined.Get(memb))
 	{
 		return;
 	}

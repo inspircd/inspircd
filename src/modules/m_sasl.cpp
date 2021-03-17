@@ -350,7 +350,7 @@ class CommandAuthenticate : public SplitCommand
 				return CmdResult::FAILURE;
 			}
 
-			SaslAuthenticator *sasl = authExt.get(user);
+			SaslAuthenticator *sasl = authExt.Get(user);
 			if (!sasl)
 				authExt.set(user, new SaslAuthenticator(user, parameters[0], sslapi));
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
@@ -381,7 +381,7 @@ class CommandSASL : public Command
 			return CmdResult::FAILURE;
 		}
 
-		SaslAuthenticator *sasl = authExt.get(target);
+		SaslAuthenticator *sasl = authExt.Get(target);
 		if (!sasl)
 			return CmdResult::FAILURE;
 

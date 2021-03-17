@@ -41,7 +41,7 @@ void IntExtItem::FromNetwork(Extensible* container, const std::string& value)
 		FromInternal(container, value);
 }
 
-intptr_t IntExtItem::get(const Extensible* container) const
+intptr_t IntExtItem::Get(const Extensible* container) const
 {
 	return reinterpret_cast<intptr_t>(GetRaw(container));
 }

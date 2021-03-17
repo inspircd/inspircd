@@ -125,12 +125,12 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	if (!memb)
 		return MOD_RES_PASSTHRU;
 
-	time_t ts = djm.jointime.get(memb);
+	time_t ts = djm.jointime.Get(memb);
 
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	int len = djm.ext.get(channel);
+	int len = djm.ext.Get(channel);
 
 	if ((ts + len) > ServerInstance->Time())
 	{

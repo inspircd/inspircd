@@ -102,7 +102,7 @@ class ModuleBlockAmsg : public Module
 				return MOD_RES_PASSTHRU;
 
 			// Check that this message wasn't already sent within a few seconds.
-			BlockedMessage* m = blockamsg.get(user);
+			BlockedMessage* m = blockamsg.Get(user);
 
 			// If the message is identical and within the time.
 			// We check the target is *not* identical, that'd straying into the realms of flood control. Which isn't what we're doing...

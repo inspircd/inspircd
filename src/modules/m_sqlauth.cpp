@@ -174,7 +174,7 @@ class ModuleSQLAuth : public Module
 		if (!allowpattern.empty() && InspIRCd::Match(user->nick,allowpattern))
 			return MOD_RES_PASSTHRU;
 
-		if (pendingExt.get(user))
+		if (pendingExt.Get(user))
 			return MOD_RES_PASSTHRU;
 
 		if (!SQL)
@@ -205,7 +205,7 @@ class ModuleSQLAuth : public Module
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		switch (pendingExt.get(user))
+		switch (pendingExt.Get(user))
 		{
 			case AUTH_STATE_NONE:
 				return MOD_RES_PASSTHRU;

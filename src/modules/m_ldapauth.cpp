@@ -365,7 +365,7 @@ public:
 
 	void OnUserConnect(LocalUser *user) override
 	{
-		std::string* cc = ldapVhost.get(user);
+		std::string* cc = ldapVhost.Get(user);
 		if (cc)
 		{
 			user->ChangeDisplayedHost(*cc);
@@ -438,7 +438,7 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
+		return ldapAuthed.Get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 };
 

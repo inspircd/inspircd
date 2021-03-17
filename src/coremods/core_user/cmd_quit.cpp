@@ -44,7 +44,7 @@ CmdResult CommandQuit::Handle(User* user, const Params& parameters)
 	else
 		quitmsg = parameters[0];
 
-	std::string* operquitmsg = operquit.get(user);
+	std::string* operquitmsg = operquit.Get(user);
 	ServerInstance->Users.QuitUser(user, quitmsg, operquitmsg);
 
 	return CmdResult::SUCCESS;

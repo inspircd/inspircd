@@ -149,7 +149,7 @@ class ModuleNickFlood : public Module
 			Channel* channel = (*i)->chan;
 			ModResult res;
 
-			nickfloodsettings *f = nf.ext.get(channel);
+			nickfloodsettings *f = nf.ext.Get(channel);
 			if (f)
 			{
 				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");
@@ -188,7 +188,7 @@ class ModuleNickFlood : public Module
 			Channel* channel = (*i)->chan;
 			ModResult res;
 
-			nickfloodsettings *f = nf.ext.get(channel);
+			nickfloodsettings *f = nf.ext.Get(channel);
 			if (f)
 			{
 				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");

@@ -152,14 +152,14 @@ class CloakUser : public ModeHandler
 			if (user->registered != REG_ALL && user->GetRealHost() != user->GetDisplayedHost())
 				return MODEACTION_DENY;
 
-			CloakList* cloaks = ext.get(user);
+			CloakList* cloaks = ext.Get(user);
 			if (!cloaks)
 			{
 				/* Force creation of missing cloak */
 				try
 				{
 					creator->OnUserConnect(user);
-					cloaks = ext.get(user);
+					cloaks = ext.Get(user);
 				}
 				catch (CoreException& modexcept)
 				{
@@ -368,7 +368,7 @@ class ModuleCloaking : public Module
 		OnUserConnect(lu);
 
 		// If the user has no cloaks (i.e. UNIX socket) then we do nothing here.
-		CloakList* cloaklist = cu.ext.get(user);
+		CloakList* cloaklist = cu.ext.Get(user);
 		if (!cloaklist || cloaklist->empty())
 			return MOD_RES_PASSTHRU;
 
@@ -513,14 +513,14 @@ class ModuleCloaking : public Module
 		// If a user is using a cloak then update it.
 		if (user->IsModeSet(cu))
 		{
-			CloakList* cloaklist = cu.ext.get(user);
+			CloakList* cloaklist = cu.ext.Get(user);
 			user->ChangeDisplayedHost(cloaklist->front());
 		}
 	}
 
 	void OnUserConnect(LocalUser* dest) override
 	{
-		if (cu.ext.get(dest))
+		if (cu.ext.Get(dest))
 			return;
 
 		// TODO: decide how we are going to cloak AF_UNIX hostnames.

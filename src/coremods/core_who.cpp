@@ -251,7 +251,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	else if (data.flags['a'])
 	{
 		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->get(user) : NULL;
+		const std::string* account = accountext ? accountext->Get(user) : NULL;
 		match = account && InspIRCd::Match(*account, data.matchtext);
 	}
 
@@ -494,7 +494,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		if (data.whox_fields['a'])
 		{
 			const AccountExtItem* accountext = GetAccountExtItem();
-			const std::string* account = accountext ? accountext->get(user) : NULL;
+			const std::string* account = accountext ? accountext->Get(user) : NULL;
 			wholine.push(account ? *account : "0");
 		}
 

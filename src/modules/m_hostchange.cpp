@@ -200,7 +200,7 @@ private:
 			{
 				// Retrieve the account name.
 				const AccountExtItem* accountext = GetAccountExtItem();
-				const std::string* accountptr = accountext ? accountext->get(user) : NULL;
+				const std::string* accountptr = accountext ? accountext->Get(user) : NULL;
 				if (!accountptr)
 					continue;
 

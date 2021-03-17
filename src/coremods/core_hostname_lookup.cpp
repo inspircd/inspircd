@@ -206,7 +206,7 @@ class ModuleHostnameLookup : public Module
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		return this->dnsLookup.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return this->dnsLookup.Get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

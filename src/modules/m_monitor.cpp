@@ -69,7 +69,7 @@ class IRCv3::Monitor::Manager
 		{
 		}
 
-		ExtData* get(Extensible* container, bool create = false)
+		ExtData* Get(Extensible* container, bool create = false)
 		{
 			ExtData* extdata = static_cast<ExtData*>(GetRaw(container));
 			if ((!extdata) && (create))
@@ -234,7 +234,7 @@ class IRCv3::Monitor::Manager
 
 	WatchedList* GetWatchedPriv(LocalUser* user, bool create = false)
 	{
-		ExtData* extdata = ext.get(user, create);
+		ExtData* extdata = ext.Get(user, create);
 		if (!extdata)
 			return NULL;
 		return &extdata->list;

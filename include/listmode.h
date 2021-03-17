@@ -219,7 +219,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 inline ListModeBase::ModeList* ListModeBase::GetList(Channel* channel)
 {
-	ChanData* cd = extItem.get(channel);
+	ChanData* cd = extItem.Get(channel);
 	if (!cd)
 		return NULL;
 

@@ -67,7 +67,7 @@ class Invite::ExtItem : public ExtensionItem
 	{
 	}
 
-	Store<T>* get(Extensible* ext, bool create = false)
+	Store<T>* Get(Extensible* ext, bool create = false)
 	{
 		Store<T>* store = static_cast<Store<T>*>(GetRaw(ext));
 		if ((create) && (!store))

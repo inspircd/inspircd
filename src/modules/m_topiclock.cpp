@@ -83,7 +83,7 @@ class FlagExtItem : public ExtensionItem
 	{
 	}
 
-	bool get(const Extensible* container) const
+	bool Get(const Extensible* container) const
 	{
 		return (GetRaw(container) != NULL);
 	}
@@ -143,7 +143,7 @@ class ModuleTopicLock : public Module
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) override
 	{
 		// Only fired for local users currently, but added a check anyway
-		if ((IS_LOCAL(user)) && (topiclock.get(chan)))
+		if ((IS_LOCAL(user)) && (topiclock.Get(chan)))
 		{
 			user->WriteNumeric(ERR_TOPICLOCK, chan->name, "TOPIC cannot be changed due to topic lock being active on the channel");
 			return MOD_RES_DENY;

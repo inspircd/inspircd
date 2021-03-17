@@ -156,7 +156,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 		if (numeric.GetNumeric() == 312)
 		{
 			/* Insert our numeric before 312 */
-			const std::string* ctitle = cmd.ctitle.get(whois.GetTarget());
+			const std::string* ctitle = cmd.ctitle.Get(whois.GetTarget());
 			if (ctitle)
 			{
 				whois.SendLine(RPL_WHOISSPECIAL, ctitle);

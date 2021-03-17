@@ -65,7 +65,7 @@ class ModuleWaitPong : public Module
 	{
 		if (command == "PONG")
 		{
-			std::string* pingrpl = ext.get(user);
+			std::string* pingrpl = ext.Get(user);
 
 			if (pingrpl)
 			{
@@ -87,7 +87,7 @@ class ModuleWaitPong : public Module
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ext.Get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

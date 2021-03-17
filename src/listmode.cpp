@@ -35,7 +35,7 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
-	ChanData* cd = extItem.get(channel);
+	ChanData* cd = extItem.Get(channel);
 	if (cd)
 	{
 		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
@@ -53,7 +53,7 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
-	ChanData* cd = extItem.get(channel);
+	ChanData* cd = extItem.Get(channel);
 	if (cd)
 	{
 		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
@@ -102,7 +102,7 @@ void ListModeBase::DoRehash()
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
-		ChanData* cd = extItem.get(i->second);
+		ChanData* cd = extItem.Get(i->second);
 		if (cd)
 			cd->maxitems = -1;
 	}
@@ -130,7 +130,7 @@ unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanDat
 
 unsigned int ListModeBase::GetLimit(Channel* channel)
 {
-	ChanData* cd = extItem.get(channel);
+	ChanData* cd = extItem.Get(channel);
 	if (!cd) // just find the limit
 		return FindLimit(channel->name);
 
@@ -154,7 +154,7 @@ unsigned int ListModeBase::GetLowerLimit()
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	// Try and grab the list
-	ChanData* cd = extItem.get(channel);
+	ChanData* cd = extItem.Get(channel);
 
 	if (adding)
 	{
