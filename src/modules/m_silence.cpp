@@ -201,7 +201,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 			return;
 
 		// Remove the old list and create a new one.
-		Unset(user);
+		Unset(user, false);
 		SilenceList* list = new SilenceList();
 
 		irc::spacesepstream ts(value);

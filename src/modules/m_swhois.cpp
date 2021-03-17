@@ -80,14 +80,6 @@ class CommandSwhois : public Command
 		else
 			swhois.Set(dest, parameters[1]);
 
-		/* Bug #376 - feature request -
-		 * To cut down on the amount of commands services etc have to recognise, this only sends METADATA across the network now
-		 * not an actual SWHOIS command. Any SWHOIS command sent from services will be automatically translated to METADATA by this.
-		 * Sorry w00t i know this was your fix, but i got bored and wanted to clear down the tracker :)
-		 * -- Brain
-		 */
-		ServerInstance->PI->SendMetaData(dest, "swhois", parameters[1]);
-
 		return CmdResult::SUCCESS;
 	}
 
@@ -138,7 +130,6 @@ class ModuleSWhois
 
 		cmd.operblock.Set(user, 1);
 		cmd.swhois.Set(user, swhois);
-		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
 	}
 
 	void OnPostDeoper(User* user) override
@@ -152,7 +143,6 @@ class ModuleSWhois
 
 		cmd.operblock.Unset(user);
 		cmd.swhois.Unset(user);
-		ServerInstance->PI->SendMetaData(user, "swhois", "");
 	}
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) override

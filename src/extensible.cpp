@@ -128,6 +128,29 @@ void* ExtensionItem::UnsetRaw(Extensible* container)
 	return result;
 }
 
+void ExtensionItem::Sync(const Extensible* container, void* item)
+{
+	const std::string networkstr = ToNetwork(container, item);
+	if (networkstr.empty())
+		return;
+
+	switch (type)
+	{
+		case ExtensionItem::EXT_CHANNEL:
+			ServerInstance->PI->SendMetaData((Channel*)container, name, networkstr);
+			break;
+
+		case ExtensionItem::EXT_MEMBERSHIP:
+			// TODO: Implement support for networking membership metadata.
+			// ServerInstance->PI->SendMetaData((Membership*)container, name, networkstr);
+			break;
+
+		case ExtensionItem::EXT_USER:
+			ServerInstance->PI->SendMetaData((User*)container, name, networkstr);
+			break;
+	}
+}
+
 void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	FromNetwork(container, value);
@@ -172,7 +195,7 @@ void IntExtItem::Delete(Extensible* container, void* item)
 
 void IntExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
-	Set(container, ConvToNum<intptr_t>(value));
+	Set(container, ConvToNum<intptr_t>(value), false);
 }
 
 void IntExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
@@ -186,12 +209,15 @@ intptr_t IntExtItem::Get(const Extensible* container) const
 	return reinterpret_cast<intptr_t>(GetRaw(container));
 }
 
-void IntExtItem::Set(Extensible* container, intptr_t value)
+void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
 {
 	if (value)
 		SetRaw(container, reinterpret_cast<void*>(value));
 	else
 		UnsetRaw(container);
+
+	if (sync && synced)
+		Sync(container, GetRaw(container));
 }
 
 std::string IntExtItem::ToInternal(const Extensible* container, void* item) const noexcept
@@ -204,9 +230,11 @@ std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
 	return synced ? ToInternal(container, item) : std::string();
 }
 
-void IntExtItem::Unset(Extensible* container)
+void IntExtItem::Unset(Extensible* container, bool sync)
 {
 	UnsetRaw(container);
+	if (sync && synced)
+		Sync(container, nullptr);
 }
 
 StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
@@ -218,9 +246,9 @@ StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleTy
 void StringExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	if (value.empty())
-		Unset(container);
+		Unset(container, false);
 	else
-		Set(container, value);
+		Set(container, value, false);
 }
 
 void StringExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept

@@ -115,6 +115,12 @@ class CoreExport ExtensionItem
 	 * @return Either the old value or NULL if one is not set.
 	*/
 	void* UnsetRaw(Extensible* container);
+
+	/** Syncs the value of this ExtensionItem across the network.
+	 * @param container The container this ExtensionItem is set on.
+	 * @param item The value of this ExtensionItem.
+	 */
+	void Sync(const Extensible* container, void* item);
 };
 
 /** class Extensible is the parent class of many classes such as User and Channel.
@@ -207,10 +213,12 @@ class SimpleExtItem : public ExtensionItem
 		return static_cast<T*>(GetRaw(container));
 	}
 
-	inline void Set(Extensible* container, T* value)
+	inline void Set(Extensible* container, T* value, bool sync = true)
 	{
 		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
+		if (sync)
+			Sync(container, value);
 	}
 
 	template <typename... Args>
@@ -219,10 +227,11 @@ class SimpleExtItem : public ExtensionItem
 		Set(container, new T(std::forward<Args>(args)...));
 	}
 
-	inline void Unset(Extensible* container)
+	inline void Unset(Extensible* container, bool sync = true)
 	{
-		T* old = static_cast<T*>(UnsetRaw(container));
-		Delete(container, old);
+		Delete(container, UnsetRaw(container));
+		if (sync)
+			Sync(container, nullptr);
 	}
 
 	void Delete(Extensible* container, void* item) override
@@ -300,8 +309,10 @@ class CoreExport IntExtItem : public ExtensionItem
 
 	/** Sets a value for this IntExtItem.
 	 * @param container A container that the IntExtItem should be set on.
+	 * @param value The new value for this IntExtItem.
+	 * @param sync Whether to sync this value to other servers.
 	 */
-	void Set(Extensible* container, intptr_t value);
+	void Set(Extensible* container, intptr_t value, bool sync = true);
 
 	/** @copydoc ExtensionItem::ToInternal */
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
@@ -311,6 +322,7 @@ class CoreExport IntExtItem : public ExtensionItem
 
 	/** Removes the value for this IntExtItem.
 	 * @param container A container the ExtensionItem should be removed from.
+	 * @param sync Whether to sync this unset to the network.
 	 */
-	void Unset(Extensible* container);
+	void Unset(Extensible* container, bool sync = true);
 };

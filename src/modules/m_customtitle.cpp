@@ -90,8 +90,6 @@ class CommandTitle : public Command
 			{
 				ctitle.Set(user, config.title);
 
-				ServerInstance->PI->SendMetaData(user, "ctitle", config.title);
-
 				if (!config.vhost.empty())
 					user->ChangeDisplayedHost(config.vhost);
 
