@@ -79,7 +79,7 @@ ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& paramet
 	if (limit <= 0)
 		limit = 1;
 
-	ext.set(chan, limit);
+	ext.Set(chan, limit);
 	return MODEACTION_ALLOW;
 }
 
@@ -90,14 +90,14 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 	 */
 	const Channel::MemberMap& users = chan->GetUsers();
 	for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
-		jointime.set(n->second, 0);
+		jointime.Set(n->second, 0);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
 	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet(djm)))
 	{
-		djm.jointime.set(memb, ServerInstance->Time());
+		djm.jointime.Set(memb, ServerInstance->Time());
 	}
 }
 

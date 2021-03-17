@@ -114,7 +114,7 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 		if (IS_LOCAL(source) && v > max)
 			v = max;
 
-		ext.set(channel, new KickRejoinData(v));
+		ext.Set(channel, new KickRejoinData(v));
 		return MODEACTION_ALLOW;
 	}
 

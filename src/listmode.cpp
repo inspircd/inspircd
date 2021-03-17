@@ -166,7 +166,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		{
 			// Make one
 			cd = new ChanData;
-			extItem.set(channel, cd);
+			extItem.Set(channel, cd);
 		}
 
 		// Check if the item already exists in the list

@@ -156,7 +156,7 @@ static void populate(CUList& except, Membership* memb)
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
-		unjoined.set(memb, 1);
+		unjoined.Set(memb, 1);
 }
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)

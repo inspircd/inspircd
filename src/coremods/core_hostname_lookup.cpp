@@ -193,7 +193,7 @@ class ModuleHostnameLookup : public Module
 			/* If both the reverse and forward queries are cached, the user will be able to pass DNS completely
 			 * before Process() completes, which is why dnsLookup.set() is here, before Process()
 			 */
-			this->dnsLookup.set(user, 1);
+			this->dnsLookup.Set(user, 1);
 			this->DNS->Process(res_reverse);
 		}
 		catch (DNS::Exception& e)

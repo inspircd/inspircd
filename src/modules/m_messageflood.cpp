@@ -96,7 +96,7 @@ class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 			return MODEACTION_DENY;
 		}
 
-		ext.set(channel, new floodsettings(ban, nsecs, nlines));
+		ext.Set(channel, new floodsettings(ban, nsecs, nlines));
 		return MODEACTION_ALLOW;
 	}
 

@@ -333,7 +333,7 @@ class ModuleIdent : public Module
 		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;
 		if (!tag->getBool("useident", true))
 		{
-			state.set(user, IDENT_SKIPPED);
+			state.Set(user, IDENT_SKIPPED);
 			return;
 		}
 
@@ -342,7 +342,7 @@ class ModuleIdent : public Module
 		try
 		{
 			isock = new IdentRequestSocket(user);
-			socket.set(user, isock);
+			socket.Set(user, isock);
 		}
 		catch (ModuleException &e)
 		{
@@ -363,7 +363,7 @@ class ModuleIdent : public Module
 			if (prefixunqueried && state.Get(user) == IDENT_SKIPPED)
 			{
 				PrefixIdent(user);
-				state.set(user, IDENT_PREFIXED);
+				state.Set(user, IDENT_PREFIXED);
 			}
 			return MOD_RES_PASSTHRU;
 		}
@@ -374,7 +374,7 @@ class ModuleIdent : public Module
 		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
-			state.set(user, IDENT_MISSING);
+			state.Set(user, IDENT_MISSING);
 			PrefixIdent(user);
 			user->WriteNotice("*** Ident lookup timed out, using " + user->ident + " instead.");
 		}
@@ -387,13 +387,13 @@ class ModuleIdent : public Module
 		/* wooo, got a result (it will be good, or bad) */
 		else if (isock->result.empty())
 		{
-			state.set(user, IDENT_MISSING);
+			state.Set(user, IDENT_MISSING);
 			PrefixIdent(user);
 			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else
 		{
-			state.set(user, IDENT_FOUND);
+			state.Set(user, IDENT_FOUND);
 			user->ChangeIdent(isock->result);
 			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
 		}

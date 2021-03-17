@@ -69,7 +69,7 @@ class Redirect : public ParamMode<Redirect, StringExtItem>
 		 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
 		 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
 		 */
-		ext.set(channel, parameter);
+		ext.Set(channel, parameter);
 		return MODEACTION_ALLOW;
 	}
 

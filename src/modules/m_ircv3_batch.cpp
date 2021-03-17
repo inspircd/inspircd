@@ -80,7 +80,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 			// Send the start batch command ("BATCH +reftag TYPE"), remember the user so we can send them a
 			// "BATCH -reftag" message later when the batch ends and set the flag we just checked so this is
 			// only done once per user per batch.
-			batchbits.set(user, (bits | batch.GetBit()));
+			batchbits.Set(user, (bits | batch.GetBit()));
 			batch.batchinfo->users.push_back(user);
 			user->Send(batch.batchinfo->startevent);
 		}
@@ -173,7 +173,7 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		{
 			LocalUser* const user = *i;
 			user->Send(batchinfo.endevent);
-			batchbits.set(user, batchbits.Get(user) & ~batch.GetBit());
+			batchbits.Set(user, batchbits.Get(user) & ~batch.GetBit());
 		}
 
 		// erase() not swaperase because the reftag generation logic depends on the order of the elements

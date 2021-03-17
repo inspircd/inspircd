@@ -88,7 +88,7 @@ class CommandTitle : public Command
 		{
 			if (config.MatchUser(user) && config.CheckPass(user, parameters[1]))
 			{
-				ctitle.set(user, config.title);
+				ctitle.Set(user, config.title);
 
 				ServerInstance->PI->SendMetaData(user, "ctitle", config.title);
 

@@ -78,7 +78,7 @@ class CommandSwhois : public Command
 		if (parameters[1].empty())
 			swhois.unset(dest);
 		else
-			swhois.set(dest, parameters[1]);
+			swhois.Set(dest, parameters[1]);
 
 		/* Bug #376 - feature request -
 		 * To cut down on the amount of commands services etc have to recognise, this only sends METADATA across the network now
@@ -136,8 +136,8 @@ class ModuleSWhois
 		if (!swhois.length())
 			return;
 
-		cmd.operblock.set(user, 1);
-		cmd.swhois.set(user, swhois);
+		cmd.operblock.Set(user, 1);
+		cmd.swhois.Set(user, swhois);
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
 	}
 

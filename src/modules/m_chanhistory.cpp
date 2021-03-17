@@ -111,7 +111,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 		}
 		else
 		{
-			ext.set(channel, new HistoryList(len, time));
+			ext.Set(channel, new HistoryList(len, time));
 		}
 		return MODEACTION_ALLOW;
 	}

@@ -43,7 +43,7 @@ ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& param
 	if (limit < 1)
 		return MODEACTION_DENY;
 
-	ext.set(chan, limit);
+	ext.Set(chan, limit);
 	return MODEACTION_ALLOW;
 }
 

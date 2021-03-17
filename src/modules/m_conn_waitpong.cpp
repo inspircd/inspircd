@@ -57,7 +57,7 @@ class ModuleWaitPong : public Module
 		if(sendsnotice)
 			user->WriteNotice("*** If you are having problems connecting due to registration timeouts type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
 
-		ext.set(user, pingrpl);
+		ext.Set(user, pingrpl);
 		return MOD_RES_PASSTHRU;
 	}
 

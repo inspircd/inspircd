@@ -163,7 +163,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if ((localsource) && (!ValidateSettings(localsource, channel, parameter, settings)))
 			return MODEACTION_DENY;
 
-		ext.set(channel, settings);
+		ext.Set(channel, settings);
 
 		return MODEACTION_ALLOW;
 	}
@@ -179,7 +179,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (!rp)
 		{
 			rp = new MemberInfo;
-			MemberInfoExt.set(memb, rp);
+			MemberInfoExt.Set(memb, rp);
 		}
 
 		unsigned int matches = 0;

@@ -69,7 +69,7 @@ class AuthQuery : public SQL::Query
 				{
 					if (verbose)
 						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (a provider for %s was not loaded)", user->GetFullRealHost().c_str(), kdf.c_str());
-					pendingExt.set(user, AUTH_STATE_FAIL);
+					pendingExt.Set(user, AUTH_STATE_FAIL);
 					return;
 				}
 
@@ -78,7 +78,7 @@ class AuthQuery : public SQL::Query
 				{
 					if (verbose)
 						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (the column specified (%s) was not returned)", user->GetFullRealHost().c_str(), pwcolumn.c_str());
-					pendingExt.set(user, AUTH_STATE_FAIL);
+					pendingExt.Set(user, AUTH_STATE_FAIL);
 					return;
 				}
 
@@ -87,24 +87,24 @@ class AuthQuery : public SQL::Query
 				{
 					if (hashprov->Compare(user->password, row[colindex]))
 					{
-						pendingExt.set(user, AUTH_STATE_NONE);
+						pendingExt.Set(user, AUTH_STATE_NONE);
 						return;
 					}
 				}
 
 				if (verbose)
 					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
-				pendingExt.set(user, AUTH_STATE_FAIL);
+				pendingExt.Set(user, AUTH_STATE_FAIL);
 				return;
 			}
 
-			pendingExt.set(user, AUTH_STATE_NONE);
+			pendingExt.Set(user, AUTH_STATE_NONE);
 		}
 		else
 		{
 			if (verbose)
 				ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
-			pendingExt.set(user, AUTH_STATE_FAIL);
+			pendingExt.Set(user, AUTH_STATE_FAIL);
 		}
 	}
 
@@ -113,7 +113,7 @@ class AuthQuery : public SQL::Query
 		User* user = ServerInstance->Users.Find(uid);
 		if (!user)
 			return;
-		pendingExt.set(user, AUTH_STATE_FAIL);
+		pendingExt.Set(user, AUTH_STATE_FAIL);
 		if (verbose)
 			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.ToString());
 	}
@@ -184,7 +184,7 @@ class ModuleSQLAuth : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		pendingExt.set(user, AUTH_STATE_BUSY);
+		pendingExt.Set(user, AUTH_STATE_BUSY);
 
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);

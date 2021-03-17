@@ -155,7 +155,7 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 		}
 
 		// The value was well formed.
-		set(user, list);
+		Set(user, list);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const override
@@ -263,7 +263,7 @@ class CommandDccallow : public Command
 					if (!dl)
 					{
 						dl = new dccallowlist;
-						ext.set(user, dl);
+						ext.Set(user, dl);
 						// add this user to the userlist
 						ul.push_back(user);
 					}

@@ -73,7 +73,7 @@ class CommandNicklock : public Command
 		/* If we made it this far, extend the user */
 		if (IS_LOCAL(target))
 		{
-			locked.set(target, 1);
+			locked.Set(target, 1);
 
 			std::string oldnick = target->nick;
 			if (target->ChangeNick(parameters[1]))

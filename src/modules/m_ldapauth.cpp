@@ -94,7 +94,7 @@ class BindInterface : public LDAPInterface
 			}
 
 			// change host according to config key
-			vhosts->set(user, SafeReplace(vhost, dnParts));
+			vhosts->Set(user, SafeReplace(vhost, dnParts));
 		}
 	}
 
@@ -126,7 +126,7 @@ class BindInterface : public LDAPInterface
 
 			// We're done, there are no attributes to check
 			SetVHost(user, DN);
-			authed->set(user, 1);
+			authed->Set(user, 1);
 
 			delete this;
 			return;
@@ -144,7 +144,7 @@ class BindInterface : public LDAPInterface
 					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
 
 				SetVHost(user, DN);
-				authed->set(user, 1);
+				authed->Set(user, 1);
 			}
 
 			// Delete this if this is the last ref
@@ -379,7 +379,7 @@ public:
 		{
 			if (InspIRCd::Match(user->nick, *i))
 			{
-				ldapAuthed.set(user,1);
+				ldapAuthed.Set(user,1);
 				return MOD_RES_PASSTHRU;
 			}
 		}
@@ -388,7 +388,7 @@ public:
 		{
 			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
 			{
-				ldapAuthed.set(user,1);
+				ldapAuthed.Set(user,1);
 				return MOD_RES_PASSTHRU;
 			}
 		}

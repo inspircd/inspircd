@@ -133,7 +133,7 @@ class ModuleBlockAmsg : public Module
 			else
 			{
 				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
-				blockamsg.set(user, m);
+				blockamsg.Set(user, m);
 			}
 		}
 		return MOD_RES_PASSTHRU;

@@ -32,7 +32,7 @@ void IntExtItem::Delete(Extensible* container, void* item)
 
 void IntExtItem::FromInternal(Extensible* container, const std::string& value)
 {
-	set(container, ConvToNum<intptr_t>(value));
+	Set(container, ConvToNum<intptr_t>(value));
 }
 
 void IntExtItem::FromNetwork(Extensible* container, const std::string& value)
@@ -46,7 +46,7 @@ intptr_t IntExtItem::Get(const Extensible* container) const
 	return reinterpret_cast<intptr_t>(GetRaw(container));
 }
 
-void IntExtItem::set(Extensible* container, intptr_t value)
+void IntExtItem::Set(Extensible* container, intptr_t value)
 {
 	if (value)
 		SetRaw(container, reinterpret_cast<void*>(value));
@@ -80,7 +80,7 @@ void StringExtItem::FromInternal(Extensible* container, const std::string& value
 	if (value.empty())
 		unset(container);
 	else
-		set(container, value);
+		Set(container, value);
 }
 
 void StringExtItem::FromNetwork(Extensible* container, const std::string& value)

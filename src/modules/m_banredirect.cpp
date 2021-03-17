@@ -187,7 +187,7 @@ class BanRedirect : public ModeWatcher
 					if (!redirects)
 					{
 						redirects = new BanRedirectList;
-						extItem.set(channel, redirects);
+						extItem.Set(channel, redirects);
 					}
 					else
 					{

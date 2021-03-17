@@ -74,7 +74,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		if (parameter.empty())
 			return MODEACTION_DENY;
 
-		ext.set(channel, parameter);
+		ext.Set(channel, parameter);
 	}
 	else
 		ext.unset(channel);

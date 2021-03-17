@@ -53,7 +53,7 @@ class SSLCertExt : public ExtensionItem
 		return static_cast<ssl_cert*>(GetRaw(item));
 	}
 
-	void set(Extensible* item, ssl_cert* value)
+	void Set(Extensible* item, ssl_cert* value)
 	{
 		value->refcount_inc();
 		ssl_cert* old = static_cast<ssl_cert*>(SetRaw(item, value));
@@ -74,7 +74,7 @@ class SSLCertExt : public ExtensionItem
 	void FromNetwork(Extensible* container, const std::string& value) override
 	{
 		ssl_cert* cert = new ssl_cert;
-		set(container, cert);
+		Set(container, cert);
 
 		std::stringstream s(value);
 		std::string v;
@@ -139,7 +139,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting TLS (SSL) client certificate for %s: %s",
 			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
-		sslext.set(user, cert);
+		sslext.Set(user, cert);
 	}
 };
 
@@ -413,7 +413,7 @@ class ModuleSSLInfo
 		{
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
-			cmd.sslapi.nosslext.set(user, 1);
+			cmd.sslapi.nosslext.Set(user, 1);
 			cmd.sslapi.sslext.unset(user);
 			return;
 		}

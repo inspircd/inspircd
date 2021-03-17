@@ -111,7 +111,7 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 			return MODEACTION_DENY;
 		}
 
-		ext.set(channel, new nickfloodsettings(nsecs, nnicks));
+		ext.Set(channel, new nickfloodsettings(nsecs, nnicks));
 		return MODEACTION_ALLOW;
 	}
 

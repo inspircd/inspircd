@@ -247,9 +247,9 @@ class CommandWebIRC : public SplitCommand
 			}
 
 			// The user matched a WebIRC block!
-			gateway.set(user, parameters[1]);
-			realhost.set(user, user->GetRealHost());
-			realip.set(user, user->GetIPString());
+			gateway.Set(user, parameters[1]);
+			realhost.Set(user, user->GetRealHost());
+			realip.Set(user, user->GetIPString());
 
 			WriteLog("Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
 				user->uuid.c_str(), parameters[1].c_str(),
@@ -438,8 +438,8 @@ class ModuleCgiIRC
 				return MOD_RES_PASSTHRU;
 
 			// Store the hostname and IP of the gateway for later use.
-			cmdwebirc.realhost.set(user, user->GetRealHost());
-			cmdwebirc.realip.set(user, user->GetIPString());
+			cmdwebirc.realhost.Set(user, user->GetRealHost());
+			cmdwebirc.realip.Set(user, user->GetIPString());
 
 			const std::string& newident = iter->GetIdent();
 			cmdwebirc.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",

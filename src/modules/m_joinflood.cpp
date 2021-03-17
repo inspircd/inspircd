@@ -122,7 +122,7 @@ class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 			return MODEACTION_DENY;
 		}
 
-		ext.set(channel, new joinfloodsettings(nsecs, njoins));
+		ext.Set(channel, new joinfloodsettings(nsecs, njoins));
 		return MODEACTION_ALLOW;
 	}
 

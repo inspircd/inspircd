@@ -242,7 +242,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 		}
 
 		// The value was well formed.
-		set(user, list);
+		Set(user, list);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const override
@@ -290,7 +290,7 @@ class CommandSilence : public SplitCommand
 		{
 			// There is no list; create it.
 			list = new SilenceList();
-			ext.set(user, list);
+			ext.Set(user, list);
 		}
 
 		if (!list->insert(SilenceEntry(flags, mask)).second)

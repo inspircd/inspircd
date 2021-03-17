@@ -210,7 +210,7 @@ namespace Cap
 			if (!IsRegistered())
 				return;
 			Ext curr = extitem->Get(user);
-			extitem->set(user, (val ? AddToMask(curr) : DelFromMask(curr)));
+			extitem->Set(user, (val ? AddToMask(curr) : DelFromMask(curr)));
 		}
 
 		/** Activate or deactivate the capability.

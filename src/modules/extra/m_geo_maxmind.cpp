@@ -61,7 +61,7 @@ class GeolocationExtItem : public ExtensionItem
 		return static_cast<Geolocation::Location*>(GetRaw(item));
 	}
 
-	void set(Extensible* item, Geolocation::Location* value)
+	void Set(Extensible* item, Geolocation::Location* value)
 	{
 		value->refcount_inc();
 		Delete(item, SetRaw(item, value));
@@ -101,7 +101,7 @@ class GeolocationAPIImpl : public Geolocation::APIBase
 			return NULL;
 
 		// We found the user. Cache their location for future use.
-		ext.set(user, location);
+		ext.Set(user, location);
 		return location;
 	}
 

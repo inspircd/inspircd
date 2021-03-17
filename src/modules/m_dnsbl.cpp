@@ -91,7 +91,7 @@ class DNSBLResolver : public DNS::Request
 
 		int i = countExt.Get(them);
 		if (i)
-			countExt.set(them, i - 1);
+			countExt.Set(them, i - 1);
 
 		// The DNSBL reply must contain an A result.
 		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
@@ -174,7 +174,7 @@ class DNSBLResolver : public DNS::Request
 						them->ChangeDisplayedHost(ConfEntry->host);
 					}
 
-					nameExt.set(them, ConfEntry->name);
+					nameExt.Set(them, ConfEntry->name);
 					break;
 				}
 				case DNSBLConfEntry::I_KLINE:
@@ -265,7 +265,7 @@ class DNSBLResolver : public DNS::Request
 
 		int i = countExt.Get(them);
 		if (i)
-			countExt.set(them, i - 1);
+			countExt.Set(them, i - 1);
 
 		if (is_miss)
 			return;
@@ -423,7 +423,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
-		countExt.set(user, DNSBLConfEntries.size());
+		countExt.Set(user, DNSBLConfEntries.size());
 
 		// For each DNSBL, we will run through this lookup
 		for (unsigned i = 0; i < DNSBLConfEntries.size(); ++i)

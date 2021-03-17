@@ -228,7 +228,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	void Set302Protocol(LocalUser* user)
 	{
-		capext.set(user, capext.Get(user) | CAP_302_BIT);
+		capext.Set(user, capext.Get(user) | CAP_302_BIT);
 	}
 
 	bool HandleReq(LocalUser* user, const std::string& reqlist)
@@ -251,7 +251,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 				usercaps = cap->AddToMask(usercaps);
 		}
 
-		capext.set(user, usercaps);
+		capext.Set(user, usercaps);
 		return true;
 	}
 
@@ -420,7 +420,7 @@ class CommandCap : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		if (user->registered != REG_ALL)
-			holdext.set(user, 1);
+			holdext.Set(user, 1);
 
 		const std::string& subcommand = parameters[0];
 		if (irc::equals(subcommand, "REQ"))

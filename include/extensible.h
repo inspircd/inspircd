@@ -207,14 +207,14 @@ class SimpleExtItem : public ExtensionItem
 		return static_cast<T*>(GetRaw(container));
 	}
 
-	inline void set(Extensible* container, const T& value)
+	inline void Set(Extensible* container, const T& value)
 	{
 		T* ptr = new T(value);
 		T* old = static_cast<T*>(SetRaw(container, ptr));
 		Delete(container, old);
 	}
 
-	inline void set(Extensible* container, T* value)
+	inline void Set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
@@ -302,7 +302,7 @@ class CoreExport IntExtItem : public ExtensionItem
 	/** Sets a value for this IntExtItem.
 	 * @param container A container that the IntExtItem should be set on.
 	 */
-	void set(Extensible* container, intptr_t value);
+	void Set(Extensible* container, intptr_t value);
 
 	/** @copydoc ExtensionItem::ToInternal */
 	std::string ToInternal(const Extensible* container, void* item) const override;

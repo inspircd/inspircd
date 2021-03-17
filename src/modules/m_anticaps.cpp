@@ -119,7 +119,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 			return MODEACTION_DENY;
 		}
 
-		ext.set(channel, new AntiCapsSettings(method, minlen, percent));
+		ext.Set(channel, new AntiCapsSettings(method, minlen, percent));
 		return MODEACTION_ALLOW;
 	}
 

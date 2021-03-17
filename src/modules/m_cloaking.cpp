@@ -530,7 +530,7 @@ class ModuleCloaking : public Module
 		CloakList cloaklist;
 		for (std::vector<CloakInfo>::const_iterator iter = cloaks.begin(); iter != cloaks.end(); ++iter)
 			cloaklist.push_back(GenCloak(*iter, dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
-		cu.ext.set(dest, cloaklist);
+		cu.ext.Set(dest, cloaklist);
 	}
 };
 
