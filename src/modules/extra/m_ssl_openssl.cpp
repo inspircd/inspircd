@@ -114,7 +114,7 @@ namespace OpenSSL
 		{
 			// Sane default options for OpenSSL see https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
 			// and when choosing a cipher, use the server's preferences instead of the client preferences.
-			long opts = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION | SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_SINGLE_DH_USE;
+			long opts = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION | SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_SINGLE_DH_USE;
 			// Only turn options on if they exist
 #ifdef SSL_OP_SINGLE_ECDH_USE
 			opts |= SSL_OP_SINGLE_ECDH_USE;
@@ -317,13 +317,9 @@ namespace OpenSSL
 				setoptions |= SSL_OP_NO_COMPRESSION;
 #endif
 
-			// Disable TLSv1.0 by default.
-			if (!tag->getBool("tlsv1", false))
-				setoptions |= SSL_OP_NO_TLSv1;
-
 #ifdef SSL_OP_NO_TLSv1_1
-			// Enable TLSv1.1 by default.
-			if (!tag->getBool("tlsv11", true))
+			// Disable TLSv1.1 by default.
+			if (!tag->getBool("tlsv11", false))
 				setoptions |= SSL_OP_NO_TLSv1_1;
 #endif
 
