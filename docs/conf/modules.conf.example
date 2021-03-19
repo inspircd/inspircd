@@ -1766,7 +1766,7 @@
 #<permchanneldb filename="permchannels.conf"
 #               listmodes="yes"
 #               saveperiod="5s">
-#<include file="permchannels.conf">
+#<include file="permchannels.conf" missingokay="yes">
 #
 # You may also create channels on startup by using the <permchannels> block.
 #<permchannels channel="#opers" modes="isP" topic="Opers only.">
