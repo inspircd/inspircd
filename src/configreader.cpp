@@ -242,9 +242,9 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			std::string mask;
 			char type;
 
-			if (tag->readString("allow", mask, false))
+			if (tag->readString("allow", mask, false) && !mask.empty())
 				type = CC_ALLOW;
-			else if (tag->readString("deny", mask, false))
+			else if (tag->readString("deny", mask, false) && !mask.empty())
 				type = CC_DENY;
 			else if (!name.empty())
 			{

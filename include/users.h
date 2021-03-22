@@ -91,9 +91,11 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned int registration_timeout;
 
-	/** Host mask for this line
-	 */
+	/** Hosts that this user can connect from as a string. */
 	std::string host;
+
+	/** Hosts that this user can connect from as a vector. */
+	std::vector<std::string> hosts;
 
 	/** Number of seconds between pings for this line
 	 */
@@ -166,8 +168,9 @@ struct CoreExport ConnectClass : public refcountbase
 	/** Update the settings in this block to match the given block */
 	void Update(const ConnectClass* newSettings);
 
-	const std::string& GetName() { return name; }
-	const std::string& GetHost() { return host; }
+	const std::string& GetName() const { return name; }
+	const std::string& GetHost() const { return host; }
+	const std::vector<std::string>& GetHosts() const { return hosts; }
 
 	/** Returns the registration timeout
 	 */

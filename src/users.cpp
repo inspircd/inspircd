@@ -1159,9 +1159,16 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			}
 
-			/* check if host matches.. */
-			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
-				!InspIRCd::MatchCIDR(this->GetRealHost(), c->GetHost(), NULL))
+			bool hostmatches = false;
+			for (std::vector<std::string>::const_iterator host = c->GetHosts().begin(); host != c->GetHosts().end(); ++host)
+			{
+				if (InspIRCd::MatchCIDR(this->GetIPString(), *host) || InspIRCd::MatchCIDR(this->GetRealHost(), *host))
+				{
+					hostmatches = true;
+					break;
+				}
+			}
+			if (!hostmatches)
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
 					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), c->GetHost().c_str());
@@ -1266,6 +1273,9 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	, limit(0)
 	, resolvehostnames(true)
 {
+	irc::spacesepstream hoststream(host);
+	for (std::string hostentry; hoststream.GetToken(hostentry); )
+		hosts.push_back(hostentry);
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
@@ -1309,6 +1319,7 @@ void ConnectClass::Update(const ConnectClass* src)
 	name = src->name;
 	registration_timeout = src->registration_timeout;
 	host = src->host;
+	hosts = src->hosts;
 	pingtime = src->pingtime;
 	softsendqmax = src->softsendqmax;
 	hardsendqmax = src->hardsendqmax;
