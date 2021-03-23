@@ -39,6 +39,6 @@ InspIRCd is licensed under [version 2 of the GNU General Public License](https:/
 * [Website](https://www.inspircd.org)
 * [Documentation](https://docs.inspircd.org)
 * [GitHub](https://github.com/inspircd)
-* [Support IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/inspircd?nick=Your%20nick%20here) &mdash; \#inspircd on irc.inspircd.org
-* [Development IRC channel](https://kiwiirc.com/nextclient/irc.inspircd.org:+6697/inspircd.dev?nick=Your%20nick%20here) &mdash; \#inspircd.dev on irc.inspircd.org
-* [InspIRCd test network](https://kiwiirc.com/nextclient/testnet.inspircd.org:+6697/?nick=Your%20nick%20here) &mdash; testnet.inspircd.org
+* Support IRC channel &mdash; \#inspircd on irc.inspircd.org
+* Development IRC channel &mdash; \#inspircd.dev on irc.inspircd.org
+* InspIRCd test network &mdash; testnet.inspircd.org
