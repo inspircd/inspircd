@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
 // User mode +d - filter out channel messages and channel notices
 class DeafMode : public ModeHandler
@@ -69,17 +70,65 @@ class PrivDeafMode : public ModeHandler
 	}
 };
 
-class ModuleDeaf : public Module
+class ModuleDeaf
+	: public Module
+	, public CTCTags::EventListener
 {
+ private:
 	DeafMode deafmode;
 	PrivDeafMode privdeafmode;
 	std::string deaf_bypasschars;
 	std::string deaf_bypasschars_uline;
 	bool privdeafuline;
 
+	ModResult HandleChannel(User* source, Channel* target, CUList& exemptions, bool is_bypasschar, bool is_bypasschar_uline)
+	{
+		const Channel::MemberMap& ulist = target->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+		{
+			User* member = i->first;
+
+			// Allow if the user doesn't have the mode set.
+			if (!member->IsModeSet(deafmode))
+				continue;
+
+			// Allow if the message begins with a uline char and the
+			// user is on a ulined server.
+			if (is_bypasschar_uline && member->server->IsULine())
+				continue;
+
+			// Allow if the prefix begins with a normal char and the
+			// user is not on a ulined server.
+			if (is_bypasschar && !member->server->IsULine())
+				continue;
+
+			exemptions.insert(member);
+		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult HandleUser(User* source, User* target)
+	{
+		// Allow if the mode is not set.
+		if (!target->IsModeSet(privdeafmode))
+			return MOD_RES_PASSTHRU;
+
+		// Reject if the source is ulined and privdeafuline is disaled.
+		if (!privdeafuline && source->server->IsULine())
+			return MOD_RES_DENY;
+
+		// Reject if the source doesn't have the right priv.
+		if (!source->HasPrivPermission("users/ignore-privdeaf"))
+			return MOD_RES_DENY;
+
+		return MOD_RES_ALLOW;
+	}
+
  public:
 	ModuleDeaf()
-		: deafmode(this)
+		: CTCTags::EventListener(this)
+		, deafmode(this)
 		, privdeafmode(this)
 	{
 	}
@@ -92,58 +141,46 @@ class ModuleDeaf : public Module
 		privdeafuline = tag->getBool("privdeafuline", true);
 	}
 
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
+	{
+		switch (target.type)
+		{
+			case MessageTarget::TYPE_CHANNEL:
+				return HandleChannel(user, target.Get<Channel>(), details.exemptions, false, false);
+
+			case MessageTarget::TYPE_USER:
+				return HandleUser(user, target.Get<User>());
+
+			case MessageTarget::TYPE_SERVER:
+				break;
+		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
 	{
 		switch (target.type)
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* chan = target.Get<Channel>();
-				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
-				bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
-
 				// If we have no bypasschars_uline in config, and this is a bypasschar (regular)
 				// Then it is obviously going to get through +d, no exemption list required
+				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
 				if (deaf_bypasschars_uline.empty() && is_bypasschar)
 					return MOD_RES_PASSTHRU;
+
 				// If it matches both bypasschar and bypasschar_uline, it will get through.
+				bool is_bypasschar_uline = (deaf_bypasschars_uline.find(details.text[0]) != std::string::npos);
 				if (is_bypasschar && is_bypasschar_uline)
 					return MOD_RES_PASSTHRU;
 
-				const Channel::MemberMap& ulist = chan->GetUsers();
-				for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-				{
-					// not +d
-					if (!i->first->IsModeSet(deafmode))
-						continue;
-
-					bool is_a_uline = i->first->server->IsULine();
-					// matched a U-line only bypass
-					if (is_bypasschar_uline && is_a_uline)
-						continue;
-					// matched a regular bypass
-					if (is_bypasschar && !is_a_uline)
-						continue;
-
-					// don't deliver message!
-					details.exemptions.insert(i->first);
-				}
-				break;
+				return HandleChannel(user, target.Get<Channel>(), details.exemptions, is_bypasschar, is_bypasschar_uline);
 			}
+
 			case MessageTarget::TYPE_USER:
-			{
-				User* targ = target.Get<User>();
-				if (!targ->IsModeSet(privdeafmode))
-					return MOD_RES_PASSTHRU;
+				return HandleUser(user, target.Get<User>());
 
-				if (!privdeafuline && user->server->IsULine())
-					return MOD_RES_DENY;
-
-				if (!user->HasPrivPermission("users/ignore-privdeaf"))
-					return MOD_RES_DENY;
-
-				break;
-			}
 			case MessageTarget::TYPE_SERVER:
 				break;
 		}
