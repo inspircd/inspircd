@@ -41,7 +41,7 @@ class DelayJoinMode : public ModeHandler
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 	void RevealUser(User* user, Channel* chan);
 };
 
@@ -107,16 +107,16 @@ class ModuleDelayJoin
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override;
 	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
 	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
-	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) override;
+	ModResult OnRawMode(User* user, Channel* channel, const Modes::Change& change) override;
 };
 
-ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* no change */
-	if (channel->IsModeSet(this) == adding)
+	if (channel->IsModeSet(this) == change.adding)
 		return MODEACTION_DENY;
 
-	if (!adding)
+	if (!change.adding)
 	{
 		/*
 		 * Make all users visible, as +D is being removed. If we don't do this,
@@ -126,7 +126,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 			RevealUser(n->first, channel);
 	}
-	channel->SetMode(this, adding);
+	channel->SetMode(this, change.adding);
 	return MODEACTION_ALLOW;
 }
 
@@ -225,20 +225,20 @@ void DelayJoinMode::RevealUser(User* user, Channel* chan)
 }
 
 /* make the user visible if they receive any mode change */
-ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding)
+ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, const Modes::Change& change)
 {
-	if (!channel || param.empty())
+	if (!channel || change.param.empty())
 		return MOD_RES_PASSTHRU;
 
 	// If not a prefix mode then we got nothing to do here
-	if (!mh->IsPrefixMode())
+	if (!change.mh->IsPrefixMode())
 		return MOD_RES_PASSTHRU;
 
 	User* dest;
 	if (IS_LOCAL(user))
-		dest = ServerInstance->Users.FindNick(param);
+		dest = ServerInstance->Users.FindNick(change.param);
 	else
-		dest = ServerInstance->Users.Find(param);
+		dest = ServerInstance->Users.Find(change.param);
 
 	if (!dest)
 		return MOD_RES_PASSTHRU;

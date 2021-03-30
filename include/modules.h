@@ -851,7 +851,7 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding);
+	virtual ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, whether or not the channel is actually +k, and

@@ -41,7 +41,7 @@ class ServProtectMode : public ModeHandler
  public:
 	ServProtectMode(Module* Creator) : ModeHandler(Creator, "servprotect", 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		/* Because this returns MODEACTION_DENY all the time, there is only ONE
 		 * way to add this mode and that is at client introduction in the UID command,
@@ -80,20 +80,20 @@ class ModuleServProtectMode
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
+	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a service.
 		 */
-		if (!adding && chan && IS_LOCAL(user) && !param.empty())
+		if (!change.adding && chan && IS_LOCAL(user) && !change.param.empty())
 		{
-			const PrefixMode* const pm = mh->IsPrefixMode();
+			const PrefixMode* const pm = change.mh->IsPrefixMode();
 			if (!pm)
 				return MOD_RES_PASSTHRU;
 
 			/* Check if the parameter is a valid nick/uuid
 			 */
-			User *u = ServerInstance->Users.Find(param);
+			User *u = ServerInstance->Users.Find(change.param);
 			if (u)
 			{
 				Membership* memb = chan->GetUser(u);

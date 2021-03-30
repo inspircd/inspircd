@@ -41,13 +41,13 @@ class PermChannel : public ModeHandler
 		oper = true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (adding == channel->IsModeSet(this))
+		if (change.adding == channel->IsModeSet(this))
 			return MODEACTION_DENY;
 
-		channel->SetMode(this, adding);
-		if (!adding)
+		channel->SetMode(this, change.adding);
+		if (!change.adding)
 			channel->CheckDestroy();
 
 		return MODEACTION_ALLOW;
@@ -253,20 +253,22 @@ public:
 						else
 							par.clear();
 
-						mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, par, true);
+						Modes::Change modechange(mode, true, par);
+						mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);
 					}
 				}
 
 				// We always apply the permchannels mode to permanent channels.
 				par.clear();
-				p.OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, par, true);
+				Modes::Change modechange(&p, true, par);
+				p.OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);
 			}
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
+	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
-		if (chan && (chan->IsModeSet(p) || mh == &p))
+		if (chan && (chan->IsModeSet(p) || change.mh == &p))
 			dirty = true;
 
 		return MOD_RES_PASSTHRU;

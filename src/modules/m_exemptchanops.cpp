@@ -61,22 +61,22 @@ class ExemptChanOps : public ListModeBase
 		return true;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string& parameter, bool adding) override
+	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override
 	{
 		std::string restriction;
 		std::string prefix;
-		if (!ParseEntry(parameter, restriction, prefix))
+		if (!ParseEntry(change.param, restriction, prefix))
 			return MOD_RES_PASSTHRU;
 
 		PrefixMode* pm = FindMode(prefix);
 		if (!pm)
 			return MOD_RES_PASSTHRU;
 
-		if (channel->GetPrefixValue(source) >= pm->GetLevelRequired(adding))
+		if (channel->GetPrefixValue(source) >= pm->GetLevelRequired(change.adding))
 			return MOD_RES_PASSTHRU;
 
 		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s a restriction containing it",
-			adding ? "set" : "unset", pm->GetModeChar(), pm->name.c_str(), adding ? "add" : "remove"));
+			change.adding ? "set" : "unset", pm->GetModeChar(), pm->name.c_str(), change.adding ? "add" : "remove"));
 		return MOD_RES_DENY;
 	}
 

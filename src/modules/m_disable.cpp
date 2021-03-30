@@ -155,35 +155,35 @@ class ModuleDisable : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) override
+	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
 		// If a mode change is remote or the source is not registered we do nothing.
 		if (!IS_LOCAL(user) || user->registered != REG_ALL)
 			return MOD_RES_PASSTHRU;
 
 		// If the mode is not disabled or the user has the servers/use-disabled-modes priv we do nothing.
-		const std::bitset<64>& disabled = (mh->GetModeType() == MODETYPE_CHANNEL) ? chanmodes : usermodes;
-		if (!disabled.test(mh->GetModeChar() - 'A') || user->HasPrivPermission("servers/use-disabled-modes"))
+		const std::bitset<64>& disabled = (change.mh->GetModeType() == MODETYPE_CHANNEL) ? chanmodes : usermodes;
+		if (!disabled.test(change.mh->GetModeChar() - 'A') || user->HasPrivPermission("servers/use-disabled-modes"))
 			return MOD_RES_PASSTHRU;
 
 		// The user has tried to change a disabled mode!
-		const char* what = mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
+		const char* what = change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
 		WriteLog("%s was blocked from %ssetting the disabled %s mode %c (%s)",
-			user->GetFullRealHost().c_str(), adding ? "" : "un",
-			what, mh->GetModeChar(), mh->name.c_str());
+			user->GetFullRealHost().c_str(), change.adding ? "" : "un",
+			what, change.mh->GetModeChar(), change.mh->name.c_str());
 
 		if (fakenonexistent)
 		{
 			// The server administrator has specified that disabled modes should be
 			// treated as if they do not exist.
-			user->WriteNumeric(mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK,
-				mh->GetModeChar(), "is an unknown mode character");
+			user->WriteNumeric(change.mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK,
+				change.mh->GetModeChar(), "is an unknown mode character");
 			return MOD_RES_DENY;
 		}
 
 		// Inform the user that the mode they changed has been disabled.
 		user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c (%s) is disabled",
-			what, mh->GetModeChar(), mh->name.c_str()));
+			what, change.mh->GetModeChar(), change.mh->name.c_str()));
 		return MOD_RES_DENY;
 	}
 };

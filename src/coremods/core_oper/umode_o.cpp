@@ -32,14 +32,14 @@ ModeUserOperator::ModeUserOperator(Module* Creator)
 	oper = true;
 }
 
-ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
+ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
 {
 	/* Only opers can execute this class at all */
 	if (!source->server->IsService() && !source->IsOper())
 		return MODEACTION_DENY;
 
 	/* Not even opers can GIVE the +o mode, only take it away */
-	if (adding)
+	if (change.adding)
 		return MODEACTION_DENY;
 
 	/* Set the bitfields.

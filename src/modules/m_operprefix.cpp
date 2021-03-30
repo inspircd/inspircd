@@ -49,7 +49,7 @@ class HideOperWatcher : public ModeWatcher
 
  public:
 	HideOperWatcher(ModuleOperPrefixMode* parent);
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding) override;
+	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override;
 };
 
 class ModuleOperPrefixMode : public Module
@@ -121,11 +121,11 @@ HideOperWatcher::HideOperWatcher(ModuleOperPrefixMode* parent)
 {
 }
 
-void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding)
+void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change)
 {
 	// If hideoper is being unset because the user is deopering, don't set +y
 	if (IS_LOCAL(dest) && dest->IsOper())
-		parentmod->SetOperPrefix(dest, !adding);
+		parentmod->SetOperPrefix(dest, !change.adding);
 }
 
 MODULE_INIT(ModuleOperPrefixMode)

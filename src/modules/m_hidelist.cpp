@@ -33,10 +33,10 @@ class ListWatcher : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* user, User* destuser, Channel* chan, std::string& param, bool adding) override
+	bool BeforeMode(User* user, User* destuser, Channel* chan, Modes::Change& change) override
 	{
 		// Only handle listmode list requests
-		if (!param.empty())
+		if (!change.param.empty())
 			return true;
 
 		// If the user requesting the list is a member of the channel see if they have the

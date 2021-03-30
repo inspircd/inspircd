@@ -172,7 +172,7 @@ class CoreExport ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding) override;
+	ModeAction OnModeChange(User* source, User*, Channel* channel, Modes::Change& change) override;
 
 	/** Validate parameters.
 	 * Overridden by implementing module.

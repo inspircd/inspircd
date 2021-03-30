@@ -38,7 +38,6 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	 */
 	time_t age_t = ServerCommand::ExtractTS(params[1]);
 	time_t signon = ServerCommand::ExtractTS(params[7]);
-	std::string empty;
 	const std::string& modestr = params[8];
 
 	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
@@ -102,7 +101,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		{
 			if (paramptr >= params.size() - 1)
 				throw ProtocolException("Out of parameters while processing modes");
-			std::string mp = params[paramptr++];
+
 			/* IMPORTANT NOTE:
 			 * All modes are assumed to succeed here as they are being set by a remote server.
 			 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
@@ -112,10 +111,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 			 * will not change in future versions if you want to make use of this protective behaviour
 			 * yourself.
 			 */
-			mh->OnModeChange(_new, _new, NULL, mp, true);
+			Modes::Change modechange(mh, true, params[paramptr++]);
+			mh->OnModeChange(_new, _new, NULL, modechange);
 		}
 		else
-			mh->OnModeChange(_new, _new, NULL, empty, true);
+		{
+			Modes::Change modechange(mh, true, "");
+			mh->OnModeChange(_new, _new, NULL, modechange);
+		}
 		_new->SetMode(mh, true);
 	}
 

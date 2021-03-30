@@ -29,7 +29,7 @@ class CoreExport ParamModeBase : public ModeHandler
 	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)
 		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	// Does nothing by default
 	virtual bool IsParameterSecret() { return false; }

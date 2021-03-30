@@ -57,15 +57,15 @@ class Channel_r : public ModeHandler
  public:
 	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		// Only a U-lined server may add or remove the +r mode.
 		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
-			if ((adding != channel->IsModeSet(this)))
+			if (change.adding != channel->IsModeSet(this))
 			{
-				channel->SetMode(this, adding);
+				channel->SetMode(this, change.adding);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -85,13 +85,13 @@ class User_r : public ModeHandler
  public:
 	User_r(Module* Creator) : ModeHandler(Creator, "u_registered", 'r', PARAM_NONE, MODETYPE_USER) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (!IS_LOCAL(source))
 		{
-			if ((adding != dest->IsModeSet(this)))
+			if (change.adding != dest->IsModeSet(this))
 			{
-				dest->SetMode(this, adding);
+				dest->SetMode(this, change.adding);
 				return MODEACTION_ALLOW;
 			}
 		}

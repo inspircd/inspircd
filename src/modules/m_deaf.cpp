@@ -34,15 +34,15 @@ class DeafMode : public ModeHandler
  public:
 	DeafMode(Module* Creator) : ModeHandler(Creator, "deaf", 'd', PARAM_NONE, MODETYPE_USER) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (adding == dest->IsModeSet(this))
+		if (change.adding == dest->IsModeSet(this))
 			return MODEACTION_DENY;
 
-		if (adding)
+		if (change.adding)
 			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
 
-		dest->SetMode(this, adding);
+		dest->SetMode(this, change.adding);
 		return MODEACTION_ALLOW;
 	}
 };
@@ -55,15 +55,15 @@ class PrivDeafMode : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (adding == dest->IsModeSet(this))
+		if (change.adding == dest->IsModeSet(this))
 			return MODEACTION_DENY;
 
-		if (adding)
+		if (change.adding)
 			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
 
-		dest->SetMode(this, adding);
+		dest->SetMode(this, change.adding);
 		return MODEACTION_ALLOW;
 	}
 };

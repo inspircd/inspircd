@@ -39,7 +39,7 @@ class ModuleMLock : public Module
 	{
 	}
 
-	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding) override
+	ModResult OnRawMode(User* source, Channel* channel, const Modes::Change& change) override
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
@@ -51,7 +51,7 @@ class ModuleMLock : public Module
 		if (!mlock_str)
 			return MOD_RES_PASSTHRU;
 
-		const char mode = mh->GetModeChar();
+		const char mode = change.mh->GetModeChar();
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{

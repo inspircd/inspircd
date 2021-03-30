@@ -110,7 +110,7 @@ class CloakUser : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		LocalUser* user = IS_LOCAL(dest);
 
@@ -121,8 +121,8 @@ class CloakUser : public ModeHandler
 		if (!user)
 		{
 			// Remote setters broadcast mode before host while local setters do the opposite, so this takes that into account
-			active = IS_LOCAL(source) ? adding : !adding;
-			dest->SetMode(this, adding);
+			active = IS_LOCAL(source) ? change.adding : !change.adding;
+			dest->SetMode(this, change.adding);
 			return MODEACTION_ALLOW;
 		}
 
@@ -139,14 +139,14 @@ class CloakUser : public ModeHandler
 			debounce_ts = ServerInstance->Time();
 		}
 
-		if (adding == user->IsModeSet(this))
+		if (change.adding == user->IsModeSet(this))
 			return MODEACTION_DENY;
 
 		/* don't allow this user to spam modechanges */
 		if (source == dest)
 			user->CommandFloodPenalty += 5000;
 
-		if (adding)
+		if (change.adding)
 		{
 			// assume this is more correct
 			if (user->registered != REG_ALL && user->GetRealHost() != user->GetDisplayedHost())

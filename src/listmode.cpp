@@ -151,15 +151,15 @@ unsigned int ListModeBase::GetLowerLimit()
 	return limit;
 }
 
-ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
 	// Try and grab the list
 	ChanData* cd = extItem.Get(channel);
 
-	if (adding)
+	if (change.adding)
 	{
 		if (tidy)
-			ModeParser::CleanMask(parameter);
+			ModeParser::CleanMask(change.param);
 
 		// If there was no list
 		if (!cd)
@@ -172,10 +172,10 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		// Check if the item already exists in the list
 		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
-			if (parameter == it->mask)
+			if (change.param == it->mask)
 			{
 				/* Give a subclass a chance to error about this */
-				TellAlreadyOnList(source, channel, parameter);
+				TellAlreadyOnList(source, channel, change.param);
 
 				// it does, deny the change
 				return MODEACTION_DENY;
@@ -185,7 +185,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		if ((IS_LOCAL(source)) && (cd->list.size() >= GetLimitInternal(channel->name, cd)))
 		{
 			/* List is full, give subclass a chance to send a custom message */
-			TellListTooLong(source, channel, parameter);
+			TellListTooLong(source, channel, change.param);
 			return MODEACTION_DENY;
 		}
 
@@ -199,10 +199,10 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		 * 2) 'fix' parameter and then allow
 		 * 3) deny
 		 */
-		if (ValidateParam(source, channel, parameter))
+		if (ValidateParam(source, channel, change.param))
 		{
 			// And now add the mask onto the list...
-			cd->list.push_back(ListItem(parameter, source->nick, ServerInstance->Time()));
+			cd->list.push_back(ListItem(change.param, source->nick, ServerInstance->Time()));
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -218,7 +218,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		{
 			for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 			{
-				if (parameter == it->mask)
+				if (change.param == it->mask)
 				{
 					stdalgo::vector::swaperase(cd->list, it);
 					return MODEACTION_ALLOW;
@@ -227,7 +227,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		}
 
 		/* Tried to remove something that wasn't set */
-		TellNotSet(source, channel, parameter);
+		TellNotSet(source, channel, change.param);
 		return MODEACTION_DENY;
 	}
 }

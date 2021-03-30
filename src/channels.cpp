@@ -153,7 +153,8 @@ void Channel::SetDefaultModes()
 			if ((mode->NeedsParam(true)) && (parameter.empty()))
 				continue;
 
-			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);
+			Modes::Change modechange(mode, true, parameter);
+			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, modechange);
 		}
 	}
 }
@@ -264,9 +265,9 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
 			if (mh)
 			{
-				std::string nick = user->nick;
-				// Set the mode on the user
-				mh->OnModeChange(ServerInstance->FakeClient, NULL, this, nick, true);
+				// Set the mode on the user.
+				Modes::Change modechange(mh, true, user->nick);
+				mh->OnModeChange(ServerInstance->FakeClient, NULL, this, modechange);
 			}
 		}
 	}

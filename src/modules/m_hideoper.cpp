@@ -44,12 +44,12 @@ class HideOper : public SimpleUserModeHandler
 		oper = true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserModeHandler::OnModeChange(source, dest, channel, parameter, adding) == MODEACTION_DENY)
+		if (SimpleUserModeHandler::OnModeChange(source, dest, channel, change) == MODEACTION_DENY)
 			return MODEACTION_DENY;
 
-		if (adding)
+		if (change.adding)
 			opercount++;
 		else
 			opercount--;

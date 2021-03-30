@@ -35,51 +35,51 @@ ModeChannelKey::ModeChannelKey(Module* Creator)
 	syntax = "<key>";
 }
 
-ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
 	const std::string* key = ext.Get(channel);
 	bool exists = (key != NULL);
 	if (IS_LOCAL(source))
 	{
-		if (exists == adding)
+		if (exists == change.adding)
 			return MODEACTION_DENY;
-		if (exists && (parameter != *key))
+		if (exists && (change.param != *key))
 		{
 			/* Key is currently set and the correct key wasn't given */
 			source->WriteNumeric(ERR_KEYSET, channel->name, "Channel key already set");
 			return MODEACTION_DENY;
 		}
 	} else {
-		if (exists && adding && parameter == *key)
+		if (exists && change.adding && change.param == *key)
 		{
 			/* no-op, don't show */
 			return MODEACTION_DENY;
 		}
 	}
 
-	if (adding)
+	if (change.adding)
 	{
 		// When joining a channel multiple keys are delimited with a comma so we strip
 		// them out here to avoid creating channels that are unjoinable.
 		size_t commapos;
-		while ((commapos = parameter.find(',')) != std::string::npos)
-			parameter.erase(commapos, 1);
+		while ((commapos = change.param.find(',')) != std::string::npos)
+			change.param.erase(commapos, 1);
 
 		// Truncate the parameter to the maximum key length.
-		if (parameter.length() > maxkeylen)
-			parameter.erase(maxkeylen);
+		if (change.param.length() > maxkeylen)
+			change.param.erase(maxkeylen);
 
 		// If the password is empty here then it only consisted of commas. This is not
 		// acceptable so we reject the mode change.
-		if (parameter.empty())
+		if (change.param.empty())
 			return MODEACTION_DENY;
 
-		ext.Set(channel, parameter);
+		ext.Set(channel, change.param);
 	}
 	else
 		ext.Unset(channel);
 
-	channel->SetMode(this, adding);
+	channel->SetMode(this, change.adding);
 	return MODEACTION_ALLOW;
 }
 

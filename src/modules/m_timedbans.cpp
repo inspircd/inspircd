@@ -163,9 +163,9 @@ class BanWatcher : public ModeWatcher
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding) override
+	void AfterMode(User* source, User* dest, Channel* chan, const Modes::Change& change) override
 	{
-		if (adding)
+		if (change.adding)
 			return;
 
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); ++i)
@@ -174,7 +174,7 @@ class BanWatcher : public ModeWatcher
 				continue;
 
 			const std::string& target = i->mask;
-			if (irc::equals(banmask, target))
+			if (irc::equals(change.param, target))
 			{
 				TimedBanList.erase(i);
 				break;

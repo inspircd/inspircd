@@ -61,7 +61,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string& param, bool adding) override
+	bool BeforeMode(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan
@@ -70,30 +70,30 @@ class BanRedirect : public ModeWatcher
 		 * nick#chan -> nick!*@*#chan
 		 */
 
-		if ((channel) && !param.empty())
+		if ((channel) && !change.param.empty())
 		{
 			BanRedirectList* redirects;
 
 			std::string mask[4];
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
-			std::string::iterator start_pos = param.begin();
+			std::string::iterator start_pos = change.param.begin();
 
-			if (param.length() >= 2 && param[1] == ':')
+			if (change.param.length() >= 2 && change.param[1] == ':')
 				return true;
 
-			if (param.find('#') == std::string::npos)
+			if (change.param.find('#') == std::string::npos)
 				return true;
 
 			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
 			unsigned int maxbans = banlm->GetLimit(channel);
 			ListModeBase::ModeList* list = banlm->GetList(channel);
-			if ((list) && (adding) && (maxbans <= list->size()))
+			if (list && change.adding && maxbans <= list->size())
 			{
 				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), maxbans));
 				return false;
 			}
 
-			for(std::string::iterator curr = start_pos; curr != param.end(); curr++)
+			for(std::string::iterator curr = start_pos; curr != change.param.end(); curr++)
 			{
 				switch(*curr)
 				{
@@ -123,7 +123,7 @@ class BanRedirect : public ModeWatcher
 
 			if(mask[current].empty())
 			{
-				mask[current].assign(start_pos, param.end());
+				mask[current].assign(start_pos, change.param.end());
 			}
 
 			/* nick@host wants to be changed to *!nick@host rather than nick!*@host... */
@@ -149,11 +149,11 @@ class BanRedirect : public ModeWatcher
 				}
 			}
 
-			param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
+			change.param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
 
 			if(mask[CHAN].length())
 			{
-				if (adding && IS_LOCAL(source))
+				if (change.adding && IS_LOCAL(source))
 				{
 					if (!ServerInstance->IsChannel(mask[CHAN]))
 					{
@@ -167,7 +167,7 @@ class BanRedirect : public ModeWatcher
 						source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", mask[CHAN].c_str()));
 						return false;
 					}
-					else if (adding && c->GetPrefixValue(source) < OP_VALUE)
+					else if (change.adding && c->GetPrefixValue(source) < OP_VALUE)
 					{
 						source->WriteNumeric(690, InspIRCd::Format("You must be opped on %s to set it as a redirect.", mask[CHAN].c_str()));
 						return false;
@@ -180,7 +180,7 @@ class BanRedirect : public ModeWatcher
 					}
 				}
 
-				if(adding)
+				if (change.adding)
 				{
 					/* It's a properly valid redirecting ban, and we're adding it */
 					redirects = extItem.Get(channel);
@@ -194,10 +194,10 @@ class BanRedirect : public ModeWatcher
 						for (BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); ++redir)
 						{
 							// Mimic the functionality used when removing the mode
-							if (irc::equals(redir->targetchan, mask[CHAN]) && irc::equals(redir->banmask, param))
+							if (irc::equals(redir->targetchan, mask[CHAN]) && irc::equals(redir->banmask, change.param))
 							{
 								// Make sure the +b handler will still set the right ban
-								param.append(mask[CHAN]);
+								change.param.append(mask[CHAN]);
 								// Silently ignore the duplicate and don't set metadata
 								// This still allows channel ops to set/unset a redirect ban to clear "ghost" redirects
 								return true;
@@ -206,10 +206,10 @@ class BanRedirect : public ModeWatcher
 					}
 
 					/* Here 'param' doesn't have the channel on it yet */
-					redirects->push_back(BanRedirectEntry(mask[CHAN], param));
+					redirects->push_back(BanRedirectEntry(mask[CHAN], change.param));
 
 					/* Now it does */
-					param.append(mask[CHAN]);
+					change.param.append(mask[CHAN]);
 				}
 				else
 				{
@@ -221,7 +221,7 @@ class BanRedirect : public ModeWatcher
 
 						for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 						{
-							if ((irc::equals(redir->targetchan, mask[CHAN])) && (irc::equals(redir->banmask, param)))
+							if ((irc::equals(redir->targetchan, mask[CHAN])) && (irc::equals(redir->banmask, change.param)))
 							{
 								redirects->erase(redir);
 
@@ -236,7 +236,7 @@ class BanRedirect : public ModeWatcher
 					}
 
 					/* Append the channel so the default +b handler can remove the entry too */
-					param.append(mask[CHAN]);
+					change.param.append(mask[CHAN]);
 				}
 			}
 		}

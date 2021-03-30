@@ -114,7 +114,7 @@ ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return
 ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { DetachEvent(I_OnUserKick); }
-ModResult	Module::OnRawMode(User*, Channel*, ModeHandler*, const std::string&, bool) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnRawMode(User*, Channel*, const Modes::Change&) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }

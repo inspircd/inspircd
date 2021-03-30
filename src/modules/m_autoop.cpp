@@ -51,16 +51,17 @@ class AutoOpList : public ListModeBase
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) override
+	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override
 	{
-		std::string::size_type pos = parameter.find(':');
+		std::string::size_type pos = change.param.find(':');
 		if (pos == 0 || pos == std::string::npos)
-			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+			return change.adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+
 		unsigned int mylevel = channel->GetPrefixValue(source);
-		std::string mid(parameter, 0, pos);
+		std::string mid(change.param, 0, pos);
 		PrefixMode* mh = FindMode(mid);
 
-		if (adding && !mh)
+		if (change.adding && !mh)
 		{
 			source->WriteNumeric(ERR_UNKNOWNMODE, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
 			return MOD_RES_DENY;
@@ -68,13 +69,14 @@ class AutoOpList : public ListModeBase
 		else if (!mh)
 			return MOD_RES_PASSTHRU;
 
-		std::string dummy;
-		if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
+		Modes::Change modechange(mh, true, "");
+		if (mh->AccessCheck(source, channel, change) == MOD_RES_DENY)
 			return MOD_RES_DENY;
-		if (mh->GetLevelRequired(adding) > mylevel)
+
+		if (mh->GetLevelRequired(change.adding) > mylevel)
 		{
 			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s an autoop containing it",
-				adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str(), adding ? "add" : "remove"));
+				change.adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str(), change.adding ? "add" : "remove"));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

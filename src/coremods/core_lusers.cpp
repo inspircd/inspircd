@@ -123,7 +123,7 @@ public:
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding) override
+	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override
 	{
 		if (dest->registered != REG_ALL)
 			return;
@@ -131,7 +131,7 @@ public:
 		if (dest->server->IsService())
 			return;
 
-		if (adding)
+		if (change.adding)
 			invisible++;
 		else
 			invisible--;

@@ -72,9 +72,9 @@ class SSLMode : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (adding)
+		if (change.adding)
 		{
 			if (!channel->IsModeSet(this))
 			{
@@ -137,9 +137,9 @@ class SSLModeUser : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* user, User* dest, Channel* channel, std::string& parameter, bool adding) override
+	ModeAction OnModeChange(User* user, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (adding)
+		if (change.adding)
 		{
 			if (!dest->IsModeSet(this))
 			{

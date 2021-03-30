@@ -94,11 +94,11 @@ class NetworkPrefix : public PrefixMode
 		ranktoset = ranktounset = UINT_MAX;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) override
+	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override
 	{
-		User* theuser = ServerInstance->Users.Find(parameter);
+		User* theuser = ServerInstance->Users.Find(change.param);
 		// remove own privs?
-		if (source == theuser && !adding)
+		if (source == theuser && !change.adding)
 			return MOD_RES_ALLOW;
 
 		return MOD_RES_PASSTHRU;

@@ -259,7 +259,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return allow, deny, or passthru to check against the required level
 	 */
-	virtual ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding);
+	virtual ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change);
 
 	/**
 	 * Called when a mode change for your mode occurs.
@@ -273,7 +273,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change);
 
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE \#channel +modechar
@@ -401,7 +401,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return allow, deny, or passthru to check against the required level
 	 */
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) override;
+	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
 
 	/**
 	 * Handles setting and unsetting the prefix mode.
@@ -416,7 +416,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
 	 * (when setting) or doesn't have this prefix set (when unsetting).
 	 */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/**
 	 * Updates the configuration of this prefix.
@@ -471,7 +471,7 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 		oper = operonly;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 
 /** A prebuilt mode handler which handles a simple channel mode, e.g. no parameters, usable by any user, with no extra
@@ -489,7 +489,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
 		oper = operonly;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 
 /**
@@ -546,7 +546,7 @@ class CoreExport ModeWatcher : public Cullable
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string& parameter, bool adding);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, Modes::Change& change);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -556,7 +556,7 @@ class CoreExport ModeWatcher : public Cullable
 	 * You cannot alter the parameter here, as the mode handler has already processed it.
 	 * @param adding True if the mode is being added and false if it is being removed
 	 */
-	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change);
 };
 
 /** The mode parser handles routing of modes and handling of mode strings.
