@@ -76,14 +76,6 @@ class FModeBuilder : public CmdBuilder
 		return push_raw(params);
 	}
 
-	/** Returns true if the given mask can be added to the message, false if the message
-	 * has no room for the mask
-	 */
-	bool has_room(const std::string& mask) const
-	{
-		return ((str().size() + params.size() + mask.size() + 2 <= maxline) &&
-				(modes < ServerInstance->Config->Limits.MaxModes));
-	}
 
 	/** Returns true if this message is empty (has no modes)
 	 */
@@ -166,25 +158,13 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 	}
 }
 
-/** Send one or more FJOINs for a channel of users.
- * If the length of a single line is too long, it is split over multiple lines.
- */
-void TreeSocket::SendFJoins(Channel* c)
+// Send one or more FJOINs for a channel of users.
+void TreeSocket::SendFJoins(Channel* chan)
 {
-	CommandFJoin::Builder fjoin(c);
-
-	const Channel::MemberMap& ulist = c->GetUsers();
-	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-	{
-		Membership* memb = i->second;
-		if (!fjoin.has_room(memb))
-		{
-			// No room for this user, send the line and prepare a new one
-			this->WriteLine(fjoin.finalize());
-			fjoin.clear();
-		}
+	CommandFJoin::Builder fjoin(chan);
+	for (const auto& [_, memb] : chan->GetUsers())
 		fjoin.add(memb);
-	}
+
 	this->WriteLine(fjoin.finalize());
 }
 
@@ -218,28 +198,14 @@ void TreeSocket::SendXLines()
 void TreeSocket::SendListModes(Channel* chan)
 {
 	FModeBuilder fmode(chan);
-	const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
-	for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
+	for (const auto& mode : ServerInstance->Modes.GetListModes())
 	{
-		ListModeBase* mh = *i;
-		ListModeBase::ModeList* list = mh->GetList(chan);
+		ListModeBase::ModeList* list = mode->GetList(chan);
 		if (!list)
 			continue;
 
-		// Add all items on the list to the FMODE, send it whenever it becomes too long
-		const char modeletter = mh->GetModeChar();
-		for (ListModeBase::ModeList::const_iterator j = list->begin(); j != list->end(); ++j)
-		{
-			const std::string& mask = j->mask;
-			if (!fmode.has_room(mask))
-			{
-				// No room for this mask, send the current line as-is then add the mask to a
-				// new, empty FMODE message
-				this->WriteLine(fmode.finalize());
-				fmode.clear();
-			}
-			fmode.push_mode(modeletter, mask);
-		}
+		for (const auto& entry : *list)
+			fmode.push_mode(mode->GetModeChar(), entry.mask);
 	}
 
 	if (!fmode.empty())

@@ -168,21 +168,17 @@ class CommandFJoin : public ServerCommand
 
 	protected:
 		void add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend);
-		bool has_room(std::string::size_type nummodes) const;
 
 	 public:
 		Builder(Channel* chan, TreeServer* source = Utils->TreeRoot);
+
 		void add(Membership* memb)
 		{
 			add(memb, memb->modes.begin(), memb->modes.end());
 		}
 
-		bool has_room(Membership* memb) const
-		{
-			return has_room(memb->modes.size());
-		}
-
 		void clear();
+
 		const std::string& finalize();
 	};
 };

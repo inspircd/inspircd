@@ -101,9 +101,6 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	 * clock of a server is slightly off it may make a different decision than
 	 * the rest of the network and desync.
 	 * The prefix modes are always forwarded as-is, or not at all.
-	 * One incoming FJOIN may result in more than one FJOIN being generated
-	 * and forwarded mainly due to compatibility reasons with non-InspIRCd
-	 * servers that don't handle more than 512 char long lines.
 	 *
 	 * Forwarding examples:
 	 * Existing channel #chan with TS 1000, modes +n.
@@ -314,11 +311,6 @@ void CommandFJoin::Builder::add(Membership* memb, std::string::const_iterator mb
 	push_raw(' ');
 }
 
-bool CommandFJoin::Builder::has_room(std::string::size_type nummodes) const
-{
-	return ((str().size() + nummodes + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
-}
-
 void CommandFJoin::Builder::clear()
 {
 	content.erase(pos);
@@ -334,17 +326,6 @@ const std::string& CommandFJoin::Builder::finalize()
 
 void FwdFJoinBuilder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
 {
-	// Pseudoserver compatibility:
-	// Some pseudoservers do not handle lines longer than 512 so we split long FJOINs into multiple messages.
-	// The forwarded FJOIN can end up being longer than the original one if we have more modes set and won, for example.
-
-	// Check if the member fits into the current message. If not, send it and prepare a new one.
-	if (!has_room(std::distance(mbegin, mend)))
-	{
-		finalize();
-		Forward(sourceserver);
-		clear();
-	}
 	// Add the member and their modes exactly as they sent them
 	CommandFJoin::Builder::add(memb, mbegin, mend);
 }
