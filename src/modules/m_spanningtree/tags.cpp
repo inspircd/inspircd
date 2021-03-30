@@ -19,6 +19,26 @@
 
 #include "main.h"
 
+ServerTags::ServerTags(Module* Creator)
+	: ClientProtocol::MessageTagProvider(Creator)
+{
+}
+
+ModResult ServerTags::OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue)
+{
+	if (tagname[0] != '~' || tagname.length() < 2)
+		return MOD_RES_PASSTHRU;
+
+	// Only allow tags from remote users.
+	return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
+}
+
+bool ServerTags::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)
+{
+	// Server tags should never be sent to users.
+	return false;
+}
+
 ServiceTag::ServiceTag(Module* mod)
 	: ClientProtocol::MessageTagProvider(mod)
 	, ctctagcap(mod)

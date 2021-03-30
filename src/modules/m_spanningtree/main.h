@@ -109,6 +109,9 @@ class ModuleSpanningTree
 	/** API for accessing user SSL certificates. */
 	UserCertificateAPI sslapi;
 
+	/** Tags for server to server messages. */
+	ServerTags servertags;
+
 	/** Tag for marking services pseudoclients. */
 	ServiceTag servicetag;
 

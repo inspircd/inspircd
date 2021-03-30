@@ -21,6 +21,14 @@
 
 #include "modules/ctctags.h"
 
+class ServerTags : public ClientProtocol::MessageTagProvider
+{
+ public:
+	ServerTags(Module* Creator);
+	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override;
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;
+};
+
 class ServiceTag : public ClientProtocol::MessageTagProvider
 {
  private:
