@@ -62,13 +62,36 @@ ModuleSpanningTree::ModuleSpanningTree()
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: svsjoin(module), svspart(module), svsnick(module), metadata(module),
-	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
-	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
-	away(module), addline(module), delline(module), encap(module), idle(module),
-	nick(module), ping(module), pong(module), save(module),
-	server(module), squit(module), snonotice(module),
-	endburst(module), sinfo(module), num(module)
+	: svsjoin(module)
+	, svspart(module)
+	, svsnick(module)
+	, metadata(module)
+	, uid(module)
+	, opertype(module)
+	, fjoin(module)
+	, ijoin(module)
+	, resync(module)
+	, fmode(module)
+	, ftopic(module)
+	, fhost(module)
+	, fident(module)
+	, fname(module)
+	, away(module)
+	, addline(module)
+	, delline(module)
+	, encap(module)
+	, idle(module)
+	, nick(module)
+	, ping(module)
+	, pong(module)
+	, save(module)
+	, server(module)
+	, squit(module)
+	, snonotice(module)
+	, endburst(module)
+	, sinfo(module)
+	, num(module)
+	, lmode(module)
 {
 }
 

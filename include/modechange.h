@@ -33,16 +33,34 @@ struct Modes::Change
 	bool adding;
 	ModeHandler* mh;
 	std::string param;
+	std::optional<std::string> set_by;
+	std::optional<time_t> set_at;
 
 	/**
 	 * @param handler Mode handler
 	 * @param add True if this mode is being set, false if removed
 	 * @param parameter Mode parameter
 	 */
-	Change(ModeHandler* handler, bool add, const std::string& parameter)
+	Change(ModeHandler* handler, bool add, const std::string& parameter = "")
 		: adding(add)
 		, mh(handler)
 		, param(parameter)
+	{
+	}
+
+	/**
+	 * @param handler Mode handler
+	 * @param add True if this mode is being set, false if removed
+	 * @param parameter Mode parameter
+	 * @param setby Who the mode change was originally performed by.
+	 * @param setat When the mode change was originally made.
+	 */
+	Change(ModeHandler* handler, bool add, const std::string& parameter, const std::string& setby, time_t setat)
+		: adding(add)
+		, mh(handler)
+		, param(parameter)
+		, set_by(setby)
+		, set_at(setat)
 	{
 	}
 };
@@ -76,9 +94,10 @@ class Modes::ChangeList
 	 * @param adding True if this mode is being set, false if removed
 	 * @param param Mode parameter
 	 */
-	void push(ModeHandler* mh, bool adding, const std::string& param = std::string())
+	template <typename... Args>
+	void push(Args&&... args)
 	{
-		items.push_back(Change(mh, adding, param));
+		items.emplace_back(std::forward<Args>(args)...);
 	}
 
 	/** Add a new mode to this ChangeList which will be set on the target

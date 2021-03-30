@@ -128,6 +128,7 @@ class TreeSocket : public BufferedSocket
 	/** Send all ListModeBase modes set on the channel
 	 */
 	void SendListModes(Channel* chan);
+	void SendLegacyListModes(Channel* chan);
 
 	/** Send all known information about a channel */
 	void SyncChannel(Channel* chan, BurstState& bs);

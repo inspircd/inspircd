@@ -202,7 +202,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 		if (ValidateParam(source, channel, change.param))
 		{
 			// And now add the mask onto the list...
-			cd->list.push_back(ListItem(change.param, source->nick, ServerInstance->Time()));
+			cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
 			return MODEACTION_ALLOW;
 		}
 		else

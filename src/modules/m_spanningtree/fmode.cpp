@@ -57,3 +57,46 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
 	return CmdResult::SUCCESS;
 }
+
+CmdResult CommandLMode::Handle(User* who, Params& params)
+{
+	// :<sid> LMODE <chan> <chants> <modechr> [<mask> <setts> <setter>]+
+	time_t chants = ServerCommand::ExtractTS(params[1]);
+
+	Channel* const chan = ServerInstance->FindChan(params[0]);
+	if (!chan)
+		return CmdResult::FAILURE; // Channel doesn't exist.
+
+	// If the TS is greater than ours, we drop the mode and don't pass it anywhere.
+	if (chants > chan->age)
+		return CmdResult::FAILURE;
+
+	ModeHandler* mh = ServerInstance->Modes.FindMode(params[2][0], MODETYPE_CHANNEL);
+	if (!mh || !mh->IsListMode())
+		return CmdResult::FAILURE; // Mode doesn't exist or isn't a list mode.
+
+	if (params.size() % 3)
+		return CmdResult::FAILURE; // Invalid parameter count.
+
+	Modes::ChangeList changelist;
+	for (Params::const_iterator iter = params.begin() + 3; iter != params.end(); )
+	{
+		// The mode mask (e.g. foo!bar@baz).
+		const std::string& mask = *iter++;
+
+		// Who the mode was set by (e.g. Sadie!sadie@sadie.moe).
+		const std::string& set_by = *iter++;
+
+		// The time at which the mode was set (e.g. 956204400).
+		time_t set_at = ServerCommand::ExtractTS(*iter++);
+
+		changelist.push(mh, true, mask, set_by, set_at);
+	}
+
+	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
+	if (chants == chan->age && IS_SERVER(who))
+		flags |= ModeParser::MODE_MERGE;
+
+	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
+	return CmdResult::SUCCESS;
+}

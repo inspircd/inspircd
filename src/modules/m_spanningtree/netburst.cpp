@@ -197,6 +197,30 @@ void TreeSocket::SendXLines()
 
 void TreeSocket::SendListModes(Channel* chan)
 {
+	if (proto_version < PROTO_INSPIRCD_40_A1)
+	{
+		SendLegacyListModes(chan);
+		return;
+	}
+
+	for (const auto& mode : ServerInstance->Modes.GetListModes())
+	{
+		ListModeBase::ModeList* list = mode->GetList(chan);
+		if (!list || list->empty())
+			continue;
+
+		CmdBuilder lmode("LMODE");
+		lmode.push(chan->name).push_int(chan->age).push(mode->GetModeChar());
+
+		for (const auto& entry : *list)
+			lmode.push(entry.mask).push(entry.setter).push_int(entry.time);
+
+		this->WriteLine(lmode.str());
+	}
+}
+
+void TreeSocket::SendLegacyListModes(Channel* chan)
+{
 	FModeBuilder fmode(chan);
 	for (const auto& mode : ServerInstance->Modes.GetListModes())
 	{

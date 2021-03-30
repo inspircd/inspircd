@@ -398,6 +398,13 @@ class CommandNum : public ServerOnlyServerCommand<CommandNum>
 	};
 };
 
+class CommandLMode : public ServerCommand
+{
+ public:
+	CommandLMode(Module* Creator) : ServerCommand(Creator, "LMODE", 3) { }
+	CmdResult Handle(User* user, Params& params) override;
+};
+
 class SpanningTreeCommands
 {
  public:
@@ -430,5 +437,6 @@ class SpanningTreeCommands
 	CommandEndBurst endburst;
 	CommandSInfo sinfo;
 	CommandNum num;
+	CommandLMode lmode;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };
