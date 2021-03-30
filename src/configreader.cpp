@@ -164,11 +164,11 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			{
 				case CC_ALLOW:
 				case CC_DENY:
-					oldBlocksByMask[std::make_pair(c->host, c->type)] = c;
+					oldBlocksByMask[std::make_pair(stdalgo::string::join(c->GetHosts()), c->type)] = c;
 					break;
 
 				case CC_NAMED:
-					oldBlocksByMask[std::make_pair(c->name, c->type)] = c;
+					oldBlocksByMask[std::make_pair(c->GetName(), c->type)] = c;
 					break;
 			}
 		}
@@ -222,19 +222,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			std::string mask;
 			char type;
 
-			if (tag->readString("allow", mask, false))
+			if (tag->readString("allow", mask, false) && !mask.empty())
 				type = CC_ALLOW;
-			else if (tag->readString("deny", mask, false))
+			else if (tag->readString("deny", mask, false) && !mask.empty())
 				type = CC_DENY;
 			else if (!name.empty())
-			{
 				type = CC_NAMED;
-				mask = name;
-			}
 			else
-			{
 				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->source.str());
-			}
 
 			if (name.empty())
 				name = "unnamed-" + ConvToStr(i);
@@ -243,9 +238,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
 			names[name] = i;
 
+			std::vector<std::string> masks;
+			irc::spacesepstream maskstream(mask);
+			for (std::string maskentry; maskstream.GetToken(maskentry); )
+				masks.push_back(maskentry);
+
 			auto me = parent
-				? std::make_shared<ConnectClass>(tag, type, mask, parent)
-				: std::make_shared<ConnectClass>(tag, type, mask);
+				? std::make_shared<ConnectClass>(tag, type, masks, parent)
+				: std::make_shared<ConnectClass>(tag, type, masks);
 
 			me->name = name;
 

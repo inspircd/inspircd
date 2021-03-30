@@ -1133,12 +1133,20 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			}
 
-			/* check if host matches.. */
-			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
-				!InspIRCd::MatchCIDR(this->GetRealHost(), c->GetHost(), NULL))
+			bool hostmatches = false;
+			for (const auto& host : c->GetHosts())
 			{
+				if (InspIRCd::MatchCIDR(this->GetIPString(), host) || InspIRCd::MatchCIDR(this->GetRealHost(), host))
+				{
+					hostmatches = true;
+					break;
+				}
+			}
+			if (!hostmatches)
+			{
+				const std::string hosts = stdalgo::string::join(c->GetHosts());
 				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
-					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), c->GetHost().c_str());
+					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), hosts.c_str());
 				continue;
 			}
 
@@ -1221,20 +1229,20 @@ const std::string& FakeUser::GetFullRealHost()
 	return server->GetName();
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)
 	: config(tag)
 	, type(t)
 	, name("unnamed")
-	, host(mask)
+	, hosts(masks)
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::string& mask, std::shared_ptr<ConnectClass> parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent)
 {
 	Update(parent);
 	name = "unnamed";
 	type = t;
-	host = mask;
+	hosts = masks;
 
 	// Connect classes can inherit from each other but this is problematic for modules which can't use
 	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as
@@ -1265,7 +1273,7 @@ void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
 	fakelag = src->fakelag;
 	name = src->name;
 	registration_timeout = src->registration_timeout;
-	host = src->host;
+	hosts = src->hosts;
 	pingtime = src->pingtime;
 	softsendqmax = src->softsendqmax;
 	hardsendqmax = src->hardsendqmax;

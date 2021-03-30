@@ -85,9 +85,8 @@ struct CoreExport ConnectClass
 	 */
 	unsigned int registration_timeout = 0;
 
-	/** Host mask for this line
-	 */
-	std::string host;
+	/** Hosts that this connect class can be used by. */
+	std::vector<std::string> hosts;
 
 	/** Number of seconds between pings for this line
 	 */
@@ -152,16 +151,20 @@ struct CoreExport ConnectClass
 
 	/** Create a new connect class with no settings.
 	 */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::vector<std::string>& masks);
+
 	/** Create a new connect class with inherited settings.
 	 */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::string& mask, std::shared_ptr<ConnectClass> parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent);
 
 	/** Update the settings in this block to match the given block */
 	void Update(const std::shared_ptr<ConnectClass> newSettings);
 
-	const std::string& GetName() { return name; }
-	const std::string& GetHost() { return host; }
+	/** Retrieves the name of this connect class. */
+	const std::string& GetName() const { return name; }
+
+	/** Retrieves the hosts for this connect class. */
+	const std::vector<std::string>& GetHosts() const { return hosts; }
 
 	/** Returns the registration timeout
 	 */

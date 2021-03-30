@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 
 // User mode +d - filter out channel messages and channel notices
 class DeafMode : public ModeHandler
@@ -67,7 +68,9 @@ class PrivDeafMode : public ModeHandler
 	}
 };
 
-class ModuleDeaf : public Module
+class ModuleDeaf
+	: public Module
+	, public CTCTags::EventListener
 {
  private:
 	DeafMode deafmode;
@@ -76,9 +79,51 @@ class ModuleDeaf : public Module
 	std::string deaf_bypasschars_service;
 	bool privdeafservice;
 
+	ModResult HandleChannel(User* source, Channel* target, CUList& exemptions, bool is_bypasschar, bool is_bypasschar_service)
+	{
+		for (const auto& [member, _] : target->GetUsers())
+		{
+			// Allow if the user doesn't have the mode set.
+			if (!member->IsModeSet(deafmode))
+				continue;
+
+			// Allow if the message begins with a service char and the
+			// user is on a services server.
+			if (is_bypasschar_service && member->server->IsService())
+				continue;
+
+			// Allow if the prefix begins with a normal char and the
+			// user is not on a services server.
+			if (is_bypasschar && !member->server->IsService())
+				continue;
+
+			exemptions.insert(member);
+		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult HandleUser(User* source, User* target)
+	{
+		// Allow if the mode is not set.
+		if (!target->IsModeSet(privdeafmode))
+			return MOD_RES_PASSTHRU;
+
+		// Reject if the source is a service and privdeafservice is disabled.
+		if (!privdeafservice && source->server->IsService())
+			return MOD_RES_DENY;
+
+		// Reject if the source doesn't have the right priv.
+		if (!source->HasPrivPermission("users/ignore-privdeaf"))
+			return MOD_RES_DENY;
+
+		return MOD_RES_ALLOW;
+	}
+
  public:
 	ModuleDeaf()
 		: Module(VF_VENDOR, "Adds user mode d (deaf) which prevents users from receiving channel messages.")
+		, CTCTags::EventListener(this)
 		, deafmode(this)
 		, privdeafmode(this)
 	{
@@ -88,8 +133,25 @@ class ModuleDeaf : public Module
 	{
 		auto tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
-		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsuline"));
-		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafuline", true));
+		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsservice"));
+		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafservice", true));
+	}
+
+	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	{
+		switch (target.type)
+		{
+			case MessageTarget::TYPE_CHANNEL:
+				return HandleChannel(user, target.Get<Channel>(), details.exemptions, false, false);
+
+			case MessageTarget::TYPE_USER:
+				return HandleUser(user, target.Get<User>());
+
+			case MessageTarget::TYPE_SERVER:
+				break;
+		}
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -98,52 +160,23 @@ class ModuleDeaf : public Module
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* chan = target.Get<Channel>();
-				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
-				bool is_bypasschar_service = (deaf_bypasschars_service.find(details.text[0]) != std::string::npos);
-
 				// If we have no bypasschars_service in config, and this is a bypasschar (regular)
 				// Then it is obviously going to get through +d, no exemption list required
+				bool is_bypasschar = (deaf_bypasschars.find(details.text[0]) != std::string::npos);
 				if (deaf_bypasschars_service.empty() && is_bypasschar)
 					return MOD_RES_PASSTHRU;
+
 				// If it matches both bypasschar and bypasschar_service, it will get through.
+				bool is_bypasschar_service = (deaf_bypasschars_service.find(details.text[0]) != std::string::npos);
 				if (is_bypasschar && is_bypasschar_service)
 					return MOD_RES_PASSTHRU;
 
-				const Channel::MemberMap& ulist = chan->GetUsers();
-				for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-				{
-					// not +d
-					if (!i->first->IsModeSet(deafmode))
-						continue;
-
-					bool is_a_service = i->first->server->IsService();
-					// matched a U-line only bypass
-					if (is_bypasschar_service && is_a_service)
-						continue;
-					// matched a regular bypass
-					if (is_bypasschar && !is_a_service)
-						continue;
-
-					// don't deliver message!
-					details.exemptions.insert(i->first);
-				}
-				break;
+				return HandleChannel(user, target.Get<Channel>(), details.exemptions, is_bypasschar, is_bypasschar_service);
 			}
+
 			case MessageTarget::TYPE_USER:
-			{
-				User* targ = target.Get<User>();
-				if (!targ->IsModeSet(privdeafmode))
-					return MOD_RES_PASSTHRU;
+				return HandleUser(user, target.Get<User>());
 
-				if (!privdeafservice && user->server->IsService())
-					return MOD_RES_DENY;
-
-				if (!user->HasPrivPermission("users/ignore-privdeaf"))
-					return MOD_RES_DENY;
-
-				break;
-			}
 			case MessageTarget::TYPE_SERVER:
 				break;
 		}

@@ -38,7 +38,10 @@ enum ParseFlags
 	FLAG_NO_INC = 4,
 
 	// &env.FOO; is disabled.
-	FLAG_NO_ENV = 8
+	FLAG_NO_ENV = 8,
+
+	// It's okay if an include doesn't exist.
+	FLAG_MISSING_OKAY = 16
 };
 
 // RAII wrapper for FILE* which closes the file when it goes out of scope.
@@ -370,10 +373,17 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 	{
 		if (tag->getBool("noinclude", false))
 			flags |= FLAG_NO_INC;
+
 		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
+
 		if (tag->getBool("noenv", false))
 			flags |= FLAG_NO_ENV;
+
+		if (tag->getBool("missingokay", false))
+			flags |= FLAG_MISSING_OKAY;
+		else
+			flags &= ~FLAG_MISSING_OKAY;
 
 		if (!ParseFile(ServerInstance->Config->Paths.PrependConfig(name), flags, mandatorytag))
 			throw CoreException("Included");
@@ -459,7 +469,12 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
 	if (!file)
+	{
+		if (flags & FLAG_MISSING_OKAY)
+			return true;
+
 		throw CoreException("Could not read \"" + path + "\" for include");
+	}
 
 	reading.push_back(path);
 	Parser p(*this, flags, file, path, mandatory_tag);

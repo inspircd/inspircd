@@ -156,7 +156,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				if (c->type == CC_NAMED)
 					param.push_back('*');
 				else
-					param.append(c->host);
+					param.append(stdalgo::string::join(c->GetHosts(), ','));
 
 				row.push(param).push(c->config->getString("port", "*", 1));
 				row.push(ConvToStr(c->GetRecvqMax())).push(ConvToStr(c->GetSendqSoftMax())).push(ConvToStr(c->GetSendqHardMax())).push(ConvToStr(c->GetCommandRate()));
@@ -176,7 +176,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			int idx = 0;
 			for (const auto& c : ServerInstance->Config->Classes)
 			{
-				stats.AddRow(215, 'i', "NOMATCH", '*', c->GetHost(), (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
+				for (const auto& host : c->GetHosts())
+					stats.AddRow(215, 'i', "NOMATCH", '*', host, (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
 				stats.AddRow(218, 'Y', idx, c->GetPingTime(), '0', c->GetSendqHardMax(), ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
 			}
