@@ -31,12 +31,9 @@
  */
 class FwdFJoinBuilder : public CommandFJoin::Builder
 {
-	TreeServer* const sourceserver;
-
  public:
 	FwdFJoinBuilder(Channel* chan, TreeServer* server)
 		: CommandFJoin::Builder(chan, server)
-		, sourceserver(server)
 	{
 	}
 
