@@ -252,7 +252,6 @@ endif
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_PRV) @CONFIGURE_DIRECTORY@/*.pem $(CONPATH) 2>/dev/null
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"

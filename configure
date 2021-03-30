@@ -383,32 +383,7 @@ if (prompt_bool $interactive, $question, 0) {
 	}
 }
 
-# Generate SSL certificates.
-$question = <<EOQ;
-Would you like to generate a self-signed SSL certificate now? This certificate
-can be used for testing but <|BOLD should not|> be used on a production network.
-
-Note: you can get a <|BOLD free|> CA-signed certificate from Let's Encrypt. See
-https://letsencrypt.org/getting-started/ for more details.
-EOQ
-
-if (<$RealDir/src/modules/m_ssl_*.cpp>) {
-	if (prompt_bool $interactive, $question, $interactive) {
-		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
-		system './tools/genssl', 'auto', CONFIGURE_DIRECTORY;
-	} else {
-		my @pems = <${\CONFIGURE_DIRECTORY}/{cert,csr,dhparams,key}.pem>;
-		$question = <<EOQ;
-The following self-signed files were previously generated and will be installed
-when you run Make. Do you want to delete them?
-
-  * ${\join "\n  * ", @pems}
-EOQ
-		if (@pems && prompt_bool $interactive, $question, 0) {
-			unlink @pems;
-		}
-	}
-} elsif (!defined $opt_disable_auto_extras) {
+if (!<$RealDir/src/modules/m_ssl_*.cpp> && !defined $opt_disable_auto_extras) {
 	print_error <<"EOM";
 You MUST build with at least one SSL module. SSL greatly enhances the
 security and privacy of your IRC server and is required for linking servers.
