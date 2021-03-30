@@ -77,8 +77,8 @@ class OperQuery : public SQL::Query
 			 */
 			for (unsigned int i=0; i < cols.size(); ++i)
 			{
-				if (!row[i].IsNull())
-					tag->GetItems()[cols[i]] = row[i];
+				if (row[i].has_value())
+					tag->GetItems()[cols[i]] = *row[i];
 			}
 			const std::string name = tag->getString("name");
 

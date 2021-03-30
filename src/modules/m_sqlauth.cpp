@@ -85,7 +85,7 @@ class AuthQuery : public SQL::Query
 				SQL::Row row;
 				while (res.GetRow(row))
 				{
-					if (hashprov->Compare(user->password, row[colindex]))
+					if (row[colindex].has_value() && hashprov->Compare(user->password, *row[colindex]))
 					{
 						pendingExt.Set(user, AUTH_STATE_NONE);
 						return;

@@ -159,9 +159,9 @@ class PgSQLresult : public SQL::Result
 	{
 		char* v = PQgetvalue(res, row, column);
 		if (!v || PQgetisnull(res, row, column))
-			return SQL::Field();
+			return std::nullopt;
 
-		return SQL::Field(std::string(v, PQgetlength(res, row, column)));
+		return std::string(v, PQgetlength(res, row, column));
 	}
 
 	bool GetRow(SQL::Row& result) override

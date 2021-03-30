@@ -245,7 +245,7 @@ class MySQLresult : public SQL::Result
 		{
 			return fieldlists[row][column];
 		}
-		return SQL::Field();
+		return std::nullopt;
 	}
 
 	bool GetRow(SQL::Row& result) override

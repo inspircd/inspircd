@@ -151,7 +151,7 @@ class SQLConn : public SQL::Provider
 				{
 					const char* txt = (const char*)sqlite3_column_text(stmt, i);
 					if (txt)
-						res.fieldlists[res.rows][i] = SQL::Field(txt);
+						res.fieldlists[res.rows][i] = txt;
 				}
 				res.rows++;
 			}

@@ -27,7 +27,6 @@
 namespace SQL
 {
 	class Error;
-	class Field;
 	class Provider;
 	class Query;
 	class Result;
@@ -37,6 +36,9 @@ namespace SQL
 
 	/** A map of parameter replacement values. */
 	typedef std::map<std::string, std::string> ParamMap;
+
+	/** A single SQL field. */
+	typedef std::optional<std::string> Field;
 
 	/** A list of SQL fields from a specific row. */
 	typedef std::vector<Field> Row;
@@ -66,39 +68,6 @@ namespace SQL
 	 */
 	void PopulateUserInfo(User* user, ParamMap& userinfo);
 }
-
-/** Represents a single SQL field. */
-class SQL::Field
-{
- private:
-	/** Whether this SQL field is NULL. */
-	bool null;
-
-	/** The underlying SQL value. */
-	std::string value;
-
- public:
-	/** Creates a new NULL SQL field. */
-	Field()
-		: null(true)
-	{
-	}
-
-	/** Creates a new non-NULL SQL field.
-	 * @param v The value of the field.
-	 */
-	Field(const std::string& v)
-		: null(false)
-		, value(v)
-	{
-	}
-
-	/** Determines whether this SQL entry is NULL. */
-	inline bool IsNull() const { return null; }
-
-	/** Retrieves the underlying value. */
-	inline operator const std::string&() const { return value; }
-};
 
 /** Represents the result of an SQL query. */
 class SQL::Result : public Cullable
