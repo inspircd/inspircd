@@ -106,7 +106,7 @@ class ModuleDenyChannels : public Module
 				// finished parsing all of the badchans.
 			}
 
-			badchans.push_back(BadChannel(name, redirect, reason, tag->getBool("allowopers")));
+			badchans.emplace_back(name, redirect, reason, tag->getBool("allowopers"));
 		}
 
 		// Now we have all of the badchan information recorded we can check that all redirect

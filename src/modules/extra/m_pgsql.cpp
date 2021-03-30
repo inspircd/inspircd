@@ -423,7 +423,7 @@ restart:
 		else
 		{
 			// wait your turn.
-			queue.push_back(QueueItem(req,q));
+			queue.emplace_back(req, q);
 		}
 	}
 

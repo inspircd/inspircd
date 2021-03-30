@@ -350,12 +350,12 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	/** Add a parameter to the parameter list.
 	 * @param str String to add, will be copied.
 	 */
-	void PushParam(const char* str) { params.push_back(Param(0, str)); }
+	void PushParam(const char* str) { params.emplace_back(0, str); }
 
 	/** Add a parameter to the parameter list.
 	 * @param str String to add, will be copied.
 	 */
-	void PushParam(const std::string& str) { params.push_back(Param(0, str)); }
+	void PushParam(const std::string& str) { params.emplace_back(0, str); }
 
 	/** Add a non-string parameter to the parameter list.
 	 * @param arg1 Non-string to add, will be copied.
@@ -386,7 +386,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	/** Add a placeholder parameter to the parameter list.
 	 * Placeholder parameters must be filled in later with actual parameters using ReplaceParam() or ReplaceParamRef().
 	 */
-	void PushParamPlaceholder() { params.push_back(Param()); }
+	void PushParamPlaceholder() { params.emplace_back(); }
 
 	/** Replace a parameter or a placeholder that is already in the parameter list.
 	 * @param index Index of the parameter to replace. Must be less than GetParams().size().

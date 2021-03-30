@@ -196,9 +196,9 @@ class MySQLresult : public SQL::Result
 					{
 						std::string a = (fields[field_count].name ? fields[field_count].name : "");
 						if (row[field_count])
-							fieldlists[n].push_back(SQL::Field(row[field_count]));
+							fieldlists[n].emplace_back(row[field_count]);
 						else
-							fieldlists[n].push_back(SQL::Field());
+							fieldlists[n].emplace_back();
 						colnames.push_back(a);
 						field_count++;
 					}
@@ -390,7 +390,7 @@ class SQLConnection : public SQL::Provider
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
 		Parent()->Dispatcher->LockQueue();
-		Parent()->qq.push_back(QueryQueueItem(q, qs, this));
+		Parent()->qq.emplace_back(q, qs, this);
 		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
@@ -563,7 +563,7 @@ void DispatcherThread::OnStart()
 			if (!Parent->qq.empty() && Parent->qq.front().query == i.query)
 			{
 				Parent->qq.pop_front();
-				Parent->rq.push_back(ResultQueueItem(i.query, res));
+				Parent->rq.emplace_back(i.query, res);
 				NotifyParent();
 			}
 			else

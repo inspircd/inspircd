@@ -102,7 +102,7 @@ class ModeHook : public ClientProtocol::EventHook
 			{
 				// Create new mode change list or reuse the last one if it's empty
 				if ((modechangelists.empty()) || (!modechangelists.back().empty()))
-					modechangelists.push_back(Modes::ChangeList());
+					modechangelists.emplace_back();
 
 				// Add all modes to it which we've accepted so far
 				modechangelists.back().push(mode.GetChangeList().getlist().begin(), i);
@@ -160,7 +160,7 @@ class ModeHook : public ClientProtocol::EventHook
 			{
 				// This rank can see some of the mode changes in the filtered mode change list.
 				// Create and store a new protocol message from it.
-				filteredmsgplists.push_back(ClientProtocol::MessageList());
+				filteredmsgplists.emplace_back();
 				ClientProtocol::Events::Mode::BuildMessages(mode.GetMessages().front().GetSourceUser(), chan, NULL, *filteredchangelist, filteredmodelist, filteredmsgplists.back());
 				finalmsgplist = &filteredmsgplists.back();
 			}

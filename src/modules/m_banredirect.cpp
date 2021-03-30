@@ -206,7 +206,7 @@ class BanRedirect : public ModeWatcher
 					}
 
 					/* Here 'param' doesn't have the channel on it yet */
-					redirects->push_back(BanRedirectEntry(mask[CHAN], change.param));
+					redirects->emplace_back(mask[CHAN], change.param);
 
 					/* Now it does */
 					change.param.append(mask[CHAN]);

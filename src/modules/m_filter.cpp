@@ -798,7 +798,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 	try
 	{
-		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs, config));
+		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config);
 		dirty = true;
 	}
 	catch (ModuleException &e)

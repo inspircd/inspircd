@@ -104,7 +104,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 				continue;
 
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
-			capmoddata->caps.push_back(CapModData::Data(cap));
+			capmoddata->caps.emplace_back(cap);
 			CapModData::Data& capdata = capmoddata->caps.back();
 
 			// Populate list with uuids of users who are using the cap

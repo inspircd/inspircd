@@ -93,7 +93,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
 					password.c_str(), whitelist.c_str(), blacklist.c_str());
 
-			new_acls.push_back(HTTPACL(path, username, password, whitelist, blacklist));
+			new_acls.emplace_back(path, username, password, whitelist, blacklist);
 		}
 		acl_list.swap(new_acls);
 	}

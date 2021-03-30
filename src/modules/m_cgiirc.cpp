@@ -355,7 +355,7 @@ class ModuleCgiIRC
 			{
 				// The IP address should be looked up from the hex IP address.
 				const std::string newident = tag->getString("newident", "gateway", ServerInstance->IsIdent);
-				identhosts.push_back(IdentHost(masks, newident));
+				identhosts.emplace_back(masks, newident);
 			}
 			else if (stdalgo::string::equalsci(type, "webirc"))
 			{
@@ -374,7 +374,7 @@ class ModuleCgiIRC
 						tag->source.str().c_str());
 				}
 
-				webirchosts.push_back(WebIRCHost(masks, fingerprint, password, passwordhash));
+				webirchosts.emplace_back(masks, fingerprint, password, passwordhash);
 			}
 			else
 			{

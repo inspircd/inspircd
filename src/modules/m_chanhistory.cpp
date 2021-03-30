@@ -222,7 +222,7 @@ class ModuleChanHistory
 		if (!list)
 			return;
 
-		list->lines.push_back(HistoryItem(user, details));
+		list->lines.emplace_back(user, details);
 		if (list->lines.size() > list->maxlen)
 			list->lines.pop_front();
 	}

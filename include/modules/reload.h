@@ -49,7 +49,7 @@ namespace ReloadModule
 		 */
 		void add(EventListener* handler, void* data)
 		{
-			list.push_back(Data(handler, data));
+			list.emplace_back(handler, data);
 		}
 
 		friend class DataKeeper;

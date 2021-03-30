@@ -308,7 +308,7 @@ class CommandDccallow : public Command
 						return CmdResult::FAILURE;
 					}
 
-					dl->push_back(DCCAllow(target->nick, mask, ServerInstance->Time(), length));
+					dl->emplace_back(target->nick, mask, ServerInstance->Time(), length);
 
 					if (length > 0)
 					{

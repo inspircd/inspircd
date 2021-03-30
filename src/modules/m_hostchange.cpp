@@ -154,12 +154,12 @@ private:
 			if (stdalgo::string::equalsci(action, "addaccount"))
 			{
 				// The hostname is in the format [prefix]<account>[suffix].
-				rules.push_back(HostRule(HostRule::HCA_ADDACCOUNT, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+				rules.emplace_back(HostRule::HCA_ADDACCOUNT, mask, ports, tag->getString("prefix"), tag->getString("suffix"));
 			}
 			else if (stdalgo::string::equalsci(action, "addnick"))
 			{
 				// The hostname is in the format [prefix]<nick>[suffix].
-				rules.push_back(HostRule(HostRule::HCA_ADDNICK, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+				rules.emplace_back(HostRule::HCA_ADDNICK, mask, ports, tag->getString("prefix"), tag->getString("suffix"));
 			}
 			else if (stdalgo::string::equalsci(action, "set"))
 			{
@@ -169,7 +169,7 @@ private:
 					throw ModuleException("<hostchange:value> is a mandatory field when using the 'set' action, at " + tag->source.str());
 
 				// The hostname is in the format <value>.
-				rules.push_back(HostRule(mask, value, ports));
+				rules.emplace_back(mask, value, ports);
 				continue;
 			}
 			else

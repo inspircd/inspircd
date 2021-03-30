@@ -86,7 +86,7 @@ class KickRejoinData
 		// One user can be in the list multiple times if the user gets kicked, force joins
 		// (skipping OnUserPreJoin) and gets kicked again, but that's okay because canjoin()
 		// works correctly in this case as well
-		kicked.push_back(KickedUser(user, delay));
+		kicked.emplace_back(user, delay);
 	}
 };
 
