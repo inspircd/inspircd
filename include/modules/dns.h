@@ -166,8 +166,8 @@ namespace DNS
 	 	/* Creator of this request */
 		Module* const creator;
 
-		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true)
-			: Timer(ServerInstance->Config->ConfValue("dns")->getDuration("timeout", 5, 1))
+		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true, unsigned int timeout = 0)
+			: Timer(timeout ? timeout : ServerInstance->Config->ConfValue("dns")->getDuration("timeout", 5, 1))
 			, manager(mgr)
 			, question(addr, qt)
 			, use_cache(usecache)
