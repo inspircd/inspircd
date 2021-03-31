@@ -321,8 +321,6 @@ public:
 	 * failure (for example, you try and enable
 	 * epoll on a 2.4 linux kernel) then this
 	 * function may bail back to the shell.
-	 * @return void, but it is acceptable for this function to bail back to
-	 * the shell or operating system on fatal error.
 	 */
 	static void Init();
 
@@ -551,8 +549,6 @@ public:
 	 * allows for the socket engine to re-create its handle
 	 * after the daemon forks as the socket engine is created
 	 * long BEFORE the daemon forks.
-	 * @return void, but it is acceptable for this function to bail back to
-	 * the shell or operating system on fatal error.
 	 */
 	static void RecoverFromFork();
 

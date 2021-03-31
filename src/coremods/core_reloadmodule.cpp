@@ -284,7 +284,7 @@ class DataKeeper
 
 	/** Restore all modes and extensions of all members on a channel
 	 * @param chan Channel whose members are being restored
-	 * @param memberdata Data to restore
+	 * @param memberdatalist Data to restore
 	 * @param modechange Mode change to populate with prefix modes
 	 */
 	void RestoreMemberData(Channel* chan, const std::vector<ChanData::MemberData>& memberdatalist, Modes::ChangeList& modechange);

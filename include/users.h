@@ -237,19 +237,19 @@ struct CoreExport ConnectClass
 class CoreExport User : public Extensible
 {
  private:
-	/** Cached nick!ident@dhost value using the displayed hostname
+	/** Cached nick!ident\@dhost value using the displayed hostname
 	 */
 	std::string cached_fullhost;
 
-	/** Cached ident@ip value using the real IP address
+	/** Cached ident\@ip value using the real IP address
 	 */
 	std::string cached_hostip;
 
-	/** Cached ident@realhost value using the real hostname
+	/** Cached ident\@realhost value using the real hostname
 	 */
 	std::string cached_makehost;
 
-	/** Cached nick!ident@realhost value using the real hostname
+	/** Cached nick!ident\@realhost value using the real hostname
 	 */
 	std::string cached_fullrealhost;
 
@@ -773,7 +773,6 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 
 	/** Set the connect class to which this user belongs to.
 	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking \<connect> tags from the configuration file.
-	 * @return A reference to this user's current connect class.
 	 */
 	void SetClass(const std::string &explicit_name = "");
 

@@ -42,12 +42,14 @@ class DNSBLConfEntry
 		EnumType type;
 		unsigned long duration;
 		unsigned int bitmask;
+		unsigned int timeout;
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses, stats_errors;
 		DNSBLConfEntry()
 			: type(A_BITMASK)
 			, duration(86400)
 			, bitmask(0)
+			, timeout(0)
 			, stats_hits(0)
 			, stats_misses(0)
 			, stats_errors(0)
@@ -69,7 +71,7 @@ class DNSBLResolver : public DNS::Request
 
  public:
 	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, std::shared_ptr<DNSBLConfEntry> conf)
-		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true)
+		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
 		, nameExt(match)
@@ -335,6 +337,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			e->host = tag->getString("host");
 			e->reason = tag->getString("reason", "Your IP has been blacklisted.", 1);
 			e->domain = tag->getString("domain");
+			e->timeout = tag->getDuration("timeout", 0);
 
 			if (stdalgo::string::equalsci(tag->getString("type"), "bitmask"))
 			{

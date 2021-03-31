@@ -512,7 +512,6 @@ class CoreExport InspIRCd
 
 	/** Attempt to write the process id to a given file
 	 * @param exitonfail If true and the PID fail cannot be written log to stdout and exit, otherwise only log on failure
-	 * @return This function may bail if the file cannot be written
 	 */
 	void WritePID(bool exitonfail);
 

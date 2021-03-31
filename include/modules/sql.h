@@ -98,9 +98,9 @@ class SQL::Result : public Cullable
 	/**
 	 * Check if there's a column with the specified name in the result
 	 *
-	 * @param the column name
-	 * @param on success, this is the column index
-	 * @returns true, or false if the column is not found
+	 * @param column The column name.
+	 * @param index The place to store the column index if it exists.
+	 * @returns If the column exists then true; otherwise, false.
 	 */
 	virtual bool HasColumn(const std::string& column, size_t& index) = 0;
 };
