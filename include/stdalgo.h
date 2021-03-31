@@ -28,10 +28,10 @@ namespace stdalgo
 		 * Erase a single element from a vector by overwriting it with a copy of the last element,
 		 * which is then removed. This, in contrast to vector::erase(), does not result in all
 		 * elements after the erased element being moved.
+		 * Returns nothing, but all iterators, references and pointers to the erased element and the
+		 * last element are invalidated
 		 * @param vect Vector to remove the element from
 		 * @param it Iterator to the element to remove
-		 * @return Nothing, but all iterators, references and pointers to the erased element and the
-		 * last element are invalidated
 		 */
 		template <typename T>
 		inline void swaperase(typename std::vector<T>& vect, const typename std::vector<T>::iterator& it)

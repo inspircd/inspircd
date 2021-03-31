@@ -51,7 +51,6 @@ class Away::EventListener
 
 	/** Called when a user wishes to mark themselves as back.
 	 * @param user The user who is going away.
-	 * @param message The away message that the user set.
 	 * @return Either MOD_RES_ALLOW to allow the user to mark themself as back, MOD_RES_DENY to
 	 *         disallow the user to mark themself as back, or MOD_RES_PASSTHRU to let another module
 	 *         handle the event.

@@ -165,7 +165,6 @@ class CoreExport Channel : public Extensible
 
 	/** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
-	 * @return number of users left on the channel after deletion of the user
 	 */
 	void DelUser(User* user);
 

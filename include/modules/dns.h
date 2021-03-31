@@ -182,12 +182,12 @@ namespace DNS
 		}
 
 		/** Called when this request succeeds
-		 * @param r The query sent back from the nameserver
+		 * @param req The query sent back from the nameserver
 		 */
 		virtual void OnLookupComplete(const Query* req) = 0;
 
 		/** Called when this request fails or times out.
-		 * @param r The query sent back from the nameserver, check the error code.
+		 * @param req The query sent back from the nameserver, check the error code.
 		 */
 		virtual void OnError(const Query* req) { }
 

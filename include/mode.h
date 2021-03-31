@@ -681,7 +681,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 *
 	 * host.name -> *!*\@host.name
 	 *
-	 * ident@host.name -> *!ident\@host.name
+	 * ident\@host.name -> *!ident\@host.name
 	 *
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
