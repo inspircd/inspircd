@@ -6,6 +6,7 @@
        domain="torexit.dan.me.uk"
        type="record"
        records="100"
+       timeout="10s"
        action="zline"
        duration="7d"
        reason="Tor exit nodes are not allowed on this network. See https://metrics.torproject.org/rs.html#search/%ip% for more information.">
