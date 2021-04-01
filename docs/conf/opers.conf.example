@@ -39,6 +39,7 @@
      #   - users/ignore-privdeaf: allows opers with this priv to message users with +D set.
      #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
      #   - servers/ignore-shun: allows opers with this priv to ignore shuns.
+     #   - servers/ignore-securelist: allows opers with this priv to ignore securelist.
      #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.
      #   - servers/use-disabled-modes: allows opers with this priv to use disabled modes.
      #

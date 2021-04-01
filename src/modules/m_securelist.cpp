@@ -30,7 +30,7 @@
 
 typedef std::vector<std::string> AllowList;
 
-class ModuleSecureList
+class ModuleSecureList final
 	: public Module
 	, public ISupport::EventListener
 {
@@ -38,7 +38,7 @@ class ModuleSecureList
 	AllowList allowlist;
 	bool exemptregistered;
 	bool showmsg;
-	unsigned int WaitTime;
+	unsigned int waittime;
 
  public:
 	ModuleSecureList()
@@ -47,63 +47,71 @@ class ModuleSecureList
 	{
 	}
 
-
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowList newallows;
 		for (auto& [_, tag] : ServerInstance->Config->ConfTags("securehost"))
 		{
-			std::string host = tag->getString("exception");
+			const std::string host = tag->getString("exception");
 			if (host.empty())
 				throw ModuleException("<securehost:exception> is a required field at " + tag->source.str());
+
 			newallows.push_back(host);
 		}
 
 		auto tag = ServerInstance->Config->ConfValue("securelist");
-		exemptregistered = tag->getBool("exemptregistered");
+		exemptregistered = tag->getBool("exemptregistered", true);
 		showmsg = tag->getBool("showmsg", true);
-		WaitTime = tag->getDuration("waittime", 60, 1);
+		waittime = tag->getDuration("waittime", 60, 1, UINT_MAX);
+
 		allowlist.swap(newallows);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		/* If the command doesnt appear to be valid, we dont want to mess with it. */
-		if (!validated)
+		// Ignore unless the command is a validated LIST command.
+		if (!validated || command != "LIST")
 			return MOD_RES_PASSTHRU;
 
-		time_t waitallowed = user->signon + WaitTime;
-		if ((command == "LIST") && (ServerInstance->Time() < waitallowed) && (!user->IsOper()))
-		{
-			/* Normally wouldnt be allowed here, are they exempt? */
-			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
-				if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map))
-					return MOD_RES_PASSTHRU;
+		// Allow if the wait time has passed.
+		time_t maxwaittime = user->signon + waittime;
+		if (ServerInstance->Time() > maxwaittime || user->HasPrivPermission("servers/ignore-securelist"))
+			return MOD_RES_PASSTHRU;
 
-			const AccountExtItem* ext = GetAccountExtItem();
-			if (exemptregistered && ext && ext->Get(user))
+		// Allow if the source matches an <securehost> entry.
+		for (const auto& allowhost : allowlist)
+		{
+			if (InspIRCd::Match(user->MakeHost(), allowhost, ascii_case_insensitive_map))
 				return MOD_RES_PASSTHRU;
 
-			if (showmsg)
-			{
-				user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
-					(exemptregistered ? "login to an account or " : ""),
-					InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
-			}
-
-			// The client might be waiting on a response to do something so send them an
-			// empty list response to satisfy that.
-			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
-			user->WriteNumeric(RPL_LISTEND, "End of channel list.");
-			return MOD_RES_DENY;
+			if (InspIRCd::Match(user->MakeHostIP(), allowhost, ascii_case_insensitive_map))
+				return MOD_RES_PASSTHRU;
 		}
-		return MOD_RES_PASSTHRU;
+
+		// Allow if the source is logged in and <securelist:exemptregistered> is set.
+		const AccountExtItem* ext = GetAccountExtItem();
+		if (exemptregistered && ext && ext->Get(user))
+			return MOD_RES_PASSTHRU;
+
+		// If <securehost:showmsg> is set then tell the user that they need to wait.
+		if (showmsg)
+		{
+			user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
+				exemptregistered ? "log in to an account or " : "",
+				InspIRCd::DurationString(maxwaittime - ServerInstance->Time()).c_str()));
+		}
+
+		// The client might be waiting on a response to do something so send them an
+		// empty list response to satisfy that.
+		user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+		user->WriteNumeric(RPL_LISTEND, "End of channel list.");
+		return MOD_RES_DENY;
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		if (showmsg)
-			tokens["SECURELIST"] = ConvToStr(WaitTime);
+			tokens["SECURELIST"] = ConvToStr(waittime);
 	}
 };
 
