@@ -92,6 +92,13 @@ class CoreExport ProtocolInterface
 	 */
 	virtual void SendMetaData(User* user, const std::string& key, const std::string& data) { }
 
+	/** Send metadata for a user to other linked servers.
+	 * @param memb The membership to send metadata for
+	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
+	 * @param data The string representation of the data
+	 */
+	virtual void SendMetaData(Membership* memb, const std::string& key, const std::string& data) { }
+
 	/** Send metadata related to the server to other linked servers.
 	 * @param key The 'key' of the data
 	 * @param data The string representation of the data

@@ -141,8 +141,7 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 			break;
 
 		case ExtensionItem::EXT_MEMBERSHIP:
-			// TODO: Implement support for networking membership metadata.
-			// ServerInstance->PI->SendMetaData((Membership*)container, name, networkstr);
+			ServerInstance->PI->SendMetaData((Membership*)container, name, networkstr);
 			break;
 
 		case ExtensionItem::EXT_USER:

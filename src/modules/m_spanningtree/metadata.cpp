@@ -35,6 +35,41 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		return CmdResult::SUCCESS;
 	}
 
+	if (params[0] == "@")
+	{
+		// Membership METADATA has four additional parameters:
+		// 1. The uuid of the membership's user.
+		// 2. The name of the membership's channel.
+		// 3. The channel creation timestamp.
+		// 4. The membership identifier.
+		//
+		// :22D METADATA @ uuid #channel 12345 12345 extname :extdata
+		if (params.size() < 6)
+			throw ProtocolException("Insufficient parameters for channel METADATA");
+
+		User* u = ServerInstance->Users.FindUUID(params[1]);
+		if (!u)
+			return CmdResult::FAILURE; // User does not exist.
+
+		Channel* c = ServerInstance->FindChan(params[2]);
+		if (!c)
+			return CmdResult::FAILURE; // Channel does not exist.
+
+		time_t chants = ServerCommand::ExtractTS(params[3]);
+		if (c->age < chants)
+			return CmdResult::FAILURE; // Their channel is newer than ours (probably recreated).
+
+		Membership* m = c->GetUser(u);
+		if (!m || m->id != Membership::IdFromString(params[4]))
+			return CmdResult::FAILURE; // User is not in the channel.
+
+		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[5]);
+		const std::string value = params.size() < 7 ? "" : params[6];
+		if (item && item->type == ExtensionItem::EXT_MEMBERSHIP)
+			item->FromNetwork(m, value);
+		FOREACH_MOD(OnDecodeMetaData, (m, params[5], value));
+	}
+
 	if (params[0][0] == '#')
 	{
 		// Channel METADATA has an additional parameter: the channel TS
@@ -88,6 +123,18 @@ CommandMetadata::Builder::Builder(Channel* chan, const std::string& key, const s
 {
 	push(chan->name);
 	push_int(chan->age);
+	push(key);
+	push_last(val);
+}
+
+CommandMetadata::Builder::Builder(Membership* memb, const std::string& key, const std::string& val)
+	: CmdBuilder("METADATA")
+{
+	push_raw("@");
+	push(memb->user->uuid);
+	push_raw(memb->chan->name);
+	push_int(memb->chan->age);
+	push_int(memb->id);
 	push(key);
 	push_last(val);
 }

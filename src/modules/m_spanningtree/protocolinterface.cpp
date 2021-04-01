@@ -97,6 +97,11 @@ void SpanningTreeProtocolInterface::SendMetaData(Channel* c, const std::string& 
 	CommandMetadata::Builder(c, key, data).Broadcast();
 }
 
+void SpanningTreeProtocolInterface::SendMetaData(Membership* m, const std::string& key, const std::string& data)
+{
+	CommandMetadata::Builder(m, key, data).Broadcast();
+}
+
 void SpanningTreeProtocolInterface::SendMetaData(const std::string& key, const std::string& data)
 {
 	CommandMetadata::Builder(key, data).Broadcast();

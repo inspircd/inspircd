@@ -248,12 +248,21 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 
 	SendListModes(chan);
 
-	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
+	for (const auto& [item, value] : chan->GetExtList())
 	{
-		ExtensionItem* item = i->first;
-		std::string value = item->ToNetwork(chan, i->second);
-		if (!value.empty())
-			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
+		const std::string valuestr = item->ToNetwork(chan, value);
+		if (!valuestr.empty())
+			this->WriteLine(CommandMetadata::Builder(chan, item->name, valuestr));
+	}
+
+	for (const auto& [_, memb] : chan->GetUsers())
+	{
+		for (const auto& [item, value] : memb->GetExtList())
+		{
+			const std::string valuestr = item->ToNetwork(memb, value);
+			if (!valuestr.empty())
+				this->WriteLine(CommandMetadata::Builder(memb, item->name, valuestr));
+		}
 	}
 
 	Utils->Creator->GetSyncEventProvider().Call(&ServerProtocol::SyncEventListener::OnSyncChannel, chan, bs.server);
