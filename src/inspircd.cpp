@@ -63,25 +63,6 @@ InspIRCd* ServerInstance = NULL;
  */
 unsigned const char* national_case_insensitive_map = ascii_case_insensitive_map;
 
-
-/* Moved from exitcodes.h -- due to duplicate symbols -- Burlex
- * XXX this is a bit ugly. -- w00t
- */
-const char* ExitCodes[] =
-{
-		"No error",								// 0
-		"DIE command",							// 1
-		"Config file error",					// 2
-		"Logfile error",						// 3
-		"POSIX fork failed",					// 4
-		"Bad commandline parameters",			// 5
-		"Can't write PID file",					// 6
-		"SocketEngine could not initialize",	// 7
-		"Refusing to start up as root",			// 8
-		"Couldn't load module on startup",		// 9
-		"Received SIGTERM"						// 10
-};
-
 namespace
 {
 	void VoidSignalHandler(int);

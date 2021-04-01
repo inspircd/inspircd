@@ -40,8 +40,3 @@ enum ExitStatus
 	EXIT_STATUS_MODULE = 9,			/* Couldn't load a required module */
 	EXIT_STATUS_SIGTERM = 10		/* Received SIGTERM */
 };
-
-/** Array that maps exit codes (ExitStatus types) to
- * human-readable strings to be shown on shutdown.
- */
-extern const char * ExitCodes[];
