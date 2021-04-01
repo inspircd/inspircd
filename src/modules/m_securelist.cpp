@@ -37,6 +37,9 @@ class ModuleSecureList final
  private:
 	AllowList allowlist;
 	bool exemptregistered;
+	unsigned long fakechans;
+	std::string fakechanprefix;
+	std::string fakechantopic;
 	bool showmsg;
 	unsigned int waittime;
 
@@ -61,6 +64,9 @@ class ModuleSecureList final
 
 		auto tag = ServerInstance->Config->ConfValue("securelist");
 		exemptregistered = tag->getBool("exemptregistered", true);
+		fakechans = tag->getUInt("fakechans", 5, 0);
+		fakechanprefix = tag->getString("fakechanprefix", "#", 1, ServerInstance->Config->Limits.MaxChannel - 1);
+		fakechantopic = tag->getString("fakechantopic", "Fake channel for confusing spambots", 1, ServerInstance->Config->Limits.MaxTopic - 1);
 		showmsg = tag->getBool("showmsg", true);
 		waittime = tag->getDuration("waittime", 60, 1, UINT_MAX);
 
@@ -102,8 +108,25 @@ class ModuleSecureList final
 		}
 
 		// The client might be waiting on a response to do something so send them an
-		// empty list response to satisfy that.
+		// fake list response to satisfy that.
+		size_t maxfakesuffix = ServerInstance->Config->Limits.MaxChannel - fakechanprefix.size();
 		user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+		for (unsigned long fakechan = 0; fakechan < fakechans; ++fakechan)
+		{
+			// Generate the fake channel name.
+			unsigned int chansuffixsize = ServerInstance->GenRandomInt(maxfakesuffix) + 1;
+			const std::string chansuffix = ServerInstance->GenRandomStr(chansuffixsize);
+
+			// Generate the fake channel size.
+			unsigned int chanusers = ServerInstance->GenRandomInt(ServerInstance->Users.GetUsers().size()) + 1;
+
+			// Generate the fake channel topic.
+			std::string chantopic(fakechantopic);
+			chantopic.insert(ServerInstance->GenRandomInt(chantopic.size()), 1, "\x02\x1D\x11\x1E\x1F"[fakechan % 5]);
+
+			// Send the fake channel list entry.
+			user->WriteNumeric(RPL_LIST, fakechanprefix + chansuffix, chanusers, chantopic);
+		}
 		user->WriteNumeric(RPL_LISTEND, "End of channel list.");
 		return MOD_RES_DENY;
 	}

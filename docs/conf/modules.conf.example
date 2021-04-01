@@ -1989,6 +1989,15 @@
 #                    are logged in to a services account.             #
 #                    Defaults to no.                                  #
 #                                                                     #
+# fakechans - The number of fake channels to show in /LIST. This can  #
+#             be used to break spambots.                              #
+#                                                                     #
+# fakechanprefix - The prefix for the fake channels. A random suffix  #
+#                  will be appended to this when generating channels. #
+#                                                                     #
+# fakechantopic - The topic for the fake channels. A random format    #
+#                 modifier will be inserted into this for randomness. #
+#                                                                     #
 # showmsg - Whether to tell users that they need to wait for a while  #
 #           before they can use the /LIST command.                    #
 #           Defaults to no.                                           #
@@ -1998,6 +2007,9 @@
 #             Defaults to 1 minute.                                   #
 #                                                                     #
 #<securelist exemptregistered="yes"
+#            fakechans="5"
+#            fakechanprefix="#spam"
+#            fakechantopic="Fake channel for confusing spambots"
 #            showmsg="yes"
 #            waittime="1m">
 
