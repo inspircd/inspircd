@@ -150,7 +150,7 @@ class ModuleShowFile : public Module
 	{
 		std::vector<CommandShowFile*> newcmds;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("showfile"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("showfile"))
 		{
 			try
 			{

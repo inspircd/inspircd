@@ -63,7 +63,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 
 	bool has_priv = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 	const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
-	for (auto& [modname, mod] : mods)
+	for (const auto& [modname, mod] : mods)
 	{
 		const char* version = has_priv ? mod->ModuleDLLManager->GetVersion() : "*";
 		const std::string props = has_priv ? mod->GetPropertyString() : "*";

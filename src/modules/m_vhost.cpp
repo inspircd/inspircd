@@ -94,7 +94,7 @@ class ModuleVHost : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		CustomVhostMap newhosts;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("vhost"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("vhost"))
 		{
 			std::string mask = tag->getString("host");
 			if (mask.empty())

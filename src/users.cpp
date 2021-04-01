@@ -440,7 +440,7 @@ void OperInfo::init()
 	AllowedSnomasks.reset();
 	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
-	for (auto& tag : class_blocks)
+	for (const auto& tag : class_blocks)
 	{
 		AllowedOperCommands.AddList(tag->getString("commands"));
 		AllowedPrivs.AddList(tag->getString("privs"));

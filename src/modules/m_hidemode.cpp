@@ -42,7 +42,7 @@ class Settings
 	{
 		RanksToSeeMap newranks;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hidemode"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("hidemode"))
 		{
 			const std::string modename = tag->getString("mode");
 			if (modename.empty())

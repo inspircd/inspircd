@@ -68,7 +68,7 @@ void ListModeBase::DoRehash()
 	limitlist newlimits;
 	bool seen_default = false;
 
-	for (auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
+	for (const auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
 	{
 		const std::string mname = c->getString("mode");
 		if (!mname.empty() && !stdalgo::string::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))

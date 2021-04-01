@@ -80,7 +80,7 @@ namespace
 		stdalgo::map::difference(mymodules, remote.value(), modulediff);
 
 		std::ostringstream diffconfig, localmissing, remotemissing;
-		for (auto& [module, values] : modulediff)
+		for (const auto& [module, values] : modulediff)
 		{
 			if (values.first && values.second)
 			{

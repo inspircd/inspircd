@@ -121,7 +121,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 	void ReadConfig(ConfigStatus& status) override
 	{
 		CustomVhostMap newtitles;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("title"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("title"))
 		{
 			std::string name = tag->getString("name", "", 1);
 			if (name.empty())

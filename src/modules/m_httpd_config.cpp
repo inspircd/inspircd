@@ -46,7 +46,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", request.GetPath().c_str());
 
 		std::stringstream buffer;
-		for (auto& [_, tag] : ServerInstance->Config->config_data)
+		for (const auto& [_, tag] : ServerInstance->Config->config_data)
 		{
 			// Show the location of the tag in a comment.
 			buffer << "# " << tag->source.str() << std::endl
@@ -55,7 +55,7 @@ class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 			// Print out the tag with all keys aligned vertically.
 			const std::string indent(tag->name.length() + 2, ' ');
 			bool first = true;
-			for (auto& [key, value] : tag->GetItems())
+			for (const auto& [key, value] : tag->GetItems())
 			{
 				if (!first)
 					buffer << std::endl << indent;

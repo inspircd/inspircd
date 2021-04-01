@@ -144,7 +144,7 @@ class ModuleCodepage
 		AllowedChars newallowedchars;
 		AllowedChars newallowedfrontchars;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
 			unsigned char begin = tag->getUInt("begin", tag->getUInt("index", 0), 1, UCHAR_MAX);
 			if (!begin)
@@ -180,7 +180,7 @@ class ModuleCodepage
 		for (size_t i = 0; i < UCHAR_MAX; ++i)
 			newcasemap[i] = i;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
 		{
 			unsigned char lower = tag->getUInt("lower", 0, 1, UCHAR_MAX);
 			if (!lower)

@@ -1129,7 +1129,7 @@ class ModuleSSLGnuTLS : public Module
 		if (tags.empty())
 			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
 
-		for (auto& [_, tag] : tags)
+		for (const auto& [_, tag] : tags)
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
 			{

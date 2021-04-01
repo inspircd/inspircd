@@ -133,7 +133,7 @@ private:
 	{
 		HostRules rules;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hostchange"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("hostchange"))
 		{
 			// Ensure that we have the <hostchange:mask> parameter.
 			const std::string mask = tag->getString("mask");

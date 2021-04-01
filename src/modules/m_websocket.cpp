@@ -519,7 +519,7 @@ class ModuleWebSocket : public Module
 			throw ModuleException("You have loaded the websocket module but not configured any allowed origins!");
 
 		WebSocketConfig config;
-		for (auto& [_, tag] : tags)
+		for (const auto& [_, tag] : tags)
 		{
 			// Ensure that we have the <wsorigin:allow> parameter.
 			const std::string allow = tag->getString("allow");

@@ -65,7 +65,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 	size_t bound = 0;
 	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("bind"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("bind"))
 	{
 		// Are we creating a TCP/IP listener?
 		const std::string address = tag->getString("address");

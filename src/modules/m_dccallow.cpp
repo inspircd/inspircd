@@ -590,7 +590,7 @@ class ModuleDCCAllow : public Module
 	{
 		bannedfilelist newbfl;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("banfile"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("banfile"))
 		{
 			BannedFileList bf;
 			bf.filemask = tag->getString("pattern");

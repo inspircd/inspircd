@@ -83,7 +83,7 @@ class ModuleAlias : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AliasMap newAliases;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("alias"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("alias"))
 		{
 			Alias a;
 			a.AliasedCommand = tag->getString("text");

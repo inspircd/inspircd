@@ -338,7 +338,7 @@ public:
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 
-		for (auto& [_, wtag] : ServerInstance->Config->ConfTags("ldapwhitelist"))
+		for (const auto& [_, wtag] : ServerInstance->Config->ConfTags("ldapwhitelist"))
 		{
 			std::string cidr = wtag->getString("cidr");
 			if (!cidr.empty()) {
@@ -346,7 +346,7 @@ public:
 			}
 		}
 
-		for (auto& [_, rtag] : ServerInstance->Config->ConfTags("ldaprequire"))
+		for (const auto& [_, rtag] : ServerInstance->Config->ConfTags("ldaprequire"))
 		{
 			const std::string attr = rtag->getString("attribute");
 			const std::string val = rtag->getString("value");

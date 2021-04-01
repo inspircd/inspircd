@@ -61,7 +61,7 @@ class ModuleRestrictChans : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowChans newallows;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("allowchannel"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("allowchannel"))
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())

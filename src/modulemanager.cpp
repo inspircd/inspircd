@@ -129,7 +129,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 
 	try
 	{
-		for (auto& entry : std::filesystem::directory_iterator(ServerInstance->Config->Paths.Module))
+		for (const auto& entry : std::filesystem::directory_iterator(ServerInstance->Config->Paths.Module))
 		{
 			const std::string name = entry.path().filename();
 			if (!entry.is_regular_file() || !InspIRCd::Match(name, "core_*" DLL_EXTENSION))

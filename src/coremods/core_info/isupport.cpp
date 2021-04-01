@@ -26,7 +26,7 @@ namespace
 	{
 		std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> changedtokens;
 		stdalgo::map::difference(oldtokens, newtokens, changedtokens);
-		for (auto& [name, values] : changedtokens)
+		for (const auto& [name, values] : changedtokens)
 		{
 			if (values.first && !values.second)
 			{
@@ -107,7 +107,7 @@ void ISupportManager::Build()
 	{
 		if (user->registered & REG_ALL)
 		{
-			for (auto&& diffnumeric : diffnumerics)
+			for (const auto& diffnumeric : diffnumerics)
 				user->WriteNumeric(diffnumeric);
 		}
 	}
@@ -139,6 +139,6 @@ void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Nume
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (auto&& cachednumeric : cachednumerics)
+	for (const auto& cachednumeric : cachednumerics)
 		user->WriteNumeric(cachednumeric);
 }

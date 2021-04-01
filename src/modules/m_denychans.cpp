@@ -72,7 +72,7 @@ class ModuleDenyChannels : public Module
 	{
 		GoodChannels goodchans;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("goodchan"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("goodchan"))
 		{
 			// Ensure that we have the <goodchan:name> parameter.
 			const std::string name = tag->getString("name");
@@ -83,7 +83,7 @@ class ModuleDenyChannels : public Module
 		}
 
 		BadChannels badchans;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("badchan"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("badchan"))
 		{
 			// Ensure that we have the <badchan:name> parameter.
 			const std::string name = tag->getString("name");

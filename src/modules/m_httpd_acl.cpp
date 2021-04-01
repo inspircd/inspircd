@@ -58,7 +58,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<HTTPACL> new_acls;
-		for (auto& [_, c] : ServerInstance->Config->ConfTags("httpdacl"))
+		for (const auto& [_, c] : ServerInstance->Config->ConfTags("httpdacl"))
 		{
 			std::string path = c->getString("path");
 			std::string types = c->getString("types");

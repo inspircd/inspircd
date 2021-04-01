@@ -53,7 +53,7 @@ class ModuleSecureList final
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AllowList newallows;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("securehost"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("securehost"))
 		{
 			const std::string host = tag->getString("exception");
 			if (host.empty())

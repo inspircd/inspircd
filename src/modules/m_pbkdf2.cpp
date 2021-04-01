@@ -186,7 +186,7 @@ class ModulePBKDF2 : public Module
 
 		// Then the specific values
 		ProviderConfigMap newconfigs;
-		for (auto& [_, ptag] : ServerInstance->Config->ConfTags("pbkdf2prov"))
+		for (const auto& [_, ptag] : ServerInstance->Config->ConfTags("pbkdf2prov"))
 		{
 			std::string hash_name = "hash/" + ptag->getString("hash");
 			ProviderConfig& config = newconfigs[hash_name];

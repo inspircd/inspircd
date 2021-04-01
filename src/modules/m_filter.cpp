@@ -621,7 +621,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	exemptedchans.clear();
 	exemptednicks.clear();
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("exemptfromfilter"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("exemptfromfilter"))
 	{
 		const std::string target = tag->getString("target");
 		if (!target.empty())
@@ -865,7 +865,7 @@ void ModuleFilter::ReadFilters()
 		filter++;
 	}
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("keyword"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("keyword"))
 	{
 		std::string pattern = tag->getString("pattern");
 		std::string reason = tag->getString("reason");

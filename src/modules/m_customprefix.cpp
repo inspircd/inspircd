@@ -55,7 +55,7 @@ class ModuleCustomPrefix : public Module
 
 	void init() override
 	{
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("customprefix"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("customprefix"))
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())

@@ -254,7 +254,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("link"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("link"))
 	{
 		auto L = std::make_shared<Link>(tag);
 
@@ -308,7 +308,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		LinkBlocks.push_back(L);
 	}
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("autoconnect"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("autoconnect"))
 	{
 		auto A = std::make_shared<Autoconnect>(tag);
 		A->Period = tag->getDuration("period", 60, 1);

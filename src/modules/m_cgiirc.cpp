@@ -338,7 +338,7 @@ class ModuleCgiIRC
 		std::vector<IdentHost> identhosts;
 		std::vector<WebIRCHost> webirchosts;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("cgihost"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cgihost"))
 		{
 			MaskList masks;
 			irc::spacesepstream maskstream(tag->getString("mask"));

@@ -39,7 +39,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 {
 	const std::string& mask = parameters.empty() ? "*" : parameters[0];
 	const bool has_type = parameters.size() > 1;
-	for (auto* serviceuser : ServerInstance->Users.all_services)
+	for (const auto* serviceuser : ServerInstance->Users.all_services)
 	{
 		if (serviceuser->IsModeSet(invisiblemode) || !InspIRCd::Match(serviceuser->nick, mask))
 			continue;

@@ -74,7 +74,7 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 {
 	insp::flat_set<std::string> configlines;
 
-	for (auto& [_, ctag] : conf->ConfTags(tag))
+	for (const auto& [_, ctag] : conf->ConfTags(tag))
 	{
 		const std::string mask = ctag->getString(key);
 		if (mask.empty())
@@ -98,7 +98,7 @@ typedef std::map<std::string, std::shared_ptr<ConfigTag>> LocalIndex;
 void ServerConfig::CrossCheckOperClassType()
 {
 	LocalIndex operclass;
-	for (auto& [_, tag] : ConfTags("class"))
+	for (const auto& [_, tag] : ConfTags("class"))
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
@@ -108,7 +108,7 @@ void ServerConfig::CrossCheckOperClassType()
 		operclass[name] = tag;
 	}
 
-	for (auto& [_, tag] : ConfTags("type"))
+	for (const auto& [_, tag] : ConfTags("type"))
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
@@ -131,7 +131,7 @@ void ServerConfig::CrossCheckOperClassType()
 		}
 	}
 
-	for (auto& [_, tag] : ConfTags("oper"))
+	for (const auto& [_, tag] : ConfTags("oper"))
 	{
 		std::string name = tag->getString("name");
 		if (name.empty())
@@ -158,7 +158,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
-		for (auto& c : current->Classes)
+		for (const auto& c : current->Classes)
 		{
 			switch (c->type)
 			{
@@ -192,7 +192,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	{
 		try_again = false;
 		size_t i = 0;
-		for (auto& [_, tag] : ConfTags("connect"))
+		for (const auto& [_, tag] : ConfTags("connect"))
 		{
 			if (Classes[i])
 			{
@@ -441,7 +441,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		if (!dietags.empty())
 		{
 			errstr << "Your configuration has not been edited correctly!" << std::endl;
-			for (auto& [_, tag] : dietags)
+			for (const auto& [_, tag] : dietags)
 			{
 				const std::string reason = tag->getString("reason", "You left a <die> tag in your config", 1);
 				errstr << reason <<  " (at " << tag->source.str() << ")" << std::endl;
@@ -543,7 +543,7 @@ void ServerConfig::ApplyModules(User* user)
 	std::vector<std::string> added_modules;
 	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules.GetModules();
 
-	for (auto& [_, tag] : ConfTags("module"))
+	for (const auto& [_, tag] : ConfTags("module"))
 	{
 		std::string name;
 		if (tag->readString("name", name))

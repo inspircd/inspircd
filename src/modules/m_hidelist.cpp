@@ -63,7 +63,7 @@ class ModuleHideList : public Module
 		typedef std::vector<std::pair<std::string, unsigned int> > NewConfigs;
 		NewConfigs newconfigs;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("hidelist"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("hidelist"))
 		{
 			std::string modename = tag->getString("mode");
 			if (modename.empty())

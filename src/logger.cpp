@@ -70,7 +70,7 @@ void LogManager::OpenFileLogs()
 		return;
 	std::map<std::string, FileWriter*> logmap;
 
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("log"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("log"))
 	{
 		std::string method = tag->getString("method");
 		if (!stdalgo::string::equalsci(method, "file"))

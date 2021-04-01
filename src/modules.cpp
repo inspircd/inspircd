@@ -488,7 +488,7 @@ void ModuleManager::LoadAll()
 	LoadCoreModules(servicemap);
 
 	// Step 1: load all of the modules.
-	for (auto& [_, tag] : ServerInstance->Config->ConfTags("module"))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("module"))
 	{
 		const std::string shortname = tag->getString("name");
 		if (shortname.empty())

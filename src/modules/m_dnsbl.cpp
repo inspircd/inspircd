@@ -328,7 +328,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	{
 		DNSBLConfList newentries;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
 		{
 			auto e = std::make_shared<DNSBLConfEntry>();
 

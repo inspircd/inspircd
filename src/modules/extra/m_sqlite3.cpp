@@ -257,7 +257,7 @@ class ModuleSQLite3 : public Module
 	{
 		ClearConns();
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
 			if (!stdalgo::string::equalsci(tag->getString("module"), "sqlite"))
 				continue;

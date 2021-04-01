@@ -445,7 +445,7 @@ class ModuleCloaking : public Module
 
 		bool firstcloak = true;
 		std::vector<CloakInfo> newcloaks;
-		for (auto& [_, tag] : tags)
+		for (const auto& [_, tag] : tags)
 		{
 			// Ensure that we have the <cloak:key> parameter.
 			const std::string key = tag->getString("key");

@@ -108,7 +108,7 @@ class ModuleCensor : public Module
 		 */
 		censor_t newcensors;
 
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("badword"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("badword"))
 		{
 			const std::string text = tag->getString("text");
 			if (text.empty())

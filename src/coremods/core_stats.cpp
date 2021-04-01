@@ -336,7 +336,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats o */
 		case 'o':
 		{
-			for (auto& [_, ifo] : ServerInstance->Config->oper_blocks)
+			for (const auto& [_, ifo] : ServerInstance->Config->oper_blocks)
 			{
 				std::shared_ptr<ConfigTag> tag = ifo->oper_block;
 				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
@@ -345,7 +345,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		break;
 		case 'O':
 		{
-			for (auto& [_, tag] : ServerInstance->Config->OperTypes)
+			for (const auto& [_, tag] : ServerInstance->Config->OperTypes)
 			{
 				tag->init();
 				std::string umodes;

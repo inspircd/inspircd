@@ -365,7 +365,7 @@ class ModuleSSLInfo
 			return;
 
 		// Find an auto-oper block for this user
-		for (auto& [_, ifo] :  ServerInstance->Config->oper_blocks)
+		for (const auto& [_, ifo] :  ServerInstance->Config->oper_blocks)
 		{
 			std::string fp = ifo->oper_block->getString("fingerprint");
 			if (MatchFP(cert, fp) && ifo->oper_block->getBool("autologin"))

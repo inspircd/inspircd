@@ -400,7 +400,7 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 		const std::string includedir = ServerInstance->Config->Paths.PrependConfig(name);
 		try
 		{
-			for (auto& entry : std::filesystem::directory_iterator(includedir))
+			for (const auto& entry : std::filesystem::directory_iterator(includedir))
 			{
 				if (!entry.is_regular_file() || !InspIRCd::Match(entry.path().filename(), "*.conf"))
 					continue;

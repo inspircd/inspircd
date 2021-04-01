@@ -119,7 +119,7 @@ class ModuleHelpop
 			if (tags.empty())
 				throw ModuleException("You have loaded the helpop module but not configured any help topics!");
 
-			for (auto& [_, tag] : tags)
+			for (const auto& [_, tag] : tags)
 			{
 				// Attempt to read the help key.
 				const std::string key = tag->getString("key");

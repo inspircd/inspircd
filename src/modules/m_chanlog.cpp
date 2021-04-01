@@ -44,7 +44,7 @@ class ModuleChanLog : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ChanLogTargets newlogs;
-		for (auto& [_, tag] : ServerInstance->Config->ConfTags("chanlog"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("chanlog"))
 		{
 			std::string channel = tag->getString("channel");
 			std::string snomasks = tag->getString("snomasks");
