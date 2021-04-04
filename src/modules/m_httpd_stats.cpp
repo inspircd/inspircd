@@ -326,7 +326,7 @@ namespace Stats
 					return Compare(IS_LOCAL(u1)->idle_lastmsg, IS_LOCAL(u2)->idle_lastmsg);
 				case OB_NICK:
 					return Compare(u1->nick, u2->nick);
-				case OB_NONE:
+				default:
 					return false;
 			}
 		}

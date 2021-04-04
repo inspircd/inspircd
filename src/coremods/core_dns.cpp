@@ -557,8 +557,9 @@ class MyManager : public Manager, public Timer, public EventHandler
 				return "DNS lookups are disabled";
 			case ERROR_NONE:
 			case ERROR_UNKNOWN:
-				return "Unknown error";
+				break;
 		}
+		return "Unknown error";
 	}
 
 	std::string GetTypeStr(QueryType qt) override
