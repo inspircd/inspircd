@@ -188,7 +188,7 @@ namespace DNS
 		{
 		}
 
-		virtual ~Request()
+		~Request() override
 		{
 			manager->RemoveRequest(this);
 		}

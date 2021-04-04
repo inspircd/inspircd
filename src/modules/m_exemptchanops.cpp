@@ -40,12 +40,12 @@ class ExemptChanOps : public ListModeBase
 		syntax = "<restriction>:<prefix>";
 	}
 
-	static PrefixMode* FindMode(const std::string& mode)
+	static PrefixMode* FindMode(const std::string& pmode)
 	{
-		if (mode.length() == 1)
-			return ServerInstance->Modes.FindPrefixMode(mode[0]);
+		if (pmode.length() == 1)
+			return ServerInstance->Modes.FindPrefixMode(pmode[0]);
 
-		ModeHandler* mh = ServerInstance->Modes.FindMode(mode, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(pmode, MODETYPE_CHANNEL);
 		return mh ? mh->IsPrefixMode() : NULL;
 	}
 

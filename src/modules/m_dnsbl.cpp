@@ -234,7 +234,6 @@ class DNSBLResolver : public DNS::Request
 					break;
 				}
 				case DNSBLConfEntry::I_UNKNOWN:
-				default:
 					break;
 			}
 

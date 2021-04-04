@@ -48,7 +48,7 @@ class CoreExport SocketThread : public Thread
 	 */
 	void NotifyParent();
 	SocketThread();
-	virtual ~SocketThread();
+	~SocketThread() override;
 	/** Lock queue.
 	 */
 	void LockQueue()

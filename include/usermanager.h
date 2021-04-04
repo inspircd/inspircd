@@ -97,7 +97,7 @@ class CoreExport UserManager
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
 	 */
-	unsigned int unregistered_count;
+	size_t unregistered_count;
 
 	/** Perform background user events for all local users such as PING checks, registration timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
@@ -157,22 +157,22 @@ class CoreExport UserManager
 	/** Return a count of fully registered connections on the network
 	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ServiceCount(); }
+	size_t RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ServiceCount(); }
 
 	/** Return a count of local unregistered (before NICK/USER) users
 	 * @return The number of local unregistered (unknown) connections
 	 */
-	unsigned int UnregisteredUserCount() const { return this->unregistered_count; }
+	size_t UnregisteredUserCount() const { return this->unregistered_count; }
 
 	/** Return a count of users on a services servers.
 	 * @return The number of users on services servers.
 	 */
-	unsigned int ServiceCount() const { return this->all_services.size(); }
+	size_t ServiceCount() const { return this->all_services.size(); }
 
 	/** Return a count of local registered users
 	 * @return The number of registered local users
 	 */
-	unsigned int LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
+	size_t LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
 
 	/** Get a hash map containing all users, keyed by their nickname
 	 * @return A hash map mapping nicknames to User pointers
@@ -203,7 +203,7 @@ class CoreExport UserManager
 	User* Find(const std::string& nickuuid);
 
 	/** Find a user by their nickname.
-	 * @param The nickname of the user to find.
+	 * @param nick The nickname of the user to find.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
 	 */
 	User* FindNick(const std::string& nick);

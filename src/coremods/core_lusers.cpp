@@ -28,9 +28,9 @@
 
 struct LusersCounters
 {
-	unsigned int max_local;
-	unsigned int max_global;
-	unsigned int invisible = 0;
+	size_t max_local;
+	size_t max_global;
+	size_t invisible = 0;
 
 	LusersCounters(UserModeReference& invisiblemode)
 		: max_local(ServerInstance->Users.LocalUserCount())
@@ -47,7 +47,7 @@ struct LusersCounters
 
 	inline void UpdateMaxUsers()
 	{
-		unsigned int current = ServerInstance->Users.LocalUserCount();
+		size_t current = ServerInstance->Users.LocalUserCount();
 		if (current > max_local)
 			max_local = current;
 
@@ -80,11 +80,11 @@ class CommandLusers : public Command
  */
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	unsigned int n_users = ServerInstance->Users.RegisteredUserCount();
+	size_t n_users = ServerInstance->Users.RegisteredUserCount();
 	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
-	unsigned int n_serv = serverlist.size();
-	unsigned int n_local_servs = 0;
+	size_t n_serv = serverlist.size();
+	size_t n_local_servs = 0;
 	for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
 	{
 		if (i->parentname == ServerInstance->Config->ServerName)
@@ -96,10 +96,10 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 
 	counters.UpdateMaxUsers();
 
-	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %d users and %d invisible on %d servers",
+	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %zu users and %zu invisible on %zu servers",
 			n_users - counters.invisible, counters.invisible, n_serv));
 
-	unsigned int opercount = ServerInstance->Users.all_opers.size();
+	size_t opercount = ServerInstance->Users.all_opers.size();
 	if (opercount)
 		user->WriteNumeric(RPL_LUSEROP, opercount, "operator(s) online");
 
@@ -107,19 +107,20 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %d clients and %d servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
-	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %d  Max: %d", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %d  Max: %d", n_users, counters.max_global));
+	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %zu clients and %zu servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
+	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %zu  Max: %zu", ServerInstance->Users.LocalUserCount(), counters.max_local));
+	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %zu  Max: %zu", n_users, counters.max_global));
 
 	return CmdResult::SUCCESS;
 }
 
 class InvisibleWatcher : public ModeWatcher
 {
-	unsigned int& invisible;
+	size_t& invisible;
 public:
-	InvisibleWatcher(Module* mod, unsigned int& Invisible)
-		: ModeWatcher(mod, "invisible", MODETYPE_USER), invisible(Invisible)
+	InvisibleWatcher(Module* mod, size_t& Invisible)
+		: ModeWatcher(mod, "invisible", MODETYPE_USER)
+		, invisible(Invisible)
 	{
 	}
 

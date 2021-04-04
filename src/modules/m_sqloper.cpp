@@ -195,7 +195,7 @@ public:
 		GetOperBlocks();
 	}
 
-	~ModuleSQLOper()
+	~ModuleSQLOper() override
 	{
 		// Remove all oper blocks that were from the DB
 		for (std::vector<std::string>::const_iterator i = my_blocks.begin(); i != my_blocks.end(); ++i)

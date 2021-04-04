@@ -501,7 +501,7 @@ std::string InspIRCd::GenRandomStr(unsigned int length, bool printable)
 unsigned long InspIRCd::GenRandomInt(unsigned long max)
 {
 	unsigned long rv;
-	GenRandom((char*)&rv, sizeof(rv));
+	GenRandom(reinterpret_cast<char*>(&rv), sizeof(rv));
 	return rv % max;
 }
 

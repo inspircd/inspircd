@@ -40,7 +40,7 @@ class CoreExport Thread
 	virtual void OnStart() = 0;
 
 	/** Callback which is executed on the calling thread before this thread is stopped. */
-	virtual void OnStop() { };
+	virtual void OnStop() { }
 
 	/** Initialises an instance of the Thread class. */
 	Thread() = default;

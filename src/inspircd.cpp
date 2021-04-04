@@ -65,6 +65,7 @@ unsigned const char* national_case_insensitive_map = ascii_case_insensitive_map;
 
 namespace
 {
+	[[noreturn]]
 	void VoidSignalHandler(int);
 
 	// Warns a user running as root that they probably shouldn't.
@@ -309,7 +310,6 @@ namespace
 						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
 						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_ARGV);
-					break;
 			}
 		}
 

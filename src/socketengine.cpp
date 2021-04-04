@@ -231,33 +231,33 @@ int SocketEngine::NonBlocking(int fd)
 void SocketEngine::SetReuse(int fd)
 {
 	int on = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, static_cast<void*>(&on), sizeof(on));
 }
 
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
-	int nbRecvd = recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
+	int nbRecvd = recvfrom(fd->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
 int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
-	int nbSent = send(fd->GetFd(), (const char*)buf, len, flags);
+	int nbSent = send(fd->GetFd(), static_cast<const char*>(buf), len, flags);
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
 int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
-	int nbRecvd = recv(fd->GetFd(), (char*)buf, len, flags);
+	int nbRecvd = recv(fd->GetFd(), static_cast<char*>(buf), len, flags);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
 int SocketEngine::SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
 {
-	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, &address.sa, address.sa_size());
+	int nbSent = sendto(fd->GetFd(), static_cast<const char*>(buf), len, flags, &address.sa, address.sa_size());
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
@@ -354,8 +354,8 @@ void SocketEngine::Statistics::CheckFlush() const
 void SocketEngine::Statistics::GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const
 {
 	CheckFlush();
-	float in_kbit = indata * 8;
-	float out_kbit = outdata * 8;
+	float in_kbit = static_cast<float>(indata) * 8;
+	float out_kbit = static_cast<float>(outdata) * 8;
 	kbitpersec_total = ((in_kbit + out_kbit) / 1024);
 	kbitpersec_in = in_kbit / 1024;
 	kbitpersec_out = out_kbit / 1024;

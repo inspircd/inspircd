@@ -35,7 +35,7 @@ class ThreadSignalSocket : public EventHandler
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
 	}
 
-	~ThreadSignalSocket()
+	~ThreadSignalSocket() override
 	{
 		SocketEngine::Close(this);
 	}

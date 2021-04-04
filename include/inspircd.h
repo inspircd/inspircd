@@ -390,6 +390,7 @@ class CoreExport InspIRCd
 	 * @param status The exit code to give to the operating system
 	 * (See the ExitStatus enum for valid values)
 	 */
+	[[noreturn]]
 	void Exit(int status);
 
 	/** Formats the input string with the specified arguments.

@@ -171,7 +171,7 @@ class ModuleShowFile : public Module
 		cmds.swap(newcmds);
 	}
 
-	~ModuleShowFile()
+	~ModuleShowFile() override
 	{
 		stdalgo::delete_all(cmds);
 	}

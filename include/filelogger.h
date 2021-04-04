@@ -36,7 +36,7 @@ class CoreExport FileLogStream : public LogStream
  public:
 	FileLogStream(LogLevel loglevel, FileWriter *fw);
 
-	virtual ~FileLogStream();
+	~FileLogStream() override;
 
 	void OnLog(LogLevel loglevel, const std::string& type, const std::string& msg) override;
 };

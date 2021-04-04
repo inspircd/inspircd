@@ -145,7 +145,7 @@ class ModResult
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + modexcept.GetReason()); \
 		} \
 	} \
-} while (0);
+} while (0)
 
 /**
  * Custom module result handling loop. This is a paired macro, and should only
@@ -329,11 +329,6 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * If you override, you must call this AFTER your module's cleanup
 	 */
 	Cullable::Result Cull() override;
-
-	/** Default destructor.
-	 * destroys a module class
-	 */
-	virtual ~Module() = default;
 
 	/** Retrieves link compatibility data for this module.
 	 * @param data The location to store link compatibility data.
@@ -844,10 +839,8 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * Return 1 from this function to block the mode character from being processed entirely.
 	 * @param user The user who is sending the mode
 	 * @param chan The channel the mode is being sent to (or NULL if a usermode)
-	 * @param mh The mode handler for the mode being changed
-	 * @param param The parameter for the mode or an empty string
-	 * @param adding true of the mode is being added, false if it is being removed
-	 * @return ACR_DENY to deny the mode, ACR_DEFAULT to do standard mode checking, and ACR_ALLOW
+	 * @param change Information regarding the mode change.
+	 * @return MOD_RES_DENY to deny the mode, MOD_RES_DEFAULT to do standard mode checking, and MOD_RES_ALLOW
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */

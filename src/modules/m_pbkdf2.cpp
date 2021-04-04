@@ -207,7 +207,7 @@ class ModulePBKDF2 : public Module
 	{
 	}
 
-	~ModulePBKDF2()
+	~ModulePBKDF2() override
 	{
 		stdalgo::delete_all(providers);
 	}

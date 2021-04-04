@@ -209,19 +209,19 @@ void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
 void ModuleManager::AttachAll(Module* mod)
 {
 	for (size_t i = 0; i != I_END; ++i)
-		Attach((Implementation)i, mod);
+		Attach(static_cast<Implementation>(i), mod);
 }
 
 void ModuleManager::DetachAll(Module* mod)
 {
 	for (size_t n = 0; n != I_END; ++n)
-		Detach((Implementation)n, mod);
+		Detach(static_cast<Implementation>(n), mod);
 }
 
 void ModuleManager::SetPriority(Module* mod, Priority s)
 {
 	for (size_t n = 0; n != I_END; ++n)
-		SetPriority(mod, (Implementation)n, s);
+		SetPriority(mod, static_cast<Implementation>(n), s);
 }
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
@@ -608,7 +608,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes.DelMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
-			// Fall through
+			[[fallthrough]];
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{

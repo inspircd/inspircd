@@ -26,7 +26,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -Ivendor_directory("http_parser")
+/// $CompilerFlags: -isystem vendor_directory("http_parser")
 
 
 #include "inspircd.h"
@@ -225,7 +225,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		ServerInstance->Timers.AddTimer(this);
 	}
 
-	~HttpServerSocket()
+	~HttpServerSocket() override
 	{
 		sockets.erase(this);
 	}

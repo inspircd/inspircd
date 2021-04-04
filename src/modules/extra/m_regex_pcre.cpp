@@ -63,7 +63,7 @@ class PCREPattern final
 			throw Regex::Exception(pattern, error, erroroffset);
 	}
 
-	~PCREPattern()
+	~PCREPattern() override
 	{
 		pcre_free(regex);
 	}

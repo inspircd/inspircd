@@ -110,7 +110,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	return CmdResult::SUCCESS;
 }
 
-CommandMetadata::Builder::Builder(User* user, const std::string& key, const std::string& val)
+CommandMetadata::Builder::Builder(const User* user, const std::string& key, const std::string& val)
 	: CmdBuilder("METADATA")
 {
 	push(user->uuid);
@@ -118,7 +118,7 @@ CommandMetadata::Builder::Builder(User* user, const std::string& key, const std:
 	push_last(val);
 }
 
-CommandMetadata::Builder::Builder(Channel* chan, const std::string& key, const std::string& val)
+CommandMetadata::Builder::Builder(const Channel* chan, const std::string& key, const std::string& val)
 	: CmdBuilder("METADATA")
 {
 	push(chan->name);
@@ -127,7 +127,7 @@ CommandMetadata::Builder::Builder(Channel* chan, const std::string& key, const s
 	push_last(val);
 }
 
-CommandMetadata::Builder::Builder(Membership* memb, const std::string& key, const std::string& val)
+CommandMetadata::Builder::Builder(const Membership* memb, const std::string& key, const std::string& val)
 	: CmdBuilder("METADATA")
 {
 	push_raw("@");

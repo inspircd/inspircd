@@ -123,7 +123,7 @@ class SpanningTreeUtilities : public Cullable
 
 	/** Destroy class and free listeners etc
 	 */
-	~SpanningTreeUtilities();
+	~SpanningTreeUtilities() override;
 
 	void RouteCommand(TreeServer* origin, CommandBase* cmd, const CommandBase::Params& parameters, User* user);
 

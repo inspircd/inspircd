@@ -50,7 +50,7 @@ std::string BinToBase64(const std::string& data_str, const char* table, char pad
 		table = b64table;
 
 	uint32_t buffer;
-	uint8_t* data = (uint8_t*)data_str.data();
+	const uint8_t* data = reinterpret_cast<const uint8_t*>(data_str.data());
 	std::string rv;
 	size_t i = 0;
 	while (i + 2 < data_str.length())

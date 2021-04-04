@@ -248,7 +248,7 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 		modenum.push(targetchannel->name);
 		GetModeList(modenum, targetchannel, user);
 		user->WriteNumeric(modenum);
-		user->WriteNumeric(RPL_CHANNELCREATED, targetchannel->name, (unsigned long)targetchannel->age);
+		user->WriteNumeric(RPL_CHANNELCREATED, targetchannel->name, targetchannel->age);
 	}
 	else
 	{

@@ -86,7 +86,7 @@ class ModuleHideList : public Module
 	{
 	}
 
-	~ModuleHideList()
+	~ModuleHideList() override
 	{
 		stdalgo::delete_all(watchers);
 	}

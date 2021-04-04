@@ -148,7 +148,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 					case CmdAccess::SERVER: // Only servers can execute.
 						bOkay = IS_SERVER(user);
 						break;
-				};
+				}
 			}
 			else
 			{

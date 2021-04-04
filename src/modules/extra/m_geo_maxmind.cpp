@@ -156,7 +156,7 @@ class ModuleGeoMaxMind : public Module
 		memset(&geoapi.mmdb, 0, sizeof(geoapi.mmdb));
 	}
 
-	~ModuleGeoMaxMind()
+	~ModuleGeoMaxMind() override
 	{
 		MMDB_close(&geoapi.mmdb);
 	}

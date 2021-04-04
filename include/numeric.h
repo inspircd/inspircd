@@ -50,8 +50,9 @@ class Numeric::Numeric
 	{
 	}
 
-	/** Add a parameter to the numeric. The parameter will be converted to a string first with ConvToStr().
-	 * @param x Parameter to add
+	/** Add a parameter pack to the numeric.
+	 * @param x1 The first element of the parameter pack.
+	 * @param x2 The rest of the parameter pack.
 	 */
 	template <typename T1, typename... T2>
 	Numeric& push(const T1& x1, T2... x2)
@@ -59,6 +60,9 @@ class Numeric::Numeric
 		return push(x1).push(std::forward<T2>(x2)...);
 	}
 
+	/** Add a parameter to the numeric. The parameter will be converted to a string first with ConvToStr().
+	 * @param x The parameter to add to the numeric.
+	 */
 	template <typename T>
 	Numeric& push(const T& x)
 	{

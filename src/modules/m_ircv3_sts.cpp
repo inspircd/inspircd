@@ -74,7 +74,7 @@ class STSCap : public Cap::Capability
 		DisableAutoRegister();
 	}
 
-	~STSCap()
+	~STSCap() override
 	{
 		// TODO: Send duration=0 when STS vanishes.
 	}

@@ -37,9 +37,9 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 
 	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source) override;
 	void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source, User* omit) override;
-	void SendMetaData(User* user, const std::string& key, const std::string& data) override;
-	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) override;
-	void SendMetaData(Membership* memb, const std::string& key, const std::string& data) override;
+	void SendMetaData(const User* user, const std::string& key, const std::string& data) override;
+	void SendMetaData(const Channel* chan, const std::string& key, const std::string& data) override;
+	void SendMetaData(const Membership* memb, const std::string& key, const std::string& data) override;
 	void SendMetaData(const std::string& key, const std::string& data) override;
 	void SendSNONotice(char snomask, const std::string& text) override;
 	void SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype) override;

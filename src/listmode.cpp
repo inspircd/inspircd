@@ -40,7 +40,7 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 		{
-			user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, (unsigned long) it->time);
+			user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, it->time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);

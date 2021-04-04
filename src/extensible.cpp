@@ -55,7 +55,10 @@ Extensible::Extensible()
 Extensible::~Extensible()
 {
 	if ((!extensions.empty() || !culled) && ServerInstance)
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
+	{
+		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p",
+			static_cast<void*>(this));
+	}
 }
 
 Cullable::Result Extensible::Cull()
@@ -137,15 +140,15 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 	switch (type)
 	{
 		case ExtensionItem::EXT_CHANNEL:
-			ServerInstance->PI->SendMetaData((Channel*)container, name, networkstr);
+			ServerInstance->PI->SendMetaData(static_cast<const Channel*>(container), name, networkstr);
 			break;
 
 		case ExtensionItem::EXT_MEMBERSHIP:
-			ServerInstance->PI->SendMetaData((Membership*)container, name, networkstr);
+			ServerInstance->PI->SendMetaData(static_cast<const Membership*>(container), name, networkstr);
 			break;
 
 		case ExtensionItem::EXT_USER:
-			ServerInstance->PI->SendMetaData((User*)container, name, networkstr);
+			ServerInstance->PI->SendMetaData(static_cast<const User*>(container), name, networkstr);
 			break;
 	}
 }

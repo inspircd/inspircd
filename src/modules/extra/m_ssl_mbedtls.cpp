@@ -818,7 +818,7 @@ class mbedTLSIOHookProvider : public SSLIOHookProvider
 		ServerInstance->Modules.AddService(*this);
 	}
 
-	~mbedTLSIOHookProvider()
+	~mbedTLSIOHookProvider() override
 	{
 		ServerInstance->Modules.DelService(*this);
 	}

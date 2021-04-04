@@ -494,8 +494,8 @@ class ModuleCloaking : public Module
 				break;
 			}
 			case MODE_OPAQUE:
-			default:
 				chost = SegmentIP(info, ip, true);
+				break;
 		}
 		return chost;
 	}

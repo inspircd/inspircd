@@ -113,7 +113,7 @@ class SQLConn : public SQL::Provider
 		}
 	}
 
-	~SQLConn()
+	~SQLConn() override
 	{
 		if (conn)
 		{
@@ -237,7 +237,7 @@ class ModuleSQLite3 : public Module
 	{
 	}
 
-	~ModuleSQLite3()
+	~ModuleSQLite3() override
 	{
 		ClearConns();
 	}

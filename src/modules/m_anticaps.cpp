@@ -142,10 +142,6 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 			case ACM_KICK_BAN:
 				out.append("kickban");
 				break;
-			default:
-				out.append("unknown~");
-				out.append(ConvToStr(acs->method));
-				break;
 		}
 		out.push_back(':');
 		out.append(ConvToStr(acs->minlen));

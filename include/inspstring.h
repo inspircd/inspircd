@@ -36,7 +36,7 @@
 	va_start(_vaList, last); \
 	ret.assign(InspIRCd::Format(_vaList, format)); \
 	va_end(_vaList); \
-	} while (false);
+	} while (false)
 
 /** Compose a hex string from raw data.
  * @param raw The raw data to compose hex from (can be NULL if rawsize is 0)

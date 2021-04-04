@@ -124,7 +124,7 @@ class ModuleCodepage
 	{
 	}
 
-	~ModuleCodepage()
+	~ModuleCodepage() override
 	{
 		ServerInstance->IsNick = origisnick;
 		CheckInvalidNick();

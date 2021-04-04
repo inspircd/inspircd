@@ -223,7 +223,7 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSVSHold()
+	~ModuleSVSHold() override
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
 		ServerInstance->XLines->UnregisterFactory(&s);

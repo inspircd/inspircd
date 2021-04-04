@@ -400,6 +400,8 @@ class CoreExport BufferedSocket : public StreamSocket
 	 */
 	BufferedSocket(int newfd);
 
+	~BufferedSocket() override;
+
 	/** Begin connection to the given address
 	 * This will create a socket, register with socket engine, and start the asynchronous
 	 * connection process. If an error is detected at this point (such as out of file descriptors),
@@ -431,7 +433,6 @@ class CoreExport BufferedSocket : public StreamSocket
 	 */
 	virtual void OnTimeout();
 
-	virtual ~BufferedSocket();
  protected:
 	void OnEventHandlerWrite() override;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout);

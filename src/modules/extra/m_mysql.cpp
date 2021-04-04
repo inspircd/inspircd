@@ -140,7 +140,7 @@ class ModuleSQL : public Module
 
 	void init() override;
 	ModuleSQL();
-	~ModuleSQL();
+	~ModuleSQL() override;
 	void ReadConfig(ConfigStatus& status) override;
 	void OnUnloadModule(Module* mod) override;
 };
@@ -305,7 +305,7 @@ class SQLConnection : public SQL::Provider
 	{
 	}
 
-	~SQLConnection()
+	~SQLConnection() override
 	{
 		mysql_close(connection);
 	}

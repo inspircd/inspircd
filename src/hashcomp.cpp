@@ -89,8 +89,8 @@ unsigned const char ascii_case_insensitive_map[256] = {
 
 bool irc::equals(const std::string& s1, const std::string& s2)
 {
-	const unsigned char* n1 = (const unsigned char*)s1.c_str();
-	const unsigned char* n2 = (const unsigned char*)s2.c_str();
+	const unsigned char* n1 = reinterpret_cast<const unsigned char*>(s1.c_str());
+	const unsigned char* n2 = reinterpret_cast<const unsigned char*>(s2.c_str());
 	for (; *n1 && *n2; n1++, n2++)
 		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
 			return false;
@@ -111,7 +111,9 @@ size_t irc::find(const std::string& haystack, const std::string& needle)
 		bool found = true;
 		for (size_t npos = 0; npos < needle.length(); ++npos)
 		{
-			if (national_case_insensitive_map[(unsigned char)needle[npos]] != national_case_insensitive_map[(unsigned char)haystack[hpos + npos]])
+			unsigned char unpos = needle[npos];
+			unsigned char uhpos = haystack[hpos + npos];
+			if (national_case_insensitive_map[unpos] != national_case_insensitive_map[uhpos])
 			{
 				// Uh-oh, characters at the current haystack position don't match.
 				found = false;
@@ -131,15 +133,14 @@ size_t irc::find(const std::string& haystack, const std::string& needle)
 
 bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
 {
-	const unsigned char* charmap = national_case_insensitive_map;
 	std::string::size_type asize = a.size();
 	std::string::size_type bsize = b.size();
 	std::string::size_type maxsize = std::min(asize, bsize);
 
 	for (std::string::size_type i = 0; i < maxsize; i++)
 	{
-		unsigned char A = charmap[(unsigned char)a[i]];
-		unsigned char B = charmap[(unsigned char)b[i]];
+		unsigned char A = national_case_insensitive_map[static_cast<unsigned char>(a[i])];
+		unsigned char B = national_case_insensitive_map[static_cast<unsigned char>(b[i])];
 		if (A > B)
 			return false;
 		else if (A < B)
@@ -157,8 +158,8 @@ size_t irc::insensitive::operator()(const std::string &s) const
 	 * This avoids a copy to use hash<const char*>
 	 */
 	size_t t = 0;
-	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
+	for (const auto& c : s)
+		t = 5 * t + national_case_insensitive_map[static_cast<unsigned char>(c)];
 	return t;
 }
 

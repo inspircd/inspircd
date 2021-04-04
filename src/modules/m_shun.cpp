@@ -185,7 +185,7 @@ class ModuleShun : public Module, public Stats::EventListener
 		ServerInstance->XLines->RegisterFactory(&shun);
 	}
 
-	~ModuleShun()
+	~ModuleShun() override
 	{
 		ServerInstance->XLines->DelAll("SHUN");
 		ServerInstance->XLines->UnregisterFactory(&shun);

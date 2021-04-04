@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -Ivendor_directory("bcrypt")
+/// $CompilerFlags: -isystem vendor_directory("bcrypt")
 
 
 #include "inspircd.h"

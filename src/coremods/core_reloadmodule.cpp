@@ -179,7 +179,7 @@ class DataKeeper
 	// Data saved for each user
 	struct UserData : public OwnedModesExts
 	{
-		static const size_t UNUSED_INDEX = (size_t)-1;
+		static const size_t UNUSED_INDEX = SIZE_MAX;
 		size_t serializerindex;
 
 		UserData(User* user, size_t serializeridx)
@@ -520,7 +520,7 @@ void DataKeeper::Save(Module* currmod)
 
 	reloadevprov->Call(&ReloadModule::EventListener::OnReloadModuleSave, mod, this->moddata);
 
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Saved data about %lu users %lu chans %lu modules", (unsigned long)userdatalist.size(), (unsigned long)chandatalist.size(), (unsigned long)moddata.list.size());
+	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Saved data about %zu users %zu chans %zu modules", userdatalist.size(), chandatalist.size(), moddata.list.size());
 }
 
 void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* type)
@@ -694,7 +694,7 @@ void DataKeeper::DoRestoreModules()
 	for (ReloadModule::CustomData::List::iterator i = moddata.list.begin(); i != moddata.list.end(); ++i)
 	{
 		ReloadModule::CustomData::Data& data = *i;
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", (void*)data.handler);
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", static_cast<void*>(data.handler));
 		data.handler->OnReloadModuleRestore(mod, data.data);
 	}
 }

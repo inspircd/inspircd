@@ -26,10 +26,10 @@
 
 static bool MatchInternal(const unsigned char* str, const unsigned char* mask, unsigned const char* map)
 {
-	unsigned char* cp = NULL;
-	unsigned char* mp = NULL;
-	unsigned char* string = (unsigned char*)str;
-	unsigned char* wild = (unsigned char*)mask;
+	const unsigned char* cp = nullptr;
+	const unsigned char* mp = nullptr;
+	const unsigned char* string = reinterpret_cast<const unsigned char*>(str);
+	const unsigned char* wild = reinterpret_cast<const unsigned char*>(mask);
 
 	while ((*string) && (*wild != '*'))
 	{
@@ -81,7 +81,7 @@ bool InspIRCd::Match(const std::string& str, const std::string& mask, unsigned c
 	if (!map)
 		map = national_case_insensitive_map;
 
-	return MatchInternal((const unsigned char*)str.c_str(), (const unsigned char*)mask.c_str(), map);
+	return MatchInternal(reinterpret_cast<const unsigned char*>(str.c_str()), reinterpret_cast<const unsigned char*>(mask.c_str()), map);
 }
 
 bool InspIRCd::Match(const char* str, const char* mask, unsigned const char* map)
@@ -89,7 +89,7 @@ bool InspIRCd::Match(const char* str, const char* mask, unsigned const char* map
 	if (!map)
 		map = national_case_insensitive_map;
 
-	return MatchInternal((const unsigned char*)str, (const unsigned char*)mask, map);
+	return MatchInternal(reinterpret_cast<const unsigned char*>(str), reinterpret_cast<const unsigned char*>(mask), map);
 }
 
 bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask, unsigned const char* map)

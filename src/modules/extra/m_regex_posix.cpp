@@ -57,7 +57,7 @@ class POSIXPattern final
 		throw Regex::Exception(pattern, std::string(&errormsg[0], errormsg.size()));
 	}
 
-	~POSIXPattern()
+	~POSIXPattern() override
 	{
 		regfree(&regex);
 	}

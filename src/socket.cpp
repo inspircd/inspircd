@@ -236,13 +236,13 @@ std::string irc::sockets::sockaddrs::addr() const
 	{
 		case AF_INET:
 			char ip4addr[INET_ADDRSTRLEN];
-			if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, ip4addr, sizeof(ip4addr)))
+			if (!inet_ntop(AF_INET, static_cast<const void*>(&in4.sin_addr), ip4addr, sizeof(ip4addr)))
 				return "0.0.0.0";
 			return ip4addr;
 
 		case AF_INET6:
 			char ip6addr[INET6_ADDRSTRLEN];
-			if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ip6addr, sizeof(ip6addr)))
+			if (!inet_ntop(AF_INET6, static_cast<const void*>(&in6.sin6_addr), ip6addr, sizeof(ip6addr)))
 				return "0:0:0:0:0:0:0:0";
 			return ip6addr;
 
@@ -261,13 +261,13 @@ std::string irc::sockets::sockaddrs::str() const
 	{
 		case AF_INET:
 			char ip4addr[INET_ADDRSTRLEN];
-			if (!inet_ntop(AF_INET, (void*)&in4.sin_addr, ip4addr, sizeof(ip4addr)))
+			if (!inet_ntop(AF_INET, static_cast<const void*>(&in4.sin_addr), ip4addr, sizeof(ip4addr)))
 				strcpy(ip4addr, "0.0.0.0");
 			return InspIRCd::Format("%s:%u", ip4addr, ntohs(in4.sin_port));
 
 		case AF_INET6:
 			char ip6addr[INET6_ADDRSTRLEN];
-			if (!inet_ntop(AF_INET6, (void*)&in6.sin6_addr, ip6addr, sizeof(ip6addr)))
+			if (!inet_ntop(AF_INET6, static_cast<const void*>(&in6.sin6_addr), ip6addr, sizeof(ip6addr)))
 				strcpy(ip6addr, "0:0:0:0:0:0:0:0");
 			return InspIRCd::Format("[%s]:%u", ip6addr, ntohs(in6.sin6_port));
 
@@ -340,13 +340,13 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 		case AF_INET:
 			cidr.length = range > 32 ? 32 : range;
 			target_byte = sizeof(sa.in4.sin_addr);
-			base = (unsigned char*)&sa.in4.sin_addr;
+			base = reinterpret_cast<const unsigned char*>(&sa.in4.sin_addr);
 			break;
 
 		case AF_INET6:
 			cidr.length = range > 128 ? 128 : range;
 			target_byte = sizeof(sa.in6.sin6_addr);
-			base = (unsigned char*)&sa.in6.sin6_addr;
+			base = reinterpret_cast<const unsigned char*>(&sa.in6.sin6_addr);
 			break;
 
 		default:
@@ -402,12 +402,12 @@ std::string irc::sockets::cidr_mask::str() const
 	switch (type)
 	{
 		case AF_INET:
-			base = (unsigned char*)&sa.in4.sin_addr;
+			base = reinterpret_cast<unsigned char*>(&sa.in4.sin_addr);
 			len = 4;
 			break;
 
 		case AF_INET6:
-			base = (unsigned char*)&sa.in6.sin6_addr;
+			base = reinterpret_cast<unsigned char*>(&sa.in6.sin6_addr);
 			len = 16;
 			break;
 
@@ -421,7 +421,7 @@ std::string irc::sockets::cidr_mask::str() const
 	}
 
 	memcpy(base, bits, len);
-	return sa.addr() + "/" + ConvToStr((int)length);
+	return sa.addr() + "/" + ConvToStr(length);
 }
 
 bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const

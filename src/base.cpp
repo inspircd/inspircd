@@ -52,14 +52,14 @@ refcountbase::~refcountbase()
 {
 	if (refcount && ServerInstance)
 		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "refcountbase::~ @%p with refcount %d",
-			(void*)this, refcount);
+			static_cast<void*>(this), refcount);
 }
 
 usecountbase::~usecountbase()
 {
 	if (usecount && ServerInstance)
 		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
-			(void*)this, usecount);
+			static_cast<void*>(this), usecount);
 }
 
 void ServiceProvider::RegisterService()

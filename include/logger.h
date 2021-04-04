@@ -70,7 +70,7 @@ class CoreExport FileWriter
 
 	/** Close the log file and cancel any events.
 	 */
-	virtual ~FileWriter();
+	~FileWriter();
 };
 
 
@@ -103,11 +103,6 @@ class CoreExport LogStream : public Cullable
 	LogStream(LogLevel loglevel) : loglvl(loglevel)
 	{
 	}
-
-	/* A LogStream's destructor should do whatever it needs to close any resources it was using (or indicate that it is no longer using a resource
-	 * in the event that the resource is shared, see for example FileLogStream).
-	 */
-	virtual ~LogStream() = default;
 
 	/** Changes the loglevel for this LogStream on-the-fly.
 	 * This is needed for -nofork. But other LogStreams could use it to change loglevels.

@@ -294,7 +294,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		Connect();
 	}
 
-	~LDAPService()
+	~LDAPService() override
 	{
 		this->LockQueue();
 
@@ -623,7 +623,7 @@ class ModuleLDAP : public Module
 	{
 	}
 
-	~ModuleLDAP()
+	~ModuleLDAP() override
 	{
 		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
 		{

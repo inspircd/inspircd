@@ -231,43 +231,41 @@ class SaslAuthenticator
 	{
 		switch (this->state)
 		{
-		 case SASL_INIT:
-			this->agent = msg[0];
-			this->state = SASL_COMM;
-			/* fall through */
-		 case SASL_COMM:
-			if (msg[0] != this->agent)
-				return this->state;
+			case SASL_INIT:
+				this->agent = msg[0];
+				this->state = SASL_COMM;
+				[[fallthrough]];
 
-			if (msg.size() < 4)
-				return this->state;
+			case SASL_COMM:
+				if (msg[0] != this->agent)
+					return this->state;
 
-			if (msg[2] == "C")
-			{
-				ClientProtocol::Message authmsg("AUTHENTICATE");
-				authmsg.PushParamRef(msg[3]);
+				if (msg.size() < 4)
+					return this->state;
 
-				ClientProtocol::Event authevent(*g_protoev, authmsg);
-				LocalUser* const localuser = IS_LOCAL(user);
-				if (localuser)
-					localuser->Send(authevent);
-			}
-			else if (msg[2] == "D")
-			{
-				this->state = SASL_DONE;
-				this->result = this->GetSaslResult(msg[3]);
-			}
-			else if (msg[2] == "M")
-				this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");
-			else
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
+				if (msg[2] == "C")
+				{
+					ClientProtocol::Message authmsg("AUTHENTICATE");
+					authmsg.PushParamRef(msg[3]);
 
-			break;
-		 case SASL_DONE:
-			break;
-		 default:
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
-			break;
+					ClientProtocol::Event authevent(*g_protoev, authmsg);
+					LocalUser* const localuser = IS_LOCAL(user);
+					if (localuser)
+						localuser->Send(authevent);
+				}
+				else if (msg[2] == "D")
+				{
+					this->state = SASL_DONE;
+					this->result = this->GetSaslResult(msg[3]);
+				}
+				else if (msg[2] == "M")
+					this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");
+				else
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
+				break;
+
+			case SASL_DONE:
+				break;
 		}
 
 		return this->state;
@@ -305,8 +303,6 @@ class SaslAuthenticator
 			break;
 		 case SASL_FAIL:
 			this->user->WriteNumeric(ERR_SASLFAIL, "SASL authentication failed");
-			break;
-		 default:
 			break;
 		}
 

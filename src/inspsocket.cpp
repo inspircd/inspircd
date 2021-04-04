@@ -294,7 +294,7 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
-			if (rv == (int)sq.bytes())
+			if (rv == static_cast<int>(sq.bytes()))
 			{
 				// it's our lucky day, everything got written out. Fast cleanup.
 				// This won't ever happen if the number of buffers got capped.
@@ -311,7 +311,7 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 				while (rv > 0 && !sq.empty())
 				{
 					const SendQueue::Element& front = sq.front();
-					if (front.length() <= (size_t)rv)
+					if (front.length() <= static_cast<size_t>(rv))
 					{
 						// this string got fully written out
 						rv -= front.length();
@@ -518,7 +518,7 @@ void StreamSocket::AddIOHook(IOHook* newhook)
 		return;
 	}
 
-	IOHookMiddle* lasthook;
+	IOHookMiddle* lasthook = nullptr;
 	while (curr)
 	{
 		lasthook = IOHookMiddle::ToMiddleHook(curr);

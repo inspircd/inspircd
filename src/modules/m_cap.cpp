@@ -158,7 +158,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		managerimpl = this;
 	}
 
-	~ManagerImpl()
+	~ManagerImpl() override
 	{
 		for (CapMap::iterator i = caps.begin(); i != caps.end(); ++i)
 		{

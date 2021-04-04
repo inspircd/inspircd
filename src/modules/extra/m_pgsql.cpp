@@ -207,7 +207,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		return this->EventHandler::Cull();
 	}
 
-	~SQLConn()
+	~SQLConn() override
 	{
 		SQL::Error err(SQL::BAD_DBID);
 		if (qinprog.c)
@@ -532,7 +532,7 @@ class ModulePgSQL : public Module
 	{
 	}
 
-	~ModulePgSQL()
+	~ModulePgSQL() override
 	{
 		delete retimer;
 		ClearAllConnections();

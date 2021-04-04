@@ -180,7 +180,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
 
-	~ModuleCBan()
+	~ModuleCBan() override
 	{
 		ServerInstance->XLines->DelAll("CBAN");
 		ServerInstance->XLines->UnregisterFactory(&f);

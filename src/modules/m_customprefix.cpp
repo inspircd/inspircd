@@ -103,7 +103,7 @@ class ModuleCustomPrefix : public Module
 		}
 	}
 
-	~ModuleCustomPrefix()
+	~ModuleCustomPrefix() override
 	{
 		stdalgo::delete_all(modes);
 	}

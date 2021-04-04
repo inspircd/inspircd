@@ -103,5 +103,5 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 void Topic::ShowTopic(LocalUser* user, Channel* chan)
 {
 	user->WriteNumeric(RPL_TOPIC, chan->name, chan->topic);
-	user->WriteNumeric(RPL_TOPICTIME, chan->name, chan->setby, (unsigned long)chan->topicset);
+	user->WriteNumeric(RPL_TOPICTIME, chan->name, chan->setby, chan->topicset);
 }

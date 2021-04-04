@@ -234,7 +234,7 @@ class TreeServer : public Server
 
 	/** Destructor, deletes ServerUser unless IsRoot()
 	 */
-	~TreeServer();
+	~TreeServer() override;
 
 	/** Returns the TreeServer the given user is connected to
 	 * @param user The user whose server to return

@@ -51,9 +51,6 @@ class CoreExport ExtensionItem
 	 */
 	ExtensionItem(Module* owner, const std::string& key, ExtensibleType exttype);
 
-	/** Destroys an instance of the ExtensionItem class. */
-	virtual ~ExtensionItem() = default;
-
 	/** Sets an ExtensionItem using a value in the internal format.
 	 * @param container A container the ExtensionItem should be set on.
 	 * @param value A value in the internal format.
@@ -157,7 +154,7 @@ class CoreExport Extensible
 
 	Extensible();
 	Cullable::Result Cull() override;
-	virtual ~Extensible();
+	~Extensible() override;
 	void UnhookExtensions(const std::vector<reference<ExtensionItem>>& toRemove);
 
 	/**
@@ -204,9 +201,6 @@ class SimpleExtItem : public ExtensionItem
 		: ExtensionItem(parent, Key, exttype)
 	{
 	}
-
-	/** Destroys an instance of the SimpleExtItem class. */
-	virtual ~SimpleExtItem() = default;
 
 	inline T* Get(const Extensible* container) const
 	{
@@ -257,9 +251,6 @@ class CoreExport StringExtItem : public SimpleExtItem<std::string>
 	 */
 	StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
 
-	/** Destroys an instance of the StringExtItem class. */
-	virtual ~StringExtItem() = default;
-
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
@@ -288,9 +279,6 @@ class CoreExport IntExtItem : public ExtensionItem
 	 * @param sync Whether this IntExtItem should be broadcast to other servers.
 	 */
 	IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
-
-	/** Destroys an instance of the IntExtItem class. */
-	virtual ~IntExtItem() = default;
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;
@@ -342,9 +330,6 @@ class CoreExport BoolExtItem : public ExtensionItem
 	 * @param sync Whether this BoolExtItem should be broadcast to other servers.
 	 */
 	BoolExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
-
-	/** Destroys an instance of the BoolExtItem class. */
-	virtual ~BoolExtItem() = default;
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;

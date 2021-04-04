@@ -224,7 +224,6 @@ class CoreExport ServiceProvider : public Cullable
 	/** Type of service (must match object type) */
 	const ServiceType service;
 	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
-	virtual ~ServiceProvider() = default;
 
 	/** Retrieves a string that represents the type of this service. */
 	const char* GetTypeString() const;

@@ -89,11 +89,7 @@ class Modes::ChangeList
 		items.insert(items.end(), first, last);
 	}
 
-	/** Add a new mode to be changed to this ChangeList
-	 * @param mh Mode handler
-	 * @param adding True if this mode is being set, false if removed
-	 * @param param Mode parameter
-	 */
+	/** Add a new mode to be changed to this ChangeList. Parameters are forwarded to the Modes::Change constructor. */
 	template <typename... Args>
 	void push(Args&&... args)
 	{

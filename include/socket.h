@@ -196,7 +196,7 @@ class CoreExport ListenSocket : public EventHandler
 	ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to);
 	/** Close the socket
 	 */
-	~ListenSocket();
+	~ListenSocket() override;
 
 	/** Handles new connections, called by the socket engine
 	 */

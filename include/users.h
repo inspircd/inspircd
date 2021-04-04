@@ -620,9 +620,6 @@ class CoreExport User : public Extensible
 	 */
 	void PurgeEmptyChannels();
 
-	/** Default destructor
-	 */
-	virtual ~User() = default;
 	Cullable::Result Cull() override;
 
 	/** @copydoc Serializable::Deserialize */

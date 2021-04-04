@@ -23,7 +23,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -Ivendor_directory("sha2")
+/// $CompilerFlags: -isystem vendor_directory("sha2")
 
 
 #include "inspircd.h"
@@ -43,7 +43,7 @@ class HashSHA2 : public HashProvider
 	std::string GenerateRaw(const std::string& data) override
 	{
 		std::vector<char> bytes(out_size);
-		SHA((unsigned char*)data.data(), data.size(), (unsigned char*)&bytes[0]);
+		SHA(reinterpret_cast<const unsigned char*>(data.data()), data.size(), reinterpret_cast<unsigned char*>(&bytes[0]));
 		return std::string(&bytes[0], bytes.size());
 	}
 };

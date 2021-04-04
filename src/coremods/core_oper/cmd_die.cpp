@@ -62,12 +62,9 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
 	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
-		{
-			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
-			ServerInstance->Logs.Log(MODNAME, LOG_SPARSE, diebuf);
-			DieRestart::SendError(diebuf);
-		}
-
+		const std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
+		ServerInstance->Logs.Log(MODNAME, LOG_SPARSE, diebuf);
+		DieRestart::SendError(diebuf);
 		ServerInstance->Exit(EXIT_STATUS_DIE);
 	}
 	else
@@ -76,5 +73,4 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		ServerInstance->SNO.WriteGlobalSno('a', "Failed DIE command from %s.", user->GetFullRealHost().c_str());
 		return CmdResult::FAILURE;
 	}
-	return CmdResult::SUCCESS;
 }

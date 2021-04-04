@@ -36,7 +36,7 @@ class ModuleSSLRehashSignal : public Module
 	{
 	}
 
-	~ModuleSSLRehashSignal()
+	~ModuleSSLRehashSignal() override
 	{
 		signal(SIGUSR1, SIG_IGN);
 	}

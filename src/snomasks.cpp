@@ -147,6 +147,6 @@ std::string Snomask::GetDescription(char letter) const
 	if (!Description.empty())
 		ret += Description;
 	else
-		ret += std::string("SNO-") + (char)tolower(letter);
+		ret += InspIRCd::Format("SNO-%c", tolower(letter));
 	return ret;
 }

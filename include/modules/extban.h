@@ -256,7 +256,7 @@ class ExtBan::EventListener
  public:
 	/** Called when an extban is being checked.
 	 * @param user The user which the extban is being checked against.
-	 * @param channel The channel which the extban is set on.
+	 * @param chan The channel which the extban is set on.
 	 * @param extban The extban which is being checked against.
 	 */
 	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) = 0;

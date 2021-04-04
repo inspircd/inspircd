@@ -175,7 +175,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	Cullable::Result Cull() override;
-	virtual ~ModeHandler() = default;
 
 	/** Register this object in the ModeParser
 	 */
@@ -254,10 +253,8 @@ class CoreExport ModeHandler : public ServiceProvider
 	/**
 	 * Called when a channel mode change access check for your mode occurs.
 	 * @param source Contains the user setting the mode.
-	 * @param channel contains the destination channel the modes are being set on.
-	 * @param parameter The parameter for your mode. This is modifiable.
-	 * @param adding This value is true when the mode is being set, or false when it is being unset.
-	 * @return allow, deny, or passthru to check against the required level
+	 * @param channel The destination channel the modes are being set on.
+	 * @param change Information regarding the mode change.
 	 */
 	virtual ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change);
 
@@ -266,11 +263,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param source Contains the user setting the mode.
 	 * @param dest For usermodes, contains the destination user the mode is being set on. For channelmodes, this is an undefined value.
 	 * @param channel For channel modes, contains the destination channel the modes are being set on. For usermodes, this is an undefined value.
-	 * @param parameter The parameter for your mode, if you indicated that your mode requires a parameter when being set or unset. Note that
-	 * if you alter this value, the new value becomes the one displayed and send out to the network, also, if you set this to an empty string
-	 * but you specified your mode REQUIRES a parameter, this is equivalent to returning MODEACTION_DENY and will prevent the mode from being
-	 * displayed.
-	 * @param adding This value is true when the mode is being set, or false when it is being unset.
+	 * @param change Information regarding the mode change.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change);
@@ -298,7 +291,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param parameter The invalid parameter.
 	 */
 	virtual void OnParameterInvalid(User* user, Channel* targetchannel, User* targetuser, const std::string& parameter);
-
 
 	/**
 	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)
@@ -397,8 +389,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * Called when a channel mode change access check for your mode occurs.
 	 * @param source Contains the user setting the mode.
 	 * @param channel contains the destination channel the modes are being set on.
-	 * @param parameter The parameter for your mode. This is modifiable.
-	 * @param adding This value is true when the mode is being set, or false when it is being unset.
+	 * @param change Information regarding the mode change.
 	 * @return allow, deny, or passthru to check against the required level
 	 */
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
@@ -410,8 +401,7 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param source Source of the mode change, an error message is sent to this user if the target is not found
 	 * @param dest Unused
 	 * @param channel The channel the mode change is happening on
-	 * @param param The nickname or uuid of the target user
-	 * @param adding True when the mode is being set, false when it is being unset
+	 * @param change Information regarding the mode change.
 	 * @return MODEACTION_ALLOW if the change happened, MODEACTION_DENY if no change happened
 	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
 	 * (when setting) or doesn't have this prefix set (when unsetting).
@@ -513,14 +503,16 @@ class CoreExport ModeWatcher : public Cullable
 
  public:
 	ModuleRef creator;
+
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
 	ModeWatcher(Module* creator, const std::string& modename, ModeType type);
+
 	/**
 	 * The default destructor does nothing.
 	 */
-	virtual ~ModeWatcher();
+	~ModeWatcher() override;
 
 	/**
 	 * Get the mode name being watched
@@ -539,22 +531,20 @@ class CoreExport ModeWatcher : public Cullable
 	 * @param source The sender of the mode
 	 * @param dest The target user for the mode, if you are watching a user mode
 	 * @param channel The target channel for the mode, if you are watching a channel mode
-	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
+	 * @param change Information regarding the mode change.
 	 * If you alter the parameter you are given, the mode handler will see your atered version
 	 * when it handles the mode.
-	 * @param adding True if the mode is being added and false if it is being removed
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
 	virtual bool BeforeMode(User* source, User* dest, Channel* channel, Modes::Change& change);
+
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
 	 * @param dest The target user for the mode, if you are watching a user mode
 	 * @param channel The target channel for the mode, if you are watching a channel mode
-	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
-	 * You cannot alter the parameter here, as the mode handler has already processed it.
-	 * @param adding True if the mode is being added and false if it is being removed
+	 * @param change Information regarding the mode change.
 	 */
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change);
 };

@@ -128,7 +128,6 @@ class FilterResult
 				break;
 				default:
 					return *n;
-				break;
 			}
 		}
 		return 0;

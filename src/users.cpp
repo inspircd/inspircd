@@ -234,8 +234,8 @@ void UserIOHandler::OnDataReady()
 	if (recvq.length() > user->GetClass()->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
-		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
-			user->nick.c_str(), (unsigned long)recvq.length(), user->GetClass()->GetRecvqMax());
+		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %zu exceeds connect class maximum of %lu",
+			user->nick.c_str(), recvq.length(), user->GetClass()->GetRecvqMax());
 		return;
 	}
 
@@ -796,7 +796,7 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 		if (nlpos == std::string::npos)
 			nlpos = text.length(); // TODO is this ok, test it
 
-		ServerInstance->Logs.Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), (int) nlpos, text.c_str());
+		ServerInstance->Logs.Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), static_cast<int>(nlpos), text.c_str());
 	}
 
 	eh.AddWriteBuf(text);

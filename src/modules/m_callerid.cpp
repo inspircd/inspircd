@@ -423,7 +423,7 @@ public:
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
 			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, "is in +g mode (server-side ignore).");
-			if (now > (dat->lastnotify + (time_t)notify_cooldown))
+			if (now > (dat->lastnotify + notify_cooldown))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
 				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have user mode +g set. Use /ACCEPT +%s to allow.",

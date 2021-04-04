@@ -1086,7 +1086,7 @@ class GnuTLSIOHookProvider : public SSLIOHookProvider
 		ServerInstance->Modules.AddService(*this);
 	}
 
-	~GnuTLSIOHookProvider()
+	~GnuTLSIOHookProvider() override
 	{
 		ServerInstance->Modules.DelService(*this);
 	}
@@ -1199,7 +1199,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	~ModuleSSLGnuTLS()
+	~ModuleSSLGnuTLS() override
 	{
 		ServerInstance->GenRandom = &InspIRCd::DefaultGenRandom;
 	}

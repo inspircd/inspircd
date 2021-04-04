@@ -220,6 +220,6 @@ class ModuleSpanningTree
 	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override;
 	void OnShutdown(const std::string& reason) override;
 	Cullable::Result Cull() override;
-	~ModuleSpanningTree();
+	~ModuleSpanningTree() override;
 	void Prioritize() override;
 };

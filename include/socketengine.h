@@ -194,10 +194,6 @@ class CoreExport EventHandler : public Cullable
 	 */
 	EventHandler();
 
-	/** Destructor
-	 */
-	virtual ~EventHandler() = default;
-
 	/** Called by the socket engine in case of a read event
 	 */
 	virtual void OnEventHandlerRead() = 0;
@@ -290,6 +286,7 @@ class CoreExport SocketEngine
 	static void LookupMaxFds();
 
 	/** Terminates the program when the socket engine fails to initialize. */
+	[[noreturn]]
 	static void InitError();
 
 	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);

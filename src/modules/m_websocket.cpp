@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -Ivendor_directory("utfcpp")
+/// $CompilerFlags: -isystem vendor_directory("utfcpp")
 
 
 #include "inspircd.h"

@@ -64,7 +64,7 @@ class TREPattern final
 		throw Regex::Exception(pattern, std::string(&errormsg[0], errormsg.size()));
 	}
 
-	~TREPattern()
+	~TREPattern() override
 	{
 		regfree(&regex);
 	}

@@ -232,7 +232,7 @@ class ModuleRLine
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
 
-	~ModuleRLine()
+	~ModuleRLine() override
 	{
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(&f);

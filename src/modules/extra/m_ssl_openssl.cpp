@@ -869,7 +869,7 @@ class OpenSSLIOHookProvider : public SSLIOHookProvider
 		ServerInstance->Modules.AddService(*this);
 	}
 
-	~OpenSSLIOHookProvider()
+	~OpenSSLIOHookProvider() override
 	{
 		ServerInstance->Modules.DelService(*this);
 	}
@@ -952,7 +952,7 @@ class ModuleSSLOpenSSL : public Module
 		biomethods = OpenSSL::BIOMethod::alloc();
 	}
 
-	~ModuleSSLOpenSSL()
+	~ModuleSSLOpenSSL() override
 	{
 		BIO_meth_free(biomethods);
 	}

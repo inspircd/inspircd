@@ -524,7 +524,7 @@ class CoreExport ConfigReaderThread : public Thread
 	{
 	}
 
-	~ConfigReaderThread()
+	~ConfigReaderThread() override
 	{
 		delete Config;
 	}

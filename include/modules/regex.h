@@ -72,7 +72,7 @@ class Regex::Engine
 	virtual PatternPtr Create(const std::string& pattern, uint8_t options = Regex::OPT_NONE) = 0;
 
 	/** Compiles a regular expression from the human-writable form.
-	 * @param The pattern to compile in the format /pattern/flags.
+	 * @param pattern The pattern to compile in the format /pattern/flags.
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
 	PatternPtr CreateHuman(const std::string& pattern);
@@ -157,8 +157,8 @@ class Regex::Pattern
 
  protected:
 	/** Initializes a new instance of the Pattern class.
-	 * @param Pattern The pattern as a string.
-	 * @param Options The options used when matching this pattern.
+	 * @param pattern The pattern as a string.
+	 * @param options The options used when matching this pattern.
 	 */
 	Pattern(const std::string& pattern, uint8_t options)
 		: optionflags(options)

@@ -311,7 +311,7 @@ class ModuleNationalChars : public Module
 		}
 	}
 
-	~ModuleNationalChars()
+	~ModuleNationalChars() override
 	{
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;

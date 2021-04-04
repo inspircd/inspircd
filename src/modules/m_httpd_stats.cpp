@@ -320,17 +320,14 @@ namespace Stats
 
 		bool operator()(User* u1, User* u2)
 		{
-			switch (order) {
+			switch (order)
+			{
 				case OB_LASTMSG:
 					return Compare(IS_LOCAL(u1)->idle_lastmsg, IS_LOCAL(u2)->idle_lastmsg);
-					break;
 				case OB_NICK:
 					return Compare(u1->nick, u2->nick);
-					break;
-				default:
 				case OB_NONE:
 					return false;
-					break;
 			}
 		}
 	};

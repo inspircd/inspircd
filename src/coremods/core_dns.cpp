@@ -398,7 +398,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 				cachettl = rr.ttl;
 		}
 
-		cachettl = std::min(cachettl, (unsigned int)5*60);
+		cachettl = std::min<unsigned int>(cachettl, 5*60);
 		ResourceRecord& rr = r.answers.front();
 		// Set TTL to what we've determined to be the lowest
 		rr.ttl = cachettl;
@@ -418,7 +418,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		ServerInstance->Timers.AddTimer(this);
 	}
 
-	~MyManager()
+	~MyManager() override
 	{
 		// Ensure Process() will fail for new requests
 		Close();
@@ -557,7 +557,6 @@ class MyManager : public Manager, public Timer, public EventHandler
 				return "DNS lookups are disabled";
 			case ERROR_NONE:
 			case ERROR_UNKNOWN:
-			default:
 				return "Unknown error";
 		}
 	}

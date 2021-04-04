@@ -102,9 +102,9 @@ class CommandMetadata : public ServerCommand
 	class Builder : public CmdBuilder
 	{
 	 public:
-		Builder(User* user, const std::string& key, const std::string& val);
-		Builder(Channel* chan, const std::string& key, const std::string& val);
-		Builder(Membership* memb, const std::string& key, const std::string& val);
+		Builder(const User* user, const std::string& key, const std::string& val);
+		Builder(const Channel* chan, const std::string& key, const std::string& val);
+		Builder(const Membership* memb, const std::string& key, const std::string& val);
 		Builder(const std::string& key, const std::string& val);
 	};
 };
