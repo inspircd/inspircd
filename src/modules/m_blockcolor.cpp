@@ -60,10 +60,15 @@ class ModuleBlockColor : public Module
 			bool modeset = c->IsModeSet(bc);
 			if (!c->GetExtBanStatus(user, 'c').check(!modeset))
 			{
-				for (std::string::iterator i = details.text.begin(); i != details.text.end(); i++)
+				std::string ctcpname; // Unused.
+				std::string message;
+				if (!details.IsCTCP(ctcpname, message))
+					message.assign(details.text);
+
+				for (std::string::iterator i = message.begin(); i != message.end(); ++i)
 				{
-					// Block all control codes except \001 for CTCP
-					if ((*i >= 0) && (*i < 32) && (*i != 1))
+					const unsigned char chr = static_cast<unsigned char>(*i);
+					if (chr < 32)
 					{
 						if (modeset)
 							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
