@@ -108,21 +108,12 @@ class CommandAdmin : public ServerTargetCommand
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /COMMANDS.
- */
-class CommandCommands : public Command
+class CommandCommands final
+	: public SplitCommand
 {
  public:
-	/** Constructor for commands.
-	 */
 	CommandCommands(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) override;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 /** Handle /INFO.

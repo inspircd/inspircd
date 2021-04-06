@@ -34,43 +34,62 @@ enum
 };
 
 CommandCommands::CommandCommands(Module* parent)
-	: Command(parent, "COMMANDS", 0, 0)
+	: SplitCommand(parent, "COMMANDS")
 {
 	Penalty = 3;
 }
 
 /** Handle /COMMANDS
  */
-CmdResult CommandCommands::Handle(User* user, const Params& parameters)
+CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-	std::vector<std::string> list;
-	list.reserve(commands.size());
-	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
+	std::vector<Numeric::Numeric> numerics;
+	numerics.reserve(ServerInstance->Parser.GetCommands().size());
+
+	for (const auto& [_, command] : ServerInstance->Parser.GetCommands())
 	{
 		// Don't show privileged commands to users without the privilege.
-		switch (i->second->access_needed)
+		bool usable = true;
+		switch (command->access_needed)
 		{
-			case CmdAccess::NORMAL:  // Everyone can see user commands.
+			case CmdAccess::NORMAL: // Everyone can use user commands.
 				break;
 
-			case CmdAccess::OPERATOR: // Only opers can see oper commands.
-				if (user->IsOper())
-					break;
+			case CmdAccess::OPERATOR: // Only opers can use oper commands.
+				usable = user->HasCommandPermission(command->name);
+				break;
 
-				continue;
-			case CmdAccess::SERVER: // Nobody can see server commands.
-				continue;
-
+			case CmdAccess::SERVER: // Nobody can use server commands.
+				usable = false;
+				break;
 		}
 
-		Module* src = i->second->creator;
-		list.push_back(InspIRCd::Format("%s %s %d %d", i->second->name.c_str(), src->ModuleSourceFile.c_str(),
-			i->second->min_params, i->second->Penalty));
+		// Only send this command to the user if:
+		// 1. It is usable by the caller.
+		// 2. The caller has the servers/auspex priv.
+		if (!usable || user->HasPrivPermission("servers/auspex"))
+			continue;
+
+		Numeric::Numeric numeric(RPL_COMMANDS);
+		numeric.push(command->name);
+		numeric.push(command->creator->ModuleSourceFile);
+		numeric.push(command->min_params);
+		if (command->max_params < command->min_params)
+			numeric.push("*");
+		else
+			numeric.push(command->max_params);
+		numeric.push(command->Penalty);
+		numerics.push_back(numeric);
 	}
-	std::sort(list.begin(), list.end());
-	for(unsigned int i=0; i < list.size(); i++)
-		user->WriteNumeric(RPL_COMMANDS, list[i]);
+
+	// Sort alphabetically by command name.
+	std::sort(numerics.begin(), numerics.end(), [](const auto& lhs, const auto& rhs) {
+		return lhs.GetParams()[0] > rhs.GetParams()[0];
+	});
+
+	for (const auto& numeric : numerics)
+		user->WriteNumeric(numeric);
+
 	user->WriteNumeric(RPL_COMMANDSEND, "End of COMMANDS list");
 	return CmdResult::SUCCESS;
 }
