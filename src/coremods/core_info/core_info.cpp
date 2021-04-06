@@ -109,11 +109,10 @@ class CoreModInfo : public Module
 	{
 		// Process the escape codes in the MOTDs.
 		ConfigFileCache newmotds;
-		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
+		for (const auto& klass : ServerInstance->Config->Classes)
 		{
-			std::shared_ptr<ConfigTag> tag = (*iter)->config;
 			// Don't process the file if it has already been processed.
-			const std::string motd = tag->getString("motd", "motd");
+			const std::string motd = klass->config->getString("motd", "motd");
 			if (newmotds.find(motd) != newmotds.end())
 				continue;
 

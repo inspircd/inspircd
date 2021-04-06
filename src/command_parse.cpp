@@ -238,10 +238,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		const CommandBase::Params::iterator firstexcess = lastkeep + 1;
 
 		// Append all excess parameter(s) to the last parameter, separated by spaces
-		for (CommandBase::Params::const_iterator i = firstexcess; i != command_p.end(); ++i)
+		for (const auto& param : insp::iterator_range(firstexcess, command_p.end()))
 		{
 			lastkeep->push_back(' ');
-			lastkeep->append(*i);
+			lastkeep->append(param);
 		}
 
 		// Erase the excess parameter(s)

@@ -495,9 +495,12 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		{
 			ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Value of <" + name + ":" + key + "> at " + source.str() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
-			for (std::string::iterator n = value.begin(); n != value.end(); n++)
-				if (*n == '\n')
-					*n = ' ';
+
+			for (auto& chr : value)
+			{
+				if (chr == '\n')
+					chr = ' ';
+			}
 		}
 		return true;
 	}

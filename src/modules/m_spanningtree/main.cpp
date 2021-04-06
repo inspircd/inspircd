@@ -102,20 +102,17 @@ namespace
 		// Does not change the server of quitting users because those are not in the list
 
 		ServerInstance->FakeClient->server = newserver;
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-			(*i)->server = newserver;
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
+			user->server = newserver;
 	}
 
 	void ResetMembershipIds()
 	{
 		// Set all membership ids to 0
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::iterator i = list.begin(); i != list.end(); ++i)
+		for (const auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			LocalUser* user = *i;
-			for (User::ChanList::iterator j = user->chans.begin(); j != user->chans.end(); ++j)
-				(*j)->id = 0;
+			for (auto* memb : user->chans)
+				memb->id = 0;
 		}
 	}
 }
@@ -143,10 +140,8 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		Parent = Current->GetParent()->GetName();
 	}
 
-	const TreeServer::ChildServers& children = Current->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
+	for (const auto& server : Current->GetChildren())
 	{
-		TreeServer* server = *i;
 		if ((server->Hidden) || ((Utils->HideServices) && (server->IsService())))
 		{
 			if (user->IsOper())
@@ -506,10 +501,9 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->IsOper())
 		CommandOpertype::Builder(user).Broadcast();
 
-	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
+	for (const auto& [item, obj] : user->GetExtList())
 	{
-		ExtensionItem* item = i->first;
-		std::string value = item->ToNetwork(user, i->second);
+		const std::string value = item->ToNetwork(user, obj);
 		if (!value.empty())
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
@@ -710,10 +704,8 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	if (mod == this)
 	{
 		// We are being unloaded, inform modules about all servers splitting which cannot be done later when the servers are actually disconnected
-		const server_hash& servers = Utils->serverlist;
-		for (server_hash::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		for (const auto& [_, server] : Utils->serverlist)
 		{
-			TreeServer* server = i->second;
 			if (!server->IsRoot())
 				GetLinkEventProvider().Call(&ServerProtocol::LinkEventListener::OnServerSplit, server, false);
 		}
@@ -724,10 +716,9 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 
 restart:
 	// Close all connections which use an IO hook provided by this module
-	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto& child : Utils->TreeRoot->GetChildren())
 	{
-		TreeSocket* sock = (*i)->GetSocket();
+		TreeSocket* sock = child->GetSocket();
 		if (sock->GetModHook(mod))
 		{
 			sock->SendError("SSL module unloaded");
@@ -737,9 +728,8 @@ restart:
 		}
 	}
 
-	for (SpanningTreeUtilities::TimeoutList::const_iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); ++i)
+	for (const auto& [sock, _] : Utils->timeoutlist)
 	{
-		TreeSocket* sock = i->first;
 		if (sock->GetModHook(mod))
 			sock->Close();
 	}

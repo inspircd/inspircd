@@ -187,14 +187,12 @@ class ModuleAntiCaps : public Module
 		auto tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
-		const std::string upper = tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1);
-		for (std::string::const_iterator iter = upper.begin(); iter != upper.end(); ++iter)
-			uppercase.set(static_cast<unsigned char>(*iter));
+		for (const auto& chr : tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1))
+			uppercase.set(static_cast<unsigned char>(chr));
 
 		lowercase.reset();
-		const std::string lower = tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz");
-		for (std::string::const_iterator iter = lower.begin(); iter != lower.end(); ++iter)
-			lowercase.set(static_cast<unsigned char>(*iter));
+		for (const auto& chr : tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz", 1))
+			lowercase.set(static_cast<unsigned char>(chr));
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -244,12 +242,11 @@ class ModuleAntiCaps : public Module
 		// Count the characters to see how many upper case and
 		// ignored (non upper or lower) characters there are.
 		size_t upper = 0;
-		for (std::string::const_iterator iter = msgbody.begin(); iter != msgbody.end(); ++iter)
+		for (const auto& chr : msgbody)
 		{
-			unsigned char chr = static_cast<unsigned char>(*iter);
-			if (uppercase.test(chr))
+			if (uppercase.test(static_cast<unsigned char>(chr)))
 				upper += 1;
-			else if (!lowercase.test(chr))
+			else if (!lowercase.test(static_cast<unsigned char>(chr)))
 				length -= 1;
 		}
 

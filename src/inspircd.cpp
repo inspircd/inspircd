@@ -361,9 +361,8 @@ namespace
 			std::cout << con_red << "Warning!" << con_reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
 				<< std::endl;
 
-			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+			for (const auto& fp : pl)
 			{
-				const FailedPort& fp = *iter;
 				std::cout << "  " << con_bright << fp.sa.str() << con_reset << ": " << strerror(fp.error) << '.' << std::endl
 					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl
 					<< std::endl;

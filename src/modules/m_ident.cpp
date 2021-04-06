@@ -236,20 +236,20 @@ class IdentRequestSocket : public EventHandler
 		std::string::size_type lastcolon = buf.rfind(':');
 
 		/* Truncate the ident at any characters we don't like, skip leading spaces */
-		for (std::string::const_iterator i = buf.begin()+lastcolon+1; i != buf.end(); ++i)
+		for (const auto& chr : insp::iterator_range(buf.begin() + lastcolon + 1, buf.end()))
 		{
 			if (result.size() == ServerInstance->Config->Limits.MaxUser)
 				/* Ident is getting too long */
 				break;
 
-			if (*i == ' ')
+			if (chr == ' ')
 				continue;
 
 			/* Add the next char to the result and see if it's still a valid ident,
 			 * according to IsIdent(). If it isn't, then erase what we just added and
 			 * we're done.
 			 */
-			result += *i;
+			result += chr;
 			if (!ServerInstance->IsIdent(result))
 			{
 				result.erase(result.end()-1);

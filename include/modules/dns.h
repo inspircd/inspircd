@@ -137,9 +137,8 @@ namespace DNS
 
 		const ResourceRecord* FindAnswerOfType(QueryType qtype) const
 		{
-			for (std::vector<DNS::ResourceRecord>::const_iterator i = answers.begin(); i != answers.end(); ++i)
+			for (const auto& rr : answers)
 			{
-				const DNS::ResourceRecord& rr = *i;
 				if (rr.type == qtype)
 					return &rr;
 			}

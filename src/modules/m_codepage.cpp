@@ -71,18 +71,16 @@ class ModuleCodepage
 	void RehashHashmap(T& hashmap)
 	{
 		T newhash(hashmap.bucket_count());
-		for (typename T::const_iterator i = hashmap.begin(); i != hashmap.end(); ++i)
-			newhash.insert(std::make_pair(i->first, i->second));
+		for (const auto& [key, value] : hashmap)
+			newhash.emplace(key, value);
 		hashmap.swap(newhash);
 	}
 
 	void CheckDuplicateNick()
 	{
 		insp::flat_set<std::string, irc::insensitive_swo> duplicates;
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			LocalUser* user = *iter;
 			if (user->nick != user->uuid && !duplicates.insert(user->nick).second)
 			{
 				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer available.");
@@ -93,10 +91,8 @@ class ModuleCodepage
 
 	void CheckInvalidNick()
 	{
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			LocalUser* user = *iter;
 			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
 			{
 				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer valid.");

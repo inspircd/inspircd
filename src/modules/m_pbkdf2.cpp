@@ -167,9 +167,8 @@ class ModulePBKDF2 : public Module
 
 	void ConfigureProviders()
 	{
-		for (std::vector<PBKDF2Provider*>::iterator i = providers.begin(); i != providers.end(); ++i)
+		for (const auto& pi : providers)
 		{
-			PBKDF2Provider* pi = *i;
 			ProviderConfig config = GetConfigForProvider(pi->name);
 			pi->iterations = config.iterations;
 			pi->dkey_length = config.dkey_length;
@@ -215,9 +214,8 @@ class ModulePBKDF2 : public Module
 	void init() override
 	{
 		// Let ourself know about any existing services.
-		const ModuleManager::DataProviderMap& dataproviders = ServerInstance->Modules.DataProviders;
-		for (ModuleManager::DataProviderMap::const_iterator it = dataproviders.begin(); it != dataproviders.end(); ++it)
-			OnServiceAdd(*it->second);
+		for (const auto& [_, service] : ServerInstance->Modules.DataProviders)
+			OnServiceAdd(*service);
 	}
 
 	void OnServiceAdd(ServiceProvider& provider) override

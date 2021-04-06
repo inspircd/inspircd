@@ -112,9 +112,8 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendUsers(bs);
 
 	// Sync all channels
-	const chan_hash& chans = ServerInstance->GetChans();
-	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
-		SyncChannel(i->second, bs);
+	for (const auto& [_, chan] : ServerInstance->GetChans())
+		SyncChannel(chan, bs);
 
 	// Send all xlines
 	this->SendXLines();
@@ -145,10 +144,8 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
 	SendServerInfo(Current);
 
-	const TreeServer::ChildServers& children = Current->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
+	for (const auto& recursive_server : Current->GetChildren())
 	{
-		TreeServer* recursive_server = *i;
 		if (recursive_server != s)
 		{
 			this->WriteLine(CommandServer::Builder(recursive_server));
@@ -171,25 +168,21 @@ void TreeSocket::SendFJoins(Channel* chan)
 /** Send all XLines we know about */
 void TreeSocket::SendXLines()
 {
-	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
-
-	for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
+	for (const auto& xltype : ServerInstance->XLines->GetAllTypes())
 	{
 		/* Expired lines are removed in XLineManager::GetAll() */
-		XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
+		XLineLookup* lookup = ServerInstance->XLines->GetAll(xltype);
 
 		/* lookup cannot be NULL in this case but a check won't hurt */
 		if (lookup)
 		{
-			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+			for (const auto& [_, xline] : *lookup)
 			{
 				/* Is it burstable? this is better than an explicit check for type 'K'.
 				 * We break the loop as NONE of the items in this group are worth iterating.
 				 */
-				if (!i->second->IsBurstable())
-					break;
-
-				this->WriteLine(CommandAddLine::Builder(i->second));
+				if (xline->IsBurstable())
+					this->WriteLine(CommandAddLine::Builder(xline));
 			}
 		}
 	}
@@ -277,10 +270,8 @@ void TreeSocket::SyncChannel(Channel* chan)
 /** Send all users and their state, including oper and away status and global metadata */
 void TreeSocket::SendUsers(BurstState& bs)
 {
-	const user_hash& users = ServerInstance->Users.GetUsers();
-	for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
+	for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 	{
-		User* user = u->second;
 		if (user->registered != REG_ALL)
 			continue;
 
@@ -292,11 +283,9 @@ void TreeSocket::SendUsers(BurstState& bs)
 		if (user->IsAway())
 			this->WriteLine(CommandAway::Builder(user));
 
-		const Extensible::ExtensibleStore& exts = user->GetExtList();
-		for (Extensible::ExtensibleStore::const_iterator i = exts.begin(); i != exts.end(); ++i)
+		for (const auto& [item, obj] : user->GetExtList())
 		{
-			ExtensionItem* item = i->first;
-			std::string value = item->ToNetwork(u->second, i->second);
+			const std::string value = item->ToNetwork(user, obj);
 			if (!value.empty())
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}

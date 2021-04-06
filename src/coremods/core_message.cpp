@@ -193,11 +193,8 @@ class CommandMessage : public Command
 			message.SetSideEffect(true);
 			ClientProtocol::Event messageevent(ServerInstance->GetRFCEvents().privmsg, message);
 
-			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-			for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 			{
-				LocalUser* luser = *i;
-
 				// Don't send to unregistered users or the user who is the source.
 				if (luser->registered != REG_ALL || luser == source)
 					continue;

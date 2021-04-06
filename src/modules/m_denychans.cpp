@@ -111,19 +111,17 @@ class ModuleDenyChannels : public Module
 
 		// Now we have all of the badchan information recorded we can check that all redirect
 		// channels can actually be redirected to.
-		for (BadChannels::const_iterator i = badchans.begin(); i != badchans.end(); ++i)
+		for (const auto& badchan : badchans)
 		{
-			const BadChannel& badchan = *i;
-
 			// If there is no redirect channel we have nothing to do.
 			if (badchan.redirect.empty())
 				continue;
 
 			// If the redirect channel is whitelisted then it is okay.
 			bool whitelisted = false;
-			for (GoodChannels::const_iterator j = goodchans.begin(); j != goodchans.end(); ++j)
+			for (const auto& goodchan : goodchans)
 			{
-				if (InspIRCd::Match(badchan.redirect, *j))
+				if (InspIRCd::Match(badchan.redirect, goodchan))
 				{
 					whitelisted = true;
 					break;
@@ -134,9 +132,11 @@ class ModuleDenyChannels : public Module
 				continue;
 
 			// If the redirect channel is not blacklisted then it is okay.
-			for (BadChannels::const_iterator j = badchans.begin(); j != badchans.end(); ++j)
-				if (InspIRCd::Match(badchan.redirect, j->name))
+			for (const auto& badchanredir : badchans)
+			{
+				if (InspIRCd::Match(badchan.redirect, badchanredir.name))
 					throw ModuleException("<badchan:redirect> cannot be a blacklisted channel name");
+			}
 		}
 
 		// The config file contained no errors so we can apply the new configuration.
@@ -146,10 +146,8 @@ class ModuleDenyChannels : public Module
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
 	{
-		for (BadChannels::const_iterator j = badchannels.begin(); j != badchannels.end(); ++j)
+		for (const auto& badchan : badchannels)
 		{
-			const BadChannel& badchan = *j;
-
 			// If the channel does not match the current entry we have nothing else to do.
 			if (!InspIRCd::Match(cname, badchan.name))
 				continue;
@@ -160,8 +158,8 @@ class ModuleDenyChannels : public Module
 				return MOD_RES_PASSTHRU;
 
 			// If the channel matches a whitelist then allow the join.
-			for (GoodChannels::const_iterator i = goodchannels.begin(); i != goodchannels.end(); ++i)
-				if (InspIRCd::Match(cname, *i))
+			for (const auto& goodchan : goodchannels)
+				if (InspIRCd::Match(cname, goodchan))
 					return MOD_RES_PASSTHRU;
 
 			// If there is no redirect chan, the user has enabled the antiredirect mode, or

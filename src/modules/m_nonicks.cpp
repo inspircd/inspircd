@@ -47,22 +47,20 @@ class ModuleNoNickChange : public Module
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+		for (const auto* memb : user->chans)
 		{
-			Channel* curr = (*i)->chan;
-
-			ModResult res = CheckExemption::Call(exemptionprov, user, curr, "nonick");
+			ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nonick");
 			if (res == MOD_RES_ALLOW)
 				continue;
 
 			if (user->HasPrivPermission("channels/ignore-nonicks"))
 				continue;
 
-			bool modeset = curr->IsModeSet(nn);
-			if (!extban.GetStatus(user, curr).check(!modeset))
+			bool modeset = memb->chan->IsModeSet(nn);
+			if (!extban.GetStatus(user, memb->chan).check(!modeset))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (%s)",
-					curr->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
+					memb->chan->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
 				return MOD_RES_DENY;
 			}
 		}

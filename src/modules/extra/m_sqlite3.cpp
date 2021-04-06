@@ -244,9 +244,8 @@ class ModuleSQLite3 : public Module
 
 	void ClearConns()
 	{
-		for(ConnMap::iterator i = conns.begin(); i != conns.end(); i++)
+		for (const auto& [_, conn] : conns)
 		{
-			SQLConn* conn = i->second;
 			ServerInstance->Modules.DelService(*conn);
 			delete conn;
 		}

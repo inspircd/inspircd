@@ -45,9 +45,8 @@ class ChannelExtBan
 			status = mh->GetModeChar();
 			target++;
 		}
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+		for (auto* memb : user->chans)
 		{
-			Membership* memb = *i;
 			if (!InspIRCd::Match(memb->chan->name, target))
 				continue;
 			if (!status || memb->getRank() >= mh->GetPrefixRank())

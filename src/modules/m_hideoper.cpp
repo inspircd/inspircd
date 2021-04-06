@@ -148,10 +148,8 @@ class ModuleHideOper
 			return MOD_RES_PASSTHRU;
 
 		unsigned int count = 0;
-		const UserManager::OperList& opers = ServerInstance->Users.all_opers;
-		for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
+		for (const auto& oper : ServerInstance->Users.all_opers)
 		{
-			User* oper = *i;
 			if (!oper->server->IsService() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
 			{
 				LocalUser* lu = IS_LOCAL(oper);

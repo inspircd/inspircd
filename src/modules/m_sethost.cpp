@@ -48,9 +48,9 @@ class CommandSethost : public Command
 			return CmdResult::FAILURE;
 		}
 
-		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++)
+		for (const auto& chr : parameters[0])
 		{
-			if (!hostmap.test(static_cast<unsigned char>(*x)))
+			if (!hostmap.test(static_cast<unsigned char>(chr)))
 			{
 				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
 				return CmdResult::FAILURE;
@@ -86,8 +86,8 @@ class ModuleSetHost : public Module
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		cmd.hostmap.reset();
-		for (std::string::const_iterator n = hmap.begin(); n != hmap.end(); n++)
-			cmd.hostmap.set(static_cast<unsigned char>(*n));
+		for (const auto& chr : hmap)
+			cmd.hostmap.set(static_cast<unsigned char>(chr));
 	}
 };
 

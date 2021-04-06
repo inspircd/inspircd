@@ -223,9 +223,8 @@ class CommandSSLInfo : public SplitCommand
 				sslonlymode->GetModeChar(), sslonlymode->name.c_str()));
 		}
 
-		const Channel::MemberMap& userlist = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
-			HandleUserInternal(source, i->first, false);
+		for (const auto& [u, _] : chan->GetUsers())
+			HandleUserInternal(source, u, false);
 
 		return CmdResult::SUCCESS;
 	}

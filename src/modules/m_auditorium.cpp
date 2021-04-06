@@ -138,11 +138,10 @@ class ModuleAuditorium
 		if (IsVisible(memb))
 			return;
 
-		const Channel::MemberMap& users = memb->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [user, _] : memb->chan->GetUsers())
 		{
-			if (IS_LOCAL(i->first) && !CanSee(i->first, memb))
-				excepts.insert(i->first);
+			if (IS_LOCAL(user) && !CanSee(user, memb))
+				excepts.insert(user);
 		}
 	}
 
@@ -170,11 +169,10 @@ class ModuleAuditorium
 			// this channel should not be considered when listing my neighbors
 			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
-			const Channel::MemberMap& users = memb->chan->GetUsers();
-			for(Channel::MemberMap::const_iterator j = users.begin(); j != users.end(); ++j)
+			for (const auto& [user, _] : memb->chan->GetUsers())
 			{
-				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
-					exception[j->first] = true;
+				if (IS_LOCAL(user) && CanSee(user, memb))
+					exception[user] = true;
 			}
 		}
 	}

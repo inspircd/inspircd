@@ -23,9 +23,8 @@
 std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List& modes)
 {
 	std::string ret;
-	for (Modes::ChangeList::List::const_iterator i = modes.begin(); i != modes.end(); ++i)
+	for (const auto& item : modes)
 	{
-		const Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
 		if (!mh->NeedsParam(item.adding))
 			continue;

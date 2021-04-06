@@ -63,17 +63,15 @@ class CommandClones : public SplitCommand
 			batch.GetBatchStartMessage().PushParam(limit);
 		}
 
-		const UserManager::CloneMap& clonemap = ServerInstance->Users.GetCloneMap();
-		for (UserManager::CloneMap::const_iterator i = clonemap.begin(); i != clonemap.end(); ++i)
+		for (const auto& [range, counts] : ServerInstance->Users.GetCloneMap())
 		{
-			const UserManager::CloneCounts& counts = i->second;
 			if (counts.global < limit)
 				continue;
 
 			Numeric::Numeric numeric(RPL_CLONES);
 			numeric.push(counts.local);
 			numeric.push(counts.global);
-			numeric.push(i->first.str());
+			numeric.push(range.str());
 
 			ClientProtocol::Messages::Numeric numericmsg(numeric, user);
 			batch.AddToBatch(numericmsg);

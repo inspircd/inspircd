@@ -40,11 +40,10 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 	if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "servers"))
 		return MOD_RES_PASSTHRU;
 
-	std::string incomingip = client->addr();
-
-	for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
+	const std::string incomingip = client->addr();
+	for (const auto& validip : Utils->ValidIPs)
 	{
-		if (*i == "*" || *i == incomingip || irc::sockets::cidr_mask(*i).match(*client))
+		if (validip == "*" || validip == incomingip || irc::sockets::cidr_mask(validip).match(*client))
 		{
 			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
 			new TreeSocket(newsock, from, client, server);
@@ -76,10 +75,10 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
  */
 TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 {
-	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
+	for (const auto& [name, server] : serverlist)
 	{
-		if (InspIRCd::Match(i->first,ServerName))
-			return i->second;
+		if (InspIRCd::Match(name, ServerName))
+			return server;
 	}
 	return NULL;
 }
@@ -121,11 +120,9 @@ Cullable::Result SpanningTreeUtilities::Cull()
 		sock->Close();
 	}
 
-	for(TimeoutList::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
-	{
-		TreeSocket* s = i->first;
+	for (const auto& [s, _] : timeoutlist)
 		s->Close();
-	}
+
 	TreeRoot->Cull();
 
 	return Cullable::Cull();
@@ -148,18 +145,17 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	}
 
 	TreeServer::ChildServers children = TreeRoot->GetChildren();
-	const Channel::MemberMap& ulist = c->GetUsers();
-	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+	for (const auto& [user, memb] : c->GetUsers())
 	{
-		if (IS_LOCAL(i->first))
+		if (IS_LOCAL(user))
 			continue;
 
-		if (minrank && i->second->getRank() < minrank)
+		if (minrank && memb->getRank() < minrank)
 			continue;
 
-		if (exempt_list.find(i->first) == exempt_list.end())
+		if (exempt_list.find(user) == exempt_list.end())
 		{
-			TreeServer* best = TreeServer::Get(i->first);
+			TreeServer* best = TreeServer::Get(user);
 			list.insert(best->GetSocket());
 
 			TreeServer::ChildServers::iterator citer = std::find(children.begin(), children.end(), best);
@@ -170,11 +166,11 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 
 	// Check whether the servers which do not have users in the channel might need this message. This
 	// is used to keep the chanhistory module synchronised between servers.
-	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
+	for (const auto& child : children)
 	{
-		ModResult result = Creator->GetBroadcastEventProvider().FirstResult(&ServerProtocol::BroadcastEventListener::OnBroadcastMessage, c, *i);
+		ModResult result = Creator->GetBroadcastEventProvider().FirstResult(&ServerProtocol::BroadcastEventListener::OnBroadcastMessage, c, child);
 		if (result == MOD_RES_ALLOW)
-			list.insert((*i)->GetSocket());
+			list.insert(child->GetSocket());
 	}
 }
 
@@ -182,10 +178,8 @@ void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeSe
 {
 	const std::string& FullLine = params.str();
 
-	const TreeServer::ChildServers& children = TreeRoot->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
+	for (const auto& Route : TreeRoot->GetChildren())
 	{
-		TreeServer* Route = *i;
 		// Send the line if the route isn't the path to the one to be omitted
 		if (Route != omitroute)
 		{
@@ -329,8 +323,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 		AutoconnectBlocks.push_back(A);
 	}
 
-	for (server_hash::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
-		i->second->CheckService();
+	for (const auto& [_, server] : serverlist)
+		server->CheckService();
 
 	RefreshIPCache();
 }
@@ -360,9 +354,9 @@ void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, co
 
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
-	for (TreeSocketSet::iterator i = list.begin(); i != list.end(); ++i)
+
+	for (const auto& Sock : list)
 	{
-		TreeSocket* Sock = *i;
 		if (Sock != omit)
 			Sock->WriteLine(msg);
 	}

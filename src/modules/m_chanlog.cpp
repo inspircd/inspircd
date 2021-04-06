@@ -53,10 +53,10 @@ class ModuleChanLog : public Module
 				throw ModuleException("Malformed chanlog tag at " + tag->source.str());
 			}
 
-			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
+			for (const auto& snomask : snomasks)
 			{
-				newlogs.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				newlogs.insert(std::make_pair(snomask, channel));
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", snomask, channel.c_str());
 			}
 		}
 		logstreams.swap(newlogs);

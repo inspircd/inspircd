@@ -191,10 +191,10 @@ class BanRedirect : public ModeWatcher
 					}
 					else
 					{
-						for (BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); ++redir)
+						for (const auto& redirect : *redirects)
 						{
 							// Mimic the functionality used when removing the mode
-							if (irc::equals(redir->targetchan, mask[CHAN]) && irc::equals(redir->banmask, change.param))
+							if (irc::equals(redirect.targetchan, mask[CHAN]) && irc::equals(redirect.banmask, change.param))
 							{
 								// Make sure the +b handler will still set the right ban
 								change.param.append(mask[CHAN]);
@@ -274,11 +274,11 @@ class ModuleBanRedirect : public Module
 				ModeHandler* ban = ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL);
 				Modes::ChangeList changelist;
 
-				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-					changelist.push_remove(ban, i->targetchan.insert(0, i->banmask));
+				for (auto& redirect : *redirects)
+					changelist.push_remove(ban, redirect.targetchan.insert(0, redirect.banmask));
 
-				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-					changelist.push_add(ban, i->banmask);
+				for (const auto& redirect : *redirects)
+					changelist.push_add(ban, redirect.banmask);
 
 				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
 			}

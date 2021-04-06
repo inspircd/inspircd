@@ -50,10 +50,9 @@ class ModuleOverride
 
 	static bool IsOverride(unsigned int userlevel, const Modes::ChangeList::List& list)
 	{
-		for (Modes::ChangeList::List::const_iterator i = list.begin(); i != list.end(); ++i)
+		for (const auto& change : list)
 		{
-			ModeHandler* mh = i->mh;
-			if (mh->GetLevelRequired(i->adding) > userlevel)
+			if (change.mh->GetLevelRequired(change.adding) > userlevel)
 				return true;
 		}
 		return false;
@@ -168,9 +167,8 @@ class ModuleOverride
 			// Construct a MODE string in the old format for sending it as a snotice
 			std::string params;
 			char pm = 0;
-			for (Modes::ChangeList::List::const_iterator i = list.begin(); i != list.end(); ++i)
+			for (const auto& item : list)
 			{
-				const Modes::Change& item = *i;
 				if (!item.param.empty())
 					params.append(1, ' ').append(item.param);
 

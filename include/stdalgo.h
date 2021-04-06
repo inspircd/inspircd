@@ -108,8 +108,8 @@ namespace stdalgo
 			if (sequence.empty())
 				return joined;
 
-			for (typename Collection::const_iterator iter = sequence.begin(); iter != sequence.end(); ++iter)
-				joined.append(ConvToStr(*iter)).push_back(separator);
+			for (const auto& element : sequence)
+				joined.append(ConvToStr(element)).push_back(separator);
 
 			joined.erase(joined.end() - 1);
 			return joined;
@@ -221,9 +221,8 @@ namespace stdalgo
 		template <char from, char to, char esc>
 		inline void escape(const std::string& str, std::string& out)
 		{
-			for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+			for (const auto& c : str)
 			{
-				char c = *i;
 				if (c == esc)
 					out.append(2, esc);
 				else
@@ -231,9 +230,10 @@ namespace stdalgo
 					if (c == from)
 					{
 						out.push_back(esc);
-						c = to;
+						out.push_back(to);
 					}
-					out.push_back(c);
+					else
+						out.push_back(c);
 				}
 			}
 		}

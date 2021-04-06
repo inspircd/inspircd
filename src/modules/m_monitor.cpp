@@ -89,11 +89,8 @@ class IRCv3::Monitor::Manager
 		{
 			std::string ret;
 			const ExtData* extdata = static_cast<ExtData*>(item);
-			for (WatchedList::const_iterator i = extdata->list.begin(); i != extdata->list.end(); ++i)
-			{
-				const Entry* entry = *i;
+			for (const auto& entry : extdata->list)
 				ret.append(entry->GetNick()).push_back(' ');
-			}
 			if (!ret.empty())
 				ret.erase(ret.size()-1);
 			return ret;
@@ -337,11 +334,8 @@ class CommandMonitor : public SplitCommand
 			user->CommandFloodPenalty += ListPenalty;
 			const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
 			ReplyBuilder out(user, RPL_MONLIST);
-			for (IRCv3::Monitor::WatchedList::const_iterator i = list.begin(); i != list.end(); ++i)
-			{
-				IRCv3::Monitor::Entry* entry = *i;
+			for (const auto& entry : list)
 				out.Add(entry->GetNick());
-			}
 			out.Flush();
 			user->WriteNumeric(RPL_ENDOFMONLIST, "End of MONITOR list");
 		}
@@ -352,10 +346,8 @@ class CommandMonitor : public SplitCommand
 			ReplyBuilder online(user, RPL_MONONLINE);
 			ReplyBuilder offline(user, RPL_MONOFFLINE);
 
-			const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
-			for (IRCv3::Monitor::WatchedList::const_iterator i = list.begin(); i != list.end(); ++i)
+			for (const auto& entry : manager.GetWatched(user))
 			{
-				IRCv3::Monitor::Entry* entry = *i;
 				ReplyBuilder& out = (IRCv3::Monitor::Manager::FindNick(entry->GetNick()) ? online : offline);
 				out.Add(entry->GetNick());
 			}
@@ -384,11 +376,8 @@ class ModuleMonitor
 		if (!list)
 			return;
 
-		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
-		{
-			LocalUser* curr = *i;
+		for (const auto& curr : *list)
 			curr->WriteNumeric(numeric, nick);
-		}
 	}
 
  public:

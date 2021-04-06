@@ -36,15 +36,12 @@ class ModuleIRCv3InviteNotify : public Module
 	{
 		ClientProtocol::Messages::Invite invitemsg(source, dest, chan);
 		ClientProtocol::Event inviteevent(ServerInstance->GetRFCEvents().invite, invitemsg);
-		const Channel::MemberMap& users = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [user, memb] : chan->GetUsers())
 		{
-			User* user = i->first;
 			// Skip members who don't use this extension or were excluded by other modules
 			if ((!cap.IsEnabled(user)) || (notifyexcepts.count(user)))
 				continue;
 
-			Membership* memb = i->second;
 			// Check whether the member has a high enough rank to see the notification
 			if (memb->getRank() < notifyrank)
 				continue;

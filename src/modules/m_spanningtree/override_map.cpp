@@ -66,12 +66,8 @@ static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int
 	if (current->GetRawVersion().length() > max_version)
 		max_version = current->GetRawVersion().length();
 
-	const TreeServer::ChildServers& servers = current->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = servers.begin(); i != servers.end(); ++i)
-	{
-		TreeServer* child = *i;
+	for (const auto& child : current->GetChildren())
 		GetDepthAndLen(child, depth + 1, max_depth, max_len, max_version);
-	}
 }
 
 static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned int max_len, unsigned int max_version_len, unsigned int depth)
@@ -219,8 +215,8 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 	}
 
 	std::vector<std::string> map = GetMap(user, Utils->TreeRoot, max, max_version, 0);
-	for (std::vector<std::string>::const_iterator i = map.begin(); i != map.end(); ++i)
-		user->WriteRemoteNumeric(RPL_MAP, *i);
+	for (const auto& line : map)
+		user->WriteRemoteNumeric(RPL_MAP, line);
 
 	size_t totusers = ServerInstance->Users.GetUsers().size();
 	float avg_users = (float) totusers / Utils->serverlist.size();

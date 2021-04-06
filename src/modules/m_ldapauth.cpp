@@ -157,12 +157,9 @@ class BindInterface : public LDAPInterface
 		// check required attributes
 		checkingAttributes = true;
 
-		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
+		for (const auto& [attr, val] : requiredattributes)
 		{
 			// Note that only one of these has to match for it to be success
-			const std::string& attr = it->first;
-			const std::string& val = it->second;
-
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 			try
 			{
@@ -375,18 +372,18 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) override
 	{
-		for (std::vector<std::string>::const_iterator i = allowpatterns.begin(); i != allowpatterns.end(); ++i)
+		for (const auto& allowpattern : allowpatterns)
 		{
-			if (InspIRCd::Match(user->nick, *i))
+			if (InspIRCd::Match(user->nick, allowpattern))
 			{
 				ldapAuthed.Set(user,1);
 				return MOD_RES_PASSTHRU;
 			}
 		}
 
-		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
+		for (const auto& whitelistedcidr : whitelistedcidrs)
 		{
-			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetIPString(), whitelistedcidr, ascii_case_insensitive_map))
 			{
 				ldapAuthed.Set(user,1);
 				return MOD_RES_PASSTHRU;

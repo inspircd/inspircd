@@ -155,8 +155,8 @@ class CmdBuilder
 	template<typename T>
 	CmdBuilder& insert(const T& cont)
 	{
-		for (typename T::const_iterator i = cont.begin(); i != cont.end(); ++i)
-			push(*i);
+		for (const auto& elem : cont)
+			push(elem);
 		return *this;
 	}
 

@@ -82,10 +82,8 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 		<< "# Any changes to this file will be automatically overwritten." << std::endl
 		<< std::endl;
 
-	const chan_hash& chans = ServerInstance->GetChans();
-	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+	for (const auto& [_, chan] : ServerInstance->GetChans())
 	{
-		Channel* chan = i->second;
 		if (!chan->IsModeSet(permchanmode))
 			continue;
 
@@ -95,24 +93,21 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 			std::string modes;
 			std::string params;
 
-			const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
-			for (ModeParser::ListModeList::const_iterator j = listmodes.begin(); j != listmodes.end(); ++j)
+			for (const auto& lm : ServerInstance->Modes.GetListModes())
 			{
-				ListModeBase* lm = *j;
 				ListModeBase::ModeList* list = lm->GetList(chan);
 				if (!list || list->empty())
 					continue;
 
-				size_t n = 0;
 				// Append the parameters
-				for (ListModeBase::ModeList::const_iterator k = list->begin(); k != list->end(); ++k, n++)
+				for (const auto& entry : *list)
 				{
-					params += k->mask;
+					params += entry.mask;
 					params += ' ';
 				}
 
 				// Append the mode letters (for example "IIII", "gg")
-				modes.append(n, lm->GetModeChar());
+				modes.append(list->size(), lm->GetModeChar());
 			}
 
 			if (!params.empty())
@@ -243,9 +238,9 @@ public:
 				list.GetToken(modeseq);
 
 				// XXX bleh, should we pass this to the mode parser instead? ugly. --w00t
-				for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
+				for (const auto& modechr : modeseq)
 				{
-					ModeHandler* mode = ServerInstance->Modes.FindMode(*n, MODETYPE_CHANNEL);
+					ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
 					if (mode)
 					{
 						if (mode->NeedsParam(true))

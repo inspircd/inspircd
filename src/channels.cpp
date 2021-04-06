@@ -132,9 +132,9 @@ void Channel::SetDefaultModes()
 
 	list.GetToken(modeseq);
 
-	for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
+	for (const auto& modechr : modeseq)
 	{
-		ModeHandler* mode = ServerInstance->Modes.FindMode(*n, MODETYPE_CHANNEL);
+		ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
 		if (mode)
 		{
 			if (mode->IsPrefixMode())
@@ -260,9 +260,9 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	{
 		// If the user was granted prefix modes (in the OnUserPreJoin hook, or they're a
 		// remote user and their own server set the modes), then set them internally now
-		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
+		for (const auto& priv : *privs)
 		{
-			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
+			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(priv);
 			if (mh)
 			{
 				// Set the mode on the user.
@@ -298,9 +298,9 @@ bool Channel::IsBanned(User* user)
 	const ListModeBase::ModeList* bans = banlm->GetList(this);
 	if (bans)
 	{
-		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); it++)
+		for (const auto& entry : *bans)
 		{
-			if (CheckBan(user, it->mask))
+			if (CheckBan(user, entry.mask))
 				return true;
 		}
 	}
@@ -379,13 +379,14 @@ void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& e
 		if (mh)
 			minrank = mh->GetPrefixRank();
 	}
-	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
+
+	for (const auto& [u, memb] : userlist)
 	{
-		LocalUser* user = IS_LOCAL(i->first);
+		LocalUser* user = IS_LOCAL(u);
 		if ((user) && (!except_list.count(user)))
 		{
 			/* User doesn't have the status we're after */
-			if (minrank && i->second->getRank() < minrank)
+			if (minrank && memb->getRank() < minrank)
 				continue;
 
 			user->Send(protoev);
@@ -449,9 +450,9 @@ char Membership::GetPrefixChar() const
 	char pf = 0;
 	unsigned int bestrank = 0;
 
-	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
+	for (const auto& modechr : modes)
 	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modechr);
 		if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 		{
 			bestrank = mh->GetPrefixRank();
@@ -477,9 +478,9 @@ unsigned int Membership::getRank()
 std::string Membership::GetAllPrefixChars() const
 {
 	std::string ret;
-	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
+	for (const auto& modechr : modes)
 	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(*i);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modechr);
 		if (mh && mh->GetPrefix())
 			ret.push_back(mh->GetPrefix());
 	}

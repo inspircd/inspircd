@@ -174,10 +174,9 @@ class ModuleClearChan : public Module
 			}
 		}
 
-		const Channel::MemberMap& users = cmd.activechan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [member, _] : cmd.activechan->GetUsers())
 		{
-			LocalUser* curr = IS_LOCAL(i->first);
+			LocalUser* curr = IS_LOCAL(member);
 			if (!curr)
 				continue;
 
@@ -204,10 +203,8 @@ class ModuleClearChan : public Module
 	{
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;
-		const Channel::MemberMap& users = memb->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [curr, _] : memb->chan->GetUsers())
 		{
-			User* curr = i->first;
 			if ((IS_LOCAL(curr)) && (!curr->IsOper()) && (curr != leaving))
 				excepts.insert(curr);
 		}

@@ -141,7 +141,7 @@ class WhoisChanList
 	WhoisChanListNumericBuilder secretnum;
 	std::string prefixstr;
 
-	void AddMember(Membership* memb, WhoisChanListNumericBuilder& out)
+	void AddMember(const Membership* memb, WhoisChanListNumericBuilder& out)
 	{
 		prefixstr.clear();
 		const char prefix = memb->GetPrefixChar();
@@ -158,12 +158,12 @@ class WhoisChanList
 	{
 	}
 
-	void AddVisible(Membership* memb)
+	void AddVisible(const Membership* memb)
 	{
 		AddMember(memb, num);
 	}
 
-	void AddHidden(Membership* memb)
+	void AddHidden(const Membership* memb)
 	{
 		AddMember(memb, splitwhois == SPLITWHOIS_NONE ? num : secretnum);
 	}
@@ -183,9 +183,8 @@ void CommandWhois::SendChanList(WhoisContextImpl& whois)
 
 	User* const target = whois.GetTarget();
 	bool hasoperpriv = whois.GetSource()->HasPrivPermission("users/channel-spy");
-	for (User::ChanList::iterator i = target->chans.begin(); i != target->chans.end(); ++i)
+	for (const auto* memb : target->chans)
 	{
-		Membership* memb = *i;
 		Channel* c = memb->chan;
 
 		// Anyone can view channels which are not private or secret.

@@ -57,9 +57,9 @@ class ModuleOperjoin : public Module
 			if (!localuser)
 				return;
 
-			for (std::vector<std::string>::const_iterator i = operChans.begin(); i != operChans.end(); ++i)
-				if (ServerInstance->IsChannel(*i))
-					Channel::JoinUser(localuser, *i, override);
+			for (const auto& operchan : operChans)
+				if (ServerInstance->IsChannel(operchan))
+					Channel::JoinUser(localuser, operchan, override);
 
 			irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
 			for (std::string channame; ss.GetToken(channame); )

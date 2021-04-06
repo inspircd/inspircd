@@ -257,11 +257,8 @@ void CommandFJoin::RemoveStatus(Channel* c)
 {
 	Modes::ChangeList changelist;
 
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(MODETYPE_CHANNEL);
-	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 	{
-		ModeHandler* mh = i->second;
-
 		// Add the removal of this mode to the changelist. This handles all kinds of modes, including prefix modes.
 		mh->RemoveMode(c, changelist);
 	}

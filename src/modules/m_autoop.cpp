@@ -103,14 +103,15 @@ class ModuleAutoOp : public Module
 		if (list)
 		{
 			Modes::ChangeList changelist;
-			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+			for (const auto& entry : *list)
 			{
-				std::string::size_type colon = it->mask.find(':');
+				std::string::size_type colon = entry.mask.find(':');
 				if (colon == std::string::npos)
 					continue;
-				if (memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
+
+				if (memb->chan->CheckBan(memb->user, entry.mask.substr(colon + 1)))
 				{
-					PrefixMode* given = mh.FindMode(it->mask.substr(0, colon));
+					PrefixMode* given = mh.FindMode(entry.mask.substr(0, colon));
 					if (given)
 						changelist.push_add(given, memb->user->nick);
 				}

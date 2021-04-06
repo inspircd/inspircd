@@ -109,9 +109,9 @@ class SilenceEntry
 	static bool FlagsToBits(const std::string& flags, uint32_t& out)
 	{
 		out = SF_NONE;
-		for (std::string::const_iterator flag = flags.begin(); flag != flags.end(); ++flag)
+		for (const auto& flag : flags)
 		{
-			switch (*flag)
+			switch (flag)
 			{
 				case 'C':
 					out |= SF_CTCP_USER;
@@ -330,10 +330,8 @@ class CommandSilence : public SplitCommand
 		SilenceList* list = ext.Get(user);
 		if (list)
 		{
-			for (SilenceList::const_iterator iter = list->begin(); iter != list->end(); ++iter)
-			{
-				user->WriteNumeric(RPL_SILELIST, iter->mask, SilenceEntry::BitsToFlags(iter->flags));
-			}
+			for (const auto& entry : *list)
+				user->WriteNumeric(RPL_SILELIST, entry.mask, SilenceEntry::BitsToFlags(entry.flags));
 		}
 		user->WriteNumeric(RPL_ENDOFSILELIST, "End of SILENCE list");
 		return CmdResult::SUCCESS;
@@ -401,11 +399,10 @@ class ModuleSilence
 
 	ModResult BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions)
 	{
-		const Channel::MemberMap& members = channel->GetUsers();
-		for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
+		for (const auto& [user, _] : channel->GetUsers())
 		{
-			if (!CanReceiveMessage(source, member->first, flag))
-				exemptions.insert(member->first);
+			if (!CanReceiveMessage(source, user, flag))
+				exemptions.insert(user);
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -423,13 +420,13 @@ class ModuleSilence
 		if (!list)
 			return true;
 
-		for (SilenceList::iterator iter = list->begin(); iter != list->end(); ++iter)
+		for (const auto& entry : *list)
 		{
-			if (!(iter->flags & flag))
+			if (!(entry.flags & flag))
 				continue;
 
-			if (InspIRCd::Match(source->GetFullHost(), iter->mask))
-				return iter->flags & SilenceEntry::SF_EXEMPT;
+			if (InspIRCd::Match(source->GetFullHost(), entry.mask))
+				return entry.flags & SilenceEntry::SF_EXEMPT;
 		}
 
 		return true;

@@ -108,9 +108,9 @@ class ModuleBanException
 			return MOD_RES_PASSTHRU;
 		}
 
-		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+		for (const auto& entry : *list)
 		{
-			if (chan->CheckBan(user, it->mask))
+			if (chan->CheckBan(user, entry.mask))
 			{
 				// They match an entry on the list, so let them in.
 				return MOD_RES_ALLOW;

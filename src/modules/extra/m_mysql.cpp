@@ -455,10 +455,8 @@ ModuleSQL::~ModuleSQL()
 		delete Dispatcher;
 	}
 
-	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
-	{
-		delete i->second;
-	}
+	for (const auto& [_, connection] : connections)
+		delete connection;
 
 	mysql_library_end();
 }
@@ -490,17 +488,18 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 	// now clean up the deleted databases
 	Dispatcher->LockQueue();
 	SQL::Error err(SQL::BAD_DBID);
-	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+
+	for (const auto& [_, connection] : connections)
 	{
-		ServerInstance->Modules.DelService(*i->second);
+		ServerInstance->Modules.DelService(*connection);
 		// it might be running a query on this database. Wait for that to complete
-		i->second->lock.lock();
-		i->second->lock.unlock();
+		connection->lock.lock();
+		connection->lock.unlock();
 		// now remove all active queries to this DB
 		for (size_t j = qq.size(); j > 0; j--)
 		{
 			size_t k = j - 1;
-			if (qq[k].connection == i->second)
+			if (qq[k].connection == connection)
 			{
 				qq[k].query->OnError(err);
 				delete qq[k].query;
@@ -508,7 +507,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 			}
 		}
 		// finally, nuke the connection
-		delete i->second;
+		delete connection;
 	}
 	Dispatcher->UnlockQueue();
 	connections.swap(conns);
@@ -587,15 +586,15 @@ void DispatcherThread::OnNotify()
 {
 	// this could unlock during the dispatch, but OnResult isn't expected to take that long
 	this->LockQueue();
-	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
+	for (const auto& item : Parent->rq)
 	{
-		MySQLresult* res = i->result;
+		MySQLresult* res = item.result;
 		if (res->err.code == SQL::SUCCESS)
-			i->query->OnResult(*res);
+			item.query->OnResult(*res);
 		else
-			i->query->OnError(res->err);
-		delete i->query;
-		delete i->result;
+			item.query->OnError(res->err);
+		delete item.query;
+		delete item.result;
 	}
 	Parent->rq.clear();
 	this->UnlockQueue();

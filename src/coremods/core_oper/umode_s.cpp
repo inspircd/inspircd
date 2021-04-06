@@ -76,9 +76,9 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 	bool adding = true;
 	std::bitset<64> curr = user->snomasks;
 
-	for (std::string::const_iterator i = input.begin(); i != input.end(); ++i)
+	for (const auto& snomask : input)
 	{
-		switch (*i)
+		switch (snomask)
 		{
 			case '+':
 				adding = true;
@@ -99,29 +99,29 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 				// For remote users accept what we were told, unless the snomask char is not a letter.
 				if (IS_LOCAL(user))
 				{
-					if (!ServerInstance->SNO.IsSnomaskUsable(*i))
+					if (!ServerInstance->SNO.IsSnomaskUsable(snomask))
 					{
-						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
+						user->WriteNumeric(ERR_UNKNOWNSNOMASK, snomask, "is an unknown snomask character");
 						continue;
 					}
 					else if (!user->IsOper())
 					{
 						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset snomask %c",
-							adding ? "" : "un", *i));
+							adding ? "" : "un", snomask));
 						continue;
 
 					}
-					else if (!user->HasSnomaskPermission(*i))
+					else if (!user->HasSnomaskPermission(snomask))
 					{
 						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
-							user->oper->name.c_str(), *i));
+							user->oper->name.c_str(), snomask));
 						continue;
 					}
 				}
-				else if (!(((*i >= 'a') && (*i <= 'z')) || ((*i >= 'A') && (*i <= 'Z'))))
+				else if (!((snomask >= 'a' && snomask <= 'z') || (snomask >= 'A' && snomask <= 'Z')))
 					continue;
 
-				size_t index = ((*i) - 'A');
+				size_t index = (snomask - 'A');
 				curr[index] = adding;
 			break;
 		}

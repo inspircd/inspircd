@@ -81,9 +81,8 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	, capab(std::make_unique<CapabData>(*client))
 	, age(ServerInstance->Time())
 {
-	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
+	for (auto& iohookprovref : via->iohookprovs)
 	{
-		ListenSocket::IOHookProvRef& iohookprovref = *i;
 		if (!iohookprovref)
 			continue;
 

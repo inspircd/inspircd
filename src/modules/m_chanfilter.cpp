@@ -65,7 +65,7 @@ class ModuleChanFilter : public Module
 	bool hidemask;
 	bool notifyuser;
 
-	ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
+	const ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
 	{
 		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "filter");
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
@@ -75,10 +75,10 @@ class ModuleChanFilter : public Module
 		if (!list)
 			return NULL;
 
-		for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
+		for (const auto& entry : *list)
 		{
-			if (InspIRCd::Match(text, i->mask))
-				return &*i;
+			if (InspIRCd::Match(text, entry.mask))
+				return &entry;
 		}
 
 		return NULL;
@@ -109,7 +109,7 @@ class ModuleChanFilter : public Module
 
 		User* user = memb->user;
 		Channel* chan = memb->chan;
-		ChanFilter::ListItem* match = Match(user, chan, partmessage);
+		const ChanFilter::ListItem* match = Match(user, chan, partmessage);
 		if (!match)
 			return;
 
@@ -143,7 +143,7 @@ class ModuleChanFilter : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = target.Get<Channel>();
-		ChanFilter::ListItem* match = Match(user, chan, details.text);
+		const ChanFilter::ListItem* match = Match(user, chan, details.text);
 		if (match)
 		{
 			if (!notifyuser)

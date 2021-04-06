@@ -68,22 +68,21 @@ class CommandRMode : public Command
 		if ((pm = mh->IsPrefixMode()))
 		{
 			// As user prefix modes don't have a GetList() method, let's iterate through the channel's users.
-			const Channel::MemberMap& users = chan->GetUsers();
-			for (Channel::MemberMap::const_iterator it = users.begin(); it != users.end(); ++it)
+			for (const auto& [u, memb] : chan->GetUsers())
 			{
-				if (!InspIRCd::Match(it->first->nick, pattern))
+				if (!InspIRCd::Match(u->nick, pattern))
 					continue;
-				if (it->second->HasMode(pm) && !((it->first == user) && (pm->GetPrefixRank() > VOICE_VALUE)))
-					changelist.push_remove(mh, it->first->nick);
+
+				if (memb->HasMode(pm) && !((u == user) && (pm->GetPrefixRank() > VOICE_VALUE)))
+					changelist.push_remove(mh, u->nick);
 			}
 		}
 		else if ((lm = mh->IsListModeBase()) && ((ml = lm->GetList(chan)) != NULL))
 		{
-			for (ListModeBase::ModeList::iterator it = ml->begin(); it != ml->end(); ++it)
+			for (const auto& entry : *ml)
 			{
-				if (!InspIRCd::Match(it->mask, pattern))
-					continue;
-				changelist.push_remove(mh, it->mask);
+				if (InspIRCd::Match(entry.mask, pattern))
+					changelist.push_remove(mh, entry.mask);
 			}
 		}
 		else

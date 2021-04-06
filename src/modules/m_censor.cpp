@@ -79,14 +79,14 @@ class ModuleCensor : public Module
 				return MOD_RES_PASSTHRU;
 		}
 
-		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
+		for (const auto& [find, replace] : censors)
 		{
 			size_t censorpos;
-			while ((censorpos = irc::find(details.text, index->first)) != std::string::npos)
+			while ((censorpos = irc::find(details.text, find)) != std::string::npos)
 			{
-				if (index->second.empty())
+				if (replace.empty())
 				{
-					const std::string msg = InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.", index->first.c_str());
+					const std::string msg = InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.", find.c_str());
 					if (target.type == MessageTarget::TYPE_CHANNEL)
 						user->WriteNumeric(Numerics::CannotSendTo(target.Get<Channel>(), msg));
 					else
@@ -94,7 +94,7 @@ class ModuleCensor : public Module
 					return MOD_RES_DENY;
 				}
 
-				details.text.replace(censorpos, index->first.size(), index->second);
+				details.text.replace(censorpos, find.size(), replace);
 			}
 		}
 		return MOD_RES_PASSTHRU;

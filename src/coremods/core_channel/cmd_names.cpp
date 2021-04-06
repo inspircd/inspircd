@@ -92,22 +92,19 @@ void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible
 
 	std::string prefixlist;
 	std::string nick;
-	const Channel::MemberMap& members = chan->GetUsers();
-	for (Channel::MemberMap::const_iterator i = members.begin(); i != members.end(); ++i)
+	for (const auto& [u, memb] : chan->GetUsers())
 	{
-		if ((!show_invisible) && (i->first->IsModeSet(invisiblemode)))
+		if ((!show_invisible) && (u->IsModeSet(invisiblemode)))
 		{
 			// Member is invisible and we are not supposed to show them
 			continue;
 		}
 
-		Membership* const memb = i->second;
-
 		prefixlist.clear();
 		char prefix = memb->GetPrefixChar();
 		if (prefix)
 			prefixlist.push_back(prefix);
-		nick = i->first->nick;
+		nick = u->nick;
 
 		ModResult res = namesevprov.FirstResult(&Names::EventListener::OnNamesListItem, user, memb, prefixlist, nick);
 		if (res != MOD_RES_DENY)

@@ -144,21 +144,19 @@ class ModuleNickFlood : public Module
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+		for (const auto* memb : user->chans)
 		{
-			Channel* channel = (*i)->chan;
-			ModResult res;
-
-			nickfloodsettings *f = nf.ext.Get(channel);
+			nickfloodsettings *f = nf.ext.Get(memb->chan);
 			if (f)
 			{
-				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");
+				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					continue;
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for %u seconds because there have been more than %u nick changes in %u seconds", channel->name.c_str(), duration, f->nicks, f->secs));
+					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for %u seconds because there have been more than %u nick changes in %u seconds",
+							memb->chan->name.c_str(), duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 
@@ -166,7 +164,8 @@ class ModuleNickFlood : public Module
 				{
 					f->clear();
 					f->lock();
-					channel->WriteNotice(InspIRCd::Format("No nick changes are allowed for %u seconds because there have been more than %u nick changes in %u seconds.", duration, f->nicks, f->secs));
+					memb->chan->WriteNotice(InspIRCd::Format("No nick changes are allowed for %u seconds because there have been more than %u nick changes in %u seconds.",
+						duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 			}
@@ -183,15 +182,12 @@ class ModuleNickFlood : public Module
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
 
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
+		for (const auto* memb : user->chans)
 		{
-			Channel* channel = (*i)->chan;
-			ModResult res;
-
-			nickfloodsettings *f = nf.ext.Get(channel);
+			nickfloodsettings *f = nf.ext.Get(memb->chan);
 			if (f)
 			{
-				res = CheckExemption::Call(exemptionprov, user, channel, "nickflood");
+				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
 

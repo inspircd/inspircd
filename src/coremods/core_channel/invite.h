@@ -51,13 +51,12 @@ class Invite::ExtItem : public ExtensionItem
 	{
 		std::string ret;
 		Store<T>* store = static_cast<Store<T>*>(item);
-		for (typename insp::intrusive_list<Invite, T>::iterator i = store->invites.begin(); i != store->invites.end(); ++i)
-		{
-			Invite* inv = *i;
+		for (auto* inv : store->invites)
 			inv->Serialize(human, (ExtType == ExtensionItem::EXT_USER), ret);
-		}
+
 		if (!ret.empty())
 			ret.erase(ret.length()-1);
+
 		return ret;
 	}
 

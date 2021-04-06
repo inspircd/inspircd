@@ -472,10 +472,8 @@ void User::UnOper()
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
 	Modes::ChangeList changelist;
-	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes.GetModes(MODETYPE_USER);
-	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
 	{
-		ModeHandler* mh = i->second;
 		if (mh->NeedsOper())
 			changelist.push_remove(mh);
 	}
@@ -933,13 +931,11 @@ void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 	}
 
 	// Now consider the real neighbors
-	for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
+	for (const auto* memb : include_chans)
 	{
-		Channel* chan = (*i)->chan;
-		const Channel::MemberMap& userlist = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator j = userlist.begin(); j != userlist.end(); ++j)
+		for (const auto& [user, _] : memb->chan->GetUsers())
 		{
-			LocalUser* curr = IS_LOCAL(j->first);
+			LocalUser* curr = IS_LOCAL(user);
 			// User not yet visited?
 			if ((curr) && (curr->already_sent != newid))
 			{
@@ -970,13 +966,9 @@ void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
  */
 bool User::SharesChannelWith(User *other)
 {
-	/* Outer loop */
-	for (User::ChanList::iterator i = this->chans.begin(); i != this->chans.end(); ++i)
+	for (const auto* memb : chans)
 	{
-		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
-		 * by replacing it with a map::find which *should* be more efficient
-		 */
-		if ((*i)->chan->HasUser(other))
+		if (memb->chan->HasUser(other))
 			return true;
 	}
 	return false;

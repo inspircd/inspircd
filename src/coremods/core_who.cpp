@@ -139,16 +139,14 @@ class CommandWho : public SplitCommand
 	/** Gets the first channel which is visible between the source and the target users. */
 	Membership* GetFirstVisibleChannel(LocalUser* source, User* user)
 	{
-		for (User::ChanList::iterator iter = user->chans.begin(); iter != user->chans.end(); ++iter)
+		for (auto* memb : user->chans)
 		{
-			Membership* memb = *iter;
-
 			// TODO: move the +I check into m_hidechans.
 			bool has_modes = memb->chan->IsModeSet(secretmode) || memb->chan->IsModeSet(privatemode) || user->IsModeSet(hidechansmode);
 			if (source == user || !has_modes || memb->chan->HasUser(source))
 				return memb;
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	/** Determines whether WHO flags match a specific channel user. */
@@ -272,9 +270,8 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 		if (source_can_see_target)
 		{
 			bool set = true;
-			for (std::string::const_iterator iter = data.matchtext.begin(); iter != data.matchtext.end(); ++iter)
+			for (const auto& chr : data.matchtext)
 			{
-				unsigned char chr = static_cast<unsigned char>(*iter);
 				switch (chr)
 				{
 					// The following user modes should be set.
@@ -374,12 +371,8 @@ void CommandWho::WhoChannel(LocalUser* source, const std::vector<std::string>& p
 		return;
 
 	bool inside = chan->HasUser(source);
-	const Channel::MemberMap& users = chan->GetUsers();
-	for (Channel::MemberMap::const_iterator iter = users.begin(); iter != users.end(); ++iter)
+	for (const auto& [user, memb] : chan->GetUsers())
 	{
-		User* user = iter->first;
-		Membership* memb = iter->second;
-
 		// Only show invisible users if the source is in the channel or has the users/auspex priv.
 		if (!inside && user->IsModeSet(invisiblemode) && !source->HasPrivPermission("users/auspex"))
 			continue;
@@ -576,8 +569,8 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 		WhoUsers(user, parameters, ServerInstance->Users.GetUsers(), data);
 
 	// Send the results to the source.
-	for (std::vector<Numeric::Numeric>::const_iterator n = data.results.begin(); n != data.results.end(); ++n)
-		user->WriteNumeric(*n);
+	for (const auto& numeric : data.results)
+		user->WriteNumeric(numeric);
 	user->WriteNumeric(RPL_ENDOFWHO, (data.matchtext.empty() ? "*" : data.matchtext.c_str()), "End of /WHO list.");
 
 	// Penalize the source a bit for large queries with one unit of penalty per 200 results.

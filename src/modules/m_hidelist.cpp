@@ -60,9 +60,7 @@ class ModuleHideList : public Module
  public:
 	void ReadConfig(ConfigStatus& status) override
 	{
-		typedef std::vector<std::pair<std::string, unsigned int> > NewConfigs;
-		NewConfigs newconfigs;
-
+		std::vector<std::pair<std::string, unsigned int>> newconfigs;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("hidelist"))
 		{
 			std::string modename = tag->getString("mode");
@@ -77,8 +75,8 @@ class ModuleHideList : public Module
 		stdalgo::delete_all(watchers);
 		watchers.clear();
 
-		for (NewConfigs::const_iterator i = newconfigs.begin(); i != newconfigs.end(); ++i)
-			watchers.push_back(new ListWatcher(this, i->first, i->second));
+		for (const auto& [mode, rank] : newconfigs)
+			watchers.push_back(new ListWatcher(this, mode, rank));
 	}
 
 	ModuleHideList()

@@ -131,13 +131,14 @@ class ExemptHandler : public CheckExemption::EventListener
 
 		if (list)
 		{
-			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); ++i)
+			for (const auto& entry : *list)
 			{
-				std::string::size_type pos = (*i).mask.find(':');
+				std::string::size_type pos = entry.mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if (!i->mask.compare(0, pos, restriction))
-					minmode.assign(i->mask, pos + 1, std::string::npos);
+
+				if (!entry.mask.compare(0, pos, restriction))
+					minmode.assign(entry.mask, pos + 1, std::string::npos);
 			}
 		}
 

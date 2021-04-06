@@ -92,14 +92,14 @@ class FilterResult
 		this->FillFlags(fla);
 	}
 
-	char FillFlags(const std::string &fl)
+	char FillFlags(const std::string& flags)
 	{
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
 			flag_notice = flag_strip_color = flag_no_registered = false;
 
-		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
+		for (const auto& flag : flags)
 		{
-			switch (*n)
+			switch (flag)
 			{
 				case 'o':
 					flag_no_opers = true;
@@ -127,7 +127,7 @@ class FilterResult
 						flag_privmsg = flag_notice = flag_strip_color = true;
 				break;
 				default:
-					return *n;
+					return flag;
 			}
 		}
 		return 0;
@@ -216,12 +216,12 @@ class ModuleFilter
 	void init() override;
 	Cullable::Result Cull() override;
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
-	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
+	const FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
 	void GetLinkData(std::string& data) override;
-	std::string EncodeFilter(FilterResult* filter);
+	std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string &data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) override;
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) override;
@@ -229,7 +229,7 @@ class ModuleFilter
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnUnloadModule(Module* mod) override;
 	bool Tick(time_t) override;
-	bool AppliesToMe(User* user, FilterResult* filter, int flags);
+	bool AppliesToMe(User* user, const FilterResult& filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
 	static std::string FilterActionToString(FilterAction fa);
@@ -329,21 +329,21 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 	}
 }
 
-bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
+bool ModuleFilter::AppliesToMe(User* user, const FilterResult& filter, int iflags)
 {
 	const AccountExtItem* accountext = GetAccountExtItem();
 
-	if ((filter->flag_no_opers) && user->IsOper())
+	if ((filter.flag_no_opers) && user->IsOper())
 		return false;
-	if ((filter->flag_no_registered) && accountext && accountext->Get(user))
+	if ((filter.flag_no_registered) && accountext && accountext->Get(user))
 		return false;
-	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
+	if ((iflags & FLAG_PRIVMSG) && (!filter.flag_privmsg))
 		return false;
-	if ((iflags & FLAG_NOTICE) && (!filter->flag_notice))
+	if ((iflags & FLAG_NOTICE) && (!filter.flag_notice))
 		return false;
-	if ((iflags & FLAG_QUIT)   && (!filter->flag_quit_message))
+	if ((iflags & FLAG_QUIT)   && (!filter.flag_quit_message))
 		return false;
-	if ((iflags & FLAG_PART)   && (!filter->flag_part_message))
+	if ((iflags & FLAG_PART)   && (!filter.flag_part_message))
 		return false;
 	return true;
 }
@@ -383,7 +383,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 	flags = (details.type == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
 
-	FilterResult* f = this->FilterMatch(user, details.text, flags);
+	const FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)
 	{
 		bool is_selfmsg = false;
@@ -536,7 +536,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			/* We're only messing with PART and QUIT */
 			return MOD_RES_PASSTHRU;
 
-		FilterResult* f = this->FilterMatch(user, parameters[parting ? 1 : 0], flags);
+		const FilterResult* f = this->FilterMatch(user, parameters[parting ? 1 : 0], flags);
 		if (!f)
 			/* PART or QUIT reason doesnt match a filter */
 			return MOD_RES_PASSTHRU;
@@ -673,17 +673,19 @@ void ModuleFilter::GetLinkData(std::string& data)
 		data = RegexEngine->name;
 }
 
-std::string ModuleFilter::EncodeFilter(FilterResult* filter)
+std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
 {
 	std::ostringstream stream;
-	std::string x = filter->freeform;
 
 	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
-	for (std::string::iterator n = x.begin(); n != x.end(); n++)
-		if (*n == ' ')
-			*n = '\7';
+	std::string freeform = filter.freeform;
+	for (auto& chr : freeform)
+	{
+		if (chr == ' ')
+			chr = '\7';
+	}
 
-	stream << x << " " << FilterActionToString(filter->action) << " " << filter->GetFlags() << " " << filter->duration << " :" << filter->reason;
+	stream << freeform << " " << FilterActionToString(filter.action) << " " << filter.GetFlags() << " " << filter.duration << " :" << filter.reason;
 	return stream.str();
 }
 
@@ -710,22 +712,22 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	tokens.GetTrailing(res.reason);
 
 	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
-	for (std::string::iterator n = res.freeform.begin(); n != res.freeform.end(); n++)
-		if (*n == '\7')
-			*n = ' ';
-
+	for (auto& chr : res.freeform)
+	{
+		if (chr == '\7')
+			chr = ' ';
+	}
 	return res;
 }
 
 void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 {
-	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
+	for (const auto& filter : filters)
 	{
-		FilterResult& filter = *i;
 		if (filter.from_config)
 			continue;
 
-		server.SendMetaData("filter", EncodeFilter(&filter));
+		server.SendMetaData("filter", EncodeFilter(filter));
 	}
 }
 
@@ -745,27 +747,25 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 	}
 }
 
-FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
+const FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
 {
 	static std::string stripped_text;
 	stripped_text.clear();
 
-	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
+	for (const auto& filter : filters)
 	{
-		FilterResult* filter = &*i;
-
 		/* Skip ones that dont apply to us */
 		if (!AppliesToMe(user, filter, flgs))
 			continue;
 
-		if ((filter->flag_strip_color) && (stripped_text.empty()))
+		if ((filter.flag_strip_color) && (stripped_text.empty()))
 		{
 			stripped_text = text;
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		if (filter->regex->IsMatch(filter->flag_strip_color ? stripped_text : text))
-			return filter;
+		if (filter.regex->IsMatch(filter.flag_strip_color ? stripped_text : text))
+			return &filter;
 	}
 	return NULL;
 }
@@ -787,9 +787,9 @@ bool ModuleFilter::DeleteFilter(const std::string& freeform, std::string& reason
 
 std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flgs, bool config)
 {
-	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
+	for (const auto& filter : filters)
 	{
-		if (i->freeform == freeform)
+		if (filter.freeform == freeform)
 		{
 			return std::make_pair(false, "Filter already exists");
 		}
@@ -885,8 +885,8 @@ void ModuleFilter::ReadFilters()
 
 	if (!removedfilters.empty())
 	{
-		for (insp::flat_set<std::string>::const_iterator it = removedfilters.begin(); it != removedfilters.end(); ++it)
-			ServerInstance->SNO.WriteGlobalSno('f', "Removing filter '" + *(it) + "' due to config rehash.");
+		for (const auto& removedfilter : removedfilters)
+			ServerInstance->SNO.WriteGlobalSno('f', "Removing filter '" + removedfilter + "' due to config rehash.");
 	}
 }
 
@@ -894,17 +894,17 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 {
 	if (stats.GetSymbol() == 's')
 	{
-		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
+		for (const auto& filter : filters)
 		{
-			stats.AddRow(223, RegexEngine.GetProvider(), i->freeform, i->GetFlags(), FilterActionToString(i->action), i->duration, i->reason);
+			stats.AddRow(223, RegexEngine.GetProvider(), filter.freeform, filter.GetFlags(), FilterActionToString(filter.action), filter.duration, filter.reason);
 		}
-		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
+		for (const auto& exemptedchan : exemptedchans)
 		{
-			stats.AddRow(223, "EXEMPT "+(*i));
+			stats.AddRow(223, "EXEMPT " + exemptedchan);
 		}
-		for (ExemptTargetSet::const_iterator i = exemptednicks.begin(); i != exemptednicks.end(); ++i)
+		for (const auto& exemptednick : exemptednicks)
 		{
-			stats.AddRow(223, "EXEMPT "+(*i));
+			stats.AddRow(223, "EXEMPT " + exemptednick);
 		}
 	}
 	return MOD_RES_PASSTHRU;
@@ -950,10 +950,8 @@ bool ModuleFilter::Tick(time_t)
 			<< "# If you want to convert this to a normal config file you *MUST* remove the generated=\"yes\" keys!" << std::endl
 			<< std::endl;
 
-		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
+		for (const auto& filter : filters)
 		{
-			// # <keyword reason="You qwertied!" action="block" flags="pn">
-			const FilterResult& filter = (*i);
 			if (filter.from_config)
 				continue;
 

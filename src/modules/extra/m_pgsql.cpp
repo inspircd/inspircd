@@ -215,9 +215,9 @@ class SQLConn : public SQL::Provider, public EventHandler
 			qinprog.c->OnError(err);
 			delete qinprog.c;
 		}
-		for(std::deque<QueueItem>::iterator i = queue.begin(); i != queue.end(); i++)
+		for (const auto& item : queue)
 		{
-			SQL::Query* q = i->c;
+			SQL::Query* q = item.c;
 			q->OnError(err);
 			delete q;
 		}
@@ -577,10 +577,10 @@ class ModulePgSQL : public Module
 
 	void ClearAllConnections()
 	{
-		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+		for (const auto& [_, conn] : connections)
 		{
-			i->second->Cull();
-			delete i->second;
+			conn->Cull();
+			delete conn;
 		}
 		connections.clear();
 	}
@@ -588,9 +588,8 @@ class ModulePgSQL : public Module
 	void OnUnloadModule(Module* mod) override
 	{
 		SQL::Error err(SQL::BAD_DBID);
-		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+		for (const auto& [_, conn] : connections)
 		{
-			SQLConn* conn = i->second;
 			if (conn->qinprog.c && conn->qinprog.c->creator == mod)
 			{
 				conn->qinprog.c->OnError(err);

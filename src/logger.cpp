@@ -136,10 +136,8 @@ void LogManager::CloseLogs()
 	LogStreams.clear();
 	GlobalLogStreams.clear();
 
-	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
-	{
-		delete i->first;
-	}
+	for (const auto& [ls, _] : AllLogStreams)
+		delete ls;
 
 	AllLogStreams.clear();
 }
@@ -167,15 +165,15 @@ void LogManager::AddLogTypes(const std::string &types, LogStream* l, bool autocl
 	}
 	// Handle doing things like: USERINPUT USEROUTPUT -USERINPUT should be the same as saying just USEROUTPUT.
 	// (This is so modules could, for example, inject exclusions for logtypes they can't handle.)
-	for (std::vector<std::string>::iterator i = excludes.begin(); i != excludes.end(); ++i)
+	for (const auto& exclude : excludes)
 	{
-		if (*i == "*")
+		if (exclude == "*")
 		{
 			/* -* == Exclude all. Why someone would do this, I dunno. */
 			DelLogStream(l);
 			return;
 		}
-		DelLogType(*i, l);
+		DelLogType(exclude, l);
 	}
 	// Now if it's registered as a global, add the exclusions there too.
 	std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
@@ -200,9 +198,9 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclos
 
 void LogManager::DelLogStream(LogStream* l)
 {
-	for (std::map<std::string, std::vector<LogStream*> >::iterator i = LogStreams.begin(); i != LogStreams.end(); ++i)
+	for (auto& [_, ls] : LogStreams)
 	{
-		while (stdalgo::erase(i->second, l))
+		while (stdalgo::erase(ls, l))
 		{
 			// Keep erasing while it exists
 		}
@@ -281,23 +279,17 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 
 	Logging = true;
 
-	for (std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi)
+	for (const auto& [ls, logtype] : GlobalLogStreams)
 	{
-		if (stdalgo::isin(gi->second, type))
-		{
-			continue;
-		}
-		gi->first->OnLog(loglevel, type, msg);
+		if (!stdalgo::isin(logtype, type))
+			ls->OnLog(loglevel, type, msg);
 	}
 
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
-
 	if (i != LogStreams.end())
 	{
-		for (std::vector<LogStream *>::iterator it = i->second.begin(); it != i->second.end(); ++it)
-		{
-			(*it)->OnLog(loglevel, type, msg);
-		}
+		for (const auto& ls : i->second)
+			ls->OnLog(loglevel, type, msg);
 	}
 
 	Logging = false;

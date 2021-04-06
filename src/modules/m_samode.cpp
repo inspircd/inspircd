@@ -118,9 +118,8 @@ class ModuleSaMode : public Module
 		logtext.push_back(' ');
 		logtext += ClientProtocol::Messages::Mode::ToModeLetters(modes);
 
-		for (Modes::ChangeList::List::const_iterator i = modes.getlist().begin(); i != modes.getlist().end(); ++i)
+		for (const auto& item : modes.getlist())
 		{
-			const Modes::Change& item = *i;
 			if (!item.param.empty())
 				logtext.append(1, ' ').append(item.param);
 		}

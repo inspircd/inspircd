@@ -96,9 +96,8 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	size_t minusers = 0;
 	size_t maxusers = 0;
 
-	for (Params::const_iterator iter = parameters.begin(); iter != parameters.end(); ++iter)
+	for (const auto& constraint : parameters)
 	{
-		const std::string& constraint = *iter;
 		if (constraint[0] == '<')
 		{
 			maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
@@ -142,11 +141,9 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	const bool has_privs = user->HasPrivPermission("channels/auspex");
 
 	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
-	const chan_hash& chans = ServerInstance->GetChans();
-	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
-	{
-		Channel* const chan = i->second;
 
+	for (const auto& [_, chan] : ServerInstance->GetChans())
+	{
 		// Check the user count if a search has been specified.
 		const size_t users = chan->GetUserCounter();
 		if ((minusers && users <= minusers) || (maxusers && users >= maxusers))

@@ -455,12 +455,12 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 
 	void CopyAll()
 	{
-		size_t j = 0;
-		for (ParamList::iterator i = params.begin(); i != params.end(); ++i, j++)
+		size_t idx = 0;
+		for (const auto& param : params)
 		{
-			Param& curr = *i;
-			if (!curr.IsOwned())
-				ReplaceParam(j, curr);
+			if (!param.IsOwned())
+				ReplaceParam(idx, param);
+			idx++;
 		}
 	}
 

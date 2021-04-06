@@ -37,10 +37,9 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.MaxChannel || channame[0] != '#')
 		return false;
 
-	for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)
+	for (const auto& chr : channame)
 	{
-		unsigned int i = *c & 0xFF;
-		if (!allowedmap[i])
+		if (!allowedmap[static_cast<unsigned char>(chr)])
 			return false;
 	}
 
@@ -137,10 +136,11 @@ class ModuleChannelNames : public Module
 	{
 		if (badchan)
 		{
-			const Channel::MemberMap& users = memb->chan->GetUsers();
-			for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
-				if (i->first != memb->user)
-					except_list.insert(i->first);
+			for (const auto& [user, _] : memb->chan->GetUsers())
+			{
+				if (user != memb->user)
+					except_list.insert(user);
+			}
 		}
 	}
 

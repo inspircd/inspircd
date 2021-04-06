@@ -412,10 +412,10 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		{
 			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
 
-			std::string buf = BinToHex(ip, 16);
-			for (std::string::const_reverse_iterator it = buf.rbegin(); it != buf.rend(); ++it)
+			const std::string buf = BinToHex(ip, 16);
+			for (const auto& chr : insp::reverse_range(buf))
 			{
-				reversedip.push_back(*it);
+				reversedip.push_back(chr);
 				reversedip.push_back('.');
 			}
 			reversedip.erase(reversedip.length() - 1, 1);

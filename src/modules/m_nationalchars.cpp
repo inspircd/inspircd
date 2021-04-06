@@ -235,8 +235,8 @@ class ModuleNationalChars : public Module
 	void RehashHashmap(T& hashmap)
 	{
 		T newhash(hashmap.bucket_count());
-		for (typename T::const_iterator i = hashmap.begin(); i != hashmap.end(); ++i)
-			newhash.insert(std::make_pair(i->first, i->second));
+		for (const auto& [key, value] : hashmap)
+			newhash.emplace(key, value);
 		hashmap.swap(newhash);
 	}
 

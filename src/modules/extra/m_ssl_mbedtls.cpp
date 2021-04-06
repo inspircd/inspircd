@@ -893,11 +893,8 @@ class ModuleSSLmbedTLS : public Module
 
 		// New profiles are ok, begin using them
 		// Old profiles are deleted when their refcount drops to zero
-		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
-		{
-			mbedTLSIOHookProvider& prov = **i;
-			ServerInstance->Modules.DelService(prov);
-		}
+		for (const auto& profile : profiles)
+			ServerInstance->Modules.DelService(*profile);
 
 		profiles.swap(newprofiles);
 	}

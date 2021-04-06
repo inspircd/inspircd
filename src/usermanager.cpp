@@ -124,10 +124,8 @@ UserManager::UserManager()
 
 UserManager::~UserManager()
 {
-	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); ++i)
-	{
-		delete i->second;
-	}
+	for (const auto& [_, client] : clientlist)
+		delete client;
 }
 
 void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
@@ -348,12 +346,8 @@ void UserManager::RehashCloneCounts()
 {
 	clonemap.clear();
 
-	const user_hash& hash = ServerInstance->Users.GetUsers();
-	for (user_hash::const_iterator i = hash.begin(); i != hash.end(); ++i)
-	{
-		User* u = i->second;
+	for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		AddClone(u);
-	}
 }
 
 const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
@@ -372,11 +366,8 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, ServerInstance->Config->GetServerName(), message, MSG_NOTICE);
 	ClientProtocol::Event msgevent(ServerInstance->GetRFCEvents().privmsg, msg);
 
-	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
-	{
-		LocalUser* user = *i;
+	for (auto* user : GetLocalUsers())
 		user->Send(msgevent);
-	}
 }
 
 /**
@@ -425,11 +416,8 @@ already_sent_t UserManager::NextAlreadySentId()
 	{
 		// Wrapped around, reset the already_sent ids of all users
 		already_sent_id = 1;
-		for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
-		{
-			LocalUser* user = *i;
+		for (auto* user : GetLocalUsers())
 			user->already_sent = 0;
-		}
 	}
 	return already_sent_id;
 }

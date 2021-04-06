@@ -193,8 +193,8 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		const Invite::List* list = invapi.GetList(IS_LOCAL(user));
 		if (list)
 		{
-			for (Invite::List::const_iterator i = list->begin(); i != list->end(); ++i)
-				user->WriteNumeric(RPL_INVITELIST, (*i)->chan->name);
+			for (const auto* invite : *list)
+				user->WriteNumeric(RPL_INVITELIST, invite->chan->name);
 		}
 		user->WriteNumeric(RPL_ENDOFINVITELIST, "End of INVITE list");
 	}

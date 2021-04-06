@@ -315,11 +315,8 @@ void DataKeeper::DoSaveUsers()
 {
 	ModesExts currdata;
 
-	const user_hash& users = ServerInstance->Users.GetUsers();
-	for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+	for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 	{
-		User* const user = i->second;
-
 		// Serialize user modes
 		for (size_t j = 0; j < handledmodes[MODETYPE_USER].size(); j++)
 		{
@@ -375,9 +372,9 @@ void DataKeeper::SaveExtensions(Extensible* extensible, std::vector<InstanceData
 
 	// Position of the extension saved in the handledexts list
 	size_t index = 0;
-	for (std::vector<ProviderInfo>::const_iterator i = handledexts.begin(); i != handledexts.end(); ++i, index++)
+	for (const auto& prov : handledexts)
 	{
-		ExtensionItem* const item = i->extitem;
+		ExtensionItem* const item = prov.extitem;
 		Extensible::ExtensibleStore::const_iterator it = setexts.find(item);
 		if (it == setexts.end())
 			continue;
@@ -395,11 +392,8 @@ void DataKeeper::SaveListModes(Channel* chan, ListModeBase* lm, size_t index, Mo
 	if (!list)
 		return;
 
-	for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
-	{
-		const ListModeBase::ListItem& listitem = *i;
+	for (const auto& listitem : *list)
 		currdata.modelist.push_back(InstanceData(index, listitem.mask));
-	}
 }
 
 void DataKeeper::DoSaveChans()
@@ -407,11 +401,8 @@ void DataKeeper::DoSaveChans()
 	ModesExts currdata;
 	std::vector<OwnedModesExts> currmemberdata;
 
-	const chan_hash& chans = ServerInstance->GetChans();
-	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+	for (const auto& [_, chan] : ServerInstance->GetChans())
 	{
-		Channel* const chan = i->second;
-
 		// Serialize channel modes
 		for (size_t j = 0; j < handledmodes[MODETYPE_CHANNEL].size(); j++)
 		{
@@ -442,11 +433,8 @@ void DataKeeper::DoSaveChans()
 void DataKeeper::SaveMemberData(Channel* chan, std::vector<OwnedModesExts>& memberdatalist)
 {
 	ModesExts currdata;
-	const Channel::MemberMap& users = chan->GetUsers();
-	for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
+	for (const auto& [_, memb] : chan->GetUsers())
 	{
-		Membership* const memb = i->second;
-
 		for (size_t j = 0; j < handledmodes[MODETYPE_CHANNEL].size(); j++)
 		{
 			ModeHandler* mh = handledmodes[MODETYPE_CHANNEL][j].mh;
@@ -468,9 +456,8 @@ void DataKeeper::SaveMemberData(Channel* chan, std::vector<OwnedModesExts>& memb
 
 void DataKeeper::RestoreMemberData(Channel* chan, const std::vector<ChanData::MemberData>& memberdatalist, Modes::ChangeList& modechange)
 {
-	for (std::vector<ChanData::MemberData>::const_iterator i = memberdatalist.begin(); i != memberdatalist.end(); ++i)
+	for (const auto& md : memberdatalist)
 	{
-		const ChanData::MemberData& md = *i;
 		User* const user = ServerInstance->Users.FindUUID(md.owner);
 		if (!user)
 		{
@@ -491,10 +478,8 @@ void DataKeeper::RestoreMemberData(Channel* chan, const std::vector<ChanData::Me
 
 void DataKeeper::CreateModeList(ModeType modetype)
 {
-	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
-	for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); ++i)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
 	{
-		ModeHandler* mh = i->second;
 		if (mh->creator == mod)
 			handledmodes[modetype].push_back(ProviderInfo(mh));
 	}
@@ -504,10 +489,8 @@ void DataKeeper::Save(Module* currmod)
 {
 	this->mod = currmod;
 
-	const ExtensionManager::ExtMap& allexts = ServerInstance->Extensions.GetExts();
-	for (ExtensionManager::ExtMap::const_iterator i = allexts.begin(); i != allexts.end(); ++i)
+	for (const auto& [_, ext] : ServerInstance->Extensions.GetExts())
 	{
-		ExtensionItem* ext = i->second;
 		if (ext->creator == mod)
 			handledexts.push_back(ProviderInfo(ext));
 	}
@@ -534,10 +517,8 @@ void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* 
 
 void DataKeeper::LinkModes(ModeType modetype)
 {
-	std::vector<ProviderInfo>& list = handledmodes[modetype];
-	for (std::vector<ProviderInfo>::iterator i = list.begin(); i != list.end(); ++i)
+	for (auto& item : handledmodes[modetype])
 	{
-		ProviderInfo& item = *i;
 		item.mh = ServerInstance->Modes.FindMode(item.itemname, modetype);
 		VerifyServiceProvider(item, (modetype == MODETYPE_USER ? "User mode" : "Channel mode"));
 	}
@@ -545,9 +526,8 @@ void DataKeeper::LinkModes(ModeType modetype)
 
 void DataKeeper::LinkExtensions()
 {
-	for (std::vector<ProviderInfo>::iterator i = handledexts.begin(); i != handledexts.end(); ++i)
+	for (auto& item : handledexts)
 	{
-		ProviderInfo& item = *i;
 		item.extitem = ServerInstance->Extensions.GetItem(item.itemname);
 		VerifyServiceProvider(item.extitem, "Extension");
 	}
@@ -555,9 +535,8 @@ void DataKeeper::LinkExtensions()
 
 void DataKeeper::LinkSerializers()
 {
-	for (std::vector<ProviderInfo>::iterator i = handledserializers.begin(); i != handledserializers.end(); ++i)
+	for (auto& item : handledserializers)
 	{
-		ProviderInfo& item = *i;
 		item.serializer = ServerInstance->Modules.FindDataService<ClientProtocol::Serializer>(item.itemname);
 		VerifyServiceProvider(item.serializer, "Serializer");
 	}
@@ -597,20 +576,14 @@ void DataKeeper::RestoreObj(const OwnedModesExts& data, Extensible* extensible, 
 
 void DataKeeper::RestoreExtensions(const std::vector<InstanceData>& list, Extensible* extensible)
 {
-	for (std::vector<InstanceData>::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		const InstanceData& id = *i;
+	for (const auto& id : list)
 		handledexts[id.index].extitem->FromInternal(extensible, id.serialized);
-	}
 }
 
 void DataKeeper::RestoreModes(const std::vector<InstanceData>& list, ModeType modetype, Modes::ChangeList& modechange)
 {
-	for (std::vector<InstanceData>::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		const InstanceData& id = *i;
+	for (const auto& id : list)
 		modechange.push_add(handledmodes[modetype][id.index].mh, id.serialized);
-	}
 }
 
 bool DataKeeper::RestoreSerializer(size_t serializerindex, User* user)
@@ -642,9 +615,8 @@ void DataKeeper::DoRestoreUsers()
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restoring user data");
 	Modes::ChangeList modechange;
 
-	for (std::vector<UserData>::const_iterator i = userdatalist.begin(); i != userdatalist.end(); ++i)
+	for (const auto& userdata : userdatalist)
 	{
-		const UserData& userdata = *i;
 		User* const user = ServerInstance->Users.FindUUID(userdata.owner);
 		if (!user)
 		{
@@ -667,9 +639,8 @@ void DataKeeper::DoRestoreChans()
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Restoring channel data");
 	Modes::ChangeList modechange;
 
-	for (std::vector<ChanData>::const_iterator i = chandatalist.begin(); i != chandatalist.end(); ++i)
+	for (const auto& chandata : chandatalist)
 	{
-		const ChanData& chandata = *i;
 		Channel* const chan = ServerInstance->FindChan(chandata.owner);
 		if (!chan)
 		{
@@ -691,9 +662,8 @@ void DataKeeper::DoRestoreChans()
 
 void DataKeeper::DoRestoreModules()
 {
-	for (ReloadModule::CustomData::List::iterator i = moddata.list.begin(); i != moddata.list.end(); ++i)
+	for (const auto& data : moddata.list)
 	{
-		ReloadModule::CustomData::Data& data = *i;
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Calling module data handler %p", static_cast<void*>(data.handler));
 		data.handler->OnReloadModuleRestore(mod, data.data);
 	}

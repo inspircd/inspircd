@@ -180,9 +180,9 @@ bool InspIRCd::DefaultIsChannel(const std::string& chname)
 	if (chname[0] != '#')
 		return false;
 
-	for (std::string::const_iterator i = chname.begin()+1; i != chname.end(); ++i)
+	for (const auto& chr : insp::iterator_range(chname.begin() + 1, chname.end()))
 	{
-		switch (*i)
+		switch (chr)
 		{
 			case ' ':
 			case ',':
@@ -227,17 +227,13 @@ bool InspIRCd::DefaultIsIdent(const std::string& n)
 	if (n.empty())
 		return false;
 
-	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
+	for (const auto& chr : n)
 	{
-		if ((*i >= 'A') && (*i <= '}'))
-		{
+		if (chr >= 'A' && chr <= '}')
 			continue;
-		}
 
-		if (((*i >= '0') && (*i <= '9')) || (*i == '-') || (*i == '.'))
-		{
+		if ((chr >= '0' && chr <= '9') || chr == '-' || chr == '.')
 			continue;
-		}
 
 		return false;
 	}
@@ -345,12 +341,12 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 	unsigned long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
-	for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+	for (const auto& chr : str)
 	{
 		/* Found a number, queue it onto the current number */
-		if ((*i >= '0') && (*i <= '9'))
+		if (chr >= '0' && chr <= '9')
 		{
-			subtotal = (subtotal * 10) + (*i - '0');
+			subtotal = (subtotal * 10) + (chr - '0');
 		}
 		else
 		{
@@ -358,7 +354,7 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */
-			unsigned int multiplier = duration_multi[static_cast<unsigned char>(*i)];
+			unsigned int multiplier = duration_multi[static_cast<unsigned char>(chr)];
 			if (multiplier == 0)
 				return false;
 
@@ -382,13 +378,12 @@ unsigned long InspIRCd::Duration(const std::string& str)
 
 bool InspIRCd::IsValidDuration(const std::string& duration)
 {
-	for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
+	for (const auto& c : duration)
 	{
-		unsigned char c = *i;
 		if (((c >= '0') && (c <= '9')))
 			continue;
 
-		if (!duration_multi[c])
+		if (!duration_multi[static_cast<unsigned char>(c)])
 			return false;
 	}
 	return true;

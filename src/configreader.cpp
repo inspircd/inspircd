@@ -479,9 +479,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		if (!pl.empty())
 		{
 			errstr << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
-			for (FailedPortList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+			for (const auto& fp : pl)
 			{
-				const FailedPort& fp = *iter;
 				errstr << "  " << fp.sa.str() << ": " << strerror(fp.error) << std::endl
 					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl;
 			}
@@ -556,13 +555,12 @@ void ServerConfig::ApplyModules(User* user)
 		}
 	}
 
-	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
+	for (const auto& [modname, mod] : removed_modules)
 	{
-		const std::string& modname = i->first;
 		// Don't remove core_*, just remove m_*
 		if (InspIRCd::Match(modname, "core_*" DLL_EXTENSION, ascii_case_insensitive_map))
 			continue;
-		if (ServerInstance->Modules.Unload(i->second))
+		if (ServerInstance->Modules.Unload(mod))
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
@@ -580,26 +578,26 @@ void ServerConfig::ApplyModules(User* user)
 		}
 	}
 
-	for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+	for (const auto& modname : added_modules)
 	{
 		// Skip modules which are already loaded.
-		if (ServerInstance->Modules.Find(*adding))
+		if (ServerInstance->Modules.Find(modname))
 			continue;
 
-		if (ServerInstance->Modules.Load(*adding))
+		if (ServerInstance->Modules.Load(modname))
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s", modname.c_str());
 			if (user)
-				user->WriteNumeric(RPL_LOADEDMODULE, *adding, InspIRCd::Format("Module %s successfully loaded.", adding->c_str()));
+				user->WriteNumeric(RPL_LOADEDMODULE, modname, InspIRCd::Format("Module %s successfully loaded.", modname.c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "Module %s successfully loaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, *adding, InspIRCd::Format("Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules.LastError().c_str()));
+				user->WriteNumeric(ERR_CANTLOADMODULE, modname, InspIRCd::Format("Failed to load module %s: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules.LastError().c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "Failed to load module %s: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 		}
 	}
 }
@@ -626,26 +624,25 @@ ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag, std::option
 
 std::string ServerConfig::Escape(const std::string& str)
 {
-	std::string escaped;
-	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+	std::stringstream escaped;
+	for (const auto& chr : str)
 	{
-		switch (*it)
+		switch (chr)
 		{
 			case '"':
-				escaped += "&quot;";
+				escaped << "&quot;";
 				break;
+
 			case '&':
-				escaped += "&amp;";
+				escaped << "&amp;";
 				break;
-			case '\\':
-				escaped += "\\";
-				break;
+
 			default:
-				escaped += *it;
+				escaped << chr;
 				break;
 		}
 	}
-	return escaped;
+	return escaped.str();
 }
 
 void ConfigReaderThread::OnStart()
@@ -675,19 +672,19 @@ void ConfigReaderThread::OnStop()
 
 		User* user = ServerInstance->Users.FindUUID(UUID);
 		ConfigStatus status(user);
-		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
-		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+
+		for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())
 		{
 			try
 			{
-				ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Rehashing " + i->first);
-				i->second->ReadConfig(status);
+				ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Rehashing " + modname);
+				mod->ReadConfig(status);
 			}
 			catch (CoreException& modex)
 			{
 				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
 				if (user)
-					user->WriteNotice(i->first + ": " + modex.GetReason());
+					user->WriteNotice(modname + ": " + modex.GetReason());
 			}
 		}
 

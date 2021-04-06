@@ -77,14 +77,13 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	// one of the channels they are on
 	if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
 	{
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
+		for (const auto* memb : user->chans)
 		{
-			Channel* chan = (*i)->chan;
-			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
+			if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->IsBanned(user))
 			{
 				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
 					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
-						chan->name.c_str()));
+						memb->chan->name.c_str()));
 				return CmdResult::FAILURE;
 			}
 		}

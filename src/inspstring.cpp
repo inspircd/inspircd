@@ -225,10 +225,10 @@ bool TokenList::operator==(const TokenList& other) const
 	if (tokens.size() != other.tokens.size())
 		return false;
 
-	for (insp::flat_set<std::string>::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+	for (const auto& token : tokens)
 	{
 		// Both sets must contain the same tokens to be equal.
-		if (other.tokens.find(*iter) == other.tokens.end())
+		if (other.tokens.find(token) == other.tokens.end())
 			return false;
 	}
 

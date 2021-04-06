@@ -36,10 +36,8 @@ struct LusersCounters
 		: max_local(ServerInstance->Users.LocalUserCount())
 		, max_global(ServerInstance->Users.RegisteredUserCount())
 	{
-		const user_hash& users = ServerInstance->Users.GetUsers();
-		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			User* u = i->second;
 			if (!u->server->IsService() && u->IsModeSet(invisiblemode))
 				invisible++;
 		}
@@ -85,9 +83,10 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	ServerInstance->PI->GetServerList(serverlist);
 	size_t n_serv = serverlist.size();
 	size_t n_local_servs = 0;
-	for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
+
+	for (const auto& server : serverlist)
 	{
-		if (i->parentname == ServerInstance->Config->ServerName)
+		if (server.parentname == ServerInstance->Config->ServerName)
 			n_local_servs++;
 	}
 	// fix for default GetServerList not returning us

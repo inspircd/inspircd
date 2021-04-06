@@ -282,9 +282,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			{
 				const PrefixMode* neededmh = NULL;
 				const PrefixModeList& prefixmodes = GetPrefixModes();
-				for (PrefixModeList::const_iterator i = prefixmodes.begin(); i != prefixmodes.end(); ++i)
+				for (const auto& privmh : prefixmodes)
 				{
-					const PrefixMode* const privmh = *i;
 					if (privmh->GetPrefixRank() >= neededrank)
 					{
 						// this mode is sufficient to allow this action
@@ -355,14 +354,11 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 	if (endindex > parameters.size())
 		endindex = parameters.size();
 
-	const std::string& mode_sequence = parameters[beginindex];
-
 	bool adding = true;
 	unsigned int param_at = beginindex+1;
 
-	for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
+	for (const auto& modechar : parameters[beginindex])
 	{
-		unsigned char modechar = *letter;
 		if (modechar == '+' || modechar == '-')
 		{
 			adding = (modechar == '+');
@@ -436,11 +432,10 @@ unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User*
 
 	unsigned int modes_processed = 0;
 	Modes::ChangeList::List& list = changelist.getlist();
-	for (Modes::ChangeList::List::iterator i = list.begin()+beginindex; i != list.end(); ++i)
+
+	for (auto& item : insp::iterator_range(list.begin() + beginindex, list.end()))
 	{
 		modes_processed++;
-
-		Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
 
 		// If a mode change has been given for a mode that does not exist then reject
@@ -719,10 +714,8 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 
 PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 {
-	const PrefixModeList& list = GetPrefixModes();
-	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto& pm : GetPrefixModes())
 	{
-		PrefixMode* pm = *i;
 		if (pm->GetPrefix() == pfxletter)
 			return pm;
 	}
@@ -791,10 +784,8 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 	std::string mprefixes;
 	std::vector<PrefixMode*> prefixes;
 
-	const PrefixModeList& list = GetPrefixModes();
-	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto& pm : GetPrefixModes())
 	{
-		PrefixMode* pm = *i;
 		if (pm->GetPrefix())
 			prefixes.push_back(pm);
 	}
@@ -854,11 +845,10 @@ void ModeHandler::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 
 void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 {
-	const Channel::MemberMap& userlist = chan->GetUsers();
-	for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
+	for (const auto& [user, memb] : chan->GetUsers())
 	{
-		if (i->second->HasMode(this))
-			changelist.push_remove(this, i->first->nick);
+		if (memb->HasMode(this))
+			changelist.push_remove(this, user->nick);
 	}
 }
 

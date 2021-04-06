@@ -582,10 +582,8 @@ class ModuleLDAP : public Module
 
 	void OnUnloadModule(Module* m) override
 	{
-		for (ServiceMap::iterator it = this->LDAPServices.begin(); it != this->LDAPServices.end(); ++it)
+		for (const auto& [_, s] : LDAPServices)
 		{
-			LDAPService* s = it->second;
-
 			s->process_mutex.lock();
 			s->LockQueue();
 

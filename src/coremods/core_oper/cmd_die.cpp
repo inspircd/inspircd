@@ -40,10 +40,9 @@ void DieRestart::SendError(const std::string& message)
 {
 	ClientProtocol::Messages::Error errormsg(message);
 	ClientProtocol::Event errorevent(ServerInstance->GetRFCEvents().error, errormsg);
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+
+	for (auto* user : ServerInstance->Users.GetLocalUsers())
 	{
-		LocalUser* user = *i;
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNotice(message);

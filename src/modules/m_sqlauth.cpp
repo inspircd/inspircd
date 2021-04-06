@@ -191,11 +191,11 @@ class ModuleSQLAuth : public Module
 		userinfo["pass"] = user->password;
 		userinfo["certfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
 
-		for (std::vector<std::string>::const_iterator it = hash_algos.begin(); it != hash_algos.end(); ++it)
+		for (const auto& algo : hash_algos)
 		{
-			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + *it);
+			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + algo);
 			if (hashprov && !hashprov->IsKDF())
-				userinfo[*it + "pass"] = hashprov->Generate(user->password);
+				userinfo[algo + "pass"] = hashprov->Generate(user->password);
 		}
 
 		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);

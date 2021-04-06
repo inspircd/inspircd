@@ -152,12 +152,10 @@ class HTTPHeaders
 	 */
 	std::string GetFormattedHeaders()
 	{
-		std::string re;
-
-		for (std::map<std::string,std::string>::iterator i = headers.begin(); i != headers.end(); i++)
-			re += i->first + ": " + i->second + "\r\n";
-
-		return re;
+		std::stringstream buf;
+		for (const auto& [key, value] : headers)
+			buf << key << ": " << value << "\r\n";
+		return buf.str();
 	}
 };
 

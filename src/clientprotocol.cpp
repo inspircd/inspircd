@@ -72,11 +72,10 @@ const ClientProtocol::SerializedMessage& ClientProtocol::Serializer::SerializeFo
 const ClientProtocol::SerializedMessage& ClientProtocol::Message::GetSerialized(const SerializedInfo& serializeinfo) const
 {
 	// First check if the serialized line they're asking for is in the cache
-	for (SerializedList::const_iterator i = serlist.begin(); i != serlist.end(); ++i)
+	for (const auto& [info, msg] : serlist)
 	{
-		const SerializedInfo& curr = i->first;
-		if (curr == serializeinfo)
-			return i->second;
+		if (info == serializeinfo)
+			return msg;
 	}
 
 	// Not cached, generate it and put it in the cache for later use

@@ -95,10 +95,8 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		ClientProtocol::Event event(protoev, msg);
 		ClientProtocol::Event eventwithval(protoev, msgwithval);
 
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			LocalUser* user = *i;
 			if (!capnotify.IsEnabled(user))
 				continue;
 
@@ -171,9 +169,8 @@ class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public Re
 		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
 		if (capmanager)
 		{
-			for (std::vector<std::string>::const_iterator i = reloadedcaps.begin(); i != reloadedcaps.end(); ++i)
+			for (const auto& capname : reloadedcaps)
 			{
-				const std::string& capname = *i;
 				if (!capmanager->Find(capname))
 					Send(capname, NULL, false);
 			}

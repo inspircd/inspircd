@@ -59,8 +59,8 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 
 	user->WriteRemoteNumeric(RPL_MOTDSTART, InspIRCd::Format("%s message of the day", ServerInstance->Config->GetServerName().c_str()));
 
-	for (file_cache::iterator i = motd->second.begin(); i != motd->second.end(); i++)
-		user->WriteRemoteNumeric(RPL_MOTD, InspIRCd::Format(" %s", i->c_str()));
+	for (const auto& line : motd->second)
+		user->WriteRemoteNumeric(RPL_MOTD, InspIRCd::Format(" %s", line.c_str()));
 
 	user->WriteRemoteNumeric(RPL_ENDOFMOTD, "End of message of the day.");
 

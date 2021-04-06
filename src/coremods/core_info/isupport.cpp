@@ -57,15 +57,15 @@ void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 	// This function implements value escaping according to the rules of the ISUPPORT draft:
 	// https://tools.ietf.org/html/draft-brocklesby-irc-isupport-03
 	buffer.push_back('=');
-	for (std::string::const_iterator iter = value.begin(); iter != value.end(); ++iter)
+	for (const auto& chr : value)
 	{
 		// The value must be escaped if:
 		//   (1) It is a banned character in an IRC <middle> parameter (NUL, LF, CR, SPACE).
 		//   (2) It has special meaning within an ISUPPORT token (EQUALS, BACKSLASH).
-		if (*iter == '\0' || *iter == '\n' || *iter == '\r' || *iter == ' ' || *iter == '=' || *iter == '\\')
-			buffer.append(InspIRCd::Format("\\x%X", *iter));
+		if (chr == '\0' || chr == '\n' || chr == '\r' || chr == ' ' || chr == '=' || chr == '\\')
+			buffer.append(InspIRCd::Format("\\x%X", chr));
 		else
-			buffer.push_back(*iter);
+			buffer.push_back(chr);
 	}
 }
 

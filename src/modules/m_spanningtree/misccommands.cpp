@@ -48,15 +48,15 @@ void CmdBuilder::UpdateTags()
 	if (!tags.empty())
 	{
 		char separator = '@';
-		for (ClientProtocol::TagMap::const_iterator iter = tags.begin(); iter != tags.end(); ++iter)
+		for (const auto& [tagname, tagvalue] : tags)
 		{
 			taglist.push_back(separator);
 			separator = ';';
-			taglist.append(iter->first);
-			if (!iter->second.value.empty())
+			taglist.append(tagname);
+			if (!tagvalue.value.empty())
 			{
 				taglist.push_back('=');
-				taglist.append(iter->second.value);
+				taglist.append(tagvalue.value);
 			}
 		}
 		taglist.push_back(' ');

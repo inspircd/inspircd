@@ -456,11 +456,8 @@ class ModuleHttpServer : public Module
 
 	Cullable::Result Cull() override
 	{
-		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
-		{
-			HttpServerSocket* sock = *i;
+		for (auto* sock : sockets)
 			sock->Close();
-		}
 		return Module::Cull();
 	}
 };

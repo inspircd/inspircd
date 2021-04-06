@@ -78,13 +78,13 @@ class CheckContext
 		if (!list)
 			return;
 
-		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
+		for (const auto& entry : *list)
 		{
 			CheckContext::List listmode(*this, "listmode");
 			listmode.Add(ConvToStr(mode->GetModeChar()));
-			listmode.Add(i->mask);
-			listmode.Add(i->setter);
-			listmode.Add(FormatTime(i->time));
+			listmode.Add(entry.mask);
+			listmode.Add(entry.setter);
+			listmode.Add(FormatTime(entry.time));
 			listmode.Flush();
 		}
 	}
@@ -92,10 +92,9 @@ class CheckContext
 	void DumpExt(Extensible* ext)
 	{
 		CheckContext::List extlist(*this, "metadata");
-		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); ++i)
+		for (const auto& [item, obj] : ext->GetExtList())
 		{
-			ExtensionItem* item = i->first;
-			std::string value = item->ToHuman(ext, i->second);
+			const std::string value = item->ToHuman(ext, obj);
 			if (!value.empty())
 				Write("meta:" + item->name, value);
 			else if (!item->name.empty())
@@ -136,10 +135,8 @@ class CommandCheck : public Command
 	static std::string GetAllowedOperOnlyModes(LocalUser* user, ModeType modetype)
 	{
 		std::string ret;
-		const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
-		for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); ++i)
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
 		{
-			const ModeHandler* const mh = i->second;
 			if ((mh->NeedsOper()) && (user->HasModePermission(mh)))
 				ret.push_back(mh->GetModeChar());
 		}
@@ -238,9 +235,8 @@ class CommandCheck : public Command
 				context.Write("onip", targuser->GetIPString());
 
 			CheckContext::List chanlist(context, "onchans");
-			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
+			for (const auto* memb : targuser->chans)
 			{
-				Membership* memb = *i;
 				Channel* c = memb->chan;
 				char prefix = memb->GetPrefixChar();
 				if (prefix)
@@ -270,47 +266,40 @@ class CommandCheck : public Command
 			context.Write("modes", targchan->ChanModes(true));
 			context.Write("membercount", ConvToStr(targchan->GetUserCounter()));
 
-			/* now the ugly bit, spool current members of a channel. :| */
-
-			const Channel::MemberMap& ulist = targchan->GetUsers();
-
-			/* note that unlike /names, we do NOT check +i vs in the channel */
-			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+			for (const auto& [u, memb] : targchan->GetUsers())
 			{
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(i->first);
+				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(u);
 				context.Write("member", InspIRCd::Format("%u %s%s (%s)", clonecount.global,
-					i->second->GetAllPrefixChars().c_str(), i->first->GetFullHost().c_str(),
-					i->first->GetRealName().c_str()));
+					memb->GetAllPrefixChars().c_str(), u->GetFullHost().c_str(),
+					u->GetRealName().c_str()));
 			}
 
-			const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
-			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				context.DumpListMode(*i, targchan);
+			for (const auto& lm : ServerInstance->Modes.GetListModes())
+				context.DumpListMode(lm, targchan);
 
 			context.DumpExt(targchan);
 		}
 		else
 		{
 			/*  /check on an IP address, or something that doesn't exist */
-			long x = 0;
+			size_t x = 0;
 
 			/* hostname or other */
-			const user_hash& users = ServerInstance->Users.GetUsers();
-			for (user_hash::const_iterator a = users.begin(); a != users.end(); ++a)
+			for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 			{
-				if (InspIRCd::Match(a->second->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
+				if (InspIRCd::Match(u->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(u->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
+					context.Write("match", ConvToStr(++x) + " " + u->GetFullRealHost() + " " + u->GetIPString() + " " + u->GetRealName());
 				}
 				/* IP address */
-				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
+				else if (InspIRCd::MatchCIDR(u->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
+					context.Write("match", ConvToStr(++x) + " " + u->GetFullRealHost() + " " + u->GetIPString() + " " + u->GetRealName());
 				}
 			}
 

@@ -38,10 +38,8 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	ChanData* cd = extItem.Get(channel);
 	if (cd)
 	{
-		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
-		{
-			user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, it->time);
-		}
+		for (const auto& item : cd->list)
+			user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 	}
 	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
 }
@@ -56,10 +54,8 @@ void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 	ChanData* cd = extItem.Get(channel);
 	if (cd)
 	{
-		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
-		{
-			changelist.push_remove(this, it->mask);
-		}
+		for (const auto& entry : cd->list)
+			changelist.push_remove(this, entry.mask);
 	}
 }
 
@@ -99,10 +95,9 @@ void ListModeBase::DoRehash()
 
 	chanlimits.swap(newlimits);
 
-	const chan_hash& chans = ServerInstance->GetChans();
-	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+	for (const auto& [_, chan] : ServerInstance->GetChans())
 	{
-		ChanData* cd = extItem.Get(i->second);
+		ChanData* cd = extItem.Get(chan);
 		if (cd)
 			cd->maxitems = -1;
 	}
@@ -110,12 +105,12 @@ void ListModeBase::DoRehash()
 
 unsigned int ListModeBase::FindLimit(const std::string& channame)
 {
-	for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); ++it)
+	for (const auto& chanlimit : chanlimits)
 	{
-		if (InspIRCd::Match(channame, it->mask))
+		if (InspIRCd::Match(channame, chanlimit.mask))
 		{
 			// We have a pattern matching the channel
-			return it->limit;
+			return chanlimit.limit;
 		}
 	}
 	return 0;
@@ -143,10 +138,10 @@ unsigned int ListModeBase::GetLowerLimit()
 		return DEFAULT_LIST_SIZE;
 
 	unsigned int limit = UINT_MAX;
-	for (limitlist::iterator iter = chanlimits.begin(); iter != chanlimits.end(); ++iter)
+	for (const auto& chanlimit : chanlimits)
 	{
-		if (iter->limit < limit)
-			limit = iter->limit;
+		if (chanlimit.limit < limit)
+			limit = chanlimit.limit;
 	}
 	return limit;
 }
@@ -170,9 +165,9 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 		}
 
 		// Check if the item already exists in the list
-		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
+		for (const auto& entry : cd->list)
 		{
-			if (change.param == it->mask)
+			if (change.param == entry.mask)
 			{
 				/* Give a subclass a chance to error about this */
 				TellAlreadyOnList(source, channel, change.param);

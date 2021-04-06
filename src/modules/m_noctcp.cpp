@@ -65,10 +65,8 @@ class ModuleNoCTCP : public Module
 					return MOD_RES_PASSTHRU;
 
 				Channel* c = target.Get<Channel>();
-				const Channel::MemberMap& members = c->GetUsers();
-				for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
+				for (const auto& [u, _] : c->GetUsers())
 				{
-					User* u = member->first;
 					if (u->IsModeSet(ncu))
 						details.exemptions.insert(u);
 				}

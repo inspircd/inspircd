@@ -108,12 +108,8 @@ class IRCv3::Batch::ManagerImpl : public Manager
 	{
 		// Set batchbits to 0 for all users in case we were reloaded and the previous, now meaningless,
 		// batchbits are set on users
-		const UserManager::LocalList& users = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = users.begin(); i != users.end(); ++i)
-		{
-			LocalUser* const user = *i;
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 			batchbits.Unset(user);
-		}
 	}
 
 	void Shutdown()
@@ -128,12 +124,11 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		const intptr_t bits = batchbits.Get(user);
 
 		// User is quitting, remove them from all lists
-		for (BatchList::iterator i = active_batches.begin(); i != active_batches.end(); ++i)
+		for (const auto& batch : active_batches)
 		{
-			Batch& batch = **i;
 			// Check the bit first to avoid list scan in case they're not on the list
-			if ((bits & batch.GetBit()) != 0)
-				stdalgo::vector::swaperase(batch.batchinfo->users, user);
+			if ((bits & batch->GetBit()) != 0)
+				stdalgo::vector::swaperase(batch->batchinfo->users, user);
 		}
 	}
 
@@ -169,9 +164,8 @@ class IRCv3::Batch::ManagerImpl : public Manager
 
 		BatchInfo& batchinfo = *batch.batchinfo;
 		// Send end batch message to all users who got the batch start message and unset bit so it can be reused
-		for (std::vector<LocalUser*>::const_iterator i = batchinfo.users.begin(); i != batchinfo.users.end(); ++i)
+		for (const auto& user : batchinfo.users)
 		{
-			LocalUser* const user = *i;
 			user->Send(batchinfo.endevent);
 			batchbits.Set(user, batchbits.Get(user) & ~batch.GetBit());
 		}

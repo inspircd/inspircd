@@ -193,9 +193,9 @@ inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern)
 		throw Exception(pattern, "Regex patterns must be terminated with a '/'!");
 
 	uint8_t options = Regex::OPT_NONE;
-	for (std::string::const_iterator iter = pattern.begin() + end + 1; iter != pattern.end(); ++iter)
+	for (const auto& flag : insp::iterator_range(pattern.begin() + end + 1, pattern.end()))
 	{
-		switch (*iter)
+		switch (flag)
 		{
 			case 'I':
 			case 'i':

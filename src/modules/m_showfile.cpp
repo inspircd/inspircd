@@ -59,8 +59,8 @@ class CommandShowFile : public Command
 			if (!introtext.empty() && intronumeric)
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
-			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", i->c_str()));
+			for (const auto& line : contents)
+				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", line.c_str()));
 
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
@@ -68,9 +68,8 @@ class CommandShowFile : public Command
 		else if (IS_LOCAL(user))
 		{
 			LocalUser* const localuser = IS_LOCAL(user);
-			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
+			for (const auto& line : contents)
 			{
-				const std::string& line = *i;
 				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, line, ((method == SF_MSG) ? MSG_PRIVMSG : MSG_NOTICE));
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}

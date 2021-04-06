@@ -91,9 +91,8 @@ class ServerTracker
 
 		ProtocolInterface::ServerList servers;
 		ServerInstance->PI->GetServerList(servers);
-		for (ProtocolInterface::ServerList::const_iterator i = servers.begin(); i != servers.end(); ++i)
+		for (const auto& server : servers)
 		{
-			const ProtocolInterface::ServerInfo& server = *i;
 			if (InspIRCd::Match(server.servername, sasl_target))
 			{
 				online = true;

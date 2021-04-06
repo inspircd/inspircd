@@ -274,9 +274,9 @@ class CommandDccallow : public Command
 						return CmdResult::FAILURE;
 					}
 
-					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
+					for (const auto& dccallow : *dl)
 					{
-						if (k->nickname == target->nick)
+						if (dccallow.nickname == target->nick)
 						{
 							user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is already on your DCCALLOW list", target->nick.c_str()));
 							return CmdResult::FAILURE;
@@ -358,9 +358,10 @@ class CommandDccallow : public Command
 		dl = ext.Get(user);
 		if (dl)
 		{
-			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
+			for (const auto& dccallow : *dl)
 			{
-				user->WriteNumeric(RPL_DCCALLOWLIST, user->nick, InspIRCd::Format("%s (%s)", c->nickname.c_str(), c->hostmask.c_str()));
+				user->WriteNumeric(RPL_DCCALLOWLIST, user->nick, InspIRCd::Format("%s (%s)",
+					dccallow.nickname.c_str(), dccallow.hostmask.c_str()));
 			}
 		}
 
@@ -430,9 +431,11 @@ class ModuleDCCAllow : public Module
 					dl = ext.Get(u);
 					if (dl && dl->size())
 					{
-						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
-							if (InspIRCd::Match(user->GetFullHost(), iter->hostmask))
+						for (const auto& dccallow : *dl)
+						{
+							if (InspIRCd::Match(user->GetFullHost(), dccallow.hostmask))
 								return MOD_RES_PASSTHRU;
+						}
 					}
 
 					size_t s = ctcpbody.find(' ');

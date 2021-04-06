@@ -75,27 +75,22 @@ class ModuleGeoClass
 			return MOD_RES_PASSTHRU;
 
 		// Counter for the number of users in each country.
-		typedef std::map<Geolocation::Location*, size_t> CountryCounts;
-		CountryCounts counts;
+		std::map<Geolocation::Location*, size_t> counts;
 
 		// Counter for the number of users in an unknown country.
 		size_t unknown = 0;
 
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			Geolocation::Location* location = geoapi ? geoapi->GetLocation(*iter) : NULL;
+			Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 			if (location)
 				counts[location]++;
 			else
 				unknown++;
 		}
 
-		for (CountryCounts::const_iterator iter = counts.begin(); iter != counts.end(); ++iter)
-		{
-			Geolocation::Location* location = iter->first;
-			stats.AddRow(RPL_STATSCOUNTRY, iter->second, location->GetCode(), location->GetName());
-		}
+		for (const auto& [location, count] : counts)
+			stats.AddRow(RPL_STATSCOUNTRY, count, location->GetCode(), location->GetName());
 
 		if (unknown)
 			stats.AddRow(RPL_STATSCOUNTRY, unknown, "*", "Unknown Country");

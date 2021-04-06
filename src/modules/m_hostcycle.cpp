@@ -45,12 +45,12 @@ class ModuleHostCycle : public Module
 
 		// Users shouldn't see themselves quitting when host cycling
 		exceptions.erase(user);
-		for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+		for (const auto& [exception, sendto] : exceptions)
 		{
-			LocalUser* u = IS_LOCAL(i->first);
+			LocalUser* u = IS_LOCAL(exception);
 			if ((u) && (!u->quitting) && (!chghostcap.IsEnabled(u)))
 			{
-				if (i->second)
+				if (sendto)
 				{
 					u->already_sent = seen_id;
 					u->Send(quitevent);
@@ -64,17 +64,14 @@ class ModuleHostCycle : public Module
 
 		std::string newfullhost = user->nick + "!" + newident + "@" + newhost;
 
-		for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
+		for (auto* memb : include_chans)
 		{
-			Membership* memb = *i;
 			Channel* c = memb->chan;
-
 			ClientProtocol::Events::Join joinevent(memb, newfullhost);
 
-			const Channel::MemberMap& ulist = c->GetUsers();
-			for (Channel::MemberMap::const_iterator j = ulist.begin(); j != ulist.end(); ++j)
+			for (const auto& [chanuser, _] : c->GetUsers())
 			{
-				LocalUser* u = IS_LOCAL(j->first);
+				LocalUser* u = IS_LOCAL(chanuser);
 				if (u == NULL || u == user)
 					continue;
 				if (u->already_sent == silent_id)

@@ -85,12 +85,8 @@ ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& paramet
 
 void DelayMsgMode::OnUnset(User* source, Channel* chan)
 {
-	/*
-	 * Clean up metadata
-	 */
-	const Channel::MemberMap& users = chan->GetUsers();
-	for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
-		jointime.Set(n->second, 0);
+	for (const auto& [_, memb] : chan->GetUsers())
+		jointime.Unset(memb);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)

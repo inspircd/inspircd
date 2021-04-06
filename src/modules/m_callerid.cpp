@@ -63,9 +63,8 @@ class callerid_data
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (UserSet::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
+		for (const auto& u : accepting)
 		{
-			User* u = *i;
 			if (human)
 				oss << ' ' << u->nick;
 			else
@@ -137,10 +136,9 @@ struct CallerIDExtInfo : public ExtensionItem
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
+		for (const auto& user : dat->accepting)
 		{
-			callerid_data *targ = this->Get(*it, false);
-
+			callerid_data* targ = this->Get(user, false);
 			if (!targ)
 			{
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
@@ -269,8 +267,8 @@ public:
 		callerid_data* dat = extInfo.Get(user, false);
 		if (dat)
 		{
-			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
-				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
+			for (const auto& accepted : dat->accepting)
+				user->WriteNumeric(RPL_ACCEPTLIST, accepted->nick);
 		}
 		user->WriteNumeric(RPL_ENDOFACCEPT, "End of ACCEPT list");
 	}
@@ -376,10 +374,8 @@ class ModuleCallerID
 			return;
 
 		// Iterate over the list of people who accept me, and remove all entries
-		for (callerid_data::CallerIdDataSet::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); ++it)
+		for (const auto& dat : userdata->wholistsme)
 		{
-			callerid_data *dat = *(it);
-
 			// Find me on their callerid list
 			if (!dat->accepting.erase(who))
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");

@@ -45,8 +45,8 @@ struct HistoryItem
 		, sourcemask(source->GetFullHost())
 	{
 		tags.reserve(details.tags_out.size());
-		for (ClientProtocol::TagMap::const_iterator iter = details.tags_out.begin(); iter != details.tags_out.end(); ++iter)
-			tags[iter->first] = iter->second.value;
+		for (const auto& [tagname, tagvalue] : details.tags_out)
+			tags[tagname] = tagvalue.value;
 	}
 };
 
@@ -175,12 +175,11 @@ class ModuleChanHistory
 			batch.GetBatchStartMessage().PushParamRef(channel->name);
 		}
 
-		for (std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
+		for (auto& item : list->lines)
 		{
-			HistoryItem& item = *i;
 			ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
-			for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
-				AddTag(msg, iter->first, iter->second);
+			for (auto& [tagname, tagvalue] : item.tags)
+				AddTag(msg, tagname, tagvalue);
 			if (servertimemanager)
 				servertimemanager->Set(msg, item.ts);
 			batch.AddToBatch(msg);

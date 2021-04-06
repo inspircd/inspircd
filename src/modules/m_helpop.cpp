@@ -86,8 +86,8 @@ class CommandHelpop : public Command
 
 		const HelpTopic& entry = titer->second;
 		user->WriteNumeric(RPL_HELPSTART, topic, entry.title);
-		for (HelpMessage::const_iterator liter = entry.body.begin(); liter != entry.body.end(); ++liter)
-			user->WriteNumeric(RPL_HELPTXT, topic, *liter);
+		for (const auto& line : entry.body)
+			user->WriteNumeric(RPL_HELPTXT, topic, line);
 		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELPOP.");
 		return CmdResult::SUCCESS;
 	}

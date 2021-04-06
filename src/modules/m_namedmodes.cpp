@@ -36,12 +36,11 @@ static void DisplayList(LocalUser* user, Channel* channel)
 	Numeric::ParamBuilder<1> numeric(user, RPL_PROPLIST);
 	numeric.AddStatic(channel->name);
 
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(MODETYPE_CHANNEL);
-	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 	{
-		ModeHandler* mh = i->second;
 		if (!channel->IsModeSet(mh))
 			continue;
+
 		numeric.Add("+" + mh->name);
 		ParamModeBase* pm = mh->IsParameterMode();
 		if (pm)

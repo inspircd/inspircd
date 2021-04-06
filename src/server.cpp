@@ -79,10 +79,11 @@ std::string UIDGenerator::GenerateSID(const std::string& servername, const std::
 {
 	unsigned int sid = 0;
 
-	for (std::string::const_iterator i = servername.begin(); i != servername.end(); ++i)
-		sid = 5 * sid + *i;
-	for (std::string::const_iterator i = serverdesc.begin(); i != serverdesc.end(); ++i)
-		sid = 5 * sid + *i;
+	for (const auto& chr : servername)
+		sid = 5 * sid + chr;
+
+	for (const auto& chr : serverdesc)
+		sid = 5 * sid + chr;
 
 	std::string sidstr = ConvToStr(sid % 1000);
 	sidstr.insert(0, 3 - sidstr.length(), '0');

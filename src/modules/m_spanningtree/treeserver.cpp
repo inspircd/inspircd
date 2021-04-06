@@ -149,11 +149,8 @@ void TreeServer::FinishBurstInternal()
 		behind_bursting--;
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
 
-	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
-	{
-		TreeServer* child = *i;
+	for (const auto& child : Children)
 		child->FinishBurstInternal();
-	}
 }
 
 void TreeServer::FinishBurst()
@@ -205,11 +202,8 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 {
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
-	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
-	{
-		TreeServer* server = *i;
+	for (const auto& server : Children)
 		server->SQuitInternal(num_lost_servers, error);
-	}
 
 	// Mark server as dead
 	isdead = true;
@@ -273,11 +267,8 @@ void TreeServer::AddHashEntry()
 Cullable::Result TreeServer::Cull()
 {
 	// Recursively cull all servers that are under us in the tree
-	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
-	{
-		TreeServer* server = *i;
+	for (const auto& server : Children)
 		server->Cull();
-	}
 
 	if (!IsRoot())
 		ServerUser->Cull();
@@ -287,8 +278,8 @@ Cullable::Result TreeServer::Cull()
 TreeServer::~TreeServer()
 {
 	// Recursively delete all servers that are under us in the tree first
-	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
-		delete *i;
+	for (const auto& child : Children)
+		delete child;
 
 	// Delete server user unless it's us
 	if (!IsRoot())

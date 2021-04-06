@@ -63,14 +63,14 @@ class IdentHost
 
 	bool Matches(LocalUser* user) const
 	{
-		for (MaskList::const_iterator iter = hostmasks.begin(); iter != hostmasks.end(); ++iter)
+		for (const auto& mask : hostmasks)
 		{
 			// Does the user's hostname match this hostmask?
-			if (InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map))
+			if (InspIRCd::Match(user->GetRealHost(), mask, ascii_case_insensitive_map))
 				return true;
 
 			// Does the user's IP address match this hostmask?
-			if (InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetIPString(), mask, ascii_case_insensitive_map))
 				return true;
 		}
 
@@ -108,14 +108,14 @@ class WebIRCHost
 		if (!fingerprint.empty() && !InspIRCd::TimingSafeCompare(fp, fingerprint))
 			return false;
 
-		for (MaskList::const_iterator iter = hostmasks.begin(); iter != hostmasks.end(); ++iter)
+		for (const auto& mask : hostmasks)
 		{
 			// Does the user's hostname match this hostmask?
-			if (InspIRCd::Match(user->GetRealHost(), *iter, ascii_case_insensitive_map))
+			if (InspIRCd::Match(user->GetRealHost(), mask, ascii_case_insensitive_map))
 				return true;
 
 			// Does the user's IP address match this hostmask?
-			if (InspIRCd::MatchCIDR(user->GetIPString(), *iter, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetIPString(), mask, ascii_case_insensitive_map))
 				return true;
 		}
 
@@ -231,10 +231,10 @@ class CommandWebIRC : public SplitCommand
 		if (user->registered == REG_ALL || realhost.Get(user))
 			return CmdResult::FAILURE;
 
-		for (std::vector<WebIRCHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
+		for (const auto& host : hosts)
 		{
 			// If we don't match the host then skip to the next host.
-			if (!iter->Matches(user, parameters[0], sslapi))
+			if (!host.Matches(user, parameters[0], sslapi))
 				continue;
 
 			irc::sockets::sockaddrs ipaddr;
@@ -425,10 +425,10 @@ class ModuleCgiIRC
 		if (cmdwebirc.realhost.Get(user))
 			return MOD_RES_PASSTHRU;
 
-		for (std::vector<IdentHost>::const_iterator iter = hosts.begin(); iter != hosts.end(); ++iter)
+		for (const auto& host : hosts)
 		{
 			// If we don't match the host then skip to the next host.
-			if (!iter->Matches(user))
+			if (!host.Matches(user))
 				continue;
 
 			// We have matched an <cgihost> block! Try to parse the encoded IPv4 address
@@ -441,7 +441,7 @@ class ModuleCgiIRC
 			cmdwebirc.realhost.Set(user, user->GetRealHost());
 			cmdwebirc.realip.Set(user, user->GetIPString());
 
-			const std::string& newident = iter->GetIdent();
+			const std::string& newident = host.GetIdent();
 			cmdwebirc.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 

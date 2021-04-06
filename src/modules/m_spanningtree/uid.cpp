@@ -86,16 +86,16 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	unsigned int paramptr = 9;
 
-	for (std::string::const_iterator v = modestr.begin(); v != modestr.end(); ++v)
+	for (const auto& modechr : modestr)
 	{
 		// Accept more '+' chars, for now
-		if (*v == '+')
+		if (modechr == '+')
 			continue;
 
 		/* For each mode that's set, find the mode handler and set it on the new user */
-		ModeHandler* mh = ServerInstance->Modes.FindMode(*v, MODETYPE_USER);
+		ModeHandler* mh = ServerInstance->Modes.FindMode(modechr, MODETYPE_USER);
 		if (!mh)
-			throw ProtocolException("Unrecognised mode '" + std::string(1, *v) + "'");
+			throw ProtocolException("Unrecognised mode '" + std::string(1, modechr) + "'");
 
 		if (mh->NeedsParam(true))
 		{

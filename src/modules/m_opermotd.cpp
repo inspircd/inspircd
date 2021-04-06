@@ -74,12 +74,8 @@ class CommandOpermotd : public Command
 		}
 
 		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
-
-		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
-		{
-			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format(" %s", i->c_str()));
-		}
-
+		for (const auto& line : opermotd)
+			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format(" %s", line.c_str()));
 		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
 	}
 };

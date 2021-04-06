@@ -35,16 +35,16 @@
 
 void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 {
-	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
+	for (const auto& [_, server] : Utils->serverlist)
 	{
 		ServerInfo ps;
-		ps.servername = i->second->GetName();
-		TreeServer* s = i->second->GetParent();
+		ps.servername = server->GetName();
+		TreeServer* s = server->GetParent();
 		ps.parentname = s ? s->GetName() : "";
-		ps.usercount = i->second->UserCount;
-		ps.opercount = i->second->OperCount;
-		ps.description = i->second->GetDesc();
-		ps.latencyms = i->second->rtt;
+		ps.usercount = server->UserCount;
+		ps.opercount = server->OperCount;
+		ps.description = server->GetDesc();
+		ps.latencyms = server->rtt;
 		sl.push_back(ps);
 	}
 }

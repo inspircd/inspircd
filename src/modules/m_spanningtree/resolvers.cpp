@@ -119,9 +119,8 @@ void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 	{
 		if (L->IPAddr == host)
 		{
-			for (std::vector<DNS::ResourceRecord>::const_iterator j = r->answers.begin(); j != r->answers.end(); ++j)
+			for (const auto& ans_record : r->answers)
 			{
-				const DNS::ResourceRecord& ans_record = *j;
 				if (ans_record.type == this->question.type)
 					Utils->ValidIPs.push_back(ans_record.rdata);
 			}

@@ -69,10 +69,8 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 	msg.PushParamRef(parameters[0]);
 	ClientProtocol::Event wallopsevent(protoevprov, msg);
 
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (auto* curr : ServerInstance->Users.GetLocalUsers())
 	{
-		LocalUser* curr = *i;
 		if (curr->IsModeSet(wallopsmode))
 			curr->Send(wallopsevent);
 	}

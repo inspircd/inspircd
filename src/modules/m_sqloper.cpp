@@ -56,10 +56,8 @@ class OperQuery : public SQL::Query
 		ServerConfig::OperIndex& oper_blocks = ServerInstance->Config->oper_blocks;
 
 		// Remove our previous blocks from oper_blocks for a clean update
-		for (std::vector<std::string>::const_iterator i = my_blocks.begin(); i != my_blocks.end(); ++i)
-		{
-			oper_blocks.erase(*i);
-		}
+		for (const auto& block : my_blocks)
+			oper_blocks.erase(block);
 		my_blocks.clear();
 
 		SQL::Row row;
@@ -198,10 +196,8 @@ public:
 	~ModuleSQLOper() override
 	{
 		// Remove all oper blocks that were from the DB
-		for (std::vector<std::string>::const_iterator i = my_blocks.begin(); i != my_blocks.end(); ++i)
-		{
-			ServerInstance->Config->oper_blocks.erase(*i);
-		}
+		for (const auto& block : my_blocks)
+			ServerInstance->Config->oper_blocks.erase(block);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

@@ -41,10 +41,9 @@ class InsaneBan
 		{
 			long matches = 0;
 			const T* c = static_cast<T*>(this);
-			const user_hash& users = ServerInstance->Users.GetUsers();
-			for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+			for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 			{
-				if (c->Check(i->second, mask))
+				if (c->Check(user, mask))
 					matches++;
 			}
 			return matches;

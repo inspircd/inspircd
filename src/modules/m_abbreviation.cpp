@@ -52,10 +52,9 @@ class ModuleAbbreviation : public Module
 		size_t clen = command.length() - 1;
 		std::string foundcommand, matchlist;
 		bool foundmatch = false;
-		const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-		for (CommandParser::CommandMap::const_iterator n = commands.begin(); n != commands.end(); ++n)
+		for (const auto& [cmdname, _] : ServerInstance->Parser.GetCommands())
 		{
-			if (!command.compare(0, clen, n->first, 0, clen))
+			if (!command.compare(0, clen, cmdname, 0, clen))
 			{
 				if (matchlist.length() > 450)
 				{
@@ -66,11 +65,11 @@ class ModuleAbbreviation : public Module
 				if (!foundmatch)
 				{
 					/* Found the command */
-					foundcommand = n->first;
+					foundcommand = cmdname;
 					foundmatch = true;
 				}
 				else
-					matchlist.append(" ").append(n->first);
+					matchlist.append(" ").append(cmdname);
 			}
 		}
 

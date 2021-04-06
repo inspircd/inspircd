@@ -125,16 +125,14 @@ class ModuleXLineDB
 		stream << "VERSION 1" << std::endl;
 
 		// Now, let's write.
-		std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
-		for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
+		for (const auto& xltype : ServerInstance->XLines->GetAllTypes())
 		{
-			XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
+			XLineLookup* lookup = ServerInstance->XLines->GetAll(xltype);
 			if (!lookup)
 				continue; // Not possible as we just obtained the list from XLineManager
 
-			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+			for (const auto& [_, line] : *lookup)
 			{
-				XLine* line = i->second;
 				if (line->from_config)
 					continue;
 

@@ -72,12 +72,8 @@ static void GenerateStatsLl(Stats::Context& stats)
 {
 	stats.AddRow(211, InspIRCd::Format("nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open", (stats.GetSymbol() == 'l' ? "host" : "ip")));
 
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		LocalUser* u = *i;
+	for (auto* u : ServerInstance->Users.GetLocalUsers())
 		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
-	}
 }
 
 void CommandStats::DoStats(Stats::Context& stats)
@@ -113,9 +109,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats p (show listening ports) */
 		case 'p':
 		{
-			for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
+			for (const auto& ls : ServerInstance->ports)
 			{
-				ListenSocket* ls = *i;
 				std::stringstream portentry;
 
 				const std::string type = ls->bind_tag->getString("type", "clients", 1);
@@ -187,10 +182,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 		case 'P':
 		{
 			unsigned int idx = 0;
-			const UserManager::OperList& opers = ServerInstance->Users.all_opers;
-			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
+			for (const auto& oper : ServerInstance->Users.all_opers)
 			{
-				User* oper = *i;
 				if (!oper->server->IsService())
 				{
 					LocalUser* lu = IS_LOCAL(oper);
@@ -231,13 +224,12 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
 		{
-			const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-			for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
+			for (const auto& [_, command] : ServerInstance->Parser.GetCommands())
 			{
-				if (i->second->use_count)
+				if (command->use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					stats.AddRow(212, i->second->name, i->second->use_count);
+					stats.AddRow(212, command->name, command->use_count);
 				}
 			}
 		}
@@ -400,14 +392,12 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 			localuser->CommandFloodPenalty += 2000;
 		return CmdResult::SUCCESS;
 	}
+
 	Stats::Context stats(user, parameters[0][0]);
 	DoStats(stats);
-	const std::vector<Stats::Row>& rows = stats.GetRows();
-	for (std::vector<Stats::Row>::const_iterator i = rows.begin(); i != rows.end(); ++i)
-	{
-		const Stats::Row& row = *i;
+
+	for (const auto& row : stats.GetRows())
 		user->WriteRemoteNumeric(row);
-	}
 
 	return CmdResult::SUCCESS;
 }

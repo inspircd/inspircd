@@ -161,10 +161,8 @@ void XLineManager::CheckELines()
 	if (ELines.empty())
 		return;
 
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
+	for (auto* u :  ServerInstance->Users.GetLocalUsers())
 	{
-		LocalUser* u = *u2;
 		u->exempt = false;
 
 		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
@@ -229,8 +227,8 @@ void XLineManager::DelAll(const std::string &type)
 std::vector<std::string> XLineManager::GetAllTypes()
 {
 	std::vector<std::string> items;
-	for (ContainerIter x = lookup_lines.begin(); x != lookup_lines.end(); ++x)
-		items.push_back(x->first);
+	for (const auto& [type, _] : lookup_lines)
+		items.push_back(type);
 	return items;
 }
 
@@ -459,9 +457,8 @@ void XLineManager::ApplyLines()
 		if (u->exempt)
 			continue;
 
-		for (std::vector<XLine *>::iterator i = pending_lines.begin(); i != pending_lines.end(); i++)
+		for (const auto& x : pending_lines)
 		{
-			XLine *x = *i;
 			if (x->Matches(u))
 			{
 				x->Apply(u);
@@ -534,12 +531,10 @@ XLineManager::~XLineManager()
 	}
 
 	// Delete all existing XLines
-	for (XLineContainer::iterator i = lookup_lines.begin(); i != lookup_lines.end(); i++)
+	for (const auto& [_, lines] : lookup_lines)
 	{
-		for (XLineLookup::iterator j = i->second.begin(); j != i->second.end(); j++)
-		{
-			delete j->second;
-		}
+		for (const auto& [__, line] : lines)
+			delete line;
 	}
 }
 
@@ -700,10 +695,8 @@ bool GLine::Matches(const std::string &str)
 void ELine::OnAdd()
 {
 	/* When adding one E-line, only check the one E-line */
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
+	for (auto* u : ServerInstance->Users.GetLocalUsers())
 	{
-		LocalUser* u = *u2;
 		if (this->Matches(u))
 			u->exempt = true;
 	}

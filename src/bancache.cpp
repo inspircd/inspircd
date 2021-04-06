@@ -105,6 +105,6 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 
 BanCacheManager::~BanCacheManager()
 {
-	for (BanCacheHash::iterator n = BanHash.begin(); n != BanHash.end(); ++n)
-		delete n->second;
+	for (const auto& [_, hit] : BanHash)
+		delete hit;
 }

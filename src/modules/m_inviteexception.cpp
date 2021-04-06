@@ -69,9 +69,9 @@ class ModuleInviteException
 		ListModeBase::ModeList* list = ie.GetList(chan);
 		if (list)
 		{
-			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+			for (const auto& entry : *list)
 			{
-				if (chan->CheckBan(user, it->mask))
+				if (chan->CheckBan(user, entry.mask))
 				{
 					return MOD_RES_ALLOW;
 				}

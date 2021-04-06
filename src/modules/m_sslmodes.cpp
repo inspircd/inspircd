@@ -86,19 +86,18 @@ class SSLMode : public ModeHandler
 						return MODEACTION_DENY;
 					}
 
-					unsigned long nonssl = 0;
-					const Channel::MemberMap& userlist = channel->GetUsers();
-					for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
+					size_t nonssl = 0;
+					for (const auto& [u, _] : channel->GetUsers())
 					{
-						ssl_cert* cert = API->GetCertificate(i->first);
-						if (!cert && !i->first->server->IsService())
+						ssl_cert* cert = API->GetCertificate(u);
+						if (!cert && !u->server->IsService())
 							nonssl++;
 					}
 
 					if (nonssl)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (SSL) (%lu/%lu are non-TLS (SSL))",
-							nonssl, static_cast<unsigned long>(userlist.size())));
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (SSL) (%zu/%zu are non-TLS (SSL))",
+							nonssl, channel->GetUsers().size()));
 						return MODEACTION_DENY;
 					}
 				}

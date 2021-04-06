@@ -65,10 +65,9 @@ class ModuleBlockColor : public Module
 				if (!details.IsCTCP(ctcpname, message))
 					message.assign(details.text);
 
-				for (std::string::iterator i = message.begin(); i != message.end(); ++i)
+				for (const auto& chr : message)
 				{
-					const unsigned char chr = static_cast<unsigned char>(*i);
-					if (chr < 32)
+					if (static_cast<unsigned char>(chr) < 32)
 					{
 						if (modeset)
 							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));

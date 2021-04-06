@@ -55,9 +55,9 @@ class JoinHook : public ClientProtocol::EventHook
 		const Membership& memb = *join.GetMember();
 
 		modechangelist.clear();
-		for (std::string::const_iterator i = memb.modes.begin(); i != memb.modes.end(); ++i)
+		for (const auto& mode : memb.modes)
 		{
-			PrefixMode* const pm = ServerInstance->Modes.FindPrefixMode(*i);
+			PrefixMode* const pm = ServerInstance->Modes.FindPrefixMode(mode);
 			if (!pm)
 				continue; // Shouldn't happen
 			modechangelist.push_add(pm, memb.user->nick);
@@ -211,10 +211,8 @@ class CoreModChannel
 
 		std::vector<std::string> limits;
 		std::string vlist;
-		const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
-		for (ModeParser::ListModeList::const_iterator iter = listmodes.begin(); iter != listmodes.end(); ++iter)
+		for (const auto& lm : ServerInstance->Modes.GetListModes())
 		{
-			ListModeBase* lm = *iter;
 			limits.push_back(InspIRCd::Format("%c:%u", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())
 				vlist.push_back(lm->GetModeChar());
@@ -227,11 +225,10 @@ class CoreModChannel
 
 		// Generate the CHANLIMIT token.
 		unsigned int maxchans = 20;
-		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
+		for (const auto& klass : ServerInstance->Config->Classes)
 		{
-			unsigned int value = (*iter)->maxchans;
-			if (value < maxchans)
-				maxchans = value;
+			if (klass->maxchans < maxchans)
+				maxchans = klass->maxchans;
 		}
 		tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", maxchans);
 	}

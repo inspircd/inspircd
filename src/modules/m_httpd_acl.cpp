@@ -121,14 +121,14 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling httpd acl event");
 
-			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
+			for (const auto& acl : acl_list)
 			{
-				if (InspIRCd::Match(http->GetPath(), this_acl->path, ascii_case_insensitive_map))
+				if (InspIRCd::Match(http->GetPath(), acl.path, ascii_case_insensitive_map))
 				{
-					if (!this_acl->blacklist.empty())
+					if (!acl.blacklist.empty())
 					{
 						/* Blacklist */
-						irc::commasepstream sep(this_acl->blacklist);
+						irc::commasepstream sep(acl.blacklist);
 						std::string entry;
 
 						while (sep.GetToken(entry))
@@ -136,16 +136,16 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
 								ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
-										http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
+										http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str(), entry.c_str());
 								BlockAccess(http, 403);
 								return false;
 							}
 						}
 					}
-					if (!this_acl->whitelist.empty())
+					if (!acl.whitelist.empty())
 					{
 						/* Whitelist */
-						irc::commasepstream sep(this_acl->whitelist);
+						irc::commasepstream sep(acl.whitelist);
 						std::string entry;
 						bool allow_access = false;
 
@@ -158,16 +158,16 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 						if (!allow_access)
 						{
 							ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
-									http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
+									http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str());
 							BlockAccess(http, 403);
 							return false;
 						}
 					}
-					if (!this_acl->password.empty() && !this_acl->username.empty())
+					if (!acl.password.empty() && !acl.username.empty())
 					{
 						/* Password auth, first look to see if we have a basic authentication header */
 						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Checking HTTP auth password for resource %s (matched by pattern %s) from ip %s, against username %s",
-								http->GetPath().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), this_acl->username.c_str());
+								http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str(), acl.username.c_str());
 
 						if (http->headers->IsSet("Authorization"))
 						{
@@ -193,7 +193,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 									userpasspair.GetToken(pass);
 
 									/* Access granted if username and password are correct */
-									if (user == this_acl->username && pass == this_acl->password)
+									if (user == acl.username && pass == acl.password)
 									{
 										ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username match");
 										return true;

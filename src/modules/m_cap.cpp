@@ -72,11 +72,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	Capability::Bit AllocateBit() const
 	{
 		Capability::Bit used = 0;
-		for (CapMap::const_iterator i = caps.begin(); i != caps.end(); ++i)
-		{
-			Capability* cap = i->second;
+		for (const auto& [_, cap] : caps)
 			used |= cap->GetMask();
-		}
 
 		for (size_t i = 0; i < MAX_CAPS; i++)
 		{
@@ -96,9 +93,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		CapModData* capmoddata = new CapModData;
 		cd.add(this, capmoddata);
 
-		for (CapMap::iterator i = caps.begin(); i != caps.end(); ++i)
+		for (const auto& [_, cap] : caps)
 		{
-			Capability* cap = i->second;
 			// Only save users of caps that belong to the module being reloaded
 			if (cap->creator != mod)
 				continue;
@@ -108,10 +104,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			CapModData::Data& capdata = capmoddata->caps.back();
 
 			// Populate list with uuids of users who are using the cap
-			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-			for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
+			for (auto* user : ServerInstance->Users.GetLocalUsers())
 			{
-				LocalUser* user = *j;
 				if (cap->IsEnabled(user))
 					capdata.users.push_back(user->uuid);
 			}
@@ -121,9 +115,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	void OnReloadModuleRestore(Module* mod, void* data) override
 	{
 		CapModData* capmoddata = static_cast<CapModData*>(data);
-		for (std::vector<CapModData::Data>::const_iterator i = capmoddata->caps.begin(); i != capmoddata->caps.end(); ++i)
+		for (const auto& capdata : capmoddata->caps)
 		{
-			const CapModData::Data& capdata = *i;
 			Capability* cap = ManagerImpl::Find(capdata.name);
 			if (!cap)
 			{
@@ -132,9 +125,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 			}
 
 			// Set back the cap for all users who were using it before the reload
-			for (std::vector<std::string>::const_iterator j = capdata.users.begin(); j != capdata.users.end(); ++j)
+			for (const auto& uuid : capdata.users)
 			{
-				const std::string& uuid = *j;
 				User* user = ServerInstance->Users.FindUUID(uuid);
 				if (!user)
 				{
@@ -160,11 +152,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 
 	~ManagerImpl() override
 	{
-		for (CapMap::iterator i = caps.begin(); i != caps.end(); ++i)
-		{
-			Capability* cap = i->second;
+		for (const auto& [_, cap] : caps)
 			cap->Unregister();
-		}
 	}
 
 	void AddCap(Cap::Capability* cap) override
@@ -195,12 +184,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, false);
 
 		// Turn off the cap for all users
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-		{
-			LocalUser* user = *i;
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
 			cap->Set(user, false);
-		}
 
 		ServerInstance->Modules.DelReferent(cap);
 		cap->Unregister();
@@ -259,9 +244,8 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 	{
 		Ext show_caps = (show_all ? ~0 : capext.Get(user));
 
-		for (CapMap::const_iterator i = caps.begin(); i != caps.end(); ++i)
+		for (const auto& [_, cap] : caps)
 		{
-			Capability* cap = i->second;
 			if (!(show_caps & cap->GetMask()))
 				continue;
 
@@ -381,11 +365,11 @@ class CommandCap : public SplitCommand
 	{
 		size_t maxline = ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - user->nick.length() - subcmd.length() - 11;
 		std::string line;
-		for (std::vector<std::string>::const_iterator iter = result.begin(); iter != result.end(); ++iter)
+		for (const auto& cap : result)
 		{
-			if (line.length() + iter->length() < maxline)
+			if (line.length() + cap.length() < maxline)
 			{
-				line.append(*iter);
+				line.append(cap);
 				line.push_back(' ');
 			}
 			else

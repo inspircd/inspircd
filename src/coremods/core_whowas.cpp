@@ -203,11 +203,8 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
+		for (const auto& u : nick->entries)
 		{
-			WhoWas::Entry* u = *i;
-
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
@@ -234,11 +231,8 @@ const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
 {
 	size_t entrycount = 0;
-	for (whowas_users::const_iterator i = whowas.begin(); i != whowas.end(); ++i)
-	{
-		WhoWas::Nick::List& list = i->second->entries;
-		entrycount += list.size();
-	}
+	for (const auto& [_, nick] : whowas)
+		entrycount += nick->entries.size();
 
 	Stats stats;
 	stats.entrycount = entrycount;
@@ -339,11 +333,8 @@ void WhoWas::Manager::Maintain()
 
 WhoWas::Manager::~Manager()
 {
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
-	{
-		WhoWas::Nick* nick = i->second;
+	for (const auto& [_, nick] : whowas)
 		delete nick;
-	}
 }
 
 bool WhoWas::Manager::IsEnabled() const

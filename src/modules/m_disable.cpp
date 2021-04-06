@@ -43,11 +43,8 @@ class ModuleDisable : public Module
 
 	void ReadModes(std::shared_ptr<ConfigTag> tag, const std::string& field, ModeType type, ModeStatus& status)
 	{
-		const std::string modes = tag->getString(field);
-		for (std::string::const_iterator iter = modes.begin(); iter != modes.end(); ++iter)
+		for (const auto& chr : tag->getString(field))
 		{
-			const char& chr = *iter;
-
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
 				throw ModuleException(InspIRCd::Format("Invalid mode '%c' was specified in <disabled:%s> at %s",

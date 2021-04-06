@@ -391,9 +391,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 		// Determine the lowest TTL value and use that as the TTL of the cache entry
 		unsigned int cachettl = UINT_MAX;
-		for (std::vector<ResourceRecord>::const_iterator i = r.answers.begin(); i != r.answers.end(); ++i)
+		for (const auto& rr : r.answers)
 		{
-			const ResourceRecord& rr = *i;
 			if (rr.ttl < cachettl)
 				cachettl = rr.ttl;
 		}

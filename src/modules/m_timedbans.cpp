@@ -60,9 +60,8 @@ class CommandTban : public Command
 		const ListModeBase::ModeList* bans = banlm->GetList(chan);
 		if (bans)
 		{
-			for (ListModeBase::ModeList::const_iterator i = bans->begin(); i != bans->end(); ++i)
+			for (const auto& ban : *bans)
 			{
-				const ListModeBase::ListItem& ban = *i;
 				if (irc::equals(ban.mask, mask))
 					return true;
 			}
@@ -233,26 +232,23 @@ class ModuleTimedBans : public Module
 				++i;
 		}
 
-		for (timedbans::iterator i = expired.begin(); i != expired.end(); i++)
+		for (const auto& timedban : expired)
 		{
-			const std::string mask = i->mask;
-			Channel* cr = i->chan;
-
 			if (cmd.sendnotice)
 			{
 				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
-				mask.c_str(), i->setter.c_str(), cr->name.c_str());
+				timedban.mask.c_str(), timedban.setter.c_str(), timedban.chan->name.c_str());
 
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 				PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
 				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
 
-				cr->WriteRemoteNotice(message, pfxchar);
+				timedban.chan->WriteRemoteNotice(message, pfxchar);
 			}
 
 			Modes::ChangeList setban;
-			setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, cr, NULL, setban);
+			setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), timedban.mask);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, timedban.chan, NULL, setban);
 		}
 	}
 

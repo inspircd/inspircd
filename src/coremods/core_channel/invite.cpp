@@ -141,9 +141,8 @@ Invite::Invite* Invite::APIImpl::Find(LocalUser* user, Channel* chan)
 	if (!list)
 		return NULL;
 
-	for (List::iterator i = list->begin(); i != list->end(); ++i)
+	for (auto* inv : *list)
 	{
-		Invite* inv = *i;
 		if (inv->chan == chan)
 			return inv;
 	}

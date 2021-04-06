@@ -272,10 +272,10 @@ class WebSocketHook : public IOHookMiddle
 					return result;
 
 				// Strip out any CR+LF which may have been erroneously sent.
-				for (std::string::const_iterator iter = appdata.begin(); iter != appdata.end(); ++iter)
+				for (const auto& chr : appdata)
 				{
-					if (*iter != '\r' && *iter != '\n')
-						destrecvq.push_back(*iter);
+					if (chr != '\r' && chr != '\n')
+						destrecvq.push_back(chr);
 				}
 
 				// If we are on the final message of this block append a line terminator.
@@ -330,9 +330,9 @@ class WebSocketHook : public IOHookMiddle
 		if (originheader.Find(recvq, "Origin:", 7, reqend))
 		{
 			const std::string origin = originheader.ExtractValue(recvq);
-			for (WebSocketConfig::OriginList::const_iterator iter = config.allowedorigins.begin(); iter != config.allowedorigins.end(); ++iter)
+			for (const auto& cfgorigin : config.allowedorigins)
 			{
-				if (InspIRCd::Match(origin, *iter, ascii_case_insensitive_map))
+				if (InspIRCd::Match(origin, cfgorigin, ascii_case_insensitive_map))
 				{
 					allowedorigin = true;
 					break;
@@ -363,9 +363,9 @@ class WebSocketHook : public IOHookMiddle
 				// Nothing to do here.
 			}
 
-			for (WebSocketConfig::ProxyRanges::const_iterator iter = config.proxyranges.begin(); iter != config.proxyranges.end(); ++iter)
+			for (const auto& proxyrange : config.proxyranges)
 			{
-				if (InspIRCd::MatchCIDR(luser->GetIPString(), *iter, ascii_case_insensitive_map))
+				if (InspIRCd::MatchCIDR(luser->GetIPString(), proxyrange, ascii_case_insensitive_map))
 				{
 					// Give the user their real IP address.
 					if (realsa != luser->client_sa)
@@ -426,11 +426,11 @@ class WebSocketHook : public IOHookMiddle
 			return (mysendq.empty() ? 0 : 1);
 
 		std::string message;
-		for (StreamSocket::SendQueue::const_iterator elem = uppersendq.begin(); elem != uppersendq.end(); ++elem)
+		for (const auto& elem : uppersendq)
 		{
-			for (StreamSocket::SendQueue::Element::const_iterator chr = elem->begin(); chr != elem->end(); ++chr)
+			for (const auto& chr : elem)
 			{
-				if (*chr == '\n')
+				if (chr == '\n')
 				{
 					// We have found an entire message. Send it in its own frame.
 					if (config.sendastext)
@@ -450,9 +450,9 @@ class WebSocketHook : public IOHookMiddle
 					}
 					message.clear();
 				}
-				else if (*chr != '\r')
+				else if (chr != '\r')
 				{
-					message.push_back(*chr);
+					message.push_back(chr);
 				}
 			}
 		}

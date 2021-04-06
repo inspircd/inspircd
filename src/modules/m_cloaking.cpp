@@ -373,9 +373,8 @@ class ModuleCloaking : public Module
 			return MOD_RES_PASSTHRU;
 
 		// Check if they have a cloaked host but are not using it.
-		for (CloakList::const_iterator iter = cloaklist->begin(); iter != cloaklist->end(); ++iter)
+		for (const auto& cloak : *cloaklist)
 		{
-			const std::string& cloak = *iter;
 			if (cloak != user->GetDisplayedHost())
 			{
 				const std::string cloakMask = user->nick + "!" + user->ident + "@" + cloak;
@@ -528,8 +527,8 @@ class ModuleCloaking : public Module
 			return;
 
 		CloakList cloaklist;
-		for (std::vector<CloakInfo>::const_iterator iter = cloaks.begin(); iter != cloaks.end(); ++iter)
-			cloaklist.push_back(GenCloak(*iter, dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
+		for (const auto& cloak : cloaks)
+			cloaklist.push_back(GenCloak(cloak, dest->client_sa, dest->GetIPString(), dest->GetRealHost()));
 		cu.ext.Set(dest, cloaklist);
 	}
 };
@@ -543,9 +542,9 @@ CmdResult CommandCloak::Handle(User* user, const Params& parameters)
 	const char* ipaddr = irc::sockets::aptosa(parameters[0], 0, sa) ? parameters[0].c_str() : "";
 
 	unsigned int id = 0;
-	for (std::vector<CloakInfo>::const_iterator iter = mod->cloaks.begin(); iter != mod->cloaks.end(); ++iter)
+	for (const auto& info : mod->cloaks)
 	{
-		const std::string cloak = mod->GenCloak(*iter, sa, ipaddr, parameters[0]);
+		const std::string cloak = mod->GenCloak(info, sa, ipaddr, parameters[0]);
 		user->WriteNotice(InspIRCd::Format("*** Cloak #%u for %s is %s", ++id, parameters[0].c_str(), cloak.c_str()));
 	}
 	return CmdResult::SUCCESS;

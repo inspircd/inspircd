@@ -72,9 +72,9 @@ void FileReader::Load(const std::string& filename)
 std::string FileReader::GetString() const
 {
 	std::string buffer;
-	for (file_cache::const_iterator it = this->lines.begin(); it != this->lines.end(); ++it)
+	for (const auto& line : lines)
 	{
-		buffer.append(*it);
+		buffer.append(line);
 		buffer.append("\r\n");
 	}
 	return buffer;

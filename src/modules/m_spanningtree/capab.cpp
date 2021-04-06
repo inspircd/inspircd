@@ -142,10 +142,8 @@ namespace
 std::string TreeSocket::BuildModeList(ModeType mtype)
 {
 	std::vector<std::string> modes;
-	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes.GetModes(mtype);
-	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mtype))
 	{
-		const ModeHandler* const mh = i->second;
 		const PrefixMode* const pm = mh->IsPrefixMode();
 		std::string mdesc;
 		if (pm)
@@ -302,10 +300,10 @@ void TreeSocket::ListDifference(const std::string &one, const std::string &two, 
 			mright.append(item);
 		}
 	}
-	for(std::set<std::string>::iterator i = values.begin(); i != values.end(); ++i)
+	for (const auto& value : values)
 	{
 		mleft.push_back(sep);
-		mleft.append(*i);
+		mleft.append(value);
 	}
 }
 

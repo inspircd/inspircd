@@ -49,9 +49,9 @@ class CommandChghost : public Command
 			return CmdResult::FAILURE;
 		}
 
-		for (std::string::const_iterator x = parameters[1].begin(); x != parameters[1].end(); x++)
+		for (const auto& chr : parameters[1])
 		{
-			if (!hostmap.test(static_cast<unsigned char>(*x)))
+			if (!hostmap.test(static_cast<unsigned char>(chr)))
 			{
 				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
 				return CmdResult::FAILURE;
@@ -103,8 +103,8 @@ class ModuleChgHost : public Module
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		cmd.hostmap.reset();
-		for (std::string::const_iterator n = hmap.begin(); n != hmap.end(); n++)
-			cmd.hostmap.set(static_cast<unsigned char>(*n));
+		for (const auto& chr : hmap)
+			cmd.hostmap.set(static_cast<unsigned char>(chr));
 	}
 };
 

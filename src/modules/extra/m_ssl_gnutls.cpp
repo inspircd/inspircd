@@ -224,8 +224,8 @@ namespace GnuTLS
 
 		~X509CertList()
 		{
-			for (std::vector<gnutls_x509_crt_t>::iterator i = certs.begin(); i != certs.end(); ++i)
-				gnutls_x509_crt_deinit(*i);
+			for (const auto& cert : certs)
+				gnutls_x509_crt_deinit(cert);
 		}
 
 		gnutls_x509_crt_t* raw() { return &certs[0]; }
@@ -1160,11 +1160,8 @@ class ModuleSSLGnuTLS : public Module
 
 		// New profiles are ok, begin using them
 		// Old profiles are deleted when their refcount drops to zero
-		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
-		{
-			GnuTLSIOHookProvider& prov = **i;
-			ServerInstance->Modules.DelService(prov);
-		}
+		for (const auto& profile : profiles)
+			ServerInstance->Modules.DelService(*profile);
 
 		profiles.swap(newprofiles);
 	}

@@ -934,11 +934,8 @@ class ModuleSSLOpenSSL : public Module
 			newprofiles.push_back(prov);
 		}
 
-		for (ProfileList::iterator i = profiles.begin(); i != profiles.end(); ++i)
-		{
-			OpenSSLIOHookProvider& prov = **i;
-			ServerInstance->Modules.DelService(prov);
-		}
+		for (const auto& profile : profiles)
+			ServerInstance->Modules.DelService(*profile);
 
 		profiles.swap(newprofiles);
 	}

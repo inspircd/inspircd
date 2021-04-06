@@ -41,8 +41,9 @@ void dynamic_reference_base::reset_all()
 {
 	if (!dynrefs)
 		return;
-	for (insp::intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
-		(*i)->resolve();
+
+	for (auto* dynref : *dynrefs)
+		dynref->resolve();
 }
 
 Module::Module(int mprops, const std::string& mdesc)
@@ -334,8 +335,8 @@ bool ModuleManager::PrioritizeHooks()
 	for (int tries = 0; tries < 20; tries++)
 	{
 		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second->Prioritize();
+		for (const auto& [_, mod] : Modules)
+			mod->Prioritize();
 
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
@@ -398,11 +399,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		++c;
 		mod->OnCleanup(ExtensionItem::EXT_CHANNEL, chan);
 		chan->UnhookExtensions(items);
-		const Channel::MemberMap& users = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator mi = users.begin(); mi != users.end(); ++mi)
+		for (const auto& [_, memb] : chan->GetUsers())
 		{
-			mod->OnCleanup(ExtensionItem::EXT_MEMBERSHIP, mi->second);
-			mi->second->UnhookExtensions(items);
+			mod->OnCleanup(ExtensionItem::EXT_MEMBERSHIP, memb);
+			memb->UnhookExtensions(items);
 		}
 	}
 
@@ -510,19 +510,18 @@ void ModuleManager::LoadAll()
 	}
 
 	// Step 2: initialize the modules and register their services.
-	for (ModuleMap::const_iterator i = Modules.begin(); i != Modules.end(); ++i)
+	for (const auto& [modname, mod] : Modules)
 	{
-		Module* mod = i->second;
 		try
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
+			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Initializing %s", modname.c_str());
 			AttachAll(mod);
-			AddServices(servicemap[i->first]);
+			AddServices(servicemap[modname]);
 			mod->init();
 		}
 		catch (CoreException& modexcept)
 		{
-			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
@@ -535,17 +534,16 @@ void ModuleManager::LoadAll()
 	// Step 3: Read the configuration for the modules. This must be done as part of
 	// its own step so that services provided by modules can be registered before
 	// the configuration is read.
-	for (ModuleMap::const_iterator i = Modules.begin(); i != Modules.end(); ++i)
+	for (const auto& [modname, mod] : Modules)
 	{
-		Module* mod = i->second;
 		try
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Reading configuration for %s", i->first.c_str());
+			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Reading configuration for %s", modname.c_str());
 			mod->ReadConfig(confstatus);
 		}
 		catch (CoreException& modexcept)
 		{
-			LastModuleError = "Unable to read the configuration for " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
@@ -563,11 +561,8 @@ std::string& ModuleManager::LastError()
 
 void ModuleManager::AddServices(const ServiceList& list)
 {
-	for (ServiceList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		ServiceProvider& s = **i;
-		AddService(s);
-	}
+	for (const auto& service : list)
+		AddService(*service);
 }
 
 void ModuleManager::AddService(ServiceProvider& item)

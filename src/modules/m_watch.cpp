@@ -101,12 +101,8 @@ class CommandWatch : public SplitCommand
 	void HandleList(LocalUser* user, bool show_offline)
 	{
 		user->CommandFloodPenalty += ListPenalty;
-		const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
-		for (IRCv3::Monitor::WatchedList::const_iterator i = list.begin(); i != list.end(); ++i)
-		{
-			const IRCv3::Monitor::Entry* entry = *i;
+		for (const auto& entry : manager.GetWatched(user))
 			SendOnlineOffline(user, entry->GetNick(), show_offline);
-		}
 		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH list");
 	}
 
@@ -119,11 +115,8 @@ class CommandWatch : public SplitCommand
 		user->WriteNumeric(RPL_WATCHSTAT, InspIRCd::Format("You have %lu and are on 0 WATCH entries", (unsigned long)list.size()));
 
 		Numeric::Builder<' '> out(user, RPL_WATCHLIST);
-		for (IRCv3::Monitor::WatchedList::const_iterator i = list.begin(); i != list.end(); ++i)
-		{
-			const IRCv3::Monitor::Entry* entry = *i;
+		for (const auto& entry : list)
 			out.Add(entry->GetNick());
-		}
 		out.Flush();
 		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH S");
 	}
@@ -150,9 +143,8 @@ class CommandWatch : public SplitCommand
 		bool watch_l_done = false;
 		bool watch_s_done = false;
 
-		for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i)
+		for (const auto& token : parameters)
 		{
-			const std::string& token = *i;
 			char subcmd = toupper(token[0]);
 			if (subcmd == '+')
 			{
@@ -200,11 +192,8 @@ class ModuleWatch
 
 		Numeric::Numeric num(numeric);
 		num.push(nick).push(user->ident).push(user->GetDisplayedHost()).push(ConvToStr(shownts)).push(numerictext);
-		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
-		{
-			LocalUser* curr = *i;
+		for (const auto& curr : *list)
 			curr->WriteNumeric(num);
-		}
 	}
 
 	void Online(User* user)

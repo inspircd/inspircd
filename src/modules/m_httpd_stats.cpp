@@ -60,21 +60,20 @@ namespace Stats
 		std::string ret;
 		ret.reserve(str.length() * 2);
 
-		for (std::string::const_iterator x = str.begin(); x != str.end(); ++x)
+		for (const auto& chr : str)
 		{
-			insp::flat_map<char, char const*>::const_iterator it = Entities::entities.find(*x);
-
+			insp::flat_map<char, char const*>::const_iterator it = Entities::entities.find(chr);
 			if (it != Entities::entities.end())
 			{
 				ret += '&';
 				ret += it->second;
 				ret += ';';
 			}
-			else if (*x == 0x09 || *x == 0x0A || *x == 0x0D || ((*x >= 0x20) && (*x <= 0x7e)))
+			else if (chr == 0x09 || chr == 0x0A || chr == 0x0D || ((chr >= 0x20) && (chr <= 0x7e)))
 			{
 				// The XML specification defines the following characters as valid inside an XML document:
 				// Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-				ret += *x;
+				ret += chr;
 			}
 			else
 			{
@@ -94,10 +93,9 @@ namespace Stats
 	void DumpMeta(std::ostream& data, Extensible* ext)
 	{
 		data << "<metadata>";
-		for (Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
+		for (const auto& [item, obj] : ext->GetExtList())
 		{
-			ExtensionItem* item = i->first;
-			std::string value = item->ToHuman(ext, i->second);
+			const std::string value = item->ToHuman(ext, obj);
 			if (!value.empty())
 				data << "<meta name=\"" << item->name << "\">" << Sanitize(value) << "</meta>";
 			else if (!item->name.empty())
@@ -119,10 +117,10 @@ namespace Stats
 
 		ISupport::TokenMap tokens;
 		isevprov->Call(&ISupport::EventListener::OnBuildISupport, tokens);
-		for (ISupport::TokenMap::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
+		for (const auto& [key, value] : tokens)
 		{
-			data << "<token><name>" << Sanitize(it->first)
-				<< "</name><value>" << Sanitize(it->second)
+			data << "<token><name>" << Sanitize(key)
+				<< "</name><value>" << Sanitize(value)
 				<< "</value></token>";
 		}
 		return data << "</isupport>";
@@ -146,19 +144,18 @@ namespace Stats
 	std::ostream& XLines(std::ostream& data)
 	{
 		data << "<xlines>";
-		std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
-		for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
+		for (const auto& xltype : ServerInstance->XLines->GetAllTypes())
 		{
-			XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
-
+			XLineLookup* lookup = ServerInstance->XLines->GetAll(xltype);
 			if (!lookup)
 				continue;
-			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+
+			for (const auto& [_, xline] : *lookup)
 			{
-				data << "<xline type=\"" << it->c_str() << "\"><mask>"
-					<< Sanitize(i->second->Displayable()) << "</mask><settime>"
-					<< i->second->set_time << "</settime><duration>" << i->second->duration
-					<< "</duration><reason>" << Sanitize(i->second->reason)
+				data << "<xline type=\"" << xltype << "\"><mask>"
+					<< Sanitize(xline->Displayable()) << "</mask><settime>"
+					<< xline->set_time << "</settime><duration>" << xline->duration
+					<< "</duration><reason>" << Sanitize(xline->reason)
 					<< "</reason></xline>";
 			}
 		}
@@ -168,12 +165,10 @@ namespace Stats
 	std::ostream& Modules(std::ostream& data)
 	{
 		data << "<modulelist>";
-		const ModuleManager::ModuleMap& mods = ServerInstance->Modules.GetModules();
-
-		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+		for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())
 		{
-			Module* mod = i->second;
-			data << "<module><name>" << i->first << "</name><description>" << Sanitize(mod->description) << "</description></module>";
+			data << "<module><name>" << modname << "</name><description>"
+				<< Sanitize(mod->description) << "</description></module>";
 		}
 		return data << "</modulelist>";
 	}
@@ -182,11 +177,8 @@ namespace Stats
 	{
 		data << "<channellist>";
 
-		const chan_hash& chans = ServerInstance->GetChans();
-		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+		for (const auto& [_, c] : ServerInstance->GetChans())
 		{
-			Channel* c = i->second;
-
 			data << "<channel>";
 			data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
 			data << "<channeltopic>";
@@ -196,10 +188,8 @@ namespace Stats
 			data << "</channeltopic>";
 			data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
 
-			const Channel::MemberMap& ulist = c->GetUsers();
-			for (Channel::MemberMap::const_iterator x = ulist.begin(); x != ulist.end(); ++x)
+			for (const auto& [__, memb] : c->GetUsers())
 			{
-				Membership* memb = x->second;
 				data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
 					<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
 					<< memb->modes << "</modes>";
@@ -249,11 +239,8 @@ namespace Stats
 	std::ostream& Users(std::ostream& data)
 	{
 		data << "<userlist>";
-		const user_hash& users = ServerInstance->Users.GetUsers();
-		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			User* u = i->second;
-
 			if (u->registered != REG_ALL)
 				continue;
 
@@ -269,16 +256,15 @@ namespace Stats
 		ProtocolInterface::ServerList sl;
 		ServerInstance->PI->GetServerList(sl);
 
-		for (ProtocolInterface::ServerList::const_iterator b = sl.begin(); b != sl.end(); ++b)
+		for (const auto& server : sl)
 		{
 			data << "<server>";
-			data << "<servername>" << b->servername << "</servername>";
-			data << "<parentname>" << b->parentname << "</parentname>";
-			data << "<description>" << Sanitize(b->description) << "</description>";
-			data << "<usercount>" << b->usercount << "</usercount>";
-// This is currently not implemented, so, commented out.
-//					data << "<opercount>" << b->opercount << "</opercount>";
-			data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
+			data << "<servername>" << server.servername << "</servername>";
+			data << "<parentname>" << server.parentname << "</parentname>";
+			data << "<description>" << Sanitize(server.description) << "</description>";
+			data << "<usercount>" << server.usercount << "</usercount>";
+			data << "<opercount>" << server.opercount << "</opercount>";
+			data << "<lagmillisecs>" << server.latencyms << "</lagmillisecs>";
 			data << "</server>";
 		}
 
@@ -289,10 +275,9 @@ namespace Stats
 	{
 		data << "<commandlist>";
 
-		const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-		for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
+		for (const auto& [cmdname, cmd] : ServerInstance->Parser.GetCommands())
 		{
-			data << "<command><name>" << i->second->name << "</name><usecount>" << i->second->use_count << "</usecount></command>";
+			data << "<command><name>" << cmdname << "</name><usecount>" << cmd->use_count << "</usecount></command>";
 		}
 		return data << "</commandlist>";
 	}
@@ -370,10 +355,8 @@ namespace Stats
 
 		typedef std::list<User*> NewUserList;
 		NewUserList user_list;
-		user_hash users = ServerInstance->Users.GetUsers();
-		for (user_hash::iterator i = users.begin(); i != users.end(); ++i)
+		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			User* u = i->second;
 			if (!showunreg && u->registered != REG_ALL)
 				continue;
 

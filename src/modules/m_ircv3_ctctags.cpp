@@ -84,17 +84,17 @@ class CommandTagMsg : public Command
 		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
 		CTCTags::TagMessage message(source, chan, msgdetails.tags_out, msgtarget.status);
 		message.SetSideEffect(true);
-		const Channel::MemberMap& userlist = chan->GetUsers();
-		for (Channel::MemberMap::const_iterator iter = userlist.begin(); iter != userlist.end(); ++iter)
+
+		for (const auto& [user, memb] : chan->GetUsers())
 		{
-			LocalUser* luser = IS_LOCAL(iter->first);
+			LocalUser* luser = IS_LOCAL(user);
 
 			// Don't send to remote users or the user who is the source.
 			if (!luser || luser == source)
 				continue;
 
 			// Don't send to unprivileged or exempt users.
-			if (iter->second->getRank() < minrank || msgdetails.exemptions.count(luser))
+			if (memb->getRank() < minrank || msgdetails.exemptions.count(luser))
 				continue;
 
 			// Send to users if they have the capability.
@@ -129,11 +129,8 @@ class CommandTagMsg : public Command
 		{
 			CTCTags::TagMessage message(source, "$*", msgdetails.tags_out);
 			message.SetSideEffect(true);
-			const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-			for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 			{
-				LocalUser* luser = IS_LOCAL(*iter);
-
 				// Don't send to unregistered users or the user who is the source.
 				if (luser->registered != REG_ALL || luser == source)
 					continue;

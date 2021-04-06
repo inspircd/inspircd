@@ -164,9 +164,8 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 {
 	seq++;
 
-	for (std::string::const_iterator i = mode_sequence.begin(); i != mode_sequence.end(); ++i)
+	for (const auto& mletter : mode_sequence)
 	{
-		unsigned char mletter = *i;
 		if (mletter == '+')
 			continue;
 
@@ -177,10 +176,10 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 		/* Ensure the user doesnt request the same mode twice,
 		 * so they can't flood themselves off out of idiocy.
 		 */
-		if (sent[mletter] == seq)
+		if (sent[static_cast<unsigned char>(mletter)] == seq)
 			continue;
 
-		sent[mletter] = seq;
+		sent[static_cast<unsigned char>(mletter)] = seq;
 		ServerInstance->Modes.ShowListModeList(user, chan, mh);
 	}
 }

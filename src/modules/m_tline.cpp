@@ -42,17 +42,16 @@ class CommandTline : public Command
 		unsigned int n_match_host = 0;
 		unsigned int n_match_ip = 0;
 
-		const user_hash& users = ServerInstance->Users.GetUsers();
-		for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
+		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			if (InspIRCd::Match(u->second->GetFullRealHost(),parameters[0]))
+			if (InspIRCd::Match(u->GetFullRealHost(),parameters[0]))
 			{
 				n_matched++;
 				n_match_host++;
 			}
 			else
 			{
-				std::string host = u->second->ident + "@" + u->second->GetIPString();
+				std::string host = u->ident + "@" + u->GetIPString();
 				if (InspIRCd::MatchCIDR(host, parameters[0]))
 				{
 					n_matched++;
@@ -61,7 +60,7 @@ class CommandTline : public Command
 			}
 		}
 
-		unsigned long n_counted = users.size();
+		unsigned long n_counted = ServerInstance->Users.GetUsers().size();
 		if (n_matched)
 		{
 			float p = (n_matched / (float)n_counted) * 100;

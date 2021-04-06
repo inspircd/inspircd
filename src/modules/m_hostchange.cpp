@@ -113,12 +113,10 @@ private:
 	{
 		std::string buffer;
 		buffer.reserve(name.length());
-		for (std::string::const_iterator iter = name.begin(); iter != name.end(); ++iter)
+		for (const auto& chr : name)
 		{
-			if (hostmap.test(static_cast<unsigned char>(*iter)))
-			{
-				buffer.push_back(*iter);
-			}
+			if (hostmap.test(static_cast<unsigned char>(chr)))
+				buffer.push_back(chr);
 		}
 		return buffer;
 	}
@@ -182,16 +180,15 @@ private:
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		hostmap.reset();
-		for (std::string::const_iterator iter = hmap.begin(); iter != hmap.end(); ++iter)
-			hostmap.set(static_cast<unsigned char>(*iter));
+		for (const auto& chr : hmap)
+			hostmap.set(static_cast<unsigned char>(chr));
 		hostrules.swap(rules);
 	}
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		for (HostRules::const_iterator iter = hostrules.begin(); iter != hostrules.end(); ++iter)
+		for (const auto& rule : hostrules)
 		{
-			const HostRule& rule = *iter;
 			if (!rule.Matches(user))
 				continue;
 

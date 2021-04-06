@@ -69,14 +69,12 @@ bool Extensible::Deserialize(Serializable::Data& data)
 	if (culled)
 		return false;
 
-	const Serializable::Data::EntryMap& entries = data.GetEntries();
-	for (Serializable::Data::EntryMap::const_iterator iter = entries.begin(); iter != entries.end(); ++iter)
+	for (const auto& [name, entry] : data.GetEntries())
 	{
-		const std::string& name = iter->first;
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(name);
 		if (item)
 		{
-			item->FromInternal(this, iter->second);
+			item->FromInternal(this, entry);
 			continue;
 		}
 
@@ -95,12 +93,11 @@ bool Extensible::Serialize(Serializable::Data& data)
 		return false;
 	}
 
-	for (Extensible::ExtensibleStore::const_iterator iter = extensions.begin(); iter != extensions.end(); ++iter)
+	for (const auto& [ext, item] : extensions)
 	{
-		ExtensionItem* item = iter->first;
-		const std::string value = item->ToInternal(this, iter->second);
+		const std::string value = ext->ToInternal(this, item);
 		if (!value.empty())
-			data.Store(item->name, value);
+			data.Store(ext->name, item);
 	}
 	return true;
 }
