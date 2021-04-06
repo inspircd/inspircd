@@ -35,7 +35,7 @@ class DelayMsgMode : public ParamMode<DelayMsgMode, IntExtItem>
 		syntax = "<seconds>";
 	}
 
-	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel*) override
+	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel*) override
 	{
 		return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
 	}

@@ -31,7 +31,7 @@ ModeChannelLimit::ModeChannelLimit(Module* Creator)
 	syntax = "<limit>";
 }
 
-bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
+bool ModeChannelLimit::ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel*)
 {
 	/* When TS is equal, the higher channel limit wins */
 	return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);

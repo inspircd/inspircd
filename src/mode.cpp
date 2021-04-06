@@ -104,7 +104,7 @@ void ModeHandler::OnParameterInvalid(User* user, Channel* targetchannel, User* t
 		user->WriteNumeric(Numerics::InvalidModeParameter(targetuser, this, "*"));
 }
 
-bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ours, Channel*)
+bool ModeHandler::ResolveModeConflict(const std::string& theirs, const std::string& ours, Channel*)
 {
 	return (theirs < ours);
 }
@@ -405,7 +405,7 @@ static bool IsModeParamValid(User* user, Channel* targetchannel, User* targetuse
 }
 
 // Returns true if we should apply a merged mode, false if we should skip it
-static bool ShouldApplyMergedMode(Channel* chan, Modes::Change& item)
+static bool ShouldApplyMergedMode(Channel* chan, const Modes::Change& item)
 {
 	ModeHandler* mh = item.mh;
 	if ((!chan) || (!chan->IsModeSet(mh)) || (mh->IsListMode()))
@@ -413,7 +413,7 @@ static bool ShouldApplyMergedMode(Channel* chan, Modes::Change& item)
 		return true;
 
 	// Mode handler decides
-	std::string ours = chan->GetModeParameter(mh);
+	const std::string ours = chan->GetModeParameter(mh);
 	return mh->ResolveModeConflict(item.param, ours, chan);
 }
 

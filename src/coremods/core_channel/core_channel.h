@@ -198,7 +198,7 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, IntExtItem>
 {
  public:
 	ModeChannelLimit(Module* Creator);
-	bool ResolveModeConflict(std::string& their_param, const std::string& our_param, Channel* channel) override;
+	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override;
 };

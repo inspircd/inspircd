@@ -309,7 +309,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param channel The channel we are checking against
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
-	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	virtual bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel);
 
 	/**
 	 * When a MODETYPE_USER mode handler is being removed, the core will call this method for every user on the server.
