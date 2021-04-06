@@ -61,6 +61,18 @@ struct HistoryList
 		, maxtime(time)
 	{
 	}
+
+	size_t Prune()
+	{
+		// Prune expired entries from the list.
+		if (maxtime)
+		{
+			time_t mintime = ServerInstance->Time() - maxtime;
+			while (!lines.empty() && lines.front().ts < mintime)
+				lines.pop_front();
+		}
+		return lines.size();
+	}
 };
 
 class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
@@ -108,6 +120,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 
 			history->maxlen = len;
 			history->maxtime = time;
+			history->Prune();
 		}
 		else
 		{
@@ -154,7 +167,7 @@ class ModuleChanHistory
 		}
 	}
 
-	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list, time_t mintime)
+	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list)
 	{
 		if (batchmanager)
 		{
@@ -162,19 +175,16 @@ class ModuleChanHistory
 			batch.GetBatchStartMessage().PushParamRef(channel->name);
 		}
 
-		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
+		for (std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
 			HistoryItem& item = *i;
-			if (item.ts >= mintime)
-			{
-				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
-				for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
-					AddTag(msg, iter->first, iter->second);
-				if (servertimemanager)
-					servertimemanager->Set(msg, item.ts);
-				batch.AddToBatch(msg);
-				user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
-			}
+			ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
+			for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
+				AddTag(msg, iter->first, iter->second);
+			if (servertimemanager)
+				servertimemanager->Set(msg, item.ts);
+			batch.AddToBatch(msg);
+			user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 		}
 
 		if (batchmanager)
@@ -240,7 +250,7 @@ class ModuleChanHistory
 			return;
 
 		HistoryList* list = historymode.ext.Get(memb->chan);
-		if (!list)
+		if (!list || !list->Prune())
 			return;
 
 		if ((prefixmsg) && (!batchcap.IsEnabled(localuser)))
@@ -251,11 +261,7 @@ class ModuleChanHistory
 			memb->WriteNotice(message);
 		}
 
-		time_t mintime = 0;
-		if (list->maxtime)
-			mintime = ServerInstance->Time() - list->maxtime;
-
-		SendHistory(localuser, memb->chan, list, mintime);
+		SendHistory(localuser, memb->chan, list);
 	}
 };
 
