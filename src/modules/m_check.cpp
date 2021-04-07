@@ -171,7 +171,6 @@ class CommandCheck : public Command
 
 		User *targuser;
 		Channel *targchan;
-		std::string chliststr;
 
 		targuser = ServerInstance->FindNick(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);
@@ -242,13 +241,7 @@ class CommandCheck : public Command
 			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
 				Membership* memb = *i;
-				Channel* c = memb->chan;
-				char prefix = memb->GetPrefixChar();
-				if (prefix)
-					chliststr.push_back(prefix);
-				chliststr.append(c->name);
-				chanlist.Add(chliststr);
-				chliststr.clear();
+				chanlist.Add(memb->GetAllPrefixChars() + memb->chan->name);
 			}
 
 			chanlist.Flush();
