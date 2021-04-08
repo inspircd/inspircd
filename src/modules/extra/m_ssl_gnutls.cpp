@@ -1176,8 +1176,14 @@ class ModuleSSLGnuTLS : public Module
 	void init() override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
-		ReadProfiles();
 		ServerInstance->GenRandom = GnuTLS::GenRandom;
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		auto tag = ServerInstance->Config->ConfValue("gnutls");
+		if (status.initial || tag->getBool("onrehash", true))
+			ReadProfiles();
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) override

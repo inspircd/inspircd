@@ -963,8 +963,13 @@ class ModuleSSLOpenSSL : public Module
 		exdataindex = SSL_get_ex_new_index(0, exdatastr, NULL, NULL, NULL);
 		if (exdataindex < 0)
 			throw ModuleException("Failed to register application specific data");
+	}
 
-		ReadProfiles();
+	void ReadConfig(ConfigStatus& status) override
+	{
+		auto tag = ServerInstance->Config->ConfValue("openssl");
+		if (status.initial || tag->getBool("onrehash", true))
+			ReadProfiles();
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) override

@@ -912,7 +912,13 @@ class ModuleSSLmbedTLS : public Module
 
 		if (!ctr_drbg.Seed(entropy))
 			throw ModuleException("CTR DRBG seed failed");
-		ReadProfiles();
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		auto tag = ServerInstance->Config->ConfValue("mbedtls");
+		if (status.initial || tag->getBool("onrehash", true))
+			ReadProfiles();
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) override
