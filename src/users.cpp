@@ -1284,6 +1284,10 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	name = "unnamed";
 	type = t;
 	host = mask;
+	hosts.clear();
+	irc::spacesepstream hoststream(host);
+	for (std::string hostentry; hoststream.GetToken(hostentry); )
+		hosts.push_back(hostentry);
 
 	// Connect classes can inherit from each other but this is problematic for modules which can't use
 	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as
