@@ -70,7 +70,7 @@ namespace irc
 	 * @param s2 Second string to compare
 	 * @return True if the two names are equal, false otherwise
 	 */
-	CoreExport bool equals(const std::string& s1, const std::string& s2);
+	CoreExport bool equals(const std::string_view& s1, const std::string_view& s2);
 
 	/** Check whether \p needle exists within \p haystack.
 	 * @param haystack The string to search within.

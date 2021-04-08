@@ -87,14 +87,20 @@ unsigned const char ascii_case_insensitive_map[256] = {
 	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-bool irc::equals(const std::string& s1, const std::string& s2)
+bool irc::equals(const std::string_view& s1, const std::string_view& s2)
 {
-	const unsigned char* n1 = reinterpret_cast<const unsigned char*>(s1.c_str());
-	const unsigned char* n2 = reinterpret_cast<const unsigned char*>(s2.c_str());
-	for (; *n1 && *n2; n1++, n2++)
-		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
+	if (s1.size() != s2.size())
+		return false;
+
+	for (size_t idx = 0; idx < s1.length(); ++idx)
+	{
+		const unsigned char c1 = s1[idx];
+		const unsigned char c2 = s2[idx];
+		if (national_case_insensitive_map[c1] != national_case_insensitive_map[c2])
 			return false;
-	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
+	}
+
+	return true;
 }
 
 size_t irc::find(const std::string& haystack, const std::string& needle)
