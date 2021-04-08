@@ -106,11 +106,11 @@ It appears that the server endpoint is using plaintext! Make sure that:
 
   * The value of <bind:ssl> is the same as an <sslprofile:name> field.
 
-  * The value of <sslprofile:provider> for your used SSL profile is set to
+  * The value of <sslprofile:provider> for your used TLS profile is set to
     "gnutls" if using the ssl_gnutle module, "openssl" if using the ssl_openssl
     module, or "mbedtls" if using the ssl_mbedtls module.
 
-  * If you have your SSL configuration in a file other than inspircd.conf then
+  * If you have your TLS configuration in a file other than inspircd.conf then
     that file is included by inspircd.conf.
 
 See the following links for more information:
@@ -124,7 +124,7 @@ EOM
 
 $sock->close();
 say "${\CC_GREEN}no${\CC_RESET}";
-print "Checking whether ${\CC_BOLD}$hostip/$port${\CC_RESET} can have an SSL session negotiated ... ";
+print "Checking whether ${\CC_BOLD}$hostip/$port${\CC_RESET} can have an TLS session negotiated ... ";
 $sock = IO::Socket::SSL->new(
 	PeerAddr => $hostip,
 	PeerPort => $port,
@@ -141,7 +141,7 @@ It appears that something is wrong with your server. Make sure that:
   - You are not using an old version of GnuTLS, mbedTLS, or OpenSSL which only
     supports deprecated algorithms like SSLv3.
 
-The error provided by the SSL library was:
+The error provided by the TLS library was:
 
   $IO::Socket::SSL::SSL_ERROR
 EOM
@@ -152,7 +152,7 @@ EOM
 say <<"EOM";
 ${\CC_GREEN}yes${\CC_RESET}
 
-It seems like SSL is working fine on your server. If you are having trouble
+It seems like TLS is working fine on your server. If you are having trouble
 connecting try using a different client or connecting from a different host.
 
 You may also find running some of the following commands to be helpful:

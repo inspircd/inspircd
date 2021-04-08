@@ -114,21 +114,21 @@
 
       # ** ADVANCED ** This option is disabled by default.
       # fingerprint: When using the sslinfo module, you may specify a space separated
-      # list of TLS (SSL) client certificate fingerprints here. These can be obtained by using
+      # list of TLS client certificate fingerprints here. These can be obtained by using
       # the /SSLINFO command while the module is loaded, and is also noticed on connect.
       # This enhances security by verifying that the person opering up has
-      # a matching TLS (SSL) client certificate, which is very difficult to
+      # a matching TLS client certificate, which is very difficult to
       # forge (impossible unless preimage attacks on the hash exist).
       # If the sslinfo module isn't loaded, this option will be ignored.
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
-      # autologin: If a TLS (SSL) client certificate fingerprint for this oper is specified,
+      # autologin: If a TLS client certificate fingerprint for this oper is specified,
       # you can have the oper block automatically log in. This moves all security
-      # of the oper block to the protection of the TLS (SSL) client certificate, so be sure
+      # of the oper block to the protection of the TLS client certificate, so be sure
       # that the private key is well-protected! Requires the sslinfo module.
       #autologin="yes"
 
-      # sslonly: If enabled, this oper can only oper up if they're using a TLS (SSL) connection.
+      # sslonly: If enabled, this oper can only oper up if they're using a TLS connection.
       # Setting this option adds a decent bit of security. Highly recommended
       # if the oper is on wifi, or specifically, unsecured wifi. Note that it
       # is redundant to specify this option if you specify a fingerprint.

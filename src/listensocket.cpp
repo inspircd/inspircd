@@ -245,6 +245,6 @@ void ListenSocket::ResetIOHookProvider()
 	if (!provname.empty())
 		provname.insert(0, "ssl/");
 
-	// TLS (SSL) should be the last
+	// TLS should be the last
 	iohookprovs.back().SetProvider(provname);
 }

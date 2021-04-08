@@ -32,7 +32,7 @@ class ModuleSSLRehashSignal : public Module
 
  public:
 	 ModuleSSLRehashSignal()
-		: Module(VF_VENDOR, "Allows the SIGUSR1 signal to be sent to the server to reload TLS (SSL) certificates.")
+		: Module(VF_VENDOR, "Allows the SIGUSR1 signal to be sent to the server to reload TLS certificates.")
 	{
 	}
 
@@ -51,7 +51,7 @@ class ModuleSSLRehashSignal : public Module
 		if (!signaled)
 			return;
 
-		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS (SSL) credentials";
+		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS credentials";
 		ServerInstance->SNO.WriteGlobalSno('a', feedbackmsg);
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 

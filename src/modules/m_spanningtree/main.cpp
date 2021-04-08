@@ -721,7 +721,7 @@ restart:
 		TreeSocket* sock = child->GetSocket();
 		if (sock->GetModHook(mod))
 		{
-			sock->SendError("SSL module unloaded");
+			sock->SendError("TLS module unloaded");
 			sock->Close();
 			// XXX: The list we're iterating is modified by TreeServer::SQuit() which is called by Close()
 			goto restart;

@@ -302,7 +302,6 @@ namespace mbedTLS
 
 		void SetVersion(int minver, int maxver)
 		{
-			// SSL v3 support cannot be enabled
 			if (minver)
 				mbedtls_ssl_conf_min_version(&conf, MBEDTLS_SSL_MAJOR_VERSION_3, minver);
 			if (maxver)
@@ -575,7 +574,7 @@ class mbedTLSIOHook : public SSLIOHook
 		}
 
 		CloseSession();
-		sock->SetError("No TLS (SSL) session");
+		sock->SetError("No TLS session");
 		return -1;
 	}
 
@@ -855,7 +854,7 @@ class ModuleSSLmbedTLS : public Module
 	{
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
-		// avoiding unpleasant situations where no new TLS (SSL) connections are possible.
+		// avoiding unpleasant situations where no new TLS connections are possible.
 		ProfileList newprofiles;
 
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
@@ -885,7 +884,7 @@ class ModuleSSLmbedTLS : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -901,7 +900,7 @@ class ModuleSSLmbedTLS : public Module
 
  public:
 	ModuleSSLmbedTLS()
-		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the mbedTLS library.")
+		: Module(VF_VENDOR, "Allows TLS encrypted connections using the mbedTLS library.")
 	{
 	}
 
@@ -924,7 +923,7 @@ class ModuleSSLmbedTLS : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "mbedTLS TLS (SSL) profiles have been reloaded.");
+			ServerInstance->SNO.WriteToSnoMask('a', "mbedTLS TLS profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
@@ -940,8 +939,8 @@ class ModuleSSLmbedTLS : public Module
 		LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 		if ((user) && (user->eh.GetModHook(this)))
 		{
-			// User is using TLS (SSL), they're a local user, and they're using our IOHook.
-			// Potentially there could be multiple TLS (SSL) modules loaded at once on different ports.
+			// User is using TLS, they're a local user, and they're using our IOHook.
+			// Potentially there could be multiple TLS modules loaded at once on different ports.
 			ServerInstance->Users.QuitUser(user, "mbedTLS module unloading");
 		}
 	}

@@ -82,7 +82,7 @@ class SSLMode : public ModeHandler
 				{
 					if (!API)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via TLS (SSL)");
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via TLS");
 						return MODEACTION_DENY;
 					}
 
@@ -96,7 +96,7 @@ class SSLMode : public ModeHandler
 
 					if (nonssl)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (SSL) (%zu/%zu are non-TLS (SSL))",
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (%zu/%zu are non-TLS)",
 							nonssl, channel->GetUsers().size()));
 						return MODEACTION_DENY;
 					}
@@ -174,7 +174,7 @@ class ModuleSSLModes
 
  public:
 	ModuleSSLModes()
-		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS (SSL) users.")
+		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
 		, CTCTags::EventListener(this)
 		, api(this)
 		, sslm(this, api)
@@ -189,13 +189,13 @@ class ModuleSSLModes
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a TLS (SSL) user (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a TLS user (+z is set)");
 				return MOD_RES_DENY;
 			}
 
 			if (!api->GetCertificate(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; TLS (SSL) users only (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; TLS users only (+z is set)");
 				return MOD_RES_DENY;
 			}
 		}
@@ -219,7 +219,7 @@ class ModuleSSLModes
 		{
 			if (!api || !api->GetCertificate(user))
 			{
-				/* The sending user is not on an SSL connection */
+				/* The sending user is not on an TLS connection */
 				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));
 				return MOD_RES_DENY;
 			}

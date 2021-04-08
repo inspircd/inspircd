@@ -209,7 +209,7 @@ namespace OpenSSL
 			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
 			if (!store)
 			{
-				throw ModuleException("Unable to get X509_STORE from TLS (SSL) context; this should never happen");
+				throw ModuleException("Unable to get X509_STORE from TLS context; this should never happen");
 			}
 			ERR_clear_error();
 			if (!X509_STORE_load_locations(store,
@@ -928,7 +928,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -942,7 +942,7 @@ class ModuleSSLOpenSSL : public Module
 
  public:
 	ModuleSSLOpenSSL()
-		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the OpenSSL library.")
+		: Module(VF_VENDOR, "Allows TLS encrypted connections using the OpenSSL library.")
 	{
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, NULL);
@@ -975,7 +975,7 @@ class ModuleSSLOpenSSL : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "OpenSSL TLS (SSL) profiles have been reloaded.");
+			ServerInstance->SNO.WriteToSnoMask('a', "OpenSSL TLS profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
@@ -991,8 +991,8 @@ class ModuleSSLOpenSSL : public Module
 
 			if ((user) && (user->eh.GetModHook(this)))
 			{
-				// User is using TLS (SSL), they're a local user, and they're using one of *our* TLS (SSL) ports.
-				// Potentially there could be multiple TLS (SSL) modules loaded at once on different ports.
+				// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
+				// Potentially there could be multiple TLS modules loaded at once on different ports.
 				ServerInstance->Users.QuitUser(user, "OpenSSL module unloading");
 			}
 		}

@@ -410,7 +410,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	for (user_hash::const_iterator u = users.begin(); u != users.end(); )
 	{
 		User* user = u->second;
-		// The module may quit the user (e.g. TLS (SSL) mod unloading) and that will remove it from the container
+		// The module may quit the user (e.g. TLS mod unloading) and that will remove it from the container
 		++u;
 		mod->OnCleanup(ExtensionItem::EXT_USER, user);
 		user->UnhookExtensions(items);

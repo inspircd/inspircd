@@ -385,14 +385,14 @@ if (prompt_bool $interactive, $question, 0) {
 
 if (!<$RealDir/src/modules/m_ssl_*.cpp> && !defined $opt_disable_auto_extras) {
 	print_error <<"EOM";
-You MUST build with at least one SSL module. SSL greatly enhances the
+you MUST build with at least one TLS module. TLS greatly enhances the
 security and privacy of your IRC server and is required for linking servers.
 
-Please read the following documentation pages on how to enable SSL support:
+Please read the following documentation pages on how to enable TLS support:
 
-GnuTLS (recommended): https://docs.inspircd.org/3/modules/ssl_gnutls
-mbedTLS:              https://docs.inspircd.org/3/modules/ssl_mbedtls
-OpenSSL:              https://docs.inspircd.org/3/modules/ssl_openssl
+GnuTLS (recommended): https://docs.inspircd.org/$version{MAJOR}/modules/ssl_gnutls
+mbedTLS:              https://docs.inspircd.org/$version{MAJOR}/modules/ssl_mbedtls
+OpenSSL:              https://docs.inspircd.org/$version{MAJOR}/modules/ssl_openssl
 EOM
 }
 

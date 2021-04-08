@@ -51,7 +51,7 @@ against the network service nickname.
 ">
 
 <helpop key="sslinfo" title="/SSLINFO <nick>" value="
-Displays information on the TLS (SSL) connection and certificate of the
+Displays information on the TLS connection and certificate of the
 target user.
 ">
 
@@ -850,7 +850,7 @@ using their cloak when they quit.
               (requires the services account module).
  w            Receives wallops messages.
  x            Gives a cloaked hostname (requires the cloaking module).
- z            Only allow private messages from TLS (SSL) users (requires
+ z            Only allow private messages from TLS users (requires
               the sslmodes module).
  B            Marks as a bot (requires the botmode module).
  D            Privdeaf mode. User will not receive any private messages
@@ -931,7 +931,7 @@ using their cloak when they quit.
                     For example, +w o:R:Brain will op anyone identified
                     to the account 'Brain' on join.
                     (requires the autoop module)
- z                  Blocks non-TLS (SSL) clients from joining the channel
+ z                  Blocks non-TLS clients from joining the channel
                     (requires the sslmodes module).
 
  A                  Allows anyone to invite users to the channel
@@ -1033,7 +1033,7 @@ c  Show link blocks
 d  Show configured DNSBLs and related statistics
 m  Show command statistics, number of times commands have been used
 o  Show a list of all valid oper usernames and hostmasks
-p  Show open client ports, and the port type (ssl, plaintext, etc)
+p  Show open client ports, and the port type (tls, plaintext, etc)
 u  Show server uptime
 z  Show memory usage statistics
 i  Show connect class permissions
@@ -1106,7 +1106,7 @@ Matching extbans:
                realnameban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
- z:<certfp>    Matches users having the given TLS (SSL) certificate
+ z:<certfp>    Matches users having the given TLS certificate
                fingerprint (requires the sslmodes module).
  O:<opertype>  Matches server operators of a matching type, mostly
                useful as an invite exception (requires the

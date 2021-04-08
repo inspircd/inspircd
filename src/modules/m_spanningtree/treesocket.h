@@ -86,7 +86,7 @@ struct CapabData
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase;			/* Have sent CAPAB already */
-	bool auth_fingerprint;			/* Did we auth using SSL certificate fingerprint */
+	bool auth_fingerprint;			/* Did we auth using a client certificate fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
 	irc::sockets::sockaddrs remotesa; /* The remote socket address. */
 

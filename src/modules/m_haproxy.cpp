@@ -25,7 +25,7 @@
 
 enum
 {
-	// The SSL TLV flag for a client being connected over SSL.
+	// The TLV flag for a client being connected over TLS.
 	PP2_CLIENT_SSL = 0x01,
 
 	// The family for TCP over IPv4.
@@ -55,7 +55,7 @@ enum
 	// The minimum length of a Type-Length-Value entry.
 	PP2_TLV_LENGTH = 3,
 
-	// The identifier for a SSL TLV entry.
+	// The identifier for a TLS TLV entry.
 	PP2_TYPE_SSL = 0x20,
 
 	// The minimum length of a PP2_TYPE_SSL TLV entry.
@@ -145,7 +145,7 @@ class HAProxyHook : public IOHookMiddle
 	// The endpoint the client is connected to.
 	irc::sockets::sockaddrs server;
 
-	// The API for interacting with user SSL internals.
+	// The API for interacting with user TLS internals.
 	UserCertificateAPI& sslapi;
 
 	// The current state of the PROXY parser.
@@ -183,10 +183,10 @@ class HAProxyHook : public IOHookMiddle
 
 	bool ReadProxyTLVSSL(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
 	{
-		// A SSL TLV must at least consist of client info (uint8_t) and verification info (uint32_t).
+		// A TLS TLV must at least consist of client info (uint8_t) and verification info (uint32_t).
 		if (buffer_length < PP2_TYPE_SSL_LENGTH)
 		{
-			sock->SetError("Truncated HAProxy PROXY SSL TLV");
+			sock->SetError("Truncated HAProxy PROXY TLS TLV");
 			return false;
 		}
 
@@ -200,16 +200,16 @@ class HAProxyHook : public IOHookMiddle
 		if (!sslapi)
 			return true;
 
-		// If the client is not connecting via TLS (SSL) the rest of this TLV is irrelevant.
+		// If the client is not connecting via TLS the rest of this TLV is irrelevant.
 		std::string& recvq = GetRecvQ();
 		if ((recvq[start_index] & PP2_CLIENT_SSL) == 0)
 			return true;
 
 		// Create a fake ssl_cert for the user. Ideally we should use the user's
-		// TLS (SSL) client certificate here but as of 2018-10-16 this is not forwarded
+		// TLS client certificate here but as of 2018-10-16 this is not forwarded
 		// by HAProxy.
 		ssl_cert* cert = new ssl_cert;
-		cert->error = "HAProxy does not forward client TLS (SSL) certificates";
+		cert->error = "HAProxy does not forward client TLS certificates";
 		cert->invalid = true;
 		cert->revoked = true;
 		cert->trusted = false;

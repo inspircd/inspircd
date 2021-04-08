@@ -6,7 +6,7 @@
 #   for more information about the available options.                 #
 #                                                                     #
 
-# TLS (SSL) listener that binds on a TCP/IP endpoint:
+# TLS listener that binds on a TCP/IP endpoint:
 <bind address="1.2.3.4"
       port="7005"
       type="servers"
@@ -56,9 +56,9 @@
       # failover (see above).
       timeout="5m"
 
-      # sslprofile: If defined, this states the TLS (SSL) profile that will be used
+      # sslprofile: If defined, this states the TLS profile that will be used
       # when making an outbound connection to the server. See the docs page for
-      # the TLS (SSL) module you are using for more details:
+      # the TLS module you are using for more details:
       #
       # GnuTLS:  https://docs.inspircd.org/3/modules/ssl_gnutls#sslprofile
       # mbedTLS: https://docs.inspircd.org/3/modules/ssl_mbedtls#sslprofile
@@ -70,9 +70,9 @@
       sslprofile="Servers"
 
       # fingerprint: If defined, this option will force servers to be
-      # authenticated using TLS (SSL) certificate fingerprints. See
+      # authenticated using TLS certificate fingerprints. See
       # https://docs.inspircd.org/3/modules/spanningtree for more information.
-      # This will require a TLS (SSL) link for both inbound and outbound connections.
+      # This will require a TLS link for both inbound and outbound connections.
       #fingerprint=""
 
       # bind: Local IP address to bind to.

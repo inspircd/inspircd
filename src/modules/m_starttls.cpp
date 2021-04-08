@@ -66,7 +66,7 @@ class CommandStartTLS : public SplitCommand
 
 		user->WriteNumeric(RPL_STARTTLS, "STARTTLS successful, go ahead with TLS handshake");
 		/* We need to flush the write buffer prior to adding the IOHook,
-		 * otherwise we'll be sending this line inside the TLS (SSL) session - which
+		 * otherwise we'll be sending this line inside the TLS session - which
 		 * won't start its handshake until the client gets this line. Currently,
 		 * we assume the write will not block here; this is usually safe, as
 		 * STARTTLS is sent very early on in the registration phase, where the

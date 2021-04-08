@@ -122,7 +122,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				const std::string sslprofile = ls->bind_tag->getString("sslprofile");
 				if (!sslprofile.empty())
-					portentry << ", ssl profile: " << sslprofile;
+					portentry << ", tls profile: " << sslprofile;
 
 				portentry << ')';
 				stats.AddRow(249, portentry.str());

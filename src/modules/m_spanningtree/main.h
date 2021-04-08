@@ -106,7 +106,7 @@ class ModuleSpanningTree
 	/** Event provider for our sync events. */
 	Events::ModuleEventProvider synceventprov;
 
-	/** API for accessing user SSL certificates. */
+	/** API for accessing user client certificates. */
 	UserCertificateAPI sslapi;
 
 	/** Tags for server to server messages. */

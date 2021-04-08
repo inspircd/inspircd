@@ -124,7 +124,7 @@ non-interactive configuration is started and any omitted values are defaulted.
                                 stored.
                                 [${\CONFIGURE_ROOT}/run/bin]
   <|BOLD --config-dir <DIR>|>            The location where the configuration files and
-                                SSL certificates are stored.
+                                TLS certificates are stored.
                                 [${\CONFIGURE_ROOT}/run/conf]
   <|BOLD --data-dir <DIR>|>              The location where the data files, such as the
                                 xline database, are stored.

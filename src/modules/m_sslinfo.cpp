@@ -140,7 +140,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 
 	void SetCertificate(User* user, ssl_cert* cert) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting TLS (SSL) client certificate for %s: %s",
+		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting TLS client certificate for %s: %s",
 			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
 		sslext.Set(user, cert);
 	}
@@ -156,16 +156,16 @@ class CommandSSLInfo : public SplitCommand
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS (SSL).", target->nick.c_str()));
+			source->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS.", target->nick.c_str()));
 		}
 		else if (cert->GetError().length())
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) but has not specified a valid client certificate (%s).",
+			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS but has not specified a valid client certificate (%s).",
 				target->nick.c_str(), cert->GetError().c_str()));
 		}
 		else if (!verbose)
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS (SSL) with a valid client certificate (%s).",
+			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS with a valid client certificate (%s).",
 				target->nick.c_str(), cert->GetFingerprint().c_str()));
 		}
 		else
@@ -187,7 +187,7 @@ class CommandSSLInfo : public SplitCommand
 
 		if (operonlyfp && !source->IsOper() && source != target)
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS (SSL) client certificate information for other users.");
+			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS client certificate information for other users.");
 			return CmdResult::FAILURE;
 		}
 
@@ -206,7 +206,7 @@ class CommandSSLInfo : public SplitCommand
 
 		if (operonlyfp && !source->IsOper())
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS (SSL) client certificate information for channels.");
+			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS client certificate information for channels.");
 			return CmdResult::FAILURE;
 		}
 
@@ -267,7 +267,7 @@ class ModuleSSLInfo
 
  public:
 	ModuleSSLInfo()
-		: Module(VF_VENDOR, "Adds user facing TLS (SSL) information, various TLS (SSL) configuration options, and the /SSLINFO command to look up TLS (SSL) certificate information for other users.")
+		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, Who::EventListener(this)
@@ -288,7 +288,7 @@ class ModuleSSLInfo
 		{
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 			if ((!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has TLS (SSL) client certificate fingerprint %s", cert->fingerprint.c_str()));
+				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has TLS client certificate fingerprint %s", cert->fingerprint.c_str()));
 		}
 	}
 
@@ -328,7 +328,7 @@ class ModuleSSLInfo
 				{
 					user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
 					user->CommandFloodPenalty += 10000;
-					ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': their TLS (SSL) client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
+					ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': their TLS client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
 					return MOD_RES_DENY;
 				}
 			}
@@ -353,11 +353,11 @@ class ModuleSSLInfo
 		std::string text = "*** You are connected to ";
 		if (!ssliohook->GetServerName(text))
 			text.append(ServerInstance->Config->GetServerName());
-		text.append(" using TLS (SSL) cipher '");
+		text.append(" using TLS cipher '");
 		ssliohook->GetCiphersuite(text);
 		text.push_back('\'');
 		if (cert && !cert->GetFingerprint().empty())
-			text.append(" and your TLS (SSL) client certificate fingerprint is ").append(cert->GetFingerprint());
+			text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
 		user->WriteNotice(text);
 
 		if (!cert)
@@ -380,12 +380,12 @@ class ModuleSSLInfo
 		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{
 			if (!cert || !cert->IsCAVerified())
-				error = "a trusted TLS (SSL) client certificate";
+				error = "a trusted TLS client certificate";
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
 			if (!cert)
-				error = "a TLS (SSL) connection";
+				error = "a TLS connection";
 		}
 
 		if (error)

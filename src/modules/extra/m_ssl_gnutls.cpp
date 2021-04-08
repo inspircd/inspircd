@@ -790,7 +790,7 @@ info_done_dealloc:
 		}
 
 		CloseSession();
-		sock->SetError("No TLS (SSL) session");
+		sock->SetError("No TLS session");
 		return -1;
 	}
 
@@ -1122,7 +1122,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
-		// avoiding unpleasant situations where no new TLS (SSL) connections are possible.
+		// avoiding unpleasant situations where no new TLS connections are possible.
 		ProfileList newprofiles;
 
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
@@ -1152,7 +1152,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS (SSL) profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -1168,7 +1168,7 @@ class ModuleSSLGnuTLS : public Module
 
  public:
 	ModuleSSLGnuTLS()
-		: Module(VF_VENDOR, "Allows TLS (SSL) encrypted connections using the GnuTLS library.")
+		: Module(VF_VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
 	{
 		thismod = this;
 	}
@@ -1188,7 +1188,7 @@ class ModuleSSLGnuTLS : public Module
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "GnuTLS TLS (SSL) profiles have been reloaded.");
+			ServerInstance->SNO.WriteToSnoMask('a', "GnuTLS TLS profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
@@ -1209,8 +1209,8 @@ class ModuleSSLGnuTLS : public Module
 
 			if ((user) && (user->eh.GetModHook(this)))
 			{
-				// User is using TLS (SSL), they're a local user, and they're using one of *our* TLS (SSL) ports.
-				// Potentially there could be multiple TLS (SSL) modules loaded at once on different ports.
+				// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
+				// Potentially there could be multiple TLS modules loaded at once on different ports.
 				ServerInstance->Users.QuitUser(user, "GnuTLS module unloading");
 			}
 		}
