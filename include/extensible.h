@@ -25,7 +25,6 @@
 /** Base class for logic that extends an Extensible object. */
 class CoreExport ExtensionItem
 	: public ServiceProvider
-	, public usecountbase
 {
  public:
 	/** Types of Extensible that an ExtensionItem can apply to. */
@@ -132,7 +131,7 @@ class CoreExport Extensible
 	, public Serializable
 {
  public:
-	typedef insp::flat_map<reference<ExtensionItem>, void*> ExtensibleStore;
+	typedef insp::flat_map<ExtensionItem*, void*> ExtensibleStore;
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
@@ -155,7 +154,7 @@ class CoreExport Extensible
 	Extensible();
 	Cullable::Result Cull() override;
 	~Extensible() override;
-	void UnhookExtensions(const std::vector<reference<ExtensionItem>>& toRemove);
+	void UnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
 
 	/**
 	 * Free all extension items attached to this Extensible
@@ -172,10 +171,10 @@ class CoreExport Extensible
 class CoreExport ExtensionManager
 {
  public:
-	typedef std::map<std::string, reference<ExtensionItem> > ExtMap;
+	typedef std::map<std::string, ExtensionItem*> ExtMap;
 
 	bool Register(ExtensionItem* item);
-	void BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list);
+	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
 	ExtensionItem* GetItem(const std::string& name);
 
 	/** Get all registered extensions keyed by their names

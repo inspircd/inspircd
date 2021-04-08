@@ -389,7 +389,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	UnregisterModes(mod, MODETYPE_USER);
 	UnregisterModes(mod, MODETYPE_CHANNEL);
 
-	std::vector<reference<ExtensionItem> > items;
+	std::vector<ExtensionItem*> items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
 	const chan_hash& chans = ServerInstance->GetChans();

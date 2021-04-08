@@ -24,7 +24,7 @@ bool ExtensionManager::Register(ExtensionItem* item)
 	return types.emplace(item->name, item).second;
 }
 
-void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem>>& items)
+void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem*>& items)
 {
 	for (ExtMap::iterator type = types.begin(); type != types.end(); )
 	{
@@ -75,7 +75,7 @@ void Extensible::FreeAllExtItems()
 	extensions.clear();
 }
 
-void Extensible::UnhookExtensions(const std::vector<reference<ExtensionItem>>& items)
+void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 {
 	for (const auto& item : items)
 	{
