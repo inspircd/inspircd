@@ -461,7 +461,7 @@ class ModuleSilence
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		std::string ctcpname;
+		std::string_view ctcpname;
 		bool is_ctcp = details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION");
 
 		SilenceEntry::SilenceFlags flag = SilenceEntry::SF_NONE;

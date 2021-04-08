@@ -223,7 +223,7 @@ class ModuleChanHistory
 		if (target.type != MessageTarget::TYPE_CHANNEL || target.status)
 			return;
 
-		std::string ctcpname;
+		std::string_view ctcpname;
 		if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
 			return;
 

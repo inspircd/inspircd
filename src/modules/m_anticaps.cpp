@@ -218,8 +218,8 @@ class ModuleAntiCaps : public Module
 
 		// If the message is a CTCP then we skip it unless it is
 		// an ACTION in which case we just check against the body.
-		std::string ctcpname;
-		std::string msgbody(details.text);
+		std::string_view ctcpname;
+		std::string_view msgbody(details.text);
 		if (details.IsCTCP(ctcpname, msgbody))
 		{
 			// If the CTCP is not an action then skip it.

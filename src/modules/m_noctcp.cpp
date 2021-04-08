@@ -53,7 +53,7 @@ class ModuleNoCTCP : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string ctcpname;
+		std::string_view ctcpname;
 		if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
 			return MOD_RES_PASSTHRU;
 

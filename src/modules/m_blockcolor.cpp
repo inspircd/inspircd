@@ -60,10 +60,10 @@ class ModuleBlockColor : public Module
 			bool modeset = c->IsModeSet(bc);
 			if (!extban.GetStatus(user, c).check(!modeset))
 			{
-				std::string ctcpname; // Unused.
-				std::string message;
+				std::string_view ctcpname; // Unused.
+				std::string_view message;
 				if (!details.IsCTCP(ctcpname, message))
-					message.assign(details.text);
+					message = details.text;
 
 				for (const auto& chr : message)
 				{

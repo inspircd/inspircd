@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	bool IsCTCP(std::string& name, std::string& body) const override
+	bool IsCTCP(std::string_view& name, std::string_view& body) const override
 	{
 		if (!this->IsCTCP())
 			return false;
@@ -43,28 +43,28 @@ public:
 		if (end_of_name == std::string::npos)
 		{
 			// The CTCP only contains a name.
-			name.assign(text, 1, text.length() - 1 - end_of_ctcp);
-			body.clear();
+			name = insp::substring_view(text, text.begin() + 1, text.end() - end_of_ctcp);
+			body = std::string_view();
 			return true;
 		}
 
 		// The CTCP contains a name and a body.
-		name.assign(text, 1, end_of_name - 1);
+		name = insp::substring_view(text, text.begin() + 1, text.begin() + end_of_name);
 
 		size_t start_of_body = text.find_first_not_of(' ', end_of_name + 1);
 		if (start_of_body == std::string::npos)
 		{
 			// The CTCP body is provided but empty.
-			body.clear();
+			body = std::string_view();
 			return true;
 		}
 
 		// The CTCP body provided was non-empty.
-		body.assign(text, start_of_body, text.length() - start_of_body - end_of_ctcp);
+		body = insp::substring_view(text, text.begin() + start_of_body, text.end() - end_of_ctcp);
 		return true;
 	}
 
-	bool IsCTCP(std::string& name) const override
+	bool IsCTCP(std::string_view& name) const override
 	{
 		if (!this->IsCTCP())
 			return false;
@@ -74,12 +74,12 @@ public:
 		{
 			// The CTCP only contains a name.
 			size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
-			name.assign(text, 1, text.length() - 1 - end_of_ctcp);
+			name = insp::substring_view(text, text.begin() + 1, text.end() - end_of_ctcp);
 			return true;
 		}
 
 		// The CTCP contains a name and a body.
-		name.assign(text, 1, end_of_name - 1);
+		name = insp::substring_view(text, text.begin() + 1, text.begin() + end_of_name);
 		return true;
 	}
 

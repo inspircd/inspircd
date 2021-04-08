@@ -417,8 +417,8 @@ class ModuleDCCAllow : public Module
 			if (user == u)
 				return MOD_RES_PASSTHRU;
 
-			std::string ctcpname;
-			std::string ctcpbody;
+			std::string_view ctcpname;
+			std::string_view ctcpbody;
 			if (details.IsCTCP(ctcpname, ctcpbody))
 			{
 				Expire();
@@ -442,13 +442,13 @@ class ModuleDCCAllow : public Module
 					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;
 
-					const std::string type = ctcpbody.substr(0, s);
+					const std::string_view type = std::string(ctcpbody).substr(0, s);
 
 					if (irc::equals(type, "SEND"))
 					{
 						size_t first;
 
-						std::string buf = ctcpbody.substr(s + 1);
+						std::string buf = std::string(ctcpbody).substr(s + 1);
 
 						if (!buf.empty() && buf[0] == '"')
 						{
