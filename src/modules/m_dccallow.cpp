@@ -442,7 +442,7 @@ class ModuleDCCAllow : public Module
 					if (s == std::string::npos)
 						return MOD_RES_PASSTHRU;
 
-					const std::string_view type = std::string(ctcpbody).substr(0, s);
+					const std::string type = std::string(ctcpbody).substr(0, s);
 
 					if (irc::equals(type, "SEND"))
 					{
