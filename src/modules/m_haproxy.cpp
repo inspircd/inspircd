@@ -375,7 +375,7 @@ class HAProxyHook : public IOHookMiddle
 	}
 
  public:
-	HAProxyHook(IOHookProvider* Prov, StreamSocket* sock, UserCertificateAPI& api)
+	HAProxyHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
 		, address_length(0)
 		, sslapi(api)
@@ -417,18 +417,18 @@ class HAProxyHook : public IOHookMiddle
 
 void HAProxyHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new HAProxyHook(this, sock, sslapi);
+	new HAProxyHook(shared_from_this(), sock, sslapi);
 }
 
 class ModuleHAProxy : public Module
 {
  private:
-	reference<HAProxyHookProvider> hookprov;
+	std::shared_ptr<HAProxyHookProvider> hookprov;
 
  public:
 	ModuleHAProxy()
 		: Module(VF_VENDOR, "Allows IRC connections to be made using reverse proxies that implement the HAProxy PROXY protocol.")
-		, hookprov(new HAProxyHookProvider(this))
+		, hookprov(std::make_shared<HAProxyHookProvider>(this))
 	{
 	}
 };

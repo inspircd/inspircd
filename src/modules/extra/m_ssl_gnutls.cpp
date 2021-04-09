@@ -906,7 +906,7 @@ info_done_dealloc:
 	}
 
  public:
-	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, unsigned int flags)
+	GnuTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, unsigned int flags)
 		: SSLIOHook(hookprov)
 	{
 		gnutls_init(&sess, flags);
@@ -1093,12 +1093,12 @@ class GnuTLSIOHookProvider : public SSLIOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
 	{
-		new GnuTLSIOHook(this, sock, GNUTLS_SERVER);
+		new GnuTLSIOHook(shared_from_this(), sock, GNUTLS_SERVER);
 	}
 
 	void OnConnect(StreamSocket* sock) override
 	{
-		new GnuTLSIOHook(this, sock, GNUTLS_CLIENT);
+		new GnuTLSIOHook(shared_from_this(), sock, GNUTLS_CLIENT);
 	}
 
 	GnuTLS::Profile& GetProfile() { return profile; }
@@ -1106,13 +1106,12 @@ class GnuTLSIOHookProvider : public SSLIOHookProvider
 
 GnuTLS::Profile& GnuTLSIOHook::GetProfile()
 {
-	IOHookProvider* hookprov = prov;
-	return static_cast<GnuTLSIOHookProvider*>(hookprov)->GetProfile();
+	return std::static_pointer_cast<GnuTLSIOHookProvider>(prov)->GetProfile();
 }
 
 class ModuleSSLGnuTLS : public Module
 {
-	typedef std::vector<reference<GnuTLSIOHookProvider> > ProfileList;
+	typedef std::vector<std::shared_ptr<GnuTLSIOHookProvider>> ProfileList;
 
 	// First member of the class, gets constructed first and destructed last
 	GnuTLS::Init libinit;
@@ -1144,11 +1143,11 @@ class ModuleSSLGnuTLS : public Module
 				continue;
 			}
 
-			reference<GnuTLSIOHookProvider> prov;
+			std::shared_ptr<GnuTLSIOHookProvider> prov;
 			try
 			{
 				GnuTLS::Profile::Config profileconfig(name, tag);
-				prov = new GnuTLSIOHookProvider(this, profileconfig);
+				prov = std::make_shared<GnuTLSIOHookProvider>(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{

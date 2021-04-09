@@ -663,7 +663,7 @@ class mbedTLSIOHook : public SSLIOHook
 	}
 
  public:
-	mbedTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool isserver)
+	mbedTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
 		, status(ISSL_NONE)
 	{
@@ -824,12 +824,12 @@ class mbedTLSIOHookProvider : public SSLIOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
 	{
-		new mbedTLSIOHook(this, sock, true);
+		new mbedTLSIOHook(shared_from_this(), sock, true);
 	}
 
 	void OnConnect(StreamSocket* sock) override
 	{
-		new mbedTLSIOHook(this, sock, false);
+		new mbedTLSIOHook(shared_from_this(), sock, false);
 	}
 
 	mbedTLS::Profile& GetProfile() { return profile; }
@@ -837,14 +837,13 @@ class mbedTLSIOHookProvider : public SSLIOHookProvider
 
 mbedTLS::Profile& mbedTLSIOHook::GetProfile()
 {
-	IOHookProvider* hookprov = prov;
-	return static_cast<mbedTLSIOHookProvider*>(hookprov)->GetProfile();
+	return std::static_pointer_cast<mbedTLSIOHookProvider>(prov)->GetProfile();
 }
 
 class ModuleSSLmbedTLS : public Module
 {
  private:
-	typedef std::vector<reference<mbedTLSIOHookProvider> > ProfileList;
+	typedef std::vector<std::shared_ptr<mbedTLSIOHookProvider>> ProfileList;
 
 	mbedTLS::Entropy entropy;
 	mbedTLS::CTRDRBG ctr_drbg;
@@ -876,11 +875,11 @@ class ModuleSSLmbedTLS : public Module
 				continue;
 			}
 
-			reference<mbedTLSIOHookProvider> prov;
+			std::shared_ptr<mbedTLSIOHookProvider> prov;
 			try
 			{
 				mbedTLS::Profile::Config profileconfig(name, tag, ctr_drbg);
-				prov = new mbedTLSIOHookProvider(this, profileconfig);
+				prov = std::make_shared<mbedTLSIOHookProvider>(this, profileconfig);
 			}
 			catch (CoreException& ex)
 			{

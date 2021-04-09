@@ -640,7 +640,7 @@ class OpenSSLIOHook : public SSLIOHook
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
  public:
-	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session)
+	OpenSSLIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
 		, status(ISSL_NONE)
@@ -876,12 +876,12 @@ class OpenSSLIOHookProvider : public SSLIOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
 	{
-		new OpenSSLIOHook(this, sock, profile.CreateServerSession());
+		new OpenSSLIOHook(shared_from_this(), sock, profile.CreateServerSession());
 	}
 
 	void OnConnect(StreamSocket* sock) override
 	{
-		new OpenSSLIOHook(this, sock, profile.CreateClientSession());
+		new OpenSSLIOHook(shared_from_this(), sock, profile.CreateClientSession());
 	}
 
 	OpenSSL::Profile& GetProfile() { return profile; }
@@ -889,13 +889,12 @@ class OpenSSLIOHookProvider : public SSLIOHookProvider
 
 OpenSSL::Profile& OpenSSLIOHook::GetProfile()
 {
-	IOHookProvider* hookprov = prov;
-	return static_cast<OpenSSLIOHookProvider*>(hookprov)->GetProfile();
+	return std::static_pointer_cast<OpenSSLIOHookProvider>(prov)->GetProfile();
 }
 
 class ModuleSSLOpenSSL : public Module
 {
-	typedef std::vector<reference<OpenSSLIOHookProvider> > ProfileList;
+	typedef std::vector<std::shared_ptr<OpenSSLIOHookProvider>> ProfileList;
 
 	ProfileList profiles;
 
@@ -921,10 +920,10 @@ class ModuleSSLOpenSSL : public Module
 				continue;
 			}
 
-			reference<OpenSSLIOHookProvider> prov;
+			std::shared_ptr<OpenSSLIOHookProvider> prov;
 			try
 			{
-				prov = new OpenSSLIOHookProvider(this, name, tag);
+				prov = std::make_shared<OpenSSLIOHookProvider>(this, name, tag);
 			}
 			catch (CoreException& ex)
 			{

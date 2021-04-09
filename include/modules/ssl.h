@@ -204,7 +204,7 @@ class SSLIOHook : public IOHook
 		return NULL;
 	}
 
-	SSLIOHook(IOHookProvider* hookprov)
+	SSLIOHook(std::shared_ptr<IOHookProvider> hookprov)
 		: IOHook(hookprov)
 	{
 	}

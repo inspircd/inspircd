@@ -410,7 +410,7 @@ class WebSocketHook : public IOHookMiddle
 	}
 
  public:
-	WebSocketHook(IOHookProvider* Prov, StreamSocket* sock, WebSocketConfig& cfg)
+	WebSocketHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, WebSocketConfig& cfg)
 		: IOHookMiddle(Prov)
 		, config(cfg)
 	{
@@ -494,20 +494,20 @@ class WebSocketHook : public IOHookMiddle
 
 void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
-	new WebSocketHook(this, sock, config);
+	new WebSocketHook(shared_from_this(), sock, config);
 }
 
 class ModuleWebSocket : public Module
 {
  private:
 	dynamic_reference_nocheck<HashProvider> hash;
-	reference<WebSocketHookProvider> hookprov;
+	std::shared_ptr<WebSocketHookProvider> hookprov;
 
  public:
 	ModuleWebSocket()
 		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
 		, hash(this, "hash/sha1")
-		, hookprov(new WebSocketHookProvider(this))
+		, hookprov(std::make_shared<WebSocketHookProvider>(this))
 	{
 		sha1 = &hash;
 	}

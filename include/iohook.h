@@ -22,7 +22,9 @@
 
 class StreamSocket;
 
-class IOHookProvider : public refcountbase, public ServiceProvider
+class IOHookProvider
+	: public std::enable_shared_from_this<IOHookProvider>
+	, public ServiceProvider
 {
  	const bool middlehook;
 
@@ -70,12 +72,12 @@ class IOHook : public Cullable
 	/** The IOHookProvider for this hook, contains information about the hook,
 	 * such as the module providing it and the hook type.
 	 */
-	reference<IOHookProvider> prov;
+	std::shared_ptr<IOHookProvider> prov;
 
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object
 	 */
-	IOHook(IOHookProvider* provider)
+	IOHook(std::shared_ptr<IOHookProvider> provider)
 		: prov(provider) { }
 
 	/**
@@ -132,7 +134,7 @@ class IOHookMiddle : public IOHook
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object
 	 */
-	IOHookMiddle(IOHookProvider* provider)
+	IOHookMiddle(std::shared_ptr<IOHookProvider> provider)
 		: IOHook(provider)
 	{
 	}

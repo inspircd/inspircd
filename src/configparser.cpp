@@ -310,7 +310,7 @@ struct Parser
 		{
 			stack.output.insert(std::make_pair(name, tag));
 		}
-		// this is not a leak; reference<> takes care of the delete
+		// this is not a leak; shared_ptr takes care of the delete
 		tag = NULL;
 	}
 
