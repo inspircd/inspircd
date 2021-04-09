@@ -22,7 +22,7 @@
 
 #include "base.h"
 
-class CoreExport dynamic_reference_base : public interfacebase, public insp::intrusive_list_node<dynamic_reference_base>
+class CoreExport dynamic_reference_base : public insp::intrusive_list_node<dynamic_reference_base>
 {
  public:
 	class CaptureHook
@@ -37,6 +37,8 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 	std::string name;
 	CaptureHook* hook = nullptr;
 	void resolve();
+	static void* operator new(std::size_t) = delete;
+	static void* operator new[](std::size_t) = delete;
  protected:
 	ServiceProvider* value = nullptr;
  public:
