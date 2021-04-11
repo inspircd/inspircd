@@ -332,6 +332,21 @@ class ModuleCgiIRC
 		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
 	}
 
+	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) CXX11_OVERRIDE
+	{
+		if (mask.length() <= 2 || mask[0] != 'w' || mask[1] != ':')
+			return MOD_RES_PASSTHRU;
+
+		const std::string* gateway = cmdwebirc.gateway.get(user);
+		if (!gateway)
+			return MOD_RES_PASSTHRU;
+
+		if (InspIRCd::Match(*gateway, mask.substr(2)))
+			return MOD_RES_DENY;
+
+		return MOD_RES_PASSTHRU;
+	}
+
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::vector<IdentHost> identhosts;
@@ -516,9 +531,6 @@ class ModuleCgiIRC
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
-		if (!whois.IsSelfWhois() && !whois.GetSource()->HasPrivPermission("users/auspex"))
-			return;
-
 		// If these fields are not set then the client is not using a gateway.
 		const std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
 		const std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
