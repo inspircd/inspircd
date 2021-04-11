@@ -532,10 +532,15 @@ class ModuleCgiIRC
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
 	{
 		// If these fields are not set then the client is not using a gateway.
-		const std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
-		const std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
+		std::string* realhost = cmdwebirc.realhost.get(whois.GetTarget());
+		std::string* realip = cmdwebirc.realip.get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
+
+		// If the source doesn't have the right privs then only show the gateway name.
+		std::string hidden = "*";
+		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
+			realhost = realip = &hidden;
 
 		const std::string* gateway = cmdwebirc.gateway.get(whois.GetTarget());
 		if (gateway)
