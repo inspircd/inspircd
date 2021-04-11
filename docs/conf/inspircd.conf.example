@@ -308,7 +308,7 @@
          #usests="no"
 
          # webirc: Restricts usage of this class to the specified WebIRC gateway.
-         # This setting only has effect when the cgiirc module is loaded.
+         # This setting only has effect when the gateway module is loaded.
          #webirc="name"
 
          # limit: How many users are allowed in this class

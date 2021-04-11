@@ -338,7 +338,7 @@ class ModuleRLine
 
 	void Prioritize() override
 	{
-		Module* mod = ServerInstance->Modules.Find("cgiirc");
+		Module* mod = ServerInstance->Modules.Find("gateway");
 		ServerInstance->Modules.SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
 	}
 };

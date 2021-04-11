@@ -965,8 +965,7 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
-	/** Called whenever a local user's IP is set for the first time, or when a local user's IP changes due to
-	 * a module like m_cgiirc changing it.
+	/** Called whenever a local user's IP is set or changed.
 	 * @param user The user whose IP is being set
 	 */
 	virtual void OnSetUserIP(LocalUser* user);

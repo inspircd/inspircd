@@ -57,9 +57,6 @@ class DNSBLConfEntry
 		}
 };
 
-
-/** Resolver for CGI:IRC hostnames encoded in ident/real name
- */
 class DNSBLResolver : public DNS::Request
 {
  private:

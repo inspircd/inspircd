@@ -211,7 +211,7 @@ class GatewayExtBan
 
 	GatewayExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "gateway", 'w')
-		, gateway(Creator, "cgiirc_gateway", ExtensionItem::EXT_USER, true)
+		, gateway(Creator, "webirc-gateway", ExtensionItem::EXT_USER, true)
 	{
 	}
 
@@ -235,8 +235,8 @@ class CommandWebIRC : public SplitCommand
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
 		, extban(Creator)
-		, realhost(Creator, "cgiirc_realhost", ExtensionItem::EXT_USER, true)
-		, realip(Creator, "cgiirc_realip", ExtensionItem::EXT_USER, true)
+		, realhost(Creator, "gateway-realhost", ExtensionItem::EXT_USER, true)
+		, realip(Creator, "gateway-realip", ExtensionItem::EXT_USER, true)
 		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{
@@ -314,7 +314,7 @@ class CommandWebIRC : public SplitCommand
 	}
 };
 
-class ModuleCgiIRC
+class ModuleGateway
 	: public Module
 	, public WebIRC::EventListener
 	, public Whois::EventListener
@@ -325,7 +325,7 @@ class ModuleCgiIRC
 	std::vector<IdentHost> hosts;
 
  public:
-	ModuleCgiIRC()
+	ModuleGateway()
 		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
@@ -336,7 +336,7 @@ class ModuleCgiIRC
 
 	void init() override
 	{
-		ServerInstance->SNO.EnableSnomask('w', "CGIIRC");
+		ServerInstance->SNO.EnableSnomask('w', "GATEWAY");
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -344,16 +344,16 @@ class ModuleCgiIRC
 		std::vector<IdentHost> identhosts;
 		std::vector<WebIRCHost> webirchosts;
 
-		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cgihost"))
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("gateway", ServerInstance->Config->ConfTags("cgihost")))
 		{
 			MaskList masks;
 			irc::spacesepstream maskstream(tag->getString("mask"));
 			for (std::string mask; maskstream.GetToken(mask); )
 				masks.push_back(mask);
 
-			// Ensure that we have the <cgihost:mask> parameter.
+			// Ensure that we have the <gateway:mask> parameter.
 			if (masks.empty())
-				throw ModuleException("<cgihost:mask> is a mandatory field, at " + tag->source.str());
+				throw ModuleException("<" + tag->name + ":mask> is a mandatory field, at " + tag->source.str());
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
@@ -372,11 +372,11 @@ class ModuleCgiIRC
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
-					throw ModuleException("When using <cgihost type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
+					throw ModuleException("When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<cgihost> tag at %s contains an plain text password, this is insecure!",
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<" + tag->name + "> tag at %s contains an plain text password, this is insecure!",
 						tag->source.str().c_str());
 				}
 
@@ -384,7 +384,7 @@ class ModuleCgiIRC
 			}
 			else
 			{
-				throw ModuleException(type + " is an invalid <cgihost:mask> type, at " + tag->source.str());
+				throw ModuleException(type + " is an invalid <" + tag->name + ":mask> type, at " + tag->source.str());
 			}
 		}
 
@@ -434,7 +434,7 @@ class ModuleCgiIRC
 			if (!host.Matches(user))
 				continue;
 
-			// We have matched an <cgihost> block! Try to parse the encoded IPv4 address
+			// We have matched an gateway block! Try to parse the encoded IPv4 address
 			// out of the ident.
 			irc::sockets::sockaddrs address(user->client_sa);
 			if (!CommandHexIP::ParseIP(user->ident, address))
@@ -531,4 +531,4 @@ class ModuleCgiIRC
 	}
 };
 
-MODULE_INIT(ModuleCgiIRC)
+MODULE_INIT(ModuleGateway)

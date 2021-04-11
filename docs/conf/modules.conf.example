@@ -328,13 +328,13 @@
 #<badword text="fluffy capybaras">                                    #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CGI:IRC module: Enables forwarding the real IP address of a user from
+# Gateway module: Enables forwarding the real IP address of a user from
 # a gateway to the IRC server.
-#<module name="cgiirc">
+#<module name="gateway">
 #
-#-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-# GATEWAY  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# If you use the cgiirc module then you must specify the gateways which
+# If you use the gateway module then you must specify the gateways which
 # are authorised to forward IP/host information to your server. There
 # are currently two ways to do this:
 #
@@ -348,10 +348,10 @@
 # either a TLS client certificate fingerprint for the gateway or
 # a password to be sent in the WEBIRC command.
 #
-# <cgihost type="webirc"
+# <gateway type="webirc"
 #          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
 #          mask="192.0.2.0/24 198.51.100.*">
-# <cgihost type="webirc"
+# <gateway type="webirc"
 #          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
 #          hash="bcrypt"
 #          mask="*.webirc.gateway.example.com">
@@ -367,10 +367,10 @@
 # ident to avoid leaking the real IP address of gateway clients
 # (defaults to "gateway" if not set).
 #
-# <cgihost type="ident"
+# <gateway type="ident"
 #          mask="198.51.100.0/24 203.0.113.*"
 #          newident="wibble">
-# <cgihost type="ident"
+# <gateway type="ident"
 #          mask="*.ident.gateway.example.com"
 #          newident="wobble">
 #
