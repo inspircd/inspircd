@@ -226,7 +226,6 @@ class CommandWebIRC : public SplitCommand
 {
  public:
 	std::vector<WebIRCHost> hosts;
-	bool notify;
 	GatewayExtBan extban;
 	StringExtItem realhost;
 	StringExtItem realip;
@@ -260,7 +259,7 @@ class CommandWebIRC : public SplitCommand
 			irc::sockets::sockaddrs ipaddr;
 			if (!irc::sockets::aptosa(parameters[3], user->client_sa.port(), ipaddr))
 			{
-				WriteLog("Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
+				ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
 					user->uuid.c_str(), user->GetIPString().c_str());
 				ServerInstance->Users.QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
 				return CmdResult::FAILURE;
@@ -271,7 +270,7 @@ class CommandWebIRC : public SplitCommand
 			realhost.Set(user, user->GetRealHost());
 			realip.Set(user, user->GetIPString());
 
-			WriteLog("Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
 				user->uuid.c_str(), parameters[1].c_str(),
 				user->GetIPString().c_str(), parameters[3].c_str());
 
@@ -308,23 +307,10 @@ class CommandWebIRC : public SplitCommand
 			return CmdResult::SUCCESS;
 		}
 
-		WriteLog("Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
+		ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
 			user->uuid.c_str(), user->GetIPString().c_str());
 		ServerInstance->Users.QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
 		return CmdResult::FAILURE;
-	}
-
-	void WriteLog(const char* message, ...) CUSTOM_PRINTF(2, 3)
-	{
-		std::string buffer;
-		VAFORMAT(buffer, message, message);
-
-		// If we are sending a snotice then the message will already be
-		// written to the logfile.
-		if (notify)
-			ServerInstance->SNO.WriteGlobalSno('w', buffer);
-		else
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}
 };
 
@@ -405,9 +391,6 @@ class ModuleCgiIRC
 		// The host configuration was valid so we can apply it.
 		hosts.swap(identhosts);
 		cmdwebirc.hosts.swap(webirchosts);
-
-		// Do we send an oper notice when a m_cgiirc client has their IP changed?
-		cmdwebirc.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) override
@@ -462,7 +445,7 @@ class ModuleCgiIRC
 			cmdwebirc.realip.Set(user, user->GetIPString());
 
 			const std::string& newident = host.GetIdent();
-			cmdwebirc.WriteLog("Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 
 			user->ChangeIdent(newident);

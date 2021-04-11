@@ -374,10 +374,6 @@
 #          mask="*.ident.gateway.example.com"
 #          newident="wobble">
 #
-# By default gateway connections are logged to the +w snomask. If you
-# do not want this to happen then you can uncomment this to disable it.
-# <cgiirc opernotice="no">
-
 # IMPORTANT NOTE:
 # ---------------
 #
