@@ -29,6 +29,7 @@
 
 
 #include "inspircd.h"
+#include "modules/extban.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"
@@ -202,12 +203,31 @@ class CommandHexIP : public SplitCommand
 	}
 };
 
+class GatewayExtBan
+	: public ExtBan::MatchingBase
+{
+ public:
+	StringExtItem gateway;
+
+	GatewayExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "gateway", 'w')
+		, gateway(Creator, "cgiirc_gateway", ExtensionItem::EXT_USER, true)
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		const std::string* gatewayname = gateway.Get(user);
+		return gatewayname ? InspIRCd::Match(*gatewayname, text) : false;
+	}
+};
+
 class CommandWebIRC : public SplitCommand
 {
  public:
 	std::vector<WebIRCHost> hosts;
 	bool notify;
-	StringExtItem gateway;
+	GatewayExtBan extban;
 	StringExtItem realhost;
 	StringExtItem realip;
 	UserCertificateAPI sslapi;
@@ -215,7 +235,7 @@ class CommandWebIRC : public SplitCommand
 
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
-		, gateway(Creator, "cgiirc_gateway", ExtensionItem::EXT_USER, true)
+		, extban(Creator)
 		, realhost(Creator, "cgiirc_realhost", ExtensionItem::EXT_USER, true)
 		, realip(Creator, "cgiirc_realip", ExtensionItem::EXT_USER, true)
 		, sslapi(Creator)
@@ -247,7 +267,7 @@ class CommandWebIRC : public SplitCommand
 			}
 
 			// The user matched a WebIRC block!
-			gateway.Set(user, parameters[1]);
+			extban.gateway.Set(user, parameters[1]);
 			realhost.Set(user, user->GetRealHost());
 			realip.Set(user, user->GetIPString());
 
@@ -399,7 +419,7 @@ class ModuleCgiIRC
 
 		// If the user is not connecting via a WebIRC gateway then they
 		// cannot match this connect class.
-		const std::string* gateway = cmdwebirc.gateway.Get(user);
+		const std::string* gateway = cmdwebirc.extban.gateway.Get(user);
 		if (!gateway)
 		{
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
@@ -514,16 +534,13 @@ class ModuleCgiIRC
 
 	void OnWhois(Whois::Context& whois) override
 	{
-		if (!whois.IsSelfWhois() && !whois.GetSource()->HasPrivPermission("users/auspex"))
-			return;
-
 		// If these fields are not set then the client is not using a gateway.
 		const std::string* realhost = cmdwebirc.realhost.Get(whois.GetTarget());
 		const std::string* realip = cmdwebirc.realip.Get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
 
-		const std::string* gateway = cmdwebirc.gateway.Get(whois.GetTarget());
+		const std::string* gateway = cmdwebirc.extban.gateway.Get(whois.GetTarget());
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
