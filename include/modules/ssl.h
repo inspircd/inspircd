@@ -54,7 +54,7 @@ class ssl_cert : public refcountbase
 	/** Get certificate distinguished name
 	 * @return Certificate DN
 	 */
-	const std::string& GetDN()
+	const std::string& GetDN() const
 	{
 		return dn;
 	}
@@ -62,7 +62,7 @@ class ssl_cert : public refcountbase
 	/** Get Certificate issuer
 	 * @return Certificate issuer
 	 */
-	const std::string& GetIssuer()
+	const std::string& GetIssuer() const
 	{
 		return issuer;
 	}
@@ -71,7 +71,7 @@ class ssl_cert : public refcountbase
 	 * @return The error associated with this users certificate,
 	 * or an empty string if there is no error.
 	 */
-	const std::string& GetError()
+	const std::string& GetError() const
 	{
 		return error;
 	}
@@ -79,7 +79,7 @@ class ssl_cert : public refcountbase
 	/** Get key fingerprint.
 	 * @return The key fingerprint as a hex string.
 	 */
-	const std::string& GetFingerprint()
+	const std::string& GetFingerprint() const
 	{
 		return fingerprint;
 	}
@@ -88,7 +88,7 @@ class ssl_cert : public refcountbase
 	 * @return True if this is a trusted certificate
 	 * (the certificate chain validates)
 	 */
-	bool IsTrusted()
+	bool IsTrusted() const
 	{
 		return trusted;
 	}
@@ -97,7 +97,7 @@ class ssl_cert : public refcountbase
 	 * @return True if the certificate itself is
 	 * correctly formed.
 	 */
-	bool IsInvalid()
+	bool IsInvalid() const
 	{
 		return invalid;
 	}
@@ -106,7 +106,7 @@ class ssl_cert : public refcountbase
 	 * @return True if the certificate appears to be
 	 * self-signed.
 	 */
-	bool IsUnknownSigner()
+	bool IsUnknownSigner() const
 	{
 		return unknownsigner;
 	}
@@ -116,7 +116,7 @@ class ssl_cert : public refcountbase
 	 * Note that this only works properly for GnuTLS
 	 * right now.
 	 */
-	bool IsRevoked()
+	bool IsRevoked() const
 	{
 		return revoked;
 	}
@@ -124,7 +124,7 @@ class ssl_cert : public refcountbase
 	/** Get certificate usability
 	* @return True if the certificate is not expired nor revoked
 	*/
-	bool IsUsable()
+	bool IsUsable() const
 	{
 		return !invalid && !revoked && error.empty();
 	}
@@ -133,7 +133,7 @@ class ssl_cert : public refcountbase
 	* @return True if the certificate is issued by a CA
 	* and valid.
 	*/
-	bool IsCAVerified()
+	bool IsCAVerified() const
 	{
 		return IsUsable() && trusted && !unknownsigner;
 	}
