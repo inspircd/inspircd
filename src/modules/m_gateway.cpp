@@ -376,8 +376,8 @@ class ModuleGateway
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<" + tag->name + "> tag at %s contains an plain text password, this is insecure!",
-						tag->source.str().c_str());
+					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<%s> tag at %s contains an plain text password, this is insecure!",
+						tag->name.c_str(), tag->source.str().c_str());
 				}
 
 				webirchosts.emplace_back(masks, fingerprint, password, passwordhash);
