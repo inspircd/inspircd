@@ -82,9 +82,9 @@ class SSLCertExt : public ExtensionItem
 			<< " ";
 
 		if (cert->GetError().empty())
-			value << cert->GetError();
-		else
 			value << cert->GetFingerprint() << " " << cert->GetDN() << " " << cert->GetIssuer();
+		else
+			value << cert->GetError();
 
 		return value.str();
 	}
