@@ -71,7 +71,22 @@ class SSLCertExt : public ExtensionItem
 
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
 	{
-		return static_cast<ssl_cert*>(item)->GetMetaLine();
+		const ssl_cert* cert = static_cast<ssl_cert*>(item);
+		std::stringstream value;
+		value
+			<< (cert->IsInvalid() ? "v" : "V")
+			<< (cert->IsTrusted() ? "T" : "t")
+			<< (cert->IsRevoked() ? "R" : "r")
+			<< (cert->IsUnknownSigner() ? "s" : "S")
+			<< (cert->GetError().empty() ? "e" : "E")
+			<< " ";
+
+		if (cert->GetError().empty())
+			value << cert->GetError();
+		else
+			value << cert->GetFingerprint() << " " << cert->GetDN() << " " << cert->GetIssuer();
+
+		return value.str();
 	}
 
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override
@@ -141,7 +156,7 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	void SetCertificate(User* user, ssl_cert* cert) override
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting TLS client certificate for %s: %s",
-			user->GetFullHost().c_str(), cert->GetMetaLine().c_str());
+			user->GetFullHost().c_str(), sslext.ToNetwork(user, cert).c_str());
 		sslext.Set(user, cert);
 	}
 };

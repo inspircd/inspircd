@@ -138,18 +138,6 @@ class ssl_cert : public refcountbase
 		return IsUsable() && trusted && !unknownsigner;
 	}
 
-	std::string GetMetaLine()
-	{
-		std::stringstream value;
-		bool hasError = !error.empty();
-		value << (IsInvalid() ? "v" : "V") << (IsTrusted() ? "T" : "t") << (IsRevoked() ? "R" : "r")
-			<< (IsUnknownSigner() ? "s" : "S") << (hasError ? "E" : "e") << " ";
-		if (hasError)
-			value << GetError();
-		else
-			value << GetFingerprint() << " " << GetDN() << " " << GetIssuer();
-		return value.str();
-	}
 };
 
 /** I/O hook provider for TLS modules. */
