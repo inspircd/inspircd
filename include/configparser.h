@@ -33,27 +33,29 @@ struct ParseStack
 	ParseStack(ServerConfig* conf)
 		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->errstr)
 	{
-		// Special character escapes.
-		vars["newline"] = "\n";
-		vars["nl"]      = "\n";
+		vars = {
+			// Special character escapes.
+			{ "newline", "\n" },
+			{ "nl",      "\n" },
 
-		// XML escapes.
-		vars["amp"]  = "&";
-		vars["apos"] = "'";
-		vars["gt"]   = ">";
-		vars["lt"]   = "<";
-		vars["quot"] = "\"";
+			// XML escapes.
+			{ "amp",  "&"  },
+			{ "apos", "'"  },
+			{ "gt",   ">"  },
+			{ "lt",   "<"  },
+			{ "quot", "\"" },
 
-		// IRC formatting codes.
-		vars["irc.bold"]          = "\x02";
-		vars["irc.color"]         = "\x03";
-		vars["irc.colour"]        = "\x03";
-		vars["irc.italic"]        = "\x1D";
-		vars["irc.monospace"]     = "\x11";
-		vars["irc.reset"]         = "\x0F";
-		vars["irc.reverse"]       = "\x16";
-		vars["irc.strikethrough"] = "\x1E";
-		vars["irc.underline"]     = "\x1F";
+			// IRC formatting codes.
+			{ "irc.bold",          "\x02" },
+			{ "irc.color",         "\x03" },
+			{ "irc.colour",        "\x03" },
+			{ "irc.italic",        "\x1D" },
+			{ "irc.monospace",     "\x11" },
+			{ "irc.reset",         "\x0F" },
+			{ "irc.reverse",       "\x16" },
+			{ "irc.strikethrough", "\x1E" },
+			{ "irc.underline",     "\x1F" },
+		};
 	}
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(std::shared_ptr<ConfigTag> includeTag, int flags);

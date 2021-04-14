@@ -220,6 +220,12 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 		this->insert(first, last);
 	}
 
+	flat_set(std::initializer_list<value_type> init)
+	{
+		for (const auto& elem : init)
+			insert(elem);
+	}
+
 	flat_set(const flat_set& other)
 		: base_t(other)
 	{
@@ -260,6 +266,12 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 	flat_multiset(InputIterator first, InputIterator last)
 	{
 		this->insert(first, last);
+	}
+
+	flat_multiset(std::initializer_list<value_type> init)
+	{
+		for (const auto& elem : init)
+			insert(elem);
 	}
 
 	flat_multiset(const flat_multiset& other)
@@ -305,6 +317,12 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 	flat_map(InputIterator first, InputIterator last)
 	{
 		insert(first, last);
+	}
+
+	flat_map(std::initializer_list<value_type> init)
+	{
+		for (const auto& elem : init)
+			insert(elem);
 	}
 
 	flat_map(const flat_map& other)
@@ -359,6 +377,12 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 	flat_multimap(InputIterator first, InputIterator last)
 	{
 		this->insert(first, last);
+	}
+
+	flat_multimap(std::initializer_list<value_type> init)
+	{
+		for (const auto& elem : init)
+			insert(elem);
 	}
 
 	flat_multimap(const flat_multimap& other)
