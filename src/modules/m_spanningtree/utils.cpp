@@ -168,7 +168,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	// is used to keep the chanhistory module synchronised between servers.
 	for (const auto& child : children)
 	{
-		ModResult result = Creator->GetBroadcastEventProvider().FirstResult(&ServerProtocol::BroadcastEventListener::OnBroadcastMessage, c, child);
+		ModResult result = Creator->broadcasteventprov.FirstResult(&ServerProtocol::BroadcastEventListener::OnBroadcastMessage, c, child);
 		if (result == MOD_RES_ALLOW)
 			list.insert(child->GetSocket());
 	}

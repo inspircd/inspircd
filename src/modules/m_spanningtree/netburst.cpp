@@ -117,7 +117,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 	// Send all xlines
 	this->SendXLines();
-	Utils->Creator->GetSyncEventProvider().Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, bs.server);
+	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, bs.server);
 	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO.WriteToSnoMask('l',"Finished bursting to \002"+ s->GetName()+"\002.");
 }
@@ -258,7 +258,7 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 		}
 	}
 
-	Utils->Creator->GetSyncEventProvider().Call(&ServerProtocol::SyncEventListener::OnSyncChannel, chan, bs.server);
+	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncChannel, chan, bs.server);
 }
 
 void TreeSocket::SyncChannel(Channel* chan)
@@ -290,6 +290,6 @@ void TreeSocket::SendUsers(BurstState& bs)
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		Utils->Creator->GetSyncEventProvider().Call(&ServerProtocol::SyncEventListener::OnSyncUser, user, bs.server);
+		Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncUser, user, bs.server);
 	}
 }

@@ -90,6 +90,7 @@ class ModuleSpanningTree
 	 */
 	Membership::Id currmembid = 0;
 
+ public:
 	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
 	 */
 	SpanningTreeProtocolInterface protocolinterface;
@@ -115,12 +116,13 @@ class ModuleSpanningTree
 	/** Tag for marking services pseudoclients. */
 	ServiceTag servicetag;
 
- public:
+	/** The DNS manager service provided by core_dns. */
 	dynamic_reference<DNS::Manager> DNS;
 
 	/** Event provider for message tags. */
 	ClientProtocol::MessageTagEvent tagevprov;
 
+	/** Manager for server commands. */
 	ServerCommandManager CmdManager;
 
 	/** Set to true if inside a spanningtree call, to prevent sending
@@ -172,22 +174,6 @@ class ModuleSpanningTree
 	/** Handle CONNECT
 	 */
 	ModResult HandleConnect(const CommandBase::Params& parameters, User* user);
-
-	/** Retrieves the event provider for broadcast events. */
-	const Events::ModuleEventProvider& GetBroadcastEventProvider() const { return broadcasteventprov; }
-
-	/** Retrieves the event provider for link events. */
-	const Events::ModuleEventProvider& GetLinkEventProvider() const { return linkeventprov; }
-
-	/** Retrieves the event provider for message events. */
-	const Events::ModuleEventProvider& GetMessageEventProvider() const { return messageeventprov; }
-
-	/** Retrieves the event provider for sync events. */
-	const Events::ModuleEventProvider& GetSyncEventProvider() const { return synceventprov; }
-
-	/**
-	 ** *** MODULE EVENTS ***
-	 **/
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) override;
