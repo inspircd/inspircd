@@ -105,14 +105,14 @@ It appears that the server endpoint is using plaintext! Make sure that:
     - ssl_mbedtls
 
   * If you have specified one or more <sslprofile> tags then the value of
-    <bind:ssl> is the same as an <sslprofile:name> field. Otherwise, it should
-    be set to "gnutls" for the ssl_gnutls module, "openssl" for the ssl_openssl
-    module, or "mbedtls" for the ssl_mbedtls module.
+    <bind:sslprofile> is the same as an <sslprofile:name> field. Otherwise, it
+    should be set to "gnutls" for the ssl_gnutls module, "openssl" for the
+    ssl_openssl module, or "mbedtls" for the ssl_mbedtls module.
 
-  * If you have specified the name of an <sslprofile> in <bind:ssl> then the
-    value of <sslprofile:provider> is set to "gnutls" if using the ssl_gnutls
-    module, "openssl" if using the ssl_openssl module, or "mbedtls" if using
-    the ssl_mbedtls module.
+  * If you have specified the name of an <sslprofile> in <bind:sslprofile> then
+    the value of <sslprofile:provider> is set to "gnutls" if using the
+    ssl_gnutls module, "openssl" if using the ssl_openssl module, or "mbedtls"
+    if using the ssl_mbedtls module.
 
   * If you have your SSL configuration in a file other than inspircd.conf then
     that file is included by inspircd.conf.
