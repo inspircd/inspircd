@@ -20,68 +20,68 @@
 
 #pragma once
 
-/** Template function to convert any input type to std::string
+/** No-op function that returns the string that was passed to it.
+ * @param in The string to return.
  */
-template<typename T> inline std::string ConvNumeric(const T& in)
-{
-	if (in == 0)
-		return "0";
-	T quotient = in;
-	std::string out;
-	while (quotient)
-	{
-		out += "0123456789"[std::llabs(quotient % 10)];
-		quotient /= 10;
-	}
-	if (in < 0)
-		out += '-';
-	std::reverse(out.begin(), out.end());
-	return out;
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const int in)
-{
-	return ConvNumeric(in);
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const long in)
-{
-	return ConvNumeric(in);
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const char* in)
+inline const std::string& ConvToStr(const std::string& in)
 {
 	return in;
 }
 
-/** Template function to convert any input type to std::string
+/** Converts a string_view to a string.
+ * @param in The value to convert.
  */
-inline std::string ConvToStr(const bool in)
+inline std::string ConvToStr(const std::string_view& in)
 {
-	return (in ? "1" : "0");
+	return std::string(in);
 }
 
-/** Template function to convert any input type to std::string
+/** Converts a char array to a string.
+ * @param in The value to convert.
+ */
+inline std::string ConvToStr(const char* in)
+{
+	return std::string(in);
+}
+
+/** Converts a char to a string.
+ * @param in The value to convert.
  */
 inline std::string ConvToStr(char in)
 {
 	return std::string(1, in);
 }
 
-inline const std::string& ConvToStr(const std::string& in)
+/** Converts an unsigned char to a string.
+ * @param in The value to convert.
+ */
+inline std::string ConvToStr(unsigned char in)
 {
-	return in;
+	return std::string(1, in);
 }
 
-/** Template function to convert any input type to std::string
+/** Converts a bool to a string.
+ * @param in The value to convert.
  */
-template <class T> inline std::string ConvToStr(const T& in)
+inline std::string ConvToStr(const bool in)
+{
+	return (in ? "1" : "0");
+}
+
+/** Converts a type that to_string is implemented for to a string.
+ * @param in The value to convert.
+ */
+template<typename Stringable>
+inline std::string func(const Stringable& in)
+{
+	return std::to_string(in);
+}
+
+/** Converts any type to a string.
+ * @param in The value to convert.
+ */
+template <class T>
+inline std::string ConvToStr(const T& in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in))
@@ -89,29 +89,38 @@ template <class T> inline std::string ConvToStr(const T& in)
 	return tmp.str();
 }
 
-/** Template function to convert a std::string to any numeric type.
+/** Converts a string to a numeric type.
+ * @param in The string to convert to a numeric type.
+ * @param def The value to return if the string could not be converted (defaults to 0)
  */
-template<typename TOut> inline TOut ConvToNum(const std::string& in)
+template<typename Numeric>
+inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
 {
-	TOut ret;
+	Numeric ret;
 	std::istringstream tmp(in);
 	if (!(tmp >> ret))
-		return 0;
+		return def;
 	return ret;
 }
 
-template<> inline char ConvToNum<char>(const std::string& in)
+/** Specialisation of ConvToNum so istringstream doesn't try to extract a text character.
+ * @param in The string to convert to a numeric type.
+ * @param def The value to return if the string could not be converted (defaults to 0)
+ */
+template<>
+inline char ConvToNum<char>(const std::string& in, char def)
 {
-	// We specialise ConvToNum for char to avoid istringstream treating
-	// the input as a character literal.
 	int16_t num = ConvToNum<int16_t>(in);
-	return num >= INT8_MIN && num <= INT8_MAX ? static_cast<char>(num) : 0;
+	return num >= INT8_MIN && num <= INT8_MAX ? static_cast<char>(num) : def;
 }
 
-template<> inline unsigned char ConvToNum<unsigned char>(const std::string& in)
+/** Specialisation of ConvToNum so istringstream doesn't try to extract a text character.
+ * @param in The string to convert to a numeric type.
+ * @param def The value to return if the string could not be converted (defaults to 0)
+ */
+template<>
+inline unsigned char ConvToNum<unsigned char>(const std::string& in, unsigned char def)
 {
-	// We specialise ConvToNum for unsigned char to avoid istringstream
-	// treating the input as a character literal.
 	uint16_t num = ConvToNum<uint16_t>(in);
-	return num <= UINT8_MAX ? static_cast<unsigned char>(num) : 0;
+	return num <= UINT8_MAX ? static_cast<unsigned char>(num) : def;
 }

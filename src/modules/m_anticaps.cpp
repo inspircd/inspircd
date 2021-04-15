@@ -146,7 +146,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 		out.push_back(':');
 		out.append(ConvToStr(acs->minlen));
 		out.push_back(':');
-		out.append(ConvNumeric(acs->percent));
+		out.append(ConvToStr<uint16_t>(acs->percent));
 	}
 };
 
