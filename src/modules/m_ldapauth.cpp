@@ -331,7 +331,7 @@ public:
 		vhost			= tag->getString("host");
 		// Set to true if failed connects should be reported to operators
 		verbose			= tag->getBool("verbose");
-		useusername		= tag->getBool("userfield");
+		useusername		= tag->getBool("useusername", tag->getBool("userfield"));
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 
