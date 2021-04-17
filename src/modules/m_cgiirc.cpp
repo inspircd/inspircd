@@ -332,6 +332,11 @@ class ModuleCgiIRC
 		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
 	}
 
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		tokens["EXTBAN"].push_back('w');
+	}
+
 	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) CXX11_OVERRIDE
 	{
 		if (mask.length() <= 2 || mask[0] != 'w' || mask[1] != ':')
