@@ -35,8 +35,8 @@ class ModuleHostCycle : public Module
 		ClientProtocol::Messages::Quit quitmsg(user, reason);
 		ClientProtocol::Event quitevent(ServerInstance->GetRFCEvents().quit, quitmsg);
 
-		already_sent_t silent_id = ServerInstance->Users.NextAlreadySentId();
-		already_sent_t seen_id = ServerInstance->Users.NextAlreadySentId();
+		uint64_t silent_id = ServerInstance->Users.NextAlreadySentId();
+		uint64_t seen_id = ServerInstance->Users.NextAlreadySentId();
 
 		IncludeChanList include_chans(user->chans.begin(), user->chans.end());
 		std::map<User*,bool> exceptions;

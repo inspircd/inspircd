@@ -206,11 +206,11 @@ class flat_map_base
 template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
 class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_t;
+	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
  public:
-	typedef typename base_t::iterator iterator;
-	typedef typename base_t::value_type value_type;
+	typedef typename base_type::iterator iterator;
+	typedef typename base_type::value_type value_type;
 
 	flat_set() = default;
 
@@ -227,7 +227,7 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 	}
 
 	flat_set(const flat_set& other)
-		: base_t(other)
+		: base_type(other)
 	{
 	}
 
@@ -247,18 +247,18 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 
 	void swap(flat_set& other)
 	{
-		base_t::vect.swap(other.vect);
+		base_type::vect.swap(other.vect);
 	}
 };
 
 template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
 class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_t;
+	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
  public:
-	typedef typename base_t::iterator iterator;
-	typedef typename base_t::value_type value_type;
+	typedef typename base_type::iterator iterator;
+	typedef typename base_type::value_type value_type;
 
 	flat_multiset() = default;
 
@@ -275,7 +275,7 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 	}
 
 	flat_multiset(const flat_multiset& other)
-		: base_t(other)
+		: base_type(other)
 	{
 	}
 
@@ -295,21 +295,21 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 
 	void swap(flat_multiset& other)
 	{
-		base_t::vect.swap(other.vect);
+		base_type::vect.swap(other.vect);
 	}
 };
 
 template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
 class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_t;
+	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 
  public:
-	typedef typename base_t::iterator iterator;
-	typedef typename base_t::key_type key_type;
-	typedef typename base_t::value_type value_type;
+	typedef typename base_type::iterator iterator;
+	typedef typename base_type::key_type key_type;
+	typedef typename base_type::value_type value_type;
 	typedef U mapped_type;
-	typedef typename base_t::value_compare value_compare;
+	typedef typename base_type::value_compare value_compare;
 
 	flat_map() = default;
 
@@ -326,7 +326,7 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 	}
 
 	flat_map(const flat_map& other)
-		: base_t(other)
+		: base_type(other)
 	{
 	}
 
@@ -346,7 +346,7 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 
 	void swap(flat_map& other)
 	{
-		base_t::vect.swap(other.vect);
+		base_type::vect.swap(other.vect);
 	}
 
 	mapped_type& operator[](const key_type& x)
@@ -363,13 +363,13 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
 class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_t;
+	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 
  public:
-	typedef typename base_t::iterator iterator;
-	typedef typename base_t::value_type value_type;
+	typedef typename base_type::iterator iterator;
+	typedef typename base_type::value_type value_type;
 	typedef U mapped_type;
-	typedef typename base_t::value_compare value_compare;
+	typedef typename base_type::value_compare value_compare;
 
 	flat_multimap() = default;
 
@@ -386,7 +386,7 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 	}
 
 	flat_multimap(const flat_multimap& other)
-		: base_t(other)
+		: base_type(other)
 	{
 	}
 
@@ -406,7 +406,7 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 
 	void swap(flat_multimap& other)
 	{
-		base_t::vect.swap(other.vect);
+		base_type::vect.swap(other.vect);
 	}
 
 	value_compare value_comp() const

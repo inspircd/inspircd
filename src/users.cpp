@@ -914,7 +914,7 @@ void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 	FOREACH_MOD(OnBuildNeighborList, (this, include_chans, exceptions));
 
 	// Get next id, guaranteed to differ from the already_sent field of all users
-	const already_sent_t newid = ServerInstance->Users.NextAlreadySentId();
+	const uint64_t newid = ServerInstance->Users.NextAlreadySentId();
 
 	// Handle exceptions first
 	for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)

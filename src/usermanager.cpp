@@ -410,7 +410,7 @@ void UserManager::DoBackgroundUserStuff()
 	}
 }
 
-already_sent_t UserManager::NextAlreadySentId()
+uint64_t UserManager::NextAlreadySentId()
 {
 	if (++already_sent_id == 0)
 	{

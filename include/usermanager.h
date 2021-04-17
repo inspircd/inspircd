@@ -68,7 +68,7 @@ class CoreExport UserManager
 	/** Last used already sent id, used when sending messages to neighbors to help determine whether the message has
 	 * been sent to a particular user or not. See User::ForEachNeighbor() for more info.
 	 */
-	already_sent_t already_sent_id;
+	uint64_t already_sent_id;
 
  public:
 	/** Constructor, initializes variables
@@ -193,7 +193,7 @@ class CoreExport UserManager
 	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
 	 * @return Next already_sent id
 	 */
-	already_sent_t NextAlreadySentId();
+	uint64_t NextAlreadySentId();
 
 	/** Find a user by their nickname or UUID.
 	 * IMPORTANT: You probably want to use FindNick or FindUUID instead of this.

@@ -659,8 +659,6 @@ class CoreExport UserIOHandler : public StreamSocket
 	void SwapInternals(UserIOHandler& other);
 };
 
-typedef unsigned int already_sent_t;
-
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
  private:
@@ -755,7 +753,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	unsigned int CommandFloodPenalty = 0;
 
-	already_sent_t already_sent = 0;
+	uint64_t already_sent = 0;
 
 	/** Check if the user matches a G- or K-line, and disconnect them if they do.
 	 * @param doZline True if Z-lines should be checked (if IP has changed since initial connect)
