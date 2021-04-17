@@ -28,12 +28,12 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> censor_t;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> CensorMap;
 
 class ModuleCensor : public Module
 {
 	CheckExemption::EventProvider exemptionprov;
-	censor_t censors;
+	CensorMap censors;
 	SimpleUserModeHandler cu;
 	SimpleChannelModeHandler cc;
 
@@ -77,7 +77,7 @@ class ModuleCensor : public Module
 				return MOD_RES_PASSTHRU;
 		}
 
-		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
+		for (CensorMap::const_iterator index = censors.begin(); index != censors.end(); ++index)
 		{
 			size_t censorpos;
 			while ((censorpos = irc::find(details.text, index->first)) != std::string::npos)
@@ -104,8 +104,7 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		censor_t newcensors;
-
+		CensorMap newcensors;
 		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
 		for (ConfigIter i = badwords.first; i != badwords.second; ++i)
 		{
