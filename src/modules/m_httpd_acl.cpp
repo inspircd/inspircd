@@ -199,20 +199,30 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 										return true;
 									}
 									else
+									{
 										/* Invalid password */
+										ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username do not match");
 										BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+									}
 								}
 								else
+								{
 									/* Malformed user:pass pair */
+									ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username malformed");
 									BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+								}
 							}
 							else
+							{
 								/* Unsupported authentication type */
+								ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: unsupported auth type: %s", authtype.c_str());
 								BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+							}
 						}
 						else
 						{
 							/* No password given at all, access denied */
+							ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username not sent");
 							BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 						}
 						return false;

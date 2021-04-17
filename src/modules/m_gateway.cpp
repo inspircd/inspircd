@@ -518,10 +518,15 @@ class ModuleGateway
 	void OnWhois(Whois::Context& whois) override
 	{
 		// If these fields are not set then the client is not using a gateway.
-		const std::string* realhost = cmdwebirc.realhost.Get(whois.GetTarget());
-		const std::string* realip = cmdwebirc.realip.Get(whois.GetTarget());
+		std::string* realhost = cmdwebirc.realhost.Get(whois.GetTarget());
+		std::string* realip = cmdwebirc.realip.Get(whois.GetTarget());
 		if (!realhost || !realip)
 			return;
+
+		// If the source doesn't have the right privs then only show the gateway name.
+		std::string hidden = "*";
+		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
+			realhost = realip = &hidden;
 
 		const std::string* gateway = cmdwebirc.extban.gateway.Get(whois.GetTarget());
 		if (gateway)

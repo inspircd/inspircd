@@ -107,7 +107,7 @@ It appears that the server endpoint is using plaintext! Make sure that:
   * The value of <bind:ssl> is the same as an <sslprofile:name> field.
 
   * The value of <sslprofile:provider> for your used TLS profile is set to
-    "gnutls" if using the ssl_gnutle module, "openssl" if using the ssl_openssl
+    "gnutls" if using the ssl_gnutls module, "openssl" if using the ssl_openssl
     module, or "mbedtls" if using the ssl_mbedtls module.
 
   * If you have your TLS configuration in a file other than inspircd.conf then
