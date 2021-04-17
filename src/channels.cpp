@@ -335,7 +335,7 @@ bool Channel::CheckBan(User* user, const std::string& mask)
  * Remove a channel from a users record, remove the reference to the Membership object
  * from the channel and destroy it.
  */
-bool Channel::PartUser(User* user, std::string& reason)
+bool Channel::PartUser(User* user, const std::string& reason)
 {
 	MemberMap::iterator membiter = userlist.find(user);
 
@@ -343,10 +343,11 @@ bool Channel::PartUser(User* user, std::string& reason)
 		return false;
 
 	Membership* memb = membiter->second;
+	std::string partreason(reason);
 	CUList except_list;
-	FOREACH_MOD(OnUserPart, (memb, reason, except_list));
+	FOREACH_MOD(OnUserPart, (memb, partreason, except_list));
 
-	ClientProtocol::Messages::Part partmsg(memb, reason);
+	ClientProtocol::Messages::Part partmsg(memb, partreason);
 	Write(ServerInstance->GetRFCEvents().part, partmsg, 0, except_list);
 
 	// Remove this channel from the user's chanlist
