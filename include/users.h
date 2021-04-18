@@ -652,11 +652,6 @@ class CoreExport UserIOHandler : public StreamSocket
 	 * @param data The data to add to the write buffer
 	 */
 	void AddWriteBuf(const std::string &data);
-
-	/** Swaps the internals of this UserIOHandler with another one.
-	 * @param other A UserIOHandler to swap internals with.
-	 */
-	void SwapInternals(UserIOHandler& other);
 };
 
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>

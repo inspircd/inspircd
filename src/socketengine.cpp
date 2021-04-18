@@ -55,12 +55,6 @@ EventHandler::EventHandler()
 	event_mask = 0;
 }
 
-void EventHandler::SwapInternals(EventHandler& other)
-{
-	std::swap(fd, other.fd);
-	std::swap(event_mask, other.event_mask);
-}
-
 void EventHandler::SetFd(int FD)
 {
 	this->fd = FD;
