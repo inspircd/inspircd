@@ -103,7 +103,7 @@ class ModuleAlias : public Module
 			a.StripColor = tag->getBool("stripcolor");
 
 			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
-			newAliases.insert(std::make_pair(a.AliasedCommand, a));
+			newAliases.emplace(a.AliasedCommand, a);
 		}
 
 		auto fantasy = ServerInstance->Config->ConfValue("fantasy");

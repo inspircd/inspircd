@@ -83,5 +83,5 @@ void TimerManager::DelTimer(Timer* t)
 
 void TimerManager::AddTimer(Timer* t)
 {
-	Timers.insert(std::make_pair(t->GetTrigger(), t));
+	Timers.emplace(t->GetTrigger(), t);
 }

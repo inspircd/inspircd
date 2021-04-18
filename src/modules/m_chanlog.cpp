@@ -55,7 +55,7 @@ class ModuleChanLog : public Module
 
 			for (const auto& snomask : snomasks)
 			{
-				newlogs.insert(std::make_pair(snomask, channel));
+				newlogs.emplace(snomask, channel);
 				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", snomask, channel.c_str());
 			}
 		}

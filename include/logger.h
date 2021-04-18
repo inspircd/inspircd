@@ -151,7 +151,7 @@ class CoreExport LogManager
 		FileLogMap::iterator i = FileLogs.find(fw);
 		if (i == FileLogs.end())
 		{
-			FileLogs.insert(std::make_pair(fw, 1));
+			FileLogs.emplace(fw, 1);
 		}
 		else
 		{

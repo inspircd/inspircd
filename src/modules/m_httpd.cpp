@@ -375,11 +375,11 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			eq_pos = token.find('=');
 			if (eq_pos == std::string::npos)
 			{
-				out.query_params.insert(std::make_pair(token, ""));
+				out.query_params.emplace(token, "");
 			}
 			else
 			{
-				out.query_params.insert(std::make_pair(token.substr(0, eq_pos), token.substr(eq_pos + 1)));
+				out.query_params.emplace(token.substr(0, eq_pos), token.substr(eq_pos + 1));
 			}
 		}
 		return true;

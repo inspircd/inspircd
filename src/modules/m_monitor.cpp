@@ -200,7 +200,7 @@ class IRCv3::Monitor::Manager
 
 	Entry* AddWatcher(const std::string& nick, LocalUser* user)
 	{
-		std::pair<NickHash::iterator, bool> ret = nicks.insert(std::make_pair(nick, Entry()));
+		std::pair<NickHash::iterator, bool> ret = nicks.emplace(nick, Entry());
 		Entry& entry = ret.first->second;
 		if (ret.second)
 			entry.SetNick(nick);

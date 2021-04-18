@@ -475,7 +475,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 		if (curr == connections.end())
 		{
 			SQLConnection* conn = new SQLConnection(this, tag);
-			conns.insert(std::make_pair(id, conn));
+			conns.emplace(id, conn);
 			ServerInstance->Modules.AddService(*conn);
 		}
 		else

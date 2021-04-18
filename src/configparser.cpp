@@ -308,7 +308,7 @@ struct Parser
 		}
 		else
 		{
-			stack.output.insert(std::make_pair(name, tag));
+			stack.output.emplace(name, tag);
 		}
 		// this is not a leak; shared_ptr takes care of the delete
 		tag = NULL;

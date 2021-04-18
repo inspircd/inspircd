@@ -37,7 +37,7 @@ Channel::Channel(const std::string &cname, time_t ts)
 	: name(cname)
 	, age(ts)
 {
-	if (!ServerInstance->chanlist.insert(std::make_pair(cname, this)).second)
+	if (!ServerInstance->chanlist.emplace(cname, this).second)
 		throw CoreException("Cannot create duplicate channel " + cname);
 }
 
@@ -68,7 +68,7 @@ void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const
 
 Membership* Channel::AddUser(User* user)
 {
-	std::pair<MemberMap::iterator, bool> ret = userlist.insert(std::make_pair(user, insp::aligned_storage<Membership>()));
+	std::pair<MemberMap::iterator, bool> ret = userlist.emplace(user, insp::aligned_storage<Membership>());
 	if (!ret.second)
 		return NULL;
 

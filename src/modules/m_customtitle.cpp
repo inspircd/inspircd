@@ -142,7 +142,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 			std::string title = tag->getString("title");
 			std::string vhost = tag->getString("vhost");
 			CustomTitle config(name, pass, hash, host, title, vhost);
-			newtitles.insert(std::make_pair(name, config));
+			newtitles.emplace(name, config);
 		}
 		cmd.configs.swap(newtitles);
 	}

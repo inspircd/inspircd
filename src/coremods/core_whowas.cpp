@@ -246,7 +246,7 @@ void WhoWas::Manager::Add(User* user)
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(user->nick, static_cast<WhoWas::Nick*>(NULL)));
+	std::pair<whowas_users::iterator, bool> ret = whowas.emplace(user->nick, nullptr);
 
 	if (ret.second) // If inserted
 	{

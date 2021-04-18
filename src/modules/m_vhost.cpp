@@ -116,7 +116,7 @@ class ModuleVHost : public Module
 			}
 
 			CustomVhost vhost(username, pass, hash, mask);
-			newhosts.insert(std::make_pair(username, vhost));
+			newhosts.emplace(username, vhost);
 		}
 
 		cmd.vhosts.swap(newhosts);

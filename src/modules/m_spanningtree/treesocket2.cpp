@@ -297,7 +297,7 @@ void TreeSocket::ProcessTag(User* source, const std::string& tag, ClientProtocol
 		ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
 		const ModResult res = tagprov->OnProcessTag(source, tagkey, tagval);
 		if (res == MOD_RES_ALLOW)
-			tags.insert(std::make_pair(tagkey, ClientProtocol::MessageTagData(tagprov, tagval)));
+			tags.emplace(tagkey, ClientProtocol::MessageTagData(tagprov, tagval));
 		else if (res == MOD_RES_DENY)
 			break;
 	}

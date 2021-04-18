@@ -233,6 +233,12 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 
 	flat_set& operator=(const flat_set& other) = default;
 
+	template <typename... Args>
+	std::pair<iterator, bool> emplace(Args&&... args)
+	{
+		return insert(value_type(std::forward<Args>(args)...));
+	}
+
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
 		return this->insert_single(x);
@@ -280,6 +286,12 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 	}
 
 	flat_multiset& operator=(const flat_multiset& other) = default;
+
+	template <typename... Args>
+	iterator emplace(Args&&... args)
+	{
+		return insert(value_type(std::forward<Args>(args)...));
+	}
 
 	iterator insert(const value_type& x)
 	{
@@ -332,6 +344,12 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 
 	flat_map& operator=(const flat_map& other) = default;
 
+	template <typename... Args>
+	std::pair<iterator, bool> emplace(Args&&... args)
+	{
+		return insert(value_type(std::forward<Args>(args)...));
+	}
+
 	std::pair<iterator, bool> insert(const value_type& x)
 	{
 		return this->insert_single(x);
@@ -351,7 +369,7 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 
 	mapped_type& operator[](const key_type& x)
 	{
-		return insert(std::make_pair(x, mapped_type())).first->second;
+		return insert(value_type(x, mapped_type())).first->second;
 	}
 
 	value_compare value_comp() const
@@ -391,6 +409,12 @@ class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, det
 	}
 
 	flat_multimap& operator=(const flat_multimap& other) = default;
+
+	template <typename... Args>
+	iterator emplace(Args&&... args)
+	{
+		return insert(value_type(std::forward<Args>(args)...));
+	}
 
 	iterator insert(const value_type& x)
 	{

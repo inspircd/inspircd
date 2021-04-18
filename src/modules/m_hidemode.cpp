@@ -53,7 +53,7 @@ class Settings
 				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->source.str());
 
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
-			newranks.insert(std::make_pair(modename, rank));
+			newranks.emplace(modename, rank);
 		}
 		rankstosee.swap(newranks);
 	}
@@ -167,7 +167,7 @@ class ModeHook : public ClientProtocol::EventHook
 		}
 
 		// Cache the result in all cases so it can be reused for further members with the same rank
-		cache.insert(std::make_pair(memb->getRank(), finalmsgplist));
+		cache.emplace(memb->getRank(), finalmsgplist);
 		return HandleResult(finalmsgplist, messagelist);
 	}
 

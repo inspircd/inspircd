@@ -111,7 +111,7 @@ void* ExtensionItem::GetRaw(const Extensible* container) const
 
 void* ExtensionItem::SetRaw(Extensible* container, void* value)
 {
-	auto result = container->extensions.insert(std::make_pair(this, value));
+	auto result = container->extensions.emplace(this, value);
 	if (result.second)
 		return nullptr;
 

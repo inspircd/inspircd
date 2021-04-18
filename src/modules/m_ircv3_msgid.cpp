@@ -88,7 +88,7 @@ class ModuleMsgId
 		}
 
 		// Otherwise, we can just create a new message identifier.
-		tags_out.insert(std::make_pair("msgid", ClientProtocol::MessageTagData(&tag, generator.GetNext())));
+		tags_out.emplace("msgid", ClientProtocol::MessageTagData(&tag, generator.GetNext()));
 		return MOD_RES_PASSTHRU;
 	}
 

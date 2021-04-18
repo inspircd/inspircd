@@ -94,7 +94,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 	// Do not insert FakeUsers into the uuidlist so FindUUID() won't return them which is the desired behavior
 	if (type != User::TYPE_SERVER)
 	{
-		if (!ServerInstance->Users.uuidlist.insert(std::make_pair(uuid, this)).second)
+		if (!ServerInstance->Users.uuidlist.emplace(uuid, this).second)
 			throw CoreException("Duplicate UUID in User constructor: " + uuid);
 	}
 }

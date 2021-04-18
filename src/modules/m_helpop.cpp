@@ -144,7 +144,7 @@ class ModuleHelpop
 
 				// Read the help title and store the topic.
 				const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
-				if (!newhelp.insert(std::make_pair(key, HelpTopic(helpmsg, title))).second)
+				if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 				{
 					throw ModuleException(InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
 						key.c_str(), tag->source.str().c_str()));
@@ -169,7 +169,7 @@ class ModuleHelpop
 				}
 				indexmsg.push_back(indexline);
 			}
-			newhelp.insert(std::make_pair("index", HelpTopic(indexmsg, "List of help topics")));
+			newhelp.emplace("index", HelpTopic(indexmsg, "List of help topics"));
 			cmd.help.swap(newhelp);
 
 			auto tag = ServerInstance->Config->ConfValue("helpmsg");

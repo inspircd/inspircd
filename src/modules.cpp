@@ -577,12 +577,12 @@ void ModuleManager::AddService(ServiceProvider& item)
 			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
 				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
-			DataProviders.insert(std::make_pair(item.name, &item));
+			DataProviders.emplace(item.name, &item);
 			std::string::size_type slash = item.name.find('/');
 			if (slash != std::string::npos)
 			{
-				DataProviders.insert(std::make_pair(item.name.substr(0, slash), &item));
-				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
+				DataProviders.emplace(item.name.substr(0, slash), &item);
+				DataProviders.emplace(item.name.substr(slash + 1), &item);
 			}
 			dynamic_reference_base::reset_all();
 			break;
@@ -715,7 +715,7 @@ Module* ModuleManager::Find(const std::string &name)
 
 void ModuleManager::AddReferent(const std::string& name, ServiceProvider* service)
 {
-	DataProviders.insert(std::make_pair(name, service));
+	DataProviders.emplace(name, service);
 	dynamic_reference_base::reset_all();
 }
 

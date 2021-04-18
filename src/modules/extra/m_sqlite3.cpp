@@ -262,7 +262,7 @@ class ModuleSQLite3 : public Module
 				continue;
 
 			SQLConn* conn = new SQLConn(this, tag);
-			conns.insert(std::make_pair(tag->getString("id"), conn));
+			conns.emplace(tag->getString("id"), conn);
 			ServerInstance->Modules.AddService(*conn);
 		}
 	}

@@ -166,7 +166,7 @@ class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Registering cap %s", cap->GetName().c_str());
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
-		caps.insert(std::make_pair(cap->GetName(), cap));
+		caps.emplace(cap->GetName(), cap);
 		ServerInstance->Modules.AddReferent("cap/" + cap->GetName(), cap);
 
 		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, true);

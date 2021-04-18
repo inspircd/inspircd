@@ -66,7 +66,7 @@ class ServerTimeTag
 	{
 		// Server protocol.
 		RefreshTimeString();
-		tags.insert(std::make_pair(tagname, ClientProtocol::MessageTagData(this, lasttimestring)));
+		tags.emplace(tagname, ClientProtocol::MessageTagData(this, lasttimestring));
 	}
 
 };

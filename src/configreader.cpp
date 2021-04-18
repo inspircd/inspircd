@@ -180,7 +180,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		// No connect blocks found; make a trivial default block
 		auto tag = std::make_shared<ConfigTag>("connect", FilePosition("<auto>", 0, 0));
 		tag->GetItems()["allow"] = "*";
-		config_data.insert(std::make_pair("connect", tag));
+		config_data.emplace("connect", tag);
 		blk_count = 1;
 	}
 

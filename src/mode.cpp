@@ -604,7 +604,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
 		modeid = AllocateModeId(mh->GetModeType());
 
-	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh));
+	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].emplace(mh->name, mh);
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;
@@ -802,7 +802,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 
 void ModeParser::AddModeWatcher(ModeWatcher* mw)
 {
-	modewatchermap.insert(std::make_pair(mw->GetModeName(), mw));
+	modewatchermap.emplace(mw->GetModeName(), mw);
 }
 
 bool ModeParser::DelModeWatcher(ModeWatcher* mw)

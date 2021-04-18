@@ -187,7 +187,7 @@ class ModuleClearChan : public Module
 				// module before us doesn't want them to see it or added the exceptions already.
 				// If there is a value for this oper in excepts already, this won't overwrite it.
 				if (found)
-					exception.insert(std::make_pair(curr, true));
+					exception.emplace(curr, true);
 				continue;
 			}
 			else if (!include.empty() && curr->chans.size() > 1)

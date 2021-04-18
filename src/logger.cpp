@@ -116,7 +116,7 @@ void LogManager::OpenFileLogs()
 			strftime(realtarget, sizeof(realtarget), target.c_str(), mytime);
 			FILE* f = fopen(realtarget, "a");
 			fw = new FileWriter(f, tag->getUInt("flush", 20, 1, UINT_MAX));
-			logmap.insert(std::make_pair(target, fw));
+			logmap.emplace(target, fw);
 		}
 		else
 		{
@@ -188,7 +188,7 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclos
 	LogStreams[type].push_back(l);
 
 	if (type == "*")
-		GlobalLogStreams.insert(std::make_pair(l, std::vector<std::string>()));
+		GlobalLogStreams.emplace(l, std::vector<std::string>());
 
 	if (autoclose)
 		AllLogStreams[l]++;

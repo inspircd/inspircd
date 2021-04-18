@@ -238,7 +238,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 			}
 
 			// Store the silence entry.
-			list->insert(SilenceEntry(flags, mask));
+			list->emplace(flags, mask);
 		}
 
 		// The value was well formed.
@@ -293,7 +293,7 @@ class CommandSilence : public SplitCommand
 			ext.Set(user, list);
 		}
 
-		if (!list->insert(SilenceEntry(flags, mask)).second)
+		if (!list->emplace(flags, mask).second)
 		{
 			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified already exists");
 			return CmdResult::FAILURE;

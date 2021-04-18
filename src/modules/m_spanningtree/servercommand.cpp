@@ -57,5 +57,5 @@ ServerCommand* ServerCommandManager::GetHandler(const std::string& command) cons
 
 bool ServerCommandManager::AddCommand(ServerCommand* cmd)
 {
-	return commands.insert(std::make_pair(cmd->name, cmd)).second;
+	return commands.emplace(cmd->name, cmd).second;
 }

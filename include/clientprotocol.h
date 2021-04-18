@@ -415,7 +415,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	 */
 	void AddTag(const std::string& tagname, MessageTagProvider* tagprov, const std::string& val, void* tagdata = NULL)
 	{
-		tags.insert(std::make_pair(tagname, MessageTagData(tagprov, val, tagdata)));
+		tags.emplace(tagname, MessageTagData(tagprov, val, tagdata));
 	}
 
 	/** Add all tags in a TagMap to the tags in this message. Existing tags will not be overwritten.

@@ -559,7 +559,7 @@ class ModulePgSQL : public Module
 				SQLConn* conn = new SQLConn(this, tag);
 				if (conn->status != DEAD)
 				{
-					conns.insert(std::make_pair(id, conn));
+					conns.emplace(id, conn);
 					ServerInstance->Modules.AddService(*conn);
 				}
 				// If the connection is dead it has already been queued for culling
