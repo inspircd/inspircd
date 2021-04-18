@@ -206,26 +206,16 @@ void ListenSocket::OnEventHandlerRead()
 
 	ModResult res;
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
-	if (res == MOD_RES_PASSTHRU)
-	{
-		const std::string type = bind_tag->getString("type", "clients", 1);
-		if (stdalgo::string::equalsci(type, "clients"))
-		{
-			ServerInstance->Users.AddUser(incomingSockfd, this, &client, &server);
-			res = MOD_RES_ALLOW;
-		}
-	}
 	if (res == MOD_RES_ALLOW)
 	{
 		ServerInstance->stats.Accept++;
+		return;
 	}
-	else
-	{
-		ServerInstance->stats.Refused++;
-		ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
-			bind_sa.str().c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
-		SocketEngine::Close(incomingSockfd);
-	}
+
+	ServerInstance->stats.Refused++;
+	ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s", bind_sa.str().c_str(),
+		res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
+	SocketEngine::Close(incomingSockfd);
 }
 
 void ListenSocket::ResetIOHookProvider()
