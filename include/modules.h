@@ -222,7 +222,6 @@ enum Implementation
 	I_OnCheckLimit,
 	I_OnCheckReady,
 	I_OnCommandBlocked,
-	I_OnConnectionFail,
 	I_OnDecodeMetaData,
 	I_OnDelLine,
 	I_OnExpireLine,
@@ -987,14 +986,6 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * deny the message from being sent, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
-
-	/** Called when a user connection has been unexpectedly disconnected.
-	 * @param user The user who has been unexpectedly disconnected.
-	 * @param error The type of error which caused this connection failure.
-	 * @return MOD_RES_ALLOW to explicitly retain the user as a zombie, MOD_RES_DENY to explicitly
-	 * disconnect the user, or MOD_RES_PASSTHRU to let another module handle the event.
-	 */
-	virtual ModResult OnConnectionFail(LocalUser* user, BufferedSocketError error);
 
 	/** Called before a server shuts down.
 	 * @param reason The reason the server is shutting down.

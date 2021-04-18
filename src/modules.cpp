@@ -151,7 +151,6 @@ void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
 ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnConnectionFail(LocalUser*, BufferedSocketError) { DetachEvent(I_OnConnectionFail); return MOD_RES_PASSTHRU; }
 void		Module::OnShutdown(const std::string& reason) { DetachEvent(I_OnShutdown); }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)

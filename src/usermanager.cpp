@@ -65,16 +65,6 @@ namespace
 		// This user didn't answer the last ping, remove them.
 		if (!user->lastping)
 		{
-			ModResult res;
-			FIRST_MOD_RESULT(OnConnectionFail, res, (user, I_ERR_TIMEOUT));
-			if (res == MOD_RES_ALLOW)
-			{
-				// A module is preventing this user from being timed out.
-				user->lastping = 1;
-				user->nextping = ServerInstance->Time() + user->GetClass()->GetPingTime();
-				return;
-			}
-
 			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->GetPingTime());
 			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
 			ServerInstance->Users.QuitUser(user, message);

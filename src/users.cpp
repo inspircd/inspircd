@@ -342,10 +342,7 @@ bool UserIOHandler::OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep)
 
 void UserIOHandler::OnError(BufferedSocketError sockerr)
 {
-	ModResult res;
-	FIRST_MOD_RESULT(OnConnectionFail, res, (user, sockerr));
-	if (res != MOD_RES_ALLOW)
-		ServerInstance->Users.QuitUser(user, GetError());
+	ServerInstance->Users.QuitUser(user, GetError());
 }
 
 Cullable::Result User::Cull()
