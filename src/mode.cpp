@@ -388,7 +388,9 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 		if (!mh)
 		{
 			/* No mode handler? Unknown mode character then. */
-			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, modechar, "is an unknown mode character");
+			int numeric = (type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK);
+			const char* typestr = (type == MODETYPE_CHANNEL ? "channel" : "user");
+			user->WriteNumeric(numeric, modechar, InspIRCd::Format("is not a recognised %s mode.", typestr));
 			continue;
 		}
 
