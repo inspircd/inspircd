@@ -70,7 +70,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a regular expression engine which uses the C++11 std::regex regular expression matching system.", VF_VENDOR);
+		return Version("Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

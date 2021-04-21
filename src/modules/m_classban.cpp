@@ -55,7 +55,7 @@ class ModuleClassBan : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds the n: extended ban which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Adds extended ban n: which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

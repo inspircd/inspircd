@@ -92,7 +92,7 @@ class ModuleRegexTRE : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a regular expression engine which uses the TRE library.", VF_VENDOR);
+		return Version("Provides the tre regular expression engine which uses the TRE library.", VF_VENDOR);
 	}
 };
 

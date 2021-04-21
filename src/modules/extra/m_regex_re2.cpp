@@ -88,7 +88,7 @@ class ModuleRegexRE2 : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a regular expression engine which uses the RE2 library.", VF_VENDOR);
+		return Version("Provides the re2 regular expression engine which uses the RE2 library.", VF_VENDOR);
 	}
 };
 
