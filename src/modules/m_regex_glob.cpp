@@ -61,7 +61,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a regular expression engine which uses the built-in glob matching system.", VF_VENDOR);
+		return Version("Provides the glob regular expression engine which uses the built-in glob matching system.", VF_VENDOR);
 	}
 };
 

@@ -63,7 +63,7 @@ class ModuleAllowInvite : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A which bans specific masks from using the /INVITE command.", VF_VENDOR);
+		return Version("Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: which bans specific masks from using the /INVITE command.", VF_VENDOR);
 	}
 };
 
