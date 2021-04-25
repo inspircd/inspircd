@@ -218,6 +218,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXREAL="+ConvToStr(ServerInstance->Config->Limits.MaxReal)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
 			" MAXHOST="+ConvToStr(ServerInstance->Config->Limits.MaxHost)+
+			" MAXLINE="+ConvToStr(ServerInstance->Config->Limits.MaxLine)+
 			extra+
 			" CASEMAPPING="+ServerInstance->Config->CaseMapping+
 			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
