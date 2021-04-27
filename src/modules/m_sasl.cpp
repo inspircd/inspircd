@@ -26,11 +26,10 @@
 
 
 #include "inspircd.h"
-#include "modules/cap.h"
 #include "modules/account.h"
-#include "modules/sasl.h"
-#include "modules/ssl.h"
+#include "modules/cap.h"
 #include "modules/server.h"
+#include "modules/ssl.h"
 
 enum
 {
@@ -158,8 +157,6 @@ class SASLCap : public Cap::Capability
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
-static Events::ModuleEventProvider* saslevprov;
-
 static void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
 {
 	CommandBase::Params params;
@@ -167,11 +164,7 @@ static void SendSASL(LocalUser* user, const std::string& agent, char mode, const
 	params.push_back(agent);
 	params.push_back(ConvToStr(mode));
 	params.insert(params.end(), parameters.begin(), parameters.end());
-
-	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
-	{
-		saslevprov->Call(&SASLEventListener::OnSASLAuth, params);
-	}
+	ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params);
 }
 
 static ClientProtocol::EventProvider* g_protoev;
@@ -403,7 +396,6 @@ class ModuleSASL : public Module
 	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
-	Events::ModuleEventProvider sasleventprov;
 	ClientProtocol::EventProvider protoev;
 
  public:
@@ -414,10 +406,8 @@ class ModuleSASL : public Module
 		, cap(this, servertracker)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
-		, sasleventprov(this, "event/sasl")
 		, protoev(this, auth.name)
 	{
-		saslevprov = &sasleventprov;
 		g_protoev = &protoev;
 	}
 
