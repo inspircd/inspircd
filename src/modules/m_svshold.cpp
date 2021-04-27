@@ -82,7 +82,7 @@ class SVSHoldFactory : public XLineFactory
 	SVSHoldFactory() : XLineFactory("SVSHOLD") { }
 
 	/** Generate an SVSHOLD
- 	*/
+	*/
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);

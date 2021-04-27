@@ -48,7 +48,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	HTTPdAPI API;
 
  public:
- 	ModuleHTTPAccessList()
+	ModuleHTTPAccessList()
 		: HTTPACLEventListener(this)
 		, API(this)
 	{

@@ -535,7 +535,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		if(j->first != key)
 			continue;
 		value = j->second;
- 		if (!allow_lf && (value.find('\n') != std::string::npos))
+		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
 			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");

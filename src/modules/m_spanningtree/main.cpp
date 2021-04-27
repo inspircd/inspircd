@@ -128,7 +128,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		{
 			if (user->IsOper())
 			{
-				 ShowLinks(server, user, hops+1);
+				ShowLinks(server, user, hops+1);
 			}
 		}
 		else

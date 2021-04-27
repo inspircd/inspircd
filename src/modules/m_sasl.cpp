@@ -235,11 +235,11 @@ class SaslAuthenticator
 	{
 		switch (this->state)
 		{
-		 case SASL_INIT:
+		case SASL_INIT:
 			this->agent = msg[0];
 			this->state = SASL_COMM;
 			/* fall through */
-		 case SASL_COMM:
+		case SASL_COMM:
 			if (msg[0] != this->agent)
 				return this->state;
 
@@ -267,9 +267,9 @@ class SaslAuthenticator
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
 
 			break;
-		 case SASL_DONE:
+		case SASL_DONE:
 			break;
-		 default:
+		default:
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
 			break;
 		}
@@ -301,16 +301,16 @@ class SaslAuthenticator
 
 		switch (this->result)
 		{
-		 case SASL_OK:
+		case SASL_OK:
 			this->user->WriteNumeric(RPL_SASLSUCCESS, "SASL authentication successful");
 			break;
-		 case SASL_ABORT:
+		case SASL_ABORT:
 			this->user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
 			break;
-		 case SASL_FAIL:
+		case SASL_FAIL:
 			this->user->WriteNumeric(ERR_SASLFAIL, "SASL authentication failed");
 			break;
-		 default:
+		default:
 			break;
 		}
 
@@ -321,8 +321,8 @@ class SaslAuthenticator
 class CommandAuthenticate : public SplitCommand
 {
  private:
-	 // The maximum length of an AUTHENTICATE request.
-	 static const size_t MAX_AUTHENTICATE_SIZE = 400;
+	// The maximum length of an AUTHENTICATE request.
+	static const size_t MAX_AUTHENTICATE_SIZE = 400;
 
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;

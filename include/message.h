@@ -42,7 +42,7 @@ class CoreExport MessageDetails
 	/** Whether to update the source user's idle time. */
 	bool update_idle;
 
-	 /** The users who are exempted from receiving this message. */
+	/** The users who are exempted from receiving this message. */
 	CUList exemptions;
 
 	/* The original message as sent by the user. */

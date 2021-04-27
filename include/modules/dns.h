@@ -162,8 +162,8 @@ namespace DNS
 		/* Use result cache if available */
 		bool use_cache;
 		/* Request id */
-	 	RequestId id;
-	 	/* Creator of this request */
+		RequestId id;
+		/* Creator of this request */
 		Module* const creator;
 
 		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true, unsigned int timeout = 0)

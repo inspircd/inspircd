@@ -49,7 +49,7 @@ class CoreExport CullList
 class CoreExport ActionBase : public classbase
 {
  public:
-	 /** Executes this action. */
+	/** Executes this action. */
 	virtual void Call() = 0;
 };
 

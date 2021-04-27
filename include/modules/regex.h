@@ -59,9 +59,9 @@ class RegexFactory : public DataProvider
 class RegexException : public ModuleException
 {
  public:
-	 RegexException(const std::string& regex, const std::string& error)
-		 : ModuleException("Error in regex '" + regex + "': " + error) { }
+	RegexException(const std::string& regex, const std::string& error)
+		: ModuleException("Error in regex '" + regex + "': " + error) { }
 
-	 RegexException(const std::string& regex, const std::string& error, int offset)
-		 : ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error) { }
+	RegexException(const std::string& regex, const std::string& error, int offset)
+		: ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error) { }
 };

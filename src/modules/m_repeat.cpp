@@ -30,7 +30,7 @@
 class ChannelSettings
 {
  public:
- 	enum RepeatAction
+	enum RepeatAction
 	{
 		ACT_KICK,
 		ACT_BLOCK,

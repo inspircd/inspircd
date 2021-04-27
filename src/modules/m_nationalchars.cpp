@@ -40,7 +40,6 @@ class lwbNickHandler
 	static bool Call(const std::string&);
 };
 
-								 /*,m_reverse_additionalUp[256];*/
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
 
 char utf8checkrest(unsigned char * mb, unsigned char cnt)
@@ -417,7 +416,7 @@ class ModuleNationalChars : public Module
 					if (*p == '0')
 					{
 						if (p[1] == 'x')
-							 /* hex with the leading "0x" */
+							/* hex with the leading "0x" */
 							chartable[i] = symtoi(p + 2, 16);
 						else
 							chartable[i] = symtoi(p + 1, 8);
@@ -426,12 +425,13 @@ class ModuleNationalChars : public Module
 					else if (*p == 'x')
 					{
 						chartable[i] = symtoi(p + 1, 16);
-					}else	 /* decimal form */
+					}
+					else /* decimal form */
 					{
 						chartable[i] = symtoi(p, 10);
 					}
 				}
-				else		 /* plain-text char between '' */
+				else /* plain-text char between '' */
 				{
 					if (*(p + 1) == '\\')
 					{

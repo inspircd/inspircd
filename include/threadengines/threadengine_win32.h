@@ -51,11 +51,11 @@ class CoreExport ThreadEngine
 	static DWORD WINAPI Entry(void* parameter);
 
 	/** Create a new thread. This takes an already allocated
-	  * Thread* pointer and initializes it to use this threading
-	  * engine. On failure, this function may throw a CoreException.
-	  * @param thread_to_init Pointer to a newly allocated Thread
-	  * derived object.
-	  */
+	 * Thread* pointer and initializes it to use this threading
+	 * engine. On failure, this function may throw a CoreException.
+	 * @param thread_to_init Pointer to a newly allocated Thread
+	 * derived object.
+	 */
 	void Start(Thread* thread_to_init);
 
 	/** Stop a thread gracefully.

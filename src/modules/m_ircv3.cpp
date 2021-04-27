@@ -51,10 +51,10 @@ class JoinHook : public ClientProtocol::EventHook
 	ClientProtocol::Events::Join extendedjoinmsg;
 
  public:
- 	const std::string asterisk;
+	const std::string asterisk;
 	ClientProtocol::EventProvider awayprotoev;
 	AwayMessage awaymsg;
- 	Cap::Capability extendedjoincap;
+	Cap::Capability extendedjoincap;
 	Cap::Capability awaycap;
 
 	JoinHook(Module* mod)

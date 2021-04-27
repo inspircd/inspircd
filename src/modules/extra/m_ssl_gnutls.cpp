@@ -1248,7 +1248,7 @@ class GnuTLSIOHookProvider : public SSLIOHookProvider
 	GnuTLS::Profile profile;
 
  public:
- 	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
+	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
 		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
 	{
