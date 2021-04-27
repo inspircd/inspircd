@@ -63,7 +63,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 
 	const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 
-  	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 	{
 		Module* m = i->second;
 		Version V = m->GetVersion();

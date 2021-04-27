@@ -166,7 +166,7 @@ class SHA1Context
 class SHA1HashProvider : public HashProvider
 {
  public:
- 	SHA1HashProvider(Module* mod)
+	SHA1HashProvider(Module* mod)
 		: HashProvider(mod, "sha1", 20, 64)
 	{
 	}

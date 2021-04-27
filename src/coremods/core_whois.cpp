@@ -80,10 +80,10 @@ class CommandWhois : public SplitCommand
 	void SendChanList(WhoisContextImpl& whois);
 
  public:
-	 /** If true then all opers are shown with a generic 'is a server operator' line rather than the oper type. */
+	/** If true then all opers are shown with a generic 'is a server operator' line rather than the oper type. */
 	bool genericoper;
 
-	 /** How to handle private/secret channels in the WHOIS response. */
+	/** How to handle private/secret channels in the WHOIS response. */
 	SplitWhoisState splitwhois;
 
 

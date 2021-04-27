@@ -39,7 +39,7 @@ class CommandClones : public SplitCommand
 	IRCv3::Batch::Batch batch;
 
  public:
- 	CommandClones(Module* Creator)
+	CommandClones(Module* Creator)
 		: SplitCommand(Creator,"CLONES", 1)
 		, batchmanager(Creator)
 		, batch("inspircd.org/clones")

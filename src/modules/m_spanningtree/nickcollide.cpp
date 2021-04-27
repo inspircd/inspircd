@@ -78,8 +78,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		 * if ident@ip is equal, and theirs is newer, or
 		 * ident@ip differ, and ours is newer
 		 */
-		if((SamePerson && remotets < localts) ||
-		   (!SamePerson && remotets > localts))
+		if ((SamePerson && remotets < localts) || (!SamePerson && remotets > localts))
 		{
 			// Only remote needs to change
 			bChangeLocal = false;

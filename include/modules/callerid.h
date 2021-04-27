@@ -28,7 +28,7 @@ namespace CallerID
 class CallerID::APIBase : public DataProvider
 {
  public:
- 	APIBase(Module* parent)
+	APIBase(Module* parent)
 		: DataProvider(parent, "m_callerid_api")
 	{
 	}

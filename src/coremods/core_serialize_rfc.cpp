@@ -43,7 +43,7 @@ class RFCSerializer : public ClientProtocol::Serializer
 	{
 	}
 
- 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE;
+	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE;
 	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const CXX11_OVERRIDE;
 };
 

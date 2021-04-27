@@ -31,10 +31,10 @@ static ClientProtocol::Serializer* dummyserializer;
 
 class DummySerializer : public ClientProtocol::Serializer
 {
- 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE
- 	{
- 		return false;
- 	}
+	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) CXX11_OVERRIDE
+	{
+		return false;
+	}
 
 	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const CXX11_OVERRIDE
 	{

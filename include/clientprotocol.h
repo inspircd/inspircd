@@ -249,7 +249,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 			: ptr(NULL)
 			, owned(true)
 		{
-			 new(str) std::string(s);
+			new(str) std::string(s);
 		}
 
 		Param(const Param& other)

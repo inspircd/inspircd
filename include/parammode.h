@@ -23,7 +23,7 @@
 class CoreExport ParamModeBase : public ModeHandler
 {
  private:
- 	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
+	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
 
  public:
 	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)

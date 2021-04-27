@@ -186,7 +186,7 @@ class SQLConn : public SQL::Provider, public EventHandler
  public:
 	reference<ConfigTag> conf;	/* The <database> entry */
 	std::deque<QueueItem> queue;
-	PGconn* 		sql;		/* PgSQL database connection handle */
+	PGconn*			sql;		/* PgSQL database connection handle */
 	SQLstatus		status;		/* PgSQL database connection status */
 	QueueItem		qinprog;	/* If there is currently a query in progress */
 

@@ -24,7 +24,7 @@ class StreamSocket;
 
 class IOHookProvider : public refcountbase, public ServiceProvider
 {
- 	const bool middlehook;
+	const bool middlehook;
 
  public:
 	enum Type

@@ -400,7 +400,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 
 	const time_t current = ServerInstance->Time();
 
-	 LookupIter safei;
+	LookupIter safei;
 
 	for (LookupIter i = x->second.begin(); i != x->second.end(); )
 	{

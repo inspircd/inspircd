@@ -54,7 +54,7 @@ ModResult ModuleSpanningTree::HandleSquit(const CommandBase::Params& parameters,
 	}
 	else
 	{
-		 user->WriteNotice("*** SQUIT: The server \002" + parameters[0] + "\002 does not exist on the network.");
+		user->WriteNotice("*** SQUIT: The server \002" + parameters[0] + "\002 does not exist on the network.");
 	}
 	return MOD_RES_DENY;
 }
