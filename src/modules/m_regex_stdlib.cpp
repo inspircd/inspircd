@@ -80,7 +80,7 @@ class ModuleRegexStdLib : public Module
 
  public:
 	ModuleRegexStdLib()
-		: Module(VF_VENDOR, "Provides a regular expression engine which uses the C++11 std::regex regular expression matching system.")
+		: Module(VF_VENDOR, "Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.")
 		, regex(this)
 	{
 	}

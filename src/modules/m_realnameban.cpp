@@ -75,7 +75,7 @@ class ModuleGecosBan
 
  public:
 	ModuleGecosBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the r: extended ban which checks whether users have a real name matching the specified glob pattern.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban r: which checks whether users have a real name matching the specified glob pattern.")
 		, maskextban(this)
 		, realextban(this)
 	{

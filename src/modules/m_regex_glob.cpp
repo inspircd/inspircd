@@ -48,7 +48,7 @@ class ModuleRegexGlob : public Module
 
  public:
 	ModuleRegexGlob()
-		: Module(VF_VENDOR, "Provides a regular expression engine which uses the built-in glob matching system.")
+		: Module(VF_VENDOR, "Provides the glob regular expression engine which uses the built-in glob matching system.")
 		, regex(this, "glob")
 	{
 	}

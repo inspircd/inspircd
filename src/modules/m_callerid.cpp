@@ -386,7 +386,7 @@ class ModuleCallerID
 
 public:
 	ModuleCallerID()
-		: Module(VF_VENDOR | VF_COMMON, "Provides user mode g (bot) which allows users to require that other users are on their whitelist before messaging them.")
+		: Module(VF_VENDOR | VF_COMMON, "Provides user mode g (callerid) which allows users to require that other users are on their whitelist before messaging them.")
 		, CTCTags::EventListener(this)
 		, ISupport::EventListener(this)
 		, cmd(this)

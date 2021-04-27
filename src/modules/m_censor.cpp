@@ -28,13 +28,13 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> censor_t;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> CensorMap;
 
 class ModuleCensor : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
-	censor_t censors;
+	CensorMap censors;
 	SimpleUserModeHandler cu;
 	SimpleChannelModeHandler cc;
 
@@ -106,8 +106,7 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		censor_t newcensors;
-
+		CensorMap newcensors;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("badword"))
 		{
 			const std::string text = tag->getString("text");

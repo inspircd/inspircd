@@ -81,7 +81,7 @@ class ModuleRegexPCRE : public Module
 
  public:
 	ModuleRegexPCRE()
-		: Module(VF_VENDOR, "Provides a regular expression engine which uses the PCRE library.")
+		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE library.")
 		, regex(this, "pcre")
 	{
 	}

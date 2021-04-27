@@ -699,16 +699,21 @@ class ReloadAction : public ActionBase
 		{
 			Module* newmod = ServerInstance->Modules.Find(name);
 			datakeeper.Restore(newmod);
+			ServerInstance->SNO.WriteGlobalSno('a', "The %s module was reloaded.", passedname.c_str());
 		}
 		else
+		{
 			datakeeper.Fail();
+			ServerInstance->SNO.WriteGlobalSno('a', "Failed to reload the %s module.", passedname.c_str());
+		}
 
-		ServerInstance->SNO.WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded", passedname.c_str(), result ? "" : "un");
 		User* user = ServerInstance->Users.FindUUID(uuid);
 		if (user)
 		{
-			int numeric = result ? RPL_LOADEDMODULE : ERR_CANTUNLOADMODULE;
-			user->WriteNumeric(numeric, passedname, InspIRCd::Format("Module %ssuccessfully reloaded.", (result ? "" : "un")));
+			if (result)
+				user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("The %s module was reloaded.", passedname.c_str()));
+			else
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, passedname, InspIRCd::Format("Failed to reload the %s module.", passedname.c_str()));
 		}
 
 		ServerInstance->GlobalCulls.AddItem(this);
@@ -734,7 +739,7 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "Could not find module by that name");
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "Could not find a loaded module by that name");
 		return CmdResult::FAILURE;
 	}
 }

@@ -75,7 +75,7 @@ class ModuleRegexPOSIX : public Module
 
  public:
 	ModuleRegexPOSIX()
-		: Module(VF_VENDOR, "Provides a regular expression engine which uses the POSIX.2 regular expression matching system.")
+		: Module(VF_VENDOR, "Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.")
 		, regex(this, "posix")
 	{
 	}

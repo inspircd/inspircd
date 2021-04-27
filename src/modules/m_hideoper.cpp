@@ -153,8 +153,9 @@ class ModuleHideOper
 			if (!oper->server->IsService() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
 			{
 				LocalUser* lu = IS_LOCAL(oper);
-				stats.AddRow(249, oper->nick + " (" + oper->ident + "@" + oper->GetDisplayedHost() + ") Idle: " +
-						(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
+				const std::string idle = lu ? InspIRCd::DurationString(ServerInstance->Time() - lu->idle_lastmsg) : "unavailable";
+				stats.AddRow(249, InspIRCd::Format("%s (%s@%s) Idle: %s", oper->nick.c_str(),
+					oper->ident.c_str(), oper->GetDisplayedHost().c_str(), idle.c_str()));
 				count++;
 			}
 		}

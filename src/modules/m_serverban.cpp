@@ -49,7 +49,7 @@ class ModuleServerBan
 
  public:
 	ModuleServerBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the s: extended ban which check whether users are on a server matching the specified glob pattern.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban s: which check whether users are on a server matching the specified glob pattern.")
 		, extban(this)
 	{
 	}

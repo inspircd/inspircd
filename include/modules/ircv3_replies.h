@@ -66,7 +66,10 @@ class IRCv3::Replies::Reply
 
 	void SendNoticeInternal(LocalUser* user, Command* command, const std::string& description)
 	{
-		user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
+		if (command)
+			user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
+		else
+			user->WriteNotice(InspIRCd::Format("*** %s", description.c_str()));
 	}
 
  protected:

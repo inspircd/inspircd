@@ -173,8 +173,9 @@ class ModuleDisable : public Module
 		{
 			// The server administrator has specified that disabled modes should be
 			// treated as if they do not exist.
-			user->WriteNumeric(change.mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK,
-				change.mh->GetModeChar(), "is an unknown mode character");
+			int numeric = (change.mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK);
+			const char* typestr = (change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user");
+			user->WriteNumeric(numeric, change.mh->GetModeChar(), InspIRCd::Format("is not a recognised %s mode.", typestr));
 			return MOD_RES_DENY;
 		}
 
