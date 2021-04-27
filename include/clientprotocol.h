@@ -357,24 +357,13 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	 */
 	void PushParam(const std::string& str) { params.emplace_back(0, str); }
 
-	/** Add a non-string parameter to the parameter list.
-	 * @param param Non-string to add, will be copied.
+	/** Converts the given arguments to a string and adds them to the parameter list.
+	 * @param args One or more parameters to add to the parameter list.
 	 */
-	template<typename T>
-	void PushParam(T&& param)
+	template <typename... Args>
+	void PushParam(const Args&... args)
 	{
-		PushParam(ConvToStr(param));
-	}
-
-	/** Adds a variable number of parameters to the parameter list.
-	 * @param arg1 The first argument to push.
-	 * @param args A variable number of arguments to push.
-	 */
-	template<typename FirstArg, typename... FwdArgs>
-	void PushParam(FirstArg&& arg1, FwdArgs&&... args)
-	{
-		PushParam(arg1);
-		PushParam(std::forward<FwdArgs>(args)...);
+		(PushParam(ConvToStr(args)), ...);
 	}
 
 	/** Add a parameter to the parameter list.
