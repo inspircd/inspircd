@@ -222,7 +222,10 @@ class CommandSSLInfo : public SplitCommand
 
 		const Channel::MemberMap& userlist = chan->GetUsers();
 		for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
-			HandleUserInternal(source, i->first, false);
+		{
+			if (!i->first->server->IsULine())
+				HandleUserInternal(source, i->first, false);
+		}
 
 		return CMD_SUCCESS;
 	}
