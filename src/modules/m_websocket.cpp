@@ -25,7 +25,8 @@
 #include "iohook.h"
 #include "modules/hash.h"
 
-#include <utf8.h>
+#define UTF_CPP_CPLUSPLUS 199711L
+#include <unchecked.h>
 
 static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static const char whitespace[] = " \t\r\n";
@@ -439,7 +440,7 @@ class WebSocketHook : public IOHookMiddle
 					{
 						// If we send messages as text then we need to ensure they are valid UTF-8.
 						std::string encoded;
-						utf8::replace_invalid(message.begin(), message.end(), std::back_inserter(encoded));
+						utf8::unchecked::replace_invalid(message.begin(), message.end(), std::back_inserter(encoded));
 
 						mysendq.push_back(PrepareSendQElem(encoded.length(), OP_TEXT));
 						mysendq.push_back(encoded);
