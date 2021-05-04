@@ -211,7 +211,13 @@ class Packet : public Query
 				break;
 			}
 			default:
+			{
+				if (pos + rdlength > input_size)
+					throw Exception("Unable to skip resource record");
+
+				pos += rdlength;
 				break;
+			}
 		}
 
 		if (!record.name.empty() && !record.rdata.empty())
