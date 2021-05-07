@@ -340,6 +340,11 @@ class WebSocketHook : public IOHookMiddle
 				}
 			}
 		}
+		else
+		{
+			FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received HTTP request that did not send the Origin header");
+			return -1;
+		}
 
 		if (!allowedorigin)
 		{
