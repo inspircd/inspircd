@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("re2" "")
+/// $CompilerFlags: find_compiler_flags("re2" "-std=c++11")
 /// $LinkerFlags: find_linker_flags("re2" "-lre2")
 
 /// $PackageInfo: require_system("arch") pkgconf re2
