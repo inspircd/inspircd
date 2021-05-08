@@ -49,7 +49,7 @@ class CommandOjoin : public SplitCommand
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0]))
 		{
-			user->WriteNotice("*** Invalid characters in channel name or name too long");
+			user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
 			return CMD_FAILURE;
 		}
 
