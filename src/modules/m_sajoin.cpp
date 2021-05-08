@@ -66,7 +66,7 @@ class CommandSajoin : public Command
 			if (IS_LOCAL(user) && !ServerInstance->IsChannel(channel))
 			{
 				/* we didn't need to check this for each character ;) */
-				user->WriteNotice("*** Invalid characters in channel name or name too long");
+				user->WriteNumeric(ERR_BADCHANMASK, channel, "Invalid channel name");
 				return CMD_FAILURE;
 			}
 
