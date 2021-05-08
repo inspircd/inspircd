@@ -402,13 +402,11 @@ const char* Channel::ChanModes(bool showsecret)
 
 	scratch.clear();
 
-	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
-	for(int n = 0; n < 64; n++)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 	{
-		ModeHandler* mh = ServerInstance->Modes.FindMode(n + 65, MODETYPE_CHANNEL);
-		if (mh && IsModeSet(mh))
+		if (IsModeSet(mh))
 		{
-			scratch.push_back(n + 65);
+			scratch.push_back(mh->GetModeChar());
 
 			ParamModeBase* pm = mh->IsParameterMode();
 			if (!pm)
