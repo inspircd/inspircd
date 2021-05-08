@@ -259,7 +259,7 @@ class CommandSSLInfo : public SplitCommand
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		if (ServerInstance->Channels.IsChannel(parameters[0]))
+		if (ServerInstance->Channels.IsPrefix(parameters[0][0]))
 			return HandleChannel(user, parameters[0]);
 		else
 			return HandleUser(user, parameters[0]);

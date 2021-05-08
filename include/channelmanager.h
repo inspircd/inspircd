@@ -48,4 +48,10 @@ class CoreExport ChannelManager
 	/** Retrieves a map containing all channels keyed by the channel name. */
 	ChannelMap& GetChans() { return channels; }
 	const ChannelMap& GetChans() const { return channels; }
+
+	/** Determines whether the specified character is a valid channel prefix.
+	 * @param prefix The channel name prefix to validate.
+	 * @return True if the character is a channel prefix; otherwise, false.
+	 */
+	bool IsPrefix(unsigned char prefix) const;
 };

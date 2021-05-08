@@ -85,12 +85,12 @@ class ModuleBlockAmsg : public Module
 			// parameters[0] is the target list, count how many channels are there
 			unsigned int targets = 0;
 			// Is the first target a channel?
-			if (*parameters[0].c_str() == '#')
+			if (ServerInstance->Channels.IsPrefix(parameters[0][0]))
 				targets = 1;
 
 			for (const char* c = parameters[0].c_str(); *c; c++)
 			{
-				if ((*c == ',') && (*(c+1) == '#'))
+				if (*c == ',' && ServerInstance->Channels.IsPrefix(*(c + 1)))
 					targets++;
 			}
 

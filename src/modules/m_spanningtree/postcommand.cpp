@@ -95,7 +95,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			pfx = dest[0];
 			dest.erase(dest.begin());
 		}
-		if (dest[0] == '#')
+		if (ServerInstance->Channels.IsPrefix(dest[0]))
 		{
 			Channel* c = ServerInstance->Channels.Find(dest);
 			if (!c)

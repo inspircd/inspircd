@@ -44,7 +44,7 @@ class CommandSamode : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters[0].c_str()[0] != '#')
+		if (!ServerInstance->Channels.IsPrefix(parameters[0][0]))
 		{
 			User* target = ServerInstance->Users.FindNick(parameters[0]);
 			if ((!target) || (target->registered != REG_ALL))

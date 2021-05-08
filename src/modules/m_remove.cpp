@@ -61,7 +61,7 @@ class RemoveBase : public Command
 		std::string reason;
 
 		// If the command is a /REMOVE then detect the parameter order
-		bool neworder = ((fpart) || (parameters[0][0] == '#'));
+		bool neworder = (fpart || ServerInstance->Channels.IsPrefix(parameters[0][0]));
 
 		/* Set these to the parameters needed, the new version of this module switches it's parameters around
 		 * supplying a new command with the new order while keeping the old /remove with the older order.

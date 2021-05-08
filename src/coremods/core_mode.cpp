@@ -97,7 +97,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 
 	if ((!targetchannel || !CanSeeChan(user, targetchannel)) && (!targetuser))
 	{
-		if (target[0] == '#')
+		if (ServerInstance->Channels.IsPrefix(target[0]))
 			user->WriteNumeric(Numerics::NoSuchChannel(target));
 		else
 			user->WriteNumeric(Numerics::NoSuchNick(target));

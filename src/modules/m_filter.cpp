@@ -625,7 +625,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		const std::string target = tag->getString("target");
 		if (!target.empty())
 		{
-			if (target[0] == '#')
+			if (ServerInstance->Channels.IsPrefix(target[0]))
 				exemptedchans.insert(target);
 			else
 				exemptednicks.insert(target);

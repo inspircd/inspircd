@@ -249,7 +249,7 @@ class CommandTagMsg : public Command
 		}
 
 		// The target is a channel name.
-		if (*target == '#')
+		if (ServerInstance->Channels.IsPrefix(*target))
 			return HandleChannelTarget(user, parameters, target, targetpfx);
 
 		// The target is a nickname.

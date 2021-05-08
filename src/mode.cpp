@@ -585,7 +585,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	PrefixMode* pm = mh->IsPrefixMode();
 	if (pm)
 	{
-		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (pm->GetPrefix() == '#'))
+		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
 			throw ModuleException(InspIRCd::Format("Mode prefix for %s is invalid: %c",
 				mh->name.c_str(), pm->GetPrefix()));
 

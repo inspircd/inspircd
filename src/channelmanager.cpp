@@ -24,7 +24,7 @@ bool ChannelManager::DefaultIsChannel(const std::string& channel)
 	if (channel.empty() || channel.length() > ServerInstance->Config->Limits.MaxChannel)
 		return false;
 
-	if (channel[0] != '#')
+	if (!ServerInstance->Channels.IsPrefix(channel[0]))
 		return false;
 
 	for (const auto& chr : insp::iterator_range(channel.begin() + 1, channel.end()))
@@ -50,3 +50,8 @@ Channel* ChannelManager::Find(const std::string& channel) const
 	return iter->second;
 }
 
+bool ChannelManager::IsPrefix(unsigned char prefix) const
+{
+	// TODO: implement support for multiple channel types.
+	return prefix == '#';
+}

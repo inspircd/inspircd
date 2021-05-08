@@ -70,7 +70,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		FOREACH_MOD(OnDecodeMetaData, (m, params[5], value));
 	}
 
-	if (params[0][0] == '#')
+	if (ServerInstance->Channels.IsPrefix(params[0][0]))
 	{
 		// Channel METADATA has an additional parameter: the channel TS
 		// :22D METADATA #channel 12345 extname :extdata
