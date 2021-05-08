@@ -43,7 +43,7 @@ class CoreExport ChannelManager
 	 * @param channel The name of the channel to look up.
 	 * @return If the channel was found then a pointer to a Channel object; otherwise, nullptr.
 	 */
-	Channel* Find(const std::string& channel);
+	Channel* Find(const std::string& channel) const;
 
 	/** Retrieves a map containing all channels keyed by the channel name. */
 	ChannelMap& GetChans() { return channels; }

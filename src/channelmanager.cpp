@@ -41,9 +41,9 @@ bool ChannelManager::DefaultIsChannel(const std::string& channel)
 	return true;
 }
 
-Channel* ChannelManager::Find(const std::string& channel)
+Channel* ChannelManager::Find(const std::string& channel) const
 {
-	ChannelMap::iterator iter = channels.find(channel);
+	ChannelMap::const_iterator iter = channels.find(channel);
 	if (iter == channels.end())
 		return nullptr;
 
