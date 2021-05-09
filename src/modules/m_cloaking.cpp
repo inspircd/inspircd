@@ -411,12 +411,11 @@ class ModuleCloaking : public Module
 		cu.active = false;
 	}
 
-	void GetLinkData(std::string& data) override
+	std::string GetCompatLinkData(const CloakInfo& info)
 	{
-		data = "broken";
-		if (Hash && !cloaks.empty())
+		std::string data = "broken";
+		if (Hash)
 		{
-			const CloakInfo& info = cloaks.front();
 			switch (info.mode)
 			{
 				case MODE_HALF_CLOAK:
@@ -434,6 +433,31 @@ class ModuleCloaking : public Module
 					data = info.prefix + SegmentCloak(info, "*", 4, 8) + info.suffix + (info.ignorecase ? "-ci" : "");
 			}
 		}
+		return data;
+	}
+
+	void GetLinkData(LinkData& data, std::string& compatdata) override
+	{
+		if (cloaks.empty())
+			return;
+
+		const CloakInfo& info = cloaks.front();
+		switch (info.mode)
+		{
+			case MODE_HALF_CLOAK:
+				data["mode"] = "half";
+				break;
+			case MODE_OPAQUE:
+				data["mode"] = "full";
+				break;
+		}
+		data["domain-parts"] = ConvToStr(info.domainparts);
+		data["hash"] = Hash ? Hash->name : "broken";
+		data["ignore-case"] = info.ignorecase ? "yes" : "no";
+		data["key"] = info.key;
+		data["prefix"] = info.prefix;
+		data["suffix"] = info.suffix;
+		compatdata = GetCompatLinkData(info);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

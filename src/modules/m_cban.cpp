@@ -211,9 +211,11 @@ class ModuleCBan : public Module, public Stats::EventListener
 		return MOD_RES_PASSTHRU;
 	}
 
-	void GetLinkData(std::string& data) override
+	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
-		data = "glob";
+		// It is assumed that if a server can speak the v4 protocol it can also
+		// handle glob patterns for channel bans.
+		compatdata.assign("glob");
 	}
 };
 

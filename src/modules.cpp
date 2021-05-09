@@ -60,6 +60,14 @@ Cullable::Result Module::Cull()
 	return Cullable::Cull();
 }
 
+void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
+{
+	std::string unused;
+	LinkData data;
+	this->GetLinkData(data, unused);
+	stdalgo::map::difference(data, otherdata, diffs);
+}
+
 std::string Module::GetPropertyString() const
 {
 	// D = VF_CORE ("default")
@@ -79,7 +87,7 @@ void Module::DetachEvent(Implementation i)
 	ServerInstance->Modules.Detach(i, this);
 }
 
-void		Module::GetLinkData(std::string& out) { }
+void		Module::GetLinkData(LinkData&, std::string&) { }
 void		Module::Prioritize() { }
 void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }

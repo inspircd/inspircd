@@ -95,7 +95,6 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	};
 
 	std::vector<unsigned int> mx[2];
-	ModuleSettings ms;
 
 	bool CompareLines(const std::string& message, const std::string& historyline, unsigned int trigger)
 	{
@@ -126,6 +125,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	}
 
  public:
+ 	ModuleSettings ms;
 	SimpleExtItem<MemberInfo> MemberInfoExt;
 
 	RepeatMode(Module* Creator)
@@ -253,11 +253,6 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		Resize(newsize);
 
 		ms.KickMessage = conf->getString("kickmessage", "Repeat flood");
-	}
-
-	std::string GetModuleSettings() const
-	{
-		return ConvToStr(ms.MaxLines) + ":" + ConvToStr(ms.MaxSecs) + ":" + ConvToStr(ms.MaxDiff) + ":" + ConvToStr(ms.MaxBacklog);
 	}
 
 	std::string GetKickMessage() const
@@ -421,9 +416,15 @@ class RepeatModule : public Module
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
-	void GetLinkData(std::string& data) override
+	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
-		data = rm.GetModuleSettings();
+		data["max-lines"] = ConvToStr(rm.ms.MaxLines);
+		data["max-secs"] = ConvToStr(rm.ms.MaxSecs);
+		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
+		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
+
+		compatdata = InspIRCd::Format("%u:%u:%u:%u", rm.ms.MaxLines, rm.ms.MaxSecs,
+			rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };
 

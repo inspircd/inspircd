@@ -238,10 +238,12 @@ class ModuleRLine
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	void GetLinkData(std::string& data) override
+	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
 		if (rxfactory)
-			data = rxfactory->name;
+			data["regex"] = compatdata = rxfactory->name;
+		else
+			data["regex"] = "broken";
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override

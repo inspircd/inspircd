@@ -680,19 +680,16 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 
 void ModuleSpanningTree::OnLoadModule(Module* mod)
 {
-	std::string data;
-	data.push_back('+');
-	data.append(mod->ModuleSourceFile);
+	std::stringstream buffer;
+	buffer << '+' << mod->ModuleSourceFile;
 
-	std::string link_data;
-	mod->GetLinkData(link_data);
-	if (!link_data.empty())
-	{
-		data.push_back('=');
-		data.append(link_data);
-	}
+	Module::LinkData data;
+	std::string compatdata;
+	mod->GetLinkData(data, compatdata);
+	if (!compatdata.empty())
+		buffer << '=' << compatdata;
 
-	ServerInstance->PI->SendMetaData("modules", data);
+	ServerInstance->PI->SendMetaData("modules", buffer.str());
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)

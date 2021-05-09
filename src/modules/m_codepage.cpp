@@ -77,7 +77,7 @@ class Codepage
 	virtual bool IsValidNick(const std::string& nick) = 0;
 
 	// Retrieves the link data for this codepage.
-	virtual std::string LinkData() const = 0;
+	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) const = 0;
 
 	// Maps an upper case character to a lower case character.
 	virtual bool Map(unsigned long upper, unsigned long lower) = 0;
@@ -134,26 +134,28 @@ class SingleByteCodepage final
 		return true;
 	}
 
-	std::string LinkData() const override
+	void GetLinkData(Module::LinkData& data, std::string& compatdata) const override
 	{
-		std::stringstream linkdata;
-
-		linkdata << "front=";
 		for (size_t i = 0; i < allowedfrontchars.size(); ++i)
 			if (allowedfrontchars[i])
-				linkdata << static_cast<unsigned char>(i);
+				data["front"].push_back(static_cast<unsigned char>(i));
 
-		linkdata << "&middle=";
 		for (size_t i = 0; i < allowedchars.size(); ++i)
 			if (allowedchars[i])
-				linkdata << static_cast<unsigned char>(i);
+				data["middle"].push_back(static_cast<unsigned char>(i));
 
-		linkdata << "&map=";
 		for (size_t i = 0; i < sizeof(casemap); ++i)
-			if (casemap[i] != i)
-				linkdata << static_cast<unsigned char>(i) << casemap[i] << ',';
+		{
+			if (casemap[i] == i)
+				continue;
 
-		return linkdata.str();
+			data["map"].push_back(static_cast<unsigned char>(i));
+			data["map"].push_back(casemap[i]);
+			data["map"].push_back(',');
+		}
+
+		compatdata = InspIRCd::Format("front=%s&middle=%s&map=%s", data["front"].c_str(),
+			data["middle"].c_str(), data["map"].c_str());
 	}
 
 	bool Map(unsigned long upper, unsigned long lower) override
@@ -313,9 +315,9 @@ class ModuleCodepage final
 			CheckRehash(newcodepage->casemap);
 	}
 
-	void GetLinkData(std::string& data) override
+	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
-		data.assign(codepage ? codepage->LinkData() : "");
+		codepage->GetLinkData(data, compatdata);
 	}
 };
 

@@ -297,6 +297,12 @@ class CoreExport Module : public Cullable, public usecountbase
 	void DetachEvent(Implementation i);
 
  public:
+	/** Data which is synchronised between servers on link. */
+	typedef std::map<std::string, std::string, irc::insensitive_swo> LinkData;
+
+	/** Data which is synchronised between servers on link. */
+	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> LinkDataDiff;
+
 	/** A list of modules. */
 	typedef std::vector<Module*> List;
 
@@ -329,10 +335,17 @@ class CoreExport Module : public Cullable, public usecountbase
 	 */
 	Cullable::Result Cull() override;
 
+	/** Compares our link data to that of another server.
+	 * @param otherdata Link data from another server.
+	 * @param diffs The difference between the two sets of link data.
+	 */
+	virtual void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs);
+
 	/** Retrieves link compatibility data for this module.
 	 * @param data The location to store link compatibility data.
+	 * @param compatdata The location to store link compatibility data for older protocols.
 	 */
-	virtual void GetLinkData(std::string& data);
+	virtual void GetLinkData(LinkData& data, std::string& compatdata);
 
 	/** Retrieves a string that represents the properties of this module. */
 	std::string GetPropertyString() const;

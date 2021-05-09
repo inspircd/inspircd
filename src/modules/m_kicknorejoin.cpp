@@ -94,8 +94,9 @@ class KickRejoinData
  */
 class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 {
-	const unsigned int max = 60;
  public:
+	const unsigned int max = 60;
+
 	KickRejoin(Module* Creator)
 		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
 	{
@@ -121,11 +122,6 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	void SerializeParam(Channel* chan, const KickRejoinData* krd, std::string& out)
 	{
 		out.append(ConvToStr(krd->delay));
-	}
-
-	std::string GetModuleSettings() const
-	{
-		return ConvToStr(max);
 	}
 };
 
@@ -168,9 +164,9 @@ public:
 		}
 	}
 
-	void GetLinkData(std::string& data) override
+	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
-		data = kr.GetModuleSettings();
+		data["max-time"] = compatdata = kr.max;
 	}
 };
 
