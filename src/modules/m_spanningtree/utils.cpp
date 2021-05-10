@@ -361,3 +361,46 @@ void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, co
 			Sock->WriteLine(msg);
 	}
 }
+
+std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
+{
+	std::stringstream buffer;
+
+	Module::LinkData data;
+	std::string compatdata;
+	mod->GetLinkData(data, compatdata);
+
+	if (proto <= PROTO_INSPIRCD_30)
+	{
+		if (compatdata.empty())
+			return ""; // No link data.
+
+		buffer << '=' << compatdata;
+	}
+	else
+	{
+		if (data.empty())
+			return ""; // No link data.
+
+		static const char* hextable = "0123456789ABCDEF";
+		bool first = true;
+		for (const auto& [name, value] : data)
+		{
+			if (!first)
+				buffer << '&';
+			first = false;
+			buffer << name << '=';
+			for (const auto& chr : value)
+			{
+				// TODO: extract URL encoding logic to inspstring.
+				unsigned char uchr = static_cast<unsigned char>(chr);
+				if (isalnum(uchr))
+					buffer << uchr;
+				else
+					buffer << '%' << hextable[uchr >> 4] << hextable[uchr & 15];
+			}
+		}
+	}
+
+	return buffer.str();
+}

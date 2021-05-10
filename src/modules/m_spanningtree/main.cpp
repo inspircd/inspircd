@@ -678,26 +678,51 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 	}
 }
 
+namespace
+{
+	void BroadcastModuleState(Module* mod, bool loading)
+	{
+		std::stringstream buffer;
+		buffer << (loading ? '+' : '-') << ModuleManager::ShrinkModName(mod->ModuleSourceFile);
+
+		std::stringstream compatbuffer;
+		compatbuffer << (loading ? '+' : '-') << mod->ModuleSourceFile;
+
+		if (loading)
+		{
+			const std::string linkstring = Utils->BuildLinkString(PROTO_INSPIRCD_40_A1, mod);
+			if (!linkstring.empty())
+				buffer << '=' << linkstring;
+
+			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_30, mod);
+			if (!linkstring.empty())
+				compatbuffer << '=' << compatlinkstring;
+		}
+
+		for (const auto& child : Utils->TreeRoot->GetChildren())
+		{
+			if (!child->GetSocket())
+				continue; // Should never happen?
+
+			if (child->GetSocket()->proto_version <= PROTO_INSPIRCD_30)
+				CommandMetadata::Builder("modules", buffer.str()).Forward(child);
+			else
+				CommandMetadata::Builder("modules", compatbuffer.str()).Forward(child);
+		}
+	}
+}
+
 void ModuleSpanningTree::OnLoadModule(Module* mod)
 {
-	std::stringstream buffer;
-	buffer << '+' << mod->ModuleSourceFile;
-
-	Module::LinkData data;
-	std::string compatdata;
-	mod->GetLinkData(data, compatdata);
-	if (!compatdata.empty())
-		buffer << '=' << compatdata;
-
-	ServerInstance->PI->SendMetaData("modules", buffer.str());
+	BroadcastModuleState(mod, true);
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
 	if (!Utils)
 		return;
-	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
 
+	BroadcastModuleState(mod, false);
 	if (mod == this)
 	{
 		// We are being unloaded, inform modules about all servers splitting which cannot be done later when the servers are actually disconnected

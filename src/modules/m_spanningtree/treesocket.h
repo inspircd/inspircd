@@ -118,9 +118,6 @@ class TreeSocket : public BufferedSocket
 	/* The server we are talking to */
 	TreeServer* MyRoot = NULL;
 
-	/* Remote protocol version */
-	uint16_t proto_version = 0;
-
 	/** Checks if the given servername and sid are both free
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
@@ -179,6 +176,9 @@ class TreeSocket : public BufferedSocket
 
  public:
 	const time_t age;
+
+	// The protocol version which has been negotiated with the remote server.
+	uint16_t proto_version = 0;
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for

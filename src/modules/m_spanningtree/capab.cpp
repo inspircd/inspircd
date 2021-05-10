@@ -61,8 +61,7 @@ namespace
 				modname.assign(name.substr(startpos, endpos - startpos));
 			}
 
-			Module::LinkData data;
-			module->GetLinkData(data, modules[modname]);
+			modules[modname] = Utils->BuildLinkString(protocol, module);
 		}
 		return modules;
 	}
