@@ -72,7 +72,7 @@ inline std::string ConvToStr(const bool in)
  * @param in The value to convert.
  */
 template<typename Stringable>
-inline std::string func(const Stringable& in)
+inline std::enable_if_t<std::is_arithmetic_v<Stringable>, std::string> ConvToStr(const Stringable& in)
 {
 	return std::to_string(in);
 }
@@ -81,7 +81,7 @@ inline std::string func(const Stringable& in)
  * @param in The value to convert.
  */
 template <class T>
-inline std::string ConvToStr(const T& in)
+inline std::enable_if_t<!std::is_arithmetic_v<T>, std::string> ConvToStr(const T& in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in))
