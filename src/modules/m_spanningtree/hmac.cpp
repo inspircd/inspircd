@@ -62,7 +62,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 */
 	HashProvider* sha256 = ServerInstance->Modules.FindDataService<HashProvider>("hash/sha256");
 	if (sha256 && !challenge.empty())
-		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
+		return "AUTH:" + Base64::Encode(sha256->hmac(password, challenge));
 
 	if (!challenge.empty() && !sha256)
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. the sha2 module) loaded!");

@@ -42,76 +42,80 @@ std::string BinToHex(const void* raw, size_t l)
 	return rv;
 }
 
-static const char b64table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-std::string BinToBase64(const std::string& data_str, const char* table, char pad)
+std::string Base64::Encode(const void* data, size_t length, const char* table, char padding)
 {
+	// Use the default table if one is not specified.
 	if (!table)
-		table = b64table;
+		table = Base64::TABLE;
 
-	uint32_t buffer;
-	const uint8_t* data = reinterpret_cast<const uint8_t*>(data_str.data());
-	std::string rv;
-	size_t i = 0;
-	while (i + 2 < data_str.length())
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve(4 * ((length + 2) / 3));
+
+	const uint8_t* udata = static_cast<const uint8_t*>(data);
+	for (size_t idx = 0; idx < length; )
 	{
-		buffer = (data[i] << 16 | data[i+1] << 8 | data[i+2]);
-		rv.push_back(table[0x3F & (buffer >> 18)]);
-		rv.push_back(table[0x3F & (buffer >> 12)]);
-		rv.push_back(table[0x3F & (buffer >>  6)]);
-		rv.push_back(table[0x3F & (buffer >>  0)]);
-		i += 3;
+		// Base64 encodes three octets into four characters.
+		uint32_t octet1 = idx < length ? udata[idx++] : 0;
+		uint32_t octet2 = idx < length ? udata[idx++] : 0;
+		uint32_t octet3 = idx < length ? udata[idx++] : 0;
+		uint32_t triple = (octet1 << 16) + (octet2 << 8) + octet3;
+
+		buffer.push_back(table[(triple >> 3 * 6) & 63]);
+		buffer.push_back(table[(triple >> 2 * 6) & 63]);
+		buffer.push_back(table[(triple >> 1 * 6) & 63]);
+		buffer.push_back(table[(triple >> 0 * 6) & 63]);
 	}
-	if (data_str.length() == i)
+
+	static const size_t padding_count[] = { 0, 2, 1 };
+	if (padding)
 	{
-		// no extra characters
+		// Replace any trailing characters with padding.
+		for (size_t idx = 0; idx < padding_count[length % 3]; ++idx)
+			buffer[buffer.length() - 1 - idx] = '=';
 	}
-	else if (data_str.length() == i + 1)
+	else
 	{
-		buffer = data[i] << 16;
-		rv.push_back(table[0x3F & (buffer >> 18)]);
-		rv.push_back(table[0x3F & (buffer >> 12)]);
-		if (pad)
-		{
-			rv.push_back(pad);
-			rv.push_back(pad);
-		}
+		// Remove any trailing characters.
+		buffer.erase(buffer.length() - padding_count[length % 3]);
 	}
-	else if (data_str.length() == i + 2)
-	{
-		buffer = (data[i] << 16 | data[i+1] << 8);
-		rv.push_back(table[0x3F & (buffer >> 18)]);
-		rv.push_back(table[0x3F & (buffer >> 12)]);
-		rv.push_back(table[0x3F & (buffer >>  6)]);
-		if (pad)
-			rv.push_back(pad);
-	}
-	return rv;
+
+	return buffer;
 }
 
-std::string Base64ToBin(const std::string& data_str, const char* table)
+std::string Base64::Decode(const void* data, size_t length, const char* table)
 {
 	if (!table)
-		table = b64table;
+		table = Base64::TABLE;
 
-	int bitcount = 0;
-	uint32_t buffer = 0;
-	const char* data = data_str.c_str();
-	std::string rv;
-	while (true)
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve((length / 4) * 3);
+
+	uint32_t current_bits = 0;
+	size_t seen_bits = 0;
+
+	const char* cdata = static_cast<const char*>(data);
+	for (size_t idx = 0; idx < length; ++idx)
 	{
-		const char* find = strchr(table, *data++);
-		if (!find || find >= table + 64)
-			break;
-		buffer = (buffer << 6) | (find - table);
-		bitcount += 6;
-		if (bitcount >= 8)
+		// Attempt to find the octet in the table.
+		const char* chr = strchr(table, cdata[idx]);
+		if (!chr)
+			continue; // Skip invalid octets.
+
+		// Add the bits for this octet to the active buffer.
+		current_bits = (current_bits << 6) | (chr - table);
+		seen_bits += 6;
+
+		if (seen_bits >= 8)
 		{
-			bitcount -= 8;
-			rv.push_back((buffer >> bitcount) & 0xFF);
+			// We have seen an entire octet; add it to the buffer.
+			seen_bits -= 8;
+			buffer.push_back((current_bits >> seen_bits) & 0xFF);
 		}
 	}
-	return rv;
+
+	return buffer;
 }
 
 bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)

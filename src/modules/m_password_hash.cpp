@@ -58,7 +58,7 @@ class CommandMkpasswd : public Command
 
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
 			std::string target = hp->hmac(salt, parameters[1]);
-			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
+			std::string str = Base64::Encode(salt) + "$" + Base64::Encode(target, NULL, 0);
 
 			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + str);
 			return CmdResult::SUCCESS;
@@ -108,8 +108,8 @@ class ModulePasswordHash : public Module
 			std::string::size_type sep = data.find('$');
 			if (sep == std::string::npos)
 				return MOD_RES_DENY;
-			std::string salt = Base64ToBin(data.substr(0, sep));
-			std::string target = Base64ToBin(data.substr(sep + 1));
+			std::string salt = Base64::Decode(data.substr(0, sep));
+			std::string target = Base64::Decode(data.substr(sep + 1));
 
 			if (target == hp->hmac(salt, input))
 				return MOD_RES_ALLOW;

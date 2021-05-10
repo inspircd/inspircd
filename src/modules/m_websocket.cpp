@@ -399,7 +399,7 @@ class WebSocketHook : public IOHookMiddle
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append("\r\n\r\n");
+		reply.append(Base64::Encode((*sha1)->GenerateRaw(key), nullptr, '=')).append("\r\n\r\n");
 		GetSendQ().push_back(StreamSocket::SendQueue::Element(reply));
 
 		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);

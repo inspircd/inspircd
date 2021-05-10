@@ -184,7 +184,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 								std::string pass;
 
 								sep.GetToken(base64);
-								std::string userpass = Base64ToBin(base64);
+								std::string userpass = Base64::Decode(base64);
 								ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
 
 								irc::sepstream userpasspair(userpass, ':');

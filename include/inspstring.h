@@ -38,17 +38,57 @@
 	va_end(_vaList); \
 	} while (false)
 
+
+namespace Base64
+{
+	/** The default table used when handling Base64-encoded strings. */
+	inline const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	/** Decodes a Base64-encoded byte array.
+	 * @param data The byte array to decode from.
+	 * @param length The length of the byte array.
+	 * @param table The index table to use for decoding.
+	 * @return The decoded form of the specified data.
+	 */
+	CoreExport std::string Decode(const void* data, size_t length, const char* table = nullptr);
+
+	/** Decodes a Base64-encoded string.
+	 * @param data The string to decode from.
+	 * @param table The index table to use for decoding.
+	 * @return The decoded form of the specified data.
+	 */
+	inline std::string Decode(const std::string& data, const char* table = nullptr)
+	{
+		return Decode(data.c_str(), data.length(), table);
+	}
+
+	/** Encodes a byte array using Base64.
+	 * @param data The byte array to encode from.
+	 * @param length The length of the byte array.
+	 * @param table The index table to use for encoding.
+	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @return The encoded form of the specified data.
+	 */
+	CoreExport std::string Encode(const void* data, size_t length, const char* table = nullptr, char padding = 0);
+
+	/** Encodes a string using Base64.
+	 * @param data The string to encode from.
+	 * @param table The index table to use for encoding.
+	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @return The encoded form of the specified data.
+	 */
+	inline std::string Encode(const std::string& data, const char* table = nullptr, char padding = 0)
+	{
+		return Encode(data.c_str(), data.length(), table, padding);
+	}
+}
+
 /** Compose a hex string from raw data.
  * @param raw The raw data to compose hex from (can be NULL if rawsize is 0)
  * @param rawsize The size of the raw data buffer
  * @return The hex string
  */
 CoreExport std::string BinToHex(const void* raw, size_t rawsize);
-
-/** Base64 encode */
-CoreExport std::string BinToBase64(const std::string& data, const char* table = NULL, char pad = 0);
-/** Base64 decode */
-CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
 
 /** Compose a hex string from the data in a std::string.
  * @param data The data to compose hex from

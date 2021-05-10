@@ -49,10 +49,10 @@ class PBKDF2Hash
 		this->iterations = ConvToNum<unsigned int>(tok);
 
 		ss.GetToken(tok);
-		this->hash = Base64ToBin(tok);
+		this->hash = Base64::Decode(tok);
 
 		ss.GetToken(tok);
-		this->salt = Base64ToBin(tok);
+		this->salt = Base64::Decode(tok);
 
 		this->length = this->hash.length();
 	}
@@ -61,7 +61,7 @@ class PBKDF2Hash
 	{
 		if (!IsValid())
 			return "";
-		return ConvToStr(this->iterations) + ":" + BinToBase64(this->hash) + ":" + BinToBase64(this->salt);
+		return ConvToStr(this->iterations) + ":" + Base64::Encode(this->hash) + ":" + Base64::Encode(this->salt);
 	}
 
 	bool IsValid()
