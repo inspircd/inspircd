@@ -26,6 +26,66 @@
 
 #include "inspircd.h"
 
+std::string Percent::Encode(const void* data, size_t length, const char* table, char padding)
+{
+	if (!table)
+		table = Percent::TABLE;
+
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve(length * 3);
+
+	const unsigned char* udata = reinterpret_cast<const unsigned char*>(data);
+	for (size_t idx = 0; idx < length; ++idx)
+	{
+		unsigned char chr = udata[idx];
+		if (strchr(table, chr))
+		{
+			// The character is on the safe list; push it as is.
+			buffer.push_back(chr);
+		}
+		else
+		{
+			// The character is not on the safe list; percent encode it.
+			buffer.push_back('%');
+			buffer.push_back(Hex::TABLE_UPPER[chr >> 4]);
+			buffer.push_back(Hex::TABLE_UPPER[chr & 15]);
+		}
+	}
+
+	return buffer;
+}
+
+std::string Percent::Decode(const void* data, size_t length)
+{
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve(length * 3);
+
+	const char* cdata = reinterpret_cast<const char*>(data);
+	for (size_t idx = 0; idx < length; ++idx)
+	{
+		if (cdata[idx] == '%')
+		{
+			// Percent encoding encodes two octets into 1-2 characters.
+			const char octet1 = ++idx < length ? toupper(cdata[idx]) : 0;
+			const char octet2 = ++idx < length ? toupper(cdata[idx]) : 0;
+
+			const char* table1 = strchr(Hex::TABLE_UPPER, octet1);
+			const char* table2 = strchr(Hex::TABLE_UPPER, octet2);
+
+			char pair = ((table1 ? table1 - Hex::TABLE_UPPER : 0) << 4) + (table2 ? table2 - Hex::TABLE_UPPER : 0);
+			buffer.push_back(pair);
+		}
+		else
+		{
+			buffer.push_back(cdata[idx]);
+		}
+	}
+
+	return buffer;
+}
+
 std::string Hex::Encode(const void* data, size_t length, const char* table, char separator)
 {
 	if (!table)

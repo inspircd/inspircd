@@ -382,23 +382,12 @@ std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 		if (data.empty())
 			return ""; // No link data.
 
-		static const char* hextable = "0123456789ABCDEF";
-		bool first = true;
-		for (const auto& [name, value] : data)
+		for (Module::LinkData::const_iterator iter = data.begin(); iter != data.end(); ++iter)
 		{
-			if (!first)
+			if (iter != data.begin())
 				buffer << '&';
-			first = false;
-			buffer << name << '=';
-			for (const auto& chr : value)
-			{
-				// TODO: extract URL encoding logic to inspstring.
-				unsigned char uchr = static_cast<unsigned char>(chr);
-				if (isalnum(uchr))
-					buffer << uchr;
-				else
-					buffer << '%' << hextable[uchr >> 4] << hextable[uchr & 15];
-			}
+
+			buffer << iter->first << '=' << Percent::Encode(iter->second);
 		}
 	}
 

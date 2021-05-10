@@ -111,3 +111,46 @@ namespace Hex
 		return Encode(data.c_str(), data.length(), table);
 	}
 }
+
+namespace Percent
+{
+	/** The table used to determine what characters are safe within a percent-encoded string. */
+	inline const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
+
+	/** Decodes a percent-encoded byte array.
+	 * @param data The byte array to decode from.
+	 * @param length The length of the byte array.
+	 * @return The decoded form of the specified data.
+	 */
+	CoreExport std::string Decode(const void* data, size_t length);
+
+	/** Decodes a percent-encoded string.
+	 * @param data The string to decode from.
+	 * @param table The index table to use for decoding.
+	 * @return The decoded form of the specified data.
+	 */
+	inline std::string Decode(const std::string& data)
+	{
+		return Decode(data.c_str(), data.length());
+	}
+
+	/** Encodes a byte array using percent encoding.
+	 * @param data The byte array to encode from.
+	 * @param length The length of the byte array.
+	 * @param table The index table to use for encoding.
+	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @return The encoded form of the specified data.
+	 */
+	CoreExport std::string Encode(const void* data, size_t length, const char* table = nullptr, char padding = 0);
+
+	/** Encodes a string using percent encoding.
+	 * @param data The string to encode from.
+	 * @param table The index table to use for encoding.
+	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @return The encoded form of the specified data.
+	 */
+	inline std::string Encode(const std::string& data, const char* table = nullptr, char padding = 0)
+	{
+		return Encode(data.c_str(), data.length(), table, padding);
+	}
+}
