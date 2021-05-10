@@ -40,7 +40,7 @@ class HashProvider : public DataProvider
 
 	virtual std::string ToPrintable(const std::string& raw)
 	{
-		return BinToHex(raw);
+		return Hex::Encode(raw);
 	}
 
 	virtual bool Compare(const std::string& input, const std::string& hash)

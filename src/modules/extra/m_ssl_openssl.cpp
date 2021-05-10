@@ -583,7 +583,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 		else
 		{
-			certinfo->fingerprint = BinToHex(md, n);
+			certinfo->fingerprint = Hex::Encode(md, n);
 		}
 
 		if ((ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time()) == 0))

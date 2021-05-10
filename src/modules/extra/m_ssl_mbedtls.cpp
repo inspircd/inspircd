@@ -343,7 +343,7 @@ namespace mbedTLS
 		std::string hash(const unsigned char* input, size_t length) const
 		{
 			mbedtls_md(md, input, length, &buf.front());
-			return BinToHex(&buf.front(), buf.size());
+			return Hex::Encode(&buf.front(), buf.size());
 		}
 	};
 

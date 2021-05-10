@@ -83,18 +83,31 @@ namespace Base64
 	}
 }
 
-/** Compose a hex string from raw data.
- * @param raw The raw data to compose hex from (can be NULL if rawsize is 0)
- * @param rawsize The size of the raw data buffer
- * @return The hex string
- */
-CoreExport std::string BinToHex(const void* raw, size_t rawsize);
-
-/** Compose a hex string from the data in a std::string.
- * @param data The data to compose hex from
- * @return The hex string.
- */
-inline std::string BinToHex(const std::string& data)
+namespace Hex
 {
-	return BinToHex(data.data(), data.size());
+	/** The table used for encoding as a lower-case hexadecimal string. */
+	inline const char* TABLE_LOWER = "0123456789abcdef";
+
+	/** The table used for encoding as an upper-case hexadecimal string. */
+	inline const char* TABLE_UPPER = "0123456789ABCDEF";
+
+	/** Encodes a byte array using hexadecimal encoding.
+	 * @param data The byte array to encode from.
+	 * @param length The length of the byte array.
+	 * @param table The index table to use for encoding.
+	 * @param separator If non-zero then the character to separate hexadecimal digits with.
+	 * @return The encoded form of the specified data.
+	 */
+	CoreExport std::string Encode(const void* data, size_t length, const char* table = nullptr, char separator = 0);
+
+	/** Encodes a string using Base64.
+	 * @param data The string to encode from.
+	 * @param table The index table to use for encoding.
+	 * @param separator If non-zero then the character to separate hexadecimal digits with.
+	 * @return The encoded form of the specified data.
+	 */
+	inline std::string Encode(const std::string& data, const char* table = nullptr, char separator = 0)
+	{
+		return Encode(data.c_str(), data.length(), table);
+	}
 }

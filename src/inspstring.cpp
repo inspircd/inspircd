@@ -26,20 +26,27 @@
 
 #include "inspircd.h"
 
-static const char hextable[] = "0123456789abcdef";
-
-std::string BinToHex(const void* raw, size_t l)
+std::string Hex::Encode(const void* data, size_t length, const char* table, char separator)
 {
-	const char* data = static_cast<const char*>(raw);
-	std::string rv;
-	rv.reserve(l * 2);
-	for (size_t i = 0; i < l; i++)
+	if (!table)
+		table = Hex::TABLE_LOWER;
+
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve((length * 2) + (!!separator * length));
+
+	const unsigned char* udata = reinterpret_cast<const unsigned char*>(data);
+	for (size_t idx = 0; idx < length; ++idx)
 	{
-		unsigned char c = data[i];
-		rv.push_back(hextable[c >> 4]);
-		rv.push_back(hextable[c & 0xF]);
+		if (idx && separator)
+			buffer.push_back(separator);
+
+		const unsigned char chr = udata[idx];
+		buffer.push_back(table[chr >> 4]);
+		buffer.push_back(table[chr & 15]);
 	}
-	return rv;
+
+	return buffer;
 }
 
 std::string Base64::Encode(const void* data, size_t length, const char* table, char padding)

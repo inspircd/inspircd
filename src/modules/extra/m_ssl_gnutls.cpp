@@ -764,7 +764,7 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 		else
 		{
-			certinfo->fingerprint = BinToHex(digest, digest_size);
+			certinfo->fingerprint = Hex::Encode(digest, digest_size);
 		}
 
 		/* Beware here we do not check for errors.
