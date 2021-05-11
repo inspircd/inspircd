@@ -37,7 +37,9 @@ namespace DNS
 		/* TXT */
 		QUERY_TXT = 16,
 		/* IPv6 AAAA lookup */
-		QUERY_AAAA = 28
+		QUERY_AAAA = 28,
+		/** SRV */
+		QUERY_SRV = 33,
 	};
 
 	/** Flags that can be AND'd into DNSPacket::flags to receive certain values
@@ -102,10 +104,22 @@ namespace DNS
 		};
 	};
 
+	namespace Record
+	{
+		struct SRV
+		{
+			uint16_t priority = UINT16_MAX;
+			uint16_t weight = 0;
+			uint16_t port = 0;
+			std::string host;
+		};
+	}
+
 	struct ResourceRecord : Question
 	{
 		unsigned int ttl = 0;
 		std::string rdata;
+		std::shared_ptr<void> rdataobj;
 		time_t created;
 
 		ResourceRecord(const std::string& n, QueryType t)

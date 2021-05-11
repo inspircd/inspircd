@@ -210,6 +210,30 @@ class Packet : public Query
 
 				break;
 			}
+			case QUERY_SRV:
+			{
+				if (rdlength < 6 || pos + rdlength > input_size)
+					throw Exception("Unable to unpack SRV resource record");
+
+				auto srv = std::make_shared<Record::SRV>();
+
+				srv->priority = input[pos] << 8 | input[pos + 1];
+				pos += 2;
+
+				srv->weight = input[pos] << 8 | input[pos + 1];
+				pos += 2;
+
+				srv->port = input[pos] << 8 | input[pos + 1];
+				pos += 2;
+
+				srv->host = this->UnpackName(input, input_size, pos);
+				if (!InspIRCd::IsHost(srv->host))
+					throw Exception("Invalid name in SRV resource record");
+
+				record.rdata = InspIRCd::Format("%u %u %u %s", srv->priority, srv->weight, srv->port, srv->host.c_str());
+				record.rdataobj = srv;
+				break;
+			}
 			default:
 			{
 				if (pos + rdlength > input_size)
@@ -581,6 +605,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 				return "PTR";
 			case QUERY_TXT:
 				return "TXT";
+			case QUERY_SRV:
+				return "SRV";
 			default:
 				return "UNKNOWN";
 		}
