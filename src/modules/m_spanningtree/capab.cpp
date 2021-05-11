@@ -66,20 +66,56 @@ namespace
 		return modules;
 	}
 
-	// Compares the lists of module on a remote server to the local server.
-	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
-		std::ostringstream& out)
+	// Compares the module data sent by a remote server to that of the local server.
+	bool CompareModuleData(Module* mod, const Module::LinkData& otherdata, std::ostringstream& diffconfig)
 	{
-		// If the remote didn't send a module list then don't compare.
-		if (!remote)
-			return true;
+		Module::LinkDataDiff datadiff;
+		mod->CompareLinkData(otherdata, datadiff);
+		if (!datadiff.empty())
+		{
+			diffconfig << ' ' << ModuleManager::ShrinkModName(mod->ModuleSourceFile) << " (";
+			bool first = true;
+			for (const auto& [key, values] : datadiff)
+			{
+				// Keys are separated by commas.
+				if (!first)
+					diffconfig << ", ";
+				first = false;
 
+				diffconfig << key;
+				if (values.first && values.second)
+				{
+					// Exists on both but with a different value.
+					diffconfig << " set to " <<  *values.first << " here and " << *values.second << " there";
+				}
+				else if (values.first && !values.second)
+				{
+					// Only exists on the local server.
+					diffconfig << " only set here";
+				}
+				else if (!values.first && values.second)
+				{
+					// Only exists on the remote server.
+					diffconfig << " only set there";
+				}
+			}
+
+			diffconfig << ')';
+			return false;
+		}
+
+		return true;
+	}
+
+	// Compares the lists of module on a remote v3 server to the local server.
+	bool CompareModulesOld(ModuleFlags property, const CapabData::ModuleMap& remote, std::ostringstream& diffconfig,
+		std::ostringstream& localmissing, std::ostringstream& remotemissing)
+	{
 		// Retrieve the local module list and compare to the remote.
-		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
+		CapabData::ModuleMap mymodules = BuildModuleList(property, PROTO_INSPIRCD_30);
 		TokenDiff modulediff;
-		stdalgo::map::difference(mymodules, remote.value(), modulediff);
+		stdalgo::map::difference(mymodules, remote, modulediff);
 
-		std::ostringstream diffconfig, localmissing, remotemissing;
 		for (const auto& [module, values] : modulediff)
 		{
 			if (values.first && values.second)
@@ -99,13 +135,84 @@ namespace
 			}
 		}
 
-		if (!diffconfig.str().empty())
-			out << "Loaded on both with different config:" << diffconfig.str() << ". ";
-		if (!localmissing.str().empty())
-			out << "Not loaded on the local server:" << localmissing.str() << ". ";
-		if (!remotemissing.str().empty())
-			out << "Not loaded on the remote server:" << remotemissing.str() << ". ";
 		return modulediff.empty();
+	}
+
+	// Compares the lists of module on a remote v4+ server to the local server.
+	bool CompareModulesNew(ModuleFlags property, const CapabData::ModuleMap& remote, std::ostringstream& diffconfig,
+		std::ostringstream& localmissing, std::ostringstream& remotemissing)
+	{
+		// Retrieve the local module list.
+		bool okay = true;
+		ModuleManager::ModuleMap local;
+		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
+		{
+			if (module->properties & property)
+				local[ModuleManager::ShrinkModName(name)] = module;
+		}
+
+		for (const auto& [name, linkdata] : remote)
+		{
+			auto moditer = local.find(name);
+			if (moditer == local.end())
+			{
+				// Only exists on the remote server.
+				localmissing << ' ' << name;
+				okay = false;
+				continue;
+			}
+
+			// Parse the remote link data.
+			Module::LinkData otherdata;
+			irc::sepstream datastream(linkdata, '&');
+			for (std::string datapair; datastream.GetToken(datapair); )
+			{
+				size_t split = datapair.find('=');
+				if (split == std::string::npos)
+					otherdata.emplace(datapair, "");
+				else
+					otherdata.emplace(datapair.substr(0, split), Percent::Decode(datapair.substr(split + 1)));
+			}
+
+			// Compare the link data.
+			if (!CompareModuleData(moditer->second, otherdata, diffconfig))
+				okay = false;
+			local.erase(moditer);
+		}
+
+		for (const auto& [name, _] : local)
+		{
+			// Only exists on the local server.
+			remotemissing << ' ' << name;
+			okay = false;
+		}
+
+		return okay;
+	}
+
+	// Compares the lists of module on a remote server to the local server.
+	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
+		std::ostringstream& out)
+	{
+		// If the remote didn't send a module list then don't compare.
+		if (!remote)
+			return true;
+
+		bool okay;
+		std::ostringstream diffconfig, localmissing, remotemissing;
+		if (protocol <= PROTO_INSPIRCD_30)
+			okay = CompareModulesOld(property, *remote, diffconfig, localmissing, remotemissing);
+		else
+			okay = CompareModulesNew(property, *remote, diffconfig, localmissing, remotemissing);
+
+		if (!diffconfig.str().empty())
+			out << " Loaded on both with different config:" << diffconfig.str() << '.';
+		if (!localmissing.str().empty())
+			out << " Not loaded on the local server:" << localmissing.str() << '.';
+		if (!remotemissing.str().empty())
+			out << " Not loaded on the remote server:" << remotemissing.str() << '.';
+
+		return okay;
 	}
 
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
@@ -339,7 +446,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		std::ostringstream errormsg;
 		if (!CompareModules(VF_COMMON, proto_version, this->capab->requiredmodules, errormsg))
 		{
-			SendError("CAPAB negotiation failed. Required modules incorrectly matched on these servers. "
+			SendError("CAPAB negotiation failed. Required modules incorrectly matched on these servers."
 				+ errormsg.str());
 			return false;
 		}
@@ -347,12 +454,12 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		{
 			if (Utils->AllowOptCommon)
 			{
-				ServerInstance->SNO.WriteToSnoMask('l', "Optional modules do not match. Some features may not work globally! "
+				ServerInstance->SNO.WriteToSnoMask('l', "Optional modules do not match. Some features may not work globally!"
 					+ errormsg.str());
 			}
 			else
 			{
-				SendError("CAPAB negotiation failed. Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled. "
+				SendError("CAPAB negotiation failed. Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled."
 					+ errormsg.str());
 				return false;
 			}
