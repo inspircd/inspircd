@@ -159,7 +159,7 @@ class Packet : public Query
 			case QUERY_A:
 			{
 				if (pos + 4 > input_size)
-					throw Exception("Unable to unpack resource record");
+					throw Exception("Unable to unpack A resource record");
 
 				irc::sockets::sockaddrs addrs;
 				memset(&addrs, 0, sizeof(addrs));
@@ -174,7 +174,7 @@ class Packet : public Query
 			case QUERY_AAAA:
 			{
 				if (pos + 16 > input_size)
-					throw Exception("Unable to unpack resource record");
+					throw Exception("Unable to unpack AAAA resource record");
 
 				irc::sockets::sockaddrs addrs;
 				memset(&addrs, 0, sizeof(addrs));
@@ -193,20 +193,20 @@ class Packet : public Query
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
 				if (!InspIRCd::IsHost(record.rdata))
-					throw Exception("Invalid name"); // XXX: Causes the request to time out
+					throw Exception("Invalid name in CNAME/PTR resource record");
 
 				break;
 			}
 			case QUERY_TXT:
 			{
 				if (pos + rdlength > input_size)
-					throw Exception("Unable to unpack txt resource record");
+					throw Exception("Unable to unpack TXT resource record");
 
 				record.rdata = std::string(reinterpret_cast<const char *>(input + pos), rdlength);
 				pos += rdlength;
 
 				if (record.rdata.find_first_of("\r\n\0", 0, 3) != std::string::npos)
-					throw Exception("Invalid character in txt record");
+					throw Exception("Invalid character in TXT resource record");
 
 				break;
 			}
