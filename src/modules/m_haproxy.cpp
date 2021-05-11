@@ -110,7 +110,7 @@ struct HAProxyHeader
 class HAProxyHookProvider : public IOHookProvider
 {
  private:
-	 UserCertificateAPI sslapi;
+	UserCertificateAPI sslapi;
 
  public:
 	HAProxyHookProvider(Module* mod)

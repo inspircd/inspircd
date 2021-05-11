@@ -188,7 +188,7 @@ class IRCv3::Monitor::Manager
 	}
 
  private:
- 	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
+	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
 
 	Entry* Find(const std::string& nick)
 	{
@@ -237,9 +237,9 @@ class IRCv3::Monitor::Manager
 		return &extdata->list;
 	}
 
- 	NickHash nicks;
- 	ExtItem ext;
- 	WatchedList emptywatchedlist;
+	NickHash nicks;
+	ExtItem ext;
+	WatchedList emptywatchedlist;
 };
 
 void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept

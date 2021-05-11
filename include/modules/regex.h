@@ -84,7 +84,7 @@ class Regex::SimpleEngine final
 	: public Regex::Engine
 {
  public:
- 	/** @copydoc Regex::Engine::Engine */
+	/** @copydoc Regex::Engine::Engine */
 	SimpleEngine(Module* Creator, const std::string& Name)
 		: Regex::Engine(Creator, Name)
 	{

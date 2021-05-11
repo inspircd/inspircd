@@ -34,7 +34,7 @@
 class CoreExport CommandParser
 {
  public:
- 	typedef std::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
+	typedef std::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
 
  private:
 	/** Process a command from a user.

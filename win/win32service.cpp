@@ -120,7 +120,7 @@ VOID ServiceMain(DWORD argc, LPCSTR *argv)
 		g_ServiceData.argc = argc;
 
 		// Note: since this memory is going to stay allocated for the rest of the execution,
-		//		 it doesn't make sense to free it, as it's going to be "freed" on process termination
+		// it doesn't make sense to free it, as it's going to be "freed" on process termination
 		try {
 			g_ServiceData.argv = new char*[argc];
 

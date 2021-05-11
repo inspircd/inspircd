@@ -810,7 +810,7 @@ class mbedTLSIOHookProvider : public SSLIOHookProvider
 	mbedTLS::Profile profile;
 
  public:
- 	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile::Config& config)
+	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile::Config& config)
 		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
 	{

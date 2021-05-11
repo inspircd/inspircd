@@ -26,7 +26,7 @@ class IOHookProvider
 	: public std::enable_shared_from_this<IOHookProvider>
 	, public ServiceProvider
 {
- 	const bool middlehook;
+	const bool middlehook;
 
  public:
 	enum Type

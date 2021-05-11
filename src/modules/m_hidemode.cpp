@@ -89,7 +89,7 @@ class ModeHook : public ClientProtocol::EventHook
 			const Modes::Change& curr = *i;
 			if (settings.GetRequiredRank(*curr.mh) <= rank)
 			{
-				 // No restriction on who can see this mode or there is one but the member's rank is sufficient
+				// No restriction on who can see this mode or there is one but the member's rank is sufficient
 				if (modechangelist)
 					modechangelist->push(curr);
 

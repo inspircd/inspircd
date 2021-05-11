@@ -78,7 +78,7 @@ my @opt_disableextras;
 
 exit 1 unless GetOptions(
 	'clean'  => \&cmd_clean,
-	'help'	 => \&cmd_help,
+	'help'   => \&cmd_help,
 	'update' => \&cmd_update,
 
 	'binary-dir=s'         => \$opt_binary_dir,

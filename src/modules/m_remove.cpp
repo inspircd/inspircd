@@ -45,7 +45,7 @@ class RemoveBase : public Command
 	ChanModeReference& nokicksmode;
 
  public:
- 	unsigned int protectedrank;
+	unsigned int protectedrank;
 
 	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
 		: Command(Creator, cmdn, 2, 3)
@@ -109,7 +109,7 @@ class RemoveBase : public Command
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
-			  a services target will get a higher level than it's possible for a /remover to get..so they're safe.
+			 * a services target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove people with >= protectedrank rank.
 			 */
 			unsigned int ulevel = channel->GetPrefixValue(user);

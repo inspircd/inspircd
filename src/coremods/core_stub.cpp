@@ -167,7 +167,7 @@ class CommandUsers
 class CoreModStub : public Module
 {
  private:
- 	CommandCapab cmdcapab;
+	CommandCapab cmdcapab;
 	CommandConnect cmdconnect;
 	CommandLinks cmdlinks;
 	CommandSquit cmdsquit;

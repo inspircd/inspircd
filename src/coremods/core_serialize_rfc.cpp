@@ -43,7 +43,7 @@ class RFCSerializer : public ClientProtocol::Serializer
 	{
 	}
 
- 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) override;
+	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) override;
 	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const override;
 };
 

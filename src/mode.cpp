@@ -552,7 +552,7 @@ void ModeParser::CleanMask(std::string &mask)
 	else if ((pos_of_pling == std::string::npos) && (pos_of_at != std::string::npos))
 	{
 		/* Has an @ but no !, its a user@host */
-		 mask = "*!" + mask;
+		mask = "*!" + mask;
 	}
 	else if ((pos_of_pling != std::string::npos) && (pos_of_at == std::string::npos))
 	{
@@ -734,9 +734,9 @@ std::string ModeParser::GiveModeList(ModeType mt)
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
 		ModeHandler* mh = modehandlers[mt][mode-65];
-		 /* One parameter when adding */
 		if (mh)
 		{
+			/* One parameter when adding */
 			if (mh->NeedsParam(true))
 			{
 				PrefixMode* pm = mh->IsPrefixMode();

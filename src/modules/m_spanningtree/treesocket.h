@@ -55,10 +55,10 @@
  * CONNECTING:	indicates an outbound socket which is
  *							waiting to be writeable.
  * WAIT_AUTH_1:	indicates the socket is outbound and
- * 							has successfully connected, but has not
+ *							has successfully connected, but has not
  *							yet sent and received SERVER strings.
  * WAIT_AUTH_2:	indicates that the socket is inbound
- * 							but has not yet sent and received
+ *							but has not yet sent and received
  *							SERVER strings.
  * CONNECTED:   represents a fully authorized, fully
  *							connected server.

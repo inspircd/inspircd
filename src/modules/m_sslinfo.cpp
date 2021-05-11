@@ -239,7 +239,10 @@ class CommandSSLInfo : public SplitCommand
 		}
 
 		for (const auto& [u, _] : chan->GetUsers())
-			HandleUserInternal(source, u, false);
+		{
+			if (!u->server->IsService())
+				HandleUserInternal(source, u, false);
+		}
 
 		return CmdResult::SUCCESS;
 	}

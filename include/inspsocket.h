@@ -214,7 +214,7 @@ class CoreExport StreamSocket : public EventHandler
 		}
 
 	 private:
-	 	/** Private send queue. Note that individual strings may be shared.
+		/** Private send queue. Note that individual strings may be shared.
 		 */
 		Container data;
 
@@ -274,7 +274,7 @@ class CoreExport StreamSocket : public EventHandler
 	 * @param hook Next IOHook in the chain, can be NULL
 	 * @param rq Receive queue to put incoming data into
 	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
-	 the socket and put into the recvq
+	 * the socket and put into the recvq
 	 */
 	int HookChainRead(IOHook* hook, std::string& rq);
 

@@ -13,10 +13,7 @@ The GitHub issue tracker is for bug reports ONLY. General support can be found a
 Discussions: https://github.com/inspircd/inspircd/discussions
 Docs: https://docs.inspircd.org
 IRC: irc.inspircd.org #inspircd
-
-Example configs:
-3.0 (stable) - https://github.com/inspircd/inspircd/tree/insp3/docs/conf
-2.0 (old stable) - https://github.com/inspircd/inspircd/tree/insp20/docs/conf
+Example configs: https://github.com/inspircd/inspircd/tree/insp3/docs/conf
 -->
 
 **Description**

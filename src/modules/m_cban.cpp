@@ -75,8 +75,6 @@ class CBanFactory : public XLineFactory
  public:
 	CBanFactory() : XLineFactory("CBAN") { }
 
-	/** Generate a CBAN
- 	*/
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
 		return new CBan(set_time, duration, source, reason, xline_specific_mask);
@@ -204,7 +202,7 @@ class ModuleCBan : public Module, public Stats::EventListener
 			// Channel is banned.
 			user->WriteNumeric(ERR_BADCHANNEL, cname, InspIRCd::Format("Channel %s is CBANed: %s", cname.c_str(), rl->reason.c_str()));
 			ServerInstance->SNO.WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
+				user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
 		}
 

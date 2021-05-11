@@ -49,9 +49,9 @@ class ModuleXLineDB
 	{
 		/* Load the configuration
 		 * Note:
-		 * 		This is on purpose not changed on a rehash. It would be non-trivial to change the database on-the-fly.
-		 * 		Imagine a scenario where the new file already exists. Merging the current XLines with the existing database is likely a bad idea
-		 * 		...and so is discarding all current in-memory XLines for the ones in the database.
+		 *		This is on purpose not changed on a rehash. It would be non-trivial to change the database on-the-fly.
+		 *		Imagine a scenario where the new file already exists. Merging the current XLines with the existing database is likely a bad idea
+		 *		...and so is discarding all current in-memory XLines for the ones in the database.
 		 */
 		auto Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db", 1));
@@ -120,7 +120,7 @@ class ModuleXLineDB
 		 * xline types may not have a conf tag, so let's just write them.
 		 * In addition, let's use a file version, so we can maintain some
 		 * semblance of backwards compatibility for reading on startup..
-		 * 		-- w00t
+		 *		-- w00t
 		 */
 		stream << "VERSION 1" << std::endl;
 

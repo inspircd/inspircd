@@ -352,7 +352,7 @@ class CommandDccallow : public Command
 
 	void DisplayDCCAllowList(User* user)
 	{
-		 // display current DCCALLOW list
+		// display current DCCALLOW list
 		user->WriteNumeric(RPL_DCCALLOWSTART, "Users on your DCCALLOW list:");
 
 		dl = ext.Get(user);

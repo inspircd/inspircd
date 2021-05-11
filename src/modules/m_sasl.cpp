@@ -287,13 +287,13 @@ class SaslAuthenticator
 
 		switch (this->result)
 		{
-		 case SASL_OK:
+		case SASL_OK:
 			this->user->WriteNumeric(RPL_SASLSUCCESS, "SASL authentication successful");
 			break;
-		 case SASL_ABORT:
+		case SASL_ABORT:
 			this->user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
 			break;
-		 case SASL_FAIL:
+		case SASL_FAIL:
 			this->user->WriteNumeric(ERR_SASLFAIL, "SASL authentication failed");
 			break;
 		}
@@ -305,8 +305,8 @@ class SaslAuthenticator
 class CommandAuthenticate : public SplitCommand
 {
  private:
-	 // The maximum length of an AUTHENTICATE request.
-	 static const size_t MAX_AUTHENTICATE_SIZE = 400;
+	// The maximum length of an AUTHENTICATE request.
+	static const size_t MAX_AUTHENTICATE_SIZE = 400;
 
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;

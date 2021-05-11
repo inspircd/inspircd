@@ -28,7 +28,7 @@ namespace insp
 class insp::uncopiable
 {
  private:
- 	/** Prevents copying via the copy constructor. */
+	/** Prevents copying via the copy constructor. */
 	uncopiable(const uncopiable&) = delete;
 
 	/** Prevents copying via the assignment operator. */

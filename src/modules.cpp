@@ -146,15 +146,15 @@ void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeI
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
 void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
 void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
-void 		Module::OnCleanup(ExtensionItem::ExtensibleType, Extensible*) { }
+void		Module::OnCleanup(ExtensionItem::ExtensibleType, Extensible*) { }
 ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
 ModResult	Module::OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
-void 		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
+void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
 ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
-ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }

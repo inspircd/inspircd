@@ -61,8 +61,8 @@ enum RegistrationState {
 
 	REG_USER = 1,		/* Has sent USER */
 	REG_NICK = 2,		/* Has sent NICK */
-	REG_NICKUSER = 3, 	/* Bitwise combination of REG_NICK and REG_USER */
-	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
+	REG_NICKUSER = 3,	/* Bitwise combination of REG_NICK and REG_USER */
+	REG_ALL = 7			/* REG_NICKUSER plus next bit along */
 };
 
 /** Holds information relevant to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
@@ -632,7 +632,7 @@ class CoreExport User : public Extensible
 class CoreExport UserIOHandler : public StreamSocket
 {
  private:
-	 size_t checked_until;
+	size_t checked_until;
  public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me)

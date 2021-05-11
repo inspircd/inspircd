@@ -239,7 +239,7 @@ class SSLIOHook : public IOHook
 class SSLClientCert
 {
  public:
- 	/**
+	/**
 	 * Get the client certificate from a socket
 	 * @param sock The socket to get the certificate from, the socket does not have to use TLS
 	 * @return The TLS client certificate information, NULL if the peer is not using TLS
@@ -272,7 +272,7 @@ class SSLClientCert
 class UserCertificateAPIBase : public DataProvider
 {
  public:
- 	UserCertificateAPIBase(Module* parent)
+	UserCertificateAPIBase(Module* parent)
 		: DataProvider(parent, "m_sslinfo_api")
 	{
 	}

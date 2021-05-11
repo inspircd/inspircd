@@ -44,7 +44,7 @@ class CoreExport Serializable
 		EntryMap entries;
 
 	 public:
-		 /** Retrieves the child elements. */
+		/** Retrieves the child elements. */
 		const ChildMap& GetChildren() const { return children; }
 		ChildMap& GetChildren() { return children; }
 

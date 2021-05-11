@@ -44,7 +44,7 @@ public:
 	Items items;
 
  public:
- 	/** The name of the configuration tag (e.g. "foo" for \<foo bar="baz">). */
+	/** The name of the configuration tag (e.g. "foo" for \<foo bar="baz">). */
 	const std::string name;
 
 	/** The position within the source file that this tag was read from. */

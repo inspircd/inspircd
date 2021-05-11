@@ -73,7 +73,7 @@ class CoreExport CullList
 class CoreExport ActionBase : public Cullable
 {
  public:
-	 /** Executes this action. */
+	/** Executes this action. */
 	virtual void Call() = 0;
 };
 

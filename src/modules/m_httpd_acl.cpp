@@ -48,7 +48,7 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 	HTTPdAPI API;
 
  public:
- 	ModuleHTTPAccessList()
+	ModuleHTTPAccessList()
 		: Module(VF_VENDOR, "Allows the server administrator to control who can access resources served over HTTP with the httpd module.")
 		, HTTPACLEventListener(this)
 		, API(this)

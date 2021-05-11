@@ -99,7 +99,7 @@ class ParamModeBase;
 class CoreExport ModeHandler : public ServiceProvider
 {
  public:
-  	typedef size_t Id;
+	typedef size_t Id;
 
 	enum Class
 	{
@@ -570,7 +570,7 @@ class CoreExport ModeParser
  private:
 	/** Type of the container that maps mode names to ModeWatchers
 	 */
- 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
+	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
 
 	/** Last item in the ModeType enum
 	 */

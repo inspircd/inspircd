@@ -325,7 +325,7 @@ public:
 		whitelistedcidrs.clear();
 		requiredattributes.clear();
 
-		base 			= tag->getString("baserdn");
+		base			= tag->getString("baserdn");
 		attribute		= tag->getString("attribute");
 		killreason		= tag->getString("killreason");
 		vhost			= tag->getString("host");

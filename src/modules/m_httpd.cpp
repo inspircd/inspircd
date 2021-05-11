@@ -341,7 +341,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 			{
 				if (pathsegment == ".")
 				{
-					 // Stay at the current level.
+					// Stay at the current level.
 					continue;
 				}
 

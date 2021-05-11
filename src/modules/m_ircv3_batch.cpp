@@ -59,12 +59,12 @@ struct IRCv3::Batch::BatchInfo
 
 class IRCv3::Batch::ManagerImpl : public Manager
 {
- 	typedef std::vector<Batch*> BatchList;
+	typedef std::vector<Batch*> BatchList;
 
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;
 	IntExtItem batchbits;
- 	BatchList active_batches;
+	BatchList active_batches;
 	bool unloading = false;
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override

@@ -210,7 +210,7 @@ class ModuleRLine
 	, public Stats::EventListener
 {
  private:
- 	Regex::EngineReference rxfactory;
+	Regex::EngineReference rxfactory;
 	RLineFactory f;
 	CommandRLine r;
 	bool MatchOnNickChange;

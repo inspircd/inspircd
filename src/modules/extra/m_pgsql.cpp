@@ -185,11 +185,11 @@ class PgSQLresult : public SQL::Result
 class SQLConn : public SQL::Provider, public EventHandler
 {
  public:
-	std::shared_ptr<ConfigTag> conf;	/* The <database> entry */
+	std::shared_ptr<ConfigTag> conf; /* The <database> entry */
 	std::deque<QueueItem> queue;
-	PGconn* 		sql = nullptr; /* PgSQL database connection handle */
-	SQLstatus		status = CWRITE; /* PgSQL database connection status */
-	QueueItem		qinprog;	/* If there is currently a query in progress */
+	PGconn* sql = nullptr; /* PgSQL database connection handle */
+	SQLstatus status = CWRITE; /* PgSQL database connection status */
+	QueueItem qinprog; /* If there is currently a query in progress */
 
 	SQLConn(Module* Creator, std::shared_ptr<ConfigTag> tag)
 		: SQL::Provider(Creator, tag->getString("id"))

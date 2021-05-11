@@ -30,7 +30,7 @@
 class ChannelSettings
 {
  public:
- 	enum RepeatAction
+	enum RepeatAction
 	{
 		ACT_KICK,
 		ACT_BLOCK,
@@ -125,7 +125,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	}
 
  public:
- 	ModuleSettings ms;
+	ModuleSettings ms;
 	SimpleExtItem<MemberInfo> MemberInfoExt;
 
 	RepeatMode(Module* Creator)
