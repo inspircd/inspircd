@@ -375,7 +375,7 @@ std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 		if (compatdata.empty())
 			return ""; // No link data.
 
-		buffer << '=' << compatdata;
+		buffer << compatdata;
 	}
 	else
 	{

@@ -224,8 +224,8 @@ namespace
 		{
 			modules << module;
 			if (!linkdata.empty())
-			 	modules << '=' << linkdata;
-
+				modules << '=' << linkdata;
+			modules << ' ';
 		}
 		return modules.str();
 	}
