@@ -364,32 +364,20 @@ void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, co
 
 std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 {
-	std::stringstream buffer;
-
 	Module::LinkData data;
 	std::string compatdata;
 	mod->GetLinkData(data, compatdata);
 
 	if (proto <= PROTO_INSPIRCD_30)
+		return compatdata;
+
+	std::stringstream buffer;
+	for (Module::LinkData::const_iterator iter = data.begin(); iter != data.end(); ++iter)
 	{
-		if (compatdata.empty())
-			return ""; // No link data.
+		if (iter != data.begin())
+			buffer << '&';
 
-		buffer << compatdata;
+		buffer << iter->first << '=' << Percent::Encode(iter->second);
 	}
-	else
-	{
-		if (data.empty())
-			return ""; // No link data.
-
-		for (Module::LinkData::const_iterator iter = data.begin(); iter != data.end(); ++iter)
-		{
-			if (iter != data.begin())
-				buffer << '&';
-
-			buffer << iter->first << '=' << Percent::Encode(iter->second);
-		}
-	}
-
 	return buffer.str();
 }
