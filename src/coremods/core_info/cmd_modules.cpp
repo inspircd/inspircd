@@ -41,8 +41,6 @@ CommandModules::CommandModules(Module* parent)
 	syntax = { "[<servername>]" };
 }
 
-/** Handle /MODULES
- */
 CmdResult CommandModules::Handle(User* user, const Params& parameters)
 {
 	// Don't ask remote servers about their modules unless the local user asking is an oper

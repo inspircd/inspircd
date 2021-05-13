@@ -37,8 +37,6 @@ CommandKline::CommandKline(Module* parent)
 	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 
-/** Handle /KLINE
- */
 CmdResult CommandKline::Handle(User* user, const Params& parameters)
 {
 	std::string target = parameters[0];

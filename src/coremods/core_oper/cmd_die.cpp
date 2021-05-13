@@ -55,8 +55,6 @@ void DieRestart::SendError(const std::string& message)
 	}
 }
 
-/** Handle /DIE
- */
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
 	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))

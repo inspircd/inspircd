@@ -79,8 +79,6 @@ static const char* const lines[] = {
 	NULL
 };
 
-/** Handle /INFO
- */
 CmdResult CommandInfo::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))

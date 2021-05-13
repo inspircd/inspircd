@@ -35,8 +35,6 @@ CommandKick::CommandKick(Module* parent)
 	syntax = { "<channel> <nick>[,<nick>]+ [:<reason>]" };
 }
 
-/** Handle /KICK
- */
 CmdResult CommandKick::Handle(User* user, const Params& parameters)
 {
 	Channel* c = ServerInstance->Channels.Find(parameters[0]);

@@ -53,8 +53,6 @@ class KillMessage : public ClientProtocol::Message
 	}
 };
 
-/** Handle /KILL
- */
 CmdResult CommandKill::Handle(User* user, const Params& parameters)
 {
 	/* Allow comma separated lists of users for /KILL (thanks w00t) */

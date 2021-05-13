@@ -26,8 +26,6 @@
 
 #include "inspircd.h"
 
-/** Handle /CHGNAME
- */
 class CommandChgname : public Command
 {
  public:

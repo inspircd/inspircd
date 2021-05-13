@@ -31,8 +31,6 @@ CommandMotd::CommandMotd(Module* parent)
 	syntax = { "[<servername>]" };
 }
 
-/** Handle /MOTD
- */
 CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))

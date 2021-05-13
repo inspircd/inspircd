@@ -35,8 +35,6 @@ enum
 	RPL_UNINVITED = 653
 };
 
-/** Handle /UNINVITE
- */
 class CommandUninvite : public Command
 {
 	Invite::API invapi;

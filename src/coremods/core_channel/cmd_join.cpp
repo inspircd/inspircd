@@ -33,8 +33,6 @@ CommandJoin::CommandJoin(Module* parent)
 	Penalty = 2;
 }
 
-/** Handle /JOIN
- */
 CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	if (parameters.size() > 1)

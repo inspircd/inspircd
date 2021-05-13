@@ -48,8 +48,6 @@ class CommandLoadmodule : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /LOADMODULE
- */
 CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 {
 	if (ServerInstance->Modules.Load(parameters[0]))

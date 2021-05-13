@@ -69,8 +69,6 @@ class CommandList : public Command
 };
 
 
-/** Handle /LIST
- */
 CmdResult CommandList::Handle(User* user, const Params& parameters)
 {
 	// C: Searching based on creation time, via the "C<val" and "C>val" modifiers

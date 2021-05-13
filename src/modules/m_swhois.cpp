@@ -33,8 +33,6 @@ enum
 	RPL_WHOISSPECIAL = 320
 };
 
-/** Handle /SWHOIS
- */
 class CommandSwhois : public Command
 {
  public:

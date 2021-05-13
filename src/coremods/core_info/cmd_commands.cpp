@@ -39,8 +39,6 @@ CommandCommands::CommandCommands(Module* parent)
 	Penalty = 3;
 }
 
-/** Handle /COMMANDS
- */
 CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	std::vector<Numeric::Numeric> numerics;

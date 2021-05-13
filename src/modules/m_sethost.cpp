@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SETHOST
- */
 class CommandSethost : public Command
 {
  public:

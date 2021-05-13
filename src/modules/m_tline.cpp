@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/** Handle /TLINE
- */
 class CommandTline : public Command
 {
  public:

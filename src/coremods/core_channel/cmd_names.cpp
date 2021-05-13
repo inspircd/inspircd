@@ -40,8 +40,6 @@ CommandNames::CommandNames(Module* parent)
 	syntax = { "[<channel>[,<channel>]+]" };
 }
 
-/** Handle /NAMES
- */
 CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	Channel* c;

@@ -27,8 +27,6 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-/** Handle /USERIP
- */
 class CommandUserip : public Command
 {
  public:

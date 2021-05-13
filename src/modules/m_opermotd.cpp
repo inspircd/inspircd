@@ -37,8 +37,6 @@ enum
 	RPL_ENDOFOMOTD = 722
 };
 
-/** Handle /OPERMOTD
- */
 class CommandOpermotd : public Command
 {
  public:

@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/** Handle /CHGHOST
- */
 class CommandChghost : public Command
 {
  public:

@@ -164,8 +164,6 @@ class RemoveBase : public Command
 	}
 };
 
-/** Handle /REMOVE
- */
 class CommandRemove : public RemoveBase
 {
  public:
@@ -182,8 +180,6 @@ class CommandRemove : public RemoveBase
 	}
 };
 
-/** Handle /FPART
- */
 class CommandFpart : public RemoveBase
 {
  public:

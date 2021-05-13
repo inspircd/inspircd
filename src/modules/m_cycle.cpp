@@ -28,8 +28,6 @@
 
 #include "inspircd.h"
 
-/** Handle /CYCLE
- */
 class CommandCycle : public SplitCommand
 {
  public:

@@ -27,8 +27,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SAJOIN
- */
 class CommandSajoin : public Command
 {
  public:

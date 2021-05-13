@@ -33,8 +33,6 @@ CommandAdmin::CommandAdmin(Module* parent)
 	syntax = { "[<servername>]" };
 }
 
-/** Handle /ADMIN
- */
 CmdResult CommandAdmin::Handle(User* user, const Params& parameters)
 {
 	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))

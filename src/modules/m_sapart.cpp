@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SAPART
- */
 class CommandSapart : public Command
 {
  public:

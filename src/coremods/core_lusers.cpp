@@ -74,8 +74,6 @@ class CommandLusers : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /LUSERS
- */
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
 	size_t n_users = ServerInstance->Users.RegisteredUserCount();

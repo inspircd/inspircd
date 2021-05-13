@@ -43,8 +43,6 @@ using SpanningTree::CommandPing;
 using SpanningTree::CommandPong;
 using SpanningTree::CommandServer;
 
-/** Handle /RCONNECT
- */
 class CommandRConnect : public Command
 {
  public:

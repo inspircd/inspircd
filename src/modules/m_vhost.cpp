@@ -49,8 +49,6 @@ struct CustomVhost
 
 typedef std::multimap<std::string, CustomVhost> CustomVhostMap;
 
-/** Handle /VHOST
- */
 class CommandVhost : public Command
 {
  public:

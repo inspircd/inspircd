@@ -37,8 +37,6 @@ CommandGline::CommandGline(Module* parent)
 	syntax = { "<user@host> [<duration> :<reason>]" };
 }
 
-/** Handle /GLINE
- */
 CmdResult CommandGline::Handle(User* user, const Params& parameters)
 {
 	std::string target = parameters[0];

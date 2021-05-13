@@ -28,8 +28,6 @@
 
 #include "inspircd.h"
 
-/** Handle /GLOBOPS
- */
 class CommandGlobops : public Command
 {
  public:

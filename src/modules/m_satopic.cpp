@@ -26,8 +26,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SATOPIC
- */
 class CommandSATopic : public Command
 {
  public:

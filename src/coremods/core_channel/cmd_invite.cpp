@@ -46,8 +46,6 @@ CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 	syntax = { "[<nick> <channel> [<time>]]" };
 }
 
-/** Handle /INVITE
- */
 CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 {
 	ModResult MOD_RESULT;

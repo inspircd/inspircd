@@ -23,8 +23,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/** Handle /RMODE
- */
 class CommandRMode : public Command
 {
  public:

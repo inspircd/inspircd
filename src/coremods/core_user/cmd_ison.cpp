@@ -41,8 +41,6 @@ class IsonReplyBuilder : public Numeric::Builder<' ', true>
 	}
 };
 
-/** Handle /ISON
- */
 CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	IsonReplyBuilder reply(user);

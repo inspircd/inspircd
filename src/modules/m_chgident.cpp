@@ -28,8 +28,6 @@
 
 #include "inspircd.h"
 
-/** Handle /CHGIDENT
- */
 class CommandChgident : public Command
 {
  public:

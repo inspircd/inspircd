@@ -113,8 +113,6 @@ class CommandRehash : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /RESTART
- */
 class CommandRestart : public Command
 {
  public:

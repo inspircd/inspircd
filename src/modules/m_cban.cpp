@@ -86,8 +86,6 @@ class CBanFactory : public XLineFactory
 	}
 };
 
-/** Handle /CBAN
- */
 class CommandCBan : public Command
 {
  public:

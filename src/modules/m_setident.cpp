@@ -27,8 +27,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SETIDENT
- */
 class CommandSetident : public Command
 {
  public:

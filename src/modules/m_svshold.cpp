@@ -92,8 +92,6 @@ class SVSHoldFactory : public XLineFactory
 	}
 };
 
-/** Handle /SVSHold
- */
 class CommandSvshold : public Command
 {
  public:

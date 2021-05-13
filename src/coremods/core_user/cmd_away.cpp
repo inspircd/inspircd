@@ -42,8 +42,6 @@ CommandAway::CommandAway(Module* parent)
 	syntax = { "[:<message>]" };
 }
 
-/** Handle /AWAY
- */
 CmdResult CommandAway::Handle(User* user, const Params& parameters)
 {
 	LocalUser* luser = IS_LOCAL(user);

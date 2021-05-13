@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SAKICK
- */
 class CommandSakick : public Command
 {
  public:

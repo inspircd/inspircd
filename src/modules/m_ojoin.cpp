@@ -24,8 +24,6 @@
 
 #define NETWORK_VALUE 9000000
 
-/** Handle /OJOIN
- */
 class CommandOjoin : public SplitCommand
 {
  public:

@@ -27,8 +27,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SAQUIT
- */
 class CommandSaquit : public Command
 {
  public:

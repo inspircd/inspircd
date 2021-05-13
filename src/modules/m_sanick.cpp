@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/** Handle /SANICK
- */
 class CommandSanick : public Command
 {
  public:

@@ -34,8 +34,6 @@ enum
 	RPL_NICKLOCKOFF = 945
 };
 
-/** Handle /NICKLOCK
- */
 class CommandNicklock : public Command
 {
  public:
@@ -94,8 +92,6 @@ class CommandNicklock : public Command
 	}
 };
 
-/** Handle /NICKUNLOCK
- */
 class CommandNickunlock : public Command
 {
  public:

@@ -115,8 +115,6 @@ class CheckContext
 	};
 };
 
-/** Handle /CHECK
- */
 class CommandCheck : public Command
 {
 	UserModeReference snomaskmode;
