@@ -106,7 +106,7 @@ typedef std::vector<HostRule> HostRules;
 class ModuleHostChange : public Module
 {
 private:
-	std::bitset<UCHAR_MAX> hostmap;
+	std::bitset<UCHAR_MAX + 1> hostmap;
 	HostRules hostrules;
 
 	std::string CleanName(const std::string& name)

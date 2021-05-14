@@ -158,8 +158,8 @@ class ModuleAntiCaps : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
-	std::bitset<UCHAR_MAX> uppercase;
-	std::bitset<UCHAR_MAX> lowercase;
+	std::bitset<UCHAR_MAX + 1> uppercase;
+	std::bitset<UCHAR_MAX + 1> lowercase;
 	AntiCapsMode mode;
 
 	void CreateBan(Channel* channel, User* user, bool mute)

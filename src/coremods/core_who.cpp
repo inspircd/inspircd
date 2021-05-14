@@ -80,7 +80,7 @@ struct WhoData : public Who::Request
 		// If flags have been specified by the source.
 		if (parameters.size() > 1)
 		{
-			std::bitset<UCHAR_MAX>* current_bitset = &flags;
+			CharState* current_bitset = &flags;
 			for (std::string::const_iterator iter = parameters[1].begin(); iter != parameters[1].end(); ++iter)
 			{
 				unsigned char chr = static_cast<unsigned char>(*iter);

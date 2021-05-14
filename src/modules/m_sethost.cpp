@@ -30,7 +30,7 @@
 class CommandSethost : public Command
 {
  public:
-	std::bitset<UCHAR_MAX> hostmap;
+	std::bitset<UCHAR_MAX + 1> hostmap;
 
 	CommandSethost(Module* Creator)
 		: Command(Creator,"SETHOST", 1)

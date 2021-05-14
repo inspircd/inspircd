@@ -51,8 +51,10 @@ class Who::EventListener : public Events::ModuleEventListener
 class Who::Request
 {
  public:
+	typedef std::bitset<UCHAR_MAX + 1> CharState;
+
 	/** The flags for matching users to include. */
-	std::bitset<UCHAR_MAX> flags;
+	CharState flags;
 
 	/** Whether we are matching using a wildcard or a flag. */
 	bool fuzzy_match;
@@ -67,7 +69,7 @@ class Who::Request
 	bool whox;
 
 	/** The fields to include in the WHOX response. */
-	std::bitset<UCHAR_MAX> whox_fields;
+	CharState whox_fields;
 
 	/** A user specified label for the WHOX response. */
 	std::string whox_querytype;
