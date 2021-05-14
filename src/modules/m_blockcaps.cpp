@@ -34,8 +34,8 @@ class ModuleBlockCAPS : public Module
 	SimpleChannelModeHandler bc;
 	unsigned int percent;
 	unsigned int minlen;
-	std::bitset<UCHAR_MAX> lowercase;
-	std::bitset<UCHAR_MAX> uppercase;
+	std::bitset<UCHAR_MAX + 1> lowercase;
+	std::bitset<UCHAR_MAX + 1> uppercase;
 
 public:
 	ModuleBlockCAPS()
