@@ -83,7 +83,7 @@ class CommandPing : public SplitCommand
 			return CMD_FAILURE;
 		}
 
-		ClientProtocol::Messages::Pong pong(parameters[0], origin ? parameters[1] : "");
+		ClientProtocol::Messages::Pong pong(parameters[0], origin ? parameters[1] : ServerInstance->Config->GetServerName());
 		user->Send(ServerInstance->GetRFCEvents().pong, pong);
 		return CMD_SUCCESS;
 	}
