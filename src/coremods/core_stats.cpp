@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2018 Puck Meerburg <puck@puckipedia.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
