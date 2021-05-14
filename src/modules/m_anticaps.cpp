@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -154,8 +154,8 @@ class ModuleAntiCaps : public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
-	std::bitset<UCHAR_MAX> uppercase;
-	std::bitset<UCHAR_MAX> lowercase;
+	std::bitset<UCHAR_MAX + 1> uppercase;
+	std::bitset<UCHAR_MAX + 1> lowercase;
 	AntiCapsMode mode;
 
 	void CreateBan(Channel* channel, User* user, bool mute)

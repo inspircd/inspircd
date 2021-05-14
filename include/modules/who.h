@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -51,8 +51,10 @@ class Who::EventListener : public Events::ModuleEventListener
 class Who::Request
 {
  public:
+	typedef std::bitset<UCHAR_MAX + 1> CharState;
+
 	/** The flags for matching users to include. */
-	std::bitset<UCHAR_MAX> flags;
+	CharState flags;
 
 	/** Whether we are matching using a wildcard or a flag. */
 	bool fuzzy_match = false;
@@ -67,7 +69,7 @@ class Who::Request
 	bool whox = false;
 
 	/** The fields to include in the WHOX response. */
-	std::bitset<UCHAR_MAX> whox_fields;
+	CharState whox_fields;
 
 	/** A user specified label for the WHOX response. */
 	std::string whox_querytype;

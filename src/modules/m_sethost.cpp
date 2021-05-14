@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -28,7 +28,7 @@
 class CommandSethost : public Command
 {
  public:
-	std::bitset<UCHAR_MAX> hostmap;
+	std::bitset<UCHAR_MAX + 1> hostmap;
 
 	CommandSethost(Module* Creator)
 		: Command(Creator,"SETHOST", 1)

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Robin Burchell <robin+git@viroteck.net>
@@ -106,7 +106,7 @@ typedef std::vector<HostRule> HostRules;
 class ModuleHostChange : public Module
 {
 private:
-	std::bitset<UCHAR_MAX> hostmap;
+	std::bitset<UCHAR_MAX + 1> hostmap;
 	HostRules hostrules;
 
 	std::string CleanName(const std::string& name)

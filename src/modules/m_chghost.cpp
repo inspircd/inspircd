@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013-2014, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2017-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009, 2012 Daniel De Graaf <danieldg@inspircd.org>
@@ -28,7 +28,7 @@
 class CommandChghost : public Command
 {
  public:
-	std::bitset<UCHAR_MAX> hostmap;
+	std::bitset<UCHAR_MAX + 1> hostmap;
 
 	CommandChghost(Module* Creator)
 		: Command(Creator,"CHGHOST", 2)

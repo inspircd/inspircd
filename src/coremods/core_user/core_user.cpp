@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -83,7 +83,7 @@ class CommandPing : public SplitCommand
 			return CmdResult::FAILURE;
 		}
 
-		ClientProtocol::Messages::Pong pong(parameters[0], origin ? parameters[1] : "");
+		ClientProtocol::Messages::Pong pong(parameters[0], origin ? parameters[1] : ServerInstance->Config->GetServerName());
 		user->Send(ServerInstance->GetRFCEvents().pong, pong);
 		return CmdResult::SUCCESS;
 	}
