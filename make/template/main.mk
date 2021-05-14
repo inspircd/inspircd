@@ -58,6 +58,7 @@ EXAPATH = "$(DESTDIR)@EXAMPLE_DIR@"
 LOGPATH = "$(DESTDIR)@LOG_DIR@"
 MANPATH = "$(DESTDIR)@MANUAL_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
+RUNPATH = "$(DESTDIR)@RUNTIME_DIR@"
 SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
 
 INSTALL ?= install
@@ -221,6 +222,7 @@ install: target
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
+	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(RUNPATH)
 	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
 	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.so $(MODPATH)
