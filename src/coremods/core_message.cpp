@@ -274,11 +274,6 @@ class CommandMessage : public Command
 		syntax = { "<target>[,<target>]+ :<message>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))

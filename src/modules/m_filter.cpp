@@ -175,6 +175,7 @@ class CommandFilter : public Command
 		access_needed = CmdAccess::OPERATOR;
 		this->syntax = { "<pattern> [<action> <flags> [<duration>] :<reason>]" };
 	}
+
 	CmdResult Handle(User* user, const Params& parameters) override;
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

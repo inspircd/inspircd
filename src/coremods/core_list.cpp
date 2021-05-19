@@ -27,8 +27,6 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-/** Handle /LIST.
- */
 class CommandList : public Command
 {
  private:
@@ -60,11 +58,6 @@ class CommandList : public Command
 		Penalty = 5;
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

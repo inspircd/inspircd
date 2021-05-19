@@ -59,17 +59,8 @@ class CommandMode : public Command
 	}
 
  public:
-	/** Constructor for mode.
-	 */
 	CommandMode(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
-
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 

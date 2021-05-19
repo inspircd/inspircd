@@ -27,8 +27,6 @@
 #include "inspircd.h"
 #include "modules/hash.h"
 
-/* Handle /MKPASSWD
- */
 class CommandMkpasswd : public Command
 {
  public:

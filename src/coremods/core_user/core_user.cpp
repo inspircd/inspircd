@@ -21,13 +21,9 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-/** Handle /PASS.
- */
 class CommandPass : public SplitCommand
 {
  public:
-	/** Constructor for pass.
-	 */
 	CommandPass(Module* parent)
 		: SplitCommand(parent, "PASS", 1, 1)
 	{
@@ -36,11 +32,6 @@ class CommandPass : public SplitCommand
 		syntax = { "<password>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		// Check to make sure they haven't registered -- Fix by FCS
@@ -56,24 +47,15 @@ class CommandPass : public SplitCommand
 	}
 };
 
-/** Handle /PING.
- */
 class CommandPing : public SplitCommand
 {
  public:
-	/** Constructor for ping.
-	 */
 	CommandPing(Module* parent)
 		: SplitCommand(parent, "PING", 1)
 	{
 		syntax = { "<cookie> [<servername>]" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		size_t origin = parameters.size() > 1 ? 1 : 0;
@@ -89,13 +71,9 @@ class CommandPing : public SplitCommand
 	}
 };
 
-/** Handle /PONG.
- */
 class CommandPong : public Command
 {
  public:
-	/** Constructor for pong.
-	 */
 	CommandPong(Module* parent)
 		: Command(parent, "PONG", 1)
 	{
@@ -103,11 +81,6 @@ class CommandPong : public Command
 		syntax = { "<cookie> [<servername>]" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		size_t origin = parameters.size() > 1 ? 1 : 0;

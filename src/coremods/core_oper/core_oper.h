@@ -31,25 +31,13 @@ namespace DieRestart
 	void SendError(const std::string& message);
 }
 
-/** Handle /DIE.
- */
 class CommandDie : public Command
 {
  public:
-	/** Constructor for die.
-	 */
 	CommandDie(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /KILL.
- */
 class CommandKill : public Command
 {
 	std::string lastuuid;
@@ -63,68 +51,30 @@ class CommandKill : public Command
 	/** Set to hide kills from clients of services servers in snotices. */
 	bool hideservicekills;
 
-	/** Constructor for kill.
-	 */
 	CommandKill(Module* parent);
-
-	/** Handle command.
-	 * @param user User issuing the command
-	 * @param parameters Parameters to the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
-
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
-
 	void EncodeParameter(std::string& param, unsigned int index) override;
 };
 
-/** Handle /OPER.
- */
 class CommandOper : public SplitCommand
 {
  public:
-	/** Constructor for oper.
-	 */
 	CommandOper(Module* parent);
-
-	/** Handle command.
-	 * @param user User issuing the command
-	 * @param parameters Parameters to the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /REHASH.
- */
 class CommandRehash : public Command
 {
  public:
-	/** Constructor for rehash.
-	 */
 	CommandRehash(Module* parent);
-
-	/** Handle command.
-	 * @param user User issuing the command
-	 * @param parameters Parameters to the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
 class CommandRestart : public Command
 {
  public:
-	/** Constructor for restart.
-	 */
 	CommandRestart(Module* parent);
-
-	/** Handle command.
-	 * @param user User issuing the command
-	 * @param parameters Parameters to the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

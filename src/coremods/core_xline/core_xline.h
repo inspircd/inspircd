@@ -67,61 +67,30 @@ class InsaneBan
 	static bool MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey);
 };
 
-/** Handle /ELINE.
- */
 class CommandEline : public Command
 {
  public:
-	/** Constructor for E-line.
-	 */
 	CommandEline(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /GLINE.
- */
 class CommandGline : public Command
 {
  public:
-	/** Constructor for G-line.
-	 */
 	CommandGline(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /KLINE.
- */
 class CommandKline : public Command
 {
  public:
-	/** Constructor for K-line.
-	 */
 	CommandKline(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /QLINE.
- */
 class CommandQline : public Command
 {
+ private:
 	class NickMatcher : public InsaneBan::Matcher<NickMatcher>
 	{
 	 public:
@@ -129,22 +98,13 @@ class CommandQline : public Command
 	};
 
  public:
-	/** Constructor for Q-line.
-	 */
 	CommandQline(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /ZLINE.
- */
 class CommandZline : public Command
 {
+ private:
 	class IPMatcher : public InsaneBan::Matcher<IPMatcher>
 	{
 	 public:
@@ -152,14 +112,6 @@ class CommandZline : public Command
 	};
 
  public:
-	/** Constructor for Z-line.
-	 */
 	CommandZline(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

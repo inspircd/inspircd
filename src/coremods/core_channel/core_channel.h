@@ -59,68 +59,38 @@ enum
 	ERR_KEYSET = 467
 };
 
-/** Handle /INVITE.
- */
 class CommandInvite : public Command
 {
+ private:
 	Invite::APIImpl& invapi;
 
  public:
 	Invite::AnnounceState announceinvites;
 
-	/** Constructor for invite.
-	 */
 	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Handle /JOIN.
- */
 class CommandJoin : public SplitCommand
 {
  public:
-	/** Constructor for join.
-	 */
 	CommandJoin(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /TOPIC.
- */
 class CommandTopic : public SplitCommand
 {
+ private:
 	CheckExemption::EventProvider exemptionprov;
 	ChanModeReference secretmode;
 	ChanModeReference topiclockmode;
 
  public:
-	/** Constructor for topic.
-	 */
 	CommandTopic(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /NAMES.
- */
 class CommandNames : public SplitCommand
 {
  private:
@@ -130,15 +100,8 @@ class CommandNames : public SplitCommand
 	Events::ModuleEventProvider namesevprov;
 
  public:
-	/** Constructor for names.
-	 */
 	CommandNames(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
 	/** Spool the NAMES list for a given channel to the given user
@@ -149,20 +112,10 @@ class CommandNames : public SplitCommand
 	void SendNames(LocalUser* user, Channel* chan, bool show_invisible);
 };
 
-/** Handle /KICK.
- */
 class CommandKick : public Command
 {
  public:
-	/** Constructor for kick.
-	 */
 	CommandKick(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };

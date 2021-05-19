@@ -55,22 +55,18 @@ struct LusersCounters
 	}
 };
 
-/** Handle /LUSERS.
- */
 class CommandLusers : public Command
 {
+ private:
 	LusersCounters& counters;
+
  public:
-	/** Constructor for lusers.
-	 */
 	CommandLusers(Module* parent, LusersCounters& Counters)
-		: Command(parent,"LUSERS",0,0), counters(Counters)
-	{ }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
+		: Command(parent,"LUSERS",0,0)
+		, counters(Counters)
+	{
+	}
+
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

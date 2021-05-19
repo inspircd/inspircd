@@ -25,16 +25,12 @@
 
 #include "inspircd.h"
 
-/** Handle /WALLOPS.
- */
 class CommandWallops : public Command
 {
 	SimpleUserModeHandler wallopsmode;
 	ClientProtocol::EventProvider protoevprov;
 
  public:
-	/** Constructor for wallops.
-	 */
 	CommandWallops(Module* parent)
 		: Command(parent, "WALLOPS", 1, 1)
 		, wallopsmode(parent, "wallops", 'w')
@@ -44,11 +40,6 @@ class CommandWallops : public Command
 		syntax = { ":<message>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override

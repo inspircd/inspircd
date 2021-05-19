@@ -26,13 +26,9 @@
 
 #include "inspircd.h"
 
-/** Handle /LOADMODULE.
- */
 class CommandLoadmodule : public Command
 {
  public:
-	/** Constructor for loadmodule.
-	 */
 	CommandLoadmodule(Module* parent)
 		: Command(parent,"LOADMODULE", 1, 1)
 	{
@@ -40,11 +36,6 @@ class CommandLoadmodule : public Command
 		syntax = { "<modulename>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -63,13 +54,9 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 	}
 }
 
-/** Handle /UNLOADMODULE.
- */
 class CommandUnloadmodule : public Command
 {
  public:
-	/** Constructor for unloadmodule.
-	 */
 	CommandUnloadmodule(Module* parent)
 		: Command(parent, "UNLOADMODULE", 1)
 	{
@@ -77,11 +64,6 @@ class CommandUnloadmodule : public Command
 		syntax = { "<modulename>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

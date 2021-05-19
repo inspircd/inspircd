@@ -116,9 +116,6 @@ class RLineFactory : public XLineFactory
 	}
 };
 
-/** Handle /RLINE
- * Syntax is same as other lines: RLINE regex_goes_here 1d :reason
- */
 class CommandRLine : public Command
 {
 	std::string rxengine;

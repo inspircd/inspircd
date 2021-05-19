@@ -35,8 +35,6 @@
 #pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
 #endif
 
-/** Handle /STATS.
- */
 class CommandStats : public Command
 {
 	Events::ModuleEventProvider statsevprov;
@@ -54,12 +52,8 @@ class CommandStats : public Command
 		syntax = { "<symbol> [<servername>]" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
+
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
 		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))

@@ -54,87 +54,48 @@ class MessageWrapper
 	void ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname);
 };
 
-/** Handle /AWAY.
- */
 class CommandAway : public Command
 {
  private:
 	Away::EventProvider awayevprov;
 
  public:
-	/** Constructor for away.
-	 */
 	CommandAway(Module* parent);
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Handle /ISON.
- */
 class CommandIson : public SplitCommand
 {
  public:
-	/** Constructor for ison.
-	 */
 	CommandIson(Module* parent)
 		: SplitCommand(parent, "ISON", 1)
 	{
 		allow_empty_last_param = false;
 		syntax = { "<nick> [<nick>]+" };
 	}
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
+
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 
-/** Handle /NICK.
- */
 class CommandNick : public SplitCommand
 {
  public:
-	/** Constructor for nick.
-	 */
 	CommandNick(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /PART.
- */
 class CommandPart : public Command
 {
  public:
 	MessageWrapper msgwrap;
 
-	/** Constructor for part.
-	 */
 	CommandPart(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Handle /QUIT.
- */
 class CommandQuit : public Command
 {
  private:
@@ -143,34 +104,15 @@ class CommandQuit : public Command
  public:
 	MessageWrapper msgwrap;
 
-	/** Constructor for quit.
-	 */
 	CommandQuit(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
-
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Handle /USER.
- */
 class CommandUser : public SplitCommand
 {
  public:
-	/** Constructor for user.
-	 */
 	CommandUser(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
 	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after an unregistered user
@@ -183,15 +125,12 @@ class CommandUser : public SplitCommand
 	static CmdResult CheckRegister(LocalUser* user);
 };
 
-/** Handle /USERHOST.
- */
 class CommandUserhost : public Command
 {
+ private:
 	UserModeReference hideopermode;
 
  public:
-	/** Constructor for userhost.
-	 */
 	CommandUserhost(Module* parent)
 		: Command(parent,"USERHOST", 1)
 		, hideopermode(parent, "hideoper")
@@ -199,11 +138,7 @@ class CommandUserhost : public Command
 		allow_empty_last_param = false;
 		syntax = { "<nick> [<nick>]+" };
 	}
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
+
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

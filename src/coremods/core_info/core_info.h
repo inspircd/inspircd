@@ -76,8 +76,6 @@ class ServerTargetCommand : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Handle /ADMIN.
- */
 class CommandAdmin : public ServerTargetCommand
 {
  public:
@@ -96,15 +94,7 @@ class CommandAdmin : public ServerTargetCommand
 	 */
 	std::string AdminNick;
 
-	/** Constructor for admin.
-	 */
 	CommandAdmin(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -116,56 +106,26 @@ class CommandCommands final
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /INFO.
- */
 class CommandInfo : public ServerTargetCommand
 {
  public:
-	/** Constructor for info.
-	 */
 	CommandInfo(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /MODULES.
- */
 class CommandModules : public ServerTargetCommand
 {
  public:
-	/** Constructor for modules.
-	 */
 	CommandModules(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /MOTD.
- */
 class CommandMotd : public ServerTargetCommand
 {
  public:
 	ConfigFileCache motds;
 
-	/** Constructor for motd.
-	 */
 	CommandMotd(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -179,39 +139,19 @@ class CommandServList : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-/** Handle /TIME.
- */
 class CommandTime : public ServerTargetCommand
 {
  public:
-	/** Constructor for time.
-	 */
 	CommandTime(Module* parent);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-/** Handle /VERSION.
- */
 class CommandVersion : public Command
 {
  private:
 	ISupportManager& isupport;
 
  public:
-	/** Constructor for version.
-	 */
 	CommandVersion(Module* parent, ISupportManager& isupportmgr);
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

@@ -54,8 +54,6 @@ class CommandReloadmodule : public Command
 	DummySerializer dummyser;
 
  public:
-	/** Constructor for reloadmodule.
-	 */
 	CommandReloadmodule(Module* parent)
 		: Command(parent, "RELOADMODULE", 1)
 		, evprov(parent, "event/reloadmodule")
@@ -67,11 +65,6 @@ class CommandReloadmodule : public Command
 		syntax = { "<modulename>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 

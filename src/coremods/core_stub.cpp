@@ -52,13 +52,9 @@ class CommandCapab : public Command
 	}
 };
 
-/** Handle /CONNECT.
- */
 class CommandConnect : public Command
 {
  public:
-	/** Constructor for connect.
-	 */
 	CommandConnect(Module* parent)
 		: Command(parent, "CONNECT", 1)
 	{
@@ -66,11 +62,6 @@ class CommandConnect : public Command
 		syntax = { "<servermask>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/*
@@ -81,23 +72,14 @@ class CommandConnect : public Command
 	}
 };
 
-/** Handle /LINKS.
- */
 class CommandLinks : public Command
 {
  public:
-	/** Constructor for links.
-	 */
 	CommandLinks(Module* parent)
 		: Command(parent, "LINKS", 0, 0)
 	{
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->GetServerName(), ServerInstance->Config->GetServerName(), InspIRCd::Format("0 %s", ServerInstance->Config->GetServerDesc().c_str()));
@@ -106,13 +88,9 @@ class CommandLinks : public Command
 	}
 };
 
-/** Handle /SQUIT.
- */
 class CommandSquit : public Command
 {
  public:
-	/** Constructor for squit.
-	 */
 	CommandSquit(Module* parent)
 		: Command(parent, "SQUIT", 1, 2)
 	{
@@ -120,11 +98,6 @@ class CommandSquit : public Command
 		syntax = { "<servermask>" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		user->WriteNotice("Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.");

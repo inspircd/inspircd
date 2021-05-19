@@ -64,8 +64,6 @@ void WhoisContextImpl::SendLine(Numeric::Numeric& numeric)
 		source->WriteNumeric(numeric);
 }
 
-/** Handle /WHOIS.
- */
 class CommandWhois : public SplitCommand
 {
 	ChanModeReference secretmode;
@@ -86,8 +84,6 @@ class CommandWhois : public SplitCommand
 
 
 
-	/** Constructor for whois.
-	 */
 	CommandWhois(Module* parent)
 		: SplitCommand(parent, "WHOIS", 1)
 		, secretmode(parent, "secret")
@@ -100,11 +96,6 @@ class CommandWhois : public SplitCommand
 		syntax = { "[<servername>] <nick>[,<nick>]+" };
 	}
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 	CmdResult HandleRemote(RemoteUser* target, const Params& parameters) override;
 };
