@@ -107,9 +107,6 @@ class SpanningTreeUtilities : public Cullable
 	std::vector<std::shared_ptr<Autoconnect>> AutoconnectBlocks;
 
 	/** Ping frequency of server to server links
-	 * XXX: TreeServer constructor reads this and TreeRoot is created before the
-	 * config is read, so init it to something (value doesn't matter) to avoid a
-	 * valgrind warning in TimerManager on unload
 	 */
 	unsigned int PingFreq = 60;
 
