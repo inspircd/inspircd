@@ -124,11 +124,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 		}
 		break;
 
-		/* These stats symbols must be handled by a linking module */
-		case 'n':
-		case 'c':
-		break;
-
 		case 'i':
 		{
 			for (const auto& c : ServerInstance->Config->Classes)
