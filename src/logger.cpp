@@ -82,7 +82,7 @@ void LogManager::OpenFileLogs()
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
-		std::string method = tag->getString("method");
+		const std::string method = tag->getString("method", "file", 1);
 		if (!stdalgo::string::equalsci(method, "file"))
 		{
 			continue;
