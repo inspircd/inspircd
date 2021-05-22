@@ -26,17 +26,20 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/ircv3_servertime.h"
 #include "modules/names.h"
 
 class DelayJoinMode : public ModeHandler
 {
  private:
 	LocalIntExt& unjoined;
+	IRCv3::ServerTime::API servertime;
 
  public:
 	DelayJoinMode(Module* Parent, LocalIntExt& ext)
 		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 		, unjoined(ext)
+		, servertime(Parent)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 	}
@@ -56,6 +59,7 @@ namespace
  */
 class JoinHook : public ClientProtocol::EventHook
 {
+ private:
 	const LocalIntExt& unjoined;
 
  public:
@@ -161,7 +165,7 @@ static void populate(CUList& except, Membership* memb)
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
-		unjoined.set(memb, 1);
+		unjoined.set(memb, ServerInstance->Time());
 }
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
@@ -209,13 +213,16 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
-	if (!memb || !unjoined.set(memb, 0))
+	time_t jointime = unjoined.set(memb, 0);
+	if (!memb || !jointime)
 		return;
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
 	CUList except_list;
 	except_list.insert(user);
 	ClientProtocol::Events::Join joinevent(memb);
+	if (servertime)
+		servertime->Set(joinevent, jointime);
 	chan->Write(joinevent, 0, except_list);
 }
 
