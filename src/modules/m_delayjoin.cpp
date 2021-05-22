@@ -213,8 +213,11 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
+	if (!memb)
+		return;
+
 	time_t jointime = unjoined.set(memb, 0);
-	if (!memb || !jointime)
+	if (!jointime)
 		return;
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
