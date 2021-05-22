@@ -87,11 +87,25 @@ class ModuleDelayJoin
 	, public CTCTags::EventListener
 	, public Names::EventListener
 {
- public:
+ private:
 	IntExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
 
+	void PopulateExcepts(CUList& except, Membership* memb)
+	{
+		if (!unjoined.Get(memb))
+			return;
+
+		unjoined.Unset(memb);
+		for (const auto& [member, _] : memb->chan->GetUsers())
+		{
+			if (member != memb->user && IS_LOCAL(member))
+				except.insert(member);
+		}
+	}
+
+ public:
 	ModuleDelayJoin()
 		: Module(VF_VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
 		, CTCTags::EventListener(this)
@@ -145,16 +159,6 @@ ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, 
 	return MOD_RES_PASSTHRU;
 }
 
-static void populate(CUList& except, Membership* memb)
-{
-	for (const auto& [member, _] : memb->chan->GetUsers())
-	{
-		if (member == memb->user || !IS_LOCAL(member))
-			continue;
-		except.insert(member);
-	}
-}
-
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
@@ -163,20 +167,12 @@ void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
 {
-	if (unjoined.Get(memb))
-	{
-		unjoined.Unset(memb);
-		populate(except, memb);
-	}
+	PopulateExcepts(except, memb);
 }
 
 void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except)
 {
-	if (unjoined.Get(memb))
-	{
-		unjoined.Unset(memb);
-		populate(except, memb);
-	}
+	PopulateExcepts(except, memb);
 }
 
 void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception)
