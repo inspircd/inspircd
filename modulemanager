@@ -327,7 +327,7 @@ for my $mod (sort keys %todo) {
 	}
 	$mod_versions{$mod} = $ver;
 
-	my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
+	my $ua = LWP::UserAgent->new;
 	my $response = $ua->get($url);
 
 	if ($response->is_success) {
