@@ -72,7 +72,7 @@ void LogManager::OpenFileLogs()
 
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("log"))
 	{
-		std::string method = tag->getString("method");
+		const std::string method = tag->getString("method", "file", 1);
 		if (!stdalgo::string::equalsci(method, "file"))
 		{
 			continue;

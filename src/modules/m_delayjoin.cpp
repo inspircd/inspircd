@@ -26,17 +26,20 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/ircv3_servertime.h"
 #include "modules/names.h"
 
 class DelayJoinMode : public ModeHandler
 {
  private:
-	BoolExtItem& unjoined;
+	IntExtItem& unjoined;
+	IRCv3::ServerTime::API servertime;
 
  public:
-	DelayJoinMode(Module* Parent, BoolExtItem& ext)
+	DelayJoinMode(Module* Parent, IntExtItem& ext)
 		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 		, unjoined(ext)
+		, servertime(Parent)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 	}
@@ -57,10 +60,10 @@ namespace
 class JoinHook : public ClientProtocol::EventHook
 {
  private:
-	const BoolExtItem& unjoined;
+	const IntExtItem& unjoined;
 
  public:
-	JoinHook(Module* mod, const BoolExtItem& unjoinedref)
+	JoinHook(Module* mod, const IntExtItem& unjoinedref)
 		: ClientProtocol::EventHook(mod, "JOIN", 10)
 		, unjoined(unjoinedref)
 	{
@@ -85,7 +88,7 @@ class ModuleDelayJoin
 	, public Names::EventListener
 {
  public:
-	BoolExtItem unjoined;
+	IntExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
 
@@ -155,7 +158,7 @@ static void populate(CUList& except, Membership* memb)
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
 	if (memb->chan->IsModeSet(djm))
-		unjoined.Set(memb);
+		unjoined.Set(memb, ServerInstance->Time());
 }
 
 void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
@@ -209,16 +212,20 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 void DelayJoinMode::RevealUser(User* user, Channel* chan)
 {
 	Membership* memb = chan->GetUser(user);
-	if (!memb || !unjoined.Get(memb))
-	{
+	if (!memb)
 		return;
-	}
+
+	time_t jointime = unjoined.Get(memb);
+	if (!jointime)
+		return;
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
 	unjoined.Unset(memb);
 	CUList except_list;
 	except_list.insert(user);
 	ClientProtocol::Events::Join joinevent(memb);
+	if (servertime)
+		servertime->Set(joinevent, jointime);
 	chan->Write(joinevent, 0, except_list);
 }
 
