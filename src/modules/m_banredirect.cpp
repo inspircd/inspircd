@@ -285,9 +285,9 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (chan)
+		if (!override && chan)
 		{
 			BanRedirectList* redirects = re.extItem.Get(chan);
 

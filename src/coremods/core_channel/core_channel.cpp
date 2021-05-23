@@ -233,9 +233,9 @@ class CoreModChannel
 		tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", maxchans);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string&, std::string&, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (!chan)
+		if (!chan || override)
 			return MOD_RES_PASSTHRU;
 
 		// Check whether the channel key is correct.

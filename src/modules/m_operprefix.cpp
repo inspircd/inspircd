@@ -72,7 +72,7 @@ class ModuleOperPrefixMode : public Module
 		 */
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
 		if ((user->IsOper()) && (!user->IsModeSet(hideopermode)))
 			privs.push_back('y');

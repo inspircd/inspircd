@@ -183,9 +183,9 @@ class ModuleSSLModes
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if(chan && chan->IsModeSet(sslm))
+		if (!override && chan && chan->IsModeSet(sslm))
 		{
 			if (!api)
 			{

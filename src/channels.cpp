@@ -198,21 +198,18 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 		cname.resize(ServerInstance->Config->Limits.MaxChannel);
 
 	Channel* chan = ServerInstance->Channels.Find(cname);
-	bool created_by_local = (chan == NULL); // Flag that will be passed to modules in the OnUserJoin() hook later
+	bool created_by_local = !chan; // Flag that will be passed to ForceJoin later
 	std::string privs; // Prefix mode(letter)s to give to the joining user
 
 	if (!chan)
 	{
 		privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
 
-		if (override == false)
-		{
-			// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key));
-			if (MOD_RESULT == MOD_RES_DENY)
-				return NULL; // A module wasn't happy with the join, abort
-		}
+		// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key, override));
+		if (!override && MOD_RESULT == MOD_RES_DENY)
+			return nullptr; // A module wasn't happy with the join, abort
 
 		chan = new Channel(cname, ServerInstance->Time());
 		// Set the default modes on the channel (<options:defaultmodes>)
@@ -222,18 +219,15 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	{
 		/* Already on the channel */
 		if (chan->HasUser(user))
-			return NULL;
+			return nullptr;
 
-		if (override == false)
-		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key));
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key, override));
 
-			// A module explicitly denied the join and (hopefully) generated a message
-			// describing the situation, so we may stop here without sending anything
-			if (MOD_RESULT == MOD_RES_DENY)
-				return NULL;
-		}
+		// A module explicitly denied the join and (hopefully) generated a message
+		// describing the situation, so we may stop here without sending anything
+		if (!override && MOD_RESULT == MOD_RES_DENY)
+			return nullptr;
 	}
 
 	// We figured that this join is allowed and also created the

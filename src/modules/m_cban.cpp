@@ -191,10 +191,12 @@ class ModuleCBan : public Module, public Stats::EventListener
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
+		if (override)
+			return MOD_RES_PASSTHRU;
 
+		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 		if (rl)
 		{
 			// Channel is banned.

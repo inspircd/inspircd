@@ -76,10 +76,10 @@ class ModuleRestrictChans : public Module
 		allowregistered = tag->getBool("allowregistered", false);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
-		if (!chan && !CanCreateChannel(user, cname))
+		if (!override && !chan && !CanCreateChannel(user, cname))
 		{
 			user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "You are not allowed to create new channels.");
 			return MOD_RES_DENY;

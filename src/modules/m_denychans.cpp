@@ -144,8 +144,11 @@ class ModuleDenyChannels : public Module
 		goodchannels.swap(goodchans);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
+		if (!override)
+			return MOD_RES_PASSTHRU;
+
 		for (const auto& badchan : badchannels)
 		{
 			// If the channel does not match the current entry we have nothing else to do.

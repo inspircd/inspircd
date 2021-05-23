@@ -75,9 +75,9 @@ class ModuleOperChans
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (chan && chan->IsModeSet(oc) && !user->IsOper())
+		if (!override && chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
 			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, InspIRCd::Format("Only server operators may join %s (+O is set)", chan->name.c_str()));
 			return MOD_RES_DENY;

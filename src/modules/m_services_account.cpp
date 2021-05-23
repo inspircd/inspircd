@@ -294,8 +294,11 @@ class ModuleServicesAccount
 		return HandleMessage(user, target);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
+		if (override)
+			return MOD_RES_PASSTHRU;
+
 		std::string *account = accountname.Get(user);
 		bool is_registered = account && !account->empty();
 

@@ -480,9 +480,10 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "o".
 	 * You may alter this string to alter the user's modes on the channel.
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
+	 * @param override Whether the channel join can be blocked by returning MOD_RES_DENY.
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven);
+	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no

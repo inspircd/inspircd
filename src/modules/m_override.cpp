@@ -188,9 +188,9 @@ class ModuleOverride
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (user->IsOper())
+		if (user->IsOper() && !override)
 		{
 			if (chan)
 			{
