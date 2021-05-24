@@ -29,7 +29,8 @@
 #include <unchecked.h>
 
 static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-static const char whitespace[] = " \t\r\n";
+static const char newline[] = "\r\n";
+static const char whitespace[] = " \t";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig
@@ -67,26 +68,39 @@ class WebSocketHook : public IOHookMiddle
 {
 	class HTTPHeaderFinder
 	{
+	 private:
 		std::string::size_type bpos;
 		std::string::size_type len;
 
 	 public:
 		bool Find(const std::string& req, const char* header, std::string::size_type headerlen, std::string::size_type maxpos)
 		{
-			std::string::size_type keybegin = req.find(header);
-			if ((keybegin == std::string::npos) || (keybegin > maxpos) || (keybegin == 0) || (req[keybegin-1] != '\n'))
-				return false;
+			// Skip the GET /wibble HTTP/1.1 line.
+			size_t startpos = req.find(newline) + sizeof(newline) - 1;;
+			while (startpos < maxpos)
+			{
+				size_t endpos = req.find(newline, startpos);
+				if (req.compare(startpos, headerlen, header))
+				{
+					startpos = endpos + sizeof(newline) - 1;
+					continue; // Incorrect header.
+				}
 
-			keybegin += headerlen;
+				bpos = req.find_first_not_of(whitespace, startpos + headerlen);
+				if (bpos >= endpos)
+					return false; // Empty value.
 
-			bpos = req.find_first_not_of(whitespace, keybegin, sizeof(whitespace)-1);
-			if ((bpos == std::string::npos) || (bpos > maxpos))
-				return false;
+				size_t epos = std::min(req.find_last_not_of(whitespace), endpos);
+				if (epos < bpos)
+					return false; // Should never happen.
 
-			const std::string::size_type epos = req.find_first_of(whitespace, bpos, sizeof(whitespace)-1);
-			len = epos - bpos;
+				len = epos - bpos;
+				return true;
+			}
 
-			return true;
+			// No header found.
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "not found");
+			return false;
 		}
 
 		std::string ExtractValue(const std::string& req) const
@@ -405,7 +419,7 @@ class WebSocketHook : public IOHookMiddle
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append("\r\n\r\n");
+		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append(newline).append(newline);
 		GetSendQ().push_back(StreamSocket::SendQueue::Element(reply));
 
 		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
