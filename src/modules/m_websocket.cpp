@@ -138,6 +138,7 @@ class WebSocketHook : public IOHookMiddle
 	State state;
 	time_t lastpingpong;
 	WebSocketConfig& config;
+	bool sendastext;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
 	{
@@ -398,6 +399,22 @@ class WebSocketHook : public IOHookMiddle
 			}
 		}
 
+		std::string selectedproto;
+		HTTPHeaderFinder protocolheader;
+		if (protocolheader.Find(recvq, "Sec-WebSocket-Protocol:", 23, reqend))
+		{
+			irc::spacesepstream protostream(protocolheader.ExtractValue(recvq));
+			for (std::string proto; protostream.GetToken(proto); )
+			{
+				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
+				if (stdalgo::string::equalsci(proto, "binary.inspircd.org") || is_text)
+				{
+					selectedproto = proto;
+					sendastext = is_text;
+					break;
+				}
+			}
+		}
 
 		HTTPHeaderFinder keyheader;
 		if (!keyheader.Find(recvq, "Sec-WebSocket-Key:", 18, reqend))
@@ -418,7 +435,10 @@ class WebSocketHook : public IOHookMiddle
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append(newline).append(newline);
+		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append(newline);
+		if (!selectedproto.empty())
+			reply.append("Sec-WebSocket-Protocol: ").append(selectedproto).append(newline);
+		reply.append(newline);
 		GetSendQ().push_back(StreamSocket::SendQueue::Element(reply));
 
 		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
@@ -434,6 +454,7 @@ class WebSocketHook : public IOHookMiddle
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
 		, config(cfg)
+		, sendastext(cfg.sendastext)
 	{
 		sock->AddIOHook(this);
 	}
@@ -454,7 +475,7 @@ class WebSocketHook : public IOHookMiddle
 				if (*chr == '\n')
 				{
 					// We have found an entire message. Send it in its own frame.
-					if (config.sendastext)
+					if (sendastext)
 					{
 						// If we send messages as text then we need to ensure they are valid UTF-8.
 						std::string encoded;
