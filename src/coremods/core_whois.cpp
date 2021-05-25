@@ -210,7 +210,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	WhoisContextImpl whois(user, dest, lineevprov);
 
 	whois.SendLine(RPL_WHOISUSER, dest->ident, dest->GetDisplayedHost(), '*', dest->GetRealName());
-	if (!user->server->IsULine() && (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex")))
+	if (!dest->server->IsULine() && (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex")))
 	{
 		whois.SendLine(RPL_WHOISHOST, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->GetRealHost().c_str(), dest->GetIPString().c_str()));
 	}
