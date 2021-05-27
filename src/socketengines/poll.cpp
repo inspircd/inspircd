@@ -127,7 +127,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	}
 
 	unsigned int index = fd_mappings[fd];
-	unsigned int last_index = CurrentSetSize - 1;
+	unsigned int last_index = static_cast<unsigned int>(CurrentSetSize - 1);
 	int last_fd = events[last_index].fd;
 
 	if (index != last_index)

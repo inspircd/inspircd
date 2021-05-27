@@ -169,7 +169,7 @@ int SocketEngine::DispatchEvents()
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(), ke_list.size(), &ts);
+	int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(), static_cast<int>(ke_list.size()), &ts);
 	ChangePos = 0;
 	ServerInstance->UpdateTime();
 
