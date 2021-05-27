@@ -38,7 +38,7 @@ my $root = dirname $RealDir;
 my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
 for my $compiler (@compilers) {
 	if (system "$compiler -v > /dev/null 2>&1") {
-		say "Skipping $compiler as it is not installed on this system!";
+		say STDERR "Skipping $compiler as it is not installed on this system!";
 		next;
 	}
 	$ENV{CXX} = $compiler;
@@ -54,11 +54,11 @@ for my $compiler (@compilers) {
 			push @configure_flags, '--disable-auto-extras';
 		}
 		if (execute "$root/configure", '--development', '--socketengine', $socketengine, @configure_flags) {
-			say "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
+			say STDERR "Failed to configure using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
 		if (execute 'make', '--directory', $root, '--jobs', get_cpu_count() + 1, 'install') {
-			say "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
+			say STDERR "Failed to compile using the $compiler compiler and the $socketengine socket engine!";
 			exit 1;
 		}
 		say "Building using the $compiler compiler and the $socketengine socket engine succeeded!";
