@@ -96,7 +96,8 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 		const std::string permissionstr = tag->getString("permissions");
 		unsigned long permissions = strtoul(permissionstr.c_str(), NULL, 8);
 		if (permissions && permissions <= 07777)
-			chmod(bind_to.str().c_str(), static_cast<__mode_t>(permissions));
+			// This cast is safe thanks to the above check.
+			chmod(bind_to.str().c_str(), static_cast<int>(permissions));
 	}
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first

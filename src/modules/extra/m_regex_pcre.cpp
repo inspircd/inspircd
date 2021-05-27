@@ -65,7 +65,7 @@ class PCRERegex : public Regex
 
 	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-    // Possibly unsafe cast here, but pcre_exec expects an int.
+		// Possibly unsafe cast here, but pcre_exec expects an int.
 		return (pcre_exec(regex, NULL, text.c_str(), int(text.length()), 0, 0, NULL, 0) >= 0);
 	}
 };

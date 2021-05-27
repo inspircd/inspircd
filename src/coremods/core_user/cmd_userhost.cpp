@@ -36,7 +36,7 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 	if (max > 5)
 		max = 5;
 
-  // This cast is safe thanks to the above clamp.
+	// This cast is safe thanks to the above clamp.
 	for (unsigned int i = 0; i < static_cast<unsigned int>(max); i++)
 	{
 		User *u = ServerInstance->FindNickOnly(parameters[i]);

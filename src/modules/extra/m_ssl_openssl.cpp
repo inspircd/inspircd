@@ -776,7 +776,7 @@ class OpenSSLIOHook : public SSLIOHook
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
-      // This cast may be unsafe but an int is expected by SSL_read.
+			// This cast may be unsafe but an int is expected by SSL_read.
 			int bufsiz = static_cast<int>(ServerInstance->Config->NetBufferSize);
 			int ret = SSL_read(sess, buffer, bufsiz);
 
