@@ -87,7 +87,7 @@ class IOHook : public Cullable
 	 * @return 1 if the sendq has been completely emptied, 0 if there is
 	 *  still data to send, and -1 if there was an error
 	 */
-	virtual int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& sendq) = 0;
+	virtual ssize_t OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& sendq) = 0;
 
 	/** Called immediately before the hooked socket is closed. When this event is called, shutdown()
 	 * has not yet been called on the socket.

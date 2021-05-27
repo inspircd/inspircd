@@ -723,7 +723,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);

@@ -587,7 +587,7 @@ class ModuleLDAP : public Module
 			s->process_mutex.lock();
 			s->LockQueue();
 
-			for (unsigned int i = s->queries.size(); i > 0; --i)
+			for (size_t i = s->queries.size(); i > 0; --i)
 			{
 				LDAPRequest* req = s->queries[i - 1];
 				LDAPInterface* li = req->inter;
@@ -599,7 +599,7 @@ class ModuleLDAP : public Module
 				}
 			}
 
-			for (unsigned int i = s->results.size(); i > 0; --i)
+			for (size_t i = s->results.size(); i > 0; --i)
 			{
 				LDAPRequest* req = s->results[i - 1];
 				LDAPInterface* li = req->inter;

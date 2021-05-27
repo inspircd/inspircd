@@ -235,7 +235,7 @@ void StreamSocket::DoWrite()
 	IOHook* hook = GetIOHook();
 	while (hook)
 	{
-		int rv = hook->OnStreamSocketWrite(this, *psendq);
+		ssize_t rv = hook->OnStreamSocketWrite(this, *psendq);
 		psendq = NULL;
 
 		// rv == 0 means the socket has blocked. Stop trying to send data.

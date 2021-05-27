@@ -229,7 +229,7 @@ namespace GnuTLS
 		}
 
 		gnutls_x509_crt_t* raw() { return &certs[0]; }
-		unsigned int size() const { return certs.size(); }
+		size_t size() const { return certs.size(); }
 	};
 
 	class X509CRL
@@ -388,7 +388,7 @@ namespace GnuTLS
 			, certs(certstr)
 		{
 			// Throwing is ok here, the destructor of Credentials is called in that case
-			int ret = gnutls_certificate_set_x509_key(cred, certs.raw(), certs.size(), key.get());
+			int ret = gnutls_certificate_set_x509_key(cred, certs.raw(), static_cast<int>(certs.size()), key.get());
 			ThrowOnError(ret, "Unable to set cert/key pair");
 
 			gnutls_certificate_set_retrieve_function(cred, cert_callback);
@@ -402,7 +402,7 @@ namespace GnuTLS
 			// Do nothing if certlist is NULL
 			if (certlist.get())
 			{
-				int ret = gnutls_certificate_set_x509_trust(cred, certlist->raw(), certlist->size());
+				int ret = gnutls_certificate_set_x509_trust(cred, certlist->raw(), static_cast<int>(certlist->size()));
 				ThrowOnError(ret, "gnutls_certificate_set_x509_trust() failed");
 
 				if (CRL.get())
@@ -419,7 +419,7 @@ namespace GnuTLS
 
 	class DataReader
 	{
-		int retval;
+		ssize_t retval;
 #ifdef INSPIRCD_GNUTLS_HAS_RECV_PACKET
 		gnutls_packet_t packet;
 
@@ -459,7 +459,7 @@ namespace GnuTLS
 		}
 #endif
 
-		int ret() const { return retval; }
+		ssize_t ret() const { return retval; }
 	};
 
 	class Profile
@@ -551,7 +551,7 @@ namespace GnuTLS
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))
 				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
 				, priostr(GetPrioStr(profilename, tag))
-				, mindh(tag->getUInt("mindhbits", 1024))
+				, mindh(static_cast<unsigned int>(tag->getUInt("mindhbits", 1024, 0, UINT32_MAX)))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
@@ -568,9 +568,9 @@ namespace GnuTLS
 
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 				// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
-				outrecsize = tag->getUInt("outrecsize", 2048, 512);
+				outrecsize = static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, UINT32_MAX));
 #else
-				outrecsize = tag->getUInt("outrecsize", 2048, 512, 16384);
+				outrecsize = static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384));
 #endif
 			}
 		};
@@ -853,7 +853,7 @@ info_done_dealloc:
 			return -1;
 		}
 
-		int rv = SocketEngine::Recv(sock, reinterpret_cast<char *>(buffer), size, 0);
+		ssize_t rv = SocketEngine::Recv(sock, reinterpret_cast<char *>(buffer), size, 0);
 
 #ifdef _WIN32
 		if (rv < 0)
@@ -867,7 +867,7 @@ info_done_dealloc:
 		}
 #endif
 
-		if (rv < (int)size)
+		if (rv < 0 || size_t(rv) < size)
 			SocketEngine::ChangeEventMask(sock, FD_READ_WILL_BLOCK);
 		return rv;
 	}
@@ -889,14 +889,14 @@ info_done_dealloc:
 		}
 
 		// Cast the giovec_t to iovec not to IOVector so the correct function is called on Windows
-		int ret = SocketEngine::WriteV(sock, reinterpret_cast<const iovec*>(iov), iovcnt);
+		ssize_t ret = SocketEngine::WriteV(sock, reinterpret_cast<const iovec*>(iov), iovcnt);
 #ifdef _WIN32
 		// See the function above for more info about the usage of gnutls_transport_set_errno() on Windows
 		if (ret < 0)
 			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
 #endif
 
-		int size = 0;
+		ssize_t size = 0;
 		for (int i = 0; i < iovcnt; i++)
 			size += iov[i].iov_len;
 
@@ -934,7 +934,7 @@ info_done_dealloc:
 		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
 		{
 			GnuTLS::DataReader reader(sess);
-			int ret = reader.ret();
+			ssize_t ret = reader.ret();
 			if (ret > 0)
 			{
 				reader.appendto(recvq);
@@ -955,14 +955,14 @@ info_done_dealloc:
 			}
 			else
 			{
-				user->SetError(gnutls_strerror(ret));
+				user->SetError(gnutls_strerror(int(ret)));
 				CloseSession();
 				return -1;
 			}
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -975,7 +975,7 @@ info_done_dealloc:
 		while (true)
 		{
 			// If there is something in the GnuTLS buffer try to send() it
-			int ret = FlushBuffer(user);
+			ssize_t ret = FlushBuffer(user);
 			if (ret <= 0)
 				return ret; // Couldn't flush entire buffer, retry later (or close on error)
 
@@ -1066,7 +1066,7 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	StreamSocket* sock = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(sess));
 	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile().GetX509Credentials();
 
-	st->ncerts = cred.certs.size();
+	st->ncerts = static_cast<unsigned int>(cred.certs.size());
 	st->cert.x509 = cred.certs.raw();
 	st->key.x509 = cred.key.get();
 	st->deinit_all = 0;

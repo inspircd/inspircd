@@ -384,7 +384,7 @@ class HAProxyHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
 	{
 		// We don't need to implement this.
 		GetSendQ().moveall(uppersendq);
