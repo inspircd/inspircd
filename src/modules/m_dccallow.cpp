@@ -108,7 +108,7 @@ bannedfilelist bfl;
 class DCCAllowExt : public SimpleExtItem<dccallowlist>
 {
  public:
-	unsigned int maxentries;
+	unsigned long maxentries;
 
 	DCCAllowExt(Module* Creator)
 		: SimpleExtItem<dccallowlist>("dccallow", ExtensionItem::EXT_USER, Creator)

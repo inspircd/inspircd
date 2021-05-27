@@ -46,12 +46,12 @@ class HostRule
 	HostChangeAction action;
 	std::string host;
 	std::string mask;
-	insp::flat_set<int> ports;
+	insp::flat_set<long> ports;
 	std::string prefix;
 	std::string suffix;
 
  public:
-	HostRule(const std::string& Mask, const std::string& Host, const insp::flat_set<int>& Ports)
+	HostRule(const std::string& Mask, const std::string& Host, const insp::flat_set<long>& Ports)
 		: action(HCA_SET)
 		, host(Host)
 		, mask(Mask)
@@ -59,7 +59,7 @@ class HostRule
 	{
 	}
 
-	HostRule(HostChangeAction Action, const std::string& Mask, const insp::flat_set<int>& Ports, const std::string& Prefix, const std::string& Suffix)
+	HostRule(HostChangeAction Action, const std::string& Mask, const insp::flat_set<long>& Ports, const std::string& Prefix, const std::string& Suffix)
 		: action(Action)
 		, mask(Mask)
 		, ports(Ports)
@@ -138,12 +138,12 @@ private:
 			if (mask.empty())
 				throw ModuleException("<hostchange:mask> is a mandatory field, at " + tag->getTagLocation());
 
-			insp::flat_set<int> ports;
+			insp::flat_set<long> ports;
 			const std::string portlist = tag->getString("ports");
 			if (!portlist.empty())
 			{
 				irc::portparser portrange(portlist, false);
-				while (int port = portrange.GetToken())
+				while (long port = portrange.GetToken())
 					ports.insert(port);
 			}
 

@@ -83,7 +83,7 @@ class SpanningTreeUtilities : public classbase
 	/* Number of seconds that a server can go without ping
 	 * before opers are warned of high latency.
 	 */
-	unsigned int PingWarnTime;
+	unsigned long PingWarnTime;
 	/** This variable represents the root of the server tree
 	 */
 	TreeServer *TreeRoot;
@@ -108,7 +108,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Ping frequency of server to server links
 	 */
-	unsigned int PingFreq;
+	unsigned long PingFreq;
 
 	/** Initialise utility class
 	 */

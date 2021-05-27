@@ -193,7 +193,7 @@ void ISupportManager::Build()
 
 	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
 	tokens["CASEMAPPING"] = ServerInstance->Config->CaseMapping;
-	tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", ServerInstance->Config->MaxChans);
+	tokens["CHANLIMIT"] = InspIRCd::Format("#:%lu", ServerInstance->Config->MaxChans);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
 	tokens["HOSTLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxHost);

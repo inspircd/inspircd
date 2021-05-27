@@ -31,13 +31,13 @@ class CustomPrefixMode : public PrefixMode
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		unsigned long rank = tag->getUInt("rank", 0, 0, UINT_MAX);
-		unsigned long setrank = tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX);
-		unsigned long unsetrank = tag->getUInt("ranktounset", setrank, setrank, UINT_MAX);
+		unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", 0, 0, UINT_MAX));
+		unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX));
+		unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", setrank, setrank, UINT_MAX));
 		bool depriv = tag->getBool("depriv", true);
 		this->Update(rank, setrank, unsetrank, depriv);
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Created the %s prefix: letter=%c prefix=%c rank=%u ranktoset=%u ranktounset=%i depriv=%d",
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Created the %s prefix: letter=%c prefix=%c rank=%u ranktoset=%u ranktounset=%u depriv=%d",
 			name.c_str(), GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false), CanSelfRemove());
 	}
 };
@@ -67,9 +67,9 @@ class ModuleCustomPrefix : public Module
 				if (!pm)
 					throw ModuleException("<customprefix:change> specified for a non-prefix mode at " + tag->getTagLocation());
 
-				unsigned long rank = tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX);
-				unsigned long setrank = tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX);
-				unsigned long unsetrank = tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX);
+				unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX));
+				unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX));
+				unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX));
 				bool depriv = tag->getBool("depriv", pm->CanSelfRemove());
 				pm->Update(rank, setrank, unsetrank, depriv);
 

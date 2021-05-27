@@ -46,7 +46,7 @@ class FlashPDSocket : public BufferedSocket, public Timer, public insp::intrusiv
 	}
 
  public:
-	FlashPDSocket(int newfd, unsigned int timeoutsec)
+	FlashPDSocket(int newfd, unsigned long timeoutsec)
 		: BufferedSocket(newfd)
 		, Timer(timeoutsec)
 		, waitingcull(false)
@@ -84,7 +84,7 @@ class FlashPDSocket : public BufferedSocket, public Timer, public insp::intrusiv
 
 class ModuleFlashPD : public Module
 {
-	unsigned int timeout;
+	unsigned long timeout;
 
  public:
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE

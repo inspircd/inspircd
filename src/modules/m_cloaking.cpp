@@ -466,7 +466,7 @@ class ModuleCloaking : public Module
 			const std::string suffix = tag->getString("suffix", ".IP");
 			if (stdalgo::string::equalsci(mode, "half"))
 			{
-				unsigned int domainparts = tag->getUInt("domainparts", 3, 1, 10);
+				unsigned int domainparts = static_cast<unsigned int>(tag->getUInt("domainparts", 3, 1, 10));
 				newcloaks.push_back(CloakInfo(MODE_HALF_CLOAK, key, prefix, suffix, ignorecase, domainparts));
 			}
 			else if (stdalgo::string::equalsci(mode, "full"))

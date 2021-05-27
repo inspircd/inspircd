@@ -128,7 +128,7 @@ class CommandWatch : public SplitCommand
 	}
 
  public:
-	unsigned int maxwatch;
+	unsigned long maxwatch;
 
 	CommandWatch(Module* mod, IRCv3::Monitor::Manager& managerref)
 		: SplitCommand(mod, "WATCH")

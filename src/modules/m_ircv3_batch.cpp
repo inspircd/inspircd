@@ -150,7 +150,8 @@ class IRCv3::Batch::ManagerImpl : public Manager
 		if (id >= MAX_BATCHES)
 			return;
 
-		batch.Setup(id);
+    // This cast is safe thanks to the clamping above.
+		batch.Setup(static_cast<unsigned int>(id));
 		// Set the manager field which Batch::IsRunning() checks and is also used by AddToBatch()
 		// to set the message tag
 		batch.manager = this;

@@ -34,12 +34,12 @@ class CommandModeNotice : public Command
 	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
 	{
 		std::string msg = "*** From " + src->nick + ": " + parameters[1];
-		int mlen = parameters[0].length();
+		size_t mlen = parameters[0].length();
 		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			User* user = *i;
-			for (int n = 0; n < mlen; n++)
+			for (size_t n = 0; n < mlen; n++)
 			{
 				if (!user->IsModeSet(parameters[0][n]))
 					goto next_user;

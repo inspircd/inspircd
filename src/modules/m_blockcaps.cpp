@@ -33,7 +33,7 @@ class ModuleBlockCAPS : public Module
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelModeHandler bc;
 	unsigned int percent;
-	unsigned int minlen;
+	size_t minlen;
 	std::bitset<UCHAR_MAX + 1> lowercase;
 	std::bitset<UCHAR_MAX + 1> uppercase;
 
@@ -98,7 +98,7 @@ public:
 				// any upper case letters.
 				if (length > 0 && round((upper * 100) / length) >= percent)
 				{
-					const std::string msg = InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %d characters", percent, minlen);
+					const std::string msg = InspIRCd::Format("Your message cannot contain %d%% or more capital letters if it's longer than %zu characters", percent, minlen);
 					user->WriteNumeric(Numerics::CannotSendTo(c, msg));
 					return MOD_RES_DENY;
 				}
@@ -110,7 +110,7 @@ public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
-		percent = tag->getUInt("percent", 100, 1, 100);
+		percent = static_cast<unsigned int>(tag->getUInt("percent", 100, 1, 100));
 		minlen = tag->getUInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
 
 		lowercase.reset();

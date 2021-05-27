@@ -76,14 +76,14 @@ class MD5Provider : public HashProvider
 		ctx->bytes[1] = 0;
 	}
 
-	void MD5Update(MD5Context *ctx, byte const *buf, int len)
+	void MD5Update(MD5Context *ctx, byte const *buf, size_t len)
 	{
 		word32 t;
 
 		/* Update byte count */
 
 		t = ctx->bytes[0];
-		if ((ctx->bytes[0] = t + len) < t)
+		if ((ctx->bytes[0] = word32(t + len)) < t)
 			ctx->bytes[1]++;	/* Carry from low to high */
 
 		t = 64 - (t & 0x3f);	/* Space available in ctx->in (at least 1) */
@@ -229,7 +229,7 @@ class MD5Provider : public HashProvider
 	}
 
 
-	void MyMD5(void *dest, void *orig, int len)
+	void MyMD5(void *dest, void *orig, size_t len)
 	{
 		MD5Context context;
 		MD5Init(&context);

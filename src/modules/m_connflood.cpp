@@ -28,11 +28,11 @@
 class ModuleConnFlood : public Module
 {
  private:
-	unsigned int seconds;
-	unsigned int timeout;
-	unsigned int boot_wait;
-	unsigned int conns;
-	unsigned int maxconns;
+	unsigned long seconds;
+	unsigned long timeout;
+	unsigned long boot_wait;
+	unsigned long conns;
+	unsigned long maxconns;
 	bool throttled;
 	time_t first;
 	std::string quitmsg;
@@ -81,7 +81,7 @@ public:
 
 		time_t next = ServerInstance->Time();
 
-		if ((ServerInstance->startup_time + boot_wait) > next)
+		if (time_t(ServerInstance->startup_time + boot_wait) > next)
 			return MOD_RES_PASSTHRU;
 
 		/* time difference between first and latest connection */
@@ -92,7 +92,7 @@ public:
 
 		if (throttled)
 		{
-			if (tdiff > seconds + timeout)
+			if (tdiff > time_t(seconds + timeout))
 			{
 				/* expire throttle */
 				throttled = false;
@@ -104,7 +104,7 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (tdiff <= seconds)
+		if (tdiff <= time_t(seconds))
 		{
 			if (conns >= maxconns)
 			{

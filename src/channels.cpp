@@ -177,12 +177,12 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	 */
 	if (!override)
 	{
-		unsigned int maxchans = user->GetClass()->maxchans;
+		unsigned long maxchans = user->GetClass()->maxchans;
 		if (!maxchans)
 			maxchans = ServerInstance->Config->MaxChans;
 		if (user->IsOper())
 		{
-			unsigned int opermaxchans = ConvToNum<unsigned int>(user->oper->getConfig("maxchans"));
+			unsigned long opermaxchans = ConvToNum<unsigned long>(user->oper->getConfig("maxchans"));
 			// If not set, use 2.0's <channels:opers>, if that's not set either, use limit from CC
 			if (!opermaxchans && user->HasPrivPermission("channels/high-join-limit"))
 				opermaxchans = ServerInstance->Config->OperMaxChans;

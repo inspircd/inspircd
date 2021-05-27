@@ -28,8 +28,8 @@
 
 struct LusersCounters
 {
-	unsigned int max_local;
-	unsigned int max_global;
+	unsigned long max_local;
+	unsigned long max_global;
 	unsigned int invisible;
 
 	LusersCounters(unsigned int inv)
@@ -41,7 +41,7 @@ struct LusersCounters
 
 	inline void UpdateMaxUsers()
 	{
-		unsigned int current = ServerInstance->Users->LocalUserCount();
+		unsigned long current = ServerInstance->Users->LocalUserCount();
 		if (current > max_local)
 			max_local = current;
 
@@ -74,10 +74,10 @@ class CommandLusers : public Command
  */
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
+	size_t n_users = ServerInstance->Users->RegisteredUserCount();
 	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
-	unsigned int n_serv = serverlist.size();
+	size_t n_serv = serverlist.size();
 	unsigned int n_local_servs = 0;
 	for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
 	{
@@ -90,7 +90,7 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 
 	counters.UpdateMaxUsers();
 
-	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %d users and %d invisible on %d servers",
+	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %lu users and %d invisible on %zu servers",
 			n_users - counters.invisible, counters.invisible, n_serv));
 
 	if (ServerInstance->Users->OperCount())
@@ -100,9 +100,9 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %d clients and %d servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
-	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %d  Max: %d", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %d  Max: %d", n_users, counters.max_global));
+	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %zu clients and %d servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
+	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %zu  Max: %lu", ServerInstance->Users.LocalUserCount(), counters.max_local));
+	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %lu  Max: %lu", n_users, counters.max_global));
 
 	return CMD_SUCCESS;
 }

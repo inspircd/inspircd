@@ -52,7 +52,8 @@ class HashSHA256 : public HashProvider
 	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
-		sha256((unsigned char*)data.data(), data.length(),  bytes);
+		// Possibly unsafe cast to unsigned int, but it's expected by sha256.
+		sha256((unsigned char*)data.data(), (unsigned int)data.length(),  bytes);
 		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 

@@ -47,9 +47,9 @@ class CoreExport ProtocolInterface
 		std::string servername;
 		std::string parentname;
 		std::string description;
-		unsigned int usercount;
-		unsigned int opercount;
-		unsigned int latencyms;
+		size_t usercount;
+		size_t opercount;
+		unsigned long latencyms;
 	};
 
 	typedef std::vector<ServerInfo> ServerList;

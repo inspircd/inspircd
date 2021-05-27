@@ -181,7 +181,7 @@ class CommandAccept : public Command
 
 public:
 	CallerIDExtInfo extInfo;
-	unsigned int maxaccepts;
+	unsigned long maxaccepts;
 	CommandAccept(Module* Creator) : Command(Creator, "ACCEPT", 1),
 		extInfo(Creator)
 	{
@@ -282,7 +282,7 @@ public:
 		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			user->WriteNumeric(ERR_ACCEPTFULL, InspIRCd::Format("Accept list is full (limit is %d)", maxaccepts));
+			user->WriteNumeric(ERR_ACCEPTFULL, InspIRCd::Format("Accept list is full (limit is %lu)", maxaccepts));
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
@@ -362,7 +362,7 @@ class ModuleCallerID
 
 	// Configuration variables:
 	bool tracknick; // Allow ACCEPT entries to update with nick changes.
-	unsigned int notify_cooldown; // Seconds between notifications.
+	unsigned long notify_cooldown; // Seconds between notifications.
 
 	/** Removes a user from all accept lists
 	 * @param who The user to remove from accepts

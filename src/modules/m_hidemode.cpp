@@ -50,11 +50,11 @@ class Settings
 			if (modename.empty())
 				throw ModuleException("<hidemode:mode> is empty at " + tag->getTagLocation());
 
-			unsigned int rank = tag->getUInt("rank", 0);
+			unsigned long rank = tag->getUInt("rank", 0);
 			if (!rank)
 				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->getTagLocation());
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %u", modename.c_str(), rank);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %lu", modename.c_str(), rank);
 			newranks.insert(std::make_pair(modename, rank));
 		}
 		rankstosee.swap(newranks);

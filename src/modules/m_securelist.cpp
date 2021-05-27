@@ -35,7 +35,7 @@ class ModuleSecureList : public Module
 	AllowList allowlist;
 	bool exemptregistered;
 	bool showmsg;
-	unsigned int WaitTime;
+	unsigned long WaitTime;
 
  public:
 	Version GetVersion() CXX11_OVERRIDE

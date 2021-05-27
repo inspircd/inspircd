@@ -42,7 +42,7 @@ class BCryptProvider : public HashProvider
 	}
 
  public:
-	unsigned int rounds;
+	unsigned long rounds;
 
 	std::string Generate(const std::string& data, const std::string& salt)
 	{

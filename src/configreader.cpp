@@ -307,8 +307,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			if (!ports.empty())
 			{
 				irc::portparser portrange(ports, false);
-				while (int port = portrange.GetToken())
-					me->ports.insert(port);
+				while (long port = portrange.GetToken())
+					me->ports.insert(static_cast<int>(port));
 			}
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));

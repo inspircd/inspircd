@@ -376,20 +376,20 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 	 * @param index Index of the parameter to replace. Must be less than GetParams().size().
 	 * @param str String to replace the parameter or placeholder with, will be copied.
 	 */
-	void ReplaceParam(unsigned int index, const char* str) { params[index] = Param(0, str); }
+	void ReplaceParam(size_t index, const char* str) { params[index] = Param(0, str); }
 
 	/** Replace a parameter or a placeholder that is already in the parameter list.
 	 * @param index Index of the parameter to replace. Must be less than GetParams().size().
 	 * @param str String to replace the parameter or placeholder with, will be copied.
 	 */
-	void ReplaceParam(unsigned int index, const std::string& str) { params[index] = Param(0, str); }
+	void ReplaceParam(size_t index, const std::string& str) { params[index] = Param(0, str); }
 
 	/** Replace a parameter or a placeholder that is already in the parameter list.
 	 * @param index Index of the parameter to replace. Must be less than GetParams().size().
 	 * @param str String to replace the parameter or placeholder with.
 	 * The string will NOT be copied, it must remain alive until ClearParams() is called or until the object is destroyed.
 	 */
-	void ReplaceParamRef(unsigned int index, const std::string& str) { params[index] = Param(str); }
+	void ReplaceParamRef(size_t index, const std::string& str) { params[index] = Param(str); }
 
 	/** Add a tag.
 	 * @param tagname Raw name of the tag to use in the protocol.

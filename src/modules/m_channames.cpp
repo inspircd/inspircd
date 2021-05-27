@@ -117,12 +117,12 @@ class ModuleChannelNames : public Module
 		allowedmap.set();
 
 		irc::portparser denyrange(denyToken, false);
-		int denyno = -1;
+		long denyno = -1;
 		while (0 != (denyno = denyrange.GetToken()))
 			allowedmap[denyno & 0xFF] = false;
 
 		irc::portparser allowrange(allowToken, false);
-		int allowno = -1;
+		long allowno = -1;
 		while (0 != (allowno = allowrange.GetToken()))
 			allowedmap[allowno & 0xFF] = true;
 

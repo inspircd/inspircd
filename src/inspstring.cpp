@@ -103,7 +103,7 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 		const char* find = strchr(table, *data++);
 		if (!find || find >= table + 64)
 			break;
-		buffer = (buffer << 6) | (find - table);
+		buffer = (buffer << 6) | static_cast<uint32_t>(find - table);
 		bitcount += 6;
 		if (bitcount >= 8)
 		{

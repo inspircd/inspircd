@@ -86,19 +86,22 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	SocketEngine::SetReuse(fd);
 	int rv = SocketEngine::Bind(this->fd, bind_to);
 	if (rv >= 0)
-		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
+	{
+		int maxconn = static_cast<int>(ServerInstance->Config->MaxConn);
+		rv = SocketEngine::Listen(this->fd, maxconn);
+	}
 
 	if (bind_to.family() == AF_UNIX)
 	{
 		const std::string permissionstr = tag->getString("permissions");
-		unsigned int permissions = strtoul(permissionstr.c_str(), NULL, 8);
+		unsigned long permissions = strtoul(permissionstr.c_str(), NULL, 8);
 		if (permissions && permissions <= 07777)
-			chmod(bind_to.str().c_str(), permissions);
+			chmod(bind_to.str().c_str(), static_cast<__mode_t>(permissions));
 	}
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first
 	unsigned int timeoutdef = tag->getString("sslprofile", tag->getString("ssl")).empty() ? 0 : 3;
-	int timeout = tag->getDuration("defer", timeoutdef, 0, 60);
+	unsigned long timeout = tag->getDuration("defer", timeoutdef, 0, 60);
 	if (timeout && !rv)
 	{
 #if defined TCP_DEFER_ACCEPT

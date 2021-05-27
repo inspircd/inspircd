@@ -110,7 +110,7 @@ void ListModeBase::DoRehash()
 	}
 }
 
-unsigned int ListModeBase::FindLimit(const std::string& channame)
+unsigned long ListModeBase::FindLimit(const std::string& channame)
 {
 	for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); ++it)
 	{
@@ -123,14 +123,14 @@ unsigned int ListModeBase::FindLimit(const std::string& channame)
 	return 0;
 }
 
-unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
+unsigned long ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
 {
 	if (cd->maxitems < 0)
 		cd->maxitems = FindLimit(channame);
 	return cd->maxitems;
 }
 
-unsigned int ListModeBase::GetLimit(Channel* channel)
+unsigned long ListModeBase::GetLimit(Channel* channel)
 {
 	ChanData* cd = extItem.get(channel);
 	if (!cd) // just find the limit
@@ -144,13 +144,14 @@ unsigned int ListModeBase::GetLowerLimit()
 	if (chanlimits.empty())
 		return DEFAULT_LIST_SIZE;
 
-	unsigned int limit = UINT_MAX;
+	// The below cast to unsigned int is safe thanks to this initializer.
+	unsigned long limit = UINT_MAX;
 	for (limitlist::iterator iter = chanlimits.begin(); iter != chanlimits.end(); ++iter)
 	{
 		if (iter->limit < limit)
 			limit = iter->limit;
 	}
-	return limit;
+	return static_cast<unsigned int>(limit);
 }
 
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

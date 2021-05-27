@@ -55,7 +55,7 @@ static inline bool IsHidden(User* user, TreeServer* server)
 }
 
 // Calculate the map depth the servers go, and the longest server name
-static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int& max_depth, unsigned int& max_len, unsigned int& max_version)
+static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int& max_depth, size_t& max_len, size_t& max_version)
 {
 	if (depth > max_depth)
 		max_depth = depth;
@@ -74,7 +74,7 @@ static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int
 	}
 }
 
-static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned int max_len, unsigned int max_version_len, unsigned int depth)
+static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t max_len, size_t max_version_len, unsigned int depth)
 {
 	float percent = 0;
 
@@ -102,7 +102,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 	// Pad with spaces until its at max len, max_len must always be >= my names length
 	buffer.append(max_len - current->GetName().length(), ' ');
 
-	buffer += InspIRCd::Format("%5d [%5.2f%%]", current->UserCount, percent);
+	buffer += InspIRCd::Format("%5zu [%5.2f%%]", current->UserCount, percent);
 
 	if (user->IsOper())
 	{
@@ -126,7 +126,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 			if (!IsHidden(user, *j))
 				last = false;
 
-		unsigned int next_len;
+		size_t next_len;
 
 		if (user->IsOper() || !Utils->FlatLinks)
 		{
@@ -200,11 +200,11 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 
 	// Max depth and max server name length
 	unsigned int max_depth = 0;
-	unsigned int max_len = 0;
-	unsigned int max_version = 0;
+	size_t max_len = 0;
+	size_t max_version = 0;
 	GetDepthAndLen(Utils->TreeRoot, 0, max_depth, max_len, max_version);
 
-	unsigned int max;
+	size_t max;
 	if (user->IsOper() || !Utils->FlatLinks)
 	{
 		// Each level of the map is indented by 2 characters, making the max possible line (max_depth * 2) + max_len

@@ -351,7 +351,7 @@ namespace
 #if defined _WIN32
 		srand(ts.tv_nsec ^ ts.tv_sec);
 #elif !defined HAS_ARC4RANDOM_BUF
-		srandom(ts.tv_nsec ^ ts.tv_sec);
+		srandom(static_cast<int>(ts.tv_nsec ^ ts.tv_sec));
 #endif
 	}
 

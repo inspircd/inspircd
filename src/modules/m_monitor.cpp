@@ -120,7 +120,7 @@ class IRCv3::Monitor::Manager
 		WR_INVALIDNICK
 	};
 
-	WatchResult Watch(LocalUser* user, const std::string& nick, unsigned int maxwatch)
+	WatchResult Watch(LocalUser* user, const std::string& nick, unsigned long maxwatch)
 	{
 		if (!ServerInstance->IsNick(nick))
 			return WR_INVALIDNICK;
@@ -303,7 +303,7 @@ class CommandMonitor : public SplitCommand
 	}
 
  public:
-	unsigned int maxmonitor;
+	unsigned long maxmonitor;
 
 	CommandMonitor(Module* mod, IRCv3::Monitor::Manager& managerref)
 		: SplitCommand(mod, "MONITOR", 1)

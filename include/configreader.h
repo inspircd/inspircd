@@ -347,12 +347,12 @@ class CoreExport ServerConfig
 	 * handling code, used to read data into a user's
 	 * recvQ.
 	 */
-	int NetBufferSize;
+	unsigned long NetBufferSize;
 
 	/** The value to be used for listen() backlogs
 	 * as default.
 	 */
-	int MaxConn;
+	unsigned long MaxConn;
 
 	/** If we should check for clones during CheckClass() in AddUser()
 	 * Setting this to false allows to not trigger on maxclones for users
@@ -365,12 +365,12 @@ class CoreExport ServerConfig
 	 * The IRC server will not allow more than this
 	 * number of local users.
 	 */
-	unsigned int SoftLimit;
+	unsigned long SoftLimit;
 
 	/** Maximum number of targets for a multi target command
 	 * such as PRIVMSG or KICK
 	 */
-	unsigned int MaxTargets;
+	unsigned long MaxTargets;
 
 	/** The number of seconds that the server clock can skip by before server operators are warned. */
 	time_t TimeSkipWarn;
@@ -426,11 +426,11 @@ class CoreExport ServerConfig
 
 	/** Default value for <connect:maxchans>, deprecated in 3.0
 	 */
-	unsigned int MaxChans;
+	unsigned long MaxChans;
 
 	/** Default value for <oper:maxchans>, deprecated in 3.0
 	 */
-	unsigned int OperMaxChans;
+	unsigned long OperMaxChans;
 
 	/** Unique server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This

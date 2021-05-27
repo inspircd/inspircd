@@ -513,7 +513,7 @@ std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 	return buffer;
 }
 
-std::string InspIRCd::GenRandomStr(unsigned int length, bool printable)
+std::string InspIRCd::GenRandomStr(size_t length, bool printable)
 {
 	std::vector<char> str(length);
 	GenRandom(&str[0], length);

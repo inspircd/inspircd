@@ -42,7 +42,7 @@ class DNSBLConfEntry : public refcountbase
 		EnumType type;
 		unsigned long duration;
 		unsigned int bitmask;
-		unsigned int timeout;
+		unsigned long timeout;
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses, stats_errors;
 		DNSBLConfEntry()
@@ -91,7 +91,7 @@ class DNSBLResolver : public DNS::Request
 			return;
 		}
 
-		int i = countExt.get(them);
+		intptr_t i = countExt.get(them);
 		if (i)
 			countExt.set(them, i - 1);
 
@@ -265,7 +265,7 @@ class DNSBLResolver : public DNS::Request
 		if (!them || them->client_sa != theirsa)
 			return;
 
-		int i = countExt.get(them);
+		intptr_t i = countExt.get(them);
 		if (i)
 			countExt.set(them, i - 1);
 
@@ -350,7 +350,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			if (stdalgo::string::equalsci(tag->getString("type"), "bitmask"))
 			{
 				e->type = DNSBLConfEntry::A_BITMASK;
-				e->bitmask = tag->getUInt("bitmask", 0, 0, UINT_MAX);
+				e->bitmask = static_cast<unsigned int>(tag->getUInt("bitmask", 0, 0, UINT_MAX));
 			}
 			else
 			{

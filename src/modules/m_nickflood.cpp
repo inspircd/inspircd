@@ -136,7 +136,7 @@ class ModuleNickFlood : public Module
 	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nickflood");
-		duration = tag->getDuration("duration", 60, 10, 600);
+		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
 	}
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE

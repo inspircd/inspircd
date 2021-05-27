@@ -386,7 +386,7 @@ class ModuleNationalChars : public Module
 		std::string buf;
 		getline(ifs, buf);
 
-		unsigned int i = 0;
+		unsigned long i = 0;
 		int fail = 0;
 
 		buf.erase(buf.find_last_not_of("\n") + 1);

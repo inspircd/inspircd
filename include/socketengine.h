@@ -250,14 +250,14 @@ class CoreExport SocketEngine
 		 * @param len_in Number of bytes received, or -1 for error, as typically
 		 * returned by a read-style syscall.
 		 */
-		void UpdateReadCounters(int len_in);
+		void UpdateReadCounters(ssize_t len_in);
 
 		/** Update counters for network data sent.
 		 * This should be called after every write-type syscall.
 		 * @param len_out Number of bytes sent, or -1 for error, as typically
 		 * returned by a read-style syscall.
 		 */
-		void UpdateWriteCounters(int len_out);
+		void UpdateWriteCounters(ssize_t len_out);
 
 		/** Get data transfer statistics.
 		 * @param kbitpersec_in Filled with incoming traffic in this second in kbit/s.
@@ -442,7 +442,7 @@ public:
 	 * @param flags A flag value that controls the sending of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Send(EventHandler* fd, const void *buf, size_t len, int flags);
+	static ssize_t Send(EventHandler* fd, const void *buf, size_t len, int flags);
 
 	/** Abstraction for vector write function writev().
 	 * This function should emulate its namesake system call exactly.
@@ -452,7 +452,7 @@ public:
 	 * @param count Number of elements in iov.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int WriteV(EventHandler* fd, const IOVector* iov, int count);
+	static ssize_t WriteV(EventHandler* fd, const IOVector* iov, int count);
 
 #ifdef _WIN32
 	/** Abstraction for vector write function writev() that accepts a POSIX format iovec.
@@ -473,7 +473,7 @@ public:
 	 * @param flags A flag value that controls the reception of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Recv(EventHandler* fd, void *buf, size_t len, int flags);
+	static ssize_t Recv(EventHandler* fd, void *buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
@@ -485,7 +485,7 @@ public:
 	 * @param fromlen The size of the from parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
+	static ssize_t RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
 
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.
@@ -496,7 +496,7 @@ public:
 	 * @param address The remote IP address and port.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address);
+	static ssize_t SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address);
 
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.

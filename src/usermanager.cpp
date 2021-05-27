@@ -182,7 +182,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
+		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %lu clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
 		return;
 	}
@@ -394,7 +394,7 @@ void UserManager::DoBackgroundUserStuff()
 
 		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
 		{
-			unsigned int rate = curr->MyClass->GetCommandRate();
+			unsigned long rate = curr->MyClass->GetCommandRate();
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else

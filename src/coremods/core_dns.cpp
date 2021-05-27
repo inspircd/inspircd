@@ -323,7 +323,7 @@ class Packet : public Query
 				}
 				else
 				{
-					unsigned long forward = ip.in4.sin_addr.s_addr;
+					in_addr_t forward = ip.in4.sin_addr.s_addr;
 					ip.in4.sin_addr.s_addr = forward << 24 | (forward & 0xFF00) << 8 | (forward & 0xFF0000) >> 8 | forward >> 24;
 
 					q.name = ip.addr() + ".in-addr.arpa";
@@ -476,7 +476,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 		/* Create an id */
 		unsigned int tries = 0;
-		int id;
+		long id;
 		do
 		{
 			id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID+1);
@@ -600,7 +600,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		irc::sockets::sockaddrs from;
 		socklen_t x = sizeof(from);
 
-		int length = SocketEngine::RecvFrom(this, buffer, sizeof(buffer), 0, &from.sa, &x);
+		ssize_t length = SocketEngine::RecvFrom(this, buffer, sizeof(buffer), 0, &from.sa, &x);
 
 		if (length < Packet::HEADER_LENGTH)
 			return;
@@ -873,7 +873,7 @@ class ModuleDNS : public Module
 		SourceIP = tag->getString("sourceip");
 
 		const unsigned int oldport = SourcePort;
-		SourcePort = tag->getUInt("sourceport", 0, 0, UINT16_MAX);
+		SourcePort = static_cast<unsigned int>(tag->getUInt("sourceport", 0, 0, UINT16_MAX));
 
 		if (DNSServer.empty())
 			FindDNSServer();
