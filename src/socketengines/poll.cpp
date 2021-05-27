@@ -156,7 +156,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 
 int SocketEngine::DispatchEvents()
 {
-	int i = poll(&events[0], CurrentSetSize, 1000);
+	int i = poll(&events[0], static_const<unsigned int>(CurrentSetSize), 1000);
 	int processed = 0;
 	ServerInstance->UpdateTime();
 
