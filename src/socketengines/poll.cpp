@@ -78,7 +78,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	unsigned int index = CurrentSetSize;
+	unsigned int index = static_cast<unsigned int>(CurrentSetSize);
 
 	if (!SocketEngine::AddFdRef(eh))
 	{
