@@ -301,41 +301,38 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 
 			if (rv == static_cast<int>(sq.bytes()))
 			{
-				if (static_cast<size_t>(rv) == sq.bytes())
+				// it's our lucky day, everything got written out. Fast cleanup.
+				// This won't ever happen if the number of buffers got capped.
+				sq.clear();
+			}
+			else if (rv > 0)
+			{
+				// Partial write. Clean out strings from the sendq
+				if (rv < rv_max)
 				{
-					// it's our lucky day, everything got written out. Fast cleanup.
-					// This won't ever happen if the number of buffers got capped.
-					sq.clear();
+					// it's going to block now
+					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 				}
-				else if (rv > 0)
+				while (rv > 0 && !sq.empty())
 				{
 					const SendQueue::Element& front = sq.front();
 					if (front.length() <= static_cast<size_t>(rv))
 					{
-						// it's going to block now
-						eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+						// this string got fully written out
+						rv -= front.length();
+						sq.pop_front();
 					}
-					while (rv > 0 && !sq.empty())
+					else
 					{
-						const SendQueue::Element& ft = sq.front();
-						if (ft.length() <= (size_t)rv)
-						{
-							// this string got fully written out
-							rv -= ft.length();
-							sq.pop_front();
-						}
-						else
-						{
-							// stopped in the middle of this string
-							sq.erase_front(rv);
-							rv = 0;
-						}
+						// stopped in the middle of this string
+						sq.erase_front(rv);
+						rv = 0;
 					}
 				}
-				else if (rv == 0)
-				{
-					error = "Connection closed";
-				}
+			}
+			else if (rv == 0)
+			{
+				error = "Connection closed";
 			}
 			else if (SocketEngine::IgnoreError())
 			{
