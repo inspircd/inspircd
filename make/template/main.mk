@@ -75,7 +75,7 @@ endif
 
 ifneq ($(COMPILER), ICC)
     CORECXXFLAGS += -Woverloaded-virtual -Wshadow -Werror
-    ifneq ($COMPILER), GCC)
+    ifneq ($(COMPILER), GCC)
       CORECXXFLAGS += -Wshorten-64-to-32
     endif
 ifneq ($(SYSTEM), openbsd)
