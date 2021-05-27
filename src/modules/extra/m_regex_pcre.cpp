@@ -70,7 +70,8 @@ class PCREPattern final
 
 	bool IsMatch(const std::string& text) override
 	{
-		return pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0;
+		// This cast is potentially unsafe but it's what pcre_exec expects.
+		return pcre_exec(regex, NULL, text.c_str(), int(text.length()), 0, 0, NULL, 0) >= 0;
 	}
 };
 

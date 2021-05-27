@@ -41,7 +41,7 @@ class ModuleSecureList final
 	std::string fakechanprefix;
 	std::string fakechantopic;
 	bool showmsg;
-	unsigned int waittime;
+	unsigned long waittime;
 
  public:
 	ModuleSecureList()
@@ -114,11 +114,11 @@ class ModuleSecureList final
 		for (unsigned long fakechan = 0; fakechan < fakechans; ++fakechan)
 		{
 			// Generate the fake channel name.
-			unsigned int chansuffixsize = ServerInstance->GenRandomInt(maxfakesuffix) + 1;
+			unsigned long chansuffixsize = ServerInstance->GenRandomInt(maxfakesuffix) + 1;
 			const std::string chansuffix = ServerInstance->GenRandomStr(chansuffixsize);
 
 			// Generate the fake channel size.
-			unsigned int chanusers = ServerInstance->GenRandomInt(ServerInstance->Users.GetUsers().size()) + 1;
+			unsigned long chanusers = ServerInstance->GenRandomInt(ServerInstance->Users.GetUsers().size()) + 1;
 
 			// Generate the fake channel topic.
 			std::string chantopic(fakechantopic);

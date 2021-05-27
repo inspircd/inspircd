@@ -202,7 +202,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	}
 
  public:
-	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned int timeoutsec)
+	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned long timeoutsec)
 		: BufferedSocket(newfd)
 		, Timer(timeoutsec)
 		, ip(IP)
@@ -404,7 +404,7 @@ class ModuleHttpServer : public Module
 {
  private:
 	HTTPdAPIImpl APIImpl;
-	unsigned int timeoutsec;
+	unsigned long timeoutsec;
 	Events::ModuleEventProvider acleventprov;
 	Events::ModuleEventProvider reqeventprov;
 

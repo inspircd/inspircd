@@ -31,9 +31,9 @@ class CustomPrefixMode : public PrefixMode
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		unsigned long rank = tag->getUInt("rank", 0, 0, UINT_MAX);
-		unsigned long setrank = tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX);
-		unsigned long unsetrank = tag->getUInt("ranktounset", setrank, setrank, UINT_MAX);
+		unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", 0, 0, UINT_MAX));
+		unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX));
+		unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", setrank, setrank, UINT_MAX));
 		bool depriv = tag->getBool("depriv", true);
 		this->Update(rank, setrank, unsetrank, depriv);
 
@@ -71,9 +71,9 @@ class ModuleCustomPrefix : public Module
 				if (!pm)
 					throw ModuleException("<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
 
-				unsigned long rank = tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX);
-				unsigned long setrank = tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX);
-				unsigned long unsetrank = tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX);
+				unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX));
+				unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX));
+				unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX));
 				bool depriv = tag->getBool("depriv", pm->CanSelfRemove());
 				pm->Update(rank, setrank, unsetrank, depriv);
 

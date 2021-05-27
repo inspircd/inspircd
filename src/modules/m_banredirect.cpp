@@ -85,11 +85,11 @@ class BanRedirect : public ModeWatcher
 				return true;
 
 			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
-			unsigned int maxbans = banlm->GetLimit(channel);
+			unsigned long maxbans = banlm->GetLimit(channel);
 			ListModeBase::ModeList* list = banlm->GetList(channel);
 			if (list && change.adding && maxbans <= list->size())
 			{
-				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %u)", channel->name.c_str(), maxbans));
+				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), InspIRCd::Format("Channel ban list for %s is full (maximum entries for this channel is %lu)", channel->name.c_str(), maxbans));
 				return false;
 			}
 

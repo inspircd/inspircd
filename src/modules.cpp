@@ -321,7 +321,7 @@ swap_now:
 		if (my_pos > swap_pos)
 			incrmnt = -1;
 
-		for (unsigned int j = my_pos; j != swap_pos; j += incrmnt)
+		for (size_t j = my_pos; j != swap_pos; j += incrmnt)
 		{
 			if ((j + incrmnt > EventHandlers[i].size() - 1) || ((incrmnt == -1) && (j == 0)))
 				continue;

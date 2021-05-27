@@ -349,13 +349,13 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	return MODEACTION_ALLOW;
 }
 
-void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex, unsigned int endindex)
+void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, size_t beginindex, size_t endindex)
 {
 	if (endindex > parameters.size())
 		endindex = parameters.size();
 
 	bool adding = true;
-	unsigned int param_at = beginindex+1;
+	size_t param_at = beginindex+1;
 
 	for (const auto& modechar : parameters[beginindex])
 	{

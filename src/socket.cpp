@@ -82,7 +82,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
 			irc::portparser portrange(portlist, false);
-			for (int port; (port = portrange.GetToken()); )
+			for (int port; (port = static_cast<int>(portrange.GetToken())); )
 			{
 				irc::sockets::sockaddrs bindspec;
 				if (!irc::sockets::aptosa(address, port, bindspec))

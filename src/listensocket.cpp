@@ -91,14 +91,15 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	if (bind_to.family() == AF_UNIX)
 	{
 		const std::string permissionstr = tag->getString("permissions");
-		unsigned int permissions = strtoul(permissionstr.c_str(), NULL, 8);
+		unsigned long permissions = strtoul(permissionstr.c_str(), NULL, 8);
 		if (permissions && permissions <= 07777)
-			chmod(bind_to.str().c_str(), permissions);
+			// This cast is safe thanks to the above check.
+			chmod(bind_to.str().c_str(), static_cast<int>(permissions));
 	}
 
 	// Default defer to on for TLS listeners because in TLS the client always speaks first
 	unsigned int timeoutdef = tag->getString("sslprofile").empty() ? 0 : 3;
-	int timeout = tag->getDuration("defer", timeoutdef, 0, 60);
+	int timeout = static_cast<int>(tag->getDuration("defer", timeoutdef, 0, 60));
 	if (timeout && !rv)
 	{
 #if defined TCP_DEFER_ACCEPT

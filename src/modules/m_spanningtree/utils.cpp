@@ -258,7 +258,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 		L->Name = tag->getString("name");
 		L->IPAddr = tag->getString("ipaddr");
-		L->Port = tag->getUInt("port", 0);
+		L->Port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");

@@ -103,7 +103,7 @@ void ListModeBase::DoRehash()
 	}
 }
 
-unsigned int ListModeBase::FindLimit(const std::string& channame)
+unsigned long ListModeBase::FindLimit(const std::string& channame)
 {
 	for (const auto& chanlimit : chanlimits)
 	{
@@ -116,14 +116,14 @@ unsigned int ListModeBase::FindLimit(const std::string& channame)
 	return 0;
 }
 
-unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
+unsigned long ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
 {
 	if (cd->maxitems < 0)
 		cd->maxitems = FindLimit(channame);
 	return cd->maxitems;
 }
 
-unsigned int ListModeBase::GetLimit(Channel* channel)
+unsigned long ListModeBase::GetLimit(Channel* channel)
 {
 	ChanData* cd = extItem.Get(channel);
 	if (!cd) // just find the limit
@@ -140,8 +140,9 @@ unsigned int ListModeBase::GetLowerLimit()
 	unsigned int limit = UINT_MAX;
 	for (const auto& chanlimit : chanlimits)
 	{
+		// This cast is safe as we start at UINT_MAX and reduce from there.
 		if (chanlimit.limit < limit)
-			limit = chanlimit.limit;
+			limit = static_cast<unsigned int>(chanlimit.limit);
 	}
 	return limit;
 }

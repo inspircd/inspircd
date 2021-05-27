@@ -185,9 +185,9 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool 
 	server->SQuitInternal(num_lost_servers, error);
 
 	const std::string quitreason = GetName() + " " + server->GetName();
-	unsigned int num_lost_users = QuitUsers(quitreason);
+	size_t num_lost_users = QuitUsers(quitreason);
 
-	ServerInstance->SNO.WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%u\002 user%s on \002%u\002 server%s.",
+	ServerInstance->SNO.WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%zu\002 user%s on \002%u\002 server%s.",
 		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 
 	// No-op if the socket is already closed (i.e. it called us)
@@ -214,12 +214,12 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 		Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerSplit, this, error);
 }
 
-unsigned int TreeServer::QuitUsers(const std::string& reason)
+size_t TreeServer::QuitUsers(const std::string& reason)
 {
 	std::string publicreason = Utils->HideSplits ? "*.net *.split" : reason;
 
 	const user_hash& users = ServerInstance->Users.GetUsers();
-	unsigned int original_size = users.size();
+	size_t original_size = users.size();
 	for (user_hash::const_iterator i = users.begin(); i != users.end(); )
 	{
 		User* user = i->second;

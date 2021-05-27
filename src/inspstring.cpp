@@ -171,7 +171,7 @@ std::string Base64::Decode(const void* data, size_t length, const char* table)
 			continue; // Skip invalid octets.
 
 		// Add the bits for this octet to the active buffer.
-		current_bits = (current_bits << 6) | (chr - table);
+		current_bits = (current_bits << 6) | uint32_t(chr - table);
 		seen_bits += 6;
 
 		if (seen_bits >= 8)

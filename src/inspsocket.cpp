@@ -55,7 +55,7 @@ BufferedSocket::BufferedSocket(int newfd)
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
 
-void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int maxtime)
+void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime)
 {
 	BufferedSocketError err = BeginConnect(dest, bind, maxtime);
 	if (err != I_ERR_NONE)
@@ -66,7 +66,7 @@ void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::s
 	}
 }
 
-BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout)
+BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout)
 {
 	if (!HasFd())
 		fd = socket(dest.family(), SOCK_STREAM, 0);
@@ -139,7 +139,7 @@ Cullable::Result StreamSocket::Cull()
 	return EventHandler::Cull();
 }
 
-int StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
+long StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
 {
 	if (!hook)
 		return ReadToRecvQ(rq);
@@ -148,7 +148,7 @@ int StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
 	if (iohm)
 	{
 		// Call the next hook to put data into the recvq of the current hook
-		const int ret = HookChainRead(iohm->GetNextHook(), iohm->GetRecvQ());
+		const long ret = HookChainRead(iohm->GetNextHook(), iohm->GetRecvQ());
 		if (ret <= 0)
 			return ret;
 	}
@@ -159,7 +159,7 @@ void StreamSocket::DoRead()
 {
 	const std::string::size_type prevrecvqsize = recvq.size();
 
-	const int result = HookChainRead(GetIOHook(), recvq);
+	const long result = HookChainRead(GetIOHook(), recvq);
 	if (result < 0)
 	{
 		SetError("Read Error"); // will not overwrite a better error message
@@ -170,42 +170,46 @@ void StreamSocket::DoRead()
 		OnDataReady();
 }
 
-int StreamSocket::ReadToRecvQ(std::string& rq)
+long StreamSocket::ReadToRecvQ(std::string& rq)
 {
-		char* ReadBuffer = ServerInstance->GetReadBuffer();
-		int n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
-		if (n == ServerInstance->Config->NetBufferSize)
+	char* ReadBuffer = ServerInstance->GetReadBuffer();
+	ssize_t n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
+	if (n >= 0)
+	{
+		unsigned long nrecv = static_cast<unsigned long>(n);
+		if (nrecv == ServerInstance->Config->NetBufferSize)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
 			rq.append(ReadBuffer, n);
 		}
-		else if (n > 0)
+		else if (nrecv > 0)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ);
 			rq.append(ReadBuffer, n);
 		}
-		else if (n == 0)
+		else if (nrecv == 0)
 		{
 			error = "Connection closed";
 			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 			return -1;
 		}
-		else if (SocketEngine::IgnoreError())
-		{
-			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
-			return 0;
-		}
-		else if (errno == EINTR)
-		{
-			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
-			return 0;
-		}
-		else
-		{
-			error = SocketEngine::LastError();
-			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
-			return -1;
-		}
+	}
+	else if (SocketEngine::IgnoreError())
+	{
+		SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
+		return 0;
+	}
+	else if (errno == EINTR)
+	{
+		SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
+		return 0;
+	}
+	else
+	{
+		error = SocketEngine::LastError();
+		SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+		return -1;
+	}
 	return n;
 }
 
@@ -270,8 +274,9 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 		int eventChange = FD_WANT_EDGE_WRITE;
 		while (error.empty() && !sq.empty() && eventChange == FD_WANT_EDGE_WRITE)
 		{
-			// Prepare a writev() call to write all buffers efficiently
-			int bufcount = sq.size();
+			// Prepare a writev() call to write all buffers efficiently. This cast is
+			// safe as we clamp to MYIOV_MAX right away anyway.
+			int bufcount = static_cast<int>(sq.size());
 
 			// cap the number of buffers at MYIOV_MAX
 			if (bufcount > MYIOV_MAX)
@@ -280,7 +285,7 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 			}
 
 			int rv_max = 0;
-			int rv;
+			ssize_t rv;
 			{
 				SocketEngine::IOVector iovecs[MYIOV_MAX];
 				size_t j = 0;
@@ -296,38 +301,41 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 
 			if (rv == static_cast<int>(sq.bytes()))
 			{
-				// it's our lucky day, everything got written out. Fast cleanup.
-				// This won't ever happen if the number of buffers got capped.
-				sq.clear();
-			}
-			else if (rv > 0)
-			{
-				// Partial write. Clean out strings from the sendq
-				if (rv < rv_max)
+				if (static_cast<size_t>(rv) == sq.bytes())
 				{
-					// it's going to block now
-					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+					// it's our lucky day, everything got written out. Fast cleanup.
+					// This won't ever happen if the number of buffers got capped.
+					sq.clear();
 				}
-				while (rv > 0 && !sq.empty())
+				else if (rv > 0)
 				{
 					const SendQueue::Element& front = sq.front();
 					if (front.length() <= static_cast<size_t>(rv))
 					{
-						// this string got fully written out
-						rv -= front.length();
-						sq.pop_front();
+						// it's going to block now
+						eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 					}
-					else
+					while (rv > 0 && !sq.empty())
 					{
-						// stopped in the middle of this string
-						sq.erase_front(rv);
-						rv = 0;
+						const SendQueue::Element& ft = sq.front();
+						if (ft.length() <= (size_t)rv)
+						{
+							// this string got fully written out
+							rv -= ft.length();
+							sq.pop_front();
+						}
+						else
+						{
+							// stopped in the middle of this string
+							sq.erase_front(rv);
+							rv = 0;
+						}
 					}
 				}
-			}
-			else if (rv == 0)
-			{
-				error = "Connection closed";
+				else if (rv == 0)
+				{
+					error = "Connection closed";
+				}
 			}
 			else if (SocketEngine::IgnoreError())
 			{

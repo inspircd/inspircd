@@ -46,7 +46,7 @@ class CoreExport Timer
 
 	/** Number of seconds between triggers
 	 */
-	unsigned int secs;
+	unsigned long secs;
 
 	/** True if this is a repeating timer
 	 */
@@ -57,7 +57,7 @@ class CoreExport Timer
 	 * @param secs_from_now The number of seconds from now to trigger the timer
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(unsigned int secs_from_now, bool repeating = false);
+	Timer(unsigned long secs_from_now, bool repeating = false);
 
 	/** Default destructor, removes the timer from the timer manager
 	 */
@@ -81,7 +81,7 @@ class CoreExport Timer
 
 	/** Sets the interval between two ticks.
 	 */
-	void SetInterval(unsigned int interval);
+	void SetInterval(unsigned long interval);
 
 	/** Called when the timer ticks.
 	 * You should override this method with some useful code to
@@ -101,7 +101,7 @@ class CoreExport Timer
 	/** Returns the interval (number of seconds between ticks)
 	 * of this timer object.
 	 */
-	unsigned int GetInterval() const
+	unsigned long GetInterval() const
 	{
 		return secs;
 	}

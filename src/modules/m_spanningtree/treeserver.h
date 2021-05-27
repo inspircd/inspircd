@@ -90,8 +90,8 @@ class TreeServer : public Server
 	FakeUser* const ServerUser;		/* User representing this server */
 	const time_t age;
 
-	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
-	unsigned int OperCount = 0;			/* How many opers are on this server? */
+	size_t UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
+	size_t OperCount = 0;			/* How many opers are on this server? */
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
@@ -121,7 +121,7 @@ class TreeServer : public Server
 		GetParent()->SQuitChild(this, reason, error);
 	}
 
-	static unsigned int QuitUsers(const std::string& reason);
+	static size_t QuitUsers(const std::string& reason);
 
 	/** Get route.
 	 * The 'route' is defined as the locally-
