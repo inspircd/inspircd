@@ -213,7 +213,7 @@ class CoreModChannel
 		std::string vlist;
 		for (const auto& lm : ServerInstance->Modes.GetListModes())
 		{
-			limits.push_back(InspIRCd::Format("%c:%u", lm->GetModeChar(), lm->GetLowerLimit()));
+			limits.push_back(InspIRCd::Format("%c:%lu", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())
 				vlist.push_back(lm->GetModeChar());
 		}

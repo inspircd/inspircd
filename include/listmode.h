@@ -133,7 +133,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 	/** Gets the lower list limit for this listmode.
 	 */
-	unsigned int GetLowerLimit();
+	unsigned long GetLowerLimit();
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from

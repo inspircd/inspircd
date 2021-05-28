@@ -132,17 +132,17 @@ unsigned long ListModeBase::GetLimit(Channel* channel)
 	return GetLimitInternal(channel->name, cd);
 }
 
-unsigned int ListModeBase::GetLowerLimit()
+unsigned long ListModeBase::GetLowerLimit()
 {
 	if (chanlimits.empty())
 		return DEFAULT_LIST_SIZE;
 
-	unsigned int limit = UINT_MAX;
+	unsigned long limit = UINT_MAX;
 	for (const auto& chanlimit : chanlimits)
 	{
 		// This cast is safe as we start at UINT_MAX and reduce from there.
 		if (chanlimit.limit < limit)
-			limit = static_cast<unsigned int>(chanlimit.limit);
+			limit = chanlimit.limit;
 	}
 	return limit;
 }
