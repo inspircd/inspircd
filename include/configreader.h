@@ -386,9 +386,10 @@ class CoreExport ServerConfig
 	unsigned long NetBufferSize;
 
 	/** The value to be used for listen() backlogs
-	 * as default.
+	 * as default. As listen() expects a backlog to be `int` sized, so this must
+   * be.
 	 */
-	unsigned int MaxConn;
+	int MaxConn;
 
 	/** If we should check for clones during CheckClass() in AddUser()
 	 * Setting this to false allows to not trigger on maxclones for users

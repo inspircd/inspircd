@@ -347,7 +347,7 @@ void ServerConfig::Fill()
 	}
 	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
-	MaxConn = static_cast<unsigned int>(ConfValue("performance")->getUInt("somaxconn", SOMAXCONN, 1, SOMAXCONN));
+	MaxConn = static_cast<int>(ConfValue("performance")->getUInt("somaxconn", SOMAXCONN));
 	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
 	ServerDesc = server->getString("description", "Configure Me", 1);
