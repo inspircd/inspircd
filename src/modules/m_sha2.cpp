@@ -43,7 +43,7 @@ class HashSHA2 : public HashProvider
 	std::string GenerateRaw(const std::string& data) override
 	{
 		std::vector<char> bytes(out_size);
-		SHA(reinterpret_cast<const unsigned char*>(data.data()), data.size(), reinterpret_cast<unsigned char*>(&bytes[0]));
+		SHA(reinterpret_cast<const unsigned char*>(data.data()), static_cast<unsigned int>(data.size()), reinterpret_cast<unsigned char*>(&bytes[0]));
 		return std::string(&bytes[0], bytes.size());
 	}
 };

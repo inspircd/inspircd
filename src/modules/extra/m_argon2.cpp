@@ -72,22 +72,22 @@ class ProviderConfig
 		auto tag = ServerInstance->Config->ConfValue(tagname);
 
 		uint32_t def_iterations = def ? def->iterations : 3;
-		this->iterations = tag->getUInt("iterations", def_iterations, 1);
+		this->iterations = static_cast<uint32_t>(tag->getUInt("iterations", def_iterations, 1, UINT32_MAX));
 
 		uint32_t def_lanes = def ? def->lanes : 1;
-		this->lanes = tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
+		this->lanes = static_cast<uint32_t>(tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES));
 
 		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
-		this->memory = tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
+		this->memory = static_cast<uint32_t>(tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY));
 
 		uint32_t def_outlen = def ? def->outlen : 32;
-		this->outlen = tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN);
+		this->outlen = static_cast<uint32_t>(tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN));
 
 		uint32_t def_saltlen = def ? def->saltlen : 16;
-		this->saltlen = tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
+		this->saltlen = static_cast<uint32_t>(tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH));
 
 		uint32_t def_threads = def ? def->threads : 1;
-		this->threads = tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
+		this->threads = static_cast<uint32_t>(tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS));
 
 		uint32_t def_version = def ? def->version : 13;
 		this->version = SanitizeArgon2Version(tag->getUInt("version", def_version));

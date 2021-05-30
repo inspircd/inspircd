@@ -423,7 +423,7 @@ class WebSocketHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) override
 	{
 		StreamSocket::SendQueue& mysendq = GetSendQ();
 

@@ -412,12 +412,12 @@ namespace mbedTLS
 				, dhstr(ReadFile(tag->getString("dhfile", "dhparams.pem", 1)))
 				, ciphersuitestr(tag->getString("ciphersuites"))
 				, curvestr(tag->getString("curves"))
-				, mindh(tag->getUInt("mindhbits", 2048))
+				, mindh(static_cast<unsigned int>(tag->getUInt("mindhbits", 2048, 0, UINT32_MAX)))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, castr(tag->getString("cafile"))
-				, minver(tag->getUInt("minver", 0))
-				, maxver(tag->getUInt("maxver", 0))
-				, outrecsize(tag->getUInt("outrecsize", 2048, 512, 16384))
+				, minver(static_cast<int>(tag->getUInt("minver", 0, 0, INT32_MAX)))
+				, maxver(static_cast<int>(tag->getUInt("maxver", 0, 0, INT32_MAX)))
+				, outrecsize(static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384)))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
 				if (!castr.empty())
@@ -636,14 +636,16 @@ class mbedTLSIOHook : public SSLIOHook
 		if (sock->GetEventMask() & FD_READ_WILL_BLOCK)
 			return MBEDTLS_ERR_SSL_WANT_READ;
 
-		const int ret = SocketEngine::Recv(sock, reinterpret_cast<char*>(buffer), size, 0);
-		if (ret < (int)size)
+		const ssize_t ret = SocketEngine::Recv(sock, reinterpret_cast<char*>(buffer), size, 0);
+		if (ret < 0 || size_t(ret) < size)
 		{
 			SocketEngine::ChangeEventMask(sock, FD_READ_WILL_BLOCK);
 			if ((ret == -1) && (SocketEngine::IgnoreError()))
 				return MBEDTLS_ERR_SSL_WANT_READ;
 		}
-		return ret;
+
+		// This cast isn't entirely safe but the interface is given by mbedtls.
+		return int(ret);
 	}
 
 	static int Push(void* userptr, const unsigned char* buffer, size_t size)
@@ -652,14 +654,16 @@ class mbedTLSIOHook : public SSLIOHook
 		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
 			return MBEDTLS_ERR_SSL_WANT_WRITE;
 
-		const int ret = SocketEngine::Send(sock, buffer, size, 0);
-		if (ret < (int)size)
+		const ssize_t ret = SocketEngine::Send(sock, buffer, size, 0);
+		if (ret < 0 || size_t(ret) < size)
 		{
 			SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
 			if ((ret == -1) && (SocketEngine::IgnoreError()))
 				return MBEDTLS_ERR_SSL_WANT_WRITE;
 		}
-		return ret;
+
+		// This cast isn't entirely safe but the interface is given by mbedtls.
+		return int(ret);
 	}
 
  public:
@@ -728,7 +732,7 @@ class mbedTLSIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& sendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& sendq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(sock);

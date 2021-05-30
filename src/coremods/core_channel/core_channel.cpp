@@ -213,7 +213,7 @@ class CoreModChannel
 		std::string vlist;
 		for (const auto& lm : ServerInstance->Modes.GetListModes())
 		{
-			limits.push_back(InspIRCd::Format("%c:%u", lm->GetModeChar(), lm->GetLowerLimit()));
+			limits.push_back(InspIRCd::Format("%c:%lu", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())
 				vlist.push_back(lm->GetModeChar());
 		}
@@ -227,8 +227,9 @@ class CoreModChannel
 		unsigned int maxchans = 20;
 		for (const auto& klass : ServerInstance->Config->Classes)
 		{
+			// This cast is safe as we start from 20 above and count down.
 			if (klass->maxchans < maxchans)
-				maxchans = klass->maxchans;
+				maxchans = static_cast<unsigned int>(klass->maxchans);
 		}
 		tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", maxchans);
 	}

@@ -30,12 +30,12 @@
 class PBKDF2Hash
 {
  public:
-	unsigned int iterations;
-	unsigned int length;
+	unsigned long iterations;
+	size_t length;
 	std::string salt;
 	std::string hash;
 
-	PBKDF2Hash(unsigned int itr, unsigned int dkl, const std::string& slt, const std::string& hsh = "")
+	PBKDF2Hash(unsigned long itr, size_t dkl, const std::string& slt, const std::string& hsh = "")
 		: iterations(itr), length(dkl), salt(slt), hash(hsh)
 	{
 	}
@@ -76,10 +76,10 @@ class PBKDF2Provider : public HashProvider
 {
  public:
 	HashProvider* provider;
-	unsigned int iterations;
-	unsigned int dkey_length;
+	unsigned long iterations;
+	size_t dkey_length;
 
-	std::string PBKDF2(const std::string& pass, const std::string& salt, unsigned int itr = 0, unsigned int dkl = 0)
+	std::string PBKDF2(const std::string& pass, const std::string& salt, unsigned long itr = 0, size_t dkl = 0)
 	{
 		size_t blocks = std::ceil((double)dkl / provider->out_size);
 

@@ -78,7 +78,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	unsigned int index = CurrentSetSize;
+	unsigned int index = static_cast<unsigned int>(CurrentSetSize);
 
 	if (!SocketEngine::AddFdRef(eh))
 	{
@@ -127,7 +127,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	}
 
 	unsigned int index = fd_mappings[fd];
-	unsigned int last_index = CurrentSetSize - 1;
+	unsigned int last_index = static_cast<unsigned int>(CurrentSetSize - 1);
 	int last_fd = events[last_index].fd;
 
 	if (index != last_index)
@@ -156,7 +156,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 
 int SocketEngine::DispatchEvents()
 {
-	int i = poll(&events[0], CurrentSetSize, 1000);
+	int i = poll(&events[0], static_cast<unsigned int>(CurrentSetSize), 1000);
 	int processed = 0;
 	ServerInstance->UpdateTime();
 

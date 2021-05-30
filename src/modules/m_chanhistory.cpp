@@ -53,10 +53,10 @@ struct HistoryItem
 struct HistoryList
 {
 	std::deque<HistoryItem> lines;
-	unsigned int maxlen;
-	unsigned int maxtime;
+	unsigned long maxlen;
+	unsigned long maxtime;
 
-	HistoryList(unsigned int len, unsigned int time)
+	HistoryList(unsigned long len, unsigned long time)
 		: maxlen(len)
 		, maxtime(time)
 	{
@@ -78,7 +78,7 @@ struct HistoryList
 class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 {
  public:
-	unsigned int maxlines;
+	unsigned long maxlines;
 	HistoryMode(Module* Creator)
 		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
 	{
@@ -101,7 +101,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 			return MODEACTION_DENY;
 		}
 
-		unsigned int len = ConvToNum<unsigned int>(parameter.substr(0, colon));
+		unsigned long len = ConvToNum<unsigned long>(parameter.substr(0, colon));
 		unsigned long time;
 		if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
 		{

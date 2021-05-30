@@ -216,7 +216,7 @@ namespace OpenSSL
 				crlfile.empty() ? NULL : crlfile.c_str(),
 				crlpath.empty() ? NULL : crlpath.c_str()))
 			{
-				int err = ERR_get_error();
+				unsigned long err = ERR_get_error();
 				throw ModuleException("Unable to load CRL file '" + crlfile + "' or CRL path '" + crlpath + "': '" + (err ? ERR_error_string(err, NULL) : "unknown") + "'");
 			}
 
@@ -344,7 +344,7 @@ namespace OpenSSL
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clictx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
-			, outrecsize(tag->getUInt("outrecsize", 2048, 512, 16384))
+			, outrecsize(static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384)))
 		{
 			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
@@ -440,6 +440,8 @@ namespace OpenSSL
 			return 0;
 		}
 
+		// These signatures are required by the BIO_meth_set_write|read interface
+		// even though they lead to shortening issues.
 		static int read(BIO* bio, char* buf, int len);
 		static int write(BIO* bio, const char* buf, int len);
 
@@ -671,7 +673,8 @@ class OpenSSLIOHook : public SSLIOHook
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
-			size_t bufsiz = ServerInstance->Config->NetBufferSize;
+			// This cast may be unsafe but an int is expected by SSL_read.
+			int bufsiz = static_cast<int>(ServerInstance->Config->NetBufferSize);
 			int ret = SSL_read(sess, buffer, bufsiz);
 
 			if (!CheckRenego(user))
@@ -720,7 +723,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
+	ssize_t OnStreamSocketWrite(StreamSocket* user, StreamSocket::SendQueue& sendq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -735,7 +738,7 @@ class OpenSSLIOHook : public SSLIOHook
 			ERR_clear_error();
 			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
-			int ret = SSL_write(sess, buffer.data(), buffer.size());
+			int ret = SSL_write(sess, buffer.data(), static_cast<int>(buffer.size()));
 
 			if (!CheckRenego(user))
 				return -1;
@@ -823,7 +826,7 @@ static int OpenSSL::BIOMethod::write(BIO* bio, const char* buffer, int size)
 		return -1;
 	}
 
-	int ret = SocketEngine::Send(sock, buffer, size, 0);
+	ssize_t ret = SocketEngine::Send(sock, buffer, size, 0);
 	if ((ret < size) && ((ret > 0) || (SocketEngine::IgnoreError())))
 	{
 		// Blocked, set retry flag for OpenSSL
@@ -831,7 +834,7 @@ static int OpenSSL::BIOMethod::write(BIO* bio, const char* buffer, int size)
 		BIO_set_retry_write(bio);
 	}
 
-	return ret;
+	return static_cast<int>(ret);
 }
 
 static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
@@ -846,7 +849,7 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 		return -1;
 	}
 
-	int ret = SocketEngine::Recv(sock, buffer, size, 0);
+	ssize_t ret = SocketEngine::Recv(sock, buffer, size, 0);
 	if ((ret < size) && ((ret > 0) || (SocketEngine::IgnoreError())))
 	{
 		// Blocked, set retry flag for OpenSSL
@@ -854,7 +857,7 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 		BIO_set_retry_read(bio);
 	}
 
-	return ret;
+	return static_cast<int>(ret);
 }
 
 class OpenSSLIOHookProvider : public SSLIOHookProvider

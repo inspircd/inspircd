@@ -197,8 +197,12 @@ class CommandHexIP : public SplitCommand
 		if (errno)
 			return false;
 
+		// If the converted IP address is > 32 bits then it's not valid so bail.
+		if (address > UINT32_MAX)
+			return false;
+
 		out.in4.sin_family = AF_INET;
-		out.in4.sin_addr.s_addr = htonl(address);
+		out.in4.sin_addr.s_addr = htonl(uint32_t(address));
 		return true;
 	}
 };

@@ -187,7 +187,7 @@ typedef insp::flat_set<SilenceEntry> SilenceList;
 class SilenceExtItem : public SimpleExtItem<SilenceList>
 {
  public:
-	unsigned int maxsilence;
+	unsigned long maxsilence;
 
 	SilenceExtItem(Module* Creator)
 		: SimpleExtItem<SilenceList>(Creator, "silence_list", ExtensionItem::EXT_USER)

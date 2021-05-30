@@ -166,12 +166,12 @@ class MySQLresult : public SQL::Result
 	std::vector<std::string> colnames;
 	std::vector<SQL::Row> fieldlists;
 
-	MySQLresult(MYSQL_RES* res, int affected_rows)
+	MySQLresult(MYSQL_RES* res, unsigned long affected_rows)
 		: err(SQL::SUCCESS)
 	{
 		if (affected_rows >= 1)
 		{
-			rows = affected_rows;
+			rows = int(affected_rows);
 			fieldlists.resize(rows);
 		}
 		unsigned int field_count = 0;
@@ -181,7 +181,7 @@ class MySQLresult : public SQL::Result
 			int n = 0;
 			while ((row = mysql_fetch_row(res)))
 			{
-				if (fieldlists.size() < (unsigned int)rows+1)
+				if (fieldlists.size() < (size_t)rows+1)
 				{
 					fieldlists.resize(fieldlists.size()+1);
 				}
@@ -317,7 +317,7 @@ class SQLConnection : public SQL::Provider
 		connection = mysql_init(connection);
 
 		// Set the connection timeout.
-		unsigned int timeout = config->getDuration("timeout", 5, 1, 30);
+		unsigned int timeout = static_cast<unsigned int>(config->getDuration("timeout", 5, 1, 30));
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
 		// Attempt to connect to the database.
@@ -325,7 +325,7 @@ class SQLConnection : public SQL::Provider
 		const std::string user = config->getString("user");
 		const std::string pass = config->getString("pass");
 		const std::string dbname = config->getString("name");
-		unsigned int port = config->getUInt("port", 3306, 1, 65535);
+		unsigned int port = static_cast<unsigned int>(config->getUInt("port", 3306, 1, 65535));
 		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, CLIENT_IGNORE_SIGPIPE))
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Unable to connect to the %s MySQL server: %s",
@@ -517,7 +517,7 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 {
 	SQL::Error err(SQL::BAD_DBID);
 	Dispatcher->LockQueue();
-	unsigned int i = qq.size();
+	size_t i = qq.size();
 	while (i > 0)
 	{
 		i--;

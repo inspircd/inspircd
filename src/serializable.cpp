@@ -128,7 +128,7 @@ bool User::Deserialize(Serializable::Data& data)
 	if (!Extensible::Deserialize(exts))
 		return false;
 
-	long client_port;
+	int client_port;
 	std::string client_addr;
 	std::string user_modes;
 	std::string user_oper;
@@ -224,7 +224,7 @@ bool LocalUser::Deserialize(Serializable::Data& data)
 
 	bool user_exempt;
 	bool user_lastping;
-	long server_port;
+	int server_port;
 	std::string server_addr;
 
 	// Apply the members which can be applied directly.

@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-void Timer::SetInterval(unsigned int newinterval)
+void Timer::SetInterval(unsigned long newinterval)
 {
 	ServerInstance->Timers.DelTimer(this);
 	secs = newinterval;
@@ -34,7 +34,7 @@ void Timer::SetInterval(unsigned int newinterval)
 	ServerInstance->Timers.AddTimer(this);
 }
 
-Timer::Timer(unsigned int secs_from_now, bool repeating)
+Timer::Timer(unsigned long secs_from_now, bool repeating)
 	: trigger(ServerInstance->Time() + secs_from_now)
 	, secs(secs_from_now)
 	, repeat(repeating)

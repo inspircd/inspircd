@@ -26,7 +26,7 @@
 # include <dirent.h>
 #endif
 
-FilePosition::FilePosition(const std::string& Name, unsigned int Line, unsigned int Column)
+FilePosition::FilePosition(const std::string& Name, unsigned long Line, unsigned long Column)
 	: name(Name)
 	, line(Line)
 	, column(Column)

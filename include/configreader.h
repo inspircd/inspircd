@@ -383,10 +383,10 @@ class CoreExport ServerConfig
 	 * handling code, used to read data into a user's
 	 * recvQ.
 	 */
-	int NetBufferSize;
+	unsigned long NetBufferSize;
 
-	/** The value to be used for listen() backlogs
-	 * as default.
+	/** The value to be used for listen() backlogs as default.
+	 * As listen() expects a backlog to be `int` sized, so this must be.
 	 */
 	int MaxConn;
 
@@ -401,12 +401,12 @@ class CoreExport ServerConfig
 	 * The IRC server will not allow more than this
 	 * number of local users.
 	 */
-	unsigned int SoftLimit;
+	unsigned long SoftLimit;
 
 	/** Maximum number of targets for a multi target command
 	 * such as PRIVMSG or KICK
 	 */
-	unsigned int MaxTargets;
+	unsigned long MaxTargets;
 
 	/** The number of seconds that the server clock can skip by before server operators are warned. */
 	time_t TimeSkipWarn;

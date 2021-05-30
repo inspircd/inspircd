@@ -95,7 +95,7 @@ class CoreExport SocketTimeout : public Timer
 	 * @param thesock BufferedSocket to attach to
 	 * @param secs_from_now Seconds from now to time out
 	 */
-	SocketTimeout(int fd, BufferedSocket* thesock, unsigned int secs_from_now)
+	SocketTimeout(int fd, BufferedSocket* thesock, unsigned long secs_from_now)
 		: Timer(secs_from_now)
 		, sock(thesock)
 		, sfd(fd)
@@ -266,7 +266,7 @@ class CoreExport StreamSocket : public EventHandler
 	 * @param rq Receive queue to put incoming data into
 	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from the socket and put into the recvq
 	 */
-	int ReadToRecvQ(std::string& rq);
+	long ReadToRecvQ(std::string& rq);
 
 	/** Read data from a hook chain recursively, starting at 'hook'.
 	 * If 'hook' is NULL, the recvq is filled with data from SocketEngine::Recv(), otherwise it is filled with data from the
@@ -276,7 +276,7 @@ class CoreExport StreamSocket : public EventHandler
 	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
 	 * the socket and put into the recvq
 	 */
-	int HookChainRead(IOHook* hook, std::string& rq);
+	long HookChainRead(IOHook* hook, std::string& rq);
 
  protected:
 	/** The data which has been received from the socket. */
@@ -405,7 +405,7 @@ class CoreExport BufferedSocket : public StreamSocket
 	 * @param bind Local endpoint to connect from.
 	 * @param maxtime Time to wait for connection
 	 */
-	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int maxtime);
+	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime);
 
 	/** This method is called when an outbound connection on your socket is
 	 * completed.
@@ -430,7 +430,7 @@ class CoreExport BufferedSocket : public StreamSocket
 
  protected:
 	void OnEventHandlerWrite() override;
-	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned int timeout);
+	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }

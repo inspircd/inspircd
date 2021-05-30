@@ -74,7 +74,10 @@ else
 endif
 
 ifneq ($(COMPILER), ICC)
-  CORECXXFLAGS += -Woverloaded-virtual -Wshadow
+    CORECXXFLAGS += -Woverloaded-virtual -Wshadow
+    ifneq ($(COMPILER), GCC)
+      CORECXXFLAGS += -Wshorten-64-to-32
+    endif
 ifneq ($(SYSTEM), openbsd)
     CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute -Wno-format-nonliteral
 endif

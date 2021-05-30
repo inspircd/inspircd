@@ -287,8 +287,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			if (!ports.empty())
 			{
 				irc::portparser portrange(ports, false);
-				while (int port = portrange.GetToken())
-					me->ports.insert(port);
+				while (long port = portrange.GetToken())
+					me->ports.insert(static_cast<int>(port));
 			}
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
@@ -347,7 +347,7 @@ void ServerConfig::Fill()
 	}
 	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
-	MaxConn = ConfValue("performance")->getUInt("somaxconn", SOMAXCONN);
+	MaxConn = static_cast<int>(ConfValue("performance")->getUInt("somaxconn", SOMAXCONN));
 	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
 	ServerDesc = server->getString("description", "Configure Me", 1);

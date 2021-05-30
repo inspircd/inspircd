@@ -45,7 +45,7 @@ class RemoveBase : public Command
 	ChanModeReference& nokicksmode;
 
  public:
-	unsigned int protectedrank;
+	unsigned long protectedrank;
 
 	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
 		: Command(Creator, cmdn, 2, 3)

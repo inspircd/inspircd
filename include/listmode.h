@@ -46,7 +46,7 @@ class CoreExport ListModeBase : public ModeHandler
 	{
 	public:
 		ModeList list;
-		int maxitems;
+		long maxitems;
 
 		ChanData() : maxitems(-1) { }
 	};
@@ -56,8 +56,8 @@ class CoreExport ListModeBase : public ModeHandler
 	struct ListLimit
 	{
 		std::string mask;
-		unsigned int limit;
-		ListLimit(const std::string& Mask, unsigned int Limit) : mask(Mask), limit(Limit) { }
+		unsigned long limit;
+		ListLimit(const std::string& Mask, unsigned long Limit) : mask(Mask), limit(Limit) { }
 		bool operator==(const ListLimit& other) const { return (this->mask == other.mask && this->limit == other.limit); }
 	};
 
@@ -72,7 +72,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channame The channel name to find the limit for
 	 * @return The maximum number of modes of this type that we allow to be set on the given channel name
 	 */
-	unsigned int FindLimit(const std::string& channame);
+	unsigned long FindLimit(const std::string& channame);
 
 	/** Returns the limit on the given channel for this mode.
 	 * If the limit is cached then the cached value is returned,
@@ -82,7 +82,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param cd The ChanData associated with channel channame
 	 * @return The maximum number of modes of this type that we allow to be set on the given channel
 	 */
-	unsigned int GetLimitInternal(const std::string& channame, ChanData* cd);
+	unsigned long GetLimitInternal(const std::string& channame, ChanData* cd);
 
  protected:
 	/** Numeric to use when outputting the list
@@ -129,11 +129,11 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel
 	 */
-	unsigned int GetLimit(Channel* channel);
+	unsigned long GetLimit(Channel* channel);
 
 	/** Gets the lower list limit for this listmode.
 	 */
-	unsigned int GetLowerLimit();
+	unsigned long GetLowerLimit();
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from

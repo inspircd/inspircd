@@ -81,9 +81,9 @@ class CommandShowFile : public Command
 	{
 		introtext = tag->getString("introtext", "Showing " + name);
 		endtext = tag->getString("endtext", "End of " + name);
-		intronumeric = tag->getUInt("intronumeric", RPL_RULESTART, 0, 999);
-		textnumeric = tag->getUInt("numeric", RPL_RULES, 0, 999);
-		endnumeric = tag->getUInt("endnumeric", RPL_RULESEND, 0, 999);
+		intronumeric = static_cast<unsigned int>(tag->getUInt("intronumeric", RPL_RULESTART, 0, 999));
+		textnumeric = static_cast<unsigned int>(tag->getUInt("numeric", RPL_RULES, 0, 999));
+		endnumeric = static_cast<unsigned int>(tag->getUInt("endnumeric", RPL_RULESEND, 0, 999));
 		std::string smethod = tag->getString("method");
 
 		method = SF_NUMERIC;

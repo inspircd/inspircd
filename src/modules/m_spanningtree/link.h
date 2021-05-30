@@ -39,7 +39,7 @@ class Link
 	std::vector<std::string> AllowMasks;
 	bool HiddenFromStats;
 	std::string Hook;
-	unsigned int Timeout;
+	unsigned long Timeout;
 	std::string Bind;
 	bool Hidden;
 	Link(std::shared_ptr<ConfigTag> Tag)

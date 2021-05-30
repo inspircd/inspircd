@@ -85,18 +85,18 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 
 	struct ModuleSettings
 	{
-		unsigned int MaxLines = 0;
-		unsigned int MaxSecs = 0;
-		unsigned int MaxBacklog = 0;
+		unsigned long MaxLines = 0;
+		unsigned long MaxSecs = 0;
+		unsigned long MaxBacklog = 0;
 		unsigned int MaxDiff = 0;
-		unsigned int MaxMessageSize = 0;
+		size_t MaxMessageSize = 0;
 		std::string KickMessage;
 
 	};
 
-	std::vector<unsigned int> mx[2];
+	std::vector<size_t> mx[2];
 
-	bool CompareLines(const std::string& message, const std::string& historyline, unsigned int trigger)
+	bool CompareLines(const std::string& message, const std::string& historyline, unsigned long trigger)
 	{
 		if (message == historyline)
 			return true;
@@ -106,17 +106,17 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		return false;
 	}
 
-	unsigned int Levenshtein(const std::string& s1, const std::string& s2)
+	size_t Levenshtein(const std::string& s1, const std::string& s2)
 	{
-		unsigned int l1 = s1.size();
-		unsigned int l2 = s2.size();
+		size_t l1 = s1.size();
+		size_t l2 = s2.size();
 
-		for (unsigned int i = 0; i < l2; i++)
+		for (size_t i = 0; i < l2; i++)
 			mx[0][i] = i;
-		for (unsigned int i = 0; i < l1; i++)
+		for (size_t i = 0; i < l1; i++)
 		{
 			mx[1][0] = i + 1;
-			for (unsigned int j = 0; j < l2; j++)
+			for (size_t j = 0; j < l2; j++)
 				mx[1][j + 1] = std::min(std::min(mx[1][j] + 1, mx[0][j + 1] + 1), mx[0][j] + ((s1[i] == s2[j]) ? 0 : 1));
 
 			mx[0].swap(mx[1]);
@@ -186,7 +186,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 			matches = rp->Counter;
 
 		RepeatItemList& items = rp->ItemList;
-		const unsigned int trigger = (message.size() * rs->Diff / 100);
+		const unsigned long trigger = (message.size() * rs->Diff / 100);
 		const time_t now = ServerInstance->Time();
 
 		std::transform(message.begin(), message.end(), message.begin(), ::tolower);
@@ -243,11 +243,9 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		ms.MaxBacklog = conf->getUInt("maxbacklog", 20);
 		ms.MaxSecs = conf->getDuration("maxtime", 0);
 
-		ms.MaxDiff = conf->getUInt("maxdistance", 50);
-		if (ms.MaxDiff > 100)
-			ms.MaxDiff = 100;
+		ms.MaxDiff = static_cast<unsigned int>(conf->getUInt("maxdistance", 50, 0, 100));
 
-		unsigned int newsize = conf->getUInt("size", 512);
+		unsigned long newsize = conf->getUInt("size", 512);
 		if (newsize > ServerInstance->Config->Limits.MaxLine)
 			newsize = ServerInstance->Config->Limits.MaxLine;
 		Resize(newsize);
@@ -317,14 +315,14 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		if (ms.MaxLines && settings.Lines > ms.MaxLines)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"The line number you specified is too big. Maximum allowed is %u.", ms.MaxLines)));
+				"The line number you specified is too big. Maximum allowed is %lu.", ms.MaxLines)));
 			return false;
 		}
 
 		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"The seconds you specified are too big. Maximum allowed is %u.", ms.MaxSecs)));
+				"The seconds you specified are too big. Maximum allowed is %lu.", ms.MaxSecs)));
 			return false;
 		}
 
@@ -346,7 +344,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 					"The server administrator has disabled backlog matching."));
 			else
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"The backlog you specified is too big. Maximum allowed is %u.", ms.MaxBacklog)));
+					"The backlog you specified is too big. Maximum allowed is %lu.", ms.MaxBacklog)));
 			return false;
 		}
 
@@ -423,7 +421,7 @@ class RepeatModule : public Module
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
 
-		compatdata = InspIRCd::Format("%u:%u:%u:%u", rm.ms.MaxLines, rm.ms.MaxSecs,
+		compatdata = InspIRCd::Format("%lu:%lu:%u:%lu", rm.ms.MaxLines, rm.ms.MaxSecs,
 			rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };

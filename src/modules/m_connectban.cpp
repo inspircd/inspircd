@@ -34,8 +34,8 @@ class ModuleConnectBan
 {
 	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
 	ConnectMap connects;
-	unsigned int threshold;
-	unsigned int banduration;
+	unsigned long threshold;
+	unsigned long banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
 	std::string banmessage;
@@ -88,8 +88,8 @@ class ModuleConnectBan
 	{
 		auto tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getUInt("ipv4cidr", 32, 1, 32);
-		ipv6_cidr = tag->getUInt("ipv6cidr", 128, 1, 128);
+		ipv4_cidr = static_cast<unsigned int>(tag->getUInt("ipv4cidr", 32, 1, 32));
+		ipv6_cidr = static_cast<unsigned int>(tag->getUInt("ipv6cidr", 128, 1, 128));
 		threshold = tag->getUInt("threshold", 10, 1);
 		banduration = tag->getDuration("duration", 10*60, 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
@@ -134,7 +134,7 @@ class ModuleConnectBan
 				std::string maskstr = mask.str();
 				ServerInstance->SNO.WriteGlobalSno('x', "Z-line added by module m_connectban on %s to expire in %s (on %s): Connect flooding",
 					maskstr.c_str(), InspIRCd::DurationString(zl->duration).c_str(), InspIRCd::TimeString(zl->expiry).c_str());
-				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
+				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range %s (%lu)", maskstr.c_str(), threshold);
 				connects.erase(i);
 			}
 		}

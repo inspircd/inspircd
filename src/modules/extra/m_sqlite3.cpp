@@ -126,7 +126,7 @@ class SQLConn : public SQL::Provider
 	{
 		SQLite3Result res;
 		sqlite3_stmt *stmt;
-		int err = sqlite3_prepare_v2(conn, q.c_str(), q.length(), &stmt, NULL);
+		int err = sqlite3_prepare_v2(conn, q.c_str(), static_cast<int>(q.length()), &stmt, NULL);
 		if (err != SQLITE_OK)
 		{
 			SQL::Error error(SQL::QSEND_FAIL, sqlite3_errmsg(conn));

@@ -83,14 +83,14 @@ struct CoreExport ConnectClass
 
 	/** Max time to register the connection in seconds
 	 */
-	unsigned int registration_timeout = 0;
+	unsigned long registration_timeout = 0;
 
 	/** Hosts that this connect class can be used by. */
 	std::vector<std::string> hosts;
 
 	/** Number of seconds between pings for this line
 	 */
-	unsigned int pingtime = 0;
+	unsigned long pingtime = 0;
 
 	/** Maximum size of sendq for users in this class (bytes)
 	 * Users cannot send commands if they go over this limit
@@ -108,10 +108,10 @@ struct CoreExport ConnectClass
 
 	/** Seconds worth of penalty before penalty system activates
 	 */
-	unsigned int penaltythreshold = 0;
+	unsigned long penaltythreshold = 0;
 
 	/** Maximum rate of commands (units: millicommands per second) */
-	unsigned int commandrate = 0;
+	unsigned long commandrate = 0;
 
 	/** Local max when connecting by this connection class
 	 */
@@ -127,7 +127,7 @@ struct CoreExport ConnectClass
 
 	/** Max channels for this class
 	 */
-	unsigned int maxchans = 20;
+	unsigned long maxchans = 20;
 
 	/** How many users may be in this connect class before they are refused?
 	 * (0 = no limit = default)
@@ -175,9 +175,9 @@ struct CoreExport ConnectClass
 
 	/** Returns the ping frequency
 	 */
-	unsigned int GetPingTime()
+	unsigned long GetPingTime()
 	{
-		return (pingtime ? pingtime : 120);
+		return (pingtime ? pingtime : 120L);
 	}
 
 	/** Returns the maximum sendq value (soft limit)
@@ -185,33 +185,33 @@ struct CoreExport ConnectClass
 	 */
 	unsigned long GetSendqSoftMax()
 	{
-		return (softsendqmax ? softsendqmax : 4096);
+		return (softsendqmax ? softsendqmax : 4096L);
 	}
 
 	/** Returns the maximum sendq value (hard limit)
 	 */
 	unsigned long GetSendqHardMax()
 	{
-		return (hardsendqmax ? hardsendqmax : 0x100000);
+		return (hardsendqmax ? hardsendqmax : 0x100000L);
 	}
 
 	/** Returns the maximum recvq value
 	 */
 	unsigned long GetRecvqMax()
 	{
-		return (recvqmax ? recvqmax : 4096);
+		return (recvqmax ? recvqmax : 4096L);
 	}
 
 	/** Returns the penalty threshold value
 	 */
-	unsigned int GetPenaltyThreshold()
+	unsigned long GetPenaltyThreshold()
 	{
-		return penaltythreshold ? penaltythreshold : (fakelag ? 10 : 20);
+		return penaltythreshold ? penaltythreshold : (fakelag ? 10L : 20L);
 	}
 
-	unsigned int GetCommandRate()
+	unsigned long GetCommandRate()
 	{
-		return commandrate ? commandrate : 1000;
+		return commandrate ? commandrate : 1000L;
 	}
 
 	/** Return the maximum number of local sessions

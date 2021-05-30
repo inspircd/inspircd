@@ -28,17 +28,17 @@ class CoreExport FilePosition
 	std::string name;
 
 	/** The line of the file that this position points to. */
-	unsigned int line;
+	unsigned long line;
 
 	/** The column of the file that this position points to. */
-	unsigned int column;
+	unsigned long column;
 
 	/** Initialises a new file position with the specified name, line, and column.
 	 * @param Name The name of the file that the position points to.
 	 * @param Line The line of the file that this position points to.
 	 * @param Column The column of the file that this position points to.
 	 */
-	FilePosition(const std::string& Name, unsigned int Line, unsigned int Column);
+	FilePosition(const std::string& Name, unsigned long Line, unsigned long Column);
 
 	/** Returns a string that represents this file position. */
 	std::string str() const;

@@ -270,7 +270,8 @@ class ModuleCodepage final
 			bool front = tag->getBool("front", false);
 			for (unsigned long pos = begin; pos <= end; ++pos)
 			{
-				switch (newcodepage->AllowCharacter(pos, front))
+				// This cast could be unsafe but it's not obvious how to make it safe.
+				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
 				{
 					case Codepage::ACR_OKAY:
 						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as allowed (front: %s)",

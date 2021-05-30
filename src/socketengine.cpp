@@ -228,37 +228,37 @@ void SocketEngine::SetReuse(int fd)
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, static_cast<void*>(&on), sizeof(on));
 }
 
-int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
+ssize_t SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
-	int nbRecvd = recvfrom(fd->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
+	ssize_t nbRecvd = recvfrom(fd->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
-int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
+ssize_t SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
-	int nbSent = send(fd->GetFd(), static_cast<const char*>(buf), len, flags);
+	ssize_t nbSent = send(fd->GetFd(), static_cast<const char*>(buf), len, flags);
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
-int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
+ssize_t SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
-	int nbRecvd = recv(fd->GetFd(), static_cast<char*>(buf), len, flags);
+	ssize_t nbRecvd = recv(fd->GetFd(), static_cast<char*>(buf), len, flags);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
-int SocketEngine::SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
+ssize_t SocketEngine::SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
 {
-	int nbSent = sendto(fd->GetFd(), static_cast<const char*>(buf), len, flags, &address.sa, address.sa_size());
+	ssize_t nbSent = sendto(fd->GetFd(), static_cast<const char*>(buf), len, flags, &address.sa, address.sa_size());
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
-int SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
+ssize_t SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
 {
-	int sent = writev(fd->GetFd(), iovec, count);
+	ssize_t sent = writev(fd->GetFd(), iovec, count);
 	stats.UpdateWriteCounters(sent);
 	return sent;
 }
@@ -312,24 +312,24 @@ int SocketEngine::Shutdown(int fd, int how)
 	return shutdown(fd, how);
 }
 
-void SocketEngine::Statistics::UpdateReadCounters(int len_in)
+void SocketEngine::Statistics::UpdateReadCounters(ssize_t len_in)
 {
 	CheckFlush();
 
 	ReadEvents++;
 	if (len_in > 0)
-		indata += len_in;
+		indata += static_cast<size_t>(len_in);
 	else if (len_in < 0)
 		ErrorEvents++;
 }
 
-void SocketEngine::Statistics::UpdateWriteCounters(int len_out)
+void SocketEngine::Statistics::UpdateWriteCounters(ssize_t len_out)
 {
 	CheckFlush();
 
 	WriteEvents++;
 	if (len_out > 0)
-		outdata += len_out;
+		outdata += static_cast<size_t>(len_out);
 	else if (len_out < 0)
 		ErrorEvents++;
 }

@@ -126,7 +126,7 @@ public:
 		{
 			type = Type::BITMASK;
 
-			bitmask = tag->getUInt("bitmask", 0, 0, UINT_MAX);
+			bitmask = static_cast<unsigned int>(tag->getUInt("bitmask", 0, 0, UINT_MAX));
 			records = 0;
 		}
 		else if (stdalgo::string::equalsci(typestr, "record"))
@@ -149,7 +149,7 @@ public:
 		}
 
 		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by a DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
-		timeout = tag->getDuration("timeout", 0, 1, 60);
+		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
 		markident = tag->getString("ident");
 		markhost = tag->getString("host");
 		xlineduration = tag->getDuration("duration", 60*60, 1);
@@ -187,7 +187,7 @@ class DNSBLResolver : public DNS::Request
 			return;
 		}
 
-		int i = countExt.Get(them);
+		intptr_t i = countExt.Get(them);
 		if (i)
 			countExt.Set(them, i - 1);
 
@@ -358,7 +358,7 @@ class DNSBLResolver : public DNS::Request
 		if (!them || them->client_sa != theirsa)
 			return;
 
-		int i = countExt.Get(them);
+		intptr_t i = countExt.Get(them);
 		if (i)
 			countExt.Set(them, i - 1);
 

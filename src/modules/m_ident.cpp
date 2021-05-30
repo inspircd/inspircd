@@ -204,7 +204,7 @@ class IdentRequestSocket : public EventHandler
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
 		 */
 		char ibuf[256];
-		int recvresult = SocketEngine::Recv(this, ibuf, sizeof(ibuf)-1, 0);
+		ssize_t recvresult = SocketEngine::Recv(this, ibuf, sizeof(ibuf)-1, 0);
 
 		/* Close (but don't delete from memory) our socket
 		 * and flag as done since the ident lookup has finished
@@ -274,7 +274,7 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
  private:
-	unsigned int timeout;
+	unsigned long timeout;
 	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, stdalgo::cull_delete> socket;
 	IntExtItem state;

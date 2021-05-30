@@ -126,13 +126,13 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	int len = djm.ext.Get(channel);
+	intptr_t len = djm.ext.Get(channel);
 
 	if ((ts + len) > ServerInstance->Time())
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %d seconds.", len);
+			const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %ld seconds.", len);
 			user->WriteNumeric(Numerics::CannotSendTo(channel, message));
 			return MOD_RES_DENY;
 		}
