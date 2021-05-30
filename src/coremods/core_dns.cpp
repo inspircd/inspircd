@@ -344,7 +344,7 @@ class Packet : public Query
 				}
 				else
 				{
-					in_addr_t forward = ip.in4.sin_addr.s_addr;
+					unsigned int forward = ip.in4.sin_addr.s_addr;
 					ip.in4.sin_addr.s_addr = forward << 24 | (forward & 0xFF00) << 8 | (forward & 0xFF0000) >> 8 | forward >> 24;
 
 					q.name = ip.addr() + ".in-addr.arpa";
