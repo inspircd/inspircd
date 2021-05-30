@@ -385,9 +385,8 @@ class CoreExport ServerConfig
 	 */
 	unsigned long NetBufferSize;
 
-	/** The value to be used for listen() backlogs
-	 * as default. As listen() expects a backlog to be `int` sized, so this must
-   * be.
+	/** The value to be used for listen() backlogs as default.
+	 * As listen() expects a backlog to be `int` sized, so this must be.
 	 */
 	int MaxConn;
 

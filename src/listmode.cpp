@@ -140,7 +140,6 @@ unsigned long ListModeBase::GetLowerLimit()
 	unsigned long limit = UINT_MAX;
 	for (const auto& chanlimit : chanlimits)
 	{
-		// This cast is safe as we start at UINT_MAX and reduce from there.
 		if (chanlimit.limit < limit)
 			limit = chanlimit.limit;
 	}
