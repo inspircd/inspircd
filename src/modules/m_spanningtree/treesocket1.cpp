@@ -128,7 +128,7 @@ void TreeSocket::OnConnected()
 	{
 		if (!capab->link->Hook.empty())
 		{
-			ServiceProvider* prov = ServerInstance->Modules.FindService(SERVICE_IOHOOK, capab->link->Hook);
+			ServiceProvider* prov = ServerInstance->Modules.FindService(SERVICE_IOHOOK, "ssl/" + capab->link->Hook);
 			if (!prov)
 			{
 				SetError("Could not find hook '" + capab->link->Hook + "' for connection to " + linkID);
