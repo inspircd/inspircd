@@ -167,9 +167,19 @@ namespace OpenSSL
 
 		bool SetCiphers(const std::string& ciphers)
 		{
+			// TLSv1 to TLSv1.2 ciphers.
 			ERR_clear_error();
 			return SSL_CTX_set_cipher_list(ctx, ciphers.c_str());
 		}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
+		bool SetCiphersuites(const std::string& ciphers)
+		{
+			// TLSv1.3+ ciphers.
+			ERR_clear_error();
+			return SSL_CTX_set_ciphersuites(ctx, ciphers.c_str());
+		}
+#endif
 
 		bool SetCerts(const std::string& filename)
 		{
@@ -354,7 +364,7 @@ namespace OpenSSL
 			if (digest == NULL)
 				throw Exception("Unknown hash type " + hash);
 
-			std::string ciphers = tag->getString("ciphers");
+			const std::string ciphers = tag->getString("ciphers");
 			if (!ciphers.empty())
 			{
 				if ((!ctx.SetCiphers(ciphers)) || (!clictx.SetCiphers(ciphers)))
@@ -362,6 +372,20 @@ namespace OpenSSL
 					ERR_print_errors_cb(error_callback, this);
 					throw Exception("Can't set cipher list to \"" + ciphers + "\" " + lasterr);
 				}
+			}
+
+			const std::string ciphersuites = tag->getString("ciphersuites");
+			if (!ciphers.empty())
+			{
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
+				if ((!ctx.SetCiphersuites(ciphersuites)) || (!clictx.SetCiphersuites(ciphersuites)))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					throw Exception("Can't set ciphersuite list to \"" + ciphersuites + "\" " + lasterr);
+				}
+#else
+				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "You have configured <sslprofile:ciphersuites> but your version of OpenSSL does not support TLSv1.3+");
+#endif
 			}
 
 #ifndef OPENSSL_NO_ECDH

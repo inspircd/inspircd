@@ -35,6 +35,8 @@ enum
 {
 	// From UnrealIRCd.
 	ERR_SECUREONLYCHAN = 489,
+
+	// InspIRCd-specific.
 	ERR_ALLMUSTSSL = 490
 };
 
@@ -138,27 +140,14 @@ class SSLModeUser : public ModeHandler
 
 	ModeAction OnModeChange(User* user, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding)
-		{
-			if (!dest->IsModeSet(this))
-			{
-				if (!API || !API->GetCertificate(user))
-					return MODEACTION_DENY;
+		if (change.adding == dest->IsModeSet(this))
+			return MODEACTION_DENY;
 
-				dest->SetMode(this, true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet(this))
-			{
-				dest->SetMode(this, false);
-				return MODEACTION_ALLOW;
-			}
-		}
+		if (change.adding && IS_LOCAL(user) && (!API || !API->GetCertificate(user)))
+			return MODEACTION_DENY;
 
-		return MODEACTION_DENY;
+		dest->SetMode(this, change.adding);
+		return MODEACTION_ALLOW;
 	}
 };
 

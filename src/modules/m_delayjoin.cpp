@@ -28,6 +28,7 @@
 #include "modules/ctctags.h"
 #include "modules/ircv3_servertime.h"
 #include "modules/names.h"
+#include "modules/who.h"
 
 class DelayJoinMode : public ModeHandler
 {
@@ -86,6 +87,7 @@ class ModuleDelayJoin
 	: public Module
 	, public CTCTags::EventListener
 	, public Names::EventListener
+	, public Who::EventListener
 {
  private:
 	IntExtItem unjoined;
@@ -110,6 +112,7 @@ class ModuleDelayJoin
 		: Module(VF_VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
 		, CTCTags::EventListener(this)
 		, Names::EventListener(this)
+		, Who::EventListener(this)
 		, unjoined(this, "delayjoin", ExtensionItem::EXT_MEMBERSHIP)
 		, joinhook(this, unjoined)
 		, djm(this, unjoined)
@@ -117,6 +120,7 @@ class ModuleDelayJoin
 	}
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership*, std::string& prefixes, std::string& nick) override;
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override;
 	void OnUserJoin(Membership*, bool, bool, CUList&) override;
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&) override;
@@ -156,6 +160,23 @@ ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, 
 	if (unjoined.Get(memb))
 		return MOD_RES_DENY;
 
+	return MOD_RES_PASSTHRU;
+}
+
+ModResult ModuleDelayJoin::OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric)
+{
+	// We don't need to do anything if they're not delayjoined.
+	if (!memb || !unjoined.Get(memb))
+		return MOD_RES_PASSTHRU;
+
+	// Only show delayjoined users if the d flag has been specified.
+	if (!request.flags['d'])
+		return MOD_RES_DENY;
+
+	// Add the < flag to mark the user as delayjoined.
+	size_t flag_index;
+	if (request.GetFieldIndex('f', flag_index))
+		numeric.GetParams()[flag_index].push_back('<');
 	return MOD_RES_PASSTHRU;
 }
 

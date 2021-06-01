@@ -588,9 +588,10 @@ void ModuleManager::AddService(ServiceProvider& item)
 			std::string::size_type slash = item.name.find('/');
 			if (slash != std::string::npos)
 			{
+				// Also register foo/bar as foo.
 				DataProviders.emplace(item.name.substr(0, slash), &item);
-				DataProviders.emplace(item.name.substr(slash + 1), &item);
 			}
+
 			dynamic_reference_base::reset_all();
 			break;
 		}
