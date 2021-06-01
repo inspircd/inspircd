@@ -855,8 +855,6 @@ using their cloak when they quit.
  B            Marks as a bot (requires the botmode module).
  D            Privdeaf mode. User will not receive any private messages
               or notices from users (requires the deaf module).
- G            Censors messages sent to the user based on filters
-              configured for the network (requires the censor module).
  H            Hides an oper's oper status from WHOIS (requires the
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
@@ -950,8 +948,6 @@ using their cloak when they quit.
                     The last two parameters are optional.
  F <changes>:<sec>  Blocks nick changes when they equal or exceed the
                     specified rate (requires the nickflood module).
- G                  Censors messages to the channel based on the
-                    network configuration (requires the censor module).
  H <num>:<duration> Displays the last <num> lines of chat to joining
                     users. <duration> is the maximum time to keep
                     lines in the history buffer (requires the
@@ -994,7 +990,6 @@ using their cloak when they quit.
                      (requires the auditorium module).
  blockcaps           Channel mode +B
  blockcolor          Channel mode +c
- censor              Channel mode +G
  filter              Channel mode +g
  flood               Channel mode +f
  nickflood           Channel mode +F

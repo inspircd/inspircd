@@ -647,8 +647,6 @@
          #                    letters (requires the blockcaps module).
          #  - blockcolor      Channel mode +c - blocks messages with formatting codes
          #                    (requires the blockcolor module).
-         #  - censor          Channel mode +G - censors messages based on the network
-         #                    configuration (requires the censor module).
          #  - filter          Channel mode +g - blocks messages containing the given
          #                    glob mask (requires the chanfilter module).
          #  - flood           Channel mode +f - kicks (and bans) on text flood of a
@@ -669,7 +667,7 @@
          # You can also configure this on a per-channel basis with a channel mode and
          # even negate the configured exemptions below.
          # See exemptchanops in modules.conf.example for more details.
-         exemptchanops="censor:o filter:o nickflood:o nonick:v regmoderated:o"
+         exemptchanops="filter:o nickflood:o nonick:v regmoderated:o"
 
          # invitebypassmodes: This allows /INVITE to bypass other channel modes.
          # (Such as +k, +j, +l, etc.)

@@ -311,23 +311,6 @@
 #<module name="cban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Censor module: Adds channel and user mode +G which block phrases that
-# are listed in the server bad words list.
-#<module name="censor">
-#
-#-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you have the censor module loaded you should specify one or more #
-# phrases to replace/block in user messages. The config for this is   #
-# formatted as follows:                                               #
-#                                                                     #
-# Replaces "eggplant" with "aubergine" within messages:               #
-# <badword text="eggplant" replace="aubergine">                       #
-#                                                                     #
-# Blocks messages that contain "fluffy capybaras":                    #
-#<badword text="fluffy capybaras">                                    #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Gateway module: Enables forwarding the real IP address of a user from
 # a gateway to the IRC server.
 #<module name="gateway">
@@ -864,8 +847,8 @@
 # users of a specified channel status to be exempt from some channel  #
 # restriction modes. Supported restrictions are:                      #
 # anticaps, auditorium-see, auditorium-vis, blockcaps, blockcolor,    #
-# censor, filter, flood, nickflood, noctcp, nonick, nonotice,         #
-# regmoderated, stripcolor, and topiclock.                            #
+# filter, flood, nickflood, noctcp, nonick, nonotice, regmoderated,   #
+# stripcolor, and topiclock.                                          #
 # See <options:exemptchanops> in inspircd.conf.example for a more     #
 # detailed list of the restriction modes that can be exempted.        #
 # These are settable using: /MODE #chan +X <restriction>:<status>     #
