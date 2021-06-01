@@ -28,10 +28,14 @@
 
 /** Handles user mode +I
  */
-class HideChans : public SimpleUserModeHandler
+class HideChans final
+	: public SimpleUserMode
 {
  public:
-	HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
+	HideChans(Module* Creator)
+		: SimpleUserMode(Creator, "hidechans", 'I')
+	{
+	}
 };
 
 class ModuleHideChans : public Module, public Whois::LineEventListener

@@ -35,8 +35,8 @@ class ModuleStripColor : public Module
  private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
-	SimpleChannelModeHandler csc;
-	SimpleUserModeHandler usc;
+	SimpleChannelMode csc;
+	SimpleUserMode usc;
 
  public:
 	ModuleStripColor()

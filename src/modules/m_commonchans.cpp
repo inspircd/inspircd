@@ -29,7 +29,7 @@ class ModuleCommonChans
 	, public CTCTags::EventListener
 {
  private:
-	SimpleUserModeHandler mode;
+	SimpleUserMode mode;
 
 	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{

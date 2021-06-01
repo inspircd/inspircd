@@ -35,8 +35,8 @@ class ModuleNoCTCP : public Module
  private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
-	SimpleChannelModeHandler nc;
-	SimpleUserModeHandler ncu;
+	SimpleChannelMode nc;
+	SimpleUserMode ncu;
 
  public:
 	ModuleNoCTCP()

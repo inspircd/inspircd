@@ -28,11 +28,12 @@
 
 /** Handle user mode +W
  */
-class SeeWhois : public SimpleUserModeHandler
+class SeeWhois final
+	: public SimpleUserMode
 {
  public:
 	SeeWhois(Module* Creator)
-		: SimpleUserModeHandler(Creator, "showwhois", 'W')
+		: SimpleUserMode(Creator, "showwhois", 'W')
 	{
 	}
 

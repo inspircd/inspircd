@@ -30,7 +30,7 @@ class ModuleAllowInvite : public Module
 {
  private:
 	ExtBan::Acting extban;
-	SimpleChannelModeHandler ni;
+	SimpleChannelMode ni;
 
  public:
 	ModuleAllowInvite()

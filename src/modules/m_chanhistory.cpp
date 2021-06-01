@@ -143,7 +143,7 @@ class ModuleChanHistory
 {
  private:
 	HistoryMode historymode;
-	SimpleUserModeHandler nohistorymode;
+	SimpleUserMode nohistorymode;
 	bool prefixmsg;
 	UserModeReference botmode;
 	bool dobots;

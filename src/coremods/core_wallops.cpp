@@ -27,7 +27,7 @@
 
 class CommandWallops : public Command
 {
-	SimpleUserModeHandler wallopsmode;
+	SimpleUserMode wallopsmode;
 	ClientProtocol::EventProvider protoevprov;
 
  public:

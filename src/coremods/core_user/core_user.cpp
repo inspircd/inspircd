@@ -136,7 +136,7 @@ class CoreModUser : public Module
 	CommandUser cmduser;
 	CommandIson cmdison;
 	CommandUserhost cmduserhost;
-	SimpleUserModeHandler invisiblemode;
+	SimpleUserMode invisiblemode;
 
  public:
 	CoreModUser()

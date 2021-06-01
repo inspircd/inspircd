@@ -357,7 +357,7 @@ class ModuleCallerID
  private:
 	CommandAccept cmd;
 	CallerIDAPIImpl api;
-	SimpleUserModeHandler myumode;
+	SimpleUserMode myumode;
 
 	// Configuration variables:
 	bool tracknick; // Allow ACCEPT entries to update with nick changes.

@@ -190,9 +190,9 @@ class ModuleServicesAccount
  private:
 	CallerID::API calleridapi;
 	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler reginvitemode;
-	SimpleChannelModeHandler regmoderatedmode;
-	SimpleUserModeHandler regdeafmode;
+	SimpleChannelMode reginvitemode;
+	SimpleChannelMode regmoderatedmode;
+	SimpleUserMode regdeafmode;
 	Channel_r chanregmode;
 	User_r userregmode;
 	AccountExtItemImpl accountname;

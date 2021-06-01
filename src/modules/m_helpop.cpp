@@ -99,7 +99,7 @@ class ModuleHelpop
 {
  private:
 		CommandHelpop cmd;
-		SimpleUserModeHandler ho;
+		SimpleUserMode ho;
 
 	public:
 		ModuleHelpop()

@@ -36,7 +36,7 @@ class ModuleBlockColor : public Module
  private:
 	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler bc;
+	SimpleChannelMode bc;
 
  public:
 	ModuleBlockColor()

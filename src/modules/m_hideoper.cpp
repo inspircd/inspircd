@@ -33,20 +33,20 @@
 
 /** Handles user mode +H
  */
-class HideOper : public SimpleUserModeHandler
+class HideOper final
+	: public SimpleUserMode
 {
  public:
 	size_t opercount = 0;
 
 	HideOper(Module* Creator)
-		: SimpleUserModeHandler(Creator, "hideoper", 'H')
+		: SimpleUserMode(Creator, "hideoper", 'H', true)
 	{
-		oper = true;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserModeHandler::OnModeChange(source, dest, channel, change) == MODEACTION_DENY)
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_DENY)
 			return MODEACTION_DENY;
 
 		if (change.adding)

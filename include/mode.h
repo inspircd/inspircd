@@ -452,10 +452,10 @@ class CoreExport PrefixMode : public ModeHandler
  * is already set and not allowing it to be unset if it is already unset.
  * An example of a simple user mode is user mode +w.
  */
-class CoreExport SimpleUserModeHandler : public ModeHandler
+class CoreExport SimpleUserMode : public ModeHandler
 {
  public:
-	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER)
 	{
 		oper = operonly;
@@ -469,11 +469,11 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
  * is already set and not allowing it to be unset if it is already unset.
  * An example of a simple channel mode is channel mode +s.
  */
-class CoreExport SimpleChannelModeHandler : public ModeHandler
+class CoreExport SimpleChannelMode : public ModeHandler
 {
  public:
 
-	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+	SimpleChannelMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		oper = operonly;

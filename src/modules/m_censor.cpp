@@ -35,8 +35,8 @@ class ModuleCensor : public Module
  private:
 	CheckExemption::EventProvider exemptionprov;
 	CensorMap censors;
-	SimpleUserModeHandler cu;
-	SimpleChannelModeHandler cc;
+	SimpleUserMode cu;
+	SimpleChannelMode cc;
 
  public:
 	ModuleCensor()

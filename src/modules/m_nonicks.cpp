@@ -34,7 +34,7 @@ class ModuleNoNickChange : public Module
  private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
-	SimpleChannelModeHandler nn;
+	SimpleChannelMode nn;
 
  public:
 	ModuleNoNickChange()

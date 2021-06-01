@@ -38,11 +38,11 @@ enum
 class BotTag : public ClientProtocol::MessageTagProvider
 {
  private:
-	SimpleUserModeHandler& botmode;
+	SimpleUserMode& botmode;
 	CTCTags::CapReference ctctagcap;
 
  public:
-	BotTag(Module* mod, SimpleUserModeHandler& bm)
+	BotTag(Module* mod, SimpleUserMode& bm)
 		: ClientProtocol::MessageTagProvider(mod)
 		, botmode(bm)
 		, ctctagcap(mod)
@@ -69,7 +69,7 @@ class ModuleBotMode
 	, public Whois::EventListener
 {
  private:
-	SimpleUserModeHandler bm;
+	SimpleUserMode bm;
 	BotTag tag;
 	bool forcenotice;
 

@@ -83,7 +83,7 @@ class ModuleRedirect : public Module
 {
  private:
 	Redirect re;
-	SimpleUserModeHandler antiredirectmode;
+	SimpleUserMode antiredirectmode;
 	ChanModeReference limitmode;
 
  public:

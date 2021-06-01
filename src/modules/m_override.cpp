@@ -41,7 +41,7 @@ class ModuleOverride
  private:
 	bool RequireKey;
 	bool NoisyOverride;
-	SimpleUserModeHandler ou;
+	SimpleUserMode ou;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
 	ChanModeReference key;

@@ -115,7 +115,7 @@ void ModeHandler::RegisterService()
 	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + name, this);
 }
 
-ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+ModeAction SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */
@@ -134,7 +134,7 @@ ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel
 }
 
 
-ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+ModeAction SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */

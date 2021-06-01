@@ -28,10 +28,12 @@
 #include "modules/names.h"
 #include "modules/who.h"
 
-class AuditoriumMode : public SimpleChannelModeHandler
+class AuditoriumMode final
+	: public SimpleChannelMode
 {
  public:
-	AuditoriumMode(Module* Creator) : SimpleChannelModeHandler(Creator, "auditorium", 'u')
+	AuditoriumMode(Module* Creator)
+		: SimpleChannelMode(Creator, "auditorium", 'u')
 	{
 		ranktoset = ranktounset = OP_VALUE;
 	}

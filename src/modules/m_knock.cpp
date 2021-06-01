@@ -56,13 +56,13 @@ enum KnockNotify : uint8_t
  */
 class CommandKnock : public Command
 {
-	SimpleChannelModeHandler& noknockmode;
+	SimpleChannelMode& noknockmode;
 	ChanModeReference inviteonlymode;
 
  public:
 	int notify;
 
-	CommandKnock(Module* Creator, SimpleChannelModeHandler& Noknockmode)
+	CommandKnock(Module* Creator, SimpleChannelMode& Noknockmode)
 		: Command(Creator,"KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
@@ -126,7 +126,7 @@ class CommandKnock : public Command
 
 class ModuleKnock : public Module
 {
-	SimpleChannelModeHandler kn;
+	SimpleChannelMode kn;
 	CommandKnock cmd;
 
  public:

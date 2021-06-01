@@ -64,7 +64,7 @@ class ModuleOperChans
 	: public Module
 {
  private:
-	SimpleChannelModeHandler oc;
+	SimpleChannelMode oc;
 	OperExtBan extban;
 
  public:

@@ -107,15 +107,15 @@ class CoreModChannel
 	JoinHook joinhook;
 
 	ModeChannelBan banmode;
-	SimpleChannelModeHandler inviteonlymode;
+	SimpleChannelMode inviteonlymode;
 	ModeChannelKey keymode;
 	ModeChannelLimit limitmode;
-	SimpleChannelModeHandler moderatedmode;
-	SimpleChannelModeHandler noextmsgmode;
+	SimpleChannelMode moderatedmode;
+	SimpleChannelMode noextmsgmode;
 	ModeChannelOp opmode;
-	SimpleChannelModeHandler privatemode;
-	SimpleChannelModeHandler secretmode;
-	SimpleChannelModeHandler topiclockmode;
+	SimpleChannelMode privatemode;
+	SimpleChannelMode secretmode;
+	SimpleChannelMode topiclockmode;
 	ModeChannelVoice voicemode;
 
 	insp::flat_map<std::string, char> exemptions;

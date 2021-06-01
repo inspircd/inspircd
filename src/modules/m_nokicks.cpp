@@ -32,7 +32,7 @@ class ModuleNoKicks : public Module
 {
  private:
 	ExtBan::Acting extban;
-	SimpleChannelModeHandler nk;
+	SimpleChannelMode nk;
 
  public:
 	ModuleNoKicks()

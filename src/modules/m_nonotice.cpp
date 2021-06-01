@@ -34,7 +34,7 @@ class ModuleNoNotice : public Module
  private:
 	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler nt;
+	SimpleChannelMode nt;
 
  public:
 	ModuleNoNotice()
