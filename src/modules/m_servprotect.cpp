@@ -34,12 +34,14 @@ enum
 	ERR_KILLDENY = 485
 };
 
-/** Handles user mode +k
- */
-class ServProtectMode : public ModeHandler
+class ServProtectMode final
+	: public SimpleUserMode
 {
  public:
-	ServProtectMode(Module* Creator) : ModeHandler(Creator, "servprotect", 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
+	ServProtectMode(Module* Creator)
+		: SimpleUserMode(Creator, "servprotect", 'k', true)
+	{
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{

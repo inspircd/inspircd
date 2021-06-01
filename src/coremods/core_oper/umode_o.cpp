@@ -27,9 +27,8 @@
 #include "core_oper.h"
 
 ModeUserOperator::ModeUserOperator(Module* Creator)
-	: ModeHandler(Creator, "oper", 'o', PARAM_NONE, MODETYPE_USER)
+	: SimpleUserMode(Creator, "oper", 'o', true)
 {
-	oper = true;
 }
 
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)

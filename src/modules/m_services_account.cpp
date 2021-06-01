@@ -52,54 +52,48 @@ enum
 
 /** Channel mode +r - mark a channel as identified
  */
-class Channel_r : public ModeHandler
+class RegisteredChannel final
+	: public SimpleChannelMode
 {
  public:
-	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
+	RegisteredChannel(Module* Creator)
+		: SimpleChannelMode(Creator, "c_registered", 'r')
+	{
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		// Only a U-lined server may add or remove the +r mode.
-		if (!IS_LOCAL(source))
-		{
-			// Only change the mode if it's not redundant
-			if (change.adding != channel->IsModeSet(this))
-			{
-				channel->SetMode(this, change.adding);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
+		if (IS_LOCAL(source))
 		{
 			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
+			return MODEACTION_DENY;
 		}
-		return MODEACTION_DENY;
+
+		return SimpleChannelMode::OnModeChange(source, dest, channel, change);
 	}
 };
 
 /** User mode +r - mark a user as identified
  */
-class User_r : public ModeHandler
+class RegisteredUser final
+	: public SimpleUserMode
 {
 
  public:
-	User_r(Module* Creator) : ModeHandler(Creator, "u_registered", 'r', PARAM_NONE, MODETYPE_USER) { }
+	RegisteredUser(Module* Creator)
+		: SimpleUserMode(Creator, "u_registered", 'r')
+	{
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (!IS_LOCAL(source))
+		if (IS_LOCAL(source))
 		{
-			if (change.adding != dest->IsModeSet(this))
-			{
-				dest->SetMode(this, change.adding);
-				return MODEACTION_ALLOW;
-			}
+			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
+			return MODEACTION_DENY;
 		}
-		else
-		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r user mode");
-		}
-		return MODEACTION_DENY;
+
+		return SimpleUserMode::OnModeChange(source, dest, channel, change);
 	}
 };
 
@@ -193,8 +187,8 @@ class ModuleServicesAccount
 	SimpleChannelMode reginvitemode;
 	SimpleChannelMode regmoderatedmode;
 	SimpleUserMode regdeafmode;
-	Channel_r chanregmode;
-	User_r userregmode;
+	RegisteredChannel chanregmode;
+	RegisteredUser userregmode;
 	AccountExtItemImpl accountname;
 	AccountExtBan accountextban;
 	UnauthedExtBan unauthedextban;

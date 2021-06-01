@@ -101,7 +101,8 @@ class ModeUserServerNoticeMask : public ModeHandler
 	std::string GetUserParameter(const User* user) const override;
 };
 
-class ModeUserOperator : public ModeHandler
+class ModeUserOperator final
+	: public SimpleUserMode
 {
  public:
 	ModeUserOperator(Module* Creator);

@@ -32,25 +32,26 @@
 
 /** Handles the +P channel mode
  */
-class PermChannel : public ModeHandler
+class PermChannel final
+	: public SimpleChannelMode
 {
  public:
 	PermChannel(Module* Creator)
-		: ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL)
+		: SimpleChannelMode(Creator, "permanent", 'P', true)
 	{
-		oper = true;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding == channel->IsModeSet(this))
-			return MODEACTION_DENY;
+		if (SimpleChannelMode::OnModeChange(source, dest, channel, change))
+		{
+			if (!change.adding)
+				channel->CheckDestroy();
 
-		channel->SetMode(this, change.adding);
-		if (!change.adding)
-			channel->CheckDestroy();
+			return MODEACTION_ALLOW;
+		}
 
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 	}
 };
 

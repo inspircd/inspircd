@@ -29,42 +29,46 @@
 #include "modules/ctctags.h"
 
 // User mode +d - filter out channel messages and channel notices
-class DeafMode : public ModeHandler
+class DeafMode final
+	: public SimpleUserMode
 {
  public:
-	DeafMode(Module* Creator) : ModeHandler(Creator, "deaf", 'd', PARAM_NONE, MODETYPE_USER) { }
+	DeafMode(Module* Creator)
+		: SimpleUserMode(Creator, "deaf", 'd')
+	{
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding == dest->IsModeSet(this))
-			return MODEACTION_DENY;
-
-		if (change.adding)
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_ALLOW)
+		{
 			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
+			return MODEACTION_ALLOW;
+		}
 
-		dest->SetMode(this, change.adding);
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 	}
 };
 
 // User mode +D - filter out user messages and user notices
-class PrivDeafMode : public ModeHandler
+class PrivDeafMode final
+	: public SimpleUserMode
 {
  public:
-	PrivDeafMode(Module* Creator) : ModeHandler(Creator, "privdeaf", 'D', PARAM_NONE, MODETYPE_USER)
+	PrivDeafMode(Module* Creator)
+		: SimpleUserMode(Creator, "privdeaf", 'D')
 	{
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding == dest->IsModeSet(this))
-			return MODEACTION_DENY;
-
-		if (change.adding)
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_ALLOW)
+		{
 			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
+			return MODEACTION_ALLOW;
+		}
 
-		dest->SetMode(this, change.adding);
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 	}
 };
 

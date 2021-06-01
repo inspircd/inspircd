@@ -30,7 +30,8 @@
 #include "modules/names.h"
 #include "modules/who.h"
 
-class DelayJoinMode : public ModeHandler
+class DelayJoinMode final
+	: public SimpleChannelMode
 {
  private:
 	IntExtItem& unjoined;
@@ -38,14 +39,28 @@ class DelayJoinMode : public ModeHandler
 
  public:
 	DelayJoinMode(Module* Parent, IntExtItem& ext)
-		: ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
+		: SimpleChannelMode(Parent, "delayjoin", 'D')
 		, unjoined(ext)
 		, servertime(Parent)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	{
+		if (SimpleChannelMode::OnModeChange(source, dest, channel, change))
+		{
+			/*
+			 * Make all users visible, as +D is being removed. If we don't do this,
+			 * they remain permanently invisible on this channel!
+			 */
+			for (const auto& [member, _] : channel->GetUsers())
+				RevealUser(member, channel);
+			return MODEACTION_ALLOW;
+		}
+		return MODEACTION_DENY;
+	}
+
 	void RevealUser(User* user, Channel* chan);
 };
 
@@ -130,25 +145,6 @@ class ModuleDelayJoin
 	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
 	ModResult OnRawMode(User* user, Channel* channel, const Modes::Change& change) override;
 };
-
-ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
-{
-	/* no change */
-	if (channel->IsModeSet(this) == change.adding)
-		return MODEACTION_DENY;
-
-	if (!change.adding)
-	{
-		/*
-		 * Make all users visible, as +D is being removed. If we don't do this,
-		 * they remain permanently invisible on this channel!
-		 */
-		for (const auto& [member, _] : channel->GetUsers())
-			RevealUser(member, channel);
-	}
-	channel->SetMode(this, change.adding);
-	return MODEACTION_ALLOW;
-}
 
 ModResult ModuleDelayJoin::OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick)
 {
