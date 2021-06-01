@@ -452,16 +452,16 @@ Sets your real name to the specified real name.
 
 <helpop key="coper" title="Oper Commands" value="
 ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
-CHGNAME        CLEARCHAN      CLOAK          CLONES         CONNECT
-DIE            ELINE          FILTER         GLINE          GLOADMODULE
-GLOBOPS        GRELOADMODULE  GUNLOADMODULE  KILL           KLINE
-LOADMODULE     LOCKSERV       NICKLOCK       NICKUNLOCK     OJOIN
-OPERMOTD       QLINE          RCONNECT       REHASH         RELOADMODULE
-RESTART        RLINE          RSQUIT         SAJOIN         SAKICK
-SAMODE         SANICK         SAPART         SAQUIT         SATOPIC
-SETHOST        SETIDENT       SETIDLE        SHUN           SQUIT
-SWHOIS         TLINE          UNLOADMODULE   UNLOCKSERV     USERIP
-WALLOPS        ZLINE
+CHGNAME        CLEARCHAN      CLOAK          CONNECT        DIE
+ELINE          FILTER         GLINE          GLOADMODULE    GLOBOPS
+GRELOADMODULE  GUNLOADMODULE  KILL           KLINE          LOADMODULE
+LOCKSERV       NICKLOCK       NICKUNLOCK     OJOIN          OPERMOTD
+QLINE          RCONNECT       REHASH         RELOADMODULE   RESTART
+RLINE          RSQUIT         SAJOIN         SAKICK         SAMODE
+SANICK         SAPART         SAQUIT         SATOPIC        SETHOST
+SETIDENT       SETIDLE        SHUN           SQUIT          SWHOIS
+TLINE          UNLOADMODULE   UNLOCKSERV     USERIP         WALLOPS
+ZLINE
 ">
 
 <helpop key="userip" title="/USERIP <nick> [<nick>]+" value="
@@ -541,11 +541,6 @@ Force joins you to the specified channel, and gives you +Y and any other
 configuration-defined modes on it, preventing you from being kicked.
 Depending on configuration, may announce that you have joined the
 channel on official network business.
-">
-
-<helpop key="clones" title="/CLONES <limit>" value="
-Retrieves a list of users with more clones than the specified
-limit.
 ">
 
 <helpop key="check" title="/CHECK <nick>|<ipmask>|<hostmask>|<channel> [<servername>]" value="

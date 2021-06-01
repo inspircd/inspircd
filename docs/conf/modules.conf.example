@@ -551,14 +551,6 @@
 #       ignorecase="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Clones module: Adds an oper command /CLONES for detecting cloned
-# users. Warning: This command may be resource intensive when it is
-# issued, use with care.
-# This module is oper-only.
-# To use, CLONES must be in one of your oper class blocks.
-#<module name="clones">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames
 # and case mapping.
 #<module name="codepage">
