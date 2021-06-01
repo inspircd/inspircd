@@ -455,13 +455,12 @@ ALLTIME        CBAN           CHECK          CHGHOST        CHGIDENT
 CHGNAME        CLEARCHAN      CLOAK          CONNECT        DIE
 ELINE          FILTER         GLINE          GLOADMODULE    GLOBOPS
 GRELOADMODULE  GUNLOADMODULE  KILL           KLINE          LOADMODULE
-LOCKSERV       NICKLOCK       NICKUNLOCK     OJOIN          OPERMOTD
-QLINE          RCONNECT       REHASH         RELOADMODULE   RESTART
-RLINE          RSQUIT         SAJOIN         SAKICK         SAMODE
-SANICK         SAPART         SAQUIT         SATOPIC        SETHOST
-SETIDENT       SETIDLE        SHUN           SQUIT          SWHOIS
-TLINE          UNLOADMODULE   UNLOCKSERV     USERIP         WALLOPS
-ZLINE
+NICKLOCK       NICKUNLOCK     OJOIN          OPERMOTD       QLINE
+RCONNECT       REHASH         RELOADMODULE   RESTART        RLINE
+RSQUIT         SAJOIN         SAKICK         SAMODE         SANICK
+SAPART         SAQUIT         SATOPIC        SETHOST        SETIDENT
+SETIDLE        SHUN           SQUIT          SWHOIS         TLINE
+UNLOADMODULE   USERIP         WALLOPS        ZLINE
 ">
 
 <helpop key="userip" title="/USERIP <nick> [<nick>]+" value="
@@ -473,15 +472,6 @@ This command returns the number of local and global clients matched,
 and the percentage of clients matched, plus how they were matched
 (by IP address or by hostname). Mask should be given as either
 nick!user@host or user@IP (wildcards and CIDR blocks are accepted).
-">
-
-<helpop key="lockserv" title="/LOCKSERV [:<message>]" value="
-Locks out all new connections notifying connecting users that the
-service is temporarily closed and to try again later.
-">
-
-<helpop key="unlockserv" title="/UNLOCKSERV" value="
-Opens the server up again for new connections.
 ">
 
 <helpop key="filter" title="/FILTER <pattern> [<action> <flags> [<duration>] :<reason>]" value="

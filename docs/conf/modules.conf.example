@@ -1349,17 +1349,6 @@
 # not loaded the oper accounts are still protected by a password.     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that    #
-# are used to temporarily close/open the server for new connections.  #
-# These commands require that the /LOCKSERV and /UNLOCKSERV commands  #
-# are specified in a <class> tag that the oper is part of. This is so #
-# you can control who has access to this possible dangerous command.  #
-# If your server is locked and you get disconnected, do a REHASH from #
-# shell to open up again.                                             #
-# This module is oper-only.
-#<module name="lockserv">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Map hiding module: replaces /MAP and /LINKS output to users with a  #
 # message to see a website, set by maphide="https://test.org/map" in  #
 # the <security> tag, instead.                                        #
