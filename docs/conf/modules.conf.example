@@ -927,8 +927,8 @@
 # tre    - TRE regexps, provided via regex_tre, requires libtre.      #
 # posix  - POSIX regexps, provided via regex_posix, not available     #
 #          on Windows, no dependencies on other operating systems.    #
-# stdlib - stdlib regexps, provided via regex_stdlib, see comment     #
-#          at the <module> tag for info on availability.              #
+# stdregex - stdlib regexps, provided via regex_stdlib, see comment   #
+#            at the <module> tag for info on availability.            #
 #                                                                     #
 # If notifyuser is set to no, the user will not be notified when      #
 # their message is blocked.                                           #
