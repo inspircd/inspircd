@@ -79,17 +79,44 @@ class ModuleCodepage
 		hashmap.swap(newhash);
 	}
 
+	void ChangeNick(User* user, const std::string& message)
+	{
+		user->WriteNumeric(RPL_SAVENICK, user->uuid, message);
+		user->ChangeNick(user->uuid);
+	}
+
 	void CheckDuplicateNick()
 	{
-		insp::flat_set<std::string, irc::insensitive_swo> duplicates;
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		user_hash duplicates;
+		const user_hash& users = ServerInstance->Users->GetUsers();
+		for (user_hash::const_iterator iter = users.begin(); iter != users.end(); ++iter)
 		{
-			LocalUser* user = *iter;
-			if (user->nick != user->uuid && !duplicates.insert(user->nick).second)
+			User* user = iter->second;
+			if (user->nick == user->uuid)
+				continue; // UUID users are always unique.
+
+			std::pair<user_hash::iterator, bool> check = duplicates.insert(std::make_pair(user->nick, user));
+			if (check.second)
+				continue; // No duplicate.
+
+			User* otheruser = check.first->second;
+			if (otheruser->age < user->age)
 			{
-				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer available.");
-				user->ChangeNick(user->uuid);
+				// The other user connected first.
+				ChangeNick(user, "Your nickname is no longer available.");
+			}
+			else if (otheruser->age > user->age)
+			{
+				// The other user connected last.
+				ChangeNick(otheruser, "Your nickname is no longer available.");
+				check.first->second = user;
+			}
+			else
+			{
+				// Both connected at the same time.
+				ChangeNick(user, "Your nickname is no longer available.");
+				ChangeNick(otheruser, "Your nickname is no longer available.");
+				duplicates.erase(check.first);
 			}
 		}
 	}
@@ -101,10 +128,7 @@ class ModuleCodepage
 		{
 			LocalUser* user = *iter;
 			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
-			{
-				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer valid.");
-				user->ChangeNick(user->uuid);
-			}
+				ChangeNick(user, "Your nickname is no longer valid.");
 		}
 	}
 
@@ -215,6 +239,7 @@ class ModuleCodepage
 
 		ServerInstance->Config->CaseMapping = name;
 		national_case_insensitive_map = casemap;
+		CheckDuplicateNick();
 		CheckRehash(newcasemap);
 
 		ServerInstance->ISupport.Build();
