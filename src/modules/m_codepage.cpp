@@ -67,6 +67,9 @@ class ModuleCodepage
 	// The IsNick handler which was set before this module was loaded.
 	const TR1NS::function<bool(const std::string&)> origisnick;
 
+	// The character set used for the codepage.
+	std::string charset;
+
 	template <typename T>
 	void RehashHashmap(T& hashmap)
 	{
@@ -138,7 +141,9 @@ class ModuleCodepage
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		const std::string name = ServerInstance->Config->ConfValue("codepage")->getString("name");
+		ConfigTag* codepagetag = ServerInstance->Config->ConfValue("codepage");
+
+		const std::string name = codepagetag->getString("name");
 		if (name.empty())
 			throw ModuleException("<codepage:name> is a required field!");
 
@@ -200,6 +205,7 @@ class ModuleCodepage
 				lower, lower, upper, upper);
 		}
 
+		charset = codepagetag->getString("charset");
 		std::swap(allowedchars, newallowedchars);
 		std::swap(allowedfrontchars, newallowedfrontchars);
 		std::swap(casemap, newcasemap);
@@ -212,6 +218,12 @@ class ModuleCodepage
 		CheckRehash(newcasemap);
 
 		ServerInstance->ISupport.Build();
+	}
+
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		if (!charset.empty())
+			tokens["CHARSET"] = charset;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
