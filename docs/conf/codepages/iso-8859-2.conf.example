@@ -1,6 +1,6 @@
 # This file contains ISO 8859-2 codepage rules for use with the codepage module.
 
-<codepage name="iso-8859-2">
+<codepage name="iso-8859-2" charset="iso-8859-2">
 
 <cpchars index="161" front="yes">           # Ą
 <cpchars index="163" front="yes">           # Ł
