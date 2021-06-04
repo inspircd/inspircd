@@ -176,6 +176,9 @@ class SpanningTreeUtilities : public classbase
 	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
 	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
+
+	/** Send the channel list mode limits to either the specified server or all servers if NULL. */
+	void SendListLimits(Channel* chan, TreeSocket* sock = NULL);
 };
 
 inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
