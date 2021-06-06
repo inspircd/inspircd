@@ -18,6 +18,7 @@ jobs:
       - name: Run test-build
         run: ./tools/test-build ${{ matrix.compiler }}
     strategy:
+      fail-fast: false
       matrix:
         compiler:
           - clang++
