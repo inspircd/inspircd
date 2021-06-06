@@ -24,6 +24,7 @@ jobs:
       - name: Run test-build
         run: ./tools/test-build c++
     strategy:
+      fail-fast: false
       matrix:
         standard:
           - gnu++98
