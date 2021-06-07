@@ -1,0 +1,34 @@
+# Last updated: 2020-06-07
+#
+# Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
+# Modules which don't apply to Windows: regex_posix, sslrehashsgnal
+# Modules without packages: ldap, regex_tre, ssl_gnutls
+
+[requires]
+argon2/20190702
+# libmaxminddb/1.6.0
+libpq/13.2
+# mbedtls/2.25.0
+mysql-connector-c/6.1.11
+# openssl/1.1.1k
+pcre/8.44
+re2/20210401
+sqlite3/3.35.5
+
+[options]
+argon2:shared=True
+# libmaxminddb:shared=True
+libpq:shared=True
+# mbedtls:shared=True
+mysql-connector:shared=True
+# openssl:shared=True
+pcre:shared=True
+re2:shared=True
+sqlite3:shared=True
+
+[imports]
+., *.dll -> extradll @ keep_path=False
+., *.lib -> extralib @ keep_path=False
+
+[generators]
+cmake
