@@ -46,7 +46,7 @@ SYSTEM = @SYSTEM_NAME@
 BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
-LDLIBS = -lstdc++
+LDLIBS =
 CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
 
@@ -109,7 +109,7 @@ ifeq ($(SYSTEM), darwin)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup
 endif
 ifeq ($(SYSTEM), haiku)
-  LDLIBS = -lnetwork -lstdc++
+  LDLIBS += -lnetwork
   CORELDFLAGS = -L.
   PICLDFLAGS = -fPIC -shared
 endif
