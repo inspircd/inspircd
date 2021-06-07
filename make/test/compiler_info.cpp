@@ -27,15 +27,27 @@
 #  define INSPIRCD_COMPILER_NAME "AppleClang"
 # else
 #  define INSPIRCD_COMPILER_NAME "Clang"
+#  if __clang_major__ < 9
+#   define INSPIRCD_EXTRA_LDLIBS "-lc++fs"
+#  endif
 # endif
 # define INSPIRCD_COMPILER_VERSION __clang_major__ << '.' << __clang_minor__
 #elif defined __GNUC__
 # define INSPIRCD_COMPILER_NAME "GCC"
 # define INSPIRCD_COMPILER_VERSION __GNUC__ << '.' << __GNUC_MINOR__
+# if __GNUC__ < 9
+#  define INSPIRCD_EXTRA_LDLIBS "-lstdc++fs"
+# endif
+#endif
+
+#ifndef INSPIRCD_EXTRA_LDLIBS
+# define INSPIRCD_EXTRA_LDLIBS ""
 #endif
 
 int main() {
-	std::cout << "NAME " << INSPIRCD_COMPILER_NAME << std::endl
-		<< "VERSION " << INSPIRCD_COMPILER_VERSION << std::endl;
+	std::cout
+		<< "NAME " << INSPIRCD_COMPILER_NAME << std::endl
+		<< "VERSION " << INSPIRCD_COMPILER_VERSION << std::endl
+		<< "EXTRA_LDLIBS " << INSPIRCD_EXTRA_LDLIBS << std::endl;
 	return 0;
 }

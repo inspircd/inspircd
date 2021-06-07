@@ -46,7 +46,7 @@ SYSTEM = @SYSTEM_NAME@
 BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
-LDLIBS =
+LDLIBS = @COMPILER_EXTRA_LDLIBS@
 CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
 
