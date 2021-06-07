@@ -56,7 +56,7 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "libmysql.lib")
+# pragma comment(lib, "mysqlclient.lib")
 #endif
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
