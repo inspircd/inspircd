@@ -39,7 +39,7 @@
 #include <pcre.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "libpcre.lib")
+# pragma comment(lib, "pcre.lib")
 #endif
 
 class PCREPattern final

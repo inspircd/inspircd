@@ -526,6 +526,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		params.add(memb);
 		params.finalize();
 		params.Broadcast();
+		Utils->SendListLimits(memb->chan, NULL);
 	}
 	else
 	{

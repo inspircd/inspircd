@@ -179,6 +179,9 @@ class SpanningTreeUtilities : public Cullable
 
 	// Builds link data to be sent to another server.
 	std::string BuildLinkString(uint16_t protocol, Module* mod);
+
+	/** Send the channel list mode limits to either the specified server or all servers if nullptr. */
+	void SendListLimits(Channel* chan, TreeSocket* sock = nullptr);
 };
 
 inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
