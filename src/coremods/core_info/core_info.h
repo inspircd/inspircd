@@ -24,7 +24,7 @@
 #include "modules/isupport.h"
 
 /** This class manages the generation and transmission of ISUPPORT. */
-class CoreExport ISupportManager
+class ISupportManager
 {
  private:
 	/** The generated numerics which are sent to clients. */

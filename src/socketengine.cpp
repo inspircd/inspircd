@@ -225,7 +225,7 @@ int SocketEngine::NonBlocking(int fd)
 void SocketEngine::SetReuse(int fd)
 {
 	int on = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, static_cast<void*>(&on), sizeof(on));
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&on), sizeof(on));
 }
 
 ssize_t SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)

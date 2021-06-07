@@ -46,7 +46,7 @@ class CoreExport DLLManager : public Cullable
 
 	/** The module library handle. */
 #ifdef _WIN32
-	HMODULE lib = INVALID_HANDLE_VALUE;
+	HMODULE lib = static_cast<HMODULE>(INVALID_HANDLE_VALUE);
 #else
 	void* lib = nullptr;
 #endif
