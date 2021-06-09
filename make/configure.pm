@@ -86,6 +86,7 @@ sub __get_template_settings($$$) {
 	# Miscellaneous information
 	$settings{CONFIGURE_DIRECTORY} = CONFIGURE_DIRECTORY;
 	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
+	$settings{SOURCE_DIR} = CONFIGURE_ROOT;
 	$settings{SYSTEM_NAME} = lc $^O;
 
 	return %settings;

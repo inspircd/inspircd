@@ -43,7 +43,8 @@
 CXX = @CXX@
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
-BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
+SOURCEPATH = @SOURCE_DIR@
+BUILDPATH ?= $(SOURCEPATH)/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
@@ -138,8 +139,6 @@ ifeq ($(INSPIRCD_DEBUG), 3)
 endif
 
 MAKEFLAGS += --no-print-directory
-
-SOURCEPATH = $(shell pwd)
 
 ifndef INSPIRCD_VERBOSE
   MAKEFLAGS += --silent
@@ -280,23 +279,43 @@ clean:
 
 deinstall:
 	-rm -f $(BINPATH)/inspircd
-	-rm -rf $(EXAPATH)
-	-rm -f $(MANPATH)/inspircd.1
+	-rm -f $(BINPATH)/inspircd-genssl
+	-rm -f $(BINPATH)/inspircd-testssl
+	-rm -f $(CONPATH)/help.txt
+	-rm -f $(EXAPATH)/*.example
+	-rm -f $(EXAPATH)/codepages/*.example
+	-rm -f $(EXAPATH)/providers/*.example
+	-rm -f $(EXAPATH)/services/*.example
+	-rm -f $(EXAPATH)/sql/*.sql
 	-rm -f $(MANPATH)/inspircd-genssl.1
-	-rm -f $(MODPATH)/m_*.so
+	-rm -f $(MANPATH)/inspircd-testssl.1
+	-rm -f $(MANPATH)/inspircd.1
 	-rm -f $(MODPATH)/core_*.so
+	-rm -f $(MODPATH)/m_*.so
+	-rm -f $(SCRPATH)/apparmor
+	-rm -f $(SCRPATH)/inspircd
 	-rm -f $(SCRPATH)/inspircd.service
+	-rm -f $(SCRPATH)/logrotate
 	-rm -f $(SCRPATH)/org.inspircd.plist
+	-[ -d $(BINPATH) ] && find $(BINPATH) -type d -empty -delete
+	-[ -d $(CONPATH) ] && find $(CONPATH) -type d -empty -delete
+	-[ -d $(DATPATH) ] && find $(DATPATH) -type d -empty -delete
+	-[ -d $(EXAPATH) ] && find $(EXAPATH) -type d -empty -delete
+	-[ -d $(LOGPATH) ] && find $(LOGPATH) -type d -empty -delete
+	-[ -d $(MANPATH) ] && find $(MANPATH) -type d -empty -delete
+	-[ -d $(MODPATH) ] && find $(MODPATH) -type d -empty -delete
+	-[ -d $(RUNPATH) ] && find $(RUNPATH) -type d -empty -delete
+	-[ -d $(SCRPATH) ] && find $(SCRPATH) -type d -empty -delete
 
 configureclean:
+	-rm -f GNUmakefile
 	-rm -f Makefile
-	rm -f GNUmakefile
-	rm -f include/config.h
-	rm -rf @CONFIGURE_DIRECTORY@
+	-rm -f include/config.h
+	-rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
 	-rm -rf "$(SOURCEPATH)/run"
-	find "$(SOURCEPATH)/src/modules" -type l | xargs rm -f
+	-find "$(SOURCEPATH)/src/modules" -type l -delete
 
 help:
 	@echo 'InspIRCd Makefile'
