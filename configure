@@ -443,7 +443,7 @@ EOQ
 	}
 } elsif (!defined $opt_disable_auto_extras) {
 	print_warning <<"EOM";
-You are building without enabling any SSL modules. This is not
+you are building without enabling any SSL modules. This is not
 recommended as SSL greatly enhances the security and privacy of your IRC server
 and in a future version will be <|BOLD required|> for linking servers.
 
