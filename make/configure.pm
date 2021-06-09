@@ -86,6 +86,7 @@ sub __get_template_settings($$$) {
 	# Miscellaneous information
 	$settings{CONFIGURE_DIRECTORY} = CONFIGURE_DIRECTORY;
 	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
+	$settings{SOURCE_DIR} = CONFIGURE_ROOT;
 	$settings{SYSTEM_NAME} = lc $^O;
 
 	return %settings;
@@ -160,6 +161,7 @@ non-interactive configuration is started and any omitted values are defaulted.
   <|BOLD --disable-auto-extras|>         Disables automatically enabling extra modules
                                 for which the dependencies are available.
   <|BOLD --disable-interactive|>         Disables the interactive configuration wizard.
+  <|BOLD --disable-ownership|>           Disables setting file ownership on install.
   <|BOLD --distribution-label <TEXT>|>   Sets a distribution specific version label in
                                 the build configuration.
   <|BOLD --gid <ID|NAME>|>               Sets the group to run InspIRCd as.

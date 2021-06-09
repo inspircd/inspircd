@@ -43,7 +43,8 @@
 CXX = @CXX@ -std=c++17
 COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
-BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
+SOURCEPATH = @SOURCE_DIR@
+BUILDPATH ?= $(SOURCEPATH)/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors  -Wformat=2 -Wmissing-format-attribute -Woverloaded-virtual -Wpedantic -Wno-format-nonliteral -Wno-unused-parameter
 LDLIBS = @COMPILER_EXTRA_LDLIBS@
@@ -72,6 +73,15 @@ ifeq ($(SYSTEM), darwin)
   DLLEXT = "dylib"
 else
   DLLEXT = "so"
+endif
+
+# Only set the ownership of installed files when --disable-ownership
+# was not passed to configure.
+DISABLE_OWNERSHIP=@DISABLE_OWNERSHIP@
+ifeq ($(DISABLE_OWNERSHIP), 1)
+  INSTFLAGS =
+else
+  INSTFLAGS = -g @GID@ -o @UID@
 endif
 
 # Force the use of libc++ on macOS as on some systems it is not the
@@ -162,8 +172,6 @@ endif
 
 MAKEFLAGS += --no-print-directory
 
-SOURCEPATH = $(shell pwd)
-
 ifndef INSPIRCD_VERBOSE
   MAKEFLAGS += --silent
 endif
@@ -242,38 +250,38 @@ finishmessage: target
 	@echo "*************************************"
 
 install: target
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(CONPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(DATPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/codepages
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/providers
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/services
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(EXAPATH)/sql
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(LOGPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MANPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(MODPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(RUNPATH)
-	@-$(INSTALL) -d -g @GID@ -o @UID@ -m $(INSTMODE_DIR) $(SCRPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.$(DLLEXT) $(MODPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/apparmor $(SCRPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(BINPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(CONPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/codepages
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/providers
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/services
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(LOGPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MANPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MODPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(RUNPATH)
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(SCRPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.$(DLLEXT) $(MODPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/apparmor $(SCRPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
 ifeq ($(SYSTEM), darwin)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/*.example $(EXAPATH)
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/codepages/*.example $(EXAPATH)/codepages
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/providers/*.example $(EXAPATH)/providers
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
-	-$(INSTALL) -g @GID@ -o @UID@ -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/*.example $(EXAPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example $(EXAPATH)/codepages
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example $(EXAPATH)/providers
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -300,22 +308,40 @@ clean:
 
 deinstall:
 	-rm -f $(BINPATH)/inspircd
-	-rm -rf $(EXAPATH)
+	-rm -f $(BINPATH)/inspircd-testssl
+	-rm -f $(CONPATH)/help.txt
+	-rm -f $(EXAPATH)/*.example
+	-rm -f $(EXAPATH)/codepages/*.example
+	-rm -f $(EXAPATH)/providers/*.example
+	-rm -f $(EXAPATH)/services/*.example
+	-rm -f $(EXAPATH)/sql/*.sql
+	-rm -f $(MANPATH)/inspircd-testssl.1
 	-rm -f $(MANPATH)/inspircd.1
-	-rm -f $(MODPATH)/m_*.$(DLLEXT)
 	-rm -f $(MODPATH)/core_*.$(DLLEXT)
+	-rm -f $(MODPATH)/m_*.$(DLLEXT)
+	-rm -f $(SCRPATH)/apparmor
+	-rm -f $(SCRPATH)/inspircd
 	-rm -f $(SCRPATH)/inspircd.service
+	-rm -f $(SCRPATH)/logrotate
 	-rm -f $(SCRPATH)/org.inspircd.plist
+	-[ -d $(BINPATH) ] && find $(BINPATH) -type d -empty -delete
+	-[ -d $(CONPATH) ] && find $(CONPATH) -type d -empty -delete
+	-[ -d $(DATPATH) ] && find $(DATPATH) -type d -empty -delete
+	-[ -d $(EXAPATH) ] && find $(EXAPATH) -type d -empty -delete
+	-[ -d $(LOGPATH) ] && find $(LOGPATH) -type d -empty -delete
+	-[ -d $(MANPATH) ] && find $(MANPATH) -type d -empty -delete
+	-[ -d $(MODPATH) ] && find $(MODPATH) -type d -empty -delete
+	-[ -d $(RUNPATH) ] && find $(RUNPATH) -type d -empty -delete
+	-[ -d $(SCRPATH) ] && find $(SCRPATH) -type d -empty -delete
 
 configureclean:
-	-rm -f Makefile
-	rm -f GNUmakefile
-	rm -f include/config.h
-	rm -rf @CONFIGURE_DIRECTORY@
+	-rm -f GNUmakefile
+	-rm -f include/config.h
+	-rm -rf @CONFIGURE_DIRECTORY@
 
 distclean: clean configureclean
 	-rm -rf "$(SOURCEPATH)/run"
-	find "$(SOURCEPATH)/src/modules" -type l | xargs rm -f
+	-find "$(SOURCEPATH)/src/modules" -type l -delete
 
 help:
 	@echo 'InspIRCd Makefile'
