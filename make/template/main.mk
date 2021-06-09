@@ -46,7 +46,7 @@ SYSTEM = @SYSTEM_NAME@
 SOURCEPATH = @SOURCE_DIR@
 BUILDPATH ?= $(SOURCEPATH)/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
-CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors  -Wformat=2 -Wmissing-format-attribute -Woverloaded-virtual -Wpedantic -Wno-format-nonliteral -Wno-unused-parameter
+CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -I"$(SOURCEPATH)/include" -Wall -Wextra -Wfatal-errors  -Wformat=2 -Wmissing-format-attribute -Woverloaded-virtual -Wpedantic -Wno-format-nonliteral -Wno-unused-parameter
 LDLIBS = @COMPILER_EXTRA_LDLIBS@
 CORELDFLAGS = -fPIE -L.
 PICLDFLAGS  = -fPIC -shared

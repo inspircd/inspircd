@@ -51,10 +51,6 @@ exit 0;
 sub run() {
 	create_directory(BUILDPATH, 0770) or die "Could not create build directory: $!";
 	chdir BUILDPATH or die "Could not open build directory: $!";
-	unlink 'include';
-	unlink 'vendor';
-	symlink "${\SOURCEPATH}/include", 'include';
-	symlink "${\SOURCEPATH}/vendor", 'vendor';
 	mkdir $_ for qw/bin modules obj/;
 
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
@@ -160,7 +156,7 @@ sub gendep($) {
 			my $inc = $1;
 			next if $inc eq 'config.h' && $f eq '../include/inspircd.h';
 			my $found = 0;
-			for my $loc ("$basedir/$inc", "../include/$inc", "../vendor/$inc") {
+			for my $loc ("$basedir/$inc", "${\SOURCEPATH}/include/$inc", "${\SOURCEPATH}/vendor/$inc") {
 				next unless -e $loc;
 				$found++;
 				$dep{$_}++ for split / /, gendep $loc;
@@ -169,7 +165,7 @@ sub gendep($) {
 			}
 			if ($found == 0 && $inc ne 'inspircd_win32wrapper.h') {
 				print STDERR "WARNING: could not find header $inc for $f\n";
-			} elsif ($found > 1 && $basedir ne '../include') {
+			} elsif ($found > 1 && $basedir ne "${\SOURCEPATH}/include") {
 				print STDERR "WARNING: ambiguous include $inc in $f\n";
 			}
 		}
