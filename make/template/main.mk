@@ -67,7 +67,7 @@ INSTMODE_BIN ?= 0755
 INSTMODE_TXT ?= 0644
 INSTMODE_PRV ?= 0640
 
-ifneq ($(COMPILER), ICC)
+ifneq ($(COMPILER), Intel)
   CORECXXFLAGS += -Woverloaded-virtual -Wshadow
 ifneq ($(SYSTEM), openbsd)
     CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute -Wno-format-nonliteral
