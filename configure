@@ -52,6 +52,7 @@ my ($opt_binary_dir,
     $opt_development,
     $opt_disable_auto_extras,
     $opt_disable_interactive,
+    $opt_disable_ownership,
     $opt_distribution_label,
     $opt_example_dir,
     $opt_gid,
@@ -86,6 +87,7 @@ exit 1 unless GetOptions(
 	'development'          => \$opt_development,
 	'disable-auto-extras'  => \$opt_disable_auto_extras,
 	'disable-interactive'  => \$opt_disable_interactive,
+	'disable-ownership'    => \$opt_disable_ownership,
 	'distribution-label=s' => \$opt_distribution_label,
 	'example-dir=s'        => \$opt_example_dir,
 	'gid=s'                => \$opt_gid,
@@ -124,6 +126,7 @@ our $interactive = !(
 	defined $opt_development ||
 	defined $opt_disable_auto_extras ||
 	defined $opt_disable_interactive ||
+	defined $opt_disable_ownership ||
 	defined $opt_distribution_label ||
 	defined $opt_example_dir ||
 	defined $opt_gid ||
@@ -227,7 +230,10 @@ if (defined $opt_portable) {
 
 # Parse --gid=123 or --gid=foo and extract the group id.
 my @group;
-if (defined $opt_gid) {
+if (defined $opt_disable_ownership) {
+	@group = getgrgid(getgid());
+	print_error 'you can not use --disable-ownership and --gid at the same time!' if defined $opt_gid;
+} elsif (defined $opt_gid) {
 	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
 	print_error "there is no '$opt_gid' group on this system!" unless @group;
 } else {
@@ -243,7 +249,7 @@ unprivileged user/group to build and run as or pass the '--gid [id|name]' flag
 to specify an unprivileged group to run as.
 EOW
 		if (!prompt_bool $interactive, "Are you sure you want to build as the $group[0] group?", 0) {
-			# PACKAGERS: You do not need to delete this check. Use `--gid $(id -g)` or `--gid 0` instead.
+			# PACKAGERS: You do not need to delete this check. Use `--disable-ownership` instead.
 			say STDERR "If you are sure you want to build as the $group[0] group pass the --gid $group[2] flag." unless $interactive;
 			exit 1;
 		}
@@ -254,7 +260,10 @@ $config{GID}   = $group[2];
 
 # Parse --uid=123 or --uid=foo and extract the user id.
 my @user;
-if (defined $opt_uid) {
+if (defined $opt_disable_ownership) {
+	@user = getpwuid(getuid());
+	print_error 'you can not use --disable-ownership and --uid at the same time!' if defined $opt_uid;
+} elsif (defined $opt_uid) {
 	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
 	print_error "there is no '$opt_uid' user on this system!" unless @user;
 } else {
@@ -270,7 +279,7 @@ unprivileged user/group to build and run as or pass the '--uid [id|name]' flag
 to specify an unprivileged user to run as.
 EOW
 		if (!prompt_bool $interactive, "Are you sure you want to build as the $user[0] user?", 0) {
-			# PACKAGERS: You do not need to delete this check. Use `--uid $(id -u)` or `--uid 0` instead.
+			# PACKAGERS: You do not need to delete this check. Use `--disable-ownership` instead.
 			say STDERR "If you are sure you want to build as the $user[0] user pass the --uid $user[2] flag." unless $interactive;
 			exit 1;
 		}
@@ -448,6 +457,7 @@ EOM
 
 # Cache the distribution label so that its not lost when --update is run.
 $config{DISTRIBUTION} = $opt_distribution_label if $opt_distribution_label;
+$config{DISABLE_OWNERSHIP} = $opt_disable_ownership // 0;
 
 write_configure_cache %config;
 parse_templates \%config, \%compiler, \%version;

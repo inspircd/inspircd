@@ -160,6 +160,7 @@ non-interactive configuration is started and any omitted values are defaulted.
   <|BOLD --disable-auto-extras|>         Disables automatically enabling extra modules
                                 for which the dependencies are available.
   <|BOLD --disable-interactive|>         Disables the interactive configuration wizard.
+  <|BOLD --disable-ownership|>           Disables setting file ownership on install.
   <|BOLD --distribution-label <TEXT>|>   Sets a distribution specific version label in
                                 the build configuration.
   <|BOLD --gid <ID|NAME>|>               Sets the group to run InspIRCd as.
