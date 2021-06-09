@@ -45,10 +45,10 @@ COMPILER = @COMPILER_NAME@
 SYSTEM = @SYSTEM_NAME@
 BUILDPATH ?= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
-CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
+CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Ivendor -Wall -Wextra -Wfatal-errors  -Wformat=2 -Wmissing-format-attribute -Woverloaded-virtual -Wpedantic -Wno-format-nonliteral -Wno-unused-parameter
 LDLIBS = @COMPILER_EXTRA_LDLIBS@
-CORELDFLAGS = -rdynamic -L.
-PICLDFLAGS = -fPIC -shared -rdynamic
+CORELDFLAGS = -fPIE -L.
+PICLDFLAGS  = -fPIC -shared
 
 DESTDIR := $(if $(DESTDIR),$(DESTDIR),"@DESTDIR|@")
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
@@ -61,57 +61,74 @@ MODPATH = "$(DESTDIR)@MODULE_DIR@"
 RUNPATH = "$(DESTDIR)@RUNTIME_DIR@"
 SCRPATH = "$(DESTDIR)@SCRIPT_DIR@"
 
-INSTALL ?= install
+INSTALL      ?= install
 INSTMODE_DIR ?= 0755
 INSTMODE_BIN ?= 0755
 INSTMODE_TXT ?= 0644
 INSTMODE_PRV ?= 0640
 
+# Use the native shared library file extension for modules.
 ifeq ($(SYSTEM), darwin)
   DLLEXT = "dylib"
 else
   DLLEXT = "so"
 endif
 
-ifneq ($(COMPILER), ICC)
-    CORECXXFLAGS += -Woverloaded-virtual -Wshadow
-    ifneq ($(COMPILER), GCC)
-      CORECXXFLAGS += -Wshorten-64-to-32
-    endif
-ifneq ($(SYSTEM), openbsd)
-    CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute -Wno-format-nonliteral
-endif
-endif
-
-ifeq ($(COMPILER),AppleClang)
+# Force the use of libc++ on macOS as on some systems it is not the
+# default and this breaks modern C++ support.
+ifeq ($(COMPILER), AppleClang)
   CXX += -stdlib=libc++
 endif
 
+# Enable Clang-specific compiler warnings.
+ifeq ($(COMPILER), $(filter $(COMPILER), AppleClang Clang))
+  CORECXXFLAGS += -Wshadow-all -Wshorten-64-to-32
+endif
+
+# Enable GCC-specific compiler warnings.
+ifeq ($(COMPILER), GCC)
+  CORECXXFLAGS += -Wshadow
+endif
+
+# The libc++ and libstdc++ <thread> implementation still requires
+# manually linking against pthreads on all systems other than macOS
+# where pthreads is linked by default as part of libSystem.
 ifneq ($(SYSTEM), darwin)
   LDLIBS += -pthread
 endif
 
-ifeq ($(SYSTEM), linux)
-  LDLIBS += -ldl -lrt
+# On these systems we need libdl for loading modules.
+ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu gnukfreebsd linux))
+	LDLIBS += -ldl
 endif
-ifeq ($(SYSTEM), gnukfreebsd)
-  LDLIBS += -ldl -lrt
+
+# On these systems we need librt for clock_gettime.
+ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu gnukfreebsd linux solaris))
+	LDLIBS += -lrt
 endif
-ifeq ($(SYSTEM), gnu)
-  LDLIBS += -ldl -lrt
-endif
-ifeq ($(SYSTEM), solaris)
-  LDLIBS += -lsocket -lnsl -lrt -lresolv
-endif
-ifeq ($(SYSTEM), darwin)
-  LDLIBS += -ldl
-  CORELDFLAGS = -dynamic -bind_at_load -L.
-  PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup
-endif
+
+# On Haiku we need libnetwork for creating sockets.
 ifeq ($(SYSTEM), haiku)
   LDLIBS += -lnetwork
-  CORELDFLAGS = -L.
-  PICLDFLAGS = -fPIC -shared
+endif
+
+# On Solaris and derivatives we need libsocket for creating sockets.
+ifeq ($(SYSTEM), solaris)
+  LDLIBS += -lsocket
+endif
+
+# On macOS this option is named different and on Haiku the linker
+# only supports dynamic libraries so this is implied.
+ifneq ($(SYSTEM), $(filter $(SYSTEM), darwin haiku))
+  CORELDFLAGS += -rdynamic
+  PICLDFLAGS  += -rdynamic
+endif
+
+# On macOS we need to give the linker these flags so the libraries it
+# generates act like they do on other UNIX-like systems.
+ifeq ($(SYSTEM), darwin)
+  CORELDFLAGS += -bind_at_load -dynamic
+  PICLDFLAGS  += -twolevel_namespace -undefined dynamic_lookup
 endif
 
 ifndef INSPIRCD_DEBUG
