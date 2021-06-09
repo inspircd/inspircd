@@ -231,7 +231,7 @@ if (defined $opt_portable) {
 # Parse --gid=123 or --gid=foo and extract the group id.
 my @group;
 if (defined $opt_disable_ownership) {
-	@group = getgrgid(getgid());
+	@group = qw(insert-group-here . -1);
 	print_error 'you can not use --disable-ownership and --gid at the same time!' if defined $opt_gid;
 } elsif (defined $opt_gid) {
 	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
@@ -261,7 +261,7 @@ $config{GID}   = $group[2];
 # Parse --uid=123 or --uid=foo and extract the user id.
 my @user;
 if (defined $opt_disable_ownership) {
-	@user = getpwuid(getuid());
+	@user = qw(insert-user-here . -1);
 	print_error 'you can not use --disable-ownership and --uid at the same time!' if defined $opt_uid;
 } elsif (defined $opt_uid) {
 	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
