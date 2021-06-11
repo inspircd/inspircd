@@ -932,12 +932,11 @@ using their cloak when they quit.
                     can speak.
  n                  Blocks users who are not members of the channel
                     from messaging it.
- p                  Make channel private, hiding it in users' whoises
-                    and replacing it with * in /LIST.
+ p                  Hides the channel in /WHOIS from people who are not a member.
+                    You probably want the s (secret) channel mode rather than this.
  r                  Marks the channel as registered with Services
                     (requires the services account module).
- s                  Make channel secret, hiding it in users' whoises
-                    and /LIST.
+ s                  Hides the channel in /WHOIS and /LIST from people who are not a member.
  t                  Prevents users without +h or +o from changing the
                     topic.
  u                  Makes the channel an auditorium; normal users only
