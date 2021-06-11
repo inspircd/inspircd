@@ -196,7 +196,7 @@ void InstallService()
 		CloseServiceHandle(SCMHandle);
 		std::cout << "Service installed." << std::endl;
 	}
-	catch(CWin32Exception e)
+	catch(const CWin32Exception& e)
 	{
 		if(InspServiceHandle)
 			CloseServiceHandle(InspServiceHandle);
@@ -232,7 +232,7 @@ void UninstallService()
 		CloseServiceHandle(SCMHandle);
 		std::cout << "Service removed." << std::endl;
 	}
-	catch(CWin32Exception e)
+	catch(const CWin32Exception& e)
 	{
 		if(InspServiceHandle)
 			CloseServiceHandle(InspServiceHandle);

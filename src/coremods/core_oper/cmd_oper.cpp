@@ -40,12 +40,11 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	bool match_pass = false;
 	bool match_hosts = false;
 
-	const std::string userHost = user->ident + "@" + user->GetRealHost();
-	const std::string userIP = user->ident + "@" + user->GetIPString();
-
 	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
+		const std::string userHost = user->ident + "@" + user->GetRealHost();
+		const std::string userIP = user->ident + "@" + user->GetIPString();
 		OperInfo* ifo = i->second;
 		ConfigTag* tag = ifo->oper_block;
 		match_login = true;

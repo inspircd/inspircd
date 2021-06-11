@@ -49,7 +49,7 @@ class RFCSerializer : public ClientProtocol::Serializer
 
 bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput)
 {
-	size_t start = line.find_first_not_of(" ");
+	size_t start = line.find_first_not_of(' ');
 	if (start == std::string::npos)
 	{
 		// Discourage the user from flooding the server.

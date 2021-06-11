@@ -295,16 +295,17 @@ class CommandCheck : public Command
 			const user_hash& users = ServerInstance->Users->GetUsers();
 			for (user_hash::const_iterator a = users.begin(); a != users.end(); ++a)
 			{
-				if (InspIRCd::Match(a->second->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
+				User* ituser = a->second;
+				if (InspIRCd::Match(ituser->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(ituser->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
+					context.Write("match", ConvToStr(++x) + " " + ituser->GetFullRealHost() + " " + ituser->GetIPString() + " " + ituser->GetRealName());
 				}
 				/* IP address */
-				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
+				else if (InspIRCd::MatchCIDR(ituser->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					context.Write("match", ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->GetRealName());
+					context.Write("match", ConvToStr(++x) + " " + ituser->GetFullRealHost() + " " + ituser->GetIPString() + " " + ituser->GetRealName());
 				}
 			}
 

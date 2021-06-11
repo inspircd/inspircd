@@ -493,12 +493,13 @@ void XLineManager::InvokeStats(const std::string& type, unsigned int numeric, St
 			safei = i;
 			safei++;
 
-			if (i->second->duration && current > i->second->expiry)
+			XLine* e = i->second;
+			if (e->duration && current > e->expiry)
 			{
 				ExpireLine(n, i);
 			}
 			else
-				stats.AddRow(numeric, i->second->Displayable(), i->second->set_time, i->second->duration, i->second->source, i->second->reason);
+				stats.AddRow(numeric, e->Displayable(), e->set_time, e->duration, e->source, e->reason);
 			i = safei;
 		}
 	}

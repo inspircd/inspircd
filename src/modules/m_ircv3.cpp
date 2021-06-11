@@ -165,13 +165,8 @@ class ModuleIRCv3
 
 	void OnUserBack(User* user) CXX11_OVERRIDE
 	{
-		if (!joinhook.awaycap.IsActive())
-			return;
-
 		// Back from away: n!u@h AWAY
-		AwayMessage msg(user);
-		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
-		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
+		OnUserAway(user);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

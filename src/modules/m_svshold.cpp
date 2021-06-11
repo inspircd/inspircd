@@ -43,8 +43,8 @@ public:
 
 	SVSHold(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& nick)
 		: XLine(s_time, d, src, re, "SVSHOLD")
+		, nickname(nick)
 	{
-		this->nickname = nick;
 	}
 
 	bool Matches(User* u) CXX11_OVERRIDE
