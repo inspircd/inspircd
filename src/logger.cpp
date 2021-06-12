@@ -103,10 +103,6 @@ void LogManager::OpenFileLogs()
 		{
 			loglevel = LOG_VERBOSE;
 		}
-		else if (stdalgo::string::equalsci(level, "default"))
-		{
-			loglevel = LOG_DEFAULT;
-		}
 		else if (stdalgo::string::equalsci(level, "sparse"))
 		{
 			loglevel = LOG_SPARSE;

@@ -765,8 +765,7 @@ void ModuleSpanningTree::OnUserAway(User* user)
 
 void ModuleSpanningTree::OnUserBack(User* user)
 {
-	if (IS_LOCAL(user))
-		CommandAway::Builder(user).Broadcast();
+	OnUserAway(user);
 }
 
 void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags)

@@ -122,22 +122,22 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string& commandname, const CommandBase::Params& parameters, User* user, Command** cmd)
 {
-	CommandMap::iterator n = cmdlist.find(commandname);
-
-	if (n != cmdlist.end())
+	/* find the command, check it exists */
+	Command* handler = GetHandler(commandname);
+	if (handler)
 	{
-		if ((!parameters.empty()) && (parameters.back().empty()) && (!n->second->allow_empty_last_param))
+		if ((!parameters.empty()) && (parameters.back().empty()) && (!handler->allow_empty_last_param))
 			return CMD_INVALID;
 
-		if (parameters.size() >= n->second->min_params)
+		if (parameters.size() >= handler->min_params)
 		{
 			bool bOkay = false;
 
-			if (IS_LOCAL(user) && n->second->flags_needed)
+			if (IS_LOCAL(user) && handler->flags_needed)
 			{
 				/* if user is local, and flags are needed .. */
 
-				if (user->IsModeSet(n->second->flags_needed))
+				if (user->IsModeSet(handler->flags_needed))
 				{
 					/* if user has the flags, and now has the permissions, go ahead */
 					if (user->HasCommandPermission(commandname))
@@ -153,10 +153,10 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 			if (bOkay)
 			{
 				if (cmd)
-					*cmd = n->second;
+					*cmd = handler;
 
 				ClientProtocol::TagMap tags;
-				return n->second->Handle(user, CommandBase::Params(parameters, tags));
+				return handler->Handle(user, CommandBase::Params(parameters, tags));
 			}
 		}
 	}

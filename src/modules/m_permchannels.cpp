@@ -207,7 +207,6 @@ public:
 		{
 			ConfigTag* tag = i->second;
 			std::string channel = tag->getString("channel");
-			std::string modes = tag->getString("modes");
 
 			if (!ServerInstance->IsChannel(channel))
 			{
@@ -237,6 +236,7 @@ public:
 
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
 
+				std::string modes = tag->getString("modes");
 				if (modes.empty())
 					continue;
 
