@@ -96,7 +96,7 @@ class OperQuery : public SQL::Query
 			auto ifo = std::make_shared<OperInfo>(type);
 
 			ifo->type_block = tblk->second->type_block;
-			ifo->oper_block = tag;
+			ifo->oper_block = std::move(tag);
 			ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
 			oper_blocks[name] = ifo;
 			my_blocks.push_back(name);

@@ -277,7 +277,7 @@ class ModuleNationalChars : public Module
 		std::string casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset), 1);
 		if (casemapping.find(' ') != std::string::npos)
 			throw ModuleException("<nationalchars:casemapping> must not contain any spaces!");
-		ServerInstance->Config->CaseMapping = casemapping;
+		ServerInstance->Config->CaseMapping = std::move(casemapping);
 #if defined _WIN32
 		if (!FileSystem::StartsWithWindowsDriveLetter(charset))
 			charset.insert(0, "./locales/");
