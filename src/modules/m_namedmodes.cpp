@@ -184,11 +184,11 @@ class ModuleNamedModes : public Module
 					}
 
 					// Change parameter to the text after the '='
-					curr.param = value;
+					curr.param = std::move(value);
 				}
 
 				// Put the actual ModeHandler in place of the namebase handler
-				curr.mh = mh;
+				curr.mh = std::move(mh);
 			}
 
 			++i;
