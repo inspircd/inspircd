@@ -32,7 +32,7 @@ Some distributions ship an InspIRCd package in their package managers. We genera
 
 ## License
 
-InspIRCd is licensed under [version 2 of the GNU General Public License](https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html).
+InspIRCd is licensed under [version 2 of the GNU General Public License](https://docs.inspircd.org/license).
 
 ## External Links
 
