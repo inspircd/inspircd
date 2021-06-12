@@ -882,19 +882,19 @@ void ModuleFilter::ReadFilters()
 	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		std::string pattern = i->second->getString("pattern");
-		std::string reason = i->second->getString("reason");
-		std::string action = i->second->getString("action");
-		std::string flgs = i->second->getString("flags");
-		unsigned long duration = i->second->getDuration("duration", 10*60, 1);
-		if (flgs.empty())
-			flgs = "*";
+		ConfigTag* tag = i->second;
+		std::string pattern = tag->getString("pattern");
+		std::string reason = tag->getString("reason");
+		std::string action = tag->getString("action");
+		std::string flgs = tag->getString("flags", "*", 1);
+		bool generated = tag->getBool("generated");
+		unsigned long duration = tag->getDuration("duration", 10*60, 1);
 
 		FilterAction fa;
 		if (!StringToFilterAction(action, fa))
 			fa = FA_NONE;
 
-		std::pair<bool, std::string> result = static_cast<ModuleFilter*>(this)->AddFilter(pattern, fa, reason, duration, flgs, !i->second->getBool("generated"));
+		std::pair<bool, std::string> result = static_cast<ModuleFilter*>(this)->AddFilter(pattern, fa, reason, duration, flgs, !generated);
 		if (result.first)
 			removedfilters.erase(pattern);
 		else

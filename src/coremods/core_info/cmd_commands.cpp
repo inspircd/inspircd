@@ -49,12 +49,13 @@ CmdResult CommandCommands::Handle(User* user, const Params& parameters)
 	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
 		// Don't show privileged commands to users without the privilege.
-		if (i->second->flags_needed && !user->IsModeSet(i->second->flags_needed))
+		Command* handler = i->second;
+		if (handler->flags_needed && !user->IsModeSet(handler->flags_needed))
 			continue;
 
-		Module* src = i->second->creator;
-		list.push_back(InspIRCd::Format("%s %s %d %d", i->second->name.c_str(), src->ModuleSourceFile.c_str(),
-			i->second->min_params, i->second->Penalty));
+		Module* src = handler->creator;
+		list.push_back(InspIRCd::Format("%s %s %d %d", handler->name.c_str(), src->ModuleSourceFile.c_str(),
+			handler->min_params, handler->Penalty));
 	}
 	std::sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)

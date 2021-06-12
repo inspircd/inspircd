@@ -80,8 +80,7 @@ class ModuleXLineDB
 	 */
 	void OnDelLine(User* source, XLine* line) CXX11_OVERRIDE
 	{
-		if (!line->from_config)
-			dirty = true;
+		OnAddLine(source, line);
 	}
 
 	bool Tick(time_t) CXX11_OVERRIDE
