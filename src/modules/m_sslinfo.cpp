@@ -373,7 +373,23 @@ class ModuleSSLInfo
 		{
 			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (MatchFP(cert, fp) && ifo->oper_block->getBool("autologin"))
+			if (!MatchFP(cert, fp))
+				continue;
+
+			bool do_login = false;
+			const std::string autologin = ifo->oper_block->getString("autologin");
+			if (stdalgo::string::equalsci(autologin, "if-host-match"))
+			{
+				const std::string& userHost = localuser->MakeHost();
+				const std::string& userIP = localuser->MakeHostIP();
+				do_login = InspIRCd::MatchMask(ifo->oper_block->getString("host"), userHost, userIP);
+			}
+			else if (ifo->oper_block->getBool("autologin"))
+			{
+				do_login = true;
+			}
+
+			if (do_login)
 				user->Oper(ifo);
 		}
 	}
