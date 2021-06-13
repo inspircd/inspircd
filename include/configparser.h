@@ -44,6 +44,13 @@ struct ParseStack
 		vars["lt"]   = "<";
 		vars["quot"] = "\"";
 
+		// Directories that were set at build time.
+		vars["dir.config"]  = INSPIRCD_CONFIG_PATH;
+		vars["dir.data"]    = INSPIRCD_DATA_PATH;
+		vars["dir.log"]     = INSPIRCD_LOG_PATH;
+		vars["dir.module"]  = INSPIRCD_MODULE_PATH;
+		vars["dir.runtime"] = INSPIRCD_RUNTIME_PATH;
+
 		// IRC formatting codes.
 		vars["irc.bold"]          = "\x02";
 		vars["irc.color"]         = "\x03";
