@@ -184,6 +184,7 @@ class SaslAuthenticator
 	void SendHostIP(UserCertificateAPI& sslapi)
 	{
 		std::vector<std::string> params;
+		params.reserve(3);
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetIPString());
 		params.push_back(sslapi && sslapi->GetCertificate(user) ? "S" : "P");
@@ -237,13 +238,14 @@ class SaslAuthenticator
 
 				if (msg[2] == "C")
 				{
-					ClientProtocol::Message authmsg("AUTHENTICATE");
-					authmsg.PushParamRef(msg[3]);
-
-					ClientProtocol::Event authevent(*g_protoev, authmsg);
 					LocalUser* const localuser = IS_LOCAL(user);
 					if (localuser)
+					{
+						ClientProtocol::Message authmsg("AUTHENTICATE");
+						authmsg.PushParamRef(msg[3]);
+						ClientProtocol::Event authevent(*g_protoev, authmsg);
 						localuser->Send(authevent);
+					}
 				}
 				else if (msg[2] == "D")
 				{

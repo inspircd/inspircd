@@ -43,7 +43,6 @@ CommandNick::CommandNick(Module* parent)
  */
 CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];
 
 	// anything except the initial NICK gets a flood penalty

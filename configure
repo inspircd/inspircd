@@ -212,7 +212,7 @@ if (defined $opt_portable) {
 	$config{LOG_DIR}     = $opt_log_dir     // catdir $config{BASE_DIR}, 'var/log/inspircd';
 	$config{MANUAL_DIR}  = $opt_manual_dir  // catdir $config{BASE_DIR}, 'usr/share/man/man1';
 	$config{MODULE_DIR}  = $opt_module_dir  // catdir $config{BASE_DIR}, 'usr/lib/inspircd';
-	$config{RUNTIME_DIR} = $opt_runtime_dir // catdir $config{BASE_DIR}, 'var/run/inspircd';
+	$config{RUNTIME_DIR} = $opt_runtime_dir // catdir $config{BASE_DIR}, $^O eq 'linux' ? '/run/inspircd' : '/var/run/inspircd';
 	$config{SCRIPT_DIR}  = $opt_script_dir  // catdir $config{BASE_DIR}, 'usr/share/inspircd';
 } else {
 	$config{BASE_DIR}    = rel2abs $opt_prefix // $config{BASE_DIR}    // catdir $RealDir,            'run';

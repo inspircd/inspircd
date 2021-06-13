@@ -1207,9 +1207,7 @@ const std::string& FakeUser::GetFullHost()
 
 const std::string& FakeUser::GetFullRealHost()
 {
-	if (!ServerInstance->Config->HideServer.empty())
-		return ServerInstance->Config->HideServer;
-	return server->GetName();
+	return GetFullHost();
 }
 
 ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)
