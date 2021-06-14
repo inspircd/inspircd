@@ -74,6 +74,9 @@
 #                                                                     #
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
+#                                                                     #
+# See https://docs.inspircd.org/3/configuration/#define for a list of #
+# predefined config variables.                                        #
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
