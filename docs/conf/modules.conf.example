@@ -1584,6 +1584,12 @@
 # conn_umodes module.
 #<module name="opermodes">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Op moderated module: Adds channel mode +U and extban u: which allow
+# making messages from matching unprivileged users only visible to
+# channel operators.
+#<module name="opmoderated">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password forwarding module: Forwards a password users can send on
 # connect to the specified client below. The client is usually NickServ
