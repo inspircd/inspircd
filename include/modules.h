@@ -713,7 +713,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
+	 * NOT make any changes to the User if the user is a remote user as this may cause a desync.
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * Because this method is called after the nickchange is taken place, no return values are possible
 	 * to indicate forbidding of the nick change. Use OnUserPreNick for this.
