@@ -36,14 +36,14 @@ class ModuleCommonChans
 		if (target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		User* targuser = target.Get<User>();
-		if (!targuser->IsModeSet(mode) || user->SharesChannelWith(targuser))
+		User* targetuser = target.Get<User>();
+		if (!targetuser->IsModeSet(mode) || user->SharesChannelWith(targetuser))
 			return MOD_RES_PASSTHRU;
 
 		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
 			return MOD_RES_PASSTHRU;
 
-		user->WriteNumeric(Numerics::CannotSendTo(targuser, "messages", &mode));
+		user->WriteNumeric(Numerics::CannotSendTo(targetuser, "messages", &mode));
 		return MOD_RES_DENY;
 	}
 
