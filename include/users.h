@@ -672,7 +672,7 @@ class CoreExport User : public Extensible
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,
-	 * as this triggers module events allowing the change to be syncronized to
+	 * as this triggers module events allowing the change to be synchronized to
 	 * remote servers.
 	 * @param newident The new ident to set
 	 * @return True if the change succeeded, false if it didn't
