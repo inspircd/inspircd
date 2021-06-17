@@ -48,7 +48,7 @@
  * Case insensitivity: The hash_map will be case
  * insensitive.
  *
- * Scandanavian Comparisons: The characters [, ], \ will
+ * Scandinavian Comparisons: The characters [, ], \ will
  * be considered the lowercase of {, } and |.
  *
  ******************************************************/
