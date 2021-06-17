@@ -74,7 +74,7 @@ enum
  *      itself.
  *
  *   O  Closure of the ident socket with the Close() method will
- *      not cause removal of the socket from memory or detatchment
+ *      not cause removal of the socket from memory or detachment
  *      from its 'parent' User class. It will only flag it as an
  *      inactive socket in the socket engine.
  *
