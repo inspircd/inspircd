@@ -469,7 +469,7 @@ class CoreExport User : public Extensible
 	void SetMode(ModeHandler* mh, bool value);
 	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
-	/** Returns true or false for if a user can execute a privilaged oper command.
+	/** Returns true or false for if a user can execute a privileged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
@@ -863,7 +863,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void WriteRemoteNotice(const std::string& text) CXX11_OVERRIDE;
 
-	/** Returns true or false for if a user can execute a privilaged oper command.
+	/** Returns true or false for if a user can execute a privileged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
