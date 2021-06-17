@@ -451,7 +451,7 @@ void ModuleManager::UnloadAll()
 {
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
-	 * a chance to be removed themsleves.
+	 * a chance to be removed themselves.
 	 *
 	 * Note: this deliberately does NOT delete the DLLManager objects
 	 */
