@@ -481,7 +481,7 @@ class CoreExport User : public Extensible
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
-	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
 	virtual bool HasPrivPermission(const std::string& privstr);
@@ -875,7 +875,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
-	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
 	bool HasPrivPermission(const std::string& privstr) CXX11_OVERRIDE;
