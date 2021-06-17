@@ -110,7 +110,7 @@ class ssl_cert : public refcountbase
 		return unknownsigner;
 	}
 
-	/** Get revokation status.
+	/** Get revocation status.
 	 * @return True if the certificate is revoked.
 	 * Note that this only works properly for GnuTLS
 	 * right now.
