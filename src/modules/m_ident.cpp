@@ -28,13 +28,13 @@
 
 enum
 {
-	// Either the ident looup has not started yet or the user is registered.
+	// Either the ident lookup has not started yet or the user is registered.
 	IDENT_UNKNOWN = 0,
 
 	// Ident lookups are not enabled and a user has been marked as being skipped.
 	IDENT_SKIPPED,
 
-	// Ident looups are not enabled and a user has been an insecure ident prefix.
+	// Ident lookups are not enabled and a user has been an insecure ident prefix.
 	IDENT_PREFIXED,
 
 	// An ident lookup was done and an ident was found.
