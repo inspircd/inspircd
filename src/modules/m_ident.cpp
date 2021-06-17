@@ -78,7 +78,7 @@ enum
  *      from its 'parent' User class. It will only flag it as an
  *      inactive socket in the socket engine.
  *
- *   O  Timeouts are handled in OnCheckReaady at the same time as
+ *   O  Timeouts are handled in OnCheckReady at the same time as
  *      checking if the ident socket has a result. This is done
  *      by checking if the age the of the class (its instantiation
  *      time) plus the timeout value is greater than the current time.
