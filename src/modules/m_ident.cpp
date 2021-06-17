@@ -56,7 +56,7 @@ enum
  * nasty race conditions that would cause segfaults etc) we have
  * rewritten this module to use a simplified socket object based
  * directly off EventHandler. As EventHandler only has low level
- * readability, writeability and error events tied directly to the
+ * readability, writability and error events tied directly to the
  * socket engine, this makes our lives easier as nothing happens to
  * our ident lookup class that is outside of this module, or out-
  * side of the control of the class. There are no timers, internal

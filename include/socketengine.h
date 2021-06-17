@@ -68,7 +68,7 @@ enum EventMask
 	/** Mask for all read events */
 	FD_WANT_READ_MASK = 0x0F,
 
-	/** Do not test this socket for writeability
+	/** Do not test this socket for writability
 	 */
 	FD_WANT_NO_WRITE = 0x10,
 	/** Give a write event at all times when writes will not block.
