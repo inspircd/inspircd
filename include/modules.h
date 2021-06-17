@@ -493,7 +493,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user joining the channel
 	 * @param chan If the  channel is a new channel, this will be NULL, otherwise it will be a pointer to the channel being joined
 	 * @param cname The channel name being joined. For new channels this is valid where chan is not.
-	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "o".
+	 * @param privs A string containing the users privileges when joining the channel. For new channels this will contain "o".
 	 * You may alter this string to alter the user's modes on the channel.
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.

@@ -57,7 +57,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	 * When two sides of a split heal and this occurs, the following things
 	 * will happen:
 	 *
-	 * If the timestamps are exactly equal, both sides merge their privilages
+	 * If the timestamps are exactly equal, both sides merge their privileges
 	 * and users, as in InspIRCd 1.0 and ircd2.8. The channels have not been
 	 * re-created during a split, this is safe to do.
 	 *
