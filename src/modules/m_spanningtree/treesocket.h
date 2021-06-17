@@ -34,7 +34,7 @@
 /*
  * The server list in InspIRCd is maintained as two structures
  * which hold the data in different ways. Most of the time, we
- * want to very quicky obtain three pieces of information:
+ * want to very quickly obtain three pieces of information:
  *
  * (1) The information on a server
  * (2) The information on the server we must send data through
