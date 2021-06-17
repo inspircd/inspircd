@@ -83,7 +83,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	 * [[<modes>,]<uuid>[:<membid>]
 	 * <modes> is a concatenation of the mode letters the user has on the channel
 	 * (e.g.: "ov" if the user is opped and voiced). The order of the mode letters
-	 * are not important but if a server ecounters an unknown mode letter, it will
+	 * are not important but if a server encounters an unknown mode letter, it will
 	 * drop the link to avoid desync.
 	 *
 	 * InspIRCd 2.0 and older required a comma before the uuid even if the user
