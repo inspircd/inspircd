@@ -830,14 +830,14 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called after a user object is initialised and added to the user list.
 	 * When this is called the user has not had their I/O hooks checked or had their initial
-	 * connect class assigned and may not yet have a serialiser. You probably want to use
+	 * connect class assigned and may not yet have a serializer. You probably want to use
 	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
 	 * @param user The connecting user.
 	 */
 	virtual void OnUserInit(LocalUser* user);
 
 	/** Called after a user object has had their I/O hooks checked, their initial connection
-	 * class assigned, and had a serialiser set.
+	 * class assigned, and had a serializer set.
 	 * @param user The connecting user.
 	 */
 	virtual void OnUserPostInit(LocalUser* user);
