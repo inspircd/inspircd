@@ -55,7 +55,7 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 {
 }
 
-// These declarations define the behavours of the base class Module (which does nothing at all)
+// These declarations define the behaviours of the base class Module (which does nothing at all)
 
 Module::Module()
 	: ModuleDLLManager(NULL)
