@@ -109,7 +109,7 @@ class CoreExport Serializable
 	 */
 	virtual bool Deserialize(Data& data) = 0;
 
-	/** Serializes the this object into the specified Data obect.
+	/** Serializes the this object into the specified Data object.
 	 * @param data The Data object to serialize to.
 	 * @return True if the serialisation succeeded; otherwise, false.
 	 */
