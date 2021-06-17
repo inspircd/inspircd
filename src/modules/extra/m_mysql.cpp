@@ -88,7 +88,7 @@
  * threadsafe. This module is designed to be threadsafe and is careful with its use of threads,
  * however, if we were to call a module's OnRequest even from within a thread which was not the
  * one the module was originally instantiated upon, there is a chance of all hell breaking loose
- * if a module is ever put in a re-enterant state (stack corruption could occur, crashes, data
+ * if a module is ever put in a reentrant state (stack corruption could occur, crashes, data
  * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
  * guaranteed threadsafe!)
  */
