@@ -155,7 +155,7 @@ class ModuleJoinFlood
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = tag->getDuration("duration", 60, 10, 600);
@@ -164,7 +164,8 @@ class ModuleJoinFlood
 		denymessage = tag->getString("denymessage", "This channel is temporarily unavailable (+j is set). Please try again later.", 1);
 		notifymessage = tag->getString("notifymessage", "This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.");
 
-		ignoreuntil = ServerInstance->startup_time + bootwait;
+		if (status.initial)
+			ignoreuntil = ServerInstance->startup_time + bootwait;
 	}
 
 	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE
