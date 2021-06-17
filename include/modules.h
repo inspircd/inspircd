@@ -239,8 +239,8 @@ enum Implementation
 	I_OnBackgroundTimer,
 	I_OnBuildNeighborList,
 	I_OnChangeHost,
-	I_OnChangeRealHost,
 	I_OnChangeIdent,
+	I_OnChangeRealHost,
 	I_OnChangeRealName,
 	I_OnChannelDelete,
 	I_OnChannelPreDelete,
@@ -264,6 +264,7 @@ enum Implementation
 	I_OnNumeric,
 	I_OnOper,
 	I_OnPassCompare,
+	I_OnPostChangeRealHost,
 	I_OnPostCommand,
 	I_OnPostConnect,
 	I_OnPostDeoper,
@@ -654,11 +655,17 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnChangeHost(User* user, const std::string &newhost);
 
 	/** Called whenever a user's real hostname is changed.
-	 * This event triggers after the host has been set.
+	 * This event triggers before the host has been set.
 	 * @param user The user whos host is being changed
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeRealHost(User* user, const std::string& newhost);
+
+	/** Called whenever a user's real hostname is changed.
+	 * This event triggers after the host has been set.
+	 * @param user The user whos host was changed.
+	 */
+	virtual void OnPostChangeRealHost(User* user);
 
 	/** Called whenever a user's real name is changed.
 	 * This event triggers after the name has been set.
