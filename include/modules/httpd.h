@@ -87,7 +87,7 @@ struct HTTPRequestURI
 	std::string fragment;
 };
 
-/** A modifyable list of HTTP header fields
+/** A modifiable list of HTTP header fields
  */
 class HTTPHeaders
 {
