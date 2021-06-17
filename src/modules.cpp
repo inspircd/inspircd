@@ -133,6 +133,7 @@ void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEve
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
 void		Module::OnChangeRealHost(User*, const std::string&) { DetachEvent(I_OnChangeRealHost); }
+void		Module::OnPostChangeRealHost(User*) { DetachEvent(I_OnPostChangeRealHost); }
 void		Module::OnChangeRealName(User*, const std::string&) { DetachEvent(I_OnChangeRealName); }
 void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }

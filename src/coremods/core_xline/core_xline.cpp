@@ -77,7 +77,7 @@ class CoreModXLine : public Module
 		user->CheckLines(true);
 	}
 
-	void OnChangeRealHost(User* user, const std::string& newhost) CXX11_OVERRIDE
+	void OnPostChangeRealHost(User* user) CXX11_OVERRIDE
 	{
 		LocalUser* luser = IS_LOCAL(user);
 		if (!luser || luser->quitting)
