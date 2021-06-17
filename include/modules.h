@@ -592,7 +592,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
-	 * module to generate some meaninful output.
+	 * module to generate some meaningful output.
 	 * @param user The username changing their nick
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
