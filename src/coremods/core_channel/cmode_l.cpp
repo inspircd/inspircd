@@ -40,8 +40,21 @@ bool ModeChannelLimit::ResolveModeConflict(const std::string& their_param, const
 ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 {
 	size_t limit = ConvToNum<size_t>(parameter);
-	if (limit < 1)
-		return MODEACTION_DENY;
+	if (limit < 1 || limit > INTPTR_MAX)
+	{
+		if (IS_LOCAL(user))
+		{
+			// If the setter is local then we can safely just reject this here.
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter));
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			// If the setter is remote we *must* set the mode to avoid a desync
+			// so instead clamp it to the allowed range instead.
+			limit = std::clamp<size_t>(limit, 1, INTPTR_MAX);
+		}
+	}
 
 	ext.Set(chan, limit);
 	return MODEACTION_ALLOW;
@@ -49,5 +62,5 @@ ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& param
 
 void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t n, std::string& out)
 {
-	out += ConvToStr(n);
+	out += ConvToStr(static_cast<size_t>(n));
 }

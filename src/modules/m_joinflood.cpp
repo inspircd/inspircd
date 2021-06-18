@@ -152,20 +152,21 @@ class ModuleJoinFlood
 	{
 	}
 
-	void ReadConfig(ConfigStatus&) override
+	void ReadConfig(ConfigStatus& status) override
 	{
 		auto tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
 
-		ignoreuntil = ServerInstance->startup_time + bootwait;
+		if (status.initial)
+			ignoreuntil = ServerInstance->startup_time + bootwait;
 	}
 
 	void OnServerSplit(const Server* server, bool error) override
 	{
 		if (splitwait)
-			ignoreuntil = ServerInstance->Time() + splitwait;
+			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
