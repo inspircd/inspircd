@@ -171,7 +171,7 @@ class ModuleJoinFlood
 	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE
 	{
 		if (splitwait)
-			ignoreuntil = ServerInstance->Time() + splitwait;
+			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
