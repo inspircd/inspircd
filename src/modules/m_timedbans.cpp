@@ -118,7 +118,7 @@ class CommandTban : public Command
 		}
 
 		Modes::ChangeList setban;
-		setban.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+		setban.push_add(*banmode, mask);
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
 		ServerInstance->Modes->Process(user, channel, NULL, setban);
