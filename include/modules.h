@@ -649,14 +649,14 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
-	 * @param user The user whos host is being changed
+	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeHost(User* user, const std::string &newhost);
 
 	/** Called whenever a user's real hostname is changed.
 	 * This event triggers before the host has been set.
-	 * @param user The user whos host is being changed
+	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeRealHost(User* user, const std::string& newhost);
@@ -937,7 +937,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
-	 * @param user The user whos host will be changed
+	 * @param user The user whose host will be changed
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
@@ -945,7 +945,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called whenever a change of a local users real name is attempted.
 	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
-	 * @param user The user whos real name will be changed
+	 * @param user The user whose real name will be changed
 	 * @param newhost The new real name.
 	 * @return MOD_RES_DENY to deny the real name change, MOD_RES_ALLOW to allow
 	 */
