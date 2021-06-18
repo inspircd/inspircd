@@ -687,16 +687,34 @@
 # (configurable) duration, and their count resets to 0.
 #<module name="connectban">
 #
-# ipv4cidr and ipv6cidr allow you to turn the comparison from
-# individual IP addresses (32 and 128 bits) into CIDR masks, to allow
-# for throttling over whole ISPs/blocks of IPs, which may be needed to
-# prevent attacks.
+# threshold - The number of connections which are allowed before a user
+#             is connectbnaned. Defaults to 10.
 #
-# This allows for 10 connections in an hour with a 10 minute ban if
-# that is exceeded.
-#<connectban threshold="10" duration="10m" ipv4cidr="32" ipv6cidr="128"
-# A custom ban message may optionally be specified.
-# banmessage="Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.">
+# banmessage - The message to give users when Z-lining them for connecting
+#              too much.
+#
+# duration - The time period to ban users who connect to much for. Defaults
+#            to 10 minutes.
+#
+# ipv4cidr - The IPv4 CIDR mask (1-32) to treat connecting users as coming
+#            from the same host. Defaults to 32.
+#
+# ipv6cidr - The IPv6 CIDR mask (1-128) to treat connecting users as coming
+#            from the same host. Defaults to 128.
+#
+# bootwait - The time period to wait after starting up before enforcing
+#            connection bans. Defaults to 2 minutes.
+#
+# splitwait - The time period to wait after a netsplit before enforcing
+#             connection bans. Defaults to 2 minutes.
+#
+#<connectban threshold="10"
+#            banmessage="Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect."
+#            duration="10m"
+#            ipv4cidr="32"
+#            ipv6cidr="128"
+#            bootwait="2m"
+#            splitwait="2m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module.
