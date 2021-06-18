@@ -128,6 +128,19 @@ class CommandTban : public Command
 			return CMD_FAILURE;
 		}
 
+		// Attempt to find the actual set ban mask.
+		const Modes::ChangeList::List& list = ServerInstance->Modes->GetLastChangeList().getlist();
+		for (Modes::ChangeList::List::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+		{
+			const Modes::Change& mc = *iter;
+			if (mc.mh == *banmode)
+			{
+				// We found the actual mask.
+				mask = mc.param;
+				break;
+			}
+		}
+
 		T.mask = mask;
 		T.setter = user->nick;
 		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
