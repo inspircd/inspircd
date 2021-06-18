@@ -60,7 +60,7 @@ class CoreExport Serializable
 
 		/** Loads the value with the specified key.
 		 * @param key The key by which this data is identified.
-		 * @param out The location to store the value for this keu
+		 * @param out The location to store the value for this key.
 		 */
 		Data& Load(const std::string& key, std::string& out);
 
