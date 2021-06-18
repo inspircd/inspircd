@@ -113,7 +113,7 @@ class ModuleConnectBan CXX11_FINAL
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 
 		if (status.initial)
-			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
+			ignoreuntil = ServerInstance->Time() + bootwait;
 	}
 
 	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) CXX11_OVERRIDE
@@ -133,7 +133,7 @@ class ModuleConnectBan CXX11_FINAL
 	void OnServerSplit(const Server* server, bool error) CXX11_OVERRIDE
 	{
 		if (splitwait)
-			ignoreuntil = ServerInstance->Time() + splitwait;
+			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
 	}
 
 	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
