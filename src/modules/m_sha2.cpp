@@ -26,10 +26,20 @@
 /// $CompilerFlags: -isystem vendor_directory("sha2")
 
 
-#include "inspircd.h"
-#include "modules/hash.h"
+// Fix a collision between the Haiku uint64 typedef and the
+// one from the sha2 library.
+#ifdef __HAIKU__
+# define uint64 sha2_uint64
+#endif
 
 #include <sha2.c>
+
+#ifdef __HAIKU__
+# undef uint64
+#endif
+
+#include "inspircd.h"
+#include "modules/hash.h"
 
 template<void (*SHA)(const unsigned char*, unsigned int, unsigned char*)>
 class HashSHA2 : public HashProvider
