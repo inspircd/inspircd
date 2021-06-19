@@ -102,8 +102,9 @@ endif
 
 # The libc++ and libstdc++ <thread> implementation still requires
 # manually linking against pthreads on all systems other than macOS
-# where pthreads is linked by default as part of libSystem.
-ifneq ($(SYSTEM), darwin)
+# and Haiku where pthreads are linked by default as part of libSystem
+# and libroot respectively.
+ifneq ($(SYSTEM), $(filter $(SYSTEM), darwin haiku))
   LDLIBS += -pthread
 endif
 
