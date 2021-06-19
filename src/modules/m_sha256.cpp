@@ -26,6 +26,7 @@
 /// $CompilerFlags: -Ivendor_directory("sha2")
 /// $CompilerFlags: require_compiler("GCC") -Wno-long-long
 
+
 #ifdef __GNUC__
 # pragma GCC diagnostic push
 #endif
@@ -37,14 +38,24 @@
 # pragma GCC diagnostic ignored "-Wlong-long"
 #endif
 
-#include "inspircd.h"
-#include "modules/hash.h"
+// Fix a collision between the Haiku uint64 typedef and the
+// one from the sha2 library.
+#ifdef __HAIKU__
+# define uint64 sha2_uint64
+#endif
 
 #include <sha2.c>
+
+#ifdef __HAIKU__
+# undef uint64
+#endif
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif
+
+#include "inspircd.h"
+#include "modules/hash.h"
 
 class HashSHA256 : public HashProvider
 {
