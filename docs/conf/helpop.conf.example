@@ -46,7 +46,7 @@ VHOST       WATCH       WHO         WHOIS       WHOWAS
 Sends a message to the network service specified in <target>.
 ">
 
-<helpop key="servlist" title="/SERVLIST [<nick> [<oper-type]]" value="
+<helpop key="servlist" title="/SERVLIST [<nick> [<oper-type>]]" value="
 List network services that are currently connected to the network and
 visible to you. The optional glob-based nick and oper-type parameters
 match against the nickname of the network service and the oper type of
