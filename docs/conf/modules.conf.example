@@ -1755,6 +1755,9 @@
 #
 # Generate hashes using the /MKPASSWD command on the server.
 # Don't run it on a server you don't trust with your password.
+#
+# You can also make the MKPASSWD command oper only by uncommenting this:
+#<mkpasswd operonly="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PBKDF2 module: Allows other modules to generate PBKDF2 hashes,
