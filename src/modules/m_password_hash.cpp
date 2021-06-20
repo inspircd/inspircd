@@ -88,6 +88,12 @@ class ModulePasswordHash : public Module
 	{
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("mkpasswd");
+		cmd.flags_needed = tag->getBool("operonly") ? 'o' : 0;
+	}
+
 	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE
 	{
 		if (!hashtype.compare(0, 5, "hmac-", 5))
