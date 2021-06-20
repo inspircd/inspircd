@@ -171,9 +171,9 @@ class SilenceEntry
 			out.push_back('P');
 		if (flags & SF_PRIVMSG_CHANNEL)
 			out.push_back('p');
-		if (flags & SF_TAGMSG_CHANNEL)
-			out.push_back('T');
 		if (flags & SF_TAGMSG_USER)
+			out.push_back('T');
+		if (flags & SF_TAGMSG_CHANNEL)
 			out.push_back('t');
 		if (flags & SF_EXEMPT)
 			out.push_back('x');
