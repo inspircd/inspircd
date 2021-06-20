@@ -431,7 +431,7 @@ class CoreModStats : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* security = ServerInstance->Config->ConfValue("security");
-		cmd.userstats = security->getString("userstats");
+		cmd.userstats = security->getString("userstats", "Pu");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
