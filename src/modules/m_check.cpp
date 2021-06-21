@@ -169,10 +169,10 @@ class CommandCheck : public Command
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CMD_SUCCESS;
 
-		User *targuser;
+		User *targetuser;
 		Channel *targchan;
 
-		targuser = ServerInstance->FindNick(parameters[0]);
+		targetuser = ServerInstance->FindNick(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);
 
 		/*
@@ -185,32 +185,32 @@ class CommandCheck : public Command
 		// Constructor sends START, destructor sends END
 		CheckContext context(user, parameters[0]);
 
-		if (targuser)
+		if (targetuser)
 		{
-			LocalUser* loctarg = IS_LOCAL(targuser);
+			LocalUser* loctarg = IS_LOCAL(targetuser);
 			/* /check on a user */
-			context.Write("nuh", targuser->GetFullHost());
-			context.Write("realnuh", targuser->GetFullRealHost());
-			context.Write("realname", targuser->GetRealName());
-			context.Write("modes", targuser->GetModeLetters());
-			context.Write("snomasks", GetSnomasks(targuser));
-			context.Write("server", targuser->server->GetName());
-			context.Write("uid", targuser->uuid);
-			context.Write("signon", targuser->signon);
-			context.Write("nickts", targuser->age);
+			context.Write("nuh", targetuser->GetFullHost());
+			context.Write("realnuh", targetuser->GetFullRealHost());
+			context.Write("realname", targetuser->GetRealName());
+			context.Write("modes", targetuser->GetModeLetters());
+			context.Write("snomasks", GetSnomasks(targetuser));
+			context.Write("server", targetuser->server->GetName());
+			context.Write("uid", targetuser->uuid);
+			context.Write("signon", targetuser->signon);
+			context.Write("nickts", targetuser->age);
 			if (loctarg)
 				context.Write("lastmsg", loctarg->idle_lastmsg);
 
-			if (targuser->IsAway())
+			if (targetuser->IsAway())
 			{
 				/* user is away */
-				context.Write("awaytime", targuser->awaytime);
-				context.Write("awaymsg", targuser->awaymsg);
+				context.Write("awaytime", targetuser->awaytime);
+				context.Write("awaymsg", targetuser->awaymsg);
 			}
 
-			if (targuser->IsOper())
+			if (targetuser->IsOper())
 			{
-				OperInfo* oper = targuser->oper;
+				OperInfo* oper = targetuser->oper;
 				/* user is an oper of type ____ */
 				context.Write("opertype", oper->name);
 				if (loctarg)
@@ -235,10 +235,10 @@ class CommandCheck : public Command
 				context.Write("exempt", loctarg->exempt ? "yes" : "no");
 			}
 			else
-				context.Write("onip", targuser->GetIPString());
+				context.Write("onip", targetuser->GetIPString());
 
 			CheckContext::List chanlist(context, "onchans");
-			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
+			for (User::ChanList::iterator i = targetuser->chans.begin(); i != targetuser->chans.end(); i++)
 			{
 				Membership* memb = *i;
 				chanlist.Add(memb->GetAllPrefixChars() + memb->chan->name);
@@ -246,7 +246,7 @@ class CommandCheck : public Command
 
 			chanlist.Flush();
 
-			context.DumpExt(targuser);
+			context.DumpExt(targetuser);
 		}
 		else if (targchan)
 		{

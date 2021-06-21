@@ -114,7 +114,7 @@ class ModuleDeaf
 		if (!target->IsModeSet(privdeafmode))
 			return MOD_RES_PASSTHRU;
 
-		// Reject if the source is ulined and privdeafuline is disaled.
+		// Reject if the source is ulined and privdeafuline is disabled.
 		if (!privdeafuline && source->server->IsULine())
 			return MOD_RES_DENY;
 

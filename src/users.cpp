@@ -1206,7 +1206,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			}
 
-			/* we stop at the first class that meets ALL critera. */
+			/* we stop at the first class that meets ALL criteria. */
 			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is suitable for %s (%s)",
 				c->GetName().c_str(), this->uuid.c_str(), this->GetFullRealHost().c_str());
 			found = c;

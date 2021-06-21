@@ -154,7 +154,7 @@ private:
 		{
 			if (f->addmessage(user, weight))
 			{
-				/* Youre outttta here! */
+				/* You're outttta here! */
 				f->clear(user);
 				if (f->ban)
 				{

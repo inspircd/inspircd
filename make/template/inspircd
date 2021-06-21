@@ -395,7 +395,7 @@ sub getpidfile
 		$i =~ s/[^=]+=\s(.*)/\1/;
 		if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
 		{
-			# Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
+			# Descend into that file, and check for PIDs.. (that sounds like an STD ;/)
 			getpidfile($1);
 			# Was a PID found?
 			if ($pidfile ne "") {

@@ -167,7 +167,7 @@ void XLineManager::CheckELines()
 		LocalUser* u = *u2;
 		u->exempt = false;
 
-		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
+		/* This uses safe iteration to ensure that if a line expires here, it doesn't trash the iterator */
 		LookupIter safei;
 
 		for (LookupIter i = ELines.begin(); i != ELines.end(); )

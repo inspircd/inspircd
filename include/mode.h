@@ -539,7 +539,7 @@ class CoreExport ModeWatcher : public classbase
 	 * @param dest The target user for the mode, if you are watching a user mode
 	 * @param channel The target channel for the mode, if you are watching a channel mode
 	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
-	 * If you alter the parameter you are given, the mode handler will see your atered version
+	 * If you alter the parameter you are given, the mode handler will see your altered version
 	 * when it handles the mode.
 	 * @param adding True if the mode is being added and false if it is being removed
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the

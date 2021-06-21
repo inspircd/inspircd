@@ -38,7 +38,7 @@
  * the best way to write hash functions to hash irc
  * nicknames, channels etc.
  * We are lucky as C++ developers as unordered_map does
- * a lot of this for us. It does intellegent memory
+ * a lot of this for us. It does intelligent memory
  * requests, bucketing, search functions, insertion
  * and deletion etc. All we have to do is write some
  * overloaded comparison and hash value operators which
@@ -48,7 +48,7 @@
  * Case insensitivity: The hash_map will be case
  * insensitive.
  *
- * Scandanavian Comparisons: The characters [, ], \ will
+ * Scandinavian Comparisons: The characters [, ], \ will
  * be considered the lowercase of {, } and |.
  *
  ******************************************************/

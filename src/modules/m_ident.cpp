@@ -28,13 +28,13 @@
 
 enum
 {
-	// Either the ident looup has not started yet or the user is registered.
+	// Either the ident lookup has not started yet or the user is registered.
 	IDENT_UNKNOWN = 0,
 
 	// Ident lookups are not enabled and a user has been marked as being skipped.
 	IDENT_SKIPPED,
 
-	// Ident looups are not enabled and a user has been an insecure ident prefix.
+	// Ident lookups are not enabled and a user has been an insecure ident prefix.
 	IDENT_PREFIXED,
 
 	// An ident lookup was done and an ident was found.
@@ -56,7 +56,7 @@ enum
  * nasty race conditions that would cause segfaults etc) we have
  * rewritten this module to use a simplified socket object based
  * directly off EventHandler. As EventHandler only has low level
- * readability, writeability and error events tied directly to the
+ * readability, writability and error events tied directly to the
  * socket engine, this makes our lives easier as nothing happens to
  * our ident lookup class that is outside of this module, or out-
  * side of the control of the class. There are no timers, internal
@@ -74,11 +74,11 @@ enum
  *      itself.
  *
  *   O  Closure of the ident socket with the Close() method will
- *      not cause removal of the socket from memory or detatchment
+ *      not cause removal of the socket from memory or detachment
  *      from its 'parent' User class. It will only flag it as an
  *      inactive socket in the socket engine.
  *
- *   O  Timeouts are handled in OnCheckReaady at the same time as
+ *   O  Timeouts are handled in OnCheckReady at the same time as
  *      checking if the ident socket has a result. This is done
  *      by checking if the age the of the class (its instantiation
  *      time) plus the timeout value is greater than the current time.
