@@ -50,7 +50,7 @@ CmdResult CommandFTopic::Handle(User* user, Params& params)
 	/*
 	 * If the topics were updated at the exact same second, accept
 	 * the remote only when it's "bigger" than ours as defined by
-	 * string comparison, so non-empty topics always overridde
+	 * string comparison, so non-empty topics always override
 	 * empty topics if their timestamps are equal
 	 *
 	 * Similarly, if the topic texts are equal too, keep one topic

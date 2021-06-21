@@ -55,7 +55,7 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 {
 }
 
-// These declarations define the behavours of the base class Module (which does nothing at all)
+// These declarations define the behaviours of the base class Module (which does nothing at all)
 
 Module::Module()
 	: ModuleDLLManager(NULL)
@@ -318,17 +318,17 @@ swap_now:
 		if (prioritizationState == PRIO_STATE_LAST)
 			prioritizationState = PRIO_STATE_AGAIN;
 		/* Suggestion from Phoenix, "shuffle" the modules to better retain call order */
-		int incrmnt = 1;
+		int increment = 1;
 
 		if (my_pos > swap_pos)
-			incrmnt = -1;
+			increment = -1;
 
-		for (unsigned int j = my_pos; j != swap_pos; j += incrmnt)
+		for (unsigned int j = my_pos; j != swap_pos; j += increment)
 		{
-			if ((j + incrmnt > EventHandlers[i].size() - 1) || ((incrmnt == -1) && (j == 0)))
+			if ((j + increment > EventHandlers[i].size() - 1) || ((increment == -1) && (j == 0)))
 				continue;
 
-			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
+			std::swap(EventHandlers[i][j], EventHandlers[i][j+increment]);
 		}
 	}
 
@@ -451,7 +451,7 @@ void ModuleManager::UnloadAll()
 {
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
-	 * a chance to be removed themsleves.
+	 * a chance to be removed themselves.
 	 *
 	 * Note: this deliberately does NOT delete the DLLManager objects
 	 */

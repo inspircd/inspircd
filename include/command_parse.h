@@ -68,7 +68,7 @@ class CoreExport CommandParser
 	 * and the command completeld successfully. It will return CMD_FAILURE if the command handler was found
 	 * and called, but the command did not complete successfully, and it will return CMD_INVALID if the
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
-	 * was not privilaged enough to execute the command.
+	 * was not privileged enough to execute the command.
 	 */
 	CmdResult CallHandler(const std::string& commandname, const CommandBase::Params& parameters, User* user, Command** cmd = NULL);
 

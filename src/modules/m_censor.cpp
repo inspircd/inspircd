@@ -55,8 +55,8 @@ class ModuleCensor : public Module
 		{
 			case MessageTarget::TYPE_USER:
 			{
-				User* targuser = target.Get<User>();
-				if (!targuser->IsModeSet(cu))
+				User* targetuser = target.Get<User>();
+				if (!targetuser->IsModeSet(cu))
 					return MOD_RES_PASSTHRU;
 				break;
 			}
