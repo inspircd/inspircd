@@ -940,12 +940,13 @@ class ModuleSSLmbedTLS : public Module
 
 		if (!ctr_drbg.Seed(entropy))
 			throw ModuleException("CTR DRBG seed failed");
-		ReadProfiles();
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "IMPORTANT: SSL profiles are not reloaded on rehash. To reload SSL profiles you must do `/REHASH -ssl` or load the sslrehashsignal module and send SIGUSR1 to the IRCd process.");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("mbedtls");
+		if (status.initial || tag->getBool("onrehash"))
+			ReadProfiles();
 	}
 
 	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
