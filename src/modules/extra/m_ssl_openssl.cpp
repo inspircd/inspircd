@@ -1102,6 +1102,10 @@ class ModuleSSLOpenSSL : public Module
 		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
 			return;
 
+		ServerInstance->SNO->WriteGlobalSno('a', (user ? (user->nick + " is r") : "R") + "ehashing OpenSSL module on " + ServerInstance->Config->ServerName);
+		if (user)
+			user->WriteRemoteNotice("*** Rehashing OpenSSL module...");
+
 		try
 		{
 			ReadProfiles();
@@ -1109,6 +1113,8 @@ class ModuleSSLOpenSSL : public Module
 		}
 		catch (ModuleException& ex)
 		{
+			if (user)
+				user->WriteRemoteNotice("*** Error rehashing OpenSSL module: " + ex.GetReason());
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
 	}
