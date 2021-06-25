@@ -355,7 +355,7 @@ void ServerConfig::Fill()
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
-	HideServer = security->getString("hideserver");
+	HideServer = security->getString("hideserver", "", InspIRCd::IsHost);
 	SyntaxHints = options->getBool("syntaxhints");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
