@@ -662,7 +662,7 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 		else
 		{
-			// Change the seesion state
+			// Change the session state
 			this->status = ISSL_HANDSHAKEN;
 
 			VerifyCertificate();

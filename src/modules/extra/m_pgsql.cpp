@@ -93,7 +93,7 @@ struct QueueItem
 
 /** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
  * All SQL providers must create their own subclass and define it's methods using that
- * database library's data retriveal functions. The aim is to avoid a slow and inefficient process
+ * database library's data retrieval functions. The aim is to avoid a slow and inefficient process
  * of converting all data to a common format before it reaches the result structure. This way
  * data is passes to the module nearly as directly as if it was using the API directly itself.
  */

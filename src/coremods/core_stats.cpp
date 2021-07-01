@@ -407,7 +407,7 @@ class CoreModStats : public Module
 	void ReadConfig(ConfigStatus& status) override
 	{
 		auto security = ServerInstance->Config->ConfValue("security");
-		cmd.userstats = security->getString("userstats");
+		cmd.userstats = security->getString("userstats", "Pu");
 	}
 
 };

@@ -87,7 +87,13 @@ class ModulePasswordHash : public Module
 	{
 	}
 
-	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) override
+	void ReadConfig(ConfigStatus& status) override
+	{
+		auto tag = ServerInstance->Config->ConfValue("mkpasswd");
+		cmd.access_needed = tag->getBool("operonly") ? CmdAccess::OPERATOR : CmdAccess::NORMAL;
+	}
+
+	ModResult OnPassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype) override
 	{
 		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{

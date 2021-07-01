@@ -102,7 +102,7 @@ namespace
 		FIRST_MOD_RESULT(OnUserPreMessage, modres, (source, msgtarget, msgdetails));
 		if (modres == MOD_RES_DENY)
 		{
-			// Inform modules that a module blocked the mssage.
+			// Inform modules that a module blocked the message.
 			FOREACH_MOD(OnUserMessageBlocked, (source, msgtarget, msgdetails));
 			return false;
 		}

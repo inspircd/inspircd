@@ -476,7 +476,7 @@ class CoreExport User : public Extensible
 	void SetMode(ModeHandler* mh, bool value);
 	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
-	/** Returns true or false for if a user can execute a privilaged oper command.
+	/** Returns true or false for if a user can execute a privileged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
@@ -488,7 +488,7 @@ class CoreExport User : public Extensible
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
-	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
 	virtual bool HasPrivPermission(const std::string& privstr);
@@ -595,7 +595,7 @@ class CoreExport User : public Extensible
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,
-	 * as this triggers module events allowing the change to be syncronized to
+	 * as this triggers module events allowing the change to be synchronized to
 	 * remote servers.
 	 * @param newident The new ident to set
 	 * @return True if the change succeeded, false if it didn't
@@ -776,7 +776,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 */
 	void WriteRemoteNotice(const std::string& text) override;
 
-	/** Returns true or false for if a user can execute a privilaged oper command.
+	/** Returns true or false for if a user can execute a privileged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
@@ -788,7 +788,7 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
 	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
 	 *
-	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
 	bool HasPrivPermission(const std::string& privstr) override;

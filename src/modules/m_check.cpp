@@ -12,7 +12,7 @@
  *   Copyright (C) 2006-2008 Robin Burchell <robin+git@viroteck.net>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
- * redistribute it and/or modify it under the terms of the GNU General Public
+ * reditargchanstribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, version 2.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -164,11 +164,8 @@ class CommandCheck : public Command
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CmdResult::SUCCESS;
 
-		User *targuser;
-		Channel *targchan;
-
-		targuser = ServerInstance->Users.Find(parameters[0]);
-		targchan = ServerInstance->Channels.Find(parameters[0]);
+		User* targetuser = ServerInstance->Users.Find(parameters[0]);
+		Channel* targchan = ServerInstance->Channels.Find(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
@@ -180,40 +177,40 @@ class CommandCheck : public Command
 		// Constructor sends START, destructor sends END
 		CheckContext context(user, parameters[0]);
 
-		if (targuser)
+		if (targetuser)
 		{
-			LocalUser* loctarg = IS_LOCAL(targuser);
+			LocalUser* loctarg = IS_LOCAL(targetuser);
 			/* /check on a user */
-			context.Write("nuh", targuser->GetFullHost());
-			context.Write("realnuh", targuser->GetFullRealHost());
-			context.Write("realname", targuser->GetRealName());
-			context.Write("modes", targuser->GetModeLetters());
-			context.Write("snomasks", GetSnomasks(targuser));
-			context.Write("server", targuser->server->GetName());
-			context.Write("uid", targuser->uuid);
-			context.Write("signon", targuser->signon);
-			context.Write("nickts", targuser->age);
+			context.Write("nuh", targetuser->GetFullHost());
+			context.Write("realnuh", targetuser->GetFullRealHost());
+			context.Write("realname", targetuser->GetRealName());
+			context.Write("modes", targetuser->GetModeLetters());
+			context.Write("snomasks", GetSnomasks(targetuser));
+			context.Write("server", targetuser->server->GetName());
+			context.Write("uid", targetuser->uuid);
+			context.Write("signon", targetuser->signon);
+			context.Write("nickts", targetuser->age);
 			if (loctarg)
 				context.Write("lastmsg", loctarg->idle_lastmsg);
 
-			if (targuser->IsAway())
+			if (targetuser->IsAway())
 			{
 				/* user is away */
-				context.Write("awaytime", targuser->awaytime);
-				context.Write("awaymsg", targuser->awaymsg);
+				context.Write("awaytime", targetuser->awaytime);
+				context.Write("awaymsg", targetuser->awaymsg);
 			}
 
-			if (targuser->IsOper())
+			if (targetuser->IsOper())
 			{
 				/* user is an oper of type ____ */
-				context.Write("opertype", targuser->oper->name);
+				context.Write("opertype", targetuser->oper->name);
 				if (loctarg)
 				{
 					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
 					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
 					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(loctarg));
-					context.Write("commandperms", targuser->oper->AllowedOperCommands.ToString());
-					context.Write("permissions", targuser->oper->AllowedPrivs.ToString());
+					context.Write("commandperms", targetuser->oper->AllowedOperCommands.ToString());
+					context.Write("permissions", targetuser->oper->AllowedPrivs.ToString());
 				}
 			}
 
@@ -229,14 +226,14 @@ class CommandCheck : public Command
 				context.Write("exempt", loctarg->exempt ? "yes" : "no");
 			}
 			else
-				context.Write("onip", targuser->GetIPString());
+				context.Write("onip", targetuser->GetIPString());
 
 			CheckContext::List chanlist(context, "onchans");
-			for (const auto* memb : targuser->chans)
+			for (const auto* memb : targetuser->chans)
 				chanlist.Add(memb->GetAllPrefixChars() + memb->chan->name);
 			chanlist.Flush();
 
-			context.DumpExt(targuser);
+			context.DumpExt(targetuser);
 		}
 		else if (targchan)
 		{

@@ -546,7 +546,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 		parameters[parting ? 1 : 0] = "Reason filtered";
 
 		/* We're warning or blocking, OR they're quitting and its a KILL action
-		 * (we cant kill someone whos already quitting, so filter them anyway)
+		 * (we cant kill someone who's already quitting, so filter them anyway)
 		 */
 		if ((f->action == FA_WARN) || (f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
 		{

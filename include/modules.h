@@ -478,7 +478,7 @@ class CoreExport Module : public Cullable, public usecountbase
 	 * @param user The user joining the channel
 	 * @param chan If the  channel is a new channel, this will be NULL, otherwise it will be a pointer to the channel being joined
 	 * @param cname The channel name being joined. For new channels this is valid where chan is not.
-	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "o".
+	 * @param privs A string containing the users privileges when joining the channel. For new channels this will contain "o".
 	 * You may alter this string to alter the user's modes on the channel.
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @param override Whether the channel join can be blocked by returning MOD_RES_DENY.
@@ -578,7 +578,7 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
-	 * module to generate some meaninful output.
+	 * module to generate some meaningful output.
 	 * @param user The username changing their nick
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
@@ -635,14 +635,14 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
-	 * @param user The user whos host is being changed
+	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeHost(User* user, const std::string &newhost);
 
 	/** Called whenever a user's real hostname is changed.
 	 * This event triggers before the host has been set.
-	 * @param user The user whos host is being changed
+	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
 	virtual void OnChangeRealHost(User* user, const std::string& newhost);
@@ -699,7 +699,7 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
+	 * NOT make any changes to the User if the user is a remote user as this may cause a desync.
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * Because this method is called after the nickchange is taken place, no return values are possible
 	 * to indicate forbidding of the nick change. Use OnUserPreNick for this.
@@ -810,14 +810,14 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called after a user object is initialised and added to the user list.
 	 * When this is called the user has not had their I/O hooks checked or had their initial
-	 * connect class assigned and may not yet have a serialiser. You probably want to use
+	 * connect class assigned and may not yet have a serializer. You probably want to use
 	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
 	 * @param user The connecting user.
 	 */
 	virtual void OnUserInit(LocalUser* user);
 
 	/** Called after a user object has had their I/O hooks checked, their initial connection
-	 * class assigned, and had a serialiser set.
+	 * class assigned, and had a serializer set.
 	 * @param user The connecting user.
 	 */
 	virtual void OnUserPostInit(LocalUser* user);
@@ -909,7 +909,7 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
-	 * @param user The user whos host will be changed
+	 * @param user The user whose host will be changed
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
@@ -917,7 +917,7 @@ class CoreExport Module : public Cullable, public usecountbase
 
 	/** Called whenever a change of a local users real name is attempted.
 	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
-	 * @param user The user whos real name will be changed
+	 * @param user The user whose real name will be changed
 	 * @param newhost The new real name.
 	 * @return MOD_RES_DENY to deny the real name change, MOD_RES_ALLOW to allow
 	 */

@@ -44,10 +44,11 @@ VHOST       WATCH       WHO         WHOIS       WHOWAS
 Sends a message to the network service specified in <target>.
 ">
 
-<helpop key="servlist" title="/SERVLIST [<mask>]" value="
-List network services that are currently connected to the network
-and visible to you. The optional glob-based mask parameter matches
-against the network service nickname.
+<helpop key="servlist" title="/SERVLIST [<nick> [<oper-type>]]" value="
+List network services that are currently connected to the network and
+visible to you. The optional glob-based nick and oper-type parameters
+match against the nickname of the network service and the oper type of
+the network service.
 ">
 
 <helpop key="sslinfo" title="/SSLINFO <nick>" value="
@@ -846,6 +847,8 @@ using their cloak when they quit.
               non-server operators (requires the hidechans module).
  L            Stops redirections done by the redirect module (requires
               the redirect module).
+ N            Allows users to opt-out of receiving channel history
+              (requires the chanhistory module).
  O            Allows server operators to opt-in to overriding
               restrictions (requires the override module).
  R            Blocks private messages from unregistered users

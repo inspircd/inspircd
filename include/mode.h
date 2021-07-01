@@ -532,7 +532,7 @@ class CoreExport ModeWatcher : public Cullable
 	 * @param dest The target user for the mode, if you are watching a user mode
 	 * @param channel The target channel for the mode, if you are watching a channel mode
 	 * @param change Information regarding the mode change.
-	 * If you alter the parameter you are given, the mode handler will see your atered version
+	 * If you alter the parameter you are given, the mode handler will see your altered version
 	 * when it handles the mode.
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
