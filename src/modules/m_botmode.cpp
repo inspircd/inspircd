@@ -52,7 +52,10 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	{
 		User* const user = msg.GetSourceUser();
 		if (user && user->IsModeSet(botmode))
+		{
+			msg.AddTag("draft/bot", this, "");
 			msg.AddTag("inspircd.org/bot", this, "");
+		}
 	}
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
