@@ -118,6 +118,7 @@ class Whois::Context
 	void SendLine(unsigned int numeric, Param... p)
 	{
 		Numeric::Numeric n(numeric);
+		n.push(target->nick);
 		n.push(std::forward<Param>(p)...);
 		SendLine(n);
 	}
