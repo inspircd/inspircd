@@ -305,7 +305,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		LocalUser* localuser = IS_LOCAL(dest);
 		if (localuser && (ServerInstance->Config->HideServer.empty() || parameters.size() > 1))
 		{
-			idle = std::max<unsigned long>(localuser->idle_lastmsg - ServerInstance->Time(), 0);
+			idle = ServerInstance->Time() - localuser->idle_lastmsg;
 			signon = dest->signon;
 		}
 
