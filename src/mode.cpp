@@ -724,54 +724,6 @@ PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-std::string ModeParser::GiveModeList(ModeType mt)
-{
-	std::string type1;	/* Listmodes EXCEPT those with a prefix */
-	std::string type2;	/* Modes that take a param when adding or removing */
-	std::string type3;	/* Modes that only take a param when adding */
-	std::string type4;	/* Modes that dont take a param */
-
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
-	{
-		ModeHandler* mh = modehandlers[mt][mode-65];
-		if (mh)
-		{
-			/* One parameter when adding */
-			if (mh->NeedsParam(true))
-			{
-				PrefixMode* pm = mh->IsPrefixMode();
-				if ((mh->IsListMode()) && ((!pm) || (pm->GetPrefix() == 0)))
-				{
-					type1 += mh->GetModeChar();
-				}
-				else
-				{
-					/* ... and one parameter when removing */
-					if (mh->NeedsParam(false))
-					{
-						/* But not a list mode */
-						if (!pm)
-						{
-							type2 += mh->GetModeChar();
-						}
-					}
-					else
-					{
-						/* No parameters when removing */
-						type3 += mh->GetModeChar();
-					}
-				}
-			}
-			else
-			{
-				type4 += mh->GetModeChar();
-			}
-		}
-	}
-
-	return type1 + "," + type2 + "," + type3 + "," + type4;
-}
-
 struct PrefixModeSorter
 {
 	bool operator()(PrefixMode* lhs, PrefixMode* rhs)

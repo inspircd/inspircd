@@ -782,14 +782,6 @@ class CoreExport ModeParser
 	 */
 	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
-	/** Generates a list of modes, comma separated by type:
-	 *  1; Listmodes EXCEPT those with a prefix
-	 *  2; Modes that take a param when adding or removing
-	 *  3; Modes that only take a param when adding
-	 *  4; Modes that dont take a param
-	 */
-	std::string GiveModeList(ModeType mt);
-
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
 	 * just the "@%+" part if the parameter false
 	 */
