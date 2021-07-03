@@ -45,6 +45,7 @@ class HostRule
  private:
 	HostChangeAction action;
 	std::string host;
+	std::string klass;
 	std::string mask;
 	insp::flat_set<int> ports;
 	std::string prefix;
@@ -52,6 +53,9 @@ class HostRule
 
 	void ReadConfig(ConfigTag* tag)
 	{
+		// Parse <hostchange:class>.
+		klass = tag->getString("class");
+
 		// Parse <hostchange:port>.
 		const std::string portlist = tag->getString("ports");
 		if (!portlist.empty())
@@ -92,6 +96,9 @@ class HostRule
 
 	bool Matches(LocalUser* user) const
 	{
+		if (!klass.empty() && !stdalgo::string::equalsci(klass, user->MyClass->GetName()))
+			return false;
+
 		if (!ports.empty() && !ports.count(user->server_sa.port()))
 			return false;
 
