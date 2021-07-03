@@ -50,22 +50,34 @@ class HostRule
 	std::string prefix;
 	std::string suffix;
 
+	void ReadConfig(ConfigTag* tag)
+	{
+		// Parse <hostchange:port>.
+		const std::string portlist = tag->getString("ports");
+		if (!portlist.empty())
+		{
+			irc::portparser portrange(portlist, false);
+			while (int port = portrange.GetToken())
+				ports.insert(port);
+		}
+	}
+
  public:
-	HostRule(const std::string& Mask, const std::string& Host, const insp::flat_set<int>& Ports)
+	HostRule(ConfigTag* tag, const std::string& Mask, const std::string& Host)
 		: action(HCA_SET)
 		, host(Host)
 		, mask(Mask)
-		, ports(Ports)
 	{
+		ReadConfig(tag);
 	}
 
-	HostRule(HostChangeAction Action, const std::string& Mask, const insp::flat_set<int>& Ports, const std::string& Prefix, const std::string& Suffix)
+	HostRule(ConfigTag* tag, HostChangeAction Action, const std::string& Mask, const std::string& Prefix, const std::string& Suffix)
 		: action(Action)
 		, mask(Mask)
-		, ports(Ports)
 		, prefix(Prefix)
 		, suffix(Suffix)
 	{
+		ReadConfig(tag);
 	}
 
 	HostChangeAction GetAction() const
@@ -138,26 +150,17 @@ private:
 			if (mask.empty())
 				throw ModuleException("<hostchange:mask> is a mandatory field, at " + tag->getTagLocation());
 
-			insp::flat_set<int> ports;
-			const std::string portlist = tag->getString("ports");
-			if (!portlist.empty())
-			{
-				irc::portparser portrange(portlist, false);
-				while (int port = portrange.GetToken())
-					ports.insert(port);
-			}
-
 			// Determine what type of host rule this is.
 			const std::string action = tag->getString("action");
 			if (stdalgo::string::equalsci(action, "addaccount"))
 			{
 				// The hostname is in the format [prefix]<account>[suffix].
-				rules.push_back(HostRule(HostRule::HCA_ADDACCOUNT, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+				rules.push_back(HostRule(tag, HostRule::HCA_ADDACCOUNT, mask, tag->getString("prefix"), tag->getString("suffix")));
 			}
 			else if (stdalgo::string::equalsci(action, "addnick"))
 			{
 				// The hostname is in the format [prefix]<nick>[suffix].
-				rules.push_back(HostRule(HostRule::HCA_ADDNICK, mask, ports, tag->getString("prefix"), tag->getString("suffix")));
+				rules.push_back(HostRule(tag, HostRule::HCA_ADDNICK, mask, tag->getString("prefix"), tag->getString("suffix")));
 			}
 			else if (stdalgo::string::equalsci(action, "set"))
 			{
@@ -167,7 +170,7 @@ private:
 					throw ModuleException("<hostchange:value> is a mandatory field when using the 'set' action, at " + tag->getTagLocation());
 
 				// The hostname is in the format <value>.
-				rules.push_back(HostRule(mask, value, ports));
+				rules.push_back(HostRule(tag, mask, value));
 				continue;
 			}
 			else
