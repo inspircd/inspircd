@@ -170,10 +170,10 @@ class CommandCheck : public Command
 			return CMD_SUCCESS;
 
 		User *targetuser;
-		Channel *targchan;
+		Channel *targetchan;
 
 		targetuser = ServerInstance->FindNick(parameters[0]);
-		targchan = ServerInstance->FindChan(parameters[0]);
+		targetchan = ServerInstance->FindChan(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
@@ -187,7 +187,7 @@ class CommandCheck : public Command
 
 		if (targetuser)
 		{
-			LocalUser* loctarg = IS_LOCAL(targetuser);
+			LocalUser* localtarget = IS_LOCAL(targetuser);
 			/* /check on a user */
 			context.Write("nuh", targetuser->GetFullHost());
 			context.Write("realnuh", targetuser->GetFullRealHost());
@@ -198,8 +198,8 @@ class CommandCheck : public Command
 			context.Write("uid", targetuser->uuid);
 			context.Write("signon", targetuser->signon);
 			context.Write("nickts", targetuser->age);
-			if (loctarg)
-				context.Write("lastmsg", loctarg->idle_lastmsg);
+			if (localtarget)
+				context.Write("lastmsg", localtarget->idle_lastmsg);
 
 			if (targetuser->IsAway())
 			{
@@ -213,26 +213,26 @@ class CommandCheck : public Command
 				OperInfo* oper = targetuser->oper;
 				/* user is an oper of type ____ */
 				context.Write("opertype", oper->name);
-				if (loctarg)
+				if (localtarget)
 				{
-					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
-					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
-					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(loctarg));
+					context.Write("chanmodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_CHANNEL));
+					context.Write("usermodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_USER));
+					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(localtarget));
 					context.Write("commandperms", oper->AllowedOperCommands.ToString());
 					context.Write("permissions", oper->AllowedPrivs.ToString());
 				}
 			}
 
-			if (loctarg)
+			if (localtarget)
 			{
-				context.Write("clientaddr", loctarg->client_sa.str());
-				context.Write("serveraddr", loctarg->server_sa.str());
+				context.Write("clientaddr", localtarget->client_sa.str());
+				context.Write("serveraddr", localtarget->server_sa.str());
 
-				std::string classname = loctarg->GetClass()->name;
+				std::string classname = localtarget->GetClass()->name;
 				if (!classname.empty())
 					context.Write("connectclass", classname);
 
-				context.Write("exempt", loctarg->exempt ? "yes" : "no");
+				context.Write("exempt", localtarget->exempt ? "yes" : "no");
 			}
 			else
 				context.Write("onip", targetuser->GetIPString());
@@ -248,25 +248,25 @@ class CommandCheck : public Command
 
 			context.DumpExt(targetuser);
 		}
-		else if (targchan)
+		else if (targetchan)
 		{
 			/* /check on a channel */
-			context.Write("createdat", targchan->age);
+			context.Write("createdat", targetchan->age);
 
-			if (!targchan->topic.empty())
+			if (!targetchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
-				context.Write("topic", targchan->topic);
-				context.Write("topic_setby", targchan->setby);
-				context.Write("topic_setat", targchan->topicset);
+				context.Write("topic", targetchan->topic);
+				context.Write("topic_setby", targetchan->setby);
+				context.Write("topic_setat", targetchan->topicset);
 			}
 
-			context.Write("modes", targchan->ChanModes(true));
-			context.Write("membercount", ConvToStr(targchan->GetUserCounter()));
+			context.Write("modes", targetchan->ChanModes(true));
+			context.Write("membercount", ConvToStr(targetchan->GetUserCounter()));
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
-			const Channel::MemberMap& ulist = targchan->GetUsers();
+			const Channel::MemberMap& ulist = targetchan->GetUsers();
 
 			/* note that unlike /names, we do NOT check +i vs in the channel */
 			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
@@ -282,9 +282,9 @@ class CommandCheck : public Command
 
 			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
 			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
-				context.DumpListMode(*i, targchan);
+				context.DumpListMode(*i, targetchan);
 
-			context.DumpExt(targchan);
+			context.DumpExt(targetchan);
 		}
 		else
 		{
