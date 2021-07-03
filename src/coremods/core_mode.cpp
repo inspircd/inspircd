@@ -328,6 +328,30 @@ class CoreModMode
 		return InspIRCd::Format("%s,%s,%s,%s", type1.c_str(), type2.c_str(), type3.c_str(), type4.c_str());
 	}
 
+	std::string GeneratePrefixList(bool includeprefixes)
+	{
+		std::vector<PrefixMode*> prefixes;
+		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
+		{
+			if (pm->GetPrefix())
+				prefixes.push_back(pm);
+		}
+		std::sort(prefixes.begin(), prefixes.end(), [](PrefixMode* lhs, PrefixMode* rhs)
+		{
+			return lhs->GetPrefixRank() < rhs->GetPrefixRank();
+		});
+
+		std::string modechars;
+		std::string prefixchars;
+		for (const auto& pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
+		{
+			modechars += pm->GetPrefix();
+			prefixchars += pm->GetModeChar();
+		}
+
+		return includeprefixes ? "(" + prefixchars + ")" + prefixchars : modechars;
+	}
+
  public:
 	CoreModMode()
 		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
@@ -340,6 +364,8 @@ class CoreModMode
 	{
 		tokens["CHANMODES"] = GenerateModeList(MODETYPE_CHANNEL);
 		tokens["USERMODES"] = GenerateModeList(MODETYPE_USER);
+		tokens["PREFIX"] = GeneratePrefixList(true);
+		tokens["STATUSMSG"] = GeneratePrefixList(false);
 	}
 };
 

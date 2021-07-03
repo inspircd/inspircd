@@ -724,36 +724,6 @@ PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-struct PrefixModeSorter
-{
-	bool operator()(PrefixMode* lhs, PrefixMode* rhs)
-	{
-		return lhs->GetPrefixRank() < rhs->GetPrefixRank();
-	}
-};
-
-std::string ModeParser::BuildPrefixes(bool lettersAndModes)
-{
-	std::string mletters;
-	std::string mprefixes;
-	std::vector<PrefixMode*> prefixes;
-
-	for (const auto& pm : GetPrefixModes())
-	{
-		if (pm->GetPrefix())
-			prefixes.push_back(pm);
-	}
-
-	std::sort(prefixes.begin(), prefixes.end(), PrefixModeSorter());
-	for (std::vector<PrefixMode*>::const_reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); ++n)
-	{
-		mletters += (*n)->GetPrefix();
-		mprefixes += (*n)->GetModeChar();
-	}
-
-	return lettersAndModes ? "(" + mprefixes + ")" + mletters : mletters;
-}
-
 void ModeParser::AddModeWatcher(ModeWatcher* mw)
 {
 	modewatchermap.emplace(mw->GetModeName(), mw);

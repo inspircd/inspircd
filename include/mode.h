@@ -782,11 +782,6 @@ class CoreExport ModeParser
 	 */
 	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
-	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
-	 * just the "@%+" part if the parameter false
-	 */
-	std::string BuildPrefixes(bool lettersAndModes = true);
-
 	/** Get a list of all mode handlers that inherit from ListModeBase
 	 * @return A list containing ListModeBase modes
 	 */
