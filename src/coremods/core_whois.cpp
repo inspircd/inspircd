@@ -47,8 +47,8 @@ class WhoisContextImpl : public Whois::Context
 	Events::ModuleEventProvider& lineevprov;
 
  public:
-	WhoisContextImpl(LocalUser* src, User* targ, Events::ModuleEventProvider& evprov)
-		: Whois::Context(src, targ)
+	WhoisContextImpl(LocalUser* sourceuser, User* targetuser, Events::ModuleEventProvider& evprov)
+		: Whois::Context(sourceuser, targetuser)
 		, lineevprov(evprov)
 	{
 	}

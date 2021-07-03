@@ -215,16 +215,16 @@ class ModuleServicesAccount
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* targchan = target.Get<Channel>();
+				Channel* targetchan = target.Get<Channel>();
 
-				if (!targchan->IsModeSet(regmoderatedmode) || is_registered)
+				if (!targetchan->IsModeSet(regmoderatedmode) || is_registered)
 					return MOD_RES_PASSTHRU;
 
-				if (CheckExemption::Call(exemptionprov, user, targchan, "regmoderated") == MOD_RES_ALLOW)
+				if (CheckExemption::Call(exemptionprov, user, targetchan, "regmoderated") == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
 				// User is messaging a +M channel and is not registered or exempt.
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targetchan->name, "You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 				break;
 			}

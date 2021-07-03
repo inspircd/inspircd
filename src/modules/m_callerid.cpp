@@ -140,15 +140,14 @@ struct CallerIDExtInfo : public ExtensionItem
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
 		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
 		{
-			callerid_data *targ = this->get(*it, false);
-
-			if (!targ)
+			callerid_data* target = this->get(*it, false);
+			if (!target)
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
-			if (!stdalgo::vector::swaperase(targ->wholistsme, dat))
+			if (!stdalgo::vector::swaperase(target->wholistsme, dat))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
@@ -292,8 +291,8 @@ public:
 		}
 
 		// Now, look them up, and add me to their list
-		callerid_data *targ = extInfo.get(whotoadd, true);
-		targ->wholistsme.push_back(dat);
+		callerid_data* target = extInfo.get(whotoadd, true);
+		target->wholistsme.push_back(dat);
 
 		user->WriteNotice(whotoadd->nick + " is now on your accept list");
 		return true;

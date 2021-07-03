@@ -91,9 +91,9 @@ class Whois::Context
 	User* const target;
 
  public:
-	Context(LocalUser* src, User* targ)
-		: source(src)
-		, target(targ)
+	Context(LocalUser* sourceuser, User* targetuser)
+		: source(sourceuser)
+		, target(targetuser)
 	{
 	}
 
