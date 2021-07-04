@@ -234,7 +234,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	if (dest->IsOper())
 	{
 		if (genericoper)
-			whois.SendLine(RPL_WHOISOPERATOR, "is a server operator");
+			whois.SendLine(RPL_WHOISOPERATOR, dest->server->IsULine() ? "is a network service" : "is a server operator");
 		else
 			whois.SendLine(RPL_WHOISOPERATOR, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"), dest->oper->name.c_str(), ServerInstance->Config->Network.c_str()));
 	}
