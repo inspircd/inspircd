@@ -612,10 +612,14 @@ class CoreExport ModeParser
 	 */
 	Modes::ChangeList LastChangeList;
 
-	/**
-	 * Attempts to apply a mode change to a user or channel
+	/** Attempts to apply a mode change to a user or channel
+	 * @param user The user who triggered the mode change.
+	 * @param usertarget If non-NULL then the user to change the modes of.
+	 * @param chantarget If non-NULL then the channel to change the modes of.
+	 * @param mcitem The actual mode change to attempt.
+	 * @param skipacl Whether to skip access checks for the mode change.
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, Modes::Change& mcitem, bool SkipACL);
+	ModeAction TryMode(User* user, User* usertarget, Channel* chantarget, Modes::Change& mcitem, bool skipacl);
 
 	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
 	 * @param mt The type of the mode to allocate the id for

@@ -164,8 +164,8 @@ class CommandCheck : public Command
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CmdResult::SUCCESS;
 
-		User* targetuser = ServerInstance->Users.Find(parameters[0]);
-		Channel* targchan = ServerInstance->Channels.Find(parameters[0]);
+		User* targetuser = ServerInstance->Users.FindNick(parameters[0]);
+		Channel* targetchan = ServerInstance->Channels.Find(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
@@ -179,7 +179,7 @@ class CommandCheck : public Command
 
 		if (targetuser)
 		{
-			LocalUser* loctarg = IS_LOCAL(targetuser);
+			LocalUser* localtarget = IS_LOCAL(targetuser);
 			/* /check on a user */
 			context.Write("nuh", targetuser->GetFullHost());
 			context.Write("realnuh", targetuser->GetFullRealHost());
@@ -190,8 +190,8 @@ class CommandCheck : public Command
 			context.Write("uid", targetuser->uuid);
 			context.Write("signon", targetuser->signon);
 			context.Write("nickts", targetuser->age);
-			if (loctarg)
-				context.Write("lastmsg", loctarg->idle_lastmsg);
+			if (localtarget)
+				context.Write("lastmsg", localtarget->idle_lastmsg);
 
 			if (targetuser->IsAway())
 			{
@@ -204,26 +204,26 @@ class CommandCheck : public Command
 			{
 				/* user is an oper of type ____ */
 				context.Write("opertype", targetuser->oper->name);
-				if (loctarg)
+				if (localtarget)
 				{
-					context.Write("chanmodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_CHANNEL));
-					context.Write("usermodeperms", GetAllowedOperOnlyModes(loctarg, MODETYPE_USER));
-					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(loctarg));
+					context.Write("chanmodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_CHANNEL));
+					context.Write("usermodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_USER));
+					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(localtarget));
 					context.Write("commandperms", targetuser->oper->AllowedOperCommands.ToString());
 					context.Write("permissions", targetuser->oper->AllowedPrivs.ToString());
 				}
 			}
 
-			if (loctarg)
+			if (localtarget)
 			{
-				context.Write("clientaddr", loctarg->client_sa.str());
-				context.Write("serveraddr", loctarg->server_sa.str());
+				context.Write("clientaddr", localtarget->client_sa.str());
+				context.Write("serveraddr", localtarget->server_sa.str());
 
-				std::string classname = loctarg->GetClass()->name;
+				std::string classname = localtarget->GetClass()->name;
 				if (!classname.empty())
 					context.Write("connectclass", classname);
 
-				context.Write("exempt", loctarg->exempt ? "yes" : "no");
+				context.Write("exempt", localtarget->exempt ? "yes" : "no");
 			}
 			else
 				context.Write("onip", targetuser->GetIPString());
@@ -235,23 +235,23 @@ class CommandCheck : public Command
 
 			context.DumpExt(targetuser);
 		}
-		else if (targchan)
+		else if (targetchan)
 		{
 			/* /check on a channel */
-			context.Write("createdat", targchan->age);
+			context.Write("createdat", targetchan->age);
 
-			if (!targchan->topic.empty())
+			if (!targetchan->topic.empty())
 			{
 				/* there is a topic, assume topic related information exists */
-				context.Write("topic", targchan->topic);
-				context.Write("topic_setby", targchan->setby);
-				context.Write("topic_setat", targchan->topicset);
+				context.Write("topic", targetchan->topic);
+				context.Write("topic_setby", targetchan->setby);
+				context.Write("topic_setat", targetchan->topicset);
 			}
 
-			context.Write("modes", targchan->ChanModes(true));
-			context.Write("membercount", ConvToStr(targchan->GetUserCounter()));
+			context.Write("modes", targetchan->ChanModes(true));
+			context.Write("membercount", ConvToStr(targetchan->GetUserCounter()));
 
-			for (const auto& [u, memb] : targchan->GetUsers())
+			for (const auto& [u, memb] : targetchan->GetUsers())
 			{
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
@@ -263,9 +263,9 @@ class CommandCheck : public Command
 			}
 
 			for (const auto& lm : ServerInstance->Modes.GetListModes())
-				context.DumpListMode(lm, targchan);
+				context.DumpListMode(lm, targetchan);
 
-			context.DumpExt(targchan);
+			context.DumpExt(targetchan);
 		}
 		else
 		{
