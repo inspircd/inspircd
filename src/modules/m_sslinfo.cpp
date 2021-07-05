@@ -31,15 +31,6 @@
 #include "modules/whois.h"
 #include "modules/who.h"
 
-enum
-{
-	// From oftc-hybrid.
-	RPL_WHOISCERTFP = 276,
-
-	// From UnrealIRCd.
-	RPL_WHOISSECURE = 671
-};
-
 class SSLCertExt : public ExtensionItem
 {
  public:
