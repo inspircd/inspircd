@@ -27,14 +27,6 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-enum
-{
-	// From UnrealIRCd.
-	RPL_WHOISSPECIAL = 320
-};
-
-/** Handle /SWHOIS
- */
 class CommandSwhois : public Command
 {
  public:
