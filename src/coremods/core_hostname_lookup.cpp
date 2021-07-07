@@ -88,17 +88,8 @@ class UserResolver : public DNS::Request
 
 		if (this->question.type == DNS::QUERY_PTR)
 		{
-			UserResolver* res_forward;
-			if (bound_user->client_sa.family() == AF_INET6)
-			{
-				/* IPV6 forward lookup */
-				res_forward = new UserResolver(this->manager, this->creator, bound_user, ans_record->rdata, DNS::QUERY_AAAA);
-			}
-			else
-			{
-				/* IPV4 lookup */
-				res_forward = new UserResolver(this->manager, this->creator, bound_user, ans_record->rdata, DNS::QUERY_A);
-			}
+			const DNS::QueryType qt = bound_user->client_sa.family() == AF_INET6 ? DNS::QUERY_AAAA : DNS::QUERY_A;
+			UserResolver* res_forward = new UserResolver(this->manager, this->creator, bound_user, ans_record->rdata, qt);
 			try
 			{
 				this->manager->Process(res_forward);
