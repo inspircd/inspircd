@@ -46,7 +46,7 @@ SYSTEM = @SYSTEM_NAME@
 SOURCEPATH = @SOURCE_DIR@
 BUILDPATH ?= $(SOURCEPATH)/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
-CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
+CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -Igch -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
 CORELDFLAGS = -rdynamic -L.
 PICLDFLAGS = -fPIC -shared -rdynamic
@@ -272,7 +272,7 @@ GNUmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FIL
 clean:
 	@echo Cleaning...
 	-rm -f "$(BUILDPATH)/bin/inspircd" "$(BUILDPATH)/include" "$(BUILDPATH)/real.mk"
-	-rm -rf "$(BUILDPATH)/obj" "$(BUILDPATH)/modules"
+	-rm -rf "$(BUILDPATH)/gch" "$(BUILDPATH)/obj" "$(BUILDPATH)/modules"
 	@-rmdir "$(BUILDPATH)/bin" 2>/dev/null
 	@-rmdir "$(BUILDPATH)" 2>/dev/null
 	@echo Completed.

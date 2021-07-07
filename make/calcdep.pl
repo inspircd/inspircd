@@ -52,7 +52,10 @@ sub run() {
 	chdir BUILDPATH or die "Could not open build directory: $!";
 	unlink 'include';
 	symlink "${\SOURCEPATH}/include", 'include';
-	mkdir $_ for qw/bin modules obj/;
+	mkdir $_ for qw/bin gch modules obj/;
+
+	# fallback in case gch/inspircd.h.gch can't be used:
+	symlink "${\SOURCEPATH}/include/inspircd.h", 'gch/inspircd.h';
 
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
 	chdir "${\SOURCEPATH}/src";
@@ -76,6 +79,7 @@ bad-target:
 all: inspircd modules
 
 END
+	dep_cpp "../include/inspircd.h", "gch/inspircd.h.gch", 'gen-o';
 	my(@core_deps, @modlist);
 	for my $file (<*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
@@ -164,6 +168,9 @@ sub gendep($) {
 				$dep{$_}++ for split / /, gendep $loc;
 				$loc =~ s#^\.\./##;
 				$dep{$loc}++;
+				if ($f !~ /.h$/ && $loc eq 'include/inspircd.h') {
+					$dep{'gch/inspircd.h.gch'}++;
+				}
 			}
 			if ($found == 0 && $inc ne 'inspircd_win32wrapper.h') {
 				print STDERR "WARNING: could not find header $inc for $f\n";
