@@ -33,6 +33,9 @@ namespace
 class UserResolver : public DNS::Request
 {
  private:
+	/** The socket address that the user we are looking up is connected from. */
+	const irc::sockets::sockaddrs sa;
+
 	/** UUID we are looking up */
 	const std::string uuid;
 
@@ -57,6 +60,7 @@ class UserResolver : public DNS::Request
 	 */
 	UserResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& to_resolve, DNS::QueryType qt)
 		: DNS::Request(mgr, me, to_resolve, qt)
+		, sa(user->client_sa)
 		, uuid(user->uuid)
 	{
 	}
@@ -68,11 +72,8 @@ class UserResolver : public DNS::Request
 	void OnLookupComplete(const DNS::Query* r) CXX11_OVERRIDE
 	{
 		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
-		if (!bound_user)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
+		if (!bound_user || bound_user->client_sa != sa)
 			return;
-		}
 
 		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
 		if (ans_record == NULL)
@@ -145,7 +146,7 @@ class UserResolver : public DNS::Request
 	void OnError(const DNS::Query* query) CXX11_OVERRIDE
 	{
 		LocalUser* bound_user = IS_LOCAL(ServerInstance->FindUUID(uuid));
-		if (bound_user)
+		if (bound_user && bound_user->client_sa == sa)
 			HandleError(bound_user, "Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}
 };
