@@ -85,8 +85,6 @@ void ISupportManager::Build()
 		{ "NETWORK",     ServerInstance->Config->Network                      },
 		{ "NAMELEN",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
 		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
-		{ "PREFIX",      ServerInstance->Modes.BuildPrefixes()                },
-		{ "STATUSMSG",   ServerInstance->Modes.BuildPrefixes(false)           },
 		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
 		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};

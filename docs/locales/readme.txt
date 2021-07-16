@@ -46,4 +46,4 @@ In this case every character of line except first dot specifies one character-co
 
 *** TODO ***
 
-- UTF-8 collation rules (Inapplieable to InspIRCd atm).
+- UTF-8 collation rules (Inapplicable to InspIRCd atm).

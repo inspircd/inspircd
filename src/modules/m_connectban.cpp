@@ -26,18 +26,25 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/server.h"
 #include "modules/webirc.h"
 
-class ModuleConnectBan
+class ModuleConnectBan final
 	: public Module
+	, public ServerProtocol::LinkEventListener
 	, public WebIRC::EventListener
 {
+ private:
 	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
+
 	ConnectMap connects;
 	unsigned long threshold;
 	unsigned long banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
+	unsigned long bootwait;
+	unsigned long splitwait;
+	time_t ignoreuntil;
 	std::string banmessage;
 
 	unsigned char GetRange(LocalUser* user)
@@ -72,9 +79,14 @@ class ModuleConnectBan
 	}
 
  public:
+	// Stop GCC warnings about the deprecated OnServerSplit event.
+	using ServerProtocol::LinkEventListener::OnServerSplit;
+
 	ModuleConnectBan()
 		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
+		, ServerProtocol::LinkEventListener(this)
 		, WebIRC::EventListener(this)
+		, ignoreuntil(0)
 	{
 	}
 
@@ -91,8 +103,13 @@ class ModuleConnectBan
 		ipv4_cidr = static_cast<unsigned int>(tag->getUInt("ipv4cidr", 32, 1, 32));
 		ipv6_cidr = static_cast<unsigned int>(tag->getUInt("ipv6cidr", 128, 1, 128));
 		threshold = tag->getUInt("threshold", 10, 1);
+		bootwait = tag->getDuration("bootwait", 60*2);
+		splitwait = tag->getDuration("splitwait", 60*2);
 		banduration = tag->getDuration("duration", 10*60, 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
+
+		if (status.initial)
+			ignoreuntil = ServerInstance->Time() + bootwait;
 	}
 
 	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
@@ -109,9 +126,15 @@ class ModuleConnectBan
 			iter->second--;
 	}
 
+	void OnServerSplit(const Server* server, bool error) override
+	{
+		if (splitwait)
+			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
+	}
+
 	void OnSetUserIP(LocalUser* u) override
 	{
-		if (IsExempt(u))
+		if (IsExempt(u) || ignoreuntil > ServerInstance->Time())
 			return;
 
 		irc::sockets::cidr_mask mask(u->client_sa, GetRange(u));

@@ -526,6 +526,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		params.add(memb);
 		params.finalize();
 		params.Broadcast();
+		Utils->SendListLimits(memb->chan, NULL);
 	}
 	else
 	{
@@ -800,8 +801,7 @@ void ModuleSpanningTree::OnUserAway(User* user)
 
 void ModuleSpanningTree::OnUserBack(User* user)
 {
-	if (IS_LOCAL(user))
-		CommandAway::Builder(user).Broadcast();
+	OnUserAway(user);
 }
 
 void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags)

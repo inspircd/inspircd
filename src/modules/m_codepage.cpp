@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 class Codepage
 {
@@ -170,6 +171,7 @@ class SingleByteCodepage final
 
 class ModuleCodepage final
 	: public Module
+	, public ISupport::EventListener
 {
  private:
 	// The currently active codepage.
@@ -183,6 +185,9 @@ class ModuleCodepage final
 
 	// The IsNick handler which was set before this module was loaded.
 	const std::function<bool(const std::string&)> origisnick;
+
+	// The character set used for the codepage.
+	std::string charset;
 
 	template <typename T>
 	void RehashHashmap(T& hashmap)
@@ -231,6 +236,7 @@ class ModuleCodepage final
  public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
+		, ISupport::EventListener(this)
 		, codepage(nullptr)
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
@@ -252,7 +258,9 @@ class ModuleCodepage final
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const std::string name = ServerInstance->Config->ConfValue("codepage")->getString("name");
+		auto codepagetag = ServerInstance->Config->ConfValue("codepage");
+
+		const std::string name = codepagetag->getString("name");
 		if (name.empty())
 			throw ModuleException("<codepage:name> is a required field!");
 
@@ -306,6 +314,7 @@ class ModuleCodepage final
 				lower, reinterpret_cast<unsigned char*>(&lower), upper, reinterpret_cast<unsigned char*>(&upper));
 		}
 
+		charset = codepagetag->getString("charset");
 		std::swap(codepage, newcodepage);
 		ServerInstance->IsNick = [this](const std::string& nick) { return codepage->IsValidNick(nick); };
 		CheckInvalidNick();
@@ -314,6 +323,12 @@ class ModuleCodepage final
 		national_case_insensitive_map = codepage->casemap;
 		if (newcodepage) // nullptr on first read.
 			CheckRehash(newcodepage->casemap);
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		if (!charset.empty())
+			tokens["CHARSET"] = charset;
 	}
 
 	void GetLinkData(LinkData& data, std::string& compatdata) override

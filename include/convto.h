@@ -28,6 +28,22 @@ inline const std::string& ConvToStr(const std::string& in)
 	return in;
 }
 
+#ifdef _WIN32
+/** Converts a wide string to a string.
+ * @param in The value to convert.
+ */
+inline const std::string ConvToStr(const std::wstring& in)
+{
+	size_t wlen = in.length() + 1;
+	int len = WideCharToMultiByte(CP_ACP, 0, in.c_str(), wlen, 0, 0, 0, 0);
+
+	std::string out(len, '\0');
+	WideCharToMultiByte(CP_ACP, 0, in.c_str(), wlen, &out[0], len, 0, 0);
+	out.pop_back();
+	return out;
+}
+#endif
+
 /** Converts a string_view to a string.
  * @param in The value to convert.
  */

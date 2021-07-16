@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "listmode.h"
 
 #include "main.h"
 #include "utils.h"
@@ -380,4 +381,25 @@ std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 		buffer << iter->first << '=' << Percent::Encode(iter->second);
 	}
 	return buffer.str();
+}
+
+void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)
+{
+	std::stringstream buffer;
+	const ModeParser::ListModeList& listmodes = ServerInstance->Modes.GetListModes();
+	for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
+	{
+		ListModeBase* lm = *i;
+		buffer << lm->GetModeChar() << " " << lm->GetLimit(chan) << " ";
+	}
+
+	std::string bufferstr = buffer.str();
+	if (bufferstr.empty())
+		return; // Should never happen.
+
+	bufferstr.erase(bufferstr.end() - 1);
+	if (sock)
+		sock->WriteLine(CommandMetadata::Builder(chan, "maxlist", bufferstr));
+	else
+		CommandMetadata::Builder(chan, "maxlist", bufferstr).Broadcast();
 }

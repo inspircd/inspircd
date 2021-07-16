@@ -91,9 +91,9 @@ class Whois::Context
 	User* const target;
 
  public:
-	Context(LocalUser* src, User* targ)
-		: source(src)
-		, target(targ)
+	Context(LocalUser* sourceuser, User* targetuser)
+		: source(sourceuser)
+		, target(targetuser)
 	{
 	}
 
@@ -118,6 +118,7 @@ class Whois::Context
 	void SendLine(unsigned int numeric, Param... p)
 	{
 		Numeric::Numeric n(numeric);
+		n.push(target->nick);
 		n.push(std::forward<Param>(p)...);
 		SendLine(n);
 	}

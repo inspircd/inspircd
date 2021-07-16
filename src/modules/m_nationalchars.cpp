@@ -42,9 +42,9 @@ class lwbNickHandler
 
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
 
-char utf8checkrest(unsigned char * mb, unsigned char cnt)
+char utf8checkrest(unsigned char* mb, unsigned char cnt)
 {
-	for (unsigned char * tmp=mb; tmp<mb+cnt; tmp++)
+	for (unsigned char* tmp=mb; tmp<mb+cnt; tmp++)
 	{
 		/* & is faster! -- Phoenix (char & b11000000 == b10000000) */
 		if ((*tmp & 192) != 128)
@@ -89,7 +89,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 		{
 			/* otherwise let's take a look at the current character and the following one */
 			bool found = false;
-			for(unsigned char * mb = m_additionalMB; (*mb) && (mb < m_additionalMB + sizeof(m_additionalMB)); mb += 4)
+			for(unsigned char* mb = m_additionalMB; (*mb) && (mb < m_additionalMB + sizeof(m_additionalMB)); mb += 4)
 			{
 				if ( (i[0] >= mb[0]) && (i[0] <= mb[1]) && (i[1] >= mb[2]) && (i[1] <= mb[3]) )
 				{
@@ -118,19 +118,19 @@ bool lwbNickHandler::Call(const std::string& nick)
 			continue;
 
 		/* 3.1. Check against a simple UTF-8 characters enumeration */
-		int cursize, cursize2, ncursize = utf8size((unsigned char *)i);
+		int cursize, cursize2, ncursize = utf8size((unsigned char*)i);
 		/* do check only if current multibyte character is valid UTF-8 only */
 		if (ncursize != -1)
 		{
 			bool found = false;
-			for (unsigned char * mb = m_additionalUtf8; (utf8size(mb) != -1) && (mb < m_additionalUtf8 + sizeof(m_additionalUtf8)); mb += cursize)
+			for (unsigned char* mb = m_additionalUtf8; (utf8size(mb) != -1) && (mb < m_additionalUtf8 + sizeof(m_additionalUtf8)); mb += cursize)
 			{
 				cursize = utf8size(mb);
 				/* Size differs? Pick the next! */
 				if (cursize != ncursize)
 					continue;
 
-				if (!strncmp(i, (char *)mb, cursize))
+				if (!strncmp(i, (char*)mb, cursize))
 				{
 					i += cursize - 1;
 					p += cursize - 1;
@@ -143,7 +143,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 
 			/* 3.2. Check against an UTF-8 ranges: <start character> and <length of the range>. */
 			found = false;
-			for (unsigned char * mb = m_additionalUtf8range; (utf8size(mb) != -1) && (mb < m_additionalUtf8range + sizeof(m_additionalUtf8range)); mb += cursize + 1)
+			for (unsigned char* mb = m_additionalUtf8range; (utf8size(mb) != -1) && (mb < m_additionalUtf8range + sizeof(m_additionalUtf8range)); mb += cursize + 1)
 			{
 				cursize = utf8size(mb);
 				/* Size differs (or lengthbyte is zero)? Pick the next! */
@@ -151,7 +151,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 					continue;
 
 				unsigned char uright[5] = {0,0,0,0,0}, range = mb[cursize] - 1;
-				strncpy((char* ) uright, (char *) mb, cursize);
+				strncpy((char*) uright, (char*) mb, cursize);
 
 				for (int temp = cursize - 1; (temp >= 0) && range; --temp)
 				{
@@ -175,7 +175,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 					}
 				}
 
-				if ((strncmp(i, (char *) mb, cursize) >= 0) && (strncmp(i, (char *) uright, cursize) <= 0))
+				if ((strncmp(i, (char*) mb, cursize) >= 0) && (strncmp(i, (char*) uright, cursize) <= 0))
 				{
 					i += cursize - 1;
 					p += cursize - 1;
@@ -188,7 +188,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 
 			/* 3.3. Check against an UTF-8 intervals: <start character> and <end character>. */
 			found = false;
-			for (unsigned char * mb = m_additionalUtf8interval; (utf8size(mb) != -1) && (utf8size(mb+utf8size(mb)) != -1)
+			for (unsigned char* mb = m_additionalUtf8interval; (utf8size(mb) != -1) && (utf8size(mb+utf8size(mb)) != -1)
 				&& (mb < m_additionalUtf8interval + sizeof(m_additionalUtf8interval)); mb += (cursize+cursize2) )
 			{
 				cursize = utf8size(mb);
@@ -199,7 +199,7 @@ bool lwbNickHandler::Call(const std::string& nick)
 
 				unsigned char* uright = mb + cursize;
 
-				if ((strncmp(i, (char *) mb, minlen) >= 0) && (strncmp(i, (char *) uright, minlen2) <= 0))
+				if ((strncmp(i, (char*) mb, minlen) >= 0) && (strncmp(i, (char*) uright, minlen2) <= 0))
 				{
 					i += cursize - 1;
 					p += cursize - 1;
@@ -285,7 +285,7 @@ class ModuleNationalChars : public Module
 		if(charset[0] != '/')
 			charset.insert(0, "../locales/");
 #endif
-		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
+		unsigned char* tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		if (!loadtables(charset, tables, 8, 5))
 			throw ModuleException("The locale file failed to load. Check your log file for more information.");
 		forcequit = tag->getBool("forcequit");
@@ -293,7 +293,7 @@ class ModuleNationalChars : public Module
 		CheckRehash();
 	}
 
-	void CheckForceQuit(const char * message)
+	void CheckForceQuit(const char* message)
 	{
 		if (!forcequit)
 			return;
@@ -320,15 +320,15 @@ class ModuleNationalChars : public Module
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/
-	void makereverse(unsigned char * from, unsigned  char * to, unsigned int cnt)
+	void makereverse(unsigned char* from, unsigned char* to, unsigned int cnt)
 	{
 		memset(to, 0, cnt);
-		for(unsigned char * n=from; (*n) && ((*n)<cnt) && (n<from+cnt); n++)
+		for(unsigned char* n=from; (*n) && ((*n)<cnt) && (n<from+cnt); n++)
 			to[*n] = 1;
 	}
 
 	/*so Bynets Unreal distribution stuff*/
-	bool loadtables(std::string filename, unsigned char ** tables, unsigned char cnt, char faillimit)
+	bool loadtables(const std::string& filename, unsigned char** tables, unsigned char cnt, char faillimit)
 	{
 		std::ifstream ifs(ServerInstance->Config->Paths.PrependConfig(filename).c_str());
 		if (ifs.fail())
@@ -357,7 +357,7 @@ class ModuleNationalChars : public Module
 		return true;
 	}
 
-	unsigned char symtoi(const char *t,unsigned char base)
+	unsigned char symtoi(const char* t,unsigned char base)
 	/* base = 16 for hexadecimal, 10 for decimal, 8 for octal ;) */
 	{
 		unsigned char tmp = 0, current;
@@ -375,7 +375,7 @@ class ModuleNationalChars : public Module
 		return tmp;
 	}
 
-	int loadtable(std::ifstream &ifs , unsigned char *chartable, unsigned int maxindex)
+	int loadtable(std::ifstream& ifs , unsigned char* chartable, unsigned int maxindex)
 	{
 		std::string buf;
 		getline(ifs, buf);
@@ -383,7 +383,7 @@ class ModuleNationalChars : public Module
 		unsigned long i = 0;
 		int fail = 0;
 
-		buf.erase(buf.find_last_not_of("\n") + 1);
+		buf.erase(buf.find_last_not_of('\n') + 1);
 
 		if (buf[0] == '.')	/* simple plain-text string after dot */
 		{

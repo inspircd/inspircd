@@ -199,7 +199,6 @@ public:
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("permchannels"))
 		{
 			std::string channel = tag->getString("channel");
-			std::string modes = tag->getString("modes");
 
 			if (!ServerInstance->Channels.IsChannel(channel))
 			{
@@ -228,6 +227,7 @@ public:
 
 				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
 
+				std::string modes = tag->getString("modes");
 				if (modes.empty())
 					continue;
 

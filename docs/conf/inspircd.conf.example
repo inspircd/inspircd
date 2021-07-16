@@ -65,6 +65,9 @@
 #                                                                     #
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
+#                                                                     #
+# See https://docs.inspircd.org/3/configuration/#define for a list of #
+# predefined config variables.                                        #
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
@@ -810,35 +813,35 @@
 # near their defaults (or lower).                                     #
 
 <limits
-        # maxnick: Maximum length of a nickname.
-        maxnick="30"
+        # maxaway: Maximum length of an away message.
+        maxaway="200"
 
         # maxchan: Maximum length of a channel name.
         maxchan="64"
 
-        # maxmodes: Maximum number of mode changes per line.
-        maxmodes="20"
+        # maxhost: Maximum length of a hostname.
+        maxhost="64"
 
         # maxident: Maximum length of a ident/username.
         maxident="10"
 
-        # maxhost: Maximum length of a hostname.
-        maxhost="64"
+        # maxkick: Maximum length of a kick message.
+        maxkick="255"
+
+        # maxmodes: Maximum number of mode changes per line.
+        maxmodes="20"
+
+        # maxnick: Maximum length of a nickname.
+        maxnick="30"
 
         # maxquit: Maximum length of a quit message.
         maxquit="255"
 
-        # maxtopic: Maximum length of a channel topic.
-        maxtopic="307"
-
-        # maxkick: Maximum length of a kick message.
-        maxkick="255"
-
         # maxreal: Maximum length of a real name.
         maxreal="128"
 
-        # maxaway: Maximum length of an away message.
-        maxaway="200">
+        # maxtopic: Maximum length of a channel topic.
+        maxtopic="307">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# PATHS CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

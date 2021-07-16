@@ -1036,11 +1036,16 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 		return;
 
 	// Don't call the OnChangeRealHost event when initialising a user.
-	if (!realhost.empty())
+	const bool initializing = realhost.empty();
+	if (!initializing)
 		FOREACH_MOD(OnChangeRealHost, (this, host));
 
 	realhost = host;
 	this->InvalidateCache();
+
+	// Don't call the OnPostChangeRealHost event when initialising a user.
+	if (!this->quitting && !initializing)
+		FOREACH_MOD(OnPostChangeRealHost, (this));
 }
 
 bool User::ChangeIdent(const std::string& newident)
@@ -1160,7 +1165,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			}
 
-			/* we stop at the first class that meets ALL critera. */
+			/* we stop at the first class that meets ALL criteria. */
 			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is suitable for %s (%s)",
 				c->GetName().c_str(), this->uuid.c_str(), this->GetFullRealHost().c_str());
 			found = c;
@@ -1207,9 +1212,7 @@ const std::string& FakeUser::GetFullHost()
 
 const std::string& FakeUser::GetFullRealHost()
 {
-	if (!ServerInstance->Config->HideServer.empty())
-		return ServerInstance->Config->HideServer;
-	return server->GetName();
+	return GetFullHost();
 }
 
 ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)

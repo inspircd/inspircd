@@ -402,10 +402,14 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(includedir))
 			{
-				if (!entry.is_regular_file() || !InspIRCd::Match(entry.path().filename(), "*.conf"))
+				if (!entry.is_regular_file())
 					continue;
 
-				if (!ParseFile(entry.path().string(), flags, mandatorytag))
+				const std::string path = entry.path().string();
+				if (!InspIRCd::Match(path, "*.conf"))
+					continue;
+
+				if (!ParseFile(path, flags, mandatorytag))
 					throw CoreException("Included");
 			}
 		}

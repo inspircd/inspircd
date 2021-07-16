@@ -4,10 +4,8 @@
 
 .*
 !.git*
-!.travis
 
 /.configure
-/Makefile
 /GNUmakefile
 /build
 /core

@@ -42,7 +42,7 @@ if (scalar @ARGV < 2) {
 STDOUT->autoflush(1);
 
 my $hostip = shift @ARGV;
-if ($hostip =~ /[^A-Za-z0-9.:]/) {
+if ($hostip =~ /[^A-Za-z0-9.:-]/) {
 	say STDERR "Error: invalid hostname or IP address: $hostip";
 	exit 1;
 }

@@ -247,29 +247,29 @@ class ModuleServicesAccount
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* targchan = target.Get<Channel>();
+				Channel* targetchan = target.Get<Channel>();
 
-				if (!targchan->IsModeSet(regmoderatedmode) || is_registered)
+				if (!targetchan->IsModeSet(regmoderatedmode) || is_registered)
 					return MOD_RES_PASSTHRU;
 
-				if (CheckExemption::Call(exemptionprov, user, targchan, "regmoderated") == MOD_RES_ALLOW)
+				if (CheckExemption::Call(exemptionprov, user, targetchan, "regmoderated") == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
 				// User is messaging a +M channel and is not registered or exempt.
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, targchan->name, "You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targetchan->name, "You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
 			case MessageTarget::TYPE_USER:
 			{
-				User* targuser = target.Get<User>();
-				if (!targuser->IsModeSet(regdeafmode)  || is_registered)
+				User* targetuser = target.Get<User>();
+				if (!targetuser->IsModeSet(regdeafmode)  || is_registered)
 					return MOD_RES_PASSTHRU;
 
-				if (calleridapi && calleridapi->IsOnAcceptList(user, targuser))
+				if (calleridapi && calleridapi->IsOnAcceptList(user, targetuser))
 					return MOD_RES_PASSTHRU;
 
 				// User is messaging a +R user and is not registered or on an accept list.
-				user->WriteNumeric(ERR_NEEDREGGEDNICK, targuser->nick, "You need to be identified to a registered account to message this user");
+				user->WriteNumeric(ERR_NEEDREGGEDNICK, targetuser->nick, "You need to be identified to a registered account to message this user");
 				return MOD_RES_DENY;
 			}
 			case MessageTarget::TYPE_SERVER:

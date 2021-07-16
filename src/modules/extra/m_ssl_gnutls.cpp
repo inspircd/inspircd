@@ -662,7 +662,7 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 		else
 		{
-			// Change the seesion state
+			// Change the session state
 			this->status = ISSL_HANDSHAKEN;
 
 			VerifyCertificate();
@@ -676,26 +676,14 @@ class GnuTLSIOHook : public SSLIOHook
 
 	void VerifyCertificate()
 	{
-		unsigned int certstatus;
-		const gnutls_datum_t* cert_list;
-		int ret;
-		unsigned int cert_list_size;
-		gnutls_x509_crt_t cert;
-		char str[512];
-		unsigned char digest[512];
-		size_t digest_size = sizeof(digest);
-		size_t name_size = sizeof(str);
 		ssl_cert* certinfo = new ssl_cert;
 		this->certificate = certinfo;
 
-		/* This verification function uses the trusted CAs in the credentials
-		 * structure. So you must have installed one or more CA certificates.
-		 */
-		ret = gnutls_certificate_verify_peers2(this->sess, &certstatus);
-
+		unsigned int certstatus;
+		int ret = gnutls_certificate_verify_peers2(this->sess, &certstatus);
 		if (ret < 0)
 		{
-			certinfo->error = std::string(gnutls_strerror(ret));
+			certinfo->error = gnutls_strerror(ret);
 			return;
 		}
 
@@ -704,16 +692,13 @@ class GnuTLSIOHook : public SSLIOHook
 		certinfo->revoked = (certstatus & GNUTLS_CERT_REVOKED);
 		certinfo->trusted = !(certstatus & GNUTLS_CERT_SIGNER_NOT_CA);
 
-		/* Up to here the process is the same for X.509 certificates and
-		 * OpenPGP keys. From now on X.509 certificates are assumed. This can
-		 * be easily extended to work with openpgp keys as well.
-		 */
 		if (gnutls_certificate_type_get(this->sess) != GNUTLS_CRT_X509)
 		{
 			certinfo->error = "No X509 keys sent";
 			return;
 		}
 
+		gnutls_x509_crt_t cert;
 		ret = gnutls_x509_crt_init(&cert);
 		if (ret < 0)
 		{
@@ -721,17 +706,16 @@ class GnuTLSIOHook : public SSLIOHook
 			return;
 		}
 
-		cert_list_size = 0;
-		cert_list = gnutls_certificate_get_peers(this->sess, &cert_list_size);
+		char buffer[512];
+		size_t buffer_size = sizeof(buffer);
+
+		unsigned int cert_list_size = 0;
+		const gnutls_datum_t* cert_list = gnutls_certificate_get_peers(this->sess, &cert_list_size);
 		if (cert_list == NULL)
 		{
 			certinfo->error = "No certificate was found";
 			goto info_done_dealloc;
 		}
-
-		/* This is not a real world example, since we only check the first
-		 * certificate in the given chain.
-		 */
 
 		ret = gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER);
 		if (ret < 0)
@@ -740,31 +724,31 @@ class GnuTLSIOHook : public SSLIOHook
 			goto info_done_dealloc;
 		}
 
-		if (gnutls_x509_crt_get_dn(cert, str, &name_size) == 0)
+		if (gnutls_x509_crt_get_dn(cert, buffer, &buffer_size) == 0)
 		{
-			std::string& dn = certinfo->dn;
-			dn = str;
-			// Make sure there are no chars in the string that we consider invalid
-			if (dn.find_first_of("\r\n") != std::string::npos)
-				dn.clear();
+			// Make sure there are no chars in the string that we consider invalid.
+			certinfo->dn = buffer;
+			if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
+				certinfo->dn.clear();
 		}
 
-		name_size = sizeof(str);
-		if (gnutls_x509_crt_get_issuer_dn(cert, str, &name_size) == 0)
+		buffer_size = sizeof(buffer);
+		if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == 0)
 		{
-			std::string& issuer = certinfo->issuer;
-			issuer = str;
-			if (issuer.find_first_of("\r\n") != std::string::npos)
-				issuer.clear();
+			// Make sure there are no chars in the string that we consider invalid.
+			certinfo->issuer = buffer;
+			if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
+				certinfo->issuer.clear();
 		}
 
-		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), digest, &digest_size)) < 0)
+		buffer_size = sizeof(buffer);
+		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size)) < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
 		}
 		else
 		{
-			certinfo->fingerprint = Hex::Encode(digest, digest_size);
+			certinfo->fingerprint = Hex::Encode(buffer, buffer_size);
 		}
 
 		/* Beware here we do not check for errors.

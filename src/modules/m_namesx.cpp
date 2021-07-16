@@ -25,14 +25,12 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
-#include "modules/isupport.h"
 #include "modules/names.h"
 #include "modules/who.h"
 #include "modules/whois.h"
 
-class ModuleNamesX
+class ModuleNamesX final
 	: public Module
-	, public ISupport::EventListener
 	, public Names::EventListener
 	, public Who::EventListener
 	, public Whois::LineEventListener
@@ -43,38 +41,11 @@ class ModuleNamesX
  public:
 	ModuleNamesX()
 		: Module(VF_VENDOR, "Provides the IRCv3 multi-prefix client capability.")
-		, ISupport::EventListener(this)
 		, Names::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::LineEventListener(this)
 		, cap(this, "multi-prefix")
 	{
-	}
-
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
-	{
-		// The legacy PROTOCTL system is a wrapper around the cap.
-		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
-		if (capmanager)
-			tokens["NAMESX"];
-	}
-
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
-	{
-		/* We don't actually create a proper command handler class for PROTOCTL,
-		 * because other modules might want to have PROTOCTL hooks too.
-		 * Therefore, we just hook its as an unvalidated command therefore we
-		 * can capture it even if it doesnt exist! :-)
-		 */
-		if (command == "PROTOCTL")
-		{
-			if (!parameters.empty() && irc::equals(parameters[0], "NAMESX"))
-			{
-				cap.Set(user, true);
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override

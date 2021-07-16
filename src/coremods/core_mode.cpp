@@ -271,6 +271,87 @@ class CoreModMode
  private:
 	CommandMode cmdmode;
 
+	std::string GenerateModeList(ModeType mt)
+	{
+		// Type A: Modes that add or remove an address to or from a list. These
+		// modes MUST always have a parameter when sent from the server to a
+		// client. A client MAY issue the mode without an argument to obtain the
+		// current contents of the list.
+		std::string type1;
+
+		// Type B: Modes that change a setting on a channel. These modes MUST
+		// always have a parameter.
+		std::string type2;
+
+		// Type C: Modes that change a setting on a channel. These modes MUST
+		// have a parameter when being set, and MUST NOT have a parameter when
+		// being unset.
+		std::string type3;
+
+		// Type D: Modes that change a setting on a channel. These modes MUST
+		// NOT have a parameter.
+		std::string type4;
+
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mt))
+		{
+			if (mh->NeedsParam(true))
+			{
+				PrefixMode* pm = mh->IsPrefixMode();
+				if (mh->IsListMode() && (!pm || !pm->GetPrefix()))
+				{
+					type1 += mh->GetModeChar();
+					continue;
+				}
+
+				if (mh->NeedsParam(false))
+				{
+					if (!pm)
+						type2 += mh->GetModeChar();
+				}
+				else
+				{
+					type3 += mh->GetModeChar();
+				}
+			}
+			else
+			{
+				type4 += mh->GetModeChar();
+			}
+		}
+
+		// These don't need to be alphabetically ordered but it looks nicer.
+		std::sort(type1.begin(), type1.end());
+		std::sort(type2.begin(), type2.end());
+		std::sort(type3.begin(), type3.end());
+		std::sort(type4.begin(), type4.end());
+
+		return InspIRCd::Format("%s,%s,%s,%s", type1.c_str(), type2.c_str(), type3.c_str(), type4.c_str());
+	}
+
+	std::string GeneratePrefixList(bool includeprefixes)
+	{
+		std::vector<PrefixMode*> prefixes;
+		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
+		{
+			if (pm->GetPrefix())
+				prefixes.push_back(pm);
+		}
+		std::sort(prefixes.begin(), prefixes.end(), [](PrefixMode* lhs, PrefixMode* rhs)
+		{
+			return lhs->GetPrefixRank() < rhs->GetPrefixRank();
+		});
+
+		std::string modechars;
+		std::string prefixchars;
+		for (const auto& pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
+		{
+			modechars += pm->GetPrefix();
+			prefixchars += pm->GetModeChar();
+		}
+
+		return includeprefixes ? "(" + prefixchars + ")" + prefixchars : modechars;
+	}
+
  public:
 	CoreModMode()
 		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
@@ -281,8 +362,10 @@ class CoreModMode
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
-		tokens["CHANMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_CHANNEL);
-		tokens["USERMODES"] = ServerInstance->Modes.GiveModeList(MODETYPE_USER);
+		tokens["CHANMODES"] = GenerateModeList(MODETYPE_CHANNEL);
+		tokens["USERMODES"] = GenerateModeList(MODETYPE_USER);
+		tokens["PREFIX"] = GeneratePrefixList(true);
+		tokens["STATUSMSG"] = GeneratePrefixList(false);
 	}
 };
 

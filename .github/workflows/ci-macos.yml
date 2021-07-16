@@ -13,6 +13,7 @@ jobs:
       PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/sqlite/lib/pkgconfig
     steps:
       - uses: actions/checkout@v2
+
       - name: Install dependencies
         run: |
           brew update || true
@@ -22,19 +23,28 @@ jobs:
           done
           brew link --force --overwrite libpq
           brew link --force --overwrite mysql-client
+
       - name: Run configure
         run: |
           ./configure --enable-extras "argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
+
       - name: Build core
         run: |
           INSPIRCD_TARGET=inspircd make --jobs $(($(sysctl -n hw.activecpu) + 1))
+
       - name: Build modules
         run: |
           INSPIRCD_TARGET=modules make --jobs $(($(sysctl -n hw.activecpu) + 1))
+
       - name: Install
         run: |
           make install
+
+      - name: Run
+        run: |
+          touch ${{ github.workspace }}/run/conf/inspircd.conf
+          ${{ github.workspace }}/run/inspircd start
     strategy:
       fail-fast: false
       matrix:

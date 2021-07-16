@@ -532,7 +532,7 @@ class CoreExport ModeWatcher : public Cullable
 	 * @param dest The target user for the mode, if you are watching a user mode
 	 * @param channel The target channel for the mode, if you are watching a channel mode
 	 * @param change Information regarding the mode change.
-	 * If you alter the parameter you are given, the mode handler will see your atered version
+	 * If you alter the parameter you are given, the mode handler will see your altered version
 	 * when it handles the mode.
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
@@ -612,10 +612,14 @@ class CoreExport ModeParser
 	 */
 	Modes::ChangeList LastChangeList;
 
-	/**
-	 * Attempts to apply a mode change to a user or channel
+	/** Attempts to apply a mode change to a user or channel
+	 * @param user The user who triggered the mode change.
+	 * @param usertarget If non-NULL then the user to change the modes of.
+	 * @param chantarget If non-NULL then the channel to change the modes of.
+	 * @param mcitem The actual mode change to attempt.
+	 * @param skipacl Whether to skip access checks for the mode change.
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, Modes::Change& mcitem, bool SkipACL);
+	ModeAction TryMode(User* user, User* usertarget, Channel* chantarget, Modes::Change& mcitem, bool skipacl);
 
 	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
 	 * @param mt The type of the mode to allocate the id for
@@ -781,19 +785,6 @@ class CoreExport ModeParser
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
 	PrefixMode* FindPrefix(unsigned const char pfxletter);
-
-	/** Generates a list of modes, comma separated by type:
-	 *  1; Listmodes EXCEPT those with a prefix
-	 *  2; Modes that take a param when adding or removing
-	 *  3; Modes that only take a param when adding
-	 *  4; Modes that dont take a param
-	 */
-	std::string GiveModeList(ModeType mt);
-
-	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
-	 * just the "@%+" part if the parameter false
-	 */
-	std::string BuildPrefixes(bool lettersAndModes = true);
 
 	/** Get a list of all mode handlers that inherit from ListModeBase
 	 * @return A list containing ListModeBase modes

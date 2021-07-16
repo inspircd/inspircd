@@ -112,7 +112,7 @@ class ModuleOverride
 
 		std::string tokenlist = source->oper->getConfig("override");
 		// its defined or * is set, return its value as a boolean for if the token is set
-		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
+		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find('*', 0) != std::string::npos));
 	}
 
 

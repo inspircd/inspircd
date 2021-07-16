@@ -534,7 +534,7 @@ class mbedTLSIOHook : public SSLIOHook
 		int ret = mbedtls_ssl_handshake(&sess);
 		if (ret == 0)
 		{
-			// Change the seesion state
+			// Change the session state
 			this->status = ISSL_HANDSHAKEN;
 
 			VerifyCertificate();

@@ -27,7 +27,7 @@ Building from source on Windows is generally not recommended but [a guide is ava
 <!--
 TODO: uncomment this once we have binary packages for v4.
 
-If you are running on CentOS 7, Debian 7, or Windows binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
+If you are running on CentOS 7/8, Debian 10/11, Ubuntu 18.04/20.04, or Windows 7+ binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
 A [Docker](https://www.docker.com) image is also available. See [the inspircd-docker repository](https://github.com/inspircd/inspircd-docker) for more information.
 -->
@@ -36,13 +36,15 @@ Some distributions ship an InspIRCd package in their package managers. We genera
 
 ## License
 
-InspIRCd is licensed under [version 2 of the GNU General Public License](https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html).
+InspIRCd is licensed under [version 2 of the GNU General Public License](https://docs.inspircd.org/license).
 
 ## External Links
 
 * [Website](https://www.inspircd.org)
 * [Documentation](https://docs.inspircd.org)
 * [GitHub](https://github.com/inspircd)
+* [Twitter](https://twitter.com/inspircdteam)
+* [Mastodon](https://fosstodon.org/@inspircd)
 * Support IRC channel &mdash; \#inspircd on irc.inspircd.org
 * Development IRC channel &mdash; \#inspircd.dev on irc.inspircd.org
 * InspIRCd test network &mdash; testnet.inspircd.org

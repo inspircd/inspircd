@@ -546,7 +546,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 		parameters[parting ? 1 : 0] = "Reason filtered";
 
 		/* We're warning or blocking, OR they're quitting and its a KILL action
-		 * (we cant kill someone whos already quitting, so filter them anyway)
+		 * (we cant kill someone who's already quitting, so filter them anyway)
 		 */
 		if ((f->action == FA_WARN) || (f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
 		{
@@ -873,13 +873,14 @@ void ModuleFilter::ReadFilters()
 		std::string reason = tag->getString("reason");
 		std::string action = tag->getString("action");
 		std::string flgs = tag->getString("flags", "*", 1);
+		bool generated = tag->getBool("generated");
 		unsigned long duration = tag->getDuration("duration", 10*60, 1);
 
 		FilterAction fa;
 		if (!StringToFilterAction(action, fa))
 			fa = FA_NONE;
 
-		std::pair<bool, std::string> result = static_cast<ModuleFilter*>(this)->AddFilter(pattern, fa, reason, duration, flgs, !tag->getBool("generated"));
+		std::pair<bool, std::string> result = static_cast<ModuleFilter*>(this)->AddFilter(pattern, fa, reason, duration, flgs, !generated);
 		if (result.first)
 			removedfilters.erase(pattern);
 		else

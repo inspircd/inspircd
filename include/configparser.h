@@ -45,6 +45,13 @@ struct ParseStack
 			{ "lt",   "<"  },
 			{ "quot", "\"" },
 
+			// Directories that were set at build time.
+			{ "dir.config",  INSPIRCD_CONFIG_PATH  },
+			{ "dir.data",    INSPIRCD_DATA_PATH    },
+			{ "dir.log",     INSPIRCD_LOG_PATH     },
+			{ "dir.module",  INSPIRCD_MODULE_PATH  },
+			{ "dir.runtime", INSPIRCD_RUNTIME_PATH },
+
 			// IRC formatting codes.
 			{ "irc.bold",          "\x02" },
 			{ "irc.color",         "\x03" },

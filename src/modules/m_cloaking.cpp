@@ -184,7 +184,7 @@ class CloakUser : public ModeHandler
 			 * and make it match the displayed one.
 			 */
 			user->SetMode(this, false);
-			user->ChangeDisplayedHost(user->GetRealHost().c_str());
+			user->ChangeDisplayedHost(user->GetRealHost());
 			return MODEACTION_ALLOW;
 		}
 	}

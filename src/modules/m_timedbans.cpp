@@ -116,7 +116,8 @@ class CommandTban : public Command
 		}
 
 		Modes::ChangeList setban;
-		setban.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), mask);
+		setban.push_add(*banmode, mask);
+
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
 		ServerInstance->Modes.Process(user, channel, NULL, setban);
@@ -124,6 +125,17 @@ class CommandTban : public Command
 		{
 			user->WriteNotice("Invalid ban mask");
 			return CmdResult::FAILURE;
+		}
+
+		// Attempt to find the actual set ban mask.
+		for (const auto& mc : ServerInstance->Modes.GetLastChangeList().getlist())
+		{
+			if (mc.mh == *banmode)
+			{
+				// We found the actual mask.
+				mask = mc.param;
+				break;
+			}
 		}
 
 		T.mask = mask;

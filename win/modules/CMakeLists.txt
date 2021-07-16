@@ -1,3 +1,22 @@
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_argon2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_pgsql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_mysql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_pcre.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_re2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_sqlite3.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+
+	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+	link_directories("${CMAKE_BINARY_DIR}/extradll" "${CMAKE_BINARY_DIR}/extralib")
+
+	file(GLOB EXTRA_DLLS "${CMAKE_BINARY_DIR}/extradll/*.dll")
+	install(FILES ${EXTRA_DLLS} DESTINATION .)
+
+	conan_basic_setup(TARGETS)
+else()
+	message("Unable to build extras: conanbuildinfo.cmake does not exist in the build directory!")
+endif()
+
 file(GLOB INSPIRCD_MODULES "${INSPIRCD_BASE}/src/coremods/core_*" "${INSPIRCD_BASE}/src/modules/m_*")
 list(SORT INSPIRCD_MODULES)
 
@@ -26,6 +45,10 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 		target_link_libraries(${SO_NAME} win32_memory)
 		add_dependencies(${SO_NAME} win32_memory)
 	endif(MSVC)
+
+	if(CONAN_CXX_FLAGS)
+		conan_target_link_libraries("${SO_NAME}")
+	endif()
 
 	set_target_properties(${SO_NAME} PROPERTIES
 		PREFIX ""

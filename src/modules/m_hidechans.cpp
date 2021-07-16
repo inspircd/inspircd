@@ -64,7 +64,7 @@ class ModuleHideChans : public Module, public Whois::LineEventListener
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch anything except 319 */
-		if (numeric.GetNumeric() != 319)
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS)
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */

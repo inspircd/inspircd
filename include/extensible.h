@@ -147,7 +147,7 @@ class CoreExport Extensible
 	unsigned int culled:1;
  public:
 	/**
-	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)
+	 * Get the extension items for iteration (i.e. for metadata sync during netburst)
 	 */
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 

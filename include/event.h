@@ -199,7 +199,7 @@ inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...
 	if (GetModule() && GetModule()->dying)
 		return;
 
-	for (const auto& subscriber : subscribers)
+	for (const auto& subscriber : GetSubscribers())
 	{
 		const Module* mod = subscriber->GetModule();
 		if (!mod || mod->dying)
@@ -217,7 +217,7 @@ inline ModResult Events::ModuleEventProvider::FirstResult(ModResult (Class::*fun
 		return MOD_RES_PASSTHRU;
 
 	ModResult result;
-	for (const auto& subscriber : subscribers)
+	for (const auto& subscriber : GetSubscribers())
 	{
 		const Module* mod = subscriber->GetModule();
 		if (!mod || mod->dying)

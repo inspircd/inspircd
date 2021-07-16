@@ -47,8 +47,8 @@ class WhoisContextImpl : public Whois::Context
 	Events::ModuleEventProvider& lineevprov;
 
  public:
-	WhoisContextImpl(LocalUser* src, User* targ, Events::ModuleEventProvider& evprov)
-		: Whois::Context(src, targ)
+	WhoisContextImpl(LocalUser* sourceuser, User* targetuser, Events::ModuleEventProvider& evprov)
+		: Whois::Context(sourceuser, targetuser)
 		, lineevprov(evprov)
 	{
 	}
@@ -305,7 +305,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		LocalUser* localuser = IS_LOCAL(dest);
 		if (localuser && (ServerInstance->Config->HideServer.empty() || parameters.size() > 1))
 		{
-			idle = std::max<unsigned long>(localuser->idle_lastmsg - ServerInstance->Time(), 0);
+			idle = ServerInstance->Time() - localuser->idle_lastmsg;
 			signon = dest->signon;
 		}
 

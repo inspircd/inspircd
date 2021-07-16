@@ -319,6 +319,17 @@ namespace Cap
 				return ref->IsEnabled(user);
 			return false;
 		}
+
+		/** Turn the capability on/off for a user. If the cap is not registered this method has no effect.
+		 * @param user User to turn the cap on/off for
+		 * @param val True to turn the cap on, false to turn it off
+		 */
+		void Set(User* user, bool val)
+		{
+			if (ref)
+				ref->Set(user, val);
+		}
+
 	};
 
 	class MessageBase : public ClientProtocol::Message

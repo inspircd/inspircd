@@ -1,6 +1,6 @@
 # This file contains ISO 8859-1 codepage rules for use with the codepage module.
 
-<codepage name="iso-8859-1">
+<codepage name="iso-8859-1" charset="iso-8859-1">
 
 <cpchars begin="192" end="214" front="yes"> # ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ
 <cpchars begin="216" end="246" front="yes"> # ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö

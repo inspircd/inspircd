@@ -1,6 +1,6 @@
 # This file contains strict RFC 1459 codepage rules for use with the codepage module.
 
-<codepage name="rfc1459">
+<codepage name="strict-rfc1459">
 
 <cpchars index="45">                        # -
 <cpchars begin="48"  end="57">              # 01234567899

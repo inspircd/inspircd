@@ -165,8 +165,8 @@ ModResult ModuleDelayJoin::OnWhoLine(const Who::Request& request, LocalUser* sou
 	if (!memb || !unjoined.Get(memb))
 		return MOD_RES_PASSTHRU;
 
-	// Only show delayjoined users if the d flag has been specified.
-	if (!request.flags['d'])
+	// Only show delayjoined users to others if the d flag has been specified.
+	if (source != user && !request.flags['d'])
 		return MOD_RES_DENY;
 
 	// Add the < flag to mark the user as delayjoined.
