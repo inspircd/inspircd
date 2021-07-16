@@ -1421,8 +1421,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # NAMESX module: Provides support for the IRCv3 multi-prefix capability
-# and legacy NAMESX extension which allow clients to see all the prefix
-# modes set on a user.
+# which allows clients to see all the prefix modes set on a user.
 #<module name="namesx">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2312,8 +2311,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # UHNAMES support module: Adds support for the IRCv3 userhost-in-names
-# capability and legacy UHNAMES extension which display the ident and
-# hostname of users in the NAMES list.
+# capability which displays the ident and hostname of users in the NAMES
+# list.
 #<module name="uhnames">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
