@@ -48,9 +48,9 @@ class CoreModInfo : public Module
 	CommandMotd cmdmotd;
 	CommandServList cmdservlist;
 	CommandTime cmdtime;
+	ISupportManager isupport;
 	CommandVersion cmdversion;
 	Numeric::Numeric numeric004;
-	ISupportManager isupport;
 
 
 	/** Returns a list of user or channel mode characters.
@@ -97,9 +97,9 @@ class CoreModInfo : public Module
 		, cmdmotd(this)
 		, cmdservlist(this)
 		, cmdtime(this)
+		, isupport(this)
 		, cmdversion(this, isupport)
 		, numeric004(RPL_MYINFO)
-		, isupport(this)
 	{
 		numeric004.push(ServerInstance->Config->ServerName);
 		numeric004.push(INSPIRCD_BRANCH);
