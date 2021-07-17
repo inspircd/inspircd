@@ -27,12 +27,6 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-enum
-{
-	// From UnrealIRCd.
-	RPL_WHOISSPECIAL = 320
-};
-
 struct CustomTitle
 {
 	const std::string name;
@@ -149,7 +143,7 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
-		if (numeric.GetNumeric() == 312)
+		if (numeric.GetNumeric() == RPL_WHOISSERVER)
 		{
 			/* Insert our numeric before 312 */
 			const std::string* ctitle = cmd.ctitle.Get(whois.GetTarget());

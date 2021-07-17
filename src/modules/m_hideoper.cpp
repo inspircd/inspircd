@@ -105,7 +105,7 @@ class ModuleHideOper
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
 		 */
-		if (numeric.GetNumeric() != 313)
+		if (numeric.GetNumeric() != RPL_WHOISOPERATOR)
 			return MOD_RES_PASSTHRU;
 
 		if (!whois.GetTarget()->IsModeSet(hm))
