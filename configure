@@ -426,7 +426,7 @@ https://letsencrypt.org/getting-started/ for more details.
 EOQ
 
 if (<$RealDir/src/modules/m_ssl_*.cpp>) {
-	if (prompt_bool $interactive, $question, $interactive) {
+	if (prompt_bool $interactive, $question, 0) {
 		create_directory CONFIGURE_DIRECTORY, 0750 or print_error "unable to create ${\CONFIGURE_DIRECTORY}: $!";
 		system './tools/genssl', 'auto', CONFIGURE_DIRECTORY;
 	} else {
