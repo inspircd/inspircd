@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "modules/stats.h"
+#include "modules/whois.h"
 
 enum
 {

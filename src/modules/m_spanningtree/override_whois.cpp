@@ -22,6 +22,7 @@
  */
 
 #include "inspircd.h"
+#include "modules/whois.h"
 
 #include "main.h"
 #include "commandbuilder.h"

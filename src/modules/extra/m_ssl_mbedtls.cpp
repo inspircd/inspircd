@@ -29,6 +29,10 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
+// Temporary fix for mbedTLS v3 not allowing access to grp_id without any
+// replacement API.
+#define MBEDTLS_ALLOW_PRIVATE_ACCESS
+
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/dhm.h>
 #include <mbedtls/ecp.h>
@@ -126,7 +130,13 @@ namespace mbedTLS
 		/** Import */
 		X509Key(const std::string& keystr)
 		{
-			int ret = mbedtls_pk_parse_key(get(), reinterpret_cast<const unsigned char*>(keystr.c_str()), keystr.size()+1, NULL, 0);
+#if MBEDTLS_VERSION_MAJOR >= 3
+			int ret = mbedtls_pk_parse_key(get(), reinterpret_cast<const unsigned char*>(keystr.c_str()),
+				keystr.size() + 1, NULL, 0, mbedtls_ctr_drbg_random, 0);
+#else
+			int ret = mbedtls_pk_parse_key(get(), reinterpret_cast<const unsigned char*>(keystr.c_str()),
+				keystr.size() + 1, NULL, 0);
+#endif
 			ThrowOnError(ret, "Unable to import private key");
 		}
 	};
@@ -227,7 +237,13 @@ namespace mbedTLS
 			bool found = false;
 			for (mbedtls_x509_crt* cert = certs.get(); cert; cert = cert->next)
 			{
+
+#if MBEDTLS_VERSION_MAJOR >= 3
+				if (mbedtls_pk_check_pair(&cert->pk, key.get(), mbedtls_ctr_drbg_random, 0) == 0)
+#else
 				if (mbedtls_pk_check_pair(&cert->pk, key.get()) == 0)
+
+#endif
 				{
 					found = true;
 					break;

@@ -27,9 +27,6 @@
 
 enum
 {
-	// From AustHex.
-	RPL_WHOISSERVICE = 310,
-
 	// From UnrealIRCd.
 	ERR_KILLDENY = 485
 };
@@ -57,9 +54,8 @@ class ServProtectMode final
 	}
 };
 
-class ModuleServProtectMode
+class ModuleServProtectMode final
 	: public Module
-	, public Whois::EventListener
 	, public Whois::LineEventListener
 {
  private:
@@ -68,18 +64,9 @@ class ModuleServProtectMode
  public:
 	ModuleServProtectMode()
 		: Module(VF_VENDOR, "Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their channel prefix modes changed.")
-		, Whois::EventListener(this)
 		, Whois::LineEventListener(this)
 		, bm(this)
 	{
-	}
-
-	void OnWhois(Whois::Context& whois) override
-	{
-		if (whois.GetTarget()->IsModeSet(bm))
-		{
-			whois.SendLine(RPL_WHOISSERVICE, "is a Network Service on " + ServerInstance->Config->Network);
-		}
 	}
 
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
@@ -142,7 +129,7 @@ class ModuleServProtectMode
 
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
-		return ((numeric.GetNumeric() == 319) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ((numeric.GetNumeric() == RPL_WHOISCHANNELS) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

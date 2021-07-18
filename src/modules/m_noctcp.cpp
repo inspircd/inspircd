@@ -102,7 +102,19 @@ class ModuleNoCTCP : public Module
 				break;
 			}
 			case MessageTarget::TYPE_SERVER:
+			{
+				if (user->HasPrivPermission("users/ignore-noctcp"))
+					return MOD_RES_PASSTHRU;
+
+				const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+				for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+				{
+					LocalUser* u = *iter;
+					if (u->IsModeSet(ncu))
+						details.exemptions.insert(u);
+				}
 				break;
+			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
