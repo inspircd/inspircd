@@ -29,9 +29,6 @@
 
 enum
 {
-	// From UnrealIRCd.
-	RPL_WHOISHELPOP = 310,
-
 	// From ircd-ratbox.
 	ERR_HELPNOTFOUND = 524,
 	RPL_HELPSTART = 704,

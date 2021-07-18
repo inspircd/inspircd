@@ -61,7 +61,7 @@ class HostRule
 		if (!portlist.empty())
 		{
 			irc::portparser portrange(portlist, false);
-			while (int port = portrange.GetToken())
+			while (long port = portrange.GetToken())
 				ports.insert(port);
 		}
 	}

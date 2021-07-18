@@ -34,12 +34,6 @@
 #include "modules/webirc.h"
 #include "modules/whois.h"
 
-enum
-{
-	// InspIRCd-specific.
-	RPL_WHOISGATEWAY = 350
-};
-
 // One or more hostmask globs or CIDR ranges.
 typedef std::vector<std::string> MaskList;
 

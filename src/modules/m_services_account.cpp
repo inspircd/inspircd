@@ -36,12 +36,6 @@
 
 enum
 {
-	// From UnrealIRCd.
-	RPL_WHOISREGNICK = 307,
-
-	// From ircu.
-	RPL_WHOISACCOUNT = 330,
-
 	// From ircd-hybrid?
 	ERR_NEEDREGGEDNICK = 477,
 

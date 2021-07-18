@@ -27,12 +27,6 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-enum
-{
-	// From UnrealIRCd.
-	RPL_WHOISSPECIAL = 320
-};
-
 class CommandSwhois : public Command
 {
  public:
@@ -83,36 +77,39 @@ class CommandSwhois : public Command
 
 };
 
-class ModuleSWhois
+class ModuleSWhois final
 	: public Module
 	, public Whois::LineEventListener
 {
  private:
 	CommandSwhois cmd;
+	UserModeReference hideopermode;
 
  public:
 	ModuleSWhois()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SWHOIS command which adds custom lines to a user's WHOIS response.")
 		, Whois::LineEventListener(this)
 		, cmd(this)
+		, hideopermode(this, "hideoper")
 	{
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
-		/* We use this and not OnWhois because this triggers for remote, too */
-		if (numeric.GetNumeric() == 312)
-		{
-			/* Insert our numeric before 312 */
-			std::string* swhois = cmd.swhois.Get(whois.GetTarget());
-			if (swhois)
-			{
-				whois.SendLine(RPL_WHOISSPECIAL, *swhois);
-			}
-		}
+		// We use this and not OnWhois because this triggers for remote users too.
+		if (numeric.GetNumeric() != RPL_WHOISSERVER)
+			return MOD_RES_PASSTHRU;
 
-		/* Dont block anything */
+		// Don't send soper swhois if hideoper is set.
+		if (cmd.operblock.Get(whois.GetTarget()) && whois.GetTarget()->IsModeSet(hideopermode))
+			return MOD_RES_PASSTHRU;
+
+		// Insert our numeric before RPL_WHOISSERVER.
+		const std::string* swhois = cmd.swhois.Get(whois.GetTarget());
+		if (swhois && !swhois->empty())
+			whois.SendLine(RPL_WHOISSPECIAL, *swhois);
+
 		return MOD_RES_PASSTHRU;
 	}
 

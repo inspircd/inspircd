@@ -23,12 +23,6 @@
 #include "modules/geolocation.h"
 #include "modules/whois.h"
 
-enum
-{
-	// InspIRCd-specific.
-	RPL_WHOISCOUNTRY = 344
-};
-
 class CountryExtBan
 	: public ExtBan::MatchingBase
 {

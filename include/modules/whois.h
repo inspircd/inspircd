@@ -31,18 +31,33 @@ namespace Whois
 
 enum
 {
+	// InspIRCd-specific.
+	RPL_WHOISCOUNTRY = 344,
+	RPL_WHOISGATEWAY = 350,
+	RPL_CHANNELSMSG = 651,
+
+	// From ircu.
+	RPL_WHOISACCOUNT = 330,
+
+	// From oftc-hybrid.
+	RPL_WHOISCERTFP = 276,
+
 	// From RFC 1459.
 	RPL_WHOISUSER = 311,
+	RPL_WHOISSERVER = 312,
 	RPL_WHOISOPERATOR = 313,
 	RPL_WHOISIDLE = 317,
+	RPL_ENDOFWHOIS = 318,
 	RPL_WHOISCHANNELS = 319,
 
 	// From UnrealIRCd.
+	RPL_WHOISREGNICK = 307,
+	RPL_WHOISHELPOP = 310,
+	RPL_WHOISSPECIAL = 320,
+	RPL_WHOISBOT = 335,
 	RPL_WHOISHOST = 378,
 	RPL_WHOISMODES = 379,
-
-	// InspIRCd-specific.
-	RPL_CHANNELSMSG = 651
+	RPL_WHOISSECURE = 671
 };
 
 class Whois::EventListener : public Events::ModuleEventListener

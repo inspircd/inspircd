@@ -29,12 +29,6 @@
 #include "modules/who.h"
 #include "modules/whois.h"
 
-enum
-{
-	// From UnrealIRCd.
-	RPL_WHOISBOT = 335
-};
-
 class BotTag : public ClientProtocol::MessageTagProvider
 {
  private:
