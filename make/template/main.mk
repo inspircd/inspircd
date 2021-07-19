@@ -109,12 +109,12 @@ ifneq ($(SYSTEM), $(filter $(SYSTEM), darwin haiku))
 endif
 
 # On these systems we need libdl for loading modules.
-ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu gnukfreebsd linux))
+ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu linux))
 	LDLIBS += -ldl
 endif
 
 # On these systems we need librt for clock_gettime.
-ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu gnukfreebsd linux solaris))
+ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu linux solaris))
 	LDLIBS += -lrt
 endif
 
