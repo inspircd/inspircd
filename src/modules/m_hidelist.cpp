@@ -20,16 +20,19 @@
 
 
 #include "inspircd.h"
+#include "modules/hidelist.h"
 
 class ListWatcher : public ModeWatcher
 {
 	// Minimum rank required to view the list
 	const unsigned int minrank;
+	Events::ModuleEventProvider evprov;
 
  public:
 	ListWatcher(Module* mod, const std::string& modename, unsigned int rank)
 		: ModeWatcher(mod, modename, MODETYPE_CHANNEL)
 		, minrank(rank)
+		, evprov(mod, "event/hidelist")
 	{
 	}
 
@@ -47,6 +50,12 @@ class ListWatcher : public ModeWatcher
 
 		if (user->HasPrivPermission("channels/auspex"))
 			return true;
+
+		ModResult MOD_RESULT;
+		FOREACH_MOD_CUSTOM(evprov, HideListEventListener, OnListDeny, (user, chan, GetModeName()));
+		if (MOD_RESULT == MOD_RES_ALLOW)
+			return true;
+
 
 		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You do not have access to view the %s list", GetModeName().c_str()));
 		return false;
