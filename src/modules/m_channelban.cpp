@@ -49,8 +49,12 @@ class ChannelExtBan
 		{
 			if (!InspIRCd::Match(memb->chan->name, target))
 				continue;
-			if (!status || memb->getRank() >= mh->GetPrefixRank())
-				return true;
+
+			if (mh)
+			{
+				if (!status || memb->getRank() >= mh->GetPrefixRank())
+					return true;
+			}
 		}
 		return false;
 	}

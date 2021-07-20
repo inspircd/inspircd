@@ -123,9 +123,9 @@ std::string Base64::Encode(const void* data, size_t length, const char* table, c
 	for (size_t idx = 0; idx < length; )
 	{
 		// Base64 encodes three octets into four characters.
-		uint32_t octet1 = idx < length ? udata[idx++] : 0;
-		uint32_t octet2 = idx < length ? udata[idx++] : 0;
-		uint32_t octet3 = idx < length ? udata[idx++] : 0;
+		uint32_t octet1 = udata[idx++];
+		uint32_t octet2 = udata[idx++];
+		uint32_t octet3 = udata[idx++];
 		uint32_t triple = (octet1 << 16) + (octet2 << 8) + octet3;
 
 		buffer.push_back(table[(triple >> 3 * 6) & 63]);

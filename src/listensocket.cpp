@@ -92,7 +92,7 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	{
 		const std::string permissionstr = tag->getString("permissions");
 		unsigned long permissions = strtoul(permissionstr.c_str(), NULL, 8);
-		if (permissions && permissions <= 07777)
+		if (permissions && permissions <= 7777)
 		{
 			// This cast is safe thanks to the above check.
 			chmod(bind_to.str().c_str(), static_cast<int>(permissions));

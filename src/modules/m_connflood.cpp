@@ -87,7 +87,7 @@ class ModuleConnFlood : public Module
 
 		if (throttled)
 		{
-			if (tdiff > time_t(seconds + timeout))
+			if (tdiff > (time_t)seconds + timeout)
 			{
 				/* expire throttle */
 				throttled = false;

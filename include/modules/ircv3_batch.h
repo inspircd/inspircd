@@ -95,7 +95,7 @@ class IRCv3::Batch::Batch
 	void Setup(unsigned int b)
 	{
 		bit = b;
-		reftag = (1 << bit);
+		reftag = (1u << bit);
 		reftagstr = ConvToStr(reftag);
 	}
 
