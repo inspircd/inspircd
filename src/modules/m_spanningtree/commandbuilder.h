@@ -165,7 +165,7 @@ class CmdBuilder
 
 	void Broadcast() const
 	{
-		Utils->DoOneToMany(*this);
+		Utils->DoOneToAllButSender(*this, nullptr);
 	}
 
 	void Forward(TreeServer* omit) const

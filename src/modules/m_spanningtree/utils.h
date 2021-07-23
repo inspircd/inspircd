@@ -132,10 +132,6 @@ class SpanningTreeUtilities : public Cullable
 	 */
 	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
 
-	/** Send a message from this server to all others
-	 */
-	void DoOneToMany(const CmdBuilder& params);
-
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
@@ -184,7 +180,3 @@ class SpanningTreeUtilities : public Cullable
 	void SendListLimits(Channel* chan, TreeSocket* sock = nullptr);
 };
 
-inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
-{
-	DoOneToAllButSender(params, NULL);
-}
