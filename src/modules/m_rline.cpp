@@ -192,14 +192,6 @@ class CommandRLine : public Command
 
 		return CmdResult::SUCCESS;
 	}
-
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override
-	{
-		if (IS_LOCAL(user))
-			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
-
-		return ROUTE_BROADCAST;
-	}
 };
 
 class ModuleRLine
