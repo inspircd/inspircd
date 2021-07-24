@@ -921,7 +921,7 @@ void User::WriteCommonRaw(ClientProtocol::Event& protoev, bool include_self)
 	ForEachNeighbor(handler, include_self);
 }
 
-void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
+already_sent_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 {
 	// The basic logic for visiting the neighbors of a user is to iterate the channel list of the user
 	// and visit all users on those channels. Because two users may share more than one common channel,
@@ -972,6 +972,8 @@ void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 			}
 		}
 	}
+
+	return newid;
 }
 
 void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
