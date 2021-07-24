@@ -871,7 +871,7 @@
         maxnick="30"
 
         # maxquit: Maximum length of a quit message.
-        maxquit="255"
+        maxquit="300"
 
         # maxreal: Maximum length of a real name.
         maxreal="130"
