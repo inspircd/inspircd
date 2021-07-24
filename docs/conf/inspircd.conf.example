@@ -817,7 +817,7 @@
         maxaway="200"
 
         # maxchan: Maximum length of a channel name.
-        maxchan="64"
+        maxchan="60"
 
         # maxhost: Maximum length of a hostname.
         maxhost="64"
@@ -826,7 +826,7 @@
         maxident="10"
 
         # maxkick: Maximum length of a kick message.
-        maxkick="255"
+        maxkick="300"
 
         # maxmodes: Maximum number of mode changes per line.
         maxmodes="20"
@@ -835,13 +835,13 @@
         maxnick="30"
 
         # maxquit: Maximum length of a quit message.
-        maxquit="255"
+        maxquit="300"
 
         # maxreal: Maximum length of a real name.
-        maxreal="128"
+        maxreal="130"
 
         # maxtopic: Maximum length of a channel topic.
-        maxtopic="307">
+        maxtopic="330">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# PATHS CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

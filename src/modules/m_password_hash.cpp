@@ -69,9 +69,17 @@ class CommandMkpasswd : public Command
 			return CmdResult::FAILURE;
 		}
 
-		std::string hexsum = hp->Generate(parameters[1]);
-		user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + hexsum);
-		return CmdResult::SUCCESS;
+		try
+		{
+			std::string hexsum = hp->Generate(parameters[1]);
+			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + hexsum);
+			return CmdResult::SUCCESS;
+		}
+		catch (const ModuleException& error)
+		{
+			user->WriteNotice("*** " + name + ": " + error.GetReason());
+			return CmdResult::FAILURE;
+		}
 	}
 };
 
