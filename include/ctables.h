@@ -64,58 +64,73 @@ enum TranslateType
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 
-/** Routing types for a command. Any command which is created defaults
- * to having its command broadcasted on success. This behaviour may be
- * overridden to one of the route types shown below (see the #defines
- * below for more information on each one's behaviour)
- */
-enum RouteType
+/** The type of routes that a message can take. */
+enum class RouteType : uint8_t
 {
-	ROUTE_TYPE_LOCALONLY,
-	ROUTE_TYPE_BROADCAST,
-	ROUTE_TYPE_UNICAST,
-	ROUTE_TYPE_MESSAGE,
-	ROUTE_TYPE_OPT_BCAST,
-	ROUTE_TYPE_OPT_UCAST
+	/** The message is only routed to the local server. */
+	LOCAL,
+
+	/** The message is routed to all servers. */
+	BROADCAST,
+
+	/** The message is routed to all servers using ENCAP. */
+	OPTIONAL_BROADCAST,
+
+	/** The message is routed to a specific remote server. */
+	UNICAST,
+
+	/** The message is routed to a specific remote server using ENCAP. */
+	OPTIONAL_UNICAST,
+
+	/** The message is routed to a specific user, channel, or server mask. */
+	MESSAGE,
 };
 
-/** Defines routing information for a command, containing a destination
- * server id (if applicable) and a routing type from the enum above.
- */
-struct RouteDescriptor
+/** Describes the routing of an IRC message. */
+class RouteDescriptor
 {
-	/** Routing type from the enum above
-	 */
-	RouteType type;
-	/** For unicast, the destination server's name
-	 */
-	std::string serverdest;
+ public:
+	/** The target of the message in question. */
+	const std::string target;
 
-	/** For unicast, the destination Server
-	 */
-	Server* server;
+	/** The type of route that the message should take. */
+	const RouteType type;
 
-	/** Create a RouteDescriptor
-	 */
-	RouteDescriptor(RouteType t, const std::string &d)
-		: type(t), serverdest(d), server(NULL) { }
+	/** For unicast messages a specific server that the message should be routed to. */
+	const Server* server;
 
-	RouteDescriptor(RouteType t, Server* srv)
-		: type(t), server(srv) { }
+	/** Creates a new route descriptor with the specified route type and target string. */
+	RouteDescriptor(RouteType rt, const std::string& t)
+		: target(t)
+		, type(rt)
+		, server(nullptr)
+	{
+	}
+
+	RouteDescriptor(RouteType rt, const Server* s = nullptr)
+		: type(rt)
+		, server(s)
+	{
+	}
 };
 
-/** Do not route this command */
-#define ROUTE_LOCALONLY (RouteDescriptor(ROUTE_TYPE_LOCALONLY, ""))
-/** Route this command to all servers, fail if not understood */
-#define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
-/** Route this command to a single server (do nothing if own server name specified) */
-#define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
-/** Route this command as a message with the given target (any of user, #channel, @#channel, $servermask) */
-#define ROUTE_MESSAGE(x) (RouteDescriptor(ROUTE_TYPE_MESSAGE, x))
-/** Route this command to all servers wrapped via ENCAP, so ignored if not understood */
-#define ROUTE_OPT_BCAST (RouteDescriptor(ROUTE_TYPE_OPT_BCAST, ""))
-/** Route this command to a single server wrapped via ENCAP, so ignored if not understood */
-#define ROUTE_OPT_UCAST(x) (RouteDescriptor(ROUTE_TYPE_OPT_UCAST, x))
+/** The message is only routed to the local server. */
+#define ROUTE_LOCALONLY (RouteDescriptor(RouteType::LOCAL))
+
+/** The message is routed to all servers. */
+#define ROUTE_BROADCAST (RouteDescriptor(RouteType::BROADCAST))
+
+/** The message is routed to all servers using ENCAP. */
+#define ROUTE_OPT_BCAST (RouteDescriptor(RouteType::OPTIONAL_BROADCAST))
+
+/** The message is routed to a specific remote server. */
+#define ROUTE_UNICAST(dest) (RouteDescriptor(RouteType::UNICAST, dest))
+
+/** The message is routed to a specific remote server using ENCAP. */
+#define ROUTE_OPT_UCAST(dest) (RouteDescriptor(RouteType::OPTIONAL_UNICAST, dest))
+
+/** The message is routed to a specific user, channel, or server mask. */
+#define ROUTE_MESSAGE(dest) (RouteDescriptor(RouteType::MESSAGE, dest))
 
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.

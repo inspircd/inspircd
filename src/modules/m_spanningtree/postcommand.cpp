@@ -35,32 +35,32 @@ void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Para
 
 void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscmd, const CommandBase::Params& parameters, User* user)
 {
-	const std::string& command = thiscmd->name;
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);
-	if (routing.type == ROUTE_TYPE_LOCALONLY)
+	if (routing.type == RouteType::LOCAL)
 		return;
 
-	const bool encap = ((routing.type == ROUTE_TYPE_OPT_BCAST) || (routing.type == ROUTE_TYPE_OPT_UCAST));
+	const std::string& command = thiscmd->name;
+	const bool encap = ((routing.type == RouteType::OPTIONAL_BROADCAST) || (routing.type == RouteType::OPTIONAL_UNICAST));
 	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
 	params.push_tags(parameters.GetTags());
-	TreeServer* sdest = NULL;
+	const TreeServer* sdest = nullptr;
 
-	if (routing.type == ROUTE_TYPE_OPT_BCAST)
+	if (routing.type == RouteType::OPTIONAL_BROADCAST)
 	{
 		params.push('*');
 		params.push(command);
 	}
-	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
+	else if (routing.type == RouteType::UNICAST || routing.type == RouteType::OPTIONAL_UNICAST)
 	{
-		sdest = static_cast<TreeServer*>(routing.server);
+		sdest = static_cast<const TreeServer*>(routing.server);
 		if (!sdest)
 		{
-			// Assume the command handler already validated routing.serverdest and have only returned success if the target is something that the
+			// Assume the command handler already validated routing.target and have only returned success if the target is something that the
 			// user executing the command is allowed to look up e.g. target is not an uuid if user is local.
-			sdest = FindRouteTarget(routing.serverdest);
+			sdest = FindRouteTarget(routing.target);
 			if (!sdest)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistent server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.serverdest.c_str());
+				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistent server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.target.c_str());
 				return;
 			}
 		}
@@ -86,10 +86,10 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 	params.push(output_text);
 
-	if (routing.type == ROUTE_TYPE_MESSAGE)
+	if (routing.type == RouteType::MESSAGE)
 	{
 		char pfx = 0;
-		std::string dest = routing.serverdest;
+		std::string dest = routing.target;
 		if (ServerInstance->Modes.FindPrefix(dest[0]))
 		{
 			pfx = dest[0];
@@ -124,11 +124,11 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			params.Unicast(d);
 		}
 	}
-	else if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
+	else if (routing.type == RouteType::BROADCAST || routing.type == RouteType::OPTIONAL_BROADCAST)
 	{
 		params.Forward(origin);
 	}
-	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
+	else if (routing.type == RouteType::UNICAST || routing.type == RouteType::OPTIONAL_UNICAST)
 	{
 		params.Unicast(sdest->ServerUser);
 	}
