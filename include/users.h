@@ -235,6 +235,9 @@ struct CoreExport ConnectClass : public refcountbase
 	}
 };
 
+/** An id that can be used to mark the last message sent. */
+typedef unsigned int already_sent_t;
+
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
@@ -650,7 +653,7 @@ class CoreExport User : public Extensible
 	 * @param include_self True to include this user in the set of neighbors, false otherwise.
 	 * Modules may override this. Has no effect if this user is not local.
 	 */
-	void ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
+	already_sent_t ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
 
 	/** Return true if the user shares at least one channel with another user
 	 * @param other The other user to compare the channel list against
@@ -737,8 +740,6 @@ class CoreExport UserIOHandler : public StreamSocket
 	 */
 	void SwapInternals(UserIOHandler& other);
 };
-
-typedef unsigned int already_sent_t;
 
 class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
 {
