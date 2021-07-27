@@ -71,11 +71,13 @@ class ModuleSetName : public Module
  private:
 	CommandSetName cmd;
 	ClientProtocol::EventProvider setnameevprov;
+	MonitorForEachWatcher::API monitorapi;
 
  public:
 	ModuleSetName()
 		: cmd(this)
 		, setnameevprov(this, "SETNAME")
+		, monitorapi(this)
 	{
 	}
 
@@ -99,7 +101,8 @@ class ModuleSetName : public Module
 		ClientProtocol::Message msg("SETNAME", user);
 		msg.PushParamRef(real);
 		ClientProtocol::Event protoev(setnameevprov, msg);
-		IRCv3::WriteNeighborsWithCap(user, protoev, cmd.cap, true);
+		IRCv3::WriteNeighborsWithCap res(user, protoev, cmd.cap, true);
+		IRCv3::WriteWatchersWithCap(monitorapi, user, protoev, cmd.cap, res.GetAlreadySentId());
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

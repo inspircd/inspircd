@@ -20,11 +20,13 @@
 
 #pragma once
 
+#include "monitor.h"
 #include "modules/cap.h"
 
 namespace IRCv3
 {
 	class WriteNeighborsWithCap;
+	class WriteWatchersWithCap;
 	template <typename T>
 	class CapTag;
 }
@@ -51,6 +53,30 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 	}
 
 	already_sent_t GetAlreadySentId() const { return sentid; }
+};
+
+class IRCv3::WriteWatchersWithCap : public MonitorForEachWatcher::ForEachWatcherHandler
+{
+ private:
+	const Cap::Capability& cap;
+	ClientProtocol::Event& ev;
+	already_sent_t sentid;
+
+	void Execute(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->already_sent != sentid && cap.get(user))
+			user->Send(ev);
+	}
+
+ public:
+	WriteWatchersWithCap(MonitorForEachWatcher::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t sentid)
+		: cap(capability)
+		, ev(ev)
+		, sentid(sentid)
+	{
+		if (monitorapi)
+			monitorapi->ForEachWatcher(user, *this);
+	}
 };
 
 /** Base class for simple message tags.
