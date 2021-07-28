@@ -67,7 +67,6 @@ my $runtimedir = "@RUNTIME_DIR@";
 my $valgrindlogpath = "@LOG_DIR@/valgrind";
 my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
-my $uid = "@UID@";
 
 my @gdbargs = (
 	'--eval-command', 'handle SIGPIPE pass nostop noprint',
@@ -82,22 +81,6 @@ sub expand_fragment($$) {
 		return $fragment;
 	} else {
 		return "$base/$fragment";
-	}
-}
-
-if (!(grep { $_ eq '--runasroot' } @ARGV) && ($< == 0 || $> == 0)) {
-	if ($uid !~ /^\d+$/) {
-		# Named UID, look it up
-		$uid = getpwnam $uid;
-	}
-	if (!$uid) {
-		die "Cannot find a valid UID to change to";
-	}
-	# drop root if we were configured with an ircd UID
-	$< = $uid;
-	$> = $uid;
-	if ($< == 0 || $> == 0) {
-		die "Could not drop root: $!";
 	}
 }
 
