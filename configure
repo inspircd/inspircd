@@ -157,6 +157,15 @@ if ($interactive) {
 	}
 }
 
+unless (run_test $RealDir, -w $RealDir, 'writable') {
+	print_error <<"EOE";
+the source directory is not writable. This most likely means that you
+downloaded InspIRCd as root but tried to build as an unprivileged user. To
+fix this issue redownload the source as the user you want to build as or fix
+the permissions of <|GREEN $RealDir|>.
+EOE
+};
+
 $config{CXX} = find_compiler($config{CXX} // $ENV{CXX});
 unless ($config{CXX}) {
 	say 'A suitable C++ compiler could not be detected on your system!';
