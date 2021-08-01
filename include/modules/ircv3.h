@@ -31,8 +31,10 @@ namespace IRCv3
 
 class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 {
+ private:
 	const Cap::Capability& cap;
 	ClientProtocol::Event& protoev;
+	uint64_t sentid;
 
 	void Execute(LocalUser* user) override
 	{
@@ -45,8 +47,10 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 		: cap(capability)
 		, protoev(ev)
 	{
-		user->ForEachNeighbor(*this, include_self);
+		sentid = user->ForEachNeighbor(*this, include_self);
 	}
+
+	uint64_t GetAlreadySentId() const { return sentid; }
 };
 
 /** Base class for simple message tags.

@@ -573,7 +573,7 @@ class CoreExport User : public Extensible
 	 * @param include_self True to include this user in the set of neighbors, false otherwise.
 	 * Modules may override this. Has no effect if this user is not local.
 	 */
-	void ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
+	uint64_t ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
 
 	/** Return true if the user shares at least one channel with another user
 	 * @param other The other user to compare the channel list against
