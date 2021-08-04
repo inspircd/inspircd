@@ -106,7 +106,7 @@ class ModuleBanException : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from the b (ban) channel mode.", VF_VENDOR);
+		return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).", VF_VENDOR);
 	}
 };
 
