@@ -324,7 +324,7 @@ namespace
 
 				default:
 					// An unknown option was specified.
-					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind] << "'." << std::endl
+					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind-1] << "'." << std::endl
 						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
 						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_ARGV);
