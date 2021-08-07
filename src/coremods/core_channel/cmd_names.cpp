@@ -72,8 +72,8 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 		}
 	}
 
-	user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-	return CMD_FAILURE;
+	user->WriteNumeric(RPL_ENDOFNAMES, parameters[0], "End of /NAMES list.");
+	return CMD_SUCCESS;
 }
 
 void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)
