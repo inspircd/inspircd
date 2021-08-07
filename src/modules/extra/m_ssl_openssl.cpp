@@ -351,8 +351,8 @@ namespace OpenSSL
 		Profile(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 			: name(profilename)
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
-			, ctx(SSL_CTX_new(SSLv23_server_method()))
-			, clientctx(SSL_CTX_new(SSLv23_client_method()))
+			, ctx(SSL_CTX_new(TLS_server_method()))
+			, clientctx(SSL_CTX_new(TLS_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384)))
 		{
