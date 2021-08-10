@@ -198,10 +198,7 @@ class CoreModChannel
 		if (optionstag->getBool("invitebypassmodes", true))
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
-		{
-			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
-				ServerInstance->Modules.Detach(events[i], this);
-		}
+			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
 
 		auto limitstag = ServerInstance->Config->ConfValue("limits");
 		keymode.maxkeylen = limitstag->getUInt("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);

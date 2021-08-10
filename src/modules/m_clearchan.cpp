@@ -157,7 +157,8 @@ class ModuleClearChan : public Module
 	void init() override
 	{
 		// Only attached while we are working; don't react to events otherwise
-		ServerInstance->Modules.DetachAll(this);
+		Implementation events[] = { I_OnBuildNeighborList, I_OnUserKick };
+		ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
 	}
 
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override

@@ -1147,6 +1147,15 @@ class CoreExport ModuleManager
 	 */
 	bool Detach(Implementation i, Module* mod);
 
+	/** Detach an array of events from a module
+	 * This is not required when your module unloads, as the core will
+	 * automatically detach your module from all events it is attached to.
+	 * @param i Event types (array) to detach
+	 * @param mod Module to detach events from
+	 * @param sz The size of the implementation array
+	 */
+	void Detach(Implementation* i, Module* mod, size_t sz);
+
 	/** Detach all events from a module (used on unload)
 	 * @param mod Module to detach from
 	 */
