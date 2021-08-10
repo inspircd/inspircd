@@ -1126,6 +1126,18 @@ class CoreExport ModuleManager
 	 */
 	bool Attach(Implementation i, Module* mod);
 
+	/** Attach an array of events to a module
+	 * @param i Event types (array) to attach
+	 * @param mod Module to attach events to
+	 * @param sz The size of the implementation array
+	 */
+	void Attach(Implementation* i, Module* mod, size_t sz);
+
+	/** Attach all events to a module (used on module load)
+	 * @param mod Module to attach to all events
+	 */
+	void AttachAll(Module* mod);
+
 	/** Detach an event from a module.
 	 * This is not required when your module unloads, as the core will
 	 * automatically detach your module from all events it is attached to.
@@ -1135,22 +1147,10 @@ class CoreExport ModuleManager
 	 */
 	bool Detach(Implementation i, Module* mod);
 
-	/** Attach an array of events to a module
-	 * @param i Event types (array) to attach
-	 * @param mod Module to attach events to
-	 * @param sz The size of the implementation array
-	 */
-	void Attach(Implementation* i, Module* mod, size_t sz);
-
 	/** Detach all events from a module (used on unload)
 	 * @param mod Module to detach from
 	 */
 	void DetachAll(Module* mod);
-
-	/** Attach all events to a module (used on module load)
-	 * @param mod Module to attach to all events
-	 */
-	void AttachAll(Module* mod);
 
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
