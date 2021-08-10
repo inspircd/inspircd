@@ -825,6 +825,9 @@
         # maxident: Maximum length of a ident/username.
         maxident="10"
 
+        # maxkey: Maximum length of a channel key.
+        maxkey="30"
+
         # maxkick: Maximum length of a kick message.
         maxkick="300"
 

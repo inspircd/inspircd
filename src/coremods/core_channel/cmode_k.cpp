@@ -27,8 +27,6 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
-const std::string::size_type ModeChannelKey::maxkeylen = 32;
-
 ModeChannelKey::ModeChannelKey(Module* Creator)
 	: ParamMode<ModeChannelKey, StringExtItem>(Creator, "key", 'k', PARAM_ALWAYS)
 {

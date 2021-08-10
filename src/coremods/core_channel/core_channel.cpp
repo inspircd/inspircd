@@ -202,11 +202,14 @@ class CoreModChannel
 			for (unsigned int i = 0; i < sizeof(events)/sizeof(Implementation); i++)
 				ServerInstance->Modules.Detach(events[i], this);
 		}
+
+		auto limitstag = ServerInstance->Config->ConfValue("limits");
+		keymode.maxkeylen = limitstag->getUInt("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
-		tokens["KEYLEN"] = ConvToStr(ModeChannelKey::maxkeylen);
+		tokens["KEYLEN"] = ConvToStr(keymode.maxkeylen);
 		extbanmgr.BuildISupport(tokens["EXTBAN"]);
 
 		std::vector<std::string> limits;
