@@ -200,6 +200,8 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 	whois.SendLine(RPL_WHOISUSER, dest->ident, dest->GetDisplayedHost(), '*', dest->GetRealName());
 	if (!dest->server->IsService() && (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex")))
 	{
+		/* Clients should prefer RPL_WHOISACTUALLY as it is easier to parse, but we provide RPL_WHOISHOST (despite it being redundant) for backward compatibility */
+		whois.SendLine(RPL_WHOISACTUALLY, InspIRCd::Format("%s@%s", dest->ident.c_str(), dest->GetRealHost().c_str()), dest->GetIPString().c_str(), "is connecting from");
 		whois.SendLine(RPL_WHOISHOST, InspIRCd::Format("is connecting from %s@%s %s", dest->ident.c_str(), dest->GetRealHost().c_str(), dest->GetIPString().c_str()));
 	}
 

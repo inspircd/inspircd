@@ -42,6 +42,9 @@ enum
 	// From oftc-hybrid.
 	RPL_WHOISCERTFP = 276,
 
+	// From hybrid
+	RPL_WHOISACTUALLY = 338,
+
 	// From RFC 1459.
 	RPL_WHOISUSER = 311,
 	RPL_WHOISSERVER = 312,
