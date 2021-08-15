@@ -42,7 +42,7 @@ enum
 	// From oftc-hybrid.
 	RPL_WHOISCERTFP = 276,
 
-	// From ircd-hybrid
+	// From ircd-hybrid.
 	RPL_WHOISACTUALLY = 338,
 
 	// From RFC 1459.
