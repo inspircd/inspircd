@@ -76,7 +76,7 @@ class WebSocketHook : public IOHookMiddle
 		bool Find(const std::string& req, const char* header, std::string::size_type headerlen, std::string::size_type maxpos)
 		{
 			// Skip the GET /wibble HTTP/1.1 line.
-			size_t startpos = req.find(newline) + sizeof(newline) - 1;;
+			size_t startpos = req.find(newline) + sizeof(newline) - 1;
 			while (startpos < maxpos)
 			{
 				size_t endpos = req.find(newline, startpos);
@@ -99,7 +99,6 @@ class WebSocketHook : public IOHookMiddle
 			}
 
 			// No header found.
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "not found");
 			return false;
 		}
 
