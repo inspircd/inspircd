@@ -78,6 +78,9 @@ class IOHook : public classbase
 	IOHook(IOHookProvider* provider)
 		: prov(provider) { }
 
+	/** Determines whether this I/O hook is ready to send and receive data. */
+	virtual bool IsHookReady() const { return true; }
+
 	/**
 	 * Called when the hooked socket has data to write, or when the socket engine returns it as writable
 	 * @param sock Hooked socket
