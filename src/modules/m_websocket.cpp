@@ -459,6 +459,11 @@ class WebSocketHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
+	bool IsHookReady() const override
+	{
+		return state == STATE_ESTABLISHED;
+	}
+
 	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) CXX11_OVERRIDE
 	{
 		StreamSocket::SendQueue& mysendq = GetSendQ();

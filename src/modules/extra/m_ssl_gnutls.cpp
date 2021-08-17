@@ -99,8 +99,6 @@
 #define GNUTLS_NEW_PRIO_API
 #endif
 
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
-
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
 #define GNUTLS_NEW_CERT_CALLBACK_API
@@ -728,7 +726,6 @@ class GnuTLSIOHook : public SSLIOHook
 {
  private:
 	gnutls_session_t sess;
-	issl_status status;
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 	size_t gbuffersize;
 #endif
@@ -742,7 +739,7 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 		sess = NULL;
 		certificate = NULL;
-		status = ISSL_NONE;
+		status = STATUS_NONE;
 	}
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -755,7 +752,7 @@ class GnuTLSIOHook : public SSLIOHook
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
 				// Handshake needs resuming later, read() or write() would have blocked.
-				this->status = ISSL_HANDSHAKING;
+				this->status = STATUS_HANDSHAKING;
 
 				if (gnutls_record_get_direction(this->sess) == 0)
 				{
@@ -780,7 +777,7 @@ class GnuTLSIOHook : public SSLIOHook
 		else
 		{
 			// Change the session state
-			this->status = ISSL_HANDSHAKEN;
+			this->status = STATUS_OPEN;
 
 			VerifyCertificate();
 
@@ -882,9 +879,9 @@ info_done_dealloc:
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == ISSL_HANDSHAKEN)
+		if (status == STATUS_OPEN)
 			return 1;
-		else if (status == ISSL_HANDSHAKING)
+		else if (status == STATUS_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -1050,7 +1047,6 @@ info_done_dealloc:
 	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
-		, status(ISSL_NONE)
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 		, gbuffersize(0)
 #endif
@@ -1081,7 +1077,7 @@ info_done_dealloc:
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
+		// If we resumed the handshake then this->status will be STATUS_OPEN.
 		{
 			GnuTLS::DataReader reader(sess);
 			int ret = reader.ret();
@@ -1177,7 +1173,7 @@ info_done_dealloc:
 
 	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
-		if (!IsHandshakeDone())
+		if (!IsHookReady())
 			return;
 		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
@@ -1205,7 +1201,6 @@ info_done_dealloc:
 	}
 
 	GnuTLS::Profile& GetProfile();
-	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
 int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
@@ -1407,7 +1402,7 @@ class ModuleSSLGnuTLS : public Module
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		const GnuTLSIOHook* const iohook = static_cast<GnuTLSIOHook*>(user->eh.GetModHook(this));
-		if ((iohook) && (!iohook->IsHandshakeDone()))
+		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
