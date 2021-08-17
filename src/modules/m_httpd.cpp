@@ -109,6 +109,8 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		parser_settings.on_message_begin = Callback<&HttpServerSocket::OnMessageBegin>;
 		parser_settings.on_url = DataCallback<&HttpServerSocket::OnUrl>;
 		parser_settings.on_header_field = DataCallback<&HttpServerSocket::OnHeaderField>;
+		parser_settings.on_header_value = DataCallback<&HttpServerSocket::OnHeaderValue>;
+		parser_settings.on_headers_complete = Callback<&HttpServerSocket::OnHeadersComplete>;
 		parser_settings.on_body = DataCallback<&HttpServerSocket::OnBody>;
 		parser_settings.on_message_complete = Callback<&HttpServerSocket::OnMessageComplete>;
 	}

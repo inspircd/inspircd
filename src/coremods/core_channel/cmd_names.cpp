@@ -70,7 +70,7 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 		}
 	}
 
-	user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+	user->WriteNumeric(RPL_ENDOFNAMES, parameters[0], "End of /NAMES list.");
 	return CmdResult::FAILURE;
 }
 

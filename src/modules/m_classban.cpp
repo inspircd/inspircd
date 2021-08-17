@@ -57,7 +57,7 @@ class ModuleClassBan
 
  public:
 	ModuleClassBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the n extended ban which check whether users are in a connect class matching the specified glob pattern.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban n: which check whether users are in a connect class matching the specified glob pattern.")
 		, extban(this)
 	{
 	}
