@@ -237,7 +237,6 @@ namespace OpenSSL
 			}
 		}
 
-
 		long GetDefaultContextOptions() const
 		{
 			return ctx_options;

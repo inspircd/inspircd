@@ -24,7 +24,6 @@
 
 #include "inspircd.h"
 
-
 class MessageDetailsImpl : public MessageDetails
 {
 public:

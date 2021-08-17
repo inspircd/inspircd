@@ -177,7 +177,6 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 	return eh && eh->HasFd();
 }
 
-
 int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 {
 	return accept(fd->GetFd(), addr, addrlen);

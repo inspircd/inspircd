@@ -525,7 +525,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		return;
 	}
 
-
 	// If there were errors processing configuration, don't touch modules.
 	if (!valid)
 		return;

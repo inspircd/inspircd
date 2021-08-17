@@ -177,7 +177,6 @@ class ModuleSVSHold : public Module, public Stats::EventListener
 	CommandSvshold cmd;
 	SVSHoldFactory s;
 
-
  public:
 	ModuleSVSHold()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /SVSHOLD command which allows services to reserve nicknames.")

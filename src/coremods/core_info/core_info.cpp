@@ -52,7 +52,6 @@ class CoreModInfo : public Module
 	CommandVersion cmdversion;
 	Numeric::Numeric numeric004;
 
-
 	/** Returns a list of user or channel mode characters.
 	 * Used for constructing the parts of the mode list in the 004 numeric.
 	 * @param mt Controls whether to list user modes or channel modes

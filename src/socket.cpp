@@ -205,7 +205,6 @@ bool irc::sockets::isunix(const std::string& file)
 	return false;
 }
 
-
 int irc::sockets::sockaddrs::family() const
 {
 	return sa.sa_family;

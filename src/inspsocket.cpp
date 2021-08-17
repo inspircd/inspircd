@@ -513,7 +513,6 @@ IOHook* StreamSocket::GetLastHook() const
 	return last;
 }
 
-
 void StreamSocket::AddIOHook(IOHook* newhook)
 {
 	IOHook* curr = GetIOHook();

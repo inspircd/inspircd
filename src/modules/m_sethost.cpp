@@ -65,7 +65,6 @@ class CommandSethost : public Command
 	}
 };
 
-
 class ModuleSetHost : public Module
 {
  private:

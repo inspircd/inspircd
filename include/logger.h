@@ -73,8 +73,6 @@ class CoreExport FileWriter
 	~FileWriter();
 };
 
-
-
 /*
  * New world logging!
  * The brief summary:

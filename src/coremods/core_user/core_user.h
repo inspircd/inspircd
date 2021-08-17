@@ -78,7 +78,6 @@ class CommandIson : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-
 class CommandNick : public SplitCommand
 {
  public:

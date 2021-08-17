@@ -76,7 +76,6 @@ class FModeBuilder : public CmdBuilder
 		return push_raw(params);
 	}
 
-
 	/** Returns true if this message is empty (has no modes)
 	 */
 	bool empty() const

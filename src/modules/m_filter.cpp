@@ -644,7 +644,6 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
 
-
 	RegexEngine.SetEngine(newrxengine);
 	if (!RegexEngine)
 	{

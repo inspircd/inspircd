@@ -82,8 +82,6 @@ class CommandWhois : public SplitCommand
 	/** How to handle private/secret channels in the WHOIS response. */
 	SplitWhoisState splitwhois;
 
-
-
 	CommandWhois(Module* parent)
 		: SplitCommand(parent, "WHOIS", 1)
 		, secretmode(parent, "secret")

@@ -490,7 +490,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Logs.AddLogTypes("*", fls, true);
 	}
 
-
 	if (!FindConfigFile(ConfigFileName))
 	{
 		this->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());

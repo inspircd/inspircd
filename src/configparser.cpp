@@ -79,7 +79,6 @@ class FileWrapper
 	}
 };
 
-
 struct Parser
 {
 	ParseStack& stack;

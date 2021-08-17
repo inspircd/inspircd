@@ -291,7 +291,6 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 	Logging = false;
 }
 
-
 FileWriter::FileWriter(FILE* logfile, unsigned int flushcount)
 	: log(logfile)
 	, flush(flushcount)

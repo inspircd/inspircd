@@ -58,7 +58,6 @@ class HashSHA2 : public HashProvider
 	}
 };
 
-
 class ModuleSHA2 : public Module
 {
  private:

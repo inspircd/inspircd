@@ -38,7 +38,6 @@
 	va_end(_vaList); \
 	} while (false)
 
-
 namespace Base64
 {
 	/** The default table used when handling Base64-encoded strings. */

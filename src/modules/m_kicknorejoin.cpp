@@ -35,7 +35,6 @@ enum
 	ERR_UNAVAILRESOURCE = 437
 };
 
-
 class KickRejoinData
 {
 	struct KickedUser

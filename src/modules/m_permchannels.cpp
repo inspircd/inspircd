@@ -29,7 +29,6 @@
 #include "listmode.h"
 #include <fstream>
 
-
 /** Handles the +P channel mode
  */
 class PermChannel final

@@ -64,7 +64,6 @@ class DelayJoinMode final
 	void RevealUser(User* user, Channel* chan);
 };
 
-
 namespace
 {
 

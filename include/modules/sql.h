@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 namespace SQL
 {
 	class Error;

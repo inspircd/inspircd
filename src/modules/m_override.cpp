@@ -115,7 +115,6 @@ class ModuleOverride
 		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find('*', 0) != std::string::npos));
 	}
 
-
 	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic) override
 	{
 		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))

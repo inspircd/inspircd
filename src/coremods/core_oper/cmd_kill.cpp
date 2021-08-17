@@ -148,7 +148,6 @@ RouteDescriptor CommandKill::GetRouting(User* user, const Params& parameters)
 	return ROUTE_BROADCAST;
 }
 
-
 void CommandKill::EncodeParameter(std::string& param, unsigned int index)
 {
 	// Manually translate the nick -> uuid (see above), and also the reason (params[1])

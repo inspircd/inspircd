@@ -228,7 +228,6 @@ class MD5Provider : public HashProvider
 		buf[3] += d;
 	}
 
-
 	void MyMD5(void *dest, void *orig, size_t len)
 	{
 		MD5Context context;

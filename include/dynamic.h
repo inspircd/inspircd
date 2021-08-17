@@ -34,7 +34,6 @@
 # define DLL_EXTENSION ".so"
 #endif
 
-
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
  */

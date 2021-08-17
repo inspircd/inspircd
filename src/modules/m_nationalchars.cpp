@@ -53,7 +53,6 @@ char utf8checkrest(unsigned char* mb, unsigned char cnt)
 	return cnt + 1;
 }
 
-
 char utf8size(unsigned char * mb)
 {
 	if (!*mb)
@@ -68,7 +67,6 @@ char utf8size(unsigned char * mb)
 		return utf8checkrest(mb + 1,3);
 	return -1;
 }
-
 
 /* Conditions added */
 bool lwbNickHandler::Call(const std::string& nick)
@@ -218,7 +216,6 @@ bool lwbNickHandler::Call(const std::string& nick)
 	/* too long? or not -- pointer arithmetic rocks */
 	return (p < ServerInstance->Config->Limits.MaxNick);
 }
-
 
 class ModuleNationalChars : public Module
 {

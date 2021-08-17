@@ -323,7 +323,6 @@ public:
 		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
-
 		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
 		return true;
 	}
@@ -347,7 +346,6 @@ class CallerIDAPIImpl : public CallerID::APIBase
 		return dat->accepting.count(source);
 	}
 };
-
 
 class ModuleCallerID
 	: public Module

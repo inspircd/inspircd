@@ -133,7 +133,6 @@ ModeAction SimpleUserMode::OnModeChange(User* source, User* dest, Channel* chann
 	return MODEACTION_ALLOW;
 }
 
-
 ModeAction SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or

@@ -509,7 +509,6 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 	return adding;
 }
 
-
 void Membership::WriteNotice(const std::string& text) const
 {
 	LocalUser* const localuser = IS_LOCAL(user);

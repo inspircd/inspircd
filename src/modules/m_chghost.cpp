@@ -82,7 +82,6 @@ class CommandChghost : public Command
 	}
 };
 
-
 class ModuleChgHost : public Module
 {
  private:

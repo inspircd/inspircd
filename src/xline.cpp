@@ -108,7 +108,6 @@ class ZLineFactory : public XLineFactory
 	}
 };
 
-
 /*
  * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and
  * efficient as we can this time so we can close this file and never ever touch it again ..
@@ -181,7 +180,6 @@ void XLineManager::CheckELines()
 		}
 	}
 }
-
 
 XLineLookup* XLineManager::GetAll(const std::string &type)
 {
@@ -347,7 +345,6 @@ bool XLineManager::DelLine(const char* hostmask, const std::string& type, std::s
 	return true;
 }
 
-
 void ELine::Unset()
 {
 	ServerInstance->XLines->CheckELines();
@@ -444,7 +441,6 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item, bool sil
 	container->second.erase(item);
 }
 
-
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
@@ -507,7 +503,6 @@ XLineManager::XLineManager()
 	QLineFactory* QFact;
 	ZLineFactory* ZFact;
 
-
 	GFact = new GLineFactory;
 	EFact = new ELineFactory;
 	KFact = new KLineFactory;
@@ -558,7 +553,6 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 		ServerInstance->Users.QuitUser(u, line + "-lined", &banReason);
 	else
 		ServerInstance->Users.QuitUser(u, banReason);
-
 
 	if (bancache)
 	{
@@ -644,7 +638,6 @@ void ZLine::Apply(User* u)
 	DefaultApply(u, "Z", true);
 }
 
-
 bool QLine::Matches(User *u)
 {
 	if (InspIRCd::Match(u->nick, this->nick))
@@ -659,7 +652,6 @@ void QLine::Apply(User* u)
 	u->WriteNumeric(RPL_SAVENICK, u->uuid, "Your nickname has been Q-lined.");
 	u->ChangeNick(u->uuid);
 }
-
 
 bool ZLine::Matches(const std::string &str)
 {

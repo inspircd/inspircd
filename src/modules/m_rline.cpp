@@ -91,7 +91,6 @@ class RLine : public XLine
 	Regex::PatternPtr regex;
 };
 
-
 /** An XLineFactory specialized to generate RLine* pointers
  */
 class RLineFactory : public XLineFactory

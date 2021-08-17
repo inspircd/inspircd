@@ -34,7 +34,6 @@
 #include "modules/shun.h"
 #include "modules/stats.h"
 
-
 /** An XLineFactory specialized to generate shun pointers
  */
 class ShunFactory : public XLineFactory

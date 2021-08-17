@@ -70,7 +70,6 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 	return MOD_RES_PASSTHRU;
 }
 
-
 void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 {
 	byletter.erase(extban->GetLetter());

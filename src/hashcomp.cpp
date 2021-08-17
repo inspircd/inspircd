@@ -136,7 +136,6 @@ size_t irc::find(const std::string& haystack, const std::string& needle)
 	return std::string::npos;
 }
 
-
 bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
 {
 	std::string::size_type asize = a.size();

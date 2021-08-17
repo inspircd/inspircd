@@ -208,7 +208,6 @@ bool ModuleManager::Detach(Implementation i, Module* mod)
 	return stdalgo::erase(EventHandlers[i], mod);
 }
 
-
 void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)

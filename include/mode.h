@@ -424,7 +424,6 @@ class CoreExport PrefixMode : public ModeHandler
 	 */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
-
 	/**
 	* Determines whether a user with this prefix mode can remove it.
 	*/

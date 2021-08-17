@@ -385,7 +385,6 @@ class WebSocketHook : public IOHookMiddle
 			}
 		}
 
-
 		HTTPHeaderFinder keyheader;
 		if (!keyheader.Find(recvq, "Sec-WebSocket-Key:", 18, reqend))
 		{
