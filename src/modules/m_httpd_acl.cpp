@@ -194,7 +194,8 @@ class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 									userpasspair.GetToken(pass);
 
 									/* Access granted if username and password are correct */
-									if (user == this_acl->username && pass == this_acl->password)
+									if (InspIRCd::TimingSafeCompare(user, this_acl->username)
+										&& InspIRCd::TimingSafeCompare(pass, this_acl->password))
 									{
 										ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username match");
 										return true;
