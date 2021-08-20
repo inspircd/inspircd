@@ -82,7 +82,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
 		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
-		ServerInstance->SNO.WriteToSnoMask('t', "%s '%c' denied for %s (%s)", what, user->nick.c_str(), user->MakeHost().c_str());
+		ServerInstance->SNO.WriteToSnoMask('t', "%s '%c' denied for %s (%s)", what, statschar, user->nick.c_str(), user->MakeHost().c_str());
 		stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar + " requires the servers/auspex priv."));
 		return;
 	}
@@ -91,7 +91,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (res == MOD_RES_DENY)
 	{
 		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
-		ServerInstance->SNO.WriteToSnoMask('t', "%s '%c' denied for %s (%s)", what, user->nick.c_str(), user->MakeHost().c_str());
+		ServerInstance->SNO.WriteToSnoMask('t', "%s '%c' denied for %s (%s)", what, statschar, user->nick.c_str(), user->MakeHost().c_str());
 		stats.AddRow(219, statschar, "End of /STATS report");
 		return;
 	}
